@@ -1,6 +1,7 @@
 import { Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "../../../types.js";
+import { reportTypekitDiagnostic } from "../lib.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
@@ -64,7 +65,11 @@ defineKit<TypekitExtension>({
         if (body.type.kind === "Model") {
           return body.type;
         }
-        throw new Error("Body property not found");
+        reportTypekitDiagnostic(this.program, {
+          code: "http-operation-body-missing-property",
+          target: httpOperation.operation,
+        });
+        return undefined;
       }
 
       const bodyPropertyName = bodyProperty.name ? bodyProperty.name : "body";
