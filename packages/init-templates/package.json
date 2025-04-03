@@ -28,10 +28,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsx ./.scripts/build-init-templates.ts",
-    "test": "vitest run",
-    "test:watch": "vitest -w",
-    "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test": "pnpm test:e2e",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"

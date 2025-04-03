@@ -5,13 +5,12 @@ import typeSpecCoreTemplates from "@typespec/init-templates";
 import { ok } from "assert";
 import { type SpawnOptions, spawn } from "child_process";
 import { rm } from "fs/promises";
-import { dirname, resolve } from "pathe";
-import { fileURLToPath } from "url";
+import { resolve } from "pathe";
 import { beforeAll, describe, it } from "vitest";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const testTempRoot = resolve(__dirname, "../../temp/scaffolded-template-tests");
-const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
+const projectRoot = resolve(import.meta.dirname, "..");
+const testTempRoot = resolve(projectRoot, "temp/scaffolded-template-tests");
+const snapshotFolder = resolve(projectRoot, "templates/__snapshots__");
 
 async function execAsync(
   command: string,
