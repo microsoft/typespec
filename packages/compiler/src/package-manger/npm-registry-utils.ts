@@ -93,7 +93,11 @@ export async function fetchPackageManifest(
 ): Promise<NpmManifest> {
   const url = `${registry}/${packageName}/${version}`;
   const res = await fetch(url);
-  return await res.json();
+  if (res.ok) {
+    return await res.json();
+  } else {
+    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+  }
 }
 
 export function fetchLatestPackageManifest(packageName: string): Promise<NpmManifest> {

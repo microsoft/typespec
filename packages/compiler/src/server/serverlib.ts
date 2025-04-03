@@ -313,7 +313,7 @@ export function createServer(host: ServerHost): Server {
 
   async function getInitProjectContext(): Promise<InitProjectContext> {
     return {
-      coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
+      coreInitTemplates: await getTypeSpecCoreTemplates(),
     };
   }
 

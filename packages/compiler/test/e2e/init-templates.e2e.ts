@@ -63,7 +63,7 @@ describe("Init templates e2e tests", () => {
   });
 
   async function scaffoldTemplateTo(name: string, targetFolder: string) {
-    const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(NodeHost);
+    const typeSpecCoreTemplates = await getTypeSpecCoreTemplates();
     const template = typeSpecCoreTemplates.templates[name];
     ok(template, `Template '${name}' not found`);
     await scaffoldNewProject(
