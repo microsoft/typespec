@@ -1,5 +1,5 @@
 import { StringValue, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "@typespec/emitter-framework";
 
 /**
  * Create a StringValue from a string value. Used for `.defaultValue` in ModelProperty
@@ -8,6 +8,8 @@ import { $ } from "@typespec/compiler/experimental/typekit";
  * @returns
  */
 export function getStringValue(value: string): StringValue {
+  const { $ } = useTypekit();
+
   return {
     value: value,
     type: $.literal.create(value),
@@ -22,6 +24,8 @@ export function getStringValue(value: string): StringValue {
  * @param types
  */
 export function getUniqueTypes(types: Type[]): Type[] {
+  const { $ } = useTypekit();
+
   if (types.length === 1) {
     return types;
   }

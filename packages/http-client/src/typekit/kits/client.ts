@@ -6,6 +6,7 @@ import {
   Namespace,
   NoTarget,
   Operation,
+  Program,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import {
@@ -93,8 +94,12 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
-export const clientCache = new Map<Namespace | Interface, InternalClient>();
-export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
+interface ClientCache {
+  client: Map<Namespace | Interface, InternalClient>;
+  operation: Map<InternalClient, HttpOperation[]>;
+}
+
+export const clientCache: Map<Program, ClientCache> = new Map();
 
 defineKit<TypekitExtension>({
   client: {
@@ -125,8 +130,18 @@ defineKit<TypekitExtension>({
           target: NoTarget,
         });
       }
-      if (clientCache.has(namespace)) {
-        return clientCache.get(namespace)!;
+
+      if (!clientCache.has(this.program)) {
+        clientCache.set(this.program, {
+          client: new Map(),
+          operation: new Map(),
+        });
+      }
+
+      const clientNamespace = clientCache.get(this.program)!.client;
+
+      if (clientNamespace.has(namespace)) {
+        return clientNamespace.get(namespace)!;
       }
 
       const client = {
@@ -136,7 +151,7 @@ defineKit<TypekitExtension>({
         type: namespace,
       } as InternalClient;
 
-      clientCache.set(namespace, client);
+      clientNamespace.set(namespace, client);
       return client;
     },
     getConstructor(client) {
@@ -153,6 +168,15 @@ defineKit<TypekitExtension>({
       return client.type.kind === "Namespace";
     },
     listHttpOperations(client) {
+      if (!clientCache.has(this.program)) {
+        clientCache.set(this.program, {
+          client: new Map(),
+          operation: new Map(),
+        });
+      }
+
+      const clientOperationCache = clientCache.get(this.program)!.operation;
+
       if (clientOperationCache.has(client)) {
         return clientOperationCache.get(client)!;
       }

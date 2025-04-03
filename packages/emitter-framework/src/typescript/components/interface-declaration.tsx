@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as ay from "@alloy-js/core";
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
+import { useTypekit } from "../../core/context/typekit-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -17,6 +18,7 @@ export type InterfaceDeclarationProps =
   | ts.InterfaceDeclarationProps;
 
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
+  const { $ } = useTypekit();
   if (!isTypedInterfaceDeclarationProps(props)) {
     return <ts.InterfaceDeclaration {...props} />;
   }
@@ -83,6 +85,7 @@ export function InterfaceExpression({ type, children }: InterfaceExpressionProps
 }
 
 function getExtendsType(type: Model | Interface): Children | undefined {
+  const { $ } = useTypekit();
   if (!$.model.is(type)) {
     return undefined;
   }
@@ -125,6 +128,7 @@ function getExtendsType(type: Model | Interface): Children | undefined {
 }
 
 function membersFromType(type: Model | Interface): Children {
+  const { $ } = useTypekit();
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(type)) {
     typeMembers = $.model.getProperties(type);

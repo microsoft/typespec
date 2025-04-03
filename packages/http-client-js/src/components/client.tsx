@@ -1,6 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
@@ -15,6 +16,7 @@ export interface ClientProps {}
 export function Client(props: ClientProps) {
   const namePolicy = ts.useTSNamePolicy();
   const { topLevel } = useClientLibrary();
+  const { $ } = useTypekit();
 
   return (
     <ay.For each={topLevel} hardline>
@@ -45,6 +47,7 @@ function getClientContextFieldRef(client: cl.Client) {
   return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
+  const { $ } = useTypekit();
   const namePolicy = ts.useTSNamePolicy();
   const clientName = namePolicy.getName($.client.getName(props.client), "class");
   const contextMemberRef = getClientContextFieldRef(props.client);
@@ -102,6 +105,8 @@ function getSubClientClassFieldRef(client: cl.Client) {
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
+  const { $ } = useTypekit();
+
   const parent = props.client.parent;
   // If sub client has different parameters than client, don't add it as a subclass field
   // Todo: We need to detect the extra parameters and make this field a factory for the subclient
@@ -121,6 +126,8 @@ interface ClientConstructorProps {
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
+  const { $ } = useTypekit();
+
   const subClients = props.client.subClients.filter((sc) =>
     $.client.haveSameConstructor(sc, props.client),
   );

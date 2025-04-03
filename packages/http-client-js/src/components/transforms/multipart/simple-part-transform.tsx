@@ -1,6 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { HttpOperationPart } from "@typespec/http";
 import { reportDiagnostic } from "../../../lib.js";
 import { JsonTransform } from "../json/json-transform.jsx";
@@ -11,6 +12,8 @@ export interface SimplePartTransformProps {
 }
 
 export function SimplePartTransform(props: SimplePartTransformProps) {
+  const { $ } = useTypekit();
+
   const namePolicy = ts.useTSNamePolicy();
   const applicationName = namePolicy.getName(props.part.name!, "variable");
   const partName = ts.ValueExpression({ jsValue: props.part.name });

@@ -3,7 +3,7 @@ import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "@typespec/http";
 import { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
-import { clientOperationCache } from "./client.js";
+import { clientCache } from "./client.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
@@ -46,6 +46,15 @@ declare module "@typespec/compiler/experimental/typekit" {
 defineKit<SdkKit>({
   operation: {
     getClient(operation) {
+      if (!clientCache.has(this.program)) {
+        clientCache.set(this.program, {
+          client: new Map(),
+          operation: new Map(),
+        });
+      }
+
+      const { operation: clientOperationCache } = clientCache.get(this.program)!;
+
       for (const [client, operations] of clientOperationCache.entries()) {
         if (operations.includes(operation)) {
           return client;

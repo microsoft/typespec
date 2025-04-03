@@ -1,8 +1,10 @@
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { reportDiagnostic } from "../lib.js";
 
 export function isMultipart(type: Type): boolean {
+  const { $ } = useTypekit();
   const body = type;
 
   if (!$.model.is(body)) {

@@ -19,12 +19,14 @@
     }
   },
   "peerDependencies": {
+    "@typespec/emitter-framework": "workspace:^",
     "@alloy-js/core": "^0.6.0",
     "@alloy-js/typescript": "^0.6.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
+    "@typespec/emitter-framework": "workspace:^",
     "@alloy-js/babel-preset": "^0.2.0",
     "@alloy-js/core": "^0.6.0",
     "@alloy-js/typescript": "^0.6.0",

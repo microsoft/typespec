@@ -1,7 +1,7 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { getHttpPart } from "@typespec/http";
+import { useTypekit } from "../../core/context/typekit-context.js";
 import { FunctionDeclaration } from "./function-declaration.js";
 import { TypeExpression } from "./type-expression.js";
 
@@ -11,6 +11,7 @@ export interface InterfaceMemberProps {
 }
 
 export function InterfaceMember({ type, optional }: InterfaceMemberProps) {
+  const { $ } = useTypekit();
   const namer = useTSNamePolicy();
   const name = namer.getName(type.name, "object-member-getter");
 

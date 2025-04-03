@@ -1,5 +1,6 @@
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import {
   DateDeserializer,
   DateRfc3339Serializer,
@@ -19,6 +20,8 @@ export interface ModelSerializersProps {
 }
 
 export function ModelSerializers(props: ModelSerializersProps) {
+  const { $ } = useTypekit();
+
   const clientLibrary = useClientLibrary();
   const dataTypes = clientLibrary.dataTypes;
   const flatClients = clientLibrary.topLevel.flatMap((c) => flattenClients(c));

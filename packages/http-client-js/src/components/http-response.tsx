@@ -1,6 +1,7 @@
 import { Children, code, For, Refkey } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { ClientOperation } from "@typespec/http-client";
 import { getCreateRestErrorRefkey } from "./static-helpers/rest-error.jsx";
 import { ContentTypeEncodingProvider } from "./transforms/content-type-encoding-provider.jsx";
@@ -27,6 +28,8 @@ export interface HttpResponsesProps {
 }
 
 export function HttpResponses(props: HttpResponsesProps) {
+  const { $ } = useTypekit();
+
   // Handle response by status code and content type
   const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
   return (

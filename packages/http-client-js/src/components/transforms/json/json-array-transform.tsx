@@ -3,7 +3,8 @@ import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
 
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonArrayTransformProps {
@@ -13,6 +14,8 @@ export interface JsonArrayTransformProps {
 }
 
 export function JsonArrayTransform(props: JsonArrayTransformProps) {
+  const { $ } = useTypekit();
+
   if (!$.array.is(props.type)) {
     return null;
   }
@@ -47,6 +50,8 @@ export interface JsonArrayTransformDeclarationProps {
 }
 
 export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarationProps) {
+  const { $ } = useTypekit();
+
   if (!$.array.is(props.type)) {
     return null;
   }

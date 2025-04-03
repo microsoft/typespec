@@ -1,13 +1,14 @@
 import { Children, refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "../../core/context/typekit-context.js";
 import { TypeExpression } from "../components/type-expression.jsx";
 
 export function getReturnType(
   type: Operation,
   options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false },
 ): Type {
+  const { $ } = useTypekit();
   let returnType = type.returnType;
 
   if (!options.skipErrorFiltering && type.returnType.kind === "Union") {
@@ -26,6 +27,8 @@ export function buildParameterDescriptors(
   type: Model,
   options: BuildParameterDescriptorsOptions = {},
 ) {
+  const { $ } = useTypekit();
+
   if (options.mode === "replace") {
     return options.params;
   }

@@ -1,6 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
@@ -36,6 +37,8 @@ export interface ClientOperationProps {
 }
 
 export function ClientOperation(props: ClientOperationProps) {
+  const { $ } = useTypekit();
+
   const client = props.clientOperation.client;
   const returnType = $.httpOperation.getReturnType(props.clientOperation.httpOperation);
   const responseRefkey = ay.refkey(props.clientOperation, "http-response");
