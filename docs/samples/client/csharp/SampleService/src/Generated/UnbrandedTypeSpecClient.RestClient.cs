@@ -47,8 +47,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/againHi/", false);
-            uri.AppendPath(p2, true);
+            uri.AppendPath("/againHi", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "text/plain");
@@ -66,8 +65,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/noContentType/", false);
-            uri.AppendPath(p2, true);
+            uri.AppendPath("/noContentType", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", p1);
             request.Headers.Set("Content-Type", "application/json");
@@ -117,8 +115,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/helloLiteral/", false);
-            uri.AppendPath(123.ToString(), true);
+            uri.AppendPath("/helloLiteral", false);
             uri.AppendQuery("p3", TypeFormatters.ConvertToString(true, null), true);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", "test");
@@ -135,8 +132,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/top/", false);
-            uri.AppendPath(action.ToString("O"), true);
+            uri.AppendPath("/top", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
@@ -310,8 +306,7 @@ namespace UnbrandedTypeSpec
             request.Method = "HEAD";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/headAsBoolean/", false);
-            uri.AppendPath(id, true);
+            uri.AppendPath("/headAsBoolean", false);
             request.Uri = uri.ToUri();
             message.Apply(options);
             return message;
