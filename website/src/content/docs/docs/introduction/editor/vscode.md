@@ -1,5 +1,5 @@
 ---
-title: Visual Studio Code
+title: VS Code Extension
 ---
 
 ## Installation
