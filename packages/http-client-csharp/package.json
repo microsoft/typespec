@@ -28,7 +28,7 @@
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
-    "install:samples": "cd ../../docs/samples/client/csharp/SampleService && npm ci",
+    "install:samples": "cd ../../docs/samples/client/csharp/SampleService && npm install",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api && npm run install:samples",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
