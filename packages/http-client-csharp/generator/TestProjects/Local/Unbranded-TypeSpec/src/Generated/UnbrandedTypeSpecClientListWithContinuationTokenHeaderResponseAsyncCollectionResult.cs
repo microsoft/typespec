@@ -12,13 +12,13 @@ using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
+    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;

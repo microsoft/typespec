@@ -12,43 +12,43 @@ using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithNextLinkCollectionResultOfT : CollectionResult<Thing>
+    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
-        private readonly Uri _nextPage;
+        private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
-            _nextPage = nextPage;
+            _token = token;
             _options = options;
         }
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
-            Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateListWithContinuationTokenRequest(_token, _options);
+            string nextToken = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                if (nextPageUri == null)
+                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
+                if (nextToken == null)
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateListWithContinuationTokenRequest(nextToken, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
             if (nextPage != null)
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
             }
             else
             {
@@ -58,7 +58,7 @@ namespace UnbrandedTypeSpec
 
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((ListWithNextLinkResponse)page).Things;
+            return ((ListWithContinuationTokenResponse)page).Things;
         }
     }
 }

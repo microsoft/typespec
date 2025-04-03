@@ -11,12 +11,12 @@ using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithPagingCollectionResultOfT : CollectionResult<Thing>
+    internal partial class UnbrandedTypeSpecClientListWithPagingCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithPagingCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
