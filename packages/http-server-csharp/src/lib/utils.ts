@@ -544,11 +544,9 @@ export function ensureCSharpIdentifier(
     case "Namespace":
       location = `namespace ${target.name}`;
       let invalid: boolean = false;
-      //const nsName: StringBuilder = new StringBuilder();
       for (const part of name.split(".")) {
         if (!isValidCSharpIdentifier(part)) {
           invalid = true;
-          //nsName.pushLiteralSegment(transformInvalidIdentifier(part));
         }
       }
 
@@ -558,9 +556,8 @@ export function ensureCSharpIdentifier(
           format: { identifier: name, location: location },
           target: target.node ?? NoTarget,
         });
-        //return nsName.segments.join(".");
       }
-      //return name;
+
       includeDot = true;
       break;
     case "Operation": {
@@ -1316,10 +1313,6 @@ export class CSharpOperationHelpers {
         };
       case "Model":
         let modelResult: EmittedTypeInfo;
-        // const cachedResult = this.#anonymousModels.get(tsType);
-        // if (cachedResult) {
-        //   return cachedResult;
-        // }
         if (isRecord(tsType)) {
           modelResult = {
             typeReference: code`${RecordType.getTypeReference(myEmitter.getContext().scope)}`,
@@ -1331,7 +1324,6 @@ export class CSharpOperationHelpers {
             nullableType: false,
           };
         }
-        //this.#anonymousModels.set(tsType, modelResult);
         return modelResult;
       case "ModelProperty":
         return this.getTypeInfo(program, tsType.type);
