@@ -45,6 +45,12 @@ options:
 
 ## Emitter options
 
+### `license`
+
+**Type:** `object`
+
+License information for the generated client code.
+
 ### `dev-options`
 
 **Type:** `object`

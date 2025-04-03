@@ -205,8 +205,8 @@ public final class MultipartAsyncClient {
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("fileData1", body.getFileData1().getContent(), body.getFileData1().getContentType(),
                     body.getFileData1().getFilename())
-                .serializeFileField("fileData2", body.getFileData2().getContent(), body.getFileData2().getContentType(),
-                    body.getFileData2().getFilename())
+                .serializeFileField("file_data2", body.getFileData2().getContent(),
+                    body.getFileData2().getContentType(), body.getFileData2().getFilename())
                 .serializeJsonField("size", body.getSize())
                 .end()
                 .getRequestBody(),
@@ -235,8 +235,8 @@ public final class MultipartAsyncClient {
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("fileData1", body.getFileData1().getContent(), body.getFileData1().getContentType(),
                     body.getFileData1().getFilename())
-                .serializeFileField("fileData2", body.getFileData2().getContent(), body.getFileData2().getContentType(),
-                    body.getFileData2().getFilename())
+                .serializeFileField("file_data2", body.getFileData2().getContent(),
+                    body.getFileData2().getContentType(), body.getFileData2().getFilename())
                 .serializeJsonField("size", body.getSize())
                 .end()
                 .getRequestBody(),

@@ -4,7 +4,7 @@
 
 namespace _Type.Union
 {
-    public enum GetResponseProp4
+    public enum GetResponseProp
     {
         /// <summary> A. </summary>
         A,
