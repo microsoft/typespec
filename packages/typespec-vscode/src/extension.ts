@@ -9,7 +9,7 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
-import { getDirectoryPath } from "./path-utils.js";
+import { getDirectoryPath, normalizePath } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
@@ -231,7 +231,7 @@ export async function activate(context: ExtensionContext) {
             // client will be undefined only when we can't find compiler locally or globally
             // otherwise, the client should always be created though the start command may fail which is a different case
             const choice: "Yes" | "Ignore" | undefined = await vscode.window.showWarningMessage(
-              "No TypeSpec compiler found locally or globally. Do you want to install it?",
+              "No TypeSpec compiler found which is required to start TypeSpec language server. Do you want to install TypeSpec compiler?",
               "Yes",
               "Ignore",
             );
@@ -242,14 +242,20 @@ export async function activate(context: ExtensionContext) {
 
             const foldersWithPackageJson = (
               await vscode.workspace.findFiles("**/package.json", "**/node_modules/**")
-            ).map((uri) => getDirectoryPath(uri.fsPath));
+            ).map((uri) => normalizePath(getDirectoryPath(uri.fsPath)));
+            const workspaceFolders =
+              vscode.workspace.workspaceFolders?.map((f) => normalizePath(f.uri.fsPath)) ?? [];
+            const pathChoices = [
+              ...new Set<string>([...workspaceFolders, ...foldersWithPackageJson]),
+            ].sort();
+            pathChoices.push("global");
 
             const installResult = await installCompilerWithUi(
               {
                 // we already confirmed above
                 confirmNeeded: false,
               },
-              foldersWithPackageJson,
+              pathChoices,
             );
             if (installResult.code === ResultCode.Success) {
               logger.info(
@@ -265,9 +271,7 @@ export async function activate(context: ExtensionContext) {
               logger.error(
                 "Failed to install TypeSpec compiler. Please check previous logs for details.",
                 [],
-                {
-                  showPopup: true,
-                },
+                { showPopup: true },
               );
             }
             return installResult.code;

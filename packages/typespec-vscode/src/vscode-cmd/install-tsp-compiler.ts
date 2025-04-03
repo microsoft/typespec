@@ -10,10 +10,7 @@ export async function installCompilerGlobally(
   return telemetryClient.doOperationWithTelemetry(
     TelemetryEventName.InstallGlobalCompilerCli,
     async (tel) => {
-      const logOption = {
-        showPopup: args?.silentMode !== true,
-        showOutput: args?.silentMode !== true,
-      };
+      const showPopup = args?.silentMode !== true;
       const result = await installCompilerWithUi(
         {
           confirmNeeded: args?.confirm !== false,
@@ -23,12 +20,12 @@ export async function installCompilerGlobally(
         [] /*localPath, empty for global*/,
       );
       if (result.code === ResultCode.Success) {
-        logger.info(`Compiler installed successfully`, [], logOption);
+        logger.info(`Compiler installed successfully`, [], { showPopup });
       } else if (result.code === ResultCode.Fail || result.code === ResultCode.Timeout) {
         logger.error(
           `Installing compiler ${result.code === ResultCode.Fail ? "failed" : "timeout"}. Please check previous logs for details`,
           [],
-          logOption,
+          { showPopup },
         );
       }
       return result;

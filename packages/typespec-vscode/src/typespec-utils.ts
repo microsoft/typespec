@@ -3,10 +3,10 @@ import path from "path";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
+import { getDirectoryPath, joinPaths, normalizeSlashes } from "./path-utils.js";
 import { Result, ResultCode } from "./types.js";
 import { ConfirmOptions, QuickPickOptionsWithExternalLink, tryExecuteWithUi } from "./ui-utils.js";
-import { isFile, spawnExecutionAndLogToOutput } from "./utils.js";
+import { isFile, loadPackageJsonFile, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
@@ -57,8 +57,12 @@ export async function TraverseMainTspFileInWorkspace() {
 }
 
 /**
- *
- * @param localPaths if empty, install globally. if length == 1, install to the path. if length > 1, user will be prompt to select one of the paths.
+ * Install TypeSpec Compiler/CLI with UI interaction.
+ *  - 'npm install -g @typespec/compiler' will be used if paths is empty or user choose "Global".
+ *  - 'npm install @typespec/compiler' will be used if a local path is chosen and @typespec/compiler is not defined in package.json
+ *  - 'npm install' will be used if a local path is chosen and @typespec/compiler is defined in package.json
+ * @param paths: array of potential paths (or "global") to install compiler. if empty means install globally,
+ *               if length == 1, install to the path without asking user. if length > 1, user will be prompt to select one of the paths.
  * @returns
  */
 export async function installCompilerWithUi(
@@ -67,11 +71,14 @@ export async function installCompilerWithUi(
     confirmTitle?: string;
     confirmPlaceholder?: string;
   },
-  localPaths: string[],
+  paths: (string | "global")[],
 ): Promise<Result> {
   const COMPILER_REQUIREMENT =
     "Minimum Requirements: Install Node.js 20 LTS or above and verify 'node -v' and 'npm -v' run in command prompt";
-  const isGlobal = localPaths.length === 0;
+  const globalPath = "global";
+  if (paths.length === 0) {
+    paths.push(globalPath);
+  }
 
   let confirmOption:
     | ConfirmOptions<QuickPickOptionsWithExternalLink, QuickPickOptionsWithExternalLink>
@@ -79,20 +86,17 @@ export async function installCompilerWithUi(
   // confirm with end user by default
   if (confirmOptions.confirmNeeded !== false) {
     const detailLink = "https://typespec.io/docs/";
-    const title = confirmOptions?.confirmTitle ?? "Please check the requirements and confirm...";
+    const title = confirmOptions?.confirmTitle ?? `Install TypeSpec Compiler/CLI`;
+    const placeholder =
+      confirmOptions?.confirmPlaceholder ?? "Please check the requirements and confirm...";
     confirmOption = {
       title: title,
-      placeholder: confirmOptions?.confirmPlaceholder ?? title,
+      placeholder: placeholder,
       yesQuickPickItem: {
-        label: `Install TypeSpec Compiler/CLI ${location}`,
+        label: `Install TypeSpec Compiler/CLI`,
         detail: COMPILER_REQUIREMENT,
-        description: ` by 'npm install ${isGlobal ? "-g " : ""}@typespec/compiler'`,
-        buttons: [
-          {
-            iconPath: new vscode.ThemeIcon("link-external"),
-            tooltip: `Open ${detailLink}`,
-          },
-        ],
+        description: ` by 'npm install'`,
+        externalLink: detailLink,
       },
       noQuickPickItem: { label: "Cancel" },
     };
@@ -100,21 +104,22 @@ export async function installCompilerWithUi(
 
   const result = await tryExecuteWithUi(
     {
-      name: `Install TypeSpec Compiler/CLI ${location}`,
+      name: `Install TypeSpec Compiler/CLI`,
       confirm: confirmOption,
       progress: {
-        title: "Installing TypeSpec Compiler/CLI...",
+        title: `Installing TypeSpec Compiler/CLI...`,
         timeoutInMs: 10 * 60 * 1000,
         withCancelAndTimeout: true,
       },
     },
     async () => {
-      let localPath: string | undefined = isGlobal ? process.cwd() : localPaths[0];
-      if (localPaths.length > 1) {
+      let pathToInstall: string | undefined = paths[0];
+      if (paths.length > 1) {
         const selectedPath = await vscode.window.showQuickPick(
-          localPaths.map((p) => ({ label: p, path: p })),
+          paths.map((p) => ({ label: p === globalPath ? "Global" : p, path: p })),
           {
-            title: "Select the path to install TypeSpec Compiler/CLI",
+            title: "Install TypeSpec Compiler/CLI",
+            placeHolder: "Select the path to install TypeSpec Compiler/CLI",
             canPickMany: false,
             ignoreFocusOut: true,
           },
@@ -122,16 +127,35 @@ export async function installCompilerWithUi(
         if (selectedPath === undefined) {
           throw ResultCode.Cancelled;
         } else {
-          localPath = selectedPath.path;
+          pathToInstall = selectedPath.path;
         }
       }
 
+      const TYPESPEC_COMPILER = "@typespec/compiler";
       const cmd = "npm";
-      const cmdArgs = isGlobal
-        ? ["install", "-g", "@typespec/compiler"]
-        : ["install", "@typespec/compiler"];
-      const cwd = localPath ? localPath : localPath;
-      await spawnExecutionAndLogToOutput(cmd, cmdArgs, cwd);
+      let cmdArgs =
+        pathToInstall === globalPath
+          ? ["install", "-g", TYPESPEC_COMPILER]
+          : ["install", TYPESPEC_COMPILER];
+      // if @typespec/compiler has already been defined in the package.json, it may be updated by 'npm install @typespec/compiler' which is not wanted.
+      // so we will check if the @typespec/compiler is already defined in the package.json in localPath, if so, just run 'npm install'
+      const packageJsonPath = joinPaths(pathToInstall, "package.json");
+      if (await isFile(packageJsonPath)) {
+        const data = await loadPackageJsonFile(packageJsonPath);
+        if (
+          data?.devDependencies?.[TYPESPEC_COMPILER] ||
+          data?.dependencies?.[TYPESPEC_COMPILER] ||
+          data?.peerDependencies?.[TYPESPEC_COMPILER]
+        ) {
+          logger.info(
+            `${TYPESPEC_COMPILER} is already defined in package.json, run 'npm install' to install it.`,
+          );
+          cmdArgs = ["install"];
+        }
+      }
+
+      logger.debug(`Installing TypeSpec Compiler/CLI with command: ${cmd} ${cmdArgs.join(" ")}`);
+      await spawnExecutionAndLogToOutput(cmd, cmdArgs, pathToInstall);
     },
   );
 
