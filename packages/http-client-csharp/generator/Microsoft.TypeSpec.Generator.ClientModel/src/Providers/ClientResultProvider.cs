@@ -9,7 +9,6 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
