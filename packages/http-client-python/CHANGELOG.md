@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.9.0
+
+### Features
+
+- [#6549](https://github.com/microsoft/typespec/pull/6549) Pass authentication flows info into credential policy for unbranded
+
+
 ## 0.8.2
 
 ### Bug Fixes
