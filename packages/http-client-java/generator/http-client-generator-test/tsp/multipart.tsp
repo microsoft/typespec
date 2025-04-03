@@ -57,7 +57,7 @@ op uploadHttpPart(
   @header contentType: "multipart/form-data",
   @multipartBody body: {
     fileData1: HttpPart<Inherit2File>;
-    fileData2: HttpPart<File>;
+    fileData2: HttpPart<File, #{ name: "file_data2" }>;
     size: HttpPart<Size>;
   },
 ): OkResponse;
