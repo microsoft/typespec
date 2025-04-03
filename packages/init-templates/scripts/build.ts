@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { resolve } from "path/posix";
-import type { InitTemplate } from "../src/init/init-template.js";
+import { resolve } from "pathe";
+import type { InitTemplate } from "../../compiler/src/init/init-template.js";
 import { localDir, packageRoot } from "./helpers.js";
 
 const pkgJson = JSON.parse(

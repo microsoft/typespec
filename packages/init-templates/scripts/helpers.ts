@@ -1,6 +1,6 @@
 import { readdir } from "fs/promises";
 import { dirname } from "path";
-import { join, resolve } from "path/posix";
+import { join, resolve } from "pathe";
 import { fileURLToPath } from "url";
 
 export const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");

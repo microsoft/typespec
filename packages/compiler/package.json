@@ -77,8 +77,7 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
-    "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
+    "build": "pnpm gen-manifest && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
