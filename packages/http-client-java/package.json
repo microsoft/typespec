@@ -73,7 +73,7 @@
     "@azure-tools/typespec-azure-resource-manager": "0.54.0",
     "@azure-tools/typespec-azure-rulesets": "0.54.0",
     "@azure-tools/typespec-client-generator-core": "0.54.0",
-    "@typespec/spector": "0.1.0-alpha.10",
+    "@typespec/spector": "0.1.0-alpha.11",
     "@microsoft/api-extractor": "^7.52.2",
     "@microsoft/api-extractor-model": "^7.30.5",
     "@types/js-yaml": "~4.0.9",
