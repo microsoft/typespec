@@ -6,7 +6,7 @@ import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
-import type.union.implementation.SendRequest2;
+import type.union.implementation.SendRequest7;
 import type.union.implementation.StringAndArraysImpl;
 
 /**
@@ -47,7 +47,7 @@ public final class StringAndArrayClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<GetResponse2> getWithResponse(RequestOptions requestOptions) {
+    public Response<GetResponse7> getWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.getWithResponse(requestOptions);
     }
 
@@ -66,14 +66,14 @@ public final class StringAndArrayClient {
      * }
      * </pre>
      * 
-     * @param sendRequest2 The sendRequest2 parameter.
+     * @param sendRequest7 The sendRequest7 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<Void> sendWithResponse(BinaryData sendRequest2, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest2, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest7, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest7, requestOptions);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class StringAndArrayClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public GetResponse2 get() {
+    public GetResponse7 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).getValue();
@@ -102,8 +102,8 @@ public final class StringAndArrayClient {
     public void send(StringAndArrayCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest2 sendRequest2Obj = new SendRequest2(prop);
-        BinaryData sendRequest2 = BinaryData.fromObject(sendRequest2Obj);
-        sendWithResponse(sendRequest2, requestOptions).getValue();
+        SendRequest7 sendRequest7Obj = new SendRequest7(prop);
+        BinaryData sendRequest7 = BinaryData.fromObject(sendRequest7Obj);
+        sendWithResponse(sendRequest7, requestOptions).getValue();
     }
 }

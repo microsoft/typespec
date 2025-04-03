@@ -1,5 +1,12 @@
 # Change Log - @typespec/spec-coverage-sdk
 
+## 0.1.0-alpha.6
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.1.0-alpha.4
 
 ### Bump dependencies

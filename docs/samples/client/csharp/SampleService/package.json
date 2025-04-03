@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@typespec/http-client-csharp": "file:../../../../../packages/http-client-csharp",
+    "logging-plugin": "file:../plugins/logging"
+  },
+  "devDependencies": {
+    "@azure-tools/typespec-azure-core": "0.54.0",
+    "@azure-tools/typespec-client-generator-core": "0.54.0",
+    "@typespec/compiler": "1.0.0-rc.0",
+    "@typespec/http": "1.0.0-rc.0",
+    "@typespec/rest": "0.68.0"
+  }
+}

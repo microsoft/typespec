@@ -1,5 +1,12 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.4.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.3.0
 
 ### Bump dependencies

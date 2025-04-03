@@ -18,8 +18,8 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.StringAndArraysImpl;
-import type.union.implementation.models.SendRequest2;
-import type.union.models.GetResponse2;
+import type.union.implementation.models.SendRequest7;
+import type.union.models.GetResponse7;
 import type.union.models.StringAndArrayCases;
 
 /**
@@ -83,7 +83,7 @@ public final class StringAndArrayAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest2 The sendRequest2 parameter.
+     * @param sendRequest7 The sendRequest7 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -93,8 +93,8 @@ public final class StringAndArrayAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest2, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest2, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest7, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest7, requestOptions);
     }
 
     /**
@@ -109,11 +109,11 @@ public final class StringAndArrayAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse2> get() {
+    public Mono<GetResponse7> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse2.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse7.class));
     }
 
     /**
@@ -133,8 +133,8 @@ public final class StringAndArrayAsyncClient {
     public Mono<Void> send(StringAndArrayCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest2 sendRequest2Obj = new SendRequest2(prop);
-        BinaryData sendRequest2 = BinaryData.fromObject(sendRequest2Obj);
-        return sendWithResponse(sendRequest2, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest7 sendRequest7Obj = new SendRequest7(prop);
+        BinaryData sendRequest7 = BinaryData.fromObject(sendRequest7Obj);
+        return sendWithResponse(sendRequest7, requestOptions).flatMap(FluxUtil::toMono);
     }
 }
