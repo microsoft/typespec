@@ -60,7 +60,6 @@
     "@typespec/versioning": "0.68.0 || ~0.69.0-0"
   },
   "devDependencies": {
-    "@typespec/http-specs": "0.1.0-alpha.17",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.13",
     "@azure-tools/typespec-azure-core": "0.54.0",
     "@azure-tools/typespec-client-generator-core": "0.54.0",
@@ -68,6 +67,7 @@
     "@types/node": "~22.7.5",
     "@typespec/compiler": "1.0.0-rc.0",
     "@typespec/http": "1.0.0-rc.0",
+    "@typespec/http-specs": "0.1.0-alpha.17",
     "@typespec/json-schema": "1.0.0-rc.0",
     "@typespec/library-linter": "0.68.0",
     "@typespec/openapi": "1.0.0-rc.0",
