@@ -53,34 +53,6 @@ if (-not $LaunchOnly) {
           exit $LASTEXITCODE
         }
     }
-
-    # if ($null -eq $filter -or $filter -eq "Sample-Service") {
-    #   Write-Host "Generating SampleService" -ForegroundColor Cyan
-    #   $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-
-    #   # switch to the sample directory
-    #   try {
-    #     Push-Location $sampleDir
-    #     Invoke "tsp compile ." $sampleDir
-    #   }
-    #   finally {
-    #     Pop-Location
-    #   }
-      
-
-    #   # exit if the generation failed
-    #   if ($LASTEXITCODE -ne 0) {
-    #     exit $LASTEXITCODE
-    #   }
-
-    #   Write-Host "Building SampleService" -ForegroundColor Cyan
-    #   Invoke "dotnet build $sampleDir/src/SampleService.csproj"
-
-    #   # exit if the generation failed
-    #   if ($LASTEXITCODE -ne 0) {
-    #     exit $LASTEXITCODE
-    #   }
-    # }
 }
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
