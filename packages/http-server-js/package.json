@@ -29,7 +29,7 @@
     "./testing": "./dist/src/testing/index.js"
   },
   "bin": {
-    "hsjs-scaffold": "./dist/src/scripts/scaffold/bin.mjs"
+    "hsjs-scaffold": "./scripts/hsjs-scaffold.mjs"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
