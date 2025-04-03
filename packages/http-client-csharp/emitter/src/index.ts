@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+export { writeCodeModel } from "./code-model-writer.js";
 export { configurationFileName, tspOutputFileName } from "./constants.js";
 export { $onEmit } from "./emitter.js";
 export { createModel } from "./lib/client-model-builder.js";
