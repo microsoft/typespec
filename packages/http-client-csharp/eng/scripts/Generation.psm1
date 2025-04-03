@@ -27,9 +27,13 @@ function Get-TspCommand {
         [bool]$generateStub = $false,
         [string]$libraryNameOverride = $null,
         [string]$apiVersion = $null,
-        [bool]$newProject = $true
+        [bool]$newProject = $true,
+        [string]$emitterDir = $null,
+        [bool]$saveInputs = $true
     )
-    $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+    if ($emitterDir -eq $null) {
+        $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+    }
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
     $command += " --emit $emitterDir"
@@ -38,7 +42,9 @@ function Get-TspCommand {
         $command += " --config=$configFile"
     }
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
-    $command += " --option @typespec/http-client-csharp.save-inputs=true"
+    if ($saveInputs) {
+        $command += " --option @typespec/http-client-csharp.save-inputs=true"
+    }
     if ($generateStub) {
         $command += " --option @typespec/http-client-csharp.generator-name=StubLibraryGenerator"
     }

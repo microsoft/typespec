@@ -35,10 +35,10 @@ if (-not $LaunchOnly) {
             exit $LASTEXITCODE
         }
 
-        Write-Host "Generating UnbrandedTypeSpec as library using plugins" -ForegroundColor Cyan
+        Write-Host "Generating UnbrandedTypeSpec using plugins" -ForegroundColor Cyan
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
   
-        Invoke "npx tsp compile ." $sampleDir
+        Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -emitterDir (Join-Path $sampleDir 'node_modules' '@typespec' 'http-client-csharp') -saveInputs $false)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
