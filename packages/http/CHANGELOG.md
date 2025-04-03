@@ -1,5 +1,57 @@
 # Change Log - @typespec/http
 
+## 1.0.0-rc.0
+
+### Breaking Changes
+
+- [#6557](https://github.com/microsoft/typespec/pull/6557) Remove support for deprecated implicit multipart, migrate to explicit part with `@multipartBody` and `HttpPart<T>`
+  
+    ```diff lang=tsp
+    op upload(
+      @header contentType: "multipart/form-data",
+    -  @body body: {
+    +  @multipartBody body: {
+    -    name: string;
+    +    name: HttpPart<string>;
+    -    avatar: bytes;
+    +    avatar: HttpPart<bytes>;
+      }
+    ): void;
+    ```
+- [#6563](https://github.com/microsoft/typespec/pull/6563) Separate file bodies into their own `bodyKind`.
+  
+  The HTTP library will now return a body with `bodyKind: "file"` in all cases where emitters should treat the body as a file upload or download. Emitters that previously attempted to recognize File bodies by checking the `type` of an HTTP `"single"` body may now simply check if the `bodyKind` is `"file"`. This applies to all HTTP payloads where an `HttpOperationBody` can appear, including requests, responses, and multipart parts.
+
+### Features
+
+- [#6559](https://github.com/microsoft/typespec/pull/6559) [API] Expose `property?` on `HttpOperationPart`
+- [#6652](https://github.com/microsoft/typespec/pull/6652) Add validation when using path or query options with the default value while the parameter is referenced in the uri template
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6542](https://github.com/microsoft/typespec/pull/6542) Query parameter with `-` will be correctly represented in the resulting uri template
+- [#6472](https://github.com/microsoft/typespec/pull/6472) Path parameters can now be optional under specific circumstances. This fix updates the validation to ensure it doesn't trigger in these scenarios.
+  
+  An optional parameter should have a leading `/` inside the `{}`.
+  
+  For example:
+  
+  ```tsp
+  @route("optional{/param}/list")
+  op optional(@path param?: string): void;
+  ```
+  
+  Another supported scenario is using `@autoRoute`:
+  ```tsp
+  @autoRoute
+  op optional(@path param?: string): void;
+  ```
+
+
 ## 0.67.0
 
 ### Breaking Changes
