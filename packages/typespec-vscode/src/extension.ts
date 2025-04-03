@@ -9,6 +9,7 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
+import { normalizeSlashes } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
@@ -22,7 +23,7 @@ import {
   ResultCode,
   SettingName,
 } from "./types.js";
-import { isWhitespaceStringOrUndefined } from "./utils.js";
+import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
@@ -58,6 +59,21 @@ export async function activate(context: ExtensionContext) {
         vscode.env.openExternal(vscode.Uri.parse(url));
       } catch (error) {
         logger.error(`Failed to open URL: ${url}`, [error as any]);
+      }
+    }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.InstallImportPackage, async () => {
+      try {
+        const projectFiles = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+        if (!projectFiles) {
+          logger.error("No workspace folder found.");
+          return;
+        }
+        await spawnExecutionAndLogToOutput("npm", ["install"], normalizeSlashes(projectFiles));
+      } catch (error) {
+        logger.error("Failed to execute npm install", [error]);
       }
     }),
   );
