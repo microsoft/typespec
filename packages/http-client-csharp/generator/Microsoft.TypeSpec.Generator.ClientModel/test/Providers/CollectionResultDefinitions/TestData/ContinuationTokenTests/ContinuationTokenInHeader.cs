@@ -9,13 +9,13 @@ using System.Collections.Generic;
 
 namespace Sample
 {
-    internal partial class GetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
+    internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
         private readonly string _myToken;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public GetCatsCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.Argument.AssertNotNull(myToken, nameof(myToken));
 

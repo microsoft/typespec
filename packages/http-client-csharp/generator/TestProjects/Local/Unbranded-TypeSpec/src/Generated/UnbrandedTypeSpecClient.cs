@@ -1284,7 +1284,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult ListWithNextLink(RequestOptions options)
         {
-            return new ListWithNextLinkCollectionResult(this, null, options);
+            return new UnbrandedTypeSpecClientListWithNextLinkCollectionResult(this, null, options);
         }
 
         /// <summary>
@@ -1300,7 +1300,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult ListWithNextLinkAsync(RequestOptions options)
         {
-            return new ListWithNextLinkAsyncCollectionResult(this, null, options);
+            return new UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResult(this, null, options);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1308,7 +1308,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> ListWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new ListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1316,7 +1316,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> ListWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new ListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>
@@ -1333,7 +1333,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult ListWithContinuationToken(string token, RequestOptions options)
         {
-            return new ListWithContinuationTokenCollectionResult(this, token, options);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1350,7 +1350,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult ListWithContinuationTokenAsync(string token, RequestOptions options)
         {
-            return new ListWithContinuationTokenAsyncCollectionResult(this, token, options);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1359,7 +1359,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> ListWithContinuationToken(string token = null, CancellationToken cancellationToken = default)
         {
-            return new ListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1368,7 +1368,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenAsync(string token = null, CancellationToken cancellationToken = default)
         {
-            return new ListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>
@@ -1385,7 +1385,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult ListWithContinuationTokenHeaderResponse(string token, RequestOptions options)
         {
-            return new ListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1402,7 +1402,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult ListWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
         {
-            return new ListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1411,7 +1411,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> ListWithContinuationTokenHeaderResponse(string token = null, CancellationToken cancellationToken = default)
         {
-            return new ListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1420,7 +1420,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenHeaderResponseAsync(string token = null, CancellationToken cancellationToken = default)
         {
-            return new ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>
@@ -1436,7 +1436,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult ListWithPaging(RequestOptions options)
         {
-            return new ListWithPagingCollectionResult(this, options);
+            return new UnbrandedTypeSpecClientListWithPagingCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1452,7 +1452,7 @@ namespace UnbrandedTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult ListWithPagingAsync(RequestOptions options)
         {
-            return new ListWithPagingAsyncCollectionResult(this, options);
+            return new UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with paging. </summary>
@@ -1460,7 +1460,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> ListWithPaging(CancellationToken cancellationToken = default)
         {
-            return new ListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with paging. </summary>
@@ -1468,7 +1468,7 @@ namespace UnbrandedTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> ListWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new ListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return new UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }
