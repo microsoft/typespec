@@ -30,40 +30,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override CSharpType ClientCollectionResponseOfTType => typeof(CollectionResult<>);
         public override CSharpType ClientCollectionAsyncResponseOfTType => typeof(AsyncCollectionResult<>);
 
-        private readonly Dictionary<ClientCollectionResultKey, TypeProvider> _collectionResultDefinitionCache = new();
-
         public override TypeProvider CreateClientCollectionResultDefinition(
             ClientProvider client,
             InputOperation operation,
             CSharpType? type,
             bool isAsync)
         {
-            var resultKey = new ClientCollectionResultKey(client, operation, type, isAsync);
-            if (_collectionResultDefinitionCache.TryGetValue(resultKey, out var result))
-            {
-                return result;
-            }
-
-            result = new CollectionResultDefinition(client, operation, type, isAsync);
-            _collectionResultDefinitionCache.Add(resultKey, result);
-
-            return result;
-        }
-
-        private readonly struct ClientCollectionResultKey
-        {
-            public ClientProvider Client { get; }
-            public InputOperation Operation { get; }
-            public CSharpType? ItemModelType { get; }
-            public bool IsAsync { get; }
-
-            public ClientCollectionResultKey(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
-            {
-                Client = client;
-                Operation = operation;
-                ItemModelType = itemModelType;
-                IsAsync = isAsync;
-            }
+            return new CollectionResultDefinition(client, operation, type, isAsync);
         }
 
         public override CSharpType ClientResponseExceptionType => typeof(ClientResultException);
