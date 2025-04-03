@@ -639,21 +639,7 @@
           "continuationToken": {
            "$id": "78",
            "parameter": {
-            "$id": "79",
-            "name": "token",
-            "nameInRequest": "token",
-            "type": {
-             "$ref": "68"
-            },
-            "location": "Query",
-            "isApiVersion": false,
-            "isContentType": false,
-            "isEndpoint": false,
-            "explode": false,
-            "isRequired": false,
-            "kind": "Method",
-            "decorators": [],
-            "skipUrlEncoding": false
+            "$ref": "67"
            },
            "responseSegments": [
             "nextToken"
@@ -667,17 +653,17 @@
          "decorators": []
         },
         {
-         "$id": "80",
+         "$id": "79",
          "name": "requestHeaderResponseBody",
          "resourceName": "ContinuationToken",
          "accessibility": "public",
          "parameters": [
           {
-           "$id": "81",
+           "$id": "80",
            "name": "token",
            "nameInRequest": "token",
            "type": {
-            "$id": "82",
+            "$id": "81",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -694,11 +680,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "83",
+           "$id": "82",
            "name": "foo",
            "nameInRequest": "foo",
            "type": {
-            "$id": "84",
+            "$id": "83",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -715,11 +701,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "85",
+           "$id": "84",
            "name": "bar",
            "nameInRequest": "bar",
            "type": {
-            "$id": "86",
+            "$id": "85",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -736,14 +722,14 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "87",
+           "$id": "86",
            "name": "accept",
            "nameInRequest": "Accept",
            "type": {
-            "$id": "88",
+            "$id": "87",
             "kind": "constant",
             "valueType": {
-             "$id": "89",
+             "$id": "88",
              "kind": "string",
              "name": "string",
              "crossLanguageDefinitionId": "TypeSpec.string",
@@ -765,7 +751,7 @@
          ],
          "responses": [
           {
-           "$id": "90",
+           "$id": "89",
            "statusCodes": [
             200
            ],
@@ -784,28 +770,14 @@
          "path": "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body",
          "bufferResponse": true,
          "paging": {
-          "$id": "91",
+          "$id": "90",
           "itemPropertySegments": [
            "pets"
           ],
           "continuationToken": {
-           "$id": "92",
+           "$id": "91",
            "parameter": {
-            "$id": "93",
-            "name": "token",
-            "nameInRequest": "token",
-            "type": {
-             "$ref": "82"
-            },
-            "location": "Header",
-            "isApiVersion": false,
-            "isContentType": false,
-            "isEndpoint": false,
-            "explode": false,
-            "isRequired": false,
-            "kind": "Method",
-            "decorators": [],
-            "skipUrlEncoding": false
+            "$ref": "80"
            },
            "responseSegments": [
             "nextToken"
@@ -819,17 +791,17 @@
          "decorators": []
         },
         {
-         "$id": "94",
+         "$id": "92",
          "name": "requestQueryResponseHeader",
          "resourceName": "ContinuationToken",
          "accessibility": "public",
          "parameters": [
           {
-           "$id": "95",
+           "$id": "93",
            "name": "token",
            "nameInRequest": "token",
            "type": {
-            "$id": "96",
+            "$id": "94",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -846,11 +818,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "97",
+           "$id": "95",
            "name": "foo",
            "nameInRequest": "foo",
            "type": {
-            "$id": "98",
+            "$id": "96",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -867,11 +839,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "99",
+           "$id": "97",
            "name": "bar",
            "nameInRequest": "bar",
            "type": {
-            "$id": "100",
+            "$id": "98",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -888,14 +860,14 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "101",
+           "$id": "99",
            "name": "accept",
            "nameInRequest": "Accept",
            "type": {
-            "$id": "102",
+            "$id": "100",
             "kind": "constant",
             "valueType": {
-             "$id": "103",
+             "$id": "101",
              "kind": "string",
              "name": "string",
              "crossLanguageDefinitionId": "TypeSpec.string",
@@ -917,7 +889,7 @@
          ],
          "responses": [
           {
-           "$id": "104",
+           "$id": "102",
            "statusCodes": [
             200
            ],
@@ -926,11 +898,11 @@
            },
            "headers": [
             {
-             "$id": "105",
+             "$id": "103",
              "name": "nextToken",
              "nameInResponse": "next-token",
              "type": {
-              "$id": "106",
+              "$id": "104",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
@@ -949,28 +921,14 @@
          "path": "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header",
          "bufferResponse": true,
          "paging": {
-          "$id": "107",
+          "$id": "105",
           "itemPropertySegments": [
            "pets"
           ],
           "continuationToken": {
-           "$id": "108",
+           "$id": "106",
            "parameter": {
-            "$id": "109",
-            "name": "token",
-            "nameInRequest": "token",
-            "type": {
-             "$ref": "96"
-            },
-            "location": "Query",
-            "isApiVersion": false,
-            "isContentType": false,
-            "isEndpoint": false,
-            "explode": false,
-            "isRequired": false,
-            "kind": "Method",
-            "decorators": [],
-            "skipUrlEncoding": false
+            "$ref": "93"
            },
            "responseSegments": [
             "next-token"
@@ -984,17 +942,17 @@
          "decorators": []
         },
         {
-         "$id": "110",
+         "$id": "107",
          "name": "requestHeaderResponseHeader",
          "resourceName": "ContinuationToken",
          "accessibility": "public",
          "parameters": [
           {
-           "$id": "111",
+           "$id": "108",
            "name": "token",
            "nameInRequest": "token",
            "type": {
-            "$id": "112",
+            "$id": "109",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1011,11 +969,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "113",
+           "$id": "110",
            "name": "foo",
            "nameInRequest": "foo",
            "type": {
-            "$id": "114",
+            "$id": "111",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1032,11 +990,11 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "115",
+           "$id": "112",
            "name": "bar",
            "nameInRequest": "bar",
            "type": {
-            "$id": "116",
+            "$id": "113",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1053,14 +1011,14 @@
            "skipUrlEncoding": false
           },
           {
-           "$id": "117",
+           "$id": "114",
            "name": "accept",
            "nameInRequest": "Accept",
            "type": {
-            "$id": "118",
+            "$id": "115",
             "kind": "constant",
             "valueType": {
-             "$id": "119",
+             "$id": "116",
              "kind": "string",
              "name": "string",
              "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1082,7 +1040,7 @@
          ],
          "responses": [
           {
-           "$id": "120",
+           "$id": "117",
            "statusCodes": [
             200
            ],
@@ -1091,11 +1049,11 @@
            },
            "headers": [
             {
-             "$id": "121",
+             "$id": "118",
              "name": "nextToken",
              "nameInResponse": "next-token",
              "type": {
-              "$id": "122",
+              "$id": "119",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1114,28 +1072,14 @@
          "path": "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header",
          "bufferResponse": true,
          "paging": {
-          "$id": "123",
+          "$id": "120",
           "itemPropertySegments": [
            "pets"
           ],
           "continuationToken": {
-           "$id": "124",
+           "$id": "121",
            "parameter": {
-            "$id": "125",
-            "name": "token",
-            "nameInRequest": "token",
-            "type": {
-             "$ref": "112"
-            },
-            "location": "Header",
-            "isApiVersion": false,
-            "isContentType": false,
-            "isEndpoint": false,
-            "explode": false,
-            "isRequired": false,
-            "kind": "Method",
-            "decorators": [],
-            "skipUrlEncoding": false
+            "$ref": "108"
            },
            "responseSegments": [
             "next-token"
@@ -1151,12 +1095,12 @@
        ],
        "parameters": [
         {
-         "$id": "126",
+         "$id": "122",
          "name": "endpoint",
          "nameInRequest": "endpoint",
          "doc": "Service host",
          "type": {
-          "$id": "127",
+          "$id": "123",
           "kind": "url",
           "name": "url",
           "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1170,9 +1114,9 @@
          "explode": false,
          "kind": "Client",
          "defaultValue": {
-          "$id": "128",
+          "$id": "124",
           "type": {
-           "$id": "129",
+           "$id": "125",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string"
