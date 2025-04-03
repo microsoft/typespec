@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
@@ -25,9 +26,31 @@ namespace Microsoft.TypeSpec.Generator
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
-                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
+
+                // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
+                // the implementation. We will still need to emit the serialization code.
+                if (outputEnum is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+                {
+                    enums.AddRange(outputEnum.SerializationProviders);
+                }
+                else if (outputEnum != null)
+                {
+                    enums.Add(outputEnum);
+                }
+            }
+
+            foreach (var inputLiteral in input.Constants)
+            {
+                var valueType = CodeModelGenerator.Instance.TypeFactory.GetLiteralValueType(inputLiteral);
+                if (valueType is not InputEnumType enumType)
+                {
+                    continue;
+                }
+
+                var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType);
 
                 // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
                 // the implementation. We will still need to emit the serialization code.

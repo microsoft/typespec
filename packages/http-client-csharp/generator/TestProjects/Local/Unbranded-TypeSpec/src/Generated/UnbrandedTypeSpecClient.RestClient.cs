@@ -37,7 +37,7 @@ namespace UnbrandedTypeSpec
             }
             request.Uri = uri.ToUri();
             request.Headers.Set("head-parameter", headParameter);
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -54,8 +54,8 @@ namespace UnbrandedTypeSpec
             uri.AppendPath(p2, true);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", p1);
-            request.Headers.Set("Content-Type", "text/plain");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("text/plain", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -73,8 +73,8 @@ namespace UnbrandedTypeSpec
             uri.AppendPath(p2, true);
             request.Uri = uri.ToUri();
             request.Headers.Set("p1", p1);
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -90,7 +90,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/demoHi", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -105,8 +105,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/literal", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -124,8 +124,8 @@ namespace UnbrandedTypeSpec
             uri.AppendPath(123.ToString(), true);
             uri.AppendQuery("p3", TypeFormatters.ConvertToString(true, null), true);
             request.Uri = uri.ToUri();
-            request.Headers.Set("p1", "test");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("p1", TypeFormatters.ConvertToString("test", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -141,7 +141,7 @@ namespace UnbrandedTypeSpec
             uri.AppendPath("/top/", false);
             uri.AppendPath(action.ToString("O"), true);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -156,7 +156,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/top2", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -171,8 +171,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/patch", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -188,8 +188,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -205,8 +205,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/friendlyName", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -237,8 +237,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/projectedName", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -254,7 +254,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/returnsAnonymousModel", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -284,8 +284,8 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/internalProtocol", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Content-Type", "application/json");
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Content-Type", TypeFormatters.ConvertToString("application/json", null));
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             request.Content = content;
             message.Apply(options);
             return message;
@@ -349,7 +349,7 @@ namespace UnbrandedTypeSpec
                 uri.AppendPath("/link", false);
             }
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -368,7 +368,7 @@ namespace UnbrandedTypeSpec
                 uri.AppendQuery("token", token, true);
             }
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -387,7 +387,7 @@ namespace UnbrandedTypeSpec
                 uri.AppendQuery("token", token, true);
             }
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }
@@ -402,7 +402,7 @@ namespace UnbrandedTypeSpec
             uri.Reset(_endpoint);
             uri.AppendPath("/list/paging", false);
             request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            request.Headers.Set("Accept", TypeFormatters.ConvertToString("application/json", null));
             message.Apply(options);
             return message;
         }

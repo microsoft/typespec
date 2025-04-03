@@ -231,21 +231,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCasesFromLiteral =>
         [
-            new TestCaseData(InputPrimitiveType.String, "foo"),
-            new TestCaseData(InputPrimitiveType.Int32, 1),
+            new TestCaseData(InputFactory.Literal.String("foo", name: "EnumType")),
+            new TestCaseData(InputFactory.Literal.Int32(1, name: "EnumType")),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCasesFromLiteral))]
-        public async Task CanCustomizeLiteralExtensibleEnum(InputPrimitiveType enumType, object value)
+        public async Task CanCustomizeLiteralExtensibleEnum(InputLiteralType literal)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Literal.Enum(
-                        InputFactory.Enum("EnumType", enumType, isExtensible: true),
-                        value: value))
+                    InputFactory.Property("Prop1", literal)
                     ],
                 usage: InputModelTypeUsage.Json);
-            var parameters = $"{enumType.Name},{value}";
+            var parameters = $"{literal.ValueType.Name},{literal.Value}";
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputLiterals: () => [literal],
                 inputModels: () => [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters));
 

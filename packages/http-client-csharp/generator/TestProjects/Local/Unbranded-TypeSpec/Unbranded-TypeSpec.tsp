@@ -27,7 +27,6 @@ enum Versions {
 }
 
 @doc("float fixed enum")
-@fixed
 enum FloatFixedEnumWithIntValue {
   One: 1.0,
   Two: 2.0,
@@ -35,7 +34,6 @@ enum FloatFixedEnumWithIntValue {
 }
 
 @doc("float fixed enum")
-@fixed
 enum FloatFixedEnum {
   OneDotOne: 1.1,
   TwoDotTwo: 2.2,
@@ -43,7 +41,6 @@ enum FloatFixedEnum {
 }
 
 @doc("int fixed enum")
-@fixed
 enum IntFixedEnum {
   One: 1,
   Two: 2,
@@ -51,7 +48,6 @@ enum IntFixedEnum {
 }
 
 @doc("Simple enum")
-@fixed
 enum StringFixedEnum {
   One: "1",
   Two: "2",
