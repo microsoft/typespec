@@ -138,19 +138,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
             var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var catClient = InputFactory.Client("catClient", operations: [operation], clientNamespace: "Sample");
-            var felineClient = InputFactory.Client("felineClient", operations: [operation], clientNamespace: "Cats");
+            var catClient = InputFactory.Client("catClient", operations: [operation], clientNamespace: "Cats");
+            var felineClient = InputFactory.Client("felineClient", operations: [operation], clientNamespace: "Felines");
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [catClient, felineClient]);
 
             var catClientCollectionResult = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
             Assert.IsNotNull(catClientCollectionResult);
-            Assert.AreEqual("Sample", catClientCollectionResult!.Type.Namespace);
+            Assert.AreEqual("Cats", catClientCollectionResult!.Type.Namespace);
 
             var felineClientCollectionResult = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "FelineClientGetCatsCollectionResult");
             Assert.IsNotNull(felineClientCollectionResult);
-            Assert.AreEqual("Cats", felineClientCollectionResult!.Type.Namespace);
+            Assert.AreEqual("Felines", felineClientCollectionResult!.Type.Namespace);
         }
 
 
