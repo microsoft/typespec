@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-export { writeCodeModel } from "./code-model-writer.js";
 export { configurationFileName, tspOutputFileName } from "./constants.js";
 export { $onEmit } from "./emitter.js";
 export { createModel } from "./lib/client-model-builder.js";
@@ -15,6 +14,6 @@ export {
   resolveOptions,
 } from "./options.js";
 export { setSDKContextOptions } from "./sdk-context-options.js";
-export { CSharpEmitterContext, createCSharpEmitterContext } from "./sdk-context.js";
+export { CSharpEmitterContext } from "./sdk-context.js";
 export { CodeModel } from "./type/code-model.js";
 export { InputClient, InputModelType } from "./type/input-type.js";
