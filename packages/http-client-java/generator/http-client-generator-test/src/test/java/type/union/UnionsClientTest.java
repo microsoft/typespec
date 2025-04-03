@@ -90,8 +90,8 @@ public class UnionsClientTest {
         StringAndArrayCases prop = client8.get().getProp();
         Assertions.assertEquals("test", prop.getString().toObject(String.class));
         Assertions.assertEquals(Arrays.asList("test1", "test2"),
-                prop.getArray().toObject(new TypeReference<List<String>>() {
-                }));
+            prop.getArray().toObject(new TypeReference<List<String>>() {
+            }));
         client8.send(prop);
     }
 
