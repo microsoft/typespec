@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.IntsOnliesImpl;
-import type.union.implementation.models.SendRequest6;
-import type.union.models.GetResponse6;
+import type.union.implementation.models.SendRequest3;
+import type.union.models.GetResponse3;
 import type.union.models.GetResponseProp2;
 
 /**
@@ -75,7 +75,7 @@ public final class IntsOnlyClient {
      * }
      * </pre>
      * 
-     * @param sendRequest6 The sendRequest6 parameter.
+     * @param sendRequest3 The sendRequest3 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -85,8 +85,8 @@ public final class IntsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest6, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest6, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest3, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest3, requestOptions);
     }
 
     /**
@@ -101,10 +101,10 @@ public final class IntsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse6 get() {
+    public GetResponse3 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse6.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse3.class);
     }
 
     /**
@@ -123,8 +123,8 @@ public final class IntsOnlyClient {
     public void send(GetResponseProp2 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest6 sendRequest6Obj = new SendRequest6(prop);
-        BinaryData sendRequest6 = BinaryData.fromObject(sendRequest6Obj);
-        sendWithResponse(sendRequest6, requestOptions).getValue();
+        SendRequest3 sendRequest3Obj = new SendRequest3(prop);
+        BinaryData sendRequest3 = BinaryData.fromObject(sendRequest3Obj);
+        sendWithResponse(sendRequest3, requestOptions).getValue();
     }
 }

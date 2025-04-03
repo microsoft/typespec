@@ -5,9 +5,9 @@
 package type.union.models;
 
 /**
- * Defines values for GetResponseProp4.
+ * Defines values for GetResponseProp.
  */
-public enum GetResponseProp4 {
+public enum GetResponseProp {
     /**
      * Enum value a.
      */
@@ -24,26 +24,26 @@ public enum GetResponseProp4 {
     C("c");
 
     /**
-     * The actual serialized value for a GetResponseProp4 instance.
+     * The actual serialized value for a GetResponseProp instance.
      */
     private final String value;
 
-    GetResponseProp4(String value) {
+    GetResponseProp(String value) {
         this.value = value;
     }
 
     /**
-     * Parses a serialized value to a GetResponseProp4 instance.
+     * Parses a serialized value to a GetResponseProp instance.
      * 
      * @param value the serialized value to parse.
-     * @return the parsed GetResponseProp4 object, or null if unable to parse.
+     * @return the parsed GetResponseProp object, or null if unable to parse.
      */
-    public static GetResponseProp4 fromString(String value) {
+    public static GetResponseProp fromString(String value) {
         if (value == null) {
             return null;
         }
-        GetResponseProp4[] items = GetResponseProp4.values();
-        for (GetResponseProp4 item : items) {
+        GetResponseProp[] items = GetResponseProp.values();
+        for (GetResponseProp item : items) {
             if (item.toString().equalsIgnoreCase(value)) {
                 return item;
             }

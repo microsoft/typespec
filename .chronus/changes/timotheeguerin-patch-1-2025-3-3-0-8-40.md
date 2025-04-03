@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: feature
+changeKind: internal
 packages:
-  - "@typespec/bundler"
+  - "@typespec/spector"
 ---
 
-Migrate bundler build system to esbuild
+Bump Spector version
