@@ -1,2 +1,4 @@
 templates/
 .vscode-test
+test/extension/ImportTypespecProjectOpenApi3/*.tsp
+test/extension/CreateTypespecProject

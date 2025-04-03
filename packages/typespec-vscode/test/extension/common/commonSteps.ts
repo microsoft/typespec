@@ -59,14 +59,14 @@ async function start(
   await page
     .getByRole("textbox", { name: "input" })
     .first()
-    .fill(`>Typespec: ${command}`)
+    .fill(`>TypeSpec: ${command}`)
   let listForCreate: Locator
   await retry(
     5,
     async () => {
       listForCreate = page
         .locator("a")
-        .filter({ hasText: `TypeSpec: ${command}` })
+        .filter({ hasText: command })
         .first()
       return (await listForCreate.count()) > 0
     },
@@ -183,6 +183,10 @@ async function installExtensionForFile(page: Page, fullFilePath: string) {
     .click()
 }
 
+async function closeVscode(page: Page) {
+  await page.keyboard.press("Alt+F4")
+}
+
 export {
   start,
   contrastResult,
@@ -191,4 +195,5 @@ export {
   notEmptyFolderContinue,
   installExtension,
   installExtensionForFile,
+  closeVscode
 }
