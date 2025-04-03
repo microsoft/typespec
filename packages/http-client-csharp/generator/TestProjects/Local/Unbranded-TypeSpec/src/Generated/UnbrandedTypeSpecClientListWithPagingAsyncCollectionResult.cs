@@ -11,21 +11,21 @@ using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithPagingCollectionResult : CollectionResult
+    internal partial class UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingCollectionResult(UnbrandedTypeSpecClient client, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult(UnbrandedTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateListWithPagingRequest(_options);
-            yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+            yield return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)

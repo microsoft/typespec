@@ -9,29 +9,30 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithContinuationTokenHeaderResponseCollectionResultOfT : CollectionResult<Thing>
+    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
@@ -58,9 +59,13 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            return ((ListWithContinuationTokenHeaderResponseResponse)page).Things;
+            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
+            {
+                yield return item;
+                await Task.Yield();
+            }
         }
     }
 }

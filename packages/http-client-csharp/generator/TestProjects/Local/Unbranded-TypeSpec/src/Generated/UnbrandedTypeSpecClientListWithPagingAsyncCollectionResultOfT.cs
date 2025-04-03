@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
