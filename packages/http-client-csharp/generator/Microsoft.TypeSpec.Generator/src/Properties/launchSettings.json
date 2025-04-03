@@ -325,8 +325,8 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
-    "Unbranded-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -g ScmCodeModelGenerator",
+    "Sample-TypeSpec": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     }
