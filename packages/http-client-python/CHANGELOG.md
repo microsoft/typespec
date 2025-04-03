@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.9.1
+
+### Bug Fixes
+
+- [6846](https://github.com/microsoft/typespec/pull/6846) fix license header for legacy SDK
+
 ## 0.9.0
 
 ### Features
