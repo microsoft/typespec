@@ -7,7 +7,7 @@ import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
 import type.union.implementation.FloatsOnliesImpl;
-import type.union.implementation.SendRequest5;
+import type.union.implementation.SendRequest4;
 
 /**
  * Initializes a new instance of the synchronous UnionClient type.
@@ -44,7 +44,7 @@ public final class FloatsOnlyClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<GetResponse5> getWithResponse(RequestOptions requestOptions) {
+    public Response<GetResponse4> getWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.getWithResponse(requestOptions);
     }
 
@@ -60,14 +60,14 @@ public final class FloatsOnlyClient {
      * }
      * </pre>
      * 
-     * @param sendRequest5 The sendRequest5 parameter.
+     * @param sendRequest4 The sendRequest4 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<Void> sendWithResponse(BinaryData sendRequest5, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest5, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest4, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest4, requestOptions);
     }
 
     /**
@@ -78,7 +78,7 @@ public final class FloatsOnlyClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public GetResponse5 get() {
+    public GetResponse4 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).getValue();
@@ -93,11 +93,11 @@ public final class FloatsOnlyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(generated = true)
-    public void send(GetResponseProp1 prop) {
+    public void send(GetResponseProp3 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest5 sendRequest5Obj = new SendRequest5(prop);
-        BinaryData sendRequest5 = BinaryData.fromObject(sendRequest5Obj);
-        sendWithResponse(sendRequest5, requestOptions).getValue();
+        SendRequest4 sendRequest4Obj = new SendRequest4(prop);
+        BinaryData sendRequest4 = BinaryData.fromObject(sendRequest4Obj);
+        sendWithResponse(sendRequest4, requestOptions).getValue();
     }
 }
