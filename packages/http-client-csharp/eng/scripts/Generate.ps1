@@ -14,27 +14,6 @@ if (-not $LaunchOnly) {
     Refresh-Build
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
-        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
-        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
-
-        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
-        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
-
-        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
-
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
-
-        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
-        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
-
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
-
         Write-Host "Packing SampleTypeSpec" -ForegroundColor Cyan
         Invoke "npm pack" $packageRoot
 
@@ -60,6 +39,27 @@ if (-not $LaunchOnly) {
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
           exit $LASTEXITCODE
+        }
+
+        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
+        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
+
+        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
+
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
+
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+
+        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
+
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
         }
     }
 }
