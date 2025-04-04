@@ -226,6 +226,7 @@ export async function activate(context: ExtensionContext) {
             };
             await startLspWithProgress();
             if (client) {
+              ssTel.lastStep = "LSP client created (first try)";
               return tspClientStateToResultCode();
             }
             // client will be undefined only when we can't find compiler locally or globally
@@ -237,6 +238,7 @@ export async function activate(context: ExtensionContext) {
             );
             if (choice === undefined || choice === "Ignore") {
               logger.info("User cancelled the prompt to install TypeSpec compiler.");
+              ssTel.lastStep = "Prompt to install TypeSpec compiler.";
               return ResultCode.Cancelled;
             }
 
@@ -261,7 +263,7 @@ export async function activate(context: ExtensionContext) {
                 "TypeSpec compiler installed successfully. Try to start LSP server again.",
               );
               await startLspWithProgress();
-
+              ssTel.lastStep = "LSP client created (after install)";
               return tspClientStateToResultCode();
             } else if (
               installResult.code === ResultCode.Fail ||
@@ -272,6 +274,7 @@ export async function activate(context: ExtensionContext) {
                 [],
                 { showPopup: true },
               );
+              ssTel.lastStep = "Failed to install TypeSpec compiler.";
             }
             return installResult.code;
           },
