@@ -61,8 +61,8 @@ export async function TraverseMainTspFileInWorkspace() {
  *  - 'npm install -g @typespec/compiler' will be used if paths is empty or user choose "Global".
  *  - 'npm install @typespec/compiler' will be used if a local path is chosen and @typespec/compiler is not defined in package.json
  *  - 'npm install' will be used if a local path is chosen and @typespec/compiler is defined in package.json
- * @param paths: array of potential paths (or "global") to install compiler. if empty means install globally,
- *               if length == 1, install to the path without asking user. if length > 1, user will be prompt to select one of the paths.
+ * @param paths: array of potential paths (or "global") to install compiler. empty array means install globally, user will be prompted to choose/confirm a path if
+ *               we are going to install locally or if there are multiple choices.
  * @returns
  */
 export async function installCompilerWithUi(
@@ -79,6 +79,8 @@ export async function installCompilerWithUi(
   if (paths.length === 0) {
     paths.push(globalPath);
   }
+  const onlyGlobalInPaths = paths.length === 1 && paths[0] === globalPath;
+  const locString = onlyGlobalInPaths ? "globally" : "";
 
   let confirmOption:
     | ConfirmOptions<QuickPickOptionsWithExternalLink, QuickPickOptionsWithExternalLink>
@@ -86,14 +88,14 @@ export async function installCompilerWithUi(
   // confirm with end user by default
   if (confirmOptions.confirmNeeded !== false) {
     const detailLink = "https://typespec.io/docs/";
-    const title = confirmOptions?.confirmTitle ?? `Install TypeSpec Compiler/CLI`;
+    const title = confirmOptions?.confirmTitle ?? `Install TypeSpec Compiler/CLI ${locString}`;
     const placeholder =
       confirmOptions?.confirmPlaceholder ?? "Please check the requirements and confirm...";
     confirmOption = {
       title: title,
       placeholder: placeholder,
       yesQuickPickItem: {
-        label: `Install TypeSpec Compiler/CLI`,
+        label: `Install TypeSpec Compiler/CLI ${locString}`,
         detail: COMPILER_REQUIREMENT,
         description: ` by 'npm install'`,
         externalLink: detailLink,
@@ -104,22 +106,23 @@ export async function installCompilerWithUi(
 
   const result = await tryExecuteWithUi(
     {
-      name: `Install TypeSpec Compiler/CLI`,
+      name: `Install TypeSpec Compiler/CLI ${locString}`,
       confirm: confirmOption,
       progress: {
-        title: `Installing TypeSpec Compiler/CLI...`,
+        title: `Installing TypeSpec Compiler/CLI ${locString}...`,
         timeoutInMs: 10 * 60 * 1000,
         withCancelAndTimeout: true,
       },
     },
     async () => {
       let pathToInstall: string | undefined = paths[0];
-      if (paths.length > 1) {
+      if (!onlyGlobalInPaths) {
+        // we need to let user choose/confirm where to install the compiler
         const selectedPath = await vscode.window.showQuickPick(
           paths.map((p) => ({ label: p === globalPath ? "Global" : p, path: p })),
           {
             title: "Install TypeSpec Compiler/CLI",
-            placeHolder: "Select the path to install TypeSpec Compiler/CLI",
+            placeHolder: "Where do you want to install TypeSpec Compiler/CLI",
             canPickMany: false,
             ignoreFocusOut: true,
           },

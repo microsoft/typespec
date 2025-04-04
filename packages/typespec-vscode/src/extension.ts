@@ -252,8 +252,7 @@ export async function activate(context: ExtensionContext) {
 
             const installResult = await installCompilerWithUi(
               {
-                // we already confirmed above
-                confirmNeeded: false,
+                confirmNeeded: true,
               },
               pathChoices,
             );
