@@ -238,7 +238,7 @@ export async function activate(context: ExtensionContext) {
             );
             if (choice === undefined || choice === "Ignore") {
               logger.info("User cancelled the prompt to install TypeSpec compiler.");
-              ssTel.lastStep = "Prompt to install TypeSpec compiler.";
+              ssTel.lastStep = "Prompt to install TypeSpec compiler (cancelled).";
               return ResultCode.Cancelled;
             }
 
@@ -252,12 +252,7 @@ export async function activate(context: ExtensionContext) {
             ].sort();
             pathChoices.push("global");
 
-            const installResult = await installCompilerWithUi(
-              {
-                confirmNeeded: true,
-              },
-              pathChoices,
-            );
+            const installResult = await installCompilerWithUi({ confirmNeeded: true }, pathChoices);
             if (installResult.code === ResultCode.Success) {
               logger.info(
                 "TypeSpec compiler installed successfully. Try to start LSP server again.",
