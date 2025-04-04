@@ -112,7 +112,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
                 emitter.Info($"searching for DLLs in {packageDistPath}");
-                if (IsSymlinkOrDirectory(packageDistPath, emitter))
+                // if (IsSymlinkOrDirectory(packageDistPath, emitter))
                 {
                     TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder, emitter);
                 }
