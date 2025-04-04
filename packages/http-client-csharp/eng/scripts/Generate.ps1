@@ -35,8 +35,14 @@ if (-not $LaunchOnly) {
             exit $LASTEXITCODE
         }
 
-        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+        Write-Host "Packing SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "npm pack" $packageRoot
+
+        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+        Invoke "npm ci" $sampleDir
+
+        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
         Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -emitterDir (Join-Path $sampleDir 'node_modules' '@typespec' 'http-client-csharp') -saveInputs $false)
 
@@ -47,6 +53,9 @@ if (-not $LaunchOnly) {
   
         Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
         Invoke "dotnet build $sampleDir/src/SampleTypeSpec.csproj"
+
+        Write-Host "Deleting http-client-csharp tarball" -ForegroundColor Cyan
+        Remove-Item "$packageRoot/typespec-http-client-csharp*.tgz" -Force
   
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {

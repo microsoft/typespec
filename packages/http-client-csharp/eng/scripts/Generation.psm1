@@ -77,7 +77,6 @@ function Refresh-Build {
     # generating Microsoft.TypeSpec.Generator.ClientModel.csproj is enough
     Invoke "dotnet build $repoRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel.StubLibrary/src"
 
-    Invoke "npm run install:samples"
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
