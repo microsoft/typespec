@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -106,20 +107,21 @@ namespace Microsoft.TypeSpec.Generator
 
             var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
 
+            using var emitter = new Emitter(Console.OpenStandardOutput());
             foreach (var package in packageNamesInOrder)
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
-                CodeModelGenerator.Instance.Emitter.Info($"Searching for DLLs in {packageDistPath}");
-                if (IsSymlinkOrDirectory(packageDistPath))
+                emitter.Info($"searching for DLLs in {packageDistPath}");
+                if (IsSymlinkOrDirectory(packageDistPath, emitter))
                 {
-                    TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
+                    TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder, emitter);
                 }
             }
 
             return dllPathsInOrder;
         }
 
-        private static bool IsSymlinkOrDirectory(string path)
+        private static bool IsSymlinkOrDirectory(string path, Emitter emitter)
         {
             if (Directory.Exists(path))
             {
@@ -128,9 +130,9 @@ namespace Microsoft.TypeSpec.Generator
 
             try
             {
-                CodeModelGenerator.Instance.Emitter.Info($"Directory.Exists was false for {path}");
+                emitter.Info($"Directory.Exists was false for {path}");
                 var attr = File.GetAttributes(path);
-                CodeModelGenerator.Instance.Emitter.Info($"File.GetAttributes returned {attr} for {path}");
+                emitter.Info($"File.GetAttributes returned {attr} for {path}");
 
                 // Check if it's a directory or a symlink/junction/etc.
                 return (attr & FileAttributes.Directory) != 0 ||
@@ -143,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void TraverseDirectory(DirectoryInfo directory, IList<string> dlls)
+        private static void TraverseDirectory(DirectoryInfo directory, IList<string> dlls, Emitter emitter)
         {
             foreach (var file in directory.GetFiles("*.dll"))
             {
@@ -155,11 +157,11 @@ namespace Microsoft.TypeSpec.Generator
                 // Detect symlink
                 if ((subdir.Attributes & FileAttributes.ReparsePoint) != 0)
                 {
-                    TraverseDirectory(new DirectoryInfo(subdir.FullName), dlls);
+                    TraverseDirectory(new DirectoryInfo(subdir.FullName), dlls, emitter);
                 }
                 else
                 {
-                    TraverseDirectory(subdir, dlls);
+                    TraverseDirectory(subdir, dlls, emitter);
                 }
             }
         }

@@ -14,16 +14,27 @@ if (-not $LaunchOnly) {
     Refresh-Build
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+        if (Test-Path "$sampleDir/node_modules") {
+            Write-Host "Delete node_modules for SampleService" -ForegroundColor Cyan
+            Remove-Item "$sampleDir/node_modules" -Recurse -Force
+        }
+        if (Test-Path "$sampleDir/package-lock.json") {
+            Write-Host "Delete package-lock.json for SampleService" -ForegroundColor Cyan
+            Remove-Item "$sampleDir/package-lock.json" -Force
+        }
+        Write-Host "Clean cache for SampleService" -ForegroundColor Cyan
+        Invoke "npm cache clean --force" $sampleDir
+
         Write-Host "Packing SampleTypeSpec" -ForegroundColor Cyan
         Invoke "npm pack" $packageRoot
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
         Invoke "npm install" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
-        Invoke "npx tsp compile ." $sampleDir
+        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
