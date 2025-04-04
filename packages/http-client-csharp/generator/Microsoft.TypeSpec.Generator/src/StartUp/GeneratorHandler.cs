@@ -109,6 +109,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var package in packageNamesInOrder)
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
+                CodeModelGenerator.Instance.Emitter.Info($"Searching for DLLs in {packageDistPath}");
                 if (IsSymlinkOrDirectory(packageDistPath))
                 {
                     TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
@@ -127,7 +128,9 @@ namespace Microsoft.TypeSpec.Generator
 
             try
             {
+                CodeModelGenerator.Instance.Emitter.Info($"Directory.Exists was false for {path}");
                 var attr = File.GetAttributes(path);
+                CodeModelGenerator.Instance.Emitter.Info($"File.GetAttributes returned {attr} for {path}");
 
                 // Check if it's a directory or a symlink/junction/etc.
                 return (attr & FileAttributes.Directory) != 0 ||
