@@ -9,8 +9,8 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
-import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
+import { InputServiceMethod } from "./input-service-method.js";
 
 export interface InputClient extends DecoratedType {
   kind: "client";
@@ -19,7 +19,7 @@ export interface InputClient extends DecoratedType {
   doc?: string;
   summary?: string;
   parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
-  operations: InputOperation[];
+  methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
   parent?: InputClient;
@@ -122,7 +122,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
+  kind: InputModelPropertyKind;
   name: string;
   serializedName: string;
   type: InputType;
@@ -131,7 +131,15 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
+}
+
+export enum InputModelPropertyKind {
+  Property = "property",
+  Header = "header",
+  Query = "query",
+  Path = "path",
+  Cookie = "cookie",
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

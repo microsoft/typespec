@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public enum InputOperationParameterKind
+    public enum InputParameterKind
     {
         Method = 0,
         Client = 1,
