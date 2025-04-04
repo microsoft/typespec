@@ -107,17 +107,66 @@ namespace Microsoft.TypeSpec.Generator
 
             var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
 
+            using var emitter = new Emitter(Console.OpenStandardOutput());
             foreach (var package in packageNamesInOrder)
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
+                emitter.Info($"Searching for DLLs in {packageDistPath}");
                 if (Directory.Exists(packageDistPath))
                 {
-                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
-                    dllPathsInOrder.AddRange(dlls);
+                    TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
+                }
+                else
+                {
+                    emitter.Info($"Directory {packageDistPath} does not exist.");
                 }
             }
 
             return dllPathsInOrder;
+        }
+
+        private static void TraverseDirectory(DirectoryInfo directory, IList<string> dlls)
+        {
+            foreach (var file in directory.GetFiles("*.dll"))
+            {
+                dlls.Add(file.FullName);
+            }
+            foreach (var subdir in directory.GetDirectories())
+            {
+                // Detect symlink
+                if ((subdir.Attributes & FileAttributes.ReparsePoint) != 0)
+                {
+                    TraverseDirectory(new DirectoryInfo(subdir.FullName), dlls);
+                }
+                else
+                {
+                    TraverseDirectory(subdir, dlls);
+                }
+            }
+        }
+
+        private static bool IsSymlinkOrDirectory(string path, Emitter emitter)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            try
+            {
+                emitter.Info($"Directory.Exists was false for {path}");
+                var attr = File.GetAttributes(path);
+                emitter.Info($"File.GetAttributes returned {attr} for {path}");
+
+                // Check if it's a directory or a symlink/junction/etc.
+                return (attr & FileAttributes.Directory) != 0 ||
+                       (attr & FileAttributes.ReparsePoint) != 0;
+            }
+            catch (Exception)
+            {
+                // If the path doesn't exist or can't be accessed
+                return false;
+            }
         }
 
         private static string? FindRootDirectory(string startDirectory)
