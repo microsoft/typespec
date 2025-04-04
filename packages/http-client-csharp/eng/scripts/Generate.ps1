@@ -23,7 +23,7 @@ if (-not $LaunchOnly) {
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
-        Invoke "tsp compile ." $sampleDir
+        Invoke "npx tsp compile ." $sampleDir
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
