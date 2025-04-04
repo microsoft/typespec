@@ -111,12 +111,32 @@ namespace Microsoft.TypeSpec.Generator
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
                 if (Directory.Exists(packageDistPath))
                 {
-                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
-                    dllPathsInOrder.AddRange(dlls);
+                    TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
                 }
             }
 
             return dllPathsInOrder;
+        }
+
+        private static void TraverseDirectory(DirectoryInfo directory, List<string> dlls)
+        {
+            foreach (var file in directory.GetFiles("*.dll"))
+            {
+                dlls.Add(file.FullName);
+            }
+
+            foreach (var subdir in directory.GetDirectories())
+            {
+                // Detect symlink
+                if ((subdir.Attributes & FileAttributes.ReparsePoint) != 0)
+                {
+                    TraverseDirectory(new DirectoryInfo(subdir.FullName), dlls);
+                }
+                else
+                {
+                    TraverseDirectory(subdir, dlls);
+                }
+            }
         }
 
         private static string? FindRootDirectory(string startDirectory)
