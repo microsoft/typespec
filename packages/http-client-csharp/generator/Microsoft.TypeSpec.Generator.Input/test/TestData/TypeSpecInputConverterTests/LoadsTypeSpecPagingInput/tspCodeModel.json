@@ -1,6 +1,6 @@
 {
   "$id": "1",
-  "name": "UnbrandedTypeSpec",
+  "name": "SampleTypeSpec",
   "apiVersions": ["2024-07-16-preview", "2024-08-16-preview"],
   "enums": [
     {
@@ -30,7 +30,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_requiredLiteralString",
       "isFixed": false,
       "isFlags": false,
@@ -64,7 +64,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_requiredLiteralInt",
       "isFixed": false,
       "isFlags": false,
@@ -98,7 +98,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_requiredLiteralFloat",
       "isFixed": false,
       "isFlags": false,
@@ -132,7 +132,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_optionalLiteralString",
       "isFixed": false,
       "isFlags": false,
@@ -166,7 +166,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_optionalLiteralInt",
       "isFixed": false,
       "isFlags": false,
@@ -200,7 +200,7 @@
         }
       ],
       "crossLanguageDefinitionId": "",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "The Thing_optionalLiteralFloat",
       "isFixed": false,
       "isFlags": false,
@@ -211,7 +211,7 @@
       "$id": "20",
       "kind": "enum",
       "name": "StringFixedEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.StringFixedEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.StringFixedEnum",
       "valueType": {
         "$id": "21",
         "kind": "string",
@@ -272,7 +272,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "Simple enum",
       "isFixed": true,
       "isFlags": false,
@@ -283,7 +283,7 @@
       "$id": "28",
       "kind": "enum",
       "name": "StringExtensibleEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.StringExtensibleEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.StringExtensibleEnum",
       "valueType": {
         "$id": "29",
         "kind": "string",
@@ -344,7 +344,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "Extensible enum",
       "isFixed": false,
       "isFlags": false,
@@ -355,7 +355,7 @@
       "$id": "36",
       "kind": "enum",
       "name": "IntExtensibleEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.IntExtensibleEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.IntExtensibleEnum",
       "valueType": {
         "$id": "37",
         "kind": "int32",
@@ -416,7 +416,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "Int based extensible enum",
       "isFixed": false,
       "isFlags": false,
@@ -427,7 +427,7 @@
       "$id": "44",
       "kind": "enum",
       "name": "FloatExtensibleEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnum",
       "valueType": {
         "$id": "45",
         "kind": "float32",
@@ -488,7 +488,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "Float based extensible enum",
       "isFixed": false,
       "isFlags": false,
@@ -499,7 +499,7 @@
       "$id": "52",
       "kind": "enum",
       "name": "FloatExtensibleEnumWithIntValue",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnumWithIntValue",
+      "crossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnumWithIntValue",
       "valueType": {
         "$id": "53",
         "kind": "float32",
@@ -560,7 +560,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "float fixed enum",
       "isFixed": false,
       "isFlags": false,
@@ -571,7 +571,7 @@
       "$id": "60",
       "kind": "enum",
       "name": "FloatFixedEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnum",
       "valueType": {
         "$id": "61",
         "kind": "float32",
@@ -632,7 +632,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "float fixed enum",
       "isFixed": true,
       "isFlags": false,
@@ -643,7 +643,7 @@
       "$id": "68",
       "kind": "enum",
       "name": "FloatFixedEnumWithIntValue",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnumWithIntValue",
+      "crossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnumWithIntValue",
       "valueType": {
         "$id": "69",
         "kind": "int32",
@@ -704,7 +704,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "float fixed enum",
       "isFixed": true,
       "isFlags": false,
@@ -715,7 +715,7 @@
       "$id": "76",
       "kind": "enum",
       "name": "IntFixedEnum",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.IntFixedEnum",
+      "crossLanguageDefinitionId": "SampleTypeSpec.IntFixedEnum",
       "valueType": {
         "$id": "77",
         "kind": "int32",
@@ -776,7 +776,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "int fixed enum",
       "isFixed": true,
       "isFlags": false,
@@ -787,7 +787,7 @@
       "$id": "84",
       "kind": "enum",
       "name": "Versions",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Versions",
+      "crossLanguageDefinitionId": "SampleTypeSpec.Versions",
       "valueType": {
         "$id": "85",
         "kind": "string",
@@ -831,7 +831,7 @@
           "decorators": []
         }
       ],
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "isFixed": true,
       "isFlags": false,
       "usage": "ApiVersionEnum",
@@ -843,8 +843,8 @@
       "$id": "90",
       "kind": "model",
       "name": "Thing",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.Thing",
       "usage": "Input,Output,Spread,Json",
       "doc": "A model with a few properties of literal types",
       "decorators": [],
@@ -867,7 +867,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.name",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.name",
           "serializationOptions": {
             "$id": "93",
             "json": {
@@ -924,7 +924,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredUnion",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredUnion",
           "serializationOptions": {
             "$id": "101",
             "json": {
@@ -953,7 +953,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralString",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralString",
           "serializationOptions": {
             "$id": "105",
             "json": {
@@ -985,7 +985,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredNullableString",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredNullableString",
           "serializationOptions": {
             "$id": "110",
             "json": {
@@ -1017,7 +1017,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalNullableString",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalNullableString",
           "serializationOptions": {
             "$id": "115",
             "json": {
@@ -1046,7 +1046,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralInt",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralInt",
           "serializationOptions": {
             "$id": "119",
             "json": {
@@ -1075,7 +1075,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralFloat",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralFloat",
           "serializationOptions": {
             "$id": "123",
             "json": {
@@ -1108,7 +1108,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredLiteralBool",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralBool",
           "serializationOptions": {
             "$id": "128",
             "json": {
@@ -1137,7 +1137,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralString",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralString",
           "serializationOptions": {
             "$id": "132",
             "json": {
@@ -1166,7 +1166,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralInt",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralInt",
           "serializationOptions": {
             "$id": "136",
             "json": {
@@ -1195,7 +1195,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralFloat",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralFloat",
           "serializationOptions": {
             "$id": "140",
             "json": {
@@ -1228,7 +1228,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalLiteralBool",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralBool",
           "serializationOptions": {
             "$id": "145",
             "json": {
@@ -1255,7 +1255,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredBadDescription",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredBadDescription",
           "serializationOptions": {
             "$id": "149",
             "json": {
@@ -1294,7 +1294,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.optionalNullableList",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalNullableList",
           "serializationOptions": {
             "$id": "155",
             "json": {
@@ -1333,7 +1333,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.Thing.requiredNullableList",
+          "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredNullableList",
           "serializationOptions": {
             "$id": "161",
             "json": {
@@ -1348,8 +1348,8 @@
       "$id": "163",
       "kind": "model",
       "name": "RoundTripModel",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel",
       "usage": "Input,Output,Json",
       "doc": "this is a roundtrip model",
       "decorators": [],
@@ -1372,7 +1372,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredString",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredString",
           "serializationOptions": {
             "$id": "166",
             "json": {
@@ -1400,7 +1400,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredInt",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredInt",
           "serializationOptions": {
             "$id": "170",
             "json": {
@@ -1430,7 +1430,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredCollection",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredCollection",
           "serializationOptions": {
             "$id": "174",
             "json": {
@@ -1465,7 +1465,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredDictionary",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredDictionary",
           "serializationOptions": {
             "$id": "179",
             "json": {
@@ -1488,7 +1488,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredModel",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredModel",
           "serializationOptions": {
             "$id": "182",
             "json": {
@@ -1511,7 +1511,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intExtensibleEnum",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.intExtensibleEnum",
           "serializationOptions": {
             "$id": "185",
             "json": {
@@ -1541,7 +1541,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intExtensibleEnumCollection",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.intExtensibleEnumCollection",
           "serializationOptions": {
             "$id": "189",
             "json": {
@@ -1564,7 +1564,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnum",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatExtensibleEnum",
           "serializationOptions": {
             "$id": "192",
             "json": {
@@ -1587,7 +1587,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnumWithIntValue",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatExtensibleEnumWithIntValue",
           "serializationOptions": {
             "$id": "195",
             "json": {
@@ -1617,7 +1617,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatExtensibleEnumCollection",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatExtensibleEnumCollection",
           "serializationOptions": {
             "$id": "199",
             "json": {
@@ -1640,7 +1640,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnum",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatFixedEnum",
           "serializationOptions": {
             "$id": "202",
             "json": {
@@ -1663,7 +1663,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnumWithIntValue",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatFixedEnumWithIntValue",
           "serializationOptions": {
             "$id": "205",
             "json": {
@@ -1693,7 +1693,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.floatFixedEnumCollection",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.floatFixedEnumCollection",
           "serializationOptions": {
             "$id": "209",
             "json": {
@@ -1716,7 +1716,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intFixedEnum",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.intFixedEnum",
           "serializationOptions": {
             "$id": "212",
             "json": {
@@ -1746,7 +1746,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.intFixedEnumCollection",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.intFixedEnumCollection",
           "serializationOptions": {
             "$id": "216",
             "json": {
@@ -1769,7 +1769,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.stringFixedEnum",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.stringFixedEnum",
           "serializationOptions": {
             "$id": "219",
             "json": {
@@ -1796,7 +1796,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredUnknown",
           "serializationOptions": {
             "$id": "223",
             "json": {
@@ -1823,7 +1823,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.optionalUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.optionalUnknown",
           "serializationOptions": {
             "$id": "227",
             "json": {
@@ -1862,7 +1862,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredRecordUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredRecordUnknown",
           "serializationOptions": {
             "$id": "233",
             "json": {
@@ -1901,7 +1901,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.optionalRecordUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.optionalRecordUnknown",
           "serializationOptions": {
             "$id": "239",
             "json": {
@@ -1940,7 +1940,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.readOnlyRequiredRecordUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.readOnlyRequiredRecordUnknown",
           "serializationOptions": {
             "$id": "245",
             "json": {
@@ -1979,7 +1979,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.readOnlyOptionalRecordUnknown",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.readOnlyOptionalRecordUnknown",
           "serializationOptions": {
             "$id": "251",
             "json": {
@@ -1998,8 +1998,8 @@
             "$id": "254",
             "kind": "model",
             "name": "ModelWithRequiredNullableProperties",
-            "namespace": "UnbrandedTypeSpec",
-            "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties",
             "usage": "Input,Output,Json",
             "doc": "A model with a few required nullable properties",
             "decorators": [],
@@ -2027,7 +2027,7 @@
                 "discriminator": false,
                 "flatten": false,
                 "decorators": [],
-                "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredNullablePrimitive",
+                "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties.requiredNullablePrimitive",
                 "serializationOptions": {
                   "$id": "258",
                   "json": {
@@ -2055,7 +2055,7 @@
                 "discriminator": false,
                 "flatten": false,
                 "decorators": [],
-                "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredExtensibleEnum",
+                "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties.requiredExtensibleEnum",
                 "serializationOptions": {
                   "$id": "262",
                   "json": {
@@ -2083,7 +2083,7 @@
                 "discriminator": false,
                 "flatten": false,
                 "decorators": [],
-                "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties.requiredFixedEnum",
+                "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties.requiredFixedEnum",
                 "serializationOptions": {
                   "$id": "266",
                   "json": {
@@ -2099,7 +2099,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.modelWithRequiredNullable",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.modelWithRequiredNullable",
           "serializationOptions": {
             "$id": "268",
             "json": {
@@ -2127,7 +2127,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel.requiredBytes",
+          "crossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel.requiredBytes",
           "serializationOptions": {
             "$id": "272",
             "json": {
@@ -2145,8 +2145,8 @@
       "$id": "274",
       "kind": "model",
       "name": "Friend",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
       "usage": "Output,Spread,Json",
       "doc": "this is not a friendly model but with a friendly name",
       "decorators": [],
@@ -2169,7 +2169,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend.name",
+          "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
           "serializationOptions": {
             "$id": "277",
             "json": {
@@ -2184,8 +2184,8 @@
       "$id": "279",
       "kind": "model",
       "name": "ProjectedModel",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithProjectedName",
       "usage": "Output,Spread,Json",
       "doc": "this is a model with a projected name",
       "decorators": [],
@@ -2208,7 +2208,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName.name",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithProjectedName.name",
           "serializationOptions": {
             "$id": "282",
             "json": {
@@ -2223,8 +2223,8 @@
       "$id": "284",
       "kind": "model",
       "name": "ReturnsAnonymousModelResponse",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
       "properties": []
@@ -2233,8 +2233,8 @@
       "$id": "285",
       "kind": "model",
       "name": "ListWithNextLinkResponse",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink.Response.anonymous",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
       "properties": [
@@ -2258,7 +2258,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink.Response.anonymous.things",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous.things",
           "serializationOptions": {
             "$id": "288",
             "json": {
@@ -2284,7 +2284,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink.Response.anonymous.next",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous.next",
           "serializationOptions": {
             "$id": "292",
             "json": {
@@ -2299,8 +2299,8 @@
       "$id": "294",
       "kind": "model",
       "name": "ListWithContinuationTokenResponse",
-      "namespace": "UnbrandedTypeSpec",
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken.Response.anonymous",
+      "namespace": "SampleTypeSpec",
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous",
       "usage": "Output,Json",
       "decorators": [],
       "properties": [
@@ -2324,7 +2324,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken.Response.anonymous.things",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous.things",
           "serializationOptions": {
             "$id": "297",
             "json": {
@@ -2350,7 +2350,7 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken.Response.anonymous.nextToken",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous.nextToken",
           "serializationOptions": {
             "$id": "301",
             "json": {
@@ -2366,13 +2366,13 @@
     {
       "$id": "303",
       "name": "UnbrandedTypeSpecClient",
-      "namespace": "UnbrandedTypeSpec",
+      "namespace": "SampleTypeSpec",
       "doc": "This is a sample typespec project.",
       "operations": [
         {
           "$id": "457",
           "name": "ListWithNextLink",
-          "resourceName": "UnbrandedTypeSpec",
+          "resourceName": "SampleTypeSpec",
           "doc": "List things with nextlink",
           "accessibility": "public",
           "parameters": [
@@ -2431,13 +2431,13 @@
           },
           "generateProtocolMethod": true,
           "generateConvenienceMethod": true,
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
           "decorators": []
         },
         {
           "$id": "464",
           "name": "ListWithContinuationToken",
-          "resourceName": "UnbrandedTypeSpec",
+          "resourceName": "SampleTypeSpec",
           "doc": "List things with continuation token",
           "accessibility": "public",
           "parameters": [
@@ -2534,7 +2534,7 @@
           },
           "generateProtocolMethod": true,
           "generateConvenienceMethod": true,
-          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
           "decorators": []
         }
       ],
@@ -2560,7 +2560,7 @@
         }
       ],
       "decorators": [],
-      "crossLanguageDefinitionId": "UnbrandedTypeSpec"
+      "crossLanguageDefinitionId": "SampleTypeSpec"
     }
   ],
   "auth": {

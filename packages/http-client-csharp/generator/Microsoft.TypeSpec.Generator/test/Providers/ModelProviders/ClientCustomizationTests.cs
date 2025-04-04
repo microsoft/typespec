@@ -302,10 +302,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var attributes = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").CustomCodeView!.Attributes;
             Assert.AreEqual(4, attributes.Count);
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
 
             // validate that the properties are cached
             Assert.AreSame(attributes[0].Type, attributes[0].Type);
