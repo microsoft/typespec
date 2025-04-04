@@ -1,14 +1,14 @@
 # Following scenarios are skipped due to compilation errors
 #routes/main.tsp
-special-words/main.tsp
+#special-words/main.tsp
 #parameters/collection-format/main.tsp
 payload/multipart/main.tsp
-payload/pageable/main.tsp
+#payload/pageable/main.tsp
 #special-headers/conditional-request/main.tsp
 #type/array/main.tsp
 #type/dictionary/main.tsp
 #type/scalar/main.tsp
-type/union/main.tsp
+#type/union/main.tsp
 #server/endpoint/not-defined/main.tsp
 #server/versions/not-versioned/main.tsp
 #type/enum/extensible/main.tsp

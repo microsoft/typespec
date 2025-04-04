@@ -930,6 +930,46 @@ it("Generates good name for model instantiation without hints", async () => {
   );
 });
 
+it("Generates good names for anonymous responses", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using Rest.Resource;
+
+       model Toy {
+        @key("toyId")
+        id: int64;
+      
+        petId: int64;
+        name: string;
+      }
+
+      model Foo<T> {
+        prop: T;
+      }
+
+      #suppress "@typespec/http-server-csharp/anonymous-model" "test"
+      #suppress "@typespec/http-server-csharp/invalid-identifier" "test"
+       op foo(): { /** a property */ foo: Foo<Toy>};
+    `,
+    [
+      ["FooToy.cs", ["public partial class FooToy", "public Toy Prop { get; set; }"]],
+      [
+        "ContosoOperationsFooResponse.cs",
+        ["public partial class ContosoOperationsFooResponse", "public FooToy Foo { get; set; }"],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "public partial class ContosoOperationsController",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ContosoOperationsFooResponse))]",
+          "public virtual async Task<IActionResult> Foo()",
+        ],
+      ],
+    ],
+  );
+});
+
 it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
@@ -2398,7 +2438,7 @@ describe("emit correct code for `@error` models", () => {
         `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
         `Code = code;`,
         `MessageProp = message;`,
-        `ValueProp = value;`,
+        `ValueName = value;`,
         `HeadersProp = headers;`,
         `StackTraceProp = stackTrace;`,
         `SourceProp = source;`,
@@ -2409,7 +2449,7 @@ describe("emit correct code for `@error` models", () => {
         `HelpLinkProp = helpLink;`,
         `public string Code { get; set; }`,
         `public string MessageProp { get; set; }`,
-        `public string ValueProp { get; set; }`,
+        `public string ValueName { get; set; }`,
         `public string HeadersProp { get; set; }`,
         `public string StackTraceProp { get; set; }`,
         `public string SourceProp { get; set; }`,
