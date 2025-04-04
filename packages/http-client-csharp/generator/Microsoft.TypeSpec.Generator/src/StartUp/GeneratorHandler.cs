@@ -112,14 +112,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
                 emitter.Info($"Searching for DLLs in {packageDistPath}");
-                if (Directory.Exists(packageDistPath))
+                // if (Directory.Exists(packageDistPath))
                 {
                     TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
                 }
-                else
-                {
-                    emitter.Info($"Directory {packageDistPath} does not exist.");
-                }
+                // else
+                // {
+                //     emitter.Info($"Directory {packageDistPath} does not exist.");
+                // }
             }
 
             return dllPathsInOrder;
