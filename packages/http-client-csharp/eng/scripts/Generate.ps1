@@ -19,23 +19,8 @@ if (-not $LaunchOnly) {
         $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
         Invoke "dotnet build" $pluginDir
 
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-        if (Test-Path "$sampleDir/node_modules") {
-            Write-Host "Delete node_modules for SampleService" -ForegroundColor Cyan
-            Remove-Item "$sampleDir/node_modules" -Recurse -Force
-        }
-        if (Test-Path "$sampleDir/package-lock.json") {
-            Write-Host "Delete package-lock.json for SampleService" -ForegroundColor Cyan
-            Remove-Item "$sampleDir/package-lock.json" -Force
-        }
-        Write-Host "Clean cache for SampleService" -ForegroundColor Cyan
-        Invoke "npm cache clean --force" $sampleDir
-
-        Write-Host "Packing SampleTypeSpec" -ForegroundColor Cyan
-        Invoke "npm pack" $packageRoot
-
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
-        Invoke "npm install" $sampleDir
+        Invoke "npm ci" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
@@ -47,10 +32,7 @@ if (-not $LaunchOnly) {
         }
   
         Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/src/SampleTypeSpec.csproj"
-
-        Write-Host "Deleting http-client-csharp tarball" -ForegroundColor Cyan
-        Remove-Item "$packageRoot/typespec-http-client-csharp*.tgz" -Force
+        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
   
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
