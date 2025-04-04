@@ -14,6 +14,11 @@ if (-not $LaunchOnly) {
     Refresh-Build
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+
+        Write-Host "Building logging plugin" -ForegroundColor Cyan
+        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+        Invoke "dotnet build" $pluginDir
+
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
         if (Test-Path "$sampleDir/node_modules") {
             Write-Host "Delete node_modules for SampleService" -ForegroundColor Cyan
