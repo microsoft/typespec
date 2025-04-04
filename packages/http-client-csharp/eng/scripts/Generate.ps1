@@ -20,6 +20,7 @@ if (-not $LaunchOnly) {
         Invoke "dotnet build" $pluginDir
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
         Invoke "npm install" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
