@@ -63,6 +63,7 @@ import {
 } from "./boilerplate.js";
 import { getProjectDocs } from "./doc.js";
 import {
+  Attribute,
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
@@ -554,7 +555,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         nullableType: nullable,
       } = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
-      const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
+      const attributes = new Map<string, Attribute>(
+        getModelAttributes(this.emitter.getProgram(), property, propertyName).map((a) => [
+          a.type.name,
+          a,
+        ]),
+      );
       const modelName: string | undefined = this.emitter.getContext()["name"];
       if (
         modelName === propertyName ||
@@ -563,15 +569,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           isErrorModel(this.emitter.getProgram(), property.model))
       ) {
         propertyName = `${propertyName}Prop`;
-        attributes.push(
-          getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
-        );
+        const attr = getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!;
+        if (!attributes.has(attr.type.name)) attributes.set(attr.type.name, attr);
       }
       const defaultValue = property.defaultValue
         ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
         : typeDefault;
+      const attributeList = [...attributes.values()];
       return this.emitter.result
-        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
+        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
         isValueType(this.emitter.getProgram(), property.type) && (property.optional || nullable)
           ? "?"
           : ""
@@ -658,7 +664,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     interfaceDeclarationOperations(iface: Interface): EmitterOutput<string> {
       // add in operations
       const builder: StringBuilder = new StringBuilder();
-      const metadata = new HttpMetadata();
       const context = this.emitter.getContext();
       const name = `${ensureCSharpIdentifier(
         this.emitter.getProgram(),
@@ -682,9 +687,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         for (const response of httpOp.responses.filter(
           (r) => !isErrorModel(this.emitter.getProgram(), r.type),
         )) {
-          returnTypes.push(
-            metadata.resolveLogicalResponseType(this.emitter.getProgram(), response),
-          );
+          const [_, responseType] = this.#resolveOperationResponse(response, httpOp.operation);
+          returnTypes.push(responseType);
         }
         const returnInfo = coalesceTypes(this.emitter.getProgram(), returnTypes, namespace);
         const returnType: CSharpType = returnInfo?.type || UnknownType;
@@ -878,6 +882,32 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.emitter.result.rawCode(stringTemplate.stringValue || "");
     }
 
+    #resolveOperationResponse(
+      response: HttpOperationResponse,
+      operation: Operation,
+    ): [CSharpType, Type] {
+      function getName(sourceType: Model, part: string): string {
+        return ensureCSharpIdentifier(emitter.getProgram(), sourceType, part, NameCasingType.Class);
+      }
+      let responseType = new HttpMetadata().resolveLogicalResponseType(
+        this.emitter.getProgram(),
+        response,
+      );
+
+      if (responseType.kind === "Model" && !responseType.name) {
+        const modelName = `${getName(responseType, operation.interface!.name)}${getName(responseType, operation.name)}Response}`;
+        const returnedType = this.emitter
+          .getProgram()
+          .checker.cloneType(responseType, { name: modelName });
+        responseType = returnedType;
+      }
+      this.emitter.emitType(responseType);
+
+      const context = this.emitter.getContext();
+      const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
+      return [result?.type || UnknownType, responseType];
+    }
+
     #getOperationResponse(operation: HttpOperation): ResponseInfo | undefined {
       const validResponses = operation.responses.filter(
         (r) =>
@@ -902,6 +932,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       };
     }
     #emitOperationResponses(operation: HttpOperation): EmitterOutput<string> {
+      function isValid(program: Program, response: HttpOperationResponse) {
+        return (
+          !isErrorModel(program, response.type) &&
+          getCSharpStatusCode(response.statusCodes) !== undefined
+        );
+      }
       const builder: StringBuilder = new StringBuilder();
       let i = 0;
       const validResponses = operation.responses.filter(
@@ -909,39 +945,40 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           !isErrorModel(this.emitter.getProgram(), r.type) &&
           getCSharpStatusCode(r.statusCodes) !== undefined,
       );
-      for (const response of validResponses) {
-        i++;
-        builder.push(code`${this.#emitOperationResponseDecorator(response)}`);
-        if (i < validResponses.length) {
-          builder.pushLiteralSegment("\n");
-        }
-      }
-
       for (const response of operation.responses) {
-        if (!isEmptyResponseModel(this.emitter.getProgram(), response.type))
-          this.emitter.emitType(response.type);
+        const [responseType, resolvedResponse] = this.#resolveOperationResponse(
+          response,
+          operation.operation,
+        );
+        if (isValid(this.emitter.getProgram(), response)) {
+          i++;
+          builder.push(
+            code`${this.#emitOperationResponseDecorator(response, resolvedResponse, responseType)}`,
+          );
+          if (i < validResponses.length) {
+            builder.pushLiteralSegment("\n");
+          }
+        }
       }
 
       return builder.reduce();
     }
 
-    #emitOperationResponseDecorator(response: HttpOperationResponse) {
-      const responseType = new HttpMetadata().resolveLogicalResponseType(
-        this.emitter.getProgram(),
-        response,
-      );
+    #emitOperationResponseDecorator(
+      response: HttpOperationResponse,
+      responseType: Type,
+      result: CSharpType,
+    ) {
       return this.emitter.result.rawCode(
         code`[ProducesResponseType((int)${getCSharpStatusCode(
           response.statusCodes,
-        )!}, Type = typeof(${this.#emitResponseType(responseType)}))]`,
+        )!}, Type = typeof(${this.#emitResponseType(result)}))]`,
       );
     }
 
-    #emitResponseType(type: Type) {
+    #emitResponseType(type: CSharpType) {
       const context = this.emitter.getContext();
-      const result = getCSharpType(this.emitter.getProgram(), type, context.namespace);
-      const resultType = result?.type || UnknownType;
-      return resultType.getTypeReference(context.scope);
+      return type.getTypeReference(context.scope);
     }
 
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {

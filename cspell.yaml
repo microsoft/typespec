@@ -146,6 +146,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -156,6 +157,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
