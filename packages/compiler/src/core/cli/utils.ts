@@ -1,5 +1,3 @@
-// NOTE: We could also use { shell: true } to let windows find the .cmd, but that breaks
-
 import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
 import pc from "picocolors";
 import { inspect } from "util";
@@ -7,6 +5,7 @@ import { logDiagnostics } from "../diagnostics.js";
 import { Colors, ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
+import { createTracer } from "../logger/tracer.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
 import { Diagnostic } from "../types.js";
@@ -25,6 +24,7 @@ export interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> 
 export interface CliHostArgs {
   pretty?: boolean;
   debug?: boolean;
+  trace?: string[];
 }
 
 export function withCliHost<T extends CliHostArgs>(
@@ -71,8 +71,12 @@ export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
     pathRelativeTo: process.cwd(),
     trackAction: true,
   });
-  const logger = createLogger({ sink: logSink, level: options.debug ? "trace" : "warning" });
-  return { ...NodeHost, logSink, logger, debug: options.debug ?? false };
+  const logger = createLogger({ sink: logSink });
+  const tracer = createTracer(logger, {
+    filter: options.trace ?? (options.debug ? ["*"] : undefined),
+  });
+  tracer.trace("cli.args", `CLI args: ${inspect(options, { depth: null })}`);
+  return { ...NodeHost, logSink, logger, tracer, debug: options.debug ?? false };
 }
 
 export function run(
