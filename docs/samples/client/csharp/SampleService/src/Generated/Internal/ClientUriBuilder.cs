@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal partial class ClientUriBuilder
     {

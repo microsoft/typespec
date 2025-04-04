@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> The PageThing. </summary>
     internal partial class PageThing

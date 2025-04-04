@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal partial class ChangeTrackingList<T> : IList<T>, IReadOnlyList<T>
     {

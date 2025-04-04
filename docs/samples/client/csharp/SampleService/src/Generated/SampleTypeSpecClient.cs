@@ -10,10 +10,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> This is a sample typespec project. </summary>
-    public partial class UnbrandedTypeSpecClient
+    public partial class SampleTypeSpecClient
     {
         private readonly Uri _endpoint;
         /// <summary> A credential used to authenticate to the service. </summary>
@@ -21,30 +21,30 @@ namespace UnbrandedTypeSpec
         private const string AuthorizationHeader = "my-api-key";
         private readonly string _apiVersion;
 
-        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
-        protected UnbrandedTypeSpecClient()
+        /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
+        protected SampleTypeSpecClient()
         {
         }
 
-        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new SampleTypeSpecClientOptions())
         {
         }
 
-        /// <summary> Initializes a new instance of UnbrandedTypeSpecClient. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNull(keyCredential, nameof(keyCredential));
 
-            options ??= new UnbrandedTypeSpecClientOptions();
+            options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
             _keyCredential = keyCredential;
@@ -2193,7 +2193,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithNextLink.");
-                return new ListWithNextLinkCollectionResult(this, null, options);
+                return new SampleTypeSpecClientListWithNextLinkCollectionResult(this, null, options);
             }
             catch (Exception ex)
             {
@@ -2222,7 +2222,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithNextLinkAsync.");
-                return new ListWithNextLinkAsyncCollectionResult(this, null, options);
+                return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResult(this, null, options);
             }
             catch (Exception ex)
             {
@@ -2243,7 +2243,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithNextLink.");
-                return new ListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2264,7 +2264,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithNextLinkAsync.");
-                return new ListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2294,7 +2294,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationToken.");
-                return new ListWithContinuationTokenCollectionResult(this, token, options);
+                return new SampleTypeSpecClientListWithContinuationTokenCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
@@ -2324,7 +2324,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
-                return new ListWithContinuationTokenAsyncCollectionResult(this, token, options);
+                return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
@@ -2346,7 +2346,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationToken.");
-                return new ListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2368,7 +2368,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenAsync.");
-                return new ListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2398,7 +2398,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
-                return new ListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+                return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
@@ -2428,7 +2428,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
-                return new ListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+                return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
             }
             catch (Exception ex)
             {
@@ -2450,7 +2450,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponse.");
-                return new ListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2472,7 +2472,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithContinuationTokenHeaderResponseAsync.");
-                return new ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2501,7 +2501,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithPaging.");
-                return new ListWithPagingCollectionResult(this, options);
+                return new SampleTypeSpecClientListWithPagingCollectionResult(this, options);
             }
             catch (Exception ex)
             {
@@ -2530,7 +2530,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithPagingAsync.");
-                return new ListWithPagingAsyncCollectionResult(this, options);
+                return new SampleTypeSpecClientListWithPagingAsyncCollectionResult(this, options);
             }
             catch (Exception ex)
             {
@@ -2551,7 +2551,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithPaging.");
-                return new ListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {
@@ -2572,7 +2572,7 @@ namespace UnbrandedTypeSpec
             try
             {
                 Console.WriteLine("Entering method ListWithPagingAsync.");
-                return new ListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return new SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             }
             catch (Exception ex)
             {

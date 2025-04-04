@@ -7,15 +7,15 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenCollectionResult : CollectionResult
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -51,11 +51,6 @@ namespace UnbrandedTypeSpec
             {
                 return null;
             }
-        }
-
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
-        {
-            return ((ListWithContinuationTokenResponse)page).Things;
         }
     }
 }

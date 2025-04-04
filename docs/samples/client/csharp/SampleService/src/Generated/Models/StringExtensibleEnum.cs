@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> Extensible enum. </summary>
     public readonly partial struct StringExtensibleEnum : IEquatable<StringExtensibleEnum>

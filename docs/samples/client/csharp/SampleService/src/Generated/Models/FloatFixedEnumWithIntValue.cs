@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> float fixed enum. </summary>
     public enum FloatFixedEnumWithIntValue

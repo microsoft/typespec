@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary></summary>
     internal partial class ListWithNextLinkResponse : IJsonModel<ListWithNextLinkResponse>

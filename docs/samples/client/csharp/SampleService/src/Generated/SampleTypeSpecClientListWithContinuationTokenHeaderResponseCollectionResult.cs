@@ -7,15 +7,15 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithContinuationTokenHeaderResponseCollectionResult : CollectionResult
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult : CollectionResult
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class FloatFixedEnumWithIntValueExtensions
     {

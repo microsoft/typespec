@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class Optional
     {

@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> A factory class for creating instances of the models for mocking. </summary>
-    public static partial class UnbrandedTypeSpecModelFactory
+    public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
         /// <param name="name"> name of the Thing. </param>
@@ -27,7 +27,7 @@ namespace UnbrandedTypeSpec
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.Thing"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
         public static Thing Thing(string name = default, BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
@@ -77,7 +77,7 @@ namespace UnbrandedTypeSpec
         /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.RoundTripModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.RoundTripModel"/> instance for mocking. </returns>
         public static RoundTripModel RoundTripModel(string requiredString = default, int requiredInt = default, IEnumerable<StringFixedEnum> requiredCollection = default, IDictionary<string, StringExtensibleEnum> requiredDictionary = default, Thing requiredModel = default, IntExtensibleEnum? intExtensibleEnum = default, IEnumerable<IntExtensibleEnum> intExtensibleEnumCollection = default, FloatExtensibleEnum? floatExtensibleEnum = default, FloatExtensibleEnumWithIntValue? floatExtensibleEnumWithIntValue = default, IEnumerable<FloatExtensibleEnum> floatExtensibleEnumCollection = default, FloatFixedEnum? floatFixedEnum = default, FloatFixedEnumWithIntValue? floatFixedEnumWithIntValue = default, IEnumerable<FloatFixedEnum> floatFixedEnumCollection = default, IntFixedEnum? intFixedEnum = default, IEnumerable<IntFixedEnum> intFixedEnumCollection = default, StringFixedEnum? stringFixedEnum = default, BinaryData requiredUnknown = default, BinaryData optionalUnknown = default, IDictionary<string, BinaryData> requiredRecordUnknown = default, IDictionary<string, BinaryData> optionalRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyRequiredRecordUnknown = default, IReadOnlyDictionary<string, BinaryData> readOnlyOptionalRecordUnknown = default, ModelWithRequiredNullableProperties modelWithRequiredNullable = default, BinaryData requiredBytes = default)
         {
             requiredCollection ??= new ChangeTrackingList<StringFixedEnum>();
@@ -123,7 +123,7 @@ namespace UnbrandedTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
         public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
         {
 
@@ -132,7 +132,7 @@ namespace UnbrandedTypeSpec
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.Friend"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
         {
 
@@ -141,7 +141,7 @@ namespace UnbrandedTypeSpec
 
         /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the ModelWithClientName. </param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.RenamedModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedModel"/> instance for mocking. </returns>
         public static RenamedModel RenamedModel(string name = default)
         {
 
@@ -149,7 +149,7 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
         public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
         {
 

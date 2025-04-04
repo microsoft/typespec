@@ -6,7 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class Argument
     {

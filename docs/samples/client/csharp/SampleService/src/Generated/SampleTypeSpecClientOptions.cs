@@ -5,16 +5,16 @@
 using System;
 using System.ClientModel.Primitives;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    /// <summary> Client options for <see cref="UnbrandedTypeSpecClient"/>. </summary>
-    public partial class UnbrandedTypeSpecClientOptions : ClientPipelineOptions
+    /// <summary> Client options for <see cref="SampleTypeSpecClient"/>. </summary>
+    public partial class SampleTypeSpecClientOptions : ClientPipelineOptions
     {
         private const ServiceVersion LatestVersion = ServiceVersion.V2024_08_16_Preview;
 
-        /// <summary> Initializes a new instance of UnbrandedTypeSpecClientOptions. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientOptions. </summary>
         /// <param name="version"> The service version. </param>
-        public UnbrandedTypeSpecClientOptions(ServiceVersion version = LatestVersion)
+        public SampleTypeSpecClientOptions(ServiceVersion version = LatestVersion)
         {
             Version = version switch
             {

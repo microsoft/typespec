@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> Simple enum. </summary>
     public enum StringFixedEnum

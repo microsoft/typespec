@@ -35,7 +35,7 @@ if (-not $LaunchOnly) {
             exit $LASTEXITCODE
         }
 
-        Write-Host "Generating UnbrandedTypeSpec using plugins" -ForegroundColor Cyan
+        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
   
         Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -emitterDir (Join-Path $sampleDir 'node_modules' '@typespec' 'http-client-csharp') -saveInputs $false)
@@ -45,8 +45,8 @@ if (-not $LaunchOnly) {
           exit $LASTEXITCODE
         }
   
-        Write-Host "Building UnbrandedTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/src/UnbrandedTypeSpec.csproj"
+        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+        Invoke "dotnet build $sampleDir/src/SampleTypeSpec.csproj"
   
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
@@ -163,12 +163,12 @@ foreach ($directory in $directories) {
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
-    $unbrandedSpec = "TestProjects/Local/Sample-TypeSpec"
+    $sampleSpec = "TestProjects/Local/Sample-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
     $launchSettings["profiles"].Add("Sample-TypeSpec", @{})
-    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
+    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$sampleSpec -g ScmCodeModelGenerator")
     $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Sample-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Sample-Service", @{})

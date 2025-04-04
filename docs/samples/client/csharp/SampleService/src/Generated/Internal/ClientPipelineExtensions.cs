@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class ClientPipelineExtensions
     {

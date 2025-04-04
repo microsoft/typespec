@@ -6,16 +6,17 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -52,6 +53,15 @@ namespace UnbrandedTypeSpec
             else
             {
                 return null;
+            }
+        }
+
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
+        {
+            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
+            {
+                yield return item;
+                await Task.Yield();
             }
         }
     }

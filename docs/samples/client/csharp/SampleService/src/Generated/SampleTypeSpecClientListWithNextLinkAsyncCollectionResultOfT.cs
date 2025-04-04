@@ -8,15 +8,15 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
             _nextPage = nextPage;

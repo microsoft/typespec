@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary></summary>
     public readonly partial struct ThingRequiredLiteralInt

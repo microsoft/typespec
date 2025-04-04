@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> The ListWithNextLinkResponse. </summary>
     internal partial class ListWithNextLinkResponse

@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> Float based extensible enum. </summary>
     public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>

@@ -66,6 +66,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
+  // log current directory
+  console.log(`file path: ${import.meta.url}`);
+
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
     const sdkContext = {

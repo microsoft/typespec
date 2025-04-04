@@ -6,14 +6,14 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithPagingCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithPagingCollectionResultOfT : CollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientListWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;

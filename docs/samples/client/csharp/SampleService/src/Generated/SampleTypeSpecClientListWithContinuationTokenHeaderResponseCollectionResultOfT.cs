@@ -6,30 +6,29 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT : CollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
@@ -56,13 +55,9 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
+        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
-            {
-                yield return item;
-                await Task.Yield();
-            }
+            return ((ListWithContinuationTokenHeaderResponseResponse)page).Things;
         }
     }
 }

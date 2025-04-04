@@ -6,10 +6,10 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary></summary>
-    public partial class UnbrandedTypeSpecClient
+    public partial class SampleTypeSpecClient
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;

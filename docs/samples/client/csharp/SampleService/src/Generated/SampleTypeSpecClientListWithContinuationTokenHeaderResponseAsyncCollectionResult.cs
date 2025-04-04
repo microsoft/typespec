@@ -7,15 +7,15 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
-    internal partial class ListWithContinuationTokenAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -24,28 +24,30 @@ namespace UnbrandedTypeSpec
 
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithContinuationTokenRequest(_token, _options);
+            PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
-                if (nextToken == null)
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                {
+                    nextToken = value;
+                }
+                else
                 {
                     yield break;
                 }
-                message = _client.CreateListWithContinuationTokenRequest(nextToken, _options);
+                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(nextToken, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
-            if (nextPage != null)
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {

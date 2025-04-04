@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class TypeFormatters
     {

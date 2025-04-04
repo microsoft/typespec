@@ -31,7 +31,7 @@ function Get-TspCommand {
         [string]$emitterDir = $null,
         [bool]$saveInputs = $true
     )
-    if ($emitterDir -eq $null) {
+    if (-not $emitterDir) {
         $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     }
     $command = "npx tsp compile $specFile"

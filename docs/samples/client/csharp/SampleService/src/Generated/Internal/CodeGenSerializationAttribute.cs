@@ -4,7 +4,7 @@
 
 using System;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute

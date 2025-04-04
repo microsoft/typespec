@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     internal static partial class ModelSerializationExtensions
     {

@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> The Thing_optionalLiteralInt. </summary>
     public readonly partial struct ThingOptionalLiteralInt : IEquatable<ThingOptionalLiteralInt>

@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace UnbrandedTypeSpec
+namespace SampleTypeSpec
 {
     /// <summary> The Thing_optionalLiteralString. </summary>
     public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
