@@ -44,7 +44,7 @@ if (-not $LaunchOnly) {
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
-        Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -emitterDir (Join-Path $sampleDir 'node_modules' '@typespec' 'http-client-csharp') -saveInputs $false)
+        Invoke "tsp compile ." $sampleDir
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
