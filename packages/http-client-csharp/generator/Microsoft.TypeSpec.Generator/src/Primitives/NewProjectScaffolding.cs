@@ -14,8 +14,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     {
         public async Task<bool> Execute()
         {
+            var projectOptions = new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                // skip symlinks
+                AttributesToSkip = FileAttributes.ReparsePoint
+            };
             //clean up old sln and csproj files
-            foreach (var file in Directory.GetFiles(CodeModelGenerator.Instance.Configuration.OutputDirectory, "*.csproj", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(CodeModelGenerator.Instance.Configuration.OutputDirectory, "*.csproj", projectOptions))
             {
                 File.Delete(file);
             }
