@@ -1,4 +1,5 @@
 import {
+  ignoreDiagnostics,
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
@@ -16,6 +17,7 @@ import {
   HttpServiceAuthentication,
   resolveAuthentication,
 } from "@typespec/http";
+import { getStreamMetadata } from "@typespec/http/experimental";
 import "@typespec/http/experimental/typekit";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -169,11 +171,31 @@ defineKit<TypekitExtension>({
         if (isTemplateDeclarationOrInstance(clientOperation)) {
           continue;
         }
-
         operations.push(clientOperation);
       }
 
-      const httpOperations = operations.map((o) => this.httpOperation.get(o));
+      const httpOperations = operations.map((o) => {
+        const httpOperation = this.httpOperation.get(o);
+
+        const streamMetadataBody = getStreamMetadata(this.program, httpOperation.parameters);
+        const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
+        httpOperation.parameters.properties.map((param) => {
+          if (param.kind === "body" && streamMetadataBody?.bodyType === param.property.type && bytes) {
+            param.property.type = bytes;
+          }
+        });
+        httpOperation.responses.map((response) => {
+          response.responses.map((responseContent) => {
+            const streamMetadata = getStreamMetadata(this.program, responseContent);
+            if (streamMetadata && bytes && responseContent.body?.bodyKind === "single") {
+              (responseContent.body as any).type = bytes;
+            }
+            return responseContent;
+          });
+          return response;
+        });
+        return httpOperation;
+      });
       clientOperationCache.set(client, httpOperations);
 
       return httpOperations;
