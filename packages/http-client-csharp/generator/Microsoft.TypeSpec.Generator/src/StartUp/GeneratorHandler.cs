@@ -131,12 +131,7 @@ namespace Microsoft.TypeSpec.Generator
             try
             {
                 emitter.Info($"Directory.Exists was false for {path}");
-                var attr = File.GetAttributes(path);
-                emitter.Info($"File.GetAttributes returned {attr} for {path}");
-
-                // Check if it's a directory or a symlink/junction/etc.
-                return (attr & FileAttributes.Directory) != 0 ||
-                       (attr & FileAttributes.ReparsePoint) != 0;
+                return new DirectoryInfo(path).Exists;
             }
             catch (Exception)
             {
