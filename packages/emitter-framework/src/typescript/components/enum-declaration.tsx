@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -10,6 +10,7 @@ export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "nam
 }
 
 export function EnumDeclaration(props: EnumDeclarationProps) {
+  const { $ } = useTypekit();
   let type: Enum;
   if ($.union.is(props.type)) {
     if (!$.union.isValidEnum(props.type)) {

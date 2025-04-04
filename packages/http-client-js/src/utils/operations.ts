@@ -5,7 +5,7 @@ import {
   unsafe_MutatorFlow as MutatorFlow,
   unsafe_MutatorRecord,
 } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "@typespec/emitter-framework";
 
 /**
  * Prepares operation for client representation. This includes adding an options bag for optional parameters.
@@ -13,6 +13,7 @@ import { $ } from "@typespec/compiler/experimental/typekit";
  * @returns the prepared operation
  */
 export function prepareOperation(operation: Operation): Operation {
+  const { $ } = useTypekit();
   return mutateSubgraph($.program, [httpParamsMutator], operation).type as Operation;
 }
 
@@ -24,6 +25,7 @@ const anonymousMutatorRecord: unsafe_MutatorRecord<Model | Union> = {
     return MutatorFlow.MutateAndRecur;
   },
   mutate(t, clone) {
+    const { $ } = useTypekit();
     if (!clone.name) {
       clone.name = $.type.getPlausibleName(clone);
     }
@@ -46,6 +48,7 @@ export const httpParamsMutator: Mutator = {
       return MutatorFlow.DoNotRecur;
     },
     mutate(o, clone, _program, realm) {
+      const { $ } = useTypekit();
       const httpOperation = $.httpOperation.get(o);
       const returnType = $.httpOperation.getReturnType(httpOperation);
       clone.returnType = returnType;
@@ -97,6 +100,7 @@ export const httpParamsMutator: Mutator = {
 };
 
 export function isConstantHeader(modelProperty: ModelProperty) {
+  const { $ } = useTypekit();
   if (!$.modelProperty.isHttpHeader(modelProperty)) {
     return false;
   }

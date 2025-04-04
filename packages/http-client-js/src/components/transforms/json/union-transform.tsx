@@ -1,7 +1,8 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import {
   getJsonTransformDiscriminatorRefkey,
   JsonTransformDiscriminatorDeclaration,
@@ -15,6 +16,8 @@ export interface JsonUnionTransformProps {
 }
 
 export function JsonUnionTransform(props: JsonUnionTransformProps) {
+  const { $ } = useTypekit();
+
   const discriminator = $.type.getDiscriminator(props.type);
   if (discriminator) {
     // return <JsonTransformDiscriminator {...props} discriminator={discriminator}/>;

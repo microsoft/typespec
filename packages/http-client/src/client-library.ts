@@ -1,6 +1,6 @@
 import { Enum, Model, Namespace, Union } from "@typespec/compiler";
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "@typespec/emitter-framework";
 import { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
@@ -15,6 +15,7 @@ export interface CreateClientLibraryOptions {
 }
 
 function hasGlobalOperations(namespace: Namespace): boolean {
+  const { $ } = useTypekit();
   for (const operation of namespace.operations.values()) {
     if ($.type.isUserDefined(operation)) {
       return true;
@@ -25,6 +26,8 @@ function hasGlobalOperations(namespace: Namespace): boolean {
 }
 
 function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
+  const { $ } = useTypekit();
+
   const clients: InternalClient[] = [];
 
   for (const subNs of namespace.namespaces.values()) {
@@ -41,6 +44,8 @@ function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
 }
 
 function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
+  const { $ } = useTypekit();
+
   if (namespace.operations.size > 0 || namespace.interfaces.size > 0) {
     // It has content so it should be a client
     return $.client.getClient(namespace);
@@ -69,6 +74,8 @@ function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
 }
 
 export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
+  const { $ } = useTypekit();
+
   let topLevel: InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
 
@@ -112,6 +119,8 @@ function visitClient(
   dataTypes: Set<Model | Union | Enum>,
   options?: VisitClientOptions,
 ): Client {
+  const { $ } = useTypekit();
+
   // First create a partial `Client` object.
   // We’ll fill in subClients *after* we have `c`.
   const currentClient: Client = {

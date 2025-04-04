@@ -1,6 +1,7 @@
 import * as ay from "@alloy-js/core";
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+
+import { useTypekit } from "@typespec/emitter-framework";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import {
   getJsonArrayTransformRefkey,
@@ -31,6 +32,8 @@ export interface JsonTransformProps {
 }
 
 export function JsonTransform(props: JsonTransformProps) {
+  const { $ } = useTypekit();
+
   const type = $.httpPart.unpack(props.type) ?? props.type;
   const declaredTransform = getTransformReference(type, props.target);
 
@@ -71,6 +74,8 @@ export interface JsonTransformDeclarationProps {
 }
 
 export function JsonTransformDeclaration(props: JsonTransformDeclarationProps) {
+  const { $ } = useTypekit();
+
   if (!$.model.is(props.type) && !$.union.is(props.type)) {
     return null;
   }
@@ -96,6 +101,8 @@ function getTransformReference(
   type: Type,
   target: "transport" | "application",
 ): ay.Refkey | undefined {
+  const { $ } = useTypekit();
+
   if (type.kind === "Model" && Boolean(type.name)) {
     if ($.array.is(type)) {
       return getJsonArrayTransformRefkey(type, target);

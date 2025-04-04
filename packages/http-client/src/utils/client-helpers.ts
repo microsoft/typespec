@@ -1,13 +1,20 @@
 import { Refkey, refkey } from "@alloy-js/core";
-import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { ModelProperty, Operation, Program, StringLiteral, Type } from "@typespec/compiler";
+import { useTypekit } from "@typespec/emitter-framework";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
-const credentialCache = new Map<Refkey, ModelProperty>();
+interface ClientHelperCache {
+  credentialCache: Map<Refkey, ModelProperty>;
+}
+
+const clientHelperCache: Map<Program, ClientHelperCache> = new Map();
+
 export function getCredentialParameter(client: InternalClient): ModelProperty | undefined {
+  const { $ } = useTypekit();
+
   const [httpService] = getHttpService($.program, client.service);
 
   const schemes = resolveAuthentication(httpService).schemes;
@@ -19,6 +26,14 @@ export function getCredentialParameter(client: InternalClient): ModelProperty | 
   });
 
   const cacheKey = getCredRefkey(credTypes);
+
+  if (!clientHelperCache.has($.program)) {
+    clientHelperCache.set($.program, {
+      credentialCache: new Map(),
+    });
+  }
+
+  const { credentialCache } = clientHelperCache.get($.program)!;
 
   if (credentialCache.has(cacheKey)) {
     return credentialCache.get(cacheKey)!;
@@ -48,6 +63,7 @@ function getCredRefkey(credentials: StringLiteral[]): Refkey {
 }
 
 export function getConstructors(client: InternalClient): Operation[] {
+  const { $ } = useTypekit();
   const constructors: Operation[] = [];
   const params: ModelProperty[] = [];
   const servers = $.client.listServers(client);
@@ -127,6 +143,8 @@ export function createBaseConstructor(
   client: InternalClient,
   constructors: Operation[],
 ): Operation {
+  const { $ } = useTypekit();
+
   const allParams: Map<string, ModelProperty[]> = new Map();
   const combinedParams: ModelProperty[] = [];
 

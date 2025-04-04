@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { For, refkey } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import "@typespec/http/experimental/typekit";
+import { useTypekit } from "../../core/context/typekit-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { ArrayExpression } from "./array-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
@@ -14,6 +15,7 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
+  const { $ } = useTypekit();
   const type = $.httpPart.unpack(props.type);
   if (isDeclaration(type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
@@ -111,6 +113,7 @@ const intrinsicNameToTSType = new Map<string, string | null>([
 ]);
 
 function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | null {
+  const { $ } = useTypekit();
   let intrinsicName: string;
   if ($.scalar.is(type)) {
     if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
@@ -144,6 +147,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
 }
 
 function isDeclaration(type: Type): boolean {
+  const { $ } = useTypekit();
   switch (type.kind) {
     case "Namespace":
     case "Interface":

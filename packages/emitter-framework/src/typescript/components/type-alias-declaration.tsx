@@ -1,7 +1,7 @@
 import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Scalar } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTypekit } from "../../core/context/typekit-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { TypeExpression } from "./type-expression.jsx";
 
@@ -13,6 +13,7 @@ export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps
 export type TypeAliasDeclarationProps = TypedAliasDeclarationProps | ts.TypeDeclarationProps;
 
 export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
+  const { $ } = useTypekit();
   if (!isTypedAliasDeclarationProps(props)) {
     return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
   }
