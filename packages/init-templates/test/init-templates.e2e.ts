@@ -1,16 +1,16 @@
+// Enable calling @typespec/compiler/internals for the init logic
+(globalThis as any).enableCompilerInternalsExport = true;
+import { NodeHost } from "@typespec/compiler";
+import typeSpecCoreTemplates from "@typespec/init-templates";
 import { ok } from "assert";
-import { SpawnOptions, spawn } from "child_process";
+import { type SpawnOptions, spawn } from "child_process";
 import { rm } from "fs/promises";
-import { dirname, resolve } from "pathe";
-import { fileURLToPath } from "url";
+import { resolve } from "pathe";
 import { beforeAll, describe, it } from "vitest";
-import { NodeHost } from "../../src/index.js";
-import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
-import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const testTempRoot = resolve(__dirname, "../../temp/scaffolded-template-tests");
-const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
+const projectRoot = resolve(import.meta.dirname, "..");
+const testTempRoot = resolve(projectRoot, "temp/scaffolded-template-tests");
+const snapshotFolder = resolve(projectRoot, "templates/__snapshots__");
 
 async function execAsync(
   command: string,
@@ -63,7 +63,10 @@ describe("Init templates e2e tests", () => {
   });
 
   async function scaffoldTemplateTo(name: string, targetFolder: string) {
-    const typeSpecCoreTemplates = await getTypeSpecCoreTemplates();
+    const { makeScaffoldingConfig, scaffoldNewProject } = await import(
+      "@typespec/compiler/internals"
+    );
+
     const template = typeSpecCoreTemplates.templates[name];
     ok(template, `Template '${name}' not found`);
     await scaffoldNewProject(
