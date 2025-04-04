@@ -31,6 +31,7 @@
 # Emiter Shared
 ######################
 /eng/emitters/                               @m-nash @iscai-msft
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
 
 ######################
 # IDE
