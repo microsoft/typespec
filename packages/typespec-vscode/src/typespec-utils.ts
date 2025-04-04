@@ -141,8 +141,8 @@ export async function installCompilerWithUi(
         cmdArgs = ["install", "-g", TYPESPEC_COMPILER];
         pathToInstall = process.cwd();
       } else {
-        // if @typespec/compiler has already been defined in the package.json, it may be updated by 'npm install @typespec/compiler' which is not wanted.
-        // so we will check if the @typespec/compiler is already defined in the package.json in localPath, if so, just run 'npm install'
+        // if @typespec/compiler has already been defined in the package.json, let's use 'npm install' to install it which can avoid
+        // potential confliction as well as unexpected modification to the package.json
         const packageJsonPath = joinPaths(pathToInstall, "package.json");
         if (await isFile(packageJsonPath)) {
           const data = await loadPackageJsonFile(packageJsonPath);
