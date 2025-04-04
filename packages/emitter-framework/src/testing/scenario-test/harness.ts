@@ -4,8 +4,8 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
 import path from "path";
 import { format } from "prettier";
-import { afterAll, describe, expect, it } from "vitest";
 import { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
+import { generateTest } from "./test-generator.jsx";
 import { emitWithDiagnostics } from "./test-host.js";
 
 const rawArgs = process.env.TEST_ARGS ? process.env.TEST_ARGS.split(" ") : [];
@@ -147,7 +147,7 @@ export async function executeScenarios(
     discoverAllScenarios(scenariosLocation, scenarioList);
   }
 
-  describeScenarios(
+  await describeScenarios(
     scenarioList,
     testLibrary,
     languageConfiguration,
@@ -202,7 +202,7 @@ interface TestCodeBlock {
 
 type ScenarioCodeBlock = SpecCodeBlock | TestCodeBlock;
 
-interface ScenarioFile {
+export interface ScenarioFile {
   path: string;
   scenarios: Scenario[];
 }
@@ -313,7 +313,7 @@ function parseScenario(
   return scenario;
 }
 
-function describeScenarios(
+async function describeScenarios(
   scenarioFiles: string[],
   testLibrary: TypeSpecTestLibrary,
   languageConfiguration: LanguageConfiguration,
@@ -324,43 +324,45 @@ function describeScenarios(
     parseFile(f, testLibrary, languageConfiguration, emitterOutputDir, snippetExtractor),
   );
 
-  for (const scenarioFile of scenarios) {
-    describe(`Scenario File: ${scenarioFile.path}`, () => {
-      for (const scenario of scenarioFile.scenarios) {
-        const isOnly = scenario.title.includes("only:");
-        const isSkip = scenario.title.includes("skip:");
+  await generateTest(scenarios, languageConfiguration);
 
-        const describeFn = isSkip ? describe.skip : isOnly ? describe.only : describe;
+  // for (const scenarioFile of scenarios) {
+  //   describe(`Scenario File: ${scenarioFile.path}`, () => {
+  //     for (const scenario of scenarioFile.scenarios) {
+  //       const isOnly = scenario.title.includes("only:");
+  //       const isSkip = scenario.title.includes("skip:");
 
-        describeFn(`Scenario: ${scenario.title}`, () => {
-          for (const testBlock of scenario.content.testBlocks) {
-            it(`Test: ${testBlock.heading}`, async () => {
-              const { fn, namedArgs } = testBlock.matchedTemplate;
-              const result = await fn(
-                scenario.content.specBlock.content.join("\n"),
-                namedArgs ?? {},
-              );
+  //       const describeFn = isSkip ? describe.skip : isOnly ? describe.only : describe;
 
-              if (SCENARIOS_UPDATE) {
-                testBlock.content = (await languageConfiguration.format(result)).split("\n");
-              } else {
-                const expected = await languageConfiguration.format(testBlock.content.join("\n"));
-                const actual = await languageConfiguration.format(result);
-                expect(actual).toBe(expected);
-              }
-            });
-          }
-        });
-      }
+  //       describeFn(`Scenario: ${scenario.title}`, () => {
+  //         for (const testBlock of scenario.content.testBlocks) {
+  //           it(`Test: ${testBlock.heading}`, async () => {
+  //             const { fn, namedArgs } = testBlock.matchedTemplate;
+  //             const result = await fn(
+  //               scenario.content.specBlock.content.join("\n"),
+  //               namedArgs ?? {},
+  //             );
 
-      // Update after all the tests in the scenario if write mode was enabled
-      afterAll(async function () {
-        if (SCENARIOS_UPDATE) {
-          await updateFile(scenarioFile);
-        }
-      });
-    });
-  }
+  //             if (SCENARIOS_UPDATE) {
+  //               testBlock.content = (await languageConfiguration.format(result)).split("\n");
+  //             } else {
+  //               const expected = await languageConfiguration.format(testBlock.content.join("\n"));
+  //               const actual = await languageConfiguration.format(result);
+  //               expect(actual).toBe(expected);
+  //             }
+  //           });
+  //         }
+  //       });
+  //     }
+
+  //     // Update after all the tests in the scenario if write mode was enabled
+  //     afterAll(async function () {
+  //       if (SCENARIOS_UPDATE) {
+  //         await updateFile(scenarioFile);
+  //       }
+  //     });
+  //   });
+  // }
 }
 
 async function updateFile(scenarioFile: ScenarioFile) {
