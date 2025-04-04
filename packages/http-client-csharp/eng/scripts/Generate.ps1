@@ -19,7 +19,7 @@ if (-not $LaunchOnly) {
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-        Invoke "npm ci" $sampleDir
+        Invoke "npm install" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
   
