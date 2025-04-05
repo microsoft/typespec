@@ -33,7 +33,7 @@ export function buildParameterDescriptors(
   }
 
   const modelProperties = $.model.getProperties(type);
-  const operationParams = [... modelProperties.values()].map(buildParameterDescriptor);
+  const operationParams = [...modelProperties.values()].map(buildParameterDescriptor);
 
   // Merge parameters based on location
   const allParams =
@@ -44,9 +44,7 @@ export function buildParameterDescriptors(
   return allParams;
 }
 
-export function buildParameterDescriptor(
-  modelProperty: ModelProperty,
-): ts.ParameterDescriptor {
+export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
   const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
@@ -62,7 +60,9 @@ export function buildParameterDescriptor(
  * Convert a parameter descriptor array, string array, or undefined to
  * a parameter descriptor array.
  */
-function normalizeParameters(params: ts.ParameterDescriptor[] | string[] | undefined): ts.ParameterDescriptor[] {
+function normalizeParameters(
+  params: ts.ParameterDescriptor[] | string[] | undefined,
+): ts.ParameterDescriptor[] {
   if (!params) return [];
 
   return params.map((param) => {
