@@ -66,9 +66,9 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
   const inputType = props.target === "transport" ? <>{itemType} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
-    items_: { type: inputType, refkey: inputRef, optional: true },
-  };
+  const parameters: ts.ParameterDescriptor[] = [
+    { name: "items_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   const declarationRefkey = getJsonArrayTransformRefkey(props.type, props.target);
   return (

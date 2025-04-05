@@ -677,11 +677,11 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@babel/core@7.26.10)
       '@alloy-js/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@alloy-js/typescript':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.27.0(@babel/core@7.26.10)
@@ -716,11 +716,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@alloy-js/typescript':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.8.0
+        version: 0.8.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2675,14 +2675,8 @@ packages:
   '@alloy-js/babel-preset@0.2.0':
     resolution: {integrity: sha512-EbIQiXyRa2Osd5iBwFT2C7s8IBKhQlgMaGA9sasFTo31KGYa5Tim51on8tjdlvGUEWUmJz7KlKA/hjWpchTgDQ==}
 
-  '@alloy-js/core@0.6.0':
-    resolution: {integrity: sha512-t11kEP2lyD5eYk17rcgcFerZIHQwRuEJW3vnKxTTXWCZPcknKyV8STDtqx9B1G0rE01E8tz1cYFpCTiWXIv/Kg==}
-
   '@alloy-js/core@0.8.0':
     resolution: {integrity: sha512-BhhprAwN/LXOhoX1neBJg6QR50gQg+TFlWGGb7MXOZxmnKJ0VNnA3D1LSWE0vnwjJwi1nRBsvESiTFjaEaBRYw==}
-
-  '@alloy-js/typescript@0.6.0':
-    resolution: {integrity: sha512-vGhBm9Vr90uwtsGeeA/89EKxBUe/p/+hZ3ozLO6jm72Ph1nJZbd5+spFs9V/CPfDt0KaR6jruwcJaqHO08AEBw==}
 
   '@alloy-js/typescript@0.8.0':
     resolution: {integrity: sha512-0OjmyIi49VRdBAlX9n0G/3RyxeDNjP18JoaG0tbWxweNgdw3SFZwELa0DdvUE8LicP3x+9DKGPmiLxE82UkKmQ==}
@@ -13032,19 +13026,6 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@alloy-js/core@0.6.0':
-    dependencies:
-      '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
-      '@babel/core': 7.26.10
-      '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
-      '@vue/reactivity': 3.5.13
-      chalk: 5.4.1
-      cli-table3: 0.6.5
-      pathe: 1.1.2
-      prettier: 3.5.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@alloy-js/core@0.8.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
@@ -13055,14 +13036,6 @@ snapshots:
       cli-table3: 0.6.5
       pathe: 1.1.2
       prettier: 3.5.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@alloy-js/typescript@0.6.0':
-    dependencies:
-      '@alloy-js/core': 0.6.0
-      change-case: 5.4.4
-      pathe: 1.1.2
     transitivePeerDependencies:
       - supports-color
 
