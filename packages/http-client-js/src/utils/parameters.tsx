@@ -3,7 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
-import { HttpAuth, HttpProperty } from "@typespec/http";
+import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
@@ -69,13 +69,30 @@ function buildClientParameterDescriptor(
   return buildParameterDescriptor(modelProperty);
 }
 
+const oauth2FlowRefs: Record<OAuth2FlowType, ay.Refkey> = {
+  authorizationCode: httpRuntimeTemplateLib.AuthorizationCodeFlow,
+  clientCredentials: httpRuntimeTemplateLib.ClientCredentialsFlow,
+  password: httpRuntimeTemplateLib.PasswordFlow,
+  implicit: httpRuntimeTemplateLib.ImplicitFlow,
+};
+
 function getCredentialType(scheme: HttpAuth) {
   switch (scheme.type) {
     case "apiKey":
+      return httpRuntimeTemplateLib.ApiKeyCredential;
     case "http":
-      return httpRuntimeTemplateLib.KeyCredential;
+      if (scheme.scheme === "Basic") {
+        return httpRuntimeTemplateLib.BasicCredential;
+      } else {
+        return httpRuntimeTemplateLib.BearerTokenCredential;
+      }
     case "oauth2":
-      return httpRuntimeTemplateLib.TokenCredential;
+      const flowType = ay.mapJoin(
+        () => scheme.flows,
+        (x) => oauth2FlowRefs[x.type],
+        { joiner: " | " },
+      );
+      return ay.code`${httpRuntimeTemplateLib.OAuth2TokenCredential}<${flowType}>`;
     default:
       return null;
   }

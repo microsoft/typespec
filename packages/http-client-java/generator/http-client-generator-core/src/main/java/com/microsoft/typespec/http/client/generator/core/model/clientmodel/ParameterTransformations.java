@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +18,7 @@ public final class ParameterTransformations {
     private final List<ParameterTransformation> transformations;
 
     public ParameterTransformations(List<ParameterTransformation> parameterTransformations) {
-        this.transformations = parameterTransformations;
+        this.transformations = CollectionUtil.toImmutableList(parameterTransformations);
     }
 
     /**
@@ -143,5 +144,35 @@ public final class ParameterTransformations {
 
     private static boolean matches(ClientMethodParameter param0, MethodParameter param1) {
         return Objects.equals(param0.getName(), param1.getClientMethodParameter().getName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        final int s = this.transformations.size();
+        final ParameterTransformations t = (ParameterTransformations) o;
+        if (s != t.transformations.size()) {
+            return false;
+        }
+        for (int i = 0; i < s; i++) {
+            if (!this.transformations.get(i).equals(t.transformations.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return transformations.stream()
+            .filter(Objects::nonNull)
+            .mapToInt(Objects::hashCode)
+            .reduce(1, (a, b) -> a * 31 + b);
     }
 }

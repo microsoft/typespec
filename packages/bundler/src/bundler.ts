@@ -207,7 +207,7 @@ function resolveTypeSpecBundle(
     files: result.outputFiles!.map((file) => {
       const entry = definition.exports[basename(file.path)];
       return {
-        filename: file.path.split("/out/")[1],
+        filename: file.path.replaceAll("\\", "/").split("/out/")[1],
         content: file.text,
         export: entry ? getExportEntryPoint(entry) : undefined,
       };
