@@ -373,7 +373,7 @@ public class FluentUtils {
         } else if (SimpleResponse.class.getSimpleName().equals(type.getName())) {
             bodyType = type.getTypeArguments()[0];
         } else if (StreamResponse.class.getSimpleName().equals(type.getName())) {
-            bodyType = GenericType.FLUX_BYTE_BUFFER;
+            bodyType = ClassType.BINARY_DATA;
         } else {
             log("Unable to determine value type for Response subtype: %s, fallback to typeArguments[0].", type);
             bodyType = type.getTypeArguments()[0];
@@ -404,7 +404,7 @@ public class FluentUtils {
         // for now, avoid binary as response body
 
         IType responseBodyType = clientMethod.getProxyMethod().getResponseBodyType();
-        return !(responseBodyType == ClassType.BINARY_DATA || responseBodyType == GenericType.FLUX_BYTE_BUFFER);
+        return !(responseBodyType == ClassType.BINARY_DATA);
     }
 
     public static boolean requiresExample(ClientMethod clientMethod) {

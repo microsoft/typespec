@@ -57,26 +57,28 @@ final class ResponseTypeFactory {
 
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return isByteStream(bodyType) ? mono(ClassType.STREAM_RESPONSE) : mono(GenericType.Response(bodyType));
+                return isByteStream(bodyType)
+                    ? mono(GenericType.Response(ClassType.BINARY_DATA))
+                    : mono(GenericType.Response(bodyType));
             }
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-            // If the responseBodyType is InputStream it needs to be converted to Flux<ByteBuffer> so
+            // If the responseBodyType is InputStream it needs to be converted to BinaryData so
             // that it is a valid return type for async method.
-            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? GenericType.FLUX_BYTE_BUFFER : bodyType;
+            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? ClassType.BINARY_DATA : bodyType;
             return mono(GenericType.RestResponse(headersType, bType));
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
-            return mono(ClassType.STREAM_RESPONSE);
+            return mono(GenericType.Response(ClassType.BINARY_DATA));
         }
 
         if (bodyType.equals(ClassType.BINARY_DATA)) {
             final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
             if (useInputStream) {
-                return mono(ClassType.STREAM_RESPONSE);
+                return mono(GenericType.Response(ClassType.BINARY_DATA));
             }
         }
 
@@ -136,6 +138,6 @@ final class ResponseTypeFactory {
     }
 
     private static boolean isByteStream(IType type) {
-        return (type == ClassType.INPUT_STREAM) || (type == GenericType.FLUX_BYTE_BUFFER);
+        return (type == ClassType.INPUT_STREAM) || (type == ClassType.BINARY_DATA);
     }
 }
