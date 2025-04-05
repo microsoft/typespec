@@ -112,14 +112,11 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
                 emitter.Info($"Searching for DLLs in {packageDistPath}");
-                // if (Directory.Exists(packageDistPath))
+                if (Directory.Exists(packageDistPath))
                 {
-                    TraverseDirectory(new DirectoryInfo(packageDistPath), dllPathsInOrder);
+                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
+                    dllPathsInOrder.AddRange(dlls);
                 }
-                // else
-                // {
-                //     emitter.Info($"Directory {packageDistPath} does not exist.");
-                // }
             }
 
             return dllPathsInOrder;
@@ -166,6 +163,27 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // If the path doesn't exist or can't be accessed
                 return false;
+            }
+        }
+
+        private static void TraverseDirectory(DirectoryInfo directory, IList<string> dlls, Emitter emitter)
+        {
+            foreach (var file in directory.GetFiles("*.dll"))
+            {
+                dlls.Add(file.FullName);
+            }
+
+            foreach (var subdir in directory.GetDirectories())
+            {
+                // Detect symlink
+                if ((subdir.Attributes & FileAttributes.ReparsePoint) != 0)
+                {
+                    TraverseDirectory(new DirectoryInfo(subdir.FullName), dlls, emitter);
+                }
+                else
+                {
+                    TraverseDirectory(subdir, dlls, emitter);
+                }
             }
         }
 
