@@ -1,5 +1,6 @@
 import { getDiscriminator, Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { reportDiagnostic } from "../../lib.js";
 import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
 
 export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<Model> {
@@ -71,7 +72,12 @@ defineKit<SdkKit>({
         case "EnumMember":
           return disc.type.name;
         default:
-          throw Error("Discriminator must be a string or enum member");
+          reportDiagnostic(this.program, {
+            code: "invalid-discriminator-type",
+            target: disc,
+            format: { type: disc.type.kind },
+          });
+          return undefined;
       }
     },
     getDiscriminatedSubtypes(model) {

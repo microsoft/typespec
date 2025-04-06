@@ -36,7 +36,6 @@ function UnionTransformExpression(props: UnionTransformProps) {
   const discriminator = $.type.getDiscriminator(props.type);
 
   if (!discriminator) {
-    // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
       target: props.type,
@@ -179,19 +178,6 @@ export interface ModelTransformExpressionProps {
  * Component that represents an object expression that transforms a model to a transport or application model.
  */
 export function ModelTransformExpression(props: ModelTransformExpressionProps) {
-  if (props.type.baseModel) {
-    reportTypescriptDiagnostic($.program, {
-      code: "typescript-extended-model-transform-nyi",
-      target: props.type,
-    });
-  }
-
-  if ($.model.getSpreadType(props.type)) {
-    reportTypescriptDiagnostic($.program, {
-      code: "typescript-spread-model-transformation-nyi",
-      target: props.type,
-    });
-  }
   const namePolicy = ts.useTSNamePolicy();
   const modelProperties: RekeyableMap<string, ModelProperty> = createRekeyableMap();
 
