@@ -1,5 +1,5 @@
 ---
-title: TypeSpec Extension for Visual Studio Code
+title: VS Code Extension
 ---
 
 ## Installation

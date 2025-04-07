@@ -246,7 +246,7 @@
      "type": {
       "$id": "34",
       "kind": "array",
-      "name": "Array",
+      "name": "Array1",
       "valueType": {
        "$id": "35",
        "kind": "duration",
@@ -1557,7 +1557,7 @@
          "type": {
           "$id": "156",
           "kind": "array",
-          "name": "Array",
+          "name": "Array2",
           "valueType": {
            "$id": "157",
            "kind": "duration",

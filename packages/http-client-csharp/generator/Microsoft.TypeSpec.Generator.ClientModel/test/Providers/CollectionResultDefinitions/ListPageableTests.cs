@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);

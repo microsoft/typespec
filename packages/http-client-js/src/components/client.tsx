@@ -68,7 +68,7 @@ export function ClientClass(props: ClientClassProps) {
         <ay.For each={operations} hardline semicolon>
           {(op) => {
             const parameters = getOperationParameters(op.httpOperation);
-            const args = Object.keys(parameters).map((p) => p);
+            const args = parameters.flatMap((p) => p.refkey);
 
             return (
               <ClassMethod
@@ -148,14 +148,11 @@ function ClientConstructor(props: ClientConstructorProps) {
   );
 }
 
-function calculateSubClientArgs(
-  subClient: cl.Client,
-  parentParams: Record<string, ts.ParameterDescriptor>,
-) {
-  const subClientParams = buildClientParameters(subClient);
-  return Object.entries(parentParams)
-    .filter(([name]) => Object.keys(subClientParams).includes(name))
-    .map(([_, p]) => p.refkey);
+function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.ParameterDescriptor[]) {
+  const subClientParams = buildClientParameters(subClient).map((p) => p.name);
+  return parentParams
+    .filter(({ name }) => subClientParams.includes(name))
+    .flatMap((p) => (p.refkey ? p.refkey : []));
 }
 
 export interface NewClientExpressionProps {
