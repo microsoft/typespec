@@ -254,7 +254,7 @@
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
+    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.3",
