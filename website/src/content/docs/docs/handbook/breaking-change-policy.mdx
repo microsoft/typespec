@@ -81,8 +81,8 @@ Emitter output are not guaranteed to be producing the exact same output as the p
 
 ### Loading multiple instance of the compiler/libraries
 
-TypeSpec runs in a plugin system and it expect a single instance of the compiler and each library is loaded at once.
+TypeSpec runs in a plugin system and it expects that only a single instance of the compiler and each library is loaded at once.
 However in some scenarios it might happen that multiple instances are loaded, for example trying to run an emitter located in a different project with `tsp compile . --emit /path/to/different/repo`.
-In such cases the compiler and libraries are expected to work as long as the version match. If different versions are used a warning will be emitted and there is no guarantee that it will be working.
+In such cases the compiler and libraries are expected to work as long as the versions of all duplicative instances match. If different versions are used a warning will be emitted and there is no guarantee that it will be working.
 
 In the previous example, if the sample project is using compiler version `1.2.0` and the emitter on the other hand is using `1.3.0` it is not guaranteed that the emitter will work as expected.
