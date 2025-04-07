@@ -123,7 +123,7 @@ namespace UnbrandedTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, UnbrandedTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(ListWithContinuationTokenResponse)} does not support writing '{options.Format}' format.");
             }

@@ -90,7 +90,7 @@ namespace UnbrandedTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, UnbrandedTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(ReturnsAnonymousModelResponse)} does not support writing '{options.Format}' format.");
             }

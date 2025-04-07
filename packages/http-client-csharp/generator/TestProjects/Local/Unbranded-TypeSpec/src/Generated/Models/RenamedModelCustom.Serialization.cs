@@ -103,7 +103,7 @@ namespace UnbrandedTypeSpec.Models.Custom
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, UnbrandedTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support writing '{options.Format}' format.");
             }
