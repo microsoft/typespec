@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -66,9 +65,8 @@ public final class ParametersTransformationProcessor {
             Transformation.create(transformations, outParameter);
         }
 
-        final List<ParameterTransformation> list = transformations.stream()
-            .map(Transformation::toImmutable)
-            .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        final List<ParameterTransformation> list
+            = transformations.stream().map(Transformation::toImmutable).collect(Collectors.toList());
         return new ParameterTransformations(list);
     }
 

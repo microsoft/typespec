@@ -1,5 +1,23 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.12
+
+### Features
+
+- [#5819](https://github.com/microsoft/typespec/pull/5819) Added support for encoding and decoding scalar types and default encodings prescribed by convention.
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6710](https://github.com/microsoft/typespec/pull/6710) Updates to scaffolding script and scaffold commands for consistency
+- [#6809](https://github.com/microsoft/typespec/pull/6809) Ignore unfinished types when visiting service namespace for completeness. This avoids crashes that result from encountering TemplateParameter instances.
+- [#6810](https://github.com/microsoft/typespec/pull/6810) Correct implementation of JSON body deserialization when the body type is an array or record requiring interior serialization/deserialization.
+- [#6813](https://github.com/microsoft/typespec/pull/6813) Handle parameter and variable names that could be keywords correctly in more cases, preventing syntax errors.
+
+
 ## 0.58.0-alpha.11
 
 ### Features

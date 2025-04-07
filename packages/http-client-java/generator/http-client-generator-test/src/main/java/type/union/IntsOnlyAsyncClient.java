@@ -18,8 +18,8 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.IntsOnliesImpl;
-import type.union.implementation.models.SendRequest6;
-import type.union.models.GetResponse6;
+import type.union.implementation.models.SendRequest3;
+import type.union.models.GetResponse3;
 import type.union.models.GetResponseProp2;
 
 /**
@@ -77,7 +77,7 @@ public final class IntsOnlyAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest6 The sendRequest6 parameter.
+     * @param sendRequest3 The sendRequest3 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -87,8 +87,8 @@ public final class IntsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest6, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest6, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest3, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest3, requestOptions);
     }
 
     /**
@@ -103,11 +103,11 @@ public final class IntsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse6> get() {
+    public Mono<GetResponse3> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse6.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse3.class));
     }
 
     /**
@@ -127,8 +127,8 @@ public final class IntsOnlyAsyncClient {
     public Mono<Void> send(GetResponseProp2 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest6 sendRequest6Obj = new SendRequest6(prop);
-        BinaryData sendRequest6 = BinaryData.fromObject(sendRequest6Obj);
-        return sendWithResponse(sendRequest6, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest3 sendRequest3Obj = new SendRequest3(prop);
+        BinaryData sendRequest3 = BinaryData.fromObject(sendRequest3Obj);
+        return sendWithResponse(sendRequest3, requestOptions).flatMap(FluxUtil::toMono);
     }
 }
