@@ -20,19 +20,6 @@ if (-not $LaunchOnly) {
         Invoke "dotnet build" $pluginDir
 
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-        if (Test-Path "$sampleDir/node_modules") {
-            Write-Host "Delete node_modules for SampleService" -ForegroundColor Cyan
-            Remove-Item "$sampleDir/node_modules" -Recurse -Force
-        }
-        if (Test-Path "$sampleDir/package-lock.json") {
-            Write-Host "Delete package-lock.json for SampleService" -ForegroundColor Cyan
-            Remove-Item "$sampleDir/package-lock.json" -Force
-        }
-        Write-Host "Clean cache for SampleService" -ForegroundColor Cyan
-        Invoke "npm cache clean --force" $sampleDir
-
-        Write-Host "Packing SampleTypeSpec" -ForegroundColor Cyan
-        Invoke "npm pack" $packageRoot
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
        
