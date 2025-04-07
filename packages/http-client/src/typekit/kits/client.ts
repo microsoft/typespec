@@ -180,7 +180,11 @@ defineKit<TypekitExtension>({
         const streamMetadataBody = getStreamMetadata(this.program, httpOperation.parameters);
         const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
         httpOperation.parameters.properties.map((param) => {
-          if (param.kind === "body" && streamMetadataBody?.bodyType === param.property.type && bytes) {
+          if (
+            param.kind === "body" &&
+            streamMetadataBody?.bodyType === param.property.type &&
+            bytes
+          ) {
             param.property.type = bytes;
           }
         });

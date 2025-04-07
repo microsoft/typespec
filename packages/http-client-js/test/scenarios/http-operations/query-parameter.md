@@ -18,8 +18,6 @@ model VisibilityModel {
 ```ts src/api/testClientOperations.ts function headModel
 export async function headModel(
   client: TestClientContext,
-  id: string,
-  name: string,
   input: VisibilityModel,
   options?: HeadModelOptions,
 ): Promise<void> {

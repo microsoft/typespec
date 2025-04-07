@@ -67,8 +67,8 @@ export class BarClient {
   async get(options?: GetOptions) {
     return get(this.#context, options);
   }
-  async create(title: string, foo: BarItem, options?: CreateOptions) {
-    return create(this.#context, title, foo, options);
+  async create(foo: BarItem, options?: CreateOptions) {
+    return create(this.#context, foo, options);
   }
 }
 ```

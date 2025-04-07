@@ -14,9 +14,9 @@ export function getOperationOptionsTypeRefkey(operation: HttpOperation) {
 export function OperationOptionsDeclaration(props: OperationOptionsProps) {
   const namePolicy = ts.useTSNamePolicy();
   const interfaceName = namePolicy.getName(props.operation.operation.name + "Options", "interface");
-  const optionalParameters = props.operation.parameters.properties.filter(
-    (p) => p.property.optional || hasDefaultValue(p),
-  );
+  const optionalParameters = props.operation.parameters.properties
+    .filter((p) => p.kind !== "bodyProperty" || (p.kind === "bodyProperty" && p.path.length === 1))
+    .filter((p) => p.property.optional || hasDefaultValue(p));
 
   return (
     <ts.InterfaceDeclaration

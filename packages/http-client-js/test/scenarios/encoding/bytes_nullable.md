@@ -100,8 +100,6 @@ Should call encode the JSON to Transport application transform function and pass
 ```ts src/api/testClientOperations.ts function post
 export async function post(
   client: TestClientContext,
-  requiredProperty: string,
-  nullableProperty: Uint8Array | null,
   body: ModelWithBytes,
   options?: PostOptions,
 ): Promise<void> {
