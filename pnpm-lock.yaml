@@ -441,7 +441,7 @@ importers:
         specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/http':
         specifier: workspace:^
@@ -450,7 +450,7 @@ importers:
         specifier: workspace:^
         version: link:../rest
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
         specifier: workspace:^
@@ -707,13 +707,13 @@ importers:
         specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
         specifier: workspace:^
@@ -771,7 +771,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/http':
         specifier: workspace:^
@@ -783,7 +783,7 @@ importers:
         specifier: workspace:^
         version: link:../spector
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
         specifier: workspace:^
