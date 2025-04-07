@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Models;
 
