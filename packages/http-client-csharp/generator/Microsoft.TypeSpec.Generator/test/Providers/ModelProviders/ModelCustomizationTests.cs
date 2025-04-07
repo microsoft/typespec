@@ -672,10 +672,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
         {
-            var enumType = InputFactory.Enum(
-                "originalEnum",
-                InputPrimitiveType.String,
-                values: [InputFactory.EnumMember.String("bar", "bar")]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
@@ -683,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
-                            InputFactory.Property("Prop1", InputFactory.Literal.Enum(enumType, "bar"), isRequired: true),
+                            InputFactory.Property("Prop1", InputFactory.Literal.String("bar", name: "originalEnum"), isRequired: true),
                             InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
                         ])
                     ],

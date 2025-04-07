@@ -232,6 +232,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
             {
+                if (specType is InputLiteralType literalType)
+                {
+                    specType = literalType.ValueType;
+                }
                 return new CSharpType(
                     customType.Name,
                     customType.Namespace,
