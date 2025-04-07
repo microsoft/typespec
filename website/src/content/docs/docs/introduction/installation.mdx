@@ -64,7 +64,7 @@ curl -fsSL https://typespec.io/install.sh | bash
   </TabItem>
 </Tabs>
 
-## Install the VS and VSCode extensions
+## Install the VS and VS Code extensions
 
 TypeSpec provides extensions for the following editors:
 
@@ -72,6 +72,9 @@ TypeSpec provides extensions for the following editors:
 - [Visual Studio](./editor/vs.md)
 
 ## Create a new TypeSpec project
+
+<Tabs>
+  <TabItem label="CLI">
 
 <Steps>
 
@@ -90,6 +93,21 @@ TypeSpec provides extensions for the following editors:
    ```
 
 </Steps>
+  </TabItem>
+  <TabItem label="VS Code">
+
+<Steps>
+
+1. Invoke the command `>TypeSpec: Create TypeSpec Project` to create TypeSpec project, or click `Create TypeSpec Project` button from the Primary Sidebar of Explorer.
+2. Follow Quick Picks to select root folder of your project, pick the `Generic REST API` template, input your project name, make sure the `@typespec/http` and `@typespec/openapi3` libraries are selected, then return to launch project scaffolding.
+
+</Steps>
+
+![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
+
+  </TabItem>
+</Tabs>
+
 You should now have a basic TypeSpec project setup with a structure looking like this:
 
 {/* prettier-ignore */}

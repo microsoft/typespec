@@ -369,7 +369,7 @@
          "bodyType": {
           "$id": "42",
           "kind": "array",
-          "name": "Array",
+          "name": "Array1",
           "valueType": {
            "$id": "43",
            "kind": "int64",
@@ -437,7 +437,7 @@
          "type": {
           "$id": "49",
           "kind": "array",
-          "name": "Array",
+          "name": "Array1",
           "valueType": {
            "$id": "50",
            "kind": "int64",
@@ -571,7 +571,7 @@
          "bodyType": {
           "$id": "62",
           "kind": "array",
-          "name": "Array",
+          "name": "Array2",
           "valueType": {
            "$id": "63",
            "kind": "boolean",
@@ -639,7 +639,7 @@
          "type": {
           "$id": "69",
           "kind": "array",
-          "name": "Array",
+          "name": "Array2",
           "valueType": {
            "$id": "70",
            "kind": "boolean",
@@ -773,7 +773,7 @@
          "bodyType": {
           "$id": "82",
           "kind": "array",
-          "name": "Array",
+          "name": "Array3",
           "valueType": {
            "$id": "83",
            "kind": "string",
@@ -841,7 +841,7 @@
          "type": {
           "$id": "89",
           "kind": "array",
-          "name": "Array",
+          "name": "Array3",
           "valueType": {
            "$id": "90",
            "kind": "string",
@@ -975,7 +975,7 @@
          "bodyType": {
           "$id": "102",
           "kind": "array",
-          "name": "Array",
+          "name": "Array4",
           "valueType": {
            "$id": "103",
            "kind": "float32",
@@ -1043,7 +1043,7 @@
          "type": {
           "$id": "109",
           "kind": "array",
-          "name": "Array",
+          "name": "Array4",
           "valueType": {
            "$id": "110",
            "kind": "float32",
@@ -1177,7 +1177,7 @@
          "bodyType": {
           "$id": "122",
           "kind": "array",
-          "name": "Array",
+          "name": "Array5",
           "valueType": {
            "$id": "123",
            "kind": "utcDateTime",
@@ -1253,7 +1253,7 @@
          "type": {
           "$id": "130",
           "kind": "array",
-          "name": "Array",
+          "name": "Array5",
           "valueType": {
            "$id": "131",
            "kind": "utcDateTime",
@@ -1395,7 +1395,7 @@
          "bodyType": {
           "$id": "144",
           "kind": "array",
-          "name": "Array",
+          "name": "Array6",
           "valueType": {
            "$id": "145",
            "kind": "duration",
@@ -1471,7 +1471,7 @@
          "type": {
           "$id": "152",
           "kind": "array",
-          "name": "Array",
+          "name": "Array6",
           "valueType": {
            "$id": "153",
            "kind": "duration",
@@ -1613,7 +1613,7 @@
          "bodyType": {
           "$id": "166",
           "kind": "array",
-          "name": "Array",
+          "name": "Array7",
           "valueType": {
            "$id": "167",
            "kind": "unknown",
@@ -1681,7 +1681,7 @@
          "type": {
           "$id": "173",
           "kind": "array",
-          "name": "Array",
+          "name": "Array7",
           "valueType": {
            "$id": "174",
            "kind": "unknown",
@@ -2009,7 +2009,7 @@
          "bodyType": {
           "$id": "204",
           "kind": "array",
-          "name": "Array",
+          "name": "Array8",
           "valueType": {
            "$id": "205",
            "kind": "nullable",
@@ -2082,7 +2082,7 @@
          "type": {
           "$id": "212",
           "kind": "array",
-          "name": "Array",
+          "name": "Array8",
           "valueType": {
            "$ref": "205"
           },
@@ -2212,7 +2212,7 @@
          "bodyType": {
           "$id": "224",
           "kind": "array",
-          "name": "Array",
+          "name": "Array9",
           "valueType": {
            "$id": "225",
            "kind": "nullable",
@@ -2285,7 +2285,7 @@
          "type": {
           "$id": "232",
           "kind": "array",
-          "name": "Array",
+          "name": "Array9",
           "valueType": {
            "$ref": "225"
           },
@@ -2415,7 +2415,7 @@
          "bodyType": {
           "$id": "244",
           "kind": "array",
-          "name": "Array",
+          "name": "Array10",
           "valueType": {
            "$id": "245",
            "kind": "nullable",
@@ -2488,7 +2488,7 @@
          "type": {
           "$id": "252",
           "kind": "array",
-          "name": "Array",
+          "name": "Array10",
           "valueType": {
            "$ref": "245"
           },
@@ -2618,7 +2618,7 @@
          "bodyType": {
           "$id": "264",
           "kind": "array",
-          "name": "Array",
+          "name": "Array11",
           "valueType": {
            "$id": "265",
            "kind": "nullable",
@@ -2691,7 +2691,7 @@
          "type": {
           "$id": "272",
           "kind": "array",
-          "name": "Array",
+          "name": "Array11",
           "valueType": {
            "$ref": "265"
           },
@@ -2821,7 +2821,7 @@
          "bodyType": {
           "$id": "284",
           "kind": "array",
-          "name": "Array",
+          "name": "Array12",
           "valueType": {
            "$id": "285",
            "kind": "nullable",
@@ -2890,7 +2890,7 @@
          "type": {
           "$id": "291",
           "kind": "array",
-          "name": "Array",
+          "name": "Array12",
           "valueType": {
            "$ref": "285"
           },

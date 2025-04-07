@@ -2,15 +2,33 @@
 
 #nullable disable
 
+using System;
+using System.ComponentModel;
+
 namespace _Type.Union
 {
-    public enum GetResponseProp1
+    public readonly partial struct GetResponseProp1 : IEquatable<GetResponseProp1>
     {
-        /// <summary> _11. </summary>
-        _11,
-        /// <summary> _22. </summary>
-        _22,
-        /// <summary> _33. </summary>
-        _33
+        public GetResponseProp1(string value) => throw null;
+
+        public static GetResponseProp1 B => throw null;
+
+        public static GetResponseProp1 C => throw null;
+
+        public static bool operator ==(GetResponseProp1 left, GetResponseProp1 right) => throw null;
+
+        public static bool operator !=(GetResponseProp1 left, GetResponseProp1 right) => throw null;
+
+        public static implicit operator GetResponseProp1(string value) => throw null;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => throw null;
+
+        public bool Equals(GetResponseProp1 other) => throw null;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => throw null;
+
+        public override string ToString() => throw null;
     }
 }

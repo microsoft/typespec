@@ -108,7 +108,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * Base64Uri
      * }
      * </pre>
      * 

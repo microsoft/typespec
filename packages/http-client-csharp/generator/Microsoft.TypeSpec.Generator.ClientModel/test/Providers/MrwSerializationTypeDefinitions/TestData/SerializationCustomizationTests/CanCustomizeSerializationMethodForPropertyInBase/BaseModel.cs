@@ -1,5 +1,5 @@
 
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Models
 {

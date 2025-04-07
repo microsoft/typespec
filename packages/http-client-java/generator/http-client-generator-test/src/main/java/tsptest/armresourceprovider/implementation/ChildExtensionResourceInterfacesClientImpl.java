@@ -241,42 +241,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ChildExtensionResource along with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildExtensionResourceInner>> getWithResponseAsync(String resourceUri,
-        String topLevelArmResourceName, String childExtensionResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (childExtensionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.get(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri, topLevelArmResourceName,
-            childExtensionResourceName, accept, context);
-    }
-
-    /**
-     * Get a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -388,51 +352,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
                 context -> service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
                     topLevelArmResourceName, childExtensionResourceName, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
-    }
-
-    /**
-     * Create a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return extensionResource of Top Level Arm Resource along with {@link Response} on successful completion of
-     * {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
-        String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceInner resource,
-        Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (childExtensionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            topLevelArmResourceName, childExtensionResourceName, contentType, accept, resource, context);
     }
 
     /**
@@ -556,31 +475,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
      * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of extensionResource of Top Level Arm Resource.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<ChildExtensionResourceInner>, ChildExtensionResourceInner> beginCreateOrUpdateAsync(
-        String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
-        ChildExtensionResourceInner resource, Context context) {
-        context = this.client.mergeContext(context);
-        Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceUri, topLevelArmResourceName,
-            childExtensionResourceName, resource, context);
-        return this.client.<ChildExtensionResourceInner, ChildExtensionResourceInner>getLroResult(mono,
-            this.client.getHttpPipeline(), ChildExtensionResourceInner.class, ChildExtensionResourceInner.class,
-            context);
-    }
-
-    /**
-     * Create a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
-     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -637,26 +531,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         return beginCreateOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource)
             .last()
             .flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Create a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return extensionResource of Top Level Arm Resource on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ChildExtensionResourceInner> createOrUpdateAsync(String resourceUri, String topLevelArmResourceName,
-        String childExtensionResourceName, ChildExtensionResourceInner resource, Context context) {
-        return beginCreateOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource,
-            context).last().flatMap(this.client::getLroFinalResultOrError);
     }
 
     /**
@@ -740,51 +614,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             .withContext(context -> service.update(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
                 topLevelArmResourceName, childExtensionResourceName, contentType, accept, properties, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
-    }
-
-    /**
-     * Update a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return extensionResource of Top Level Arm Resource along with {@link Response} on successful completion of
-     * {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ChildExtensionResourceInner>> updateWithResponseAsync(String resourceUri,
-        String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceUpdate properties,
-        Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (childExtensionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.update(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            topLevelArmResourceName, childExtensionResourceName, contentType, accept, properties, context);
     }
 
     /**
@@ -913,42 +742,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceUri, String topLevelArmResourceName,
-        String childExtensionResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        if (childExtensionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.delete(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            topLevelArmResourceName, childExtensionResourceName, accept, context);
-    }
-
-    /**
-     * Delete a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -1044,28 +837,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceUri, String topLevelArmResourceName,
-        String childExtensionResourceName, Context context) {
-        context = this.client.mergeContext(context);
-        Mono<Response<Flux<ByteBuffer>>> mono
-            = deleteWithResponseAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
-        return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
-            context);
-    }
-
-    /**
-     * Delete a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -1114,25 +885,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Void> deleteAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         return beginDeleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName).last()
-            .flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Delete a ChildExtensionResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childExtensionResourceName ChildExtensionResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceUri, String topLevelArmResourceName,
-        String childExtensionResourceName, Context context) {
-        return beginDeleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, context).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
@@ -1207,41 +959,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * 
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildExtensionResource list operation along with {@link PagedResponse} on successful
-     * completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<ChildExtensionResourceInner>>
-        listByTopLevelArmResourceSinglePageAsync(String resourceUri, String topLevelArmResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service
-            .listByTopLevelArmResource(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-                topLevelArmResourceName, accept, context)
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                res.getValue().value(), res.getValue().nextLink(), null));
-    }
-
-    /**
-     * List ChildExtensionResource resources by TopLevelArmResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -1252,25 +969,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         String topLevelArmResourceName) {
         return new PagedFlux<>(() -> listByTopLevelArmResourceSinglePageAsync(resourceUri, topLevelArmResourceName),
             nextLink -> listByTopLevelArmResourceNextSinglePageAsync(nextLink));
-    }
-
-    /**
-     * List ChildExtensionResource resources by TopLevelArmResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildExtensionResource list operation as paginated response with {@link PagedFlux}.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    private PagedFlux<ChildExtensionResourceInner> listByTopLevelArmResourceAsync(String resourceUri,
-        String topLevelArmResourceName, Context context) {
-        return new PagedFlux<>(
-            () -> listByTopLevelArmResourceSinglePageAsync(resourceUri, topLevelArmResourceName, context),
-            nextLink -> listByTopLevelArmResourceNextSinglePageAsync(nextLink, context));
     }
 
     /**
@@ -1355,8 +1053,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildExtensionResourceInner> listByTopLevelArmResource(String resourceUri,
         String topLevelArmResourceName) {
-        return new PagedIterable<>(
-            () -> listByTopLevelArmResourceSinglePage(resourceUri, topLevelArmResourceName, Context.NONE),
+        return new PagedIterable<>(() -> listByTopLevelArmResourceSinglePage(resourceUri, topLevelArmResourceName),
             nextLink -> listByTopLevelArmResourceNextSinglePage(nextLink));
     }
 
@@ -1406,34 +1103,6 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
             .<PagedResponse<ChildExtensionResourceInner>>map(res -> new PagedResponseBase<>(res.getRequest(),
                 res.getStatusCode(), res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
-    }
-
-    /**
-     * Get the next page of items.
-     * 
-     * @param nextLink The URL to get the next list of items.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildExtensionResource list operation along with {@link PagedResponse} on successful
-     * completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<ChildExtensionResourceInner>>
-        listByTopLevelArmResourceNextSinglePageAsync(String nextLink, Context context) {
-        if (nextLink == null) {
-            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.listByTopLevelArmResourceNext(nextLink, this.client.getEndpoint(), accept, context)
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                res.getValue().value(), res.getValue().nextLink(), null));
     }
 
     /**

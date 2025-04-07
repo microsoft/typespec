@@ -25,11 +25,11 @@ async def client_false():
 
 @pytest.mark.asyncio
 async def test_head_true(client_true):
-    body = models_true.VisibilityModel(query_prop=123)
-    assert await client_true.head_model(body) == True
+    body = models_true.VisibilityModel()
+    assert await client_true.head_model(body, query_prop=123) == True
 
 
 @pytest.mark.asyncio
 async def test_head_false(client_false):
-    body = models_false.VisibilityModel(query_prop=123)
-    assert await client_false.head_model(body) is None
+    body = models_false.VisibilityModel()
+    assert await client_false.head_model(body, query_prop=123) is None
