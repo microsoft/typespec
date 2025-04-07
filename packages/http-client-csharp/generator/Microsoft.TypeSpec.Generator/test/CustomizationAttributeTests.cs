@@ -3,7 +3,7 @@
 
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {
