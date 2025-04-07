@@ -10,5 +10,4 @@ payload/xml
 response/status-code-range
 streaming/jsonl
 type/enum/fixed
-type/property/value-types
 type/model/inheritance/enum-discriminator

@@ -276,7 +276,8 @@ export function emitTypeReference(
 
       return typeName;
     }
-    case "ModelProperty": {
+    case "ModelProperty":
+    case "UnionVariant": {
       // Forward to underlying type.
       return emitTypeReference(ctx, type.type, position, module, options);
     }
