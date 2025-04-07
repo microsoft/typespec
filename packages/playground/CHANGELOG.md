@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.8.1
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6753](https://github.com/microsoft/typespec/pull/6753) Guard against diagnostic reported without a target
+
+
 ## 0.8.0
 
 ### Breaking Changes

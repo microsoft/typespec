@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.StringAndArraysImpl;
-import type.union.implementation.models.SendRequest2;
-import type.union.models.GetResponse2;
+import type.union.implementation.models.SendRequest7;
+import type.union.models.GetResponse7;
 import type.union.models.StringAndArrayCases;
 
 /**
@@ -81,7 +81,7 @@ public final class StringAndArrayClient {
      * }
      * </pre>
      * 
-     * @param sendRequest2 The sendRequest2 parameter.
+     * @param sendRequest7 The sendRequest7 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -91,8 +91,8 @@ public final class StringAndArrayClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest2, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest2, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest7, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest7, requestOptions);
     }
 
     /**
@@ -107,10 +107,10 @@ public final class StringAndArrayClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse2 get() {
+    public GetResponse7 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse2.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse7.class);
     }
 
     /**
@@ -129,8 +129,8 @@ public final class StringAndArrayClient {
     public void send(StringAndArrayCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest2 sendRequest2Obj = new SendRequest2(prop);
-        BinaryData sendRequest2 = BinaryData.fromObject(sendRequest2Obj);
-        sendWithResponse(sendRequest2, requestOptions).getValue();
+        SendRequest7 sendRequest7Obj = new SendRequest7(prop);
+        BinaryData sendRequest7 = BinaryData.fromObject(sendRequest7Obj);
+        sendWithResponse(sendRequest7, requestOptions).getValue();
     }
 }

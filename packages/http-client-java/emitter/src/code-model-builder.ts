@@ -53,7 +53,6 @@ import {
   SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
-  SdkEmitterOptions,
   SdkEnumType,
   SdkEnumValueType,
   SdkHeaderParameter,
@@ -168,7 +167,7 @@ export interface EmitterOptionsDev {
   "service-versions"?: string[]; // consider to remove
 
   // license
-  license?: SdkEmitterOptions["license"];
+  license?: License;
 
   // sample and test
   "generate-samples"?: boolean;
@@ -695,7 +694,7 @@ export class CodeModelBuilder {
 
     // preprocess operation groups and operations
     // operations without operation group
-    const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
+    const serviceMethodsWithoutSubClient = client.methods;
     let codeModelGroup = new OperationGroup("");
     codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
@@ -717,7 +716,7 @@ export class CodeModelBuilder {
     } else {
       // operations under operation groups
       for (const subClient of subClients) {
-        const serviceMethods = this.listServiceMethodsUnderClient(subClient);
+        const serviceMethods = subClient.methods;
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
@@ -797,18 +796,6 @@ export class CodeModelBuilder {
       }
     }
     return subClients;
-  }
-
-  private listServiceMethodsUnderClient(
-    client: SdkClientType<SdkHttpOperation>,
-  ): SdkServiceMethod<SdkHttpOperation>[] {
-    const methods: SdkServiceMethod<SdkHttpOperation>[] = [];
-    for (const method of client.methods) {
-      if (method.kind !== "clientaccessor") {
-        methods.push(method);
-      }
-    }
-    return methods;
   }
 
   /**

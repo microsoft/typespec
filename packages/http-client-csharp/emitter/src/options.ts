@@ -1,7 +1,4 @@
-import {
-  CreateSdkContextOptions,
-  SdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
+import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
@@ -27,7 +24,13 @@ export interface CSharpEmitterOptions {
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
   "package-name"?: string;
-  license?: SdkEmitterOptions["license"];
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
 }
 
 /**
