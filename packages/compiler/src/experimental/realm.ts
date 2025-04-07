@@ -3,6 +3,8 @@ import { Program } from "../core/program.js";
 import { Type } from "../core/types.js";
 import { createTypekit, Typekit } from "./typekit/index.js";
 
+(globalThis as any).realmForType ??= new WeakMap<Type, Realm>();
+
 /**
  * A Realm's view of a Program's state map for a given state key.
  *
@@ -234,5 +236,5 @@ export class Realm {
     return this.#types;
   }
 
-  static realmForType = new WeakMap<Type, Realm>();
+  static realmForType = (globalThis as any).realmForType;
 }
