@@ -32,11 +32,11 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
 }
 
 /*
-  * Creates a new CSharp emitter context.
-  * @param context - The SDK context.
-  * @param logger - The logger to use.
-  * @returns The CSharp emitter context.
-  * @beta
+ * Creates a new CSharp emitter context.
+ * @param context - The SDK context.
+ * @param logger - The logger to use.
+ * @returns The CSharp emitter context.
+ * @beta
  */
 export function createCSharpEmitterContext<
   TOptions extends CSharpEmitterOptions = CSharpEmitterOptions,
