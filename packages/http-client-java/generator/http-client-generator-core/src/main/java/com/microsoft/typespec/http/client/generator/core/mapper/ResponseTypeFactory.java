@@ -57,9 +57,7 @@ final class ResponseTypeFactory {
 
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return isByteStream(bodyType)
-                    ? mono(GenericType.Response(ClassType.BINARY_DATA))
-                    : mono(GenericType.Response(bodyType));
+                return isByteStream(bodyType) ? binaryResponse(settings) : mono(GenericType.Response(bodyType));
             }
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
@@ -71,14 +69,14 @@ final class ResponseTypeFactory {
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
-            return mono(GenericType.Response(ClassType.BINARY_DATA));
+            return binaryResponse(settings);
         }
 
         if (bodyType.equals(ClassType.BINARY_DATA)) {
             final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
             if (useInputStream) {
-                return mono(GenericType.Response(ClassType.BINARY_DATA));
+                return binaryResponse(settings);
             }
         }
 
@@ -87,6 +85,13 @@ final class ResponseTypeFactory {
         }
 
         return mono(GenericType.Response(bodyType));
+    }
+
+    private static IType binaryResponse(JavaSettings settings) {
+        // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
+        return settings.isFluent()
+            ? mono(GenericType.Response(ClassType.BINARY_DATA))
+            : mono(ClassType.STREAM_RESPONSE);
     }
 
     /**

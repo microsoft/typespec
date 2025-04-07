@@ -1055,6 +1055,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 argumentList += ", " + TemplateUtil.getContextNone();
             }
 
+            if (ClassType.STREAM_RESPONSE.equals(clientMethod.getReturnValue().getType())) {
+                function.text(".flatMapMany(StreamResponse::getValue);");
+            }
             if (clientMethod.getReturnValue().getType().equals(PrimitiveType.VOID)) {
                 function.line("%s(%s);", clientMethod.getProxyMethod().getSimpleRestResponseMethodName(), argumentList);
             } else {

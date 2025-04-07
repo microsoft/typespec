@@ -348,13 +348,17 @@ public class ProxyMethod {
     }
 
     private IType mapToSyncType(IType type) {
+        if (type == GenericType.FLUX_BYTE_BUFFER) {
+            return ClassType.BINARY_DATA;
+        }
+
         if (type instanceof GenericType) {
             GenericType genericType = (GenericType) type;
             if (genericType.getName().equals("Mono")) {
                 if (genericType.getTypeArguments()[0] instanceof GenericType) {
                     GenericType innerGenericType = (GenericType) genericType.getTypeArguments()[0];
                     if (innerGenericType.getName().equals("ResponseBase")
-                        && innerGenericType.getTypeArguments()[1] == ClassType.BINARY_DATA) {
+                        && innerGenericType.getTypeArguments()[1] == GenericType.FLUX_BYTE_BUFFER) {
                         return GenericType.RestResponse(innerGenericType.getTypeArguments()[0],
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
@@ -365,6 +369,12 @@ public class ProxyMethod {
                         // proxy method for LRO client methods
                         return GenericType.Response(ClassType.BINARY_DATA);
                     }
+                }
+
+                if (genericType.getTypeArguments()[0] == ClassType.STREAM_RESPONSE) {
+                    return JavaSettings.getInstance().isInputStreamForBinary()
+                        ? GenericType.Response(ClassType.INPUT_STREAM)
+                        : GenericType.Response(ClassType.BINARY_DATA);
                 }
                 return genericType.getTypeArguments()[0];
             }

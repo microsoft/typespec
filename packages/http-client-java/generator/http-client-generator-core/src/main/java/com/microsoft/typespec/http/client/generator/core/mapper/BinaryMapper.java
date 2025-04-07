@@ -4,7 +4,9 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 
 /**
@@ -28,6 +30,9 @@ public class BinaryMapper implements IMapper<BinarySchema, IType> {
         if (binarySchema == null) {
             return null;
         }
-        return ClassType.BINARY_DATA;
+        // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
+        return (JavaSettings.getInstance().isDataPlaneClient() || JavaSettings.getInstance().isFluent())
+            ? ClassType.BINARY_DATA
+            : GenericType.FLUX_BYTE_BUFFER;
     }
 }

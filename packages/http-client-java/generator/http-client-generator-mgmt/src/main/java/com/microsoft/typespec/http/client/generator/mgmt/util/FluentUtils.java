@@ -7,7 +7,6 @@ import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.ResponseBase;
 import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.http.rest.StreamResponse;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -372,8 +371,6 @@ public class FluentUtils {
             bodyType = type.getTypeArguments()[1];
         } else if (SimpleResponse.class.getSimpleName().equals(type.getName())) {
             bodyType = type.getTypeArguments()[0];
-        } else if (StreamResponse.class.getSimpleName().equals(type.getName())) {
-            bodyType = ClassType.BINARY_DATA;
         } else {
             log("Unable to determine value type for Response subtype: %s, fallback to typeArguments[0].", type);
             bodyType = type.getTypeArguments()[0];
