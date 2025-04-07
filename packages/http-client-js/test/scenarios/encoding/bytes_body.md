@@ -43,7 +43,7 @@ export async function foo(
 }
 ```
 
-# only: Should encode a bytes data when the body is bytes and encoding is base64
+# Should encode a bytes data when the body is bytes and encoding is base64
 
 ## TypeSpec
 
@@ -71,18 +71,15 @@ export async function foo(
     headers: {
       "content-type": options?.contentType ?? "application/jsonl",
     },
-    body: encodeUint8Array(value, "base64")!,
+    body: value,
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/jsonl")
-  ) {
-    return decodeBase64(response.body)!!;
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/jsonl")) {
+    return response.body!;
   }
   throw createRestError(response);
 }
