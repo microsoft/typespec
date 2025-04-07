@@ -36,10 +36,7 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 
-export function fromSdkType(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-): InputType {
+export function fromSdkType(sdkContext: CSharpEmitterContext, sdkType: SdkType): InputType {
   if (sdkContext.__typeCache.types.has(sdkType)) {
     return sdkContext.__typeCache.types.get(sdkType)!;
   }
@@ -204,10 +201,7 @@ export function fromSdkModelType(
       serializedName: property.serializedName,
       summary: property.summary,
       doc: property.doc,
-      type: fromSdkType(
-        sdkContext,
-        targetType,
-      ),
+      type: fromSdkType(sdkContext, targetType),
       optional: property.optional,
       readOnly: isReadOnly(property),
       discriminator: property.discriminator,
