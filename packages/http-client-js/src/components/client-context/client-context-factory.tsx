@@ -38,7 +38,7 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   );
 
   let credentialsRef: string | undefined;
-  if ("credential" in parameters) {
+  if (parameters.find((p) => p.name === "credential")) {
     credentialsRef = "credential";
   }
 

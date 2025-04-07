@@ -149,9 +149,9 @@ function ClientConstructor(props: ClientConstructorProps) {
 }
 
 function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.ParameterDescriptor[]) {
-  const subClientParams = buildClientParameters(subClient);
+  const subClientParams = buildClientParameters(subClient).map((p) => p.name);
   return parentParams
-    .filter(({ name }) => Object.keys(subClientParams).includes(name))
+    .filter(({ name }) => subClientParams.includes(name))
     .flatMap((p) => (p.refkey ? p.refkey : []));
 }
 
