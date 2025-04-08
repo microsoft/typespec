@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
+// prettier-ignore
+
 export const hsjsDependencies: Record<string, string> = {
   "@types/express": "^5.0.1",
   "@types/morgan": "^1.9.9",

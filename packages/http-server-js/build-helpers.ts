@@ -38,6 +38,8 @@ async function buildPackageJsonTs() {
     "// Copyright (c) Microsoft Corporation",
     "// Licensed under the MIT license.",
     "",
+    "// prettier-ignore",
+    "",
     `export const hsjsDependencies: Record<string, string> = {`,
     ...Object.entries(mergedDependencies).map(([name, version]) => {
       return `  ${JSON.stringify(name)}: ${JSON.stringify(version)},`;
