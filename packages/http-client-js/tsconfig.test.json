@@ -4,5 +4,5 @@
     "outDir": "dist-test"
   },
   "include": ["test/e2e/**/*"],
-  "exclude": ["node_modules", "dist", "dist-test"],
+  "exclude": ["node_modules", "dist", "dist-test"]
 }
