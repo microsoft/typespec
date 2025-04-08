@@ -133,7 +133,10 @@ describe("Typescript Function Declaration", () => {
             <SourceFile path="test.ts">
               <FunctionDeclaration
                 type={operation}
-                parameters={{ name: "string", age: "number" }}
+                parameters={[
+                  { name: "name", type: "string" },
+                  { name: "age", type: "number" },
+                ]}
               />
             </SourceFile>
           </Output>,

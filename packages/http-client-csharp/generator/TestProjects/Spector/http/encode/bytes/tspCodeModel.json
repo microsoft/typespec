@@ -1992,7 +1992,7 @@
           "$id": "195",
           "kind": "bytes",
           "name": "base64urlBytes",
-          "encode": "base64",
+          "encode": "base64url",
           "crossLanguageDefinitionId": "Encode.Bytes.base64urlBytes",
           "baseType": {
            "$id": "196",

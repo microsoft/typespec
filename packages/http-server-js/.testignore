@@ -1,26 +1,10 @@
-# Failed on initial run
-special-words
-authentication/oauth2
-authentication/union
 encode/bytes
 encode/datetime
 encode/duration
-encode/numeric
 payload/content-negotiation
 payload/media-type
 payload/multipart
 payload/xml
 response/status-code-range
 streaming/jsonl
-type/array
-type/dictionary
-type/enum/extensible
 type/enum/fixed
-type/model/inheritance/enum-discriminator
-type/property/additional-properties
-type/property/nullable
-type/property/optionality
-type/property/value-types
-type/scalar
-type/union
-versioning/returnTypeChangedFrom

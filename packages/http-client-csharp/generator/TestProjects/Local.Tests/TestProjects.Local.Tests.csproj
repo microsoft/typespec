@@ -3,6 +3,7 @@
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="System.ClientModel" />
+    <PackageReference Include="Azure.Core.Experimental" Version="0.1.0-preview.37" />
   </ItemGroup>
 
   <ItemGroup>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Projects\Unbranded-TypeSpec\src\Custom\" />
+    <Folder Include="Projects\Sample-TypeSpec\src\Custom\" />
   </ItemGroup>
 
 </Project>

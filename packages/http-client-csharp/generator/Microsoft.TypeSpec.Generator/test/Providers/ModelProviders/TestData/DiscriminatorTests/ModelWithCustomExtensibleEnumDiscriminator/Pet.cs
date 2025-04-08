@@ -2,7 +2,7 @@
 
 using System;
 using System.ComponentModel;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Models;
 

@@ -134,12 +134,12 @@ function* emitRouterDefinition(
   yield `export function create${routerName}(`;
 
   for (const [param] of backends.values()) {
-    yield `  ${param.camelCase}: ${param.pascalCase},`;
+    yield `  ${keywordSafe(param.camelCase)}: ${param.pascalCase},`;
   }
 
   yield `  options: RouterOptions<{`;
   for (const [param] of backends.values()) {
-    yield `    ${param.camelCase}: ${param.pascalCase}<HttpContext>,`;
+    yield `    ${keywordSafe(param.camelCase)}: ${param.pascalCase}<HttpContext>,`;
   }
   yield `  }> = {}`;
   yield `): ${routerName} {`;
@@ -328,7 +328,7 @@ function* emitRouteOperationDispatch(
         backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
       );
 
-      const backendMemberName = backend.camelCase;
+      const backendMemberName = keywordSafe(backend.camelCase);
 
       const parameters =
         operation.parameters.length > 0
@@ -408,7 +408,7 @@ function* emitRouteOperationDispatchMultiple(
       backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
     );
 
-    const backendMemberName = backend.camelCase;
+    const backendMemberName = keywordSafe(backend.camelCase);
 
     const parameters =
       operation.parameters.length > 0

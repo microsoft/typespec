@@ -12,7 +12,7 @@ For example assuming a User wants to emit `openapi3` and `protobuf` but each API
 
 It is important that there is a way for the openapi3 emitter and protobuf emitter to select only the part of the spec that applies to them. For instance, the protobuf emitter should not try to emit the http service namespace and fail because of missing annotations.
 
-## Starting out
+## Getting started
 
 TypeSpec emitters are a unique type of TypeSpec library, so they follow the same initial setup instructions.
 

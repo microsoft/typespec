@@ -1,0 +1,12 @@
+{
+  "name": "logging-plugin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "A simple logging plugin that mutates a library generated with @typespec/http-client-csharp to log method names to the console.",
+  "files": [
+    "dist/**"
+  ]
+}

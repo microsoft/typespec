@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@typespec/http-client-csharp": "1.0.0-alpha.20250403.3",
+    "logging-plugin": "file:../plugins/logging"
+  }
+}

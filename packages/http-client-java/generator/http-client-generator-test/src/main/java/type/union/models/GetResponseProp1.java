@@ -4,56 +4,54 @@
 
 package type.union.models;
 
+import com.azure.core.annotation.Generated;
+import com.azure.core.util.ExpandableStringEnum;
+import java.util.Collection;
+
 /**
  * Defines values for GetResponseProp1.
  */
-public enum GetResponseProp1 {
+public final class GetResponseProp1 extends ExpandableStringEnum<GetResponseProp1> {
     /**
-     * Enum value 1.1.
+     * Static value b for GetResponseProp1.
      */
-    ONE_ONE(1.1),
+    @Generated
+    public static final GetResponseProp1 B = fromString("b");
 
     /**
-     * Enum value 2.2.
+     * Static value c for GetResponseProp1.
      */
-    TWO_TWO(2.2),
+    @Generated
+    public static final GetResponseProp1 C = fromString("c");
 
     /**
-     * Enum value 3.3.
+     * Creates a new instance of GetResponseProp1 value.
+     * 
+     * @deprecated Use the {@link #fromString(String)} factory method.
      */
-    THREE_THREE(3.3);
-
-    /**
-     * The actual serialized value for a GetResponseProp1 instance.
-     */
-    private final double value;
-
-    GetResponseProp1(double value) {
-        this.value = value;
+    @Generated
+    @Deprecated
+    public GetResponseProp1() {
     }
 
     /**
-     * Parses a serialized value to a GetResponseProp1 instance.
+     * Creates or finds a GetResponseProp1 from its string representation.
      * 
-     * @param value the serialized value to parse.
-     * @return the parsed GetResponseProp1 object, or null if unable to parse.
+     * @param name a name to look for.
+     * @return the corresponding GetResponseProp1.
      */
-    public static GetResponseProp1 fromDouble(double value) {
-        GetResponseProp1[] items = GetResponseProp1.values();
-        for (GetResponseProp1 item : items) {
-            if (Double.doubleToLongBits(item.toDouble()) == Double.doubleToLongBits(value)) {
-                return item;
-            }
-        }
-        return null;
+    @Generated
+    public static GetResponseProp1 fromString(String name) {
+        return fromString(name, GetResponseProp1.class);
     }
 
     /**
-     * De-serializes the instance to double value.
+     * Gets known GetResponseProp1 values.
      * 
-     * @return the double value.
+     * @return known GetResponseProp1 values.
      */
-    public double toDouble() {
-        return this.value;
+    @Generated
+    public static Collection<GetResponseProp1> values() {
+        return values(GetResponseProp1.class);
     }
 }
