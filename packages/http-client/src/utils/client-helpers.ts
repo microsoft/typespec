@@ -1,12 +1,13 @@
 import { Refkey, refkey } from "@alloy-js/core";
-import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
+import { ModelProperty, Operation, Program, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
-const credentialCache = new Map<Refkey, ModelProperty>();
+const credentialCache = new WeakMap<Program, WeakMap<Refkey, ModelProperty>>();
+
 export function getCredentialParameter(client: InternalClient): ModelProperty | undefined {
   const [httpService] = getHttpService($.program, client.service);
 
@@ -19,6 +20,7 @@ export function getCredentialParameter(client: InternalClient): ModelProperty | 
   });
 
   const cacheKey = getCredRefkey(credTypes);
+  const credentialCache = getCredentialCache($.program);
 
   if (credentialCache.has(cacheKey)) {
     return credentialCache.get(cacheKey)!;
@@ -187,4 +189,11 @@ export function createBaseConstructor(
     parameters: combinedParams,
     returnType: $.program.checker.voidType,
   });
+}
+
+function getCredentialCache(program: Program): WeakMap<Refkey, ModelProperty> {
+  if (!credentialCache.has(program)) {
+    credentialCache.set(program, new WeakMap());
+  }
+  return credentialCache.get(program)!;
 }
