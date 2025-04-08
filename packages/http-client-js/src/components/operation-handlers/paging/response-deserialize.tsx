@@ -22,14 +22,18 @@ export function HttpResponseDeserialize(props: HttpResponseProps) {
   const httpOperation = props.httpOperation;
   const namePolicy = ts.useTSNamePolicy();
   const functionName = namePolicy.getName(httpOperation.operation.name + "Deserialize", "function");
-  const params = {
-    response: httpRuntimeTemplateLib.PathUncheckedResponse,
-    options: {
+  const params = [
+    {
+      name: "response",
+      refkey: httpRuntimeTemplateLib.PathUncheckedResponse,
+    },
+    {
+      name: "options",
       refkey: getOperationOptionsParameterRefkey(httpOperation),
       type: getOperationOptionsTypeRefkey(httpOperation),
       optional: true,
     },
-  };
+  ];
   return (
     <FunctionDeclaration
       name={functionName}

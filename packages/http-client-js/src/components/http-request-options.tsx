@@ -32,6 +32,7 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   props: HttpRequestOptionsHeadersProps,
 ) {
   // Extract the header request parameters from the operation
+  const httpOperation = props.httpOperation;
   const headers = props.httpOperation.parameters.properties.filter(
     (p) => p.kind === "header" || p.kind === "contentType",
   );

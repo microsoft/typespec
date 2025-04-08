@@ -58,7 +58,7 @@ HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
         {uriTemplateLib.parse}({JSON.stringify(urlTemplate)}).expand(
         {
           <HttpRequestParametersExpression
-            httpOperation={httpOperation}
+            httpOperation={props.httpOperation}
             optionsParameter={optionsParameter!}
             parameters={urlParameters}
           />

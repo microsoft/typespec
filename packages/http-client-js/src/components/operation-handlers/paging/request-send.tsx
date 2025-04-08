@@ -26,19 +26,18 @@ export function getHttpRequestSendParams(httpOperation: HttpOperation) {
   const clientLibrary = cl.useClientLibrary();
   const client = clientLibrary.getClientForOperation(httpOperation);
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client!);
-  const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
-    client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
+  const signatureParams: ts.ParameterDescriptor[] = [
+    { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
     ...getOperationParameters(httpOperation),
-  };
-  const parameters: Record<string, ts.ParameterDescriptor | ay.Children> = {
-    ...signatureParams,
-  };
+  ];
+  const parameters: ts.ParameterDescriptor[] = [...signatureParams];
   // re-correct the `options` parameter to Record<string, any> to accept both paging and non-paging options
-  parameters["options"] = {
+  parameters.push({
+    name: "options",
     type: "Record<string, any>",
     refkey: getOperationOptionsParameterRefkey(httpOperation),
     optional: true,
-  };
+  });
   return parameters;
 }
 
