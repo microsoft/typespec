@@ -438,10 +438,10 @@ async function doEmit(
             return createHash("sha256").update(packageName).digest("hex");
           }
         };
-        emitters.forEach((e) => {
+        emitters.forEach(async (e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             emitterName: generatePackageNameForTelemetry(e.package),
-            emitterVersion: e.version,
+            emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
         const compileResult = await compile(
