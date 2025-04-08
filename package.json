@@ -87,6 +87,8 @@
     ]
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["tree-sitter"]
+    "onlyBuiltDependencies": [
+      "tree-sitter"
+    ]
   }
 }
