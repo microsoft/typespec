@@ -168,7 +168,6 @@ class FileImport:
         self.type_definitions.update(file_import.type_definitions)
 
     def add_mutable_mapping_import(self) -> None:
-        self.add_import("sys", ImportType.STDLIB)
         self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
 
     def define_mutable_mapping_type(self) -> None:

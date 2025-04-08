@@ -18,13 +18,13 @@ import email.utils
 from datetime import datetime, date, time, timedelta, timezone
 from json import JSONEncoder
 import xml.etree.ElementTree as ET
+from collections.abc import MutableMapping
 from typing_extensions import Self
 import isodate
 from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
-from collections.abc import MutableMapping
 
 _LOGGER = logging.getLogger(__name__)
 
