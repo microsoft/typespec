@@ -53,7 +53,7 @@ export function link(
 async function linkSend(client: TestClientContext, filter: string, options?: Record<string, any>) {
   const path = parse("/link{?filter,nextToken}").expand({
     filter: filter,
-    ...(options?.nextToken && { nextToken: options?.nextToken }),
+    ...(options?.nextToken && { nextToken: options.nextToken }),
   });
   const httpRequestOptions = {
     headers: {},
@@ -175,7 +175,7 @@ export function link(
 async function linkSend(client: TestClientContext, filter: string, options?: Record<string, any>) {
   const path = parse("/link{?filter,maxPageSize}").expand({
     filter: filter,
-    ...(options?.maxPageSize && { maxPageSize: options?.maxPageSize }),
+    ...(options?.maxPageSize && { maxPageSize: options.maxPageSize }),
   });
   const httpRequestOptions = {
     headers: {},

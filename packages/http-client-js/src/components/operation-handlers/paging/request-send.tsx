@@ -32,12 +32,12 @@ export function getHttpRequestSendParams(httpOperation: HttpOperation) {
   ];
   const parameters: ts.ParameterDescriptor[] = [...signatureParams];
   // re-correct the `options` parameter to Record<string, any> to accept both paging and non-paging options
-  parameters.push({
+  parameters[parameters.length - 1] = {
     name: "options",
     type: "Record<string, any>",
     refkey: getOperationOptionsParameterRefkey(httpOperation),
     optional: true,
-  });
+  };
   return parameters;
 }
 

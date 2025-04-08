@@ -25,7 +25,7 @@ export function HttpResponseDeserialize(props: HttpResponseProps) {
   const params = [
     {
       name: "response",
-      refkey: httpRuntimeTemplateLib.PathUncheckedResponse,
+      type: httpRuntimeTemplateLib.PathUncheckedResponse,
     },
     {
       name: "options",

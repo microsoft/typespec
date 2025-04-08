@@ -113,8 +113,8 @@ function GetPagedResponse(props: GetPagedResponseProps) {
   // TODO: template can't resolve the ref key so fallback to useTSNamePolicy
   const namePolicy = ts.useTSNamePolicy();
   const functionName = namePolicy.getName(httpOperation.operation.name + "Send", "function");
-  const sendParamStr = Object.entries(props.operationParams)
-    .map((param) => param[0])
+  const sendParamStr = props.operationParams
+    .map((param) => param.name)
     .slice(0, -1)
     .join(", ");
   return (
