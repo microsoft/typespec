@@ -109,7 +109,7 @@ importers:
         version: 8.28.0(eslint@9.23.0)(typescript@5.8.2)
       vite-plugin-node-polyfills:
         specifier: ^0.23.0
-        version: 0.23.0(rollup@4.36.0)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.23.0(rollup@4.36.0)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -153,7 +153,7 @@ importers:
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.5.3)(typescript@5.8.2)
       '@astrojs/starlight':
         specifier: ^0.32.4
-        version: 0.32.4(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+        version: 0.32.4(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       '@expressive-code/core':
         specifier: ^0.40.2
         version: 0.40.2
@@ -162,7 +162,7 @@ importers:
         version: link:../playground
       astro-expressive-code:
         specifier: ^0.40.2
-        version: 0.40.2(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+        version: 0.40.2(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -177,8 +177,8 @@ importers:
         specifier: ~18.3.11
         version: 18.3.20
       astro:
-        specifier: ^5.5.4
-        version: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+        specifier: ^5.5.6
+        version: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
 
   packages/best-practices:
     devDependencies:
@@ -299,8 +299,8 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -420,11 +420,11 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@babel/core@7.26.10)
       '@alloy-js/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@alloy-js/typescript':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.27.0(@babel/core@7.26.10)
@@ -603,7 +603,7 @@ importers:
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
-        version: 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.9
         version: 3.0.9(vitest@3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0))
@@ -620,17 +620,17 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-checker:
         specifier: ^0.9.1
-        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-dts:
         specifier: 4.5.3
-        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-node-polyfills:
         specifier: ^0.23.0
-        version: 0.23.0(rollup@4.36.0)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.23.0(rollup@4.36.0)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -677,11 +677,11 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@babel/core@7.26.10)
       '@alloy-js/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@alloy-js/typescript':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.27.0(@babel/core@7.26.10)
@@ -716,11 +716,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@alloy-js/typescript':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.10.0
+        version: 0.10.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -1383,7 +1383,7 @@ importers:
         version: 8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)
       '@storybook/react-vite':
         specifier: ^8.6.7
-        version: 8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.36.0)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.36.0)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@storybook/test':
         specifier: ^8.6.7
         version: 8.6.9(storybook@8.6.9(prettier@3.5.3))
@@ -1410,7 +1410,7 @@ importers:
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
-        version: 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       c8:
         specifier: ^10.1.3
         version: 10.1.3
@@ -1427,14 +1427,14 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-checker:
         specifier: ^0.9.1
-        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-dts:
         specifier: 4.5.3
-        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
 
   packages/playground-website:
     dependencies:
@@ -1519,7 +1519,7 @@ importers:
         version: 3.52.4
       '@vitejs/plugin-react':
         specifier: ~4.3.4
-        version: 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.9
         version: 3.0.9(vitest@3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0))
@@ -1542,14 +1542,14 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-dts:
         specifier: 4.5.3
-        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-node-polyfills:
         specifier: ^0.23.0
-        version: 0.23.0(rollup@4.36.0)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.23.0(rollup@4.36.0)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -1647,7 +1647,7 @@ importers:
         version: 18.3.5(@types/react@18.3.20)
       '@vitejs/plugin-react':
         specifier: ~4.3.4
-        version: 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.9
         version: 3.0.9(vitest@3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0))
@@ -1664,14 +1664,14 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-checker:
         specifier: ^0.9.1
-        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-dts:
         specifier: 4.5.3
-        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -1894,7 +1894,7 @@ importers:
         version: 18.3.5(@types/react@18.3.20)
       '@vitejs/plugin-react':
         specifier: ~4.3.4
-        version: 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -1905,14 +1905,14 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       vite:
-        specifier: ^6.2.2
-        version: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+        specifier: ^6.2.4
+        version: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-checker:
         specifier: ^0.9.1
-        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       vite-plugin-dts:
         specifier: 4.5.3
-        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
 
   packages/spector:
     dependencies:
@@ -2402,7 +2402,7 @@ importers:
         version: 4.2.1(@types/node@22.13.13)(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tsx@4.19.3)(yaml@2.7.0)
       '@astrojs/starlight':
         specifier: ^0.32.4
-        version: 0.32.4(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+        version: 0.32.4(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       '@docsearch/css':
         specifier: ^3.9.0
         version: 3.9.0
@@ -2425,11 +2425,11 @@ importers:
         specifier: workspace:^
         version: link:../packages/playground
       astro:
-        specifier: ^5.5.4
-        version: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+        specifier: ^5.5.6
+        version: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
       astro-rehype-relative-markdown-links:
         specifier: ^0.18.1
-        version: 0.18.1(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+        version: 0.18.1(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2526,7 +2526,7 @@ importers:
         version: link:../packages/xml
       astro-expressive-code:
         specifier: ^0.40.2
-        version: 0.40.2(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+        version: 0.40.2(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       rehype-mermaid:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.51.1)
@@ -2538,7 +2538,7 @@ importers:
         version: 6.0.1
       vite-plugin-node-polyfills:
         specifier: ^0.23.0
-        version: 0.23.0(rollup@4.36.0)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+        version: 0.23.0(rollup@4.36.0)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
 
 packages:
 
@@ -2675,11 +2675,11 @@ packages:
   '@alloy-js/babel-preset@0.2.0':
     resolution: {integrity: sha512-EbIQiXyRa2Osd5iBwFT2C7s8IBKhQlgMaGA9sasFTo31KGYa5Tim51on8tjdlvGUEWUmJz7KlKA/hjWpchTgDQ==}
 
-  '@alloy-js/core@0.6.0':
-    resolution: {integrity: sha512-t11kEP2lyD5eYk17rcgcFerZIHQwRuEJW3vnKxTTXWCZPcknKyV8STDtqx9B1G0rE01E8tz1cYFpCTiWXIv/Kg==}
+  '@alloy-js/core@0.10.0':
+    resolution: {integrity: sha512-w/ibAFpE0ilr+r9LdlbkAfebV9FkLuxvSvDiWgHaUbOwMDsv/vODNhmDc+YakTY64X71Bn0WwZe9Rub/EvhslQ==}
 
-  '@alloy-js/typescript@0.6.0':
-    resolution: {integrity: sha512-vGhBm9Vr90uwtsGeeA/89EKxBUe/p/+hZ3ozLO6jm72Ph1nJZbd5+spFs9V/CPfDt0KaR6jruwcJaqHO08AEBw==}
+  '@alloy-js/typescript@0.10.0':
+    resolution: {integrity: sha512-KjktpJLO7kbvYfxu1wl0jqpfvcSEE3ZABcQZolqHKfze0+IxJ5Fgv8Wh4ZO4nkT+2qrcF/eJ5Y4Ir4Jm0UNwmQ==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -6806,8 +6806,8 @@ packages:
     peerDependencies:
       astro: '>=2 <6'
 
-  astro@5.5.4:
-    resolution: {integrity: sha512-rc9Mj6dIKM9ylTSQ0/S1l5f1iSDNs0PEjRMnvVpZ0W+wfBCu99JEuXy+fiWDNT6gf60bC4dKQehZxZGdSJB9kg==}
+  astro@5.5.6:
+    resolution: {integrity: sha512-SjU6zAlRe/gQrZ558Qhm211Yl8XOZBfjMpZig3XtQpG6zlyHJkElbWQIWXAVPzMg17cFVdv/qZPVHfcP2YOGGw==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -12387,6 +12387,46 @@ packages:
       yaml:
         optional: true
 
+  vite@6.2.4:
+    resolution: {integrity: sha512-veHMSew8CcRzhL5o8ONjy8gkfmFJAd5Ac16oxBUjlwgX3Gq2Wqr+qNC3TjPIpy7TPV/KporLga5GT9HqdrCizw==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || ^20.0.0 || >=22.0.0
+      jiti: '>=1.21.0'
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      sass-embedded: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.16.0
+      tsx: ^4.8.1
+      yaml: ^2.4.2
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      jiti:
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+      tsx:
+        optional: true
+      yaml:
+        optional: true
+
   vitefu@1.0.6:
     resolution: {integrity: sha512-+Rex1GlappUyNN6UfwbVZne/9cYC4+R2XDk9xkNXBKMw6HQagdX9PgZ8V2v1WUSK1wfBLp7qbI1+XSNIlB1xmA==}
     peerDependencies:
@@ -13026,7 +13066,7 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@alloy-js/core@0.6.0':
+  '@alloy-js/core@0.10.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
@@ -13039,9 +13079,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/typescript@0.6.0':
+  '@alloy-js/typescript@0.10.0':
     dependencies:
-      '@alloy-js/core': 0.6.0
+      '@alloy-js/core': 0.10.0
       change-case: 5.4.4
       pathe: 1.1.2
     transitivePeerDependencies:
@@ -13159,12 +13199,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.2.1(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))':
+  '@astrojs/mdx@4.2.1(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.1
       '@mdx-js/mdx': 3.1.0(acorn@8.14.1)
       acorn: 8.14.1
-      astro: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+      astro: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
       es-module-lexer: 1.6.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -13186,11 +13226,11 @@ snapshots:
     dependencies:
       '@types/react': 18.3.20
       '@types/react-dom': 18.3.5(@types/react@18.3.20)
-      '@vitejs/plugin-react': 4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+      '@vitejs/plugin-react': 4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       ultrahtml: 1.5.3
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -13211,16 +13251,16 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.24.2
 
-  '@astrojs/starlight@0.32.4(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))':
+  '@astrojs/starlight@0.32.4(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))':
     dependencies:
-      '@astrojs/mdx': 4.2.1(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+      '@astrojs/mdx': 4.2.1(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       '@astrojs/sitemap': 3.3.0
       '@pagefind/default-ui': 1.3.0
       '@types/hast': 3.0.4
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
-      astro-expressive-code: 0.40.2(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
+      astro: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+      astro-expressive-code: 0.40.2(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.4
@@ -16095,12 +16135,12 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.5.0(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.5.0(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       glob: 10.4.5
       magic-string: 0.27.0
       react-docgen-typescript: 2.2.2(typescript@5.8.2)
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     optionalDependencies:
       typescript: 5.8.2
 
@@ -17113,13 +17153,13 @@ snapshots:
       storybook: 8.6.9(prettier@3.5.3)
       uuid: 9.0.1
 
-  '@storybook/builder-vite@8.6.9(storybook@8.6.9(prettier@3.5.3))(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
+  '@storybook/builder-vite@8.6.9(storybook@8.6.9(prettier@3.5.3))(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@storybook/csf-plugin': 8.6.9(storybook@8.6.9(prettier@3.5.3))
       browser-assert: 1.2.1
       storybook: 8.6.9(prettier@3.5.3)
       ts-dedent: 2.2.0
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
 
   '@storybook/cli@8.6.9(@babel/preset-env@7.26.9(@babel/core@7.26.10))(prettier@3.5.3)':
     dependencies:
@@ -17223,11 +17263,11 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       storybook: 8.6.9(prettier@3.5.3)
 
-  '@storybook/react-vite@8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.36.0)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
+  '@storybook/react-vite@8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.36.0)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.5.0(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.5.0(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@rollup/pluginutils': 5.1.4(rollup@4.36.0)
-      '@storybook/builder-vite': 8.6.9(storybook@8.6.9(prettier@3.5.3))(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+      '@storybook/builder-vite': 8.6.9(storybook@8.6.9(prettier@3.5.3))(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       '@storybook/react': 8.6.9(@storybook/test@8.6.9(storybook@8.6.9(prettier@3.5.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.9(prettier@3.5.3))(typescript@5.8.2)
       find-up: 5.0.0
       magic-string: 0.30.17
@@ -17237,7 +17277,7 @@ snapshots:
       resolve: 1.22.10
       storybook: 8.6.9(prettier@3.5.3)
       tsconfig-paths: 4.2.0
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     optionalDependencies:
       '@storybook/test': 8.6.9(storybook@8.6.9(prettier@3.5.3))
     transitivePeerDependencies:
@@ -17844,14 +17884,14 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitejs/plugin-react@4.3.4(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
+  '@vitejs/plugin-react@4.3.4(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.10)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -18794,14 +18834,14 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.40.2(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)):
+  astro-expressive-code@0.40.2(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)):
     dependencies:
-      astro: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+      astro: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
       rehype-expressive-code: 0.40.2
 
-  astro-rehype-relative-markdown-links@0.18.1(astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)):
+  astro-rehype-relative-markdown-links@0.18.1(astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)):
     dependencies:
-      astro: 5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
+      astro: 5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0)
       catch-unknown: 2.0.0
       debug: 4.4.0(supports-color@8.1.1)
       github-slugger: 2.0.0
@@ -18813,7 +18853,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  astro@5.5.4(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0):
+  astro@5.5.6(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.13)(rollup@4.36.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0):
     dependencies:
       '@astrojs/compiler': 2.11.0
       '@astrojs/internal-helpers': 0.6.1
@@ -18864,8 +18904,8 @@ snapshots:
       unist-util-visit: 5.0.0
       unstorage: 1.15.0(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)
       vfile: 6.0.3
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
-      vitefu: 1.0.6(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vitefu: 1.0.6(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0))
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
       yocto-spinner: 0.2.1
@@ -25600,7 +25640,7 @@ snapshots:
       debug: 4.4.0(supports-color@8.1.1)
       es-module-lexer: 1.6.0
       pathe: 2.0.3
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -25615,7 +25655,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-checker@0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
+  vite-plugin-checker@0.9.1(eslint@9.23.0)(optionator@0.9.4)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
     dependencies:
       '@babel/code-frame': 7.26.2
       chokidar: 4.0.3
@@ -25625,14 +25665,14 @@ snapshots:
       strip-ansi: 7.1.0
       tiny-invariant: 1.3.3
       tinyglobby: 0.2.12
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
       vscode-uri: 3.1.0
     optionalDependencies:
       eslint: 9.23.0
       optionator: 0.9.4
       typescript: 5.8.2
 
-  vite-plugin-dts@4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
+  vite-plugin-dts@4.5.3(@types/node@22.13.13)(rollup@4.36.0)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
     dependencies:
       '@microsoft/api-extractor': 7.52.2(@types/node@22.13.13)
       '@rollup/pluginutils': 5.1.4(rollup@4.36.0)
@@ -25645,17 +25685,17 @@ snapshots:
       magic-string: 0.30.17
       typescript: 5.8.2
     optionalDependencies:
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - rollup
       - supports-color
 
-  vite-plugin-node-polyfills@0.23.0(rollup@4.36.0)(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
+  vite-plugin-node-polyfills@0.23.0(rollup@4.36.0)(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
     dependencies:
       '@rollup/plugin-inject': 5.0.5(rollup@4.36.0)
       node-stdlib-browser: 1.3.1
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - rollup
 
@@ -25670,9 +25710,20 @@ snapshots:
       tsx: 4.19.3
       yaml: 2.7.0
 
-  vitefu@1.0.6(vite@6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
+  vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0):
+    dependencies:
+      esbuild: 0.25.1
+      postcss: 8.5.3
+      rollup: 4.36.0
     optionalDependencies:
-      vite: 6.2.3(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
+      '@types/node': 22.13.13
+      fsevents: 2.3.3
+      tsx: 4.19.3
+      yaml: 2.7.0
+
+  vitefu@1.0.6(vite@6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)):
+    optionalDependencies:
+      vite: 6.2.4(@types/node@22.13.13)(tsx@4.19.3)(yaml@2.7.0)
 
   vitest@3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0):
     dependencies:

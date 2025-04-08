@@ -66,15 +66,15 @@ export function MultipartHelpers(props: MultipartHelpersProps) {
   );
 }
 
-function getCreateFilePartParameters() {
-  return {
-    partName: "string",
-    fileInput: "any",
-    defaultContentType: {
+function getCreateFilePartParameters(): ts.ParameterDescriptor[] {
+  return [
+    { name: "partName", type: "string" },
+    { name: "fileInput", type: "any" },
+    {
+      name: "defaultContentType",
       optional: true,
-      key: "defaultContentType",
       refkey: ay.refkey(),
       type: "string",
     },
-  };
+  ];
 }

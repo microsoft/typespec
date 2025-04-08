@@ -67,9 +67,9 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
   const inputType = props.target === "transport" ? <>{itemType} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
-    items_: { type: inputType, refkey: inputRef, optional: true },
-  };
+  const parameters: ts.ParameterDescriptor[] = [
+    { name: "items_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   const declarationRefkey = getJsonRecordTransformRefkey(props.type, props.target);
   return (
