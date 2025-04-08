@@ -18,8 +18,8 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.MixedTypesImpl;
-import type.union.implementation.models.SendRequest;
-import type.union.models.GetResponse;
+import type.union.implementation.models.SendRequest9;
+import type.union.models.GetResponse9;
 import type.union.models.MixedTypesCases;
 
 /**
@@ -93,7 +93,7 @@ public final class MixedTypesAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest The sendRequest parameter.
+     * @param sendRequest9 The sendRequest9 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -103,8 +103,8 @@ public final class MixedTypesAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest9, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest9, requestOptions);
     }
 
     /**
@@ -119,11 +119,11 @@ public final class MixedTypesAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse> get() {
+    public Mono<GetResponse9> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse9.class));
     }
 
     /**
@@ -143,8 +143,8 @@ public final class MixedTypesAsyncClient {
     public Mono<Void> send(MixedTypesCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest sendRequestObj = new SendRequest(prop);
-        BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
-        return sendWithResponse(sendRequest, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest9 sendRequest9Obj = new SendRequest9(prop);
+        BinaryData sendRequest9 = BinaryData.fromObject(sendRequest9Obj);
+        return sendWithResponse(sendRequest9, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

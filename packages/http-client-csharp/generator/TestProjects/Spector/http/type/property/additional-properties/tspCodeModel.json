@@ -6,7 +6,7 @@
   {
    "$id": "2",
    "kind": "enum",
-   "name": "WidgetData2_kind",
+   "name": "WidgetData0_kind",
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -18,9 +18,9 @@
     {
      "$id": "4",
      "kind": "enumvalue",
-     "name": "kind1",
-     "value": "kind1",
-     "doc": "kind1",
+     "name": "kind0",
+     "value": "kind0",
+     "doc": "kind0",
      "valueType": {
       "$ref": "3"
      },
@@ -31,7 +31,7 @@
    ],
    "crossLanguageDefinitionId": "",
    "namespace": "Type.Property.AdditionalProperties",
-   "doc": "The WidgetData2_kind",
+   "doc": "The WidgetData0_kind",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -74,7 +74,7 @@
   {
    "$id": "8",
    "kind": "enum",
-   "name": "WidgetData0_kind",
+   "name": "WidgetData2_kind",
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -86,9 +86,9 @@
     {
      "$id": "10",
      "kind": "enumvalue",
-     "name": "kind0",
-     "value": "kind0",
-     "doc": "kind0",
+     "name": "kind1",
+     "value": "kind1",
+     "doc": "kind1",
      "valueType": {
       "$ref": "9"
      },
@@ -99,7 +99,7 @@
    ],
    "crossLanguageDefinitionId": "",
    "namespace": "Type.Property.AdditionalProperties",
-   "doc": "The WidgetData0_kind",
+   "doc": "The WidgetData2_kind",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -110,1511 +110,28 @@
   {
    "$id": "11",
    "kind": "model",
-   "name": "SpreadRecordForNonDiscriminatedUnion3",
+   "name": "ExtendsUnknownAdditionalProperties",
    "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
    "usage": "Input,Output,Json",
-   "doc": "The model spread Record<WidgetData2[] | WidgetData1>",
+   "doc": "The model extends from Record<unknown> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "12",
-    "kind": "union",
-    "name": "SpreadRecordForNonDiscriminatedUnion3AdditionalProperty",
-    "variantTypes": [
-     {
-      "$id": "13",
-      "kind": "array",
-      "name": "ArrayWidgetData2",
-      "valueType": {
-       "$id": "14",
-       "kind": "model",
-       "name": "WidgetData2",
-       "namespace": "Type.Property.AdditionalProperties",
-       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2",
-       "usage": "Input,Output,Json",
-       "decorators": [],
-       "properties": [
-        {
-         "$id": "15",
-         "kind": "property",
-         "name": "kind",
-         "serializedName": "kind",
-         "type": {
-          "$id": "16",
-          "kind": "constant",
-          "valueType": {
-           "$ref": "2"
-          },
-          "value": "kind1",
-          "decorators": []
-         },
-         "optional": false,
-         "readOnly": false,
-         "discriminator": false,
-         "flatten": false,
-         "decorators": [],
-         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2.kind",
-         "serializationOptions": {
-          "$id": "17",
-          "json": {
-           "$id": "18",
-           "name": "kind"
-          }
-         }
-        },
-        {
-         "$id": "19",
-         "kind": "property",
-         "name": "start",
-         "serializedName": "start",
-         "type": {
-          "$id": "20",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "optional": false,
-         "readOnly": false,
-         "discriminator": false,
-         "flatten": false,
-         "decorators": [],
-         "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2.start",
-         "serializationOptions": {
-          "$id": "21",
-          "json": {
-           "$id": "22",
-           "name": "start"
-          }
-         }
-        }
-       ]
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     {
-      "$id": "23",
-      "kind": "model",
-      "name": "WidgetData1",
-      "namespace": "Type.Property.AdditionalProperties",
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1",
-      "usage": "Input,Output,Json",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "24",
-        "kind": "property",
-        "name": "kind",
-        "serializedName": "kind",
-        "type": {
-         "$id": "25",
-         "kind": "constant",
-         "valueType": {
-          "$ref": "5"
-         },
-         "value": "kind1",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.kind",
-        "serializationOptions": {
-         "$id": "26",
-         "json": {
-          "$id": "27",
-          "name": "kind"
-         }
-        }
-       },
-       {
-        "$id": "28",
-        "kind": "property",
-        "name": "start",
-        "serializedName": "start",
-        "type": {
-         "$id": "29",
-         "kind": "utcDateTime",
-         "name": "utcDateTime",
-         "encode": "rfc3339",
-         "wireType": {
-          "$id": "30",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.start",
-        "serializationOptions": {
-         "$id": "31",
-         "json": {
-          "$id": "32",
-          "name": "start"
-         }
-        }
-       },
-       {
-        "$id": "33",
-        "kind": "property",
-        "name": "end",
-        "serializedName": "end",
-        "type": {
-         "$id": "34",
-         "kind": "utcDateTime",
-         "name": "utcDateTime",
-         "encode": "rfc3339",
-         "wireType": {
-          "$id": "35",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
-         "decorators": []
-        },
-        "optional": true,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.end",
-        "serializationOptions": {
-         "$id": "36",
-         "json": {
-          "$id": "37",
-          "name": "end"
-         }
-        }
-       }
-      ]
-     }
-    ],
-    "namespace": "",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "38",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "39",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3.name",
-     "serializationOptions": {
-      "$id": "40",
-      "json": {
-       "$id": "41",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "14"
-  },
-  {
-   "$ref": "23"
-  },
-  {
-   "$id": "42",
-   "kind": "model",
-   "name": "SpreadRecordForNonDiscriminatedUnion2",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<WidgetData2 | WidgetData1>",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "43",
-    "kind": "union",
-    "name": "SpreadRecordForNonDiscriminatedUnion2AdditionalProperty",
-    "variantTypes": [
-     {
-      "$ref": "14"
-     },
-     {
-      "$ref": "23"
-     }
-    ],
-    "namespace": "",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "44",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "45",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2.name",
-     "serializationOptions": {
-      "$id": "46",
-      "json": {
-       "$id": "47",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "48",
-   "kind": "model",
-   "name": "SpreadRecordForNonDiscriminatedUnion",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<WidgetData0 | WidgetData1>",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "49",
-    "kind": "union",
-    "name": "SpreadRecordForNonDiscriminatedUnionAdditionalProperty",
-    "variantTypes": [
-     {
-      "$id": "50",
-      "kind": "model",
-      "name": "WidgetData0",
-      "namespace": "Type.Property.AdditionalProperties",
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0",
-      "usage": "Input,Output,Json",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "51",
-        "kind": "property",
-        "name": "kind",
-        "serializedName": "kind",
-        "type": {
-         "$id": "52",
-         "kind": "constant",
-         "valueType": {
-          "$ref": "8"
-         },
-         "value": "kind0",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0.kind",
-        "serializationOptions": {
-         "$id": "53",
-         "json": {
-          "$id": "54",
-          "name": "kind"
-         }
-        }
-       },
-       {
-        "$id": "55",
-        "kind": "property",
-        "name": "fooProp",
-        "serializedName": "fooProp",
-        "type": {
-         "$id": "56",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0.fooProp",
-        "serializationOptions": {
-         "$id": "57",
-         "json": {
-          "$id": "58",
-          "name": "fooProp"
-         }
-        }
-       }
-      ]
-     },
-     {
-      "$ref": "23"
-     }
-    ],
-    "namespace": "",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "59",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "60",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion.name",
-     "serializationOptions": {
-      "$id": "61",
-      "json": {
-       "$id": "62",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "50"
-  },
-  {
-   "$id": "63",
-   "kind": "model",
-   "name": "SpreadRecordForUnion",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<string | float32>",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "64",
-    "kind": "union",
-    "name": "SpreadRecordForUnionAdditionalProperty",
-    "variantTypes": [
-     {
-      "$id": "65",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     {
-      "$id": "66",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     }
-    ],
-    "namespace": "",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "67",
-     "kind": "property",
-     "name": "flag",
-     "serializedName": "flag",
-     "doc": "The name property",
-     "type": {
-      "$id": "68",
-      "kind": "boolean",
-      "name": "boolean",
-      "crossLanguageDefinitionId": "TypeSpec.boolean",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion.flag",
-     "serializationOptions": {
-      "$id": "69",
-      "json": {
-       "$id": "70",
-       "name": "flag"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "71",
-   "kind": "model",
-   "name": "MultipleSpreadRecord",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<string> and Record<float32>",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "72",
-    "kind": "union",
-    "name": "MultipleSpreadRecordAdditionalProperty",
-    "variantTypes": [
-     {
-      "$id": "73",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     {
-      "$id": "74",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     }
-    ],
-    "namespace": "",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "75",
-     "kind": "property",
-     "name": "flag",
-     "serializedName": "flag",
-     "doc": "The name property",
-     "type": {
-      "$id": "76",
-      "kind": "boolean",
-      "name": "boolean",
-      "crossLanguageDefinitionId": "TypeSpec.boolean",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord.flag",
-     "serializationOptions": {
-      "$id": "77",
-      "json": {
-       "$id": "78",
-       "name": "flag"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "79",
-   "kind": "model",
-   "name": "DifferentSpreadModelArrayDerived",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
-   "decorators": [],
-   "baseModel": {
-    "$id": "80",
-    "kind": "model",
-    "name": "DifferentSpreadModelArrayRecord",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
-    "usage": "Input,Output,Json",
-    "doc": "The model spread Record<ModelForRecord[]> with the different known property type",
-    "decorators": [],
-    "additionalProperties": {
-     "$id": "81",
-     "kind": "array",
-     "name": "ArrayModelForRecord",
-     "valueType": {
-      "$id": "82",
-      "kind": "model",
-      "name": "ModelForRecord",
-      "namespace": "Type.Property.AdditionalProperties",
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
-      "usage": "Input,Output,Json",
-      "doc": "model for record",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "83",
-        "kind": "property",
-        "name": "state",
-        "serializedName": "state",
-        "doc": "The state property",
-        "type": {
-         "$id": "84",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord.state",
-        "serializationOptions": {
-         "$id": "85",
-         "json": {
-          "$id": "86",
-          "name": "state"
-         }
-        }
-       }
-      ]
-     },
-     "crossLanguageDefinitionId": "TypeSpec.Array",
-     "decorators": []
-    },
-    "properties": [
-     {
-      "$id": "87",
-      "kind": "property",
-      "name": "knownProp",
-      "serializedName": "knownProp",
-      "type": {
-       "$id": "88",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord.knownProp",
-      "serializationOptions": {
-       "$id": "89",
-       "json": {
-        "$id": "90",
-        "name": "knownProp"
-       }
-      }
-     }
-    ]
-   },
-   "properties": [
-    {
-     "$id": "91",
-     "kind": "property",
-     "name": "derivedProp",
-     "serializedName": "derivedProp",
-     "doc": "The index property",
-     "type": {
-      "$id": "92",
-      "kind": "array",
-      "name": "ArrayModelForRecord",
-      "valueType": {
-       "$ref": "82"
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived.derivedProp",
-     "serializationOptions": {
-      "$id": "93",
-      "json": {
-       "$id": "94",
-       "name": "derivedProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "82"
-  },
-  {
-   "$ref": "80"
-  },
-  {
-   "$id": "95",
-   "kind": "model",
-   "name": "DifferentSpreadModelDerived",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
-   "decorators": [],
-   "baseModel": {
-    "$id": "96",
-    "kind": "model",
-    "name": "DifferentSpreadModelRecord",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
-    "usage": "Input,Output,Json",
-    "doc": "The model spread Record<ModelForRecord> with the different known property type",
-    "decorators": [],
-    "additionalProperties": {
-     "$ref": "82"
-    },
-    "properties": [
-     {
-      "$id": "97",
-      "kind": "property",
-      "name": "knownProp",
-      "serializedName": "knownProp",
-      "type": {
-       "$id": "98",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord.knownProp",
-      "serializationOptions": {
-       "$id": "99",
-       "json": {
-        "$id": "100",
-        "name": "knownProp"
-       }
-      }
-     }
-    ]
-   },
-   "properties": [
-    {
-     "$id": "101",
-     "kind": "property",
-     "name": "derivedProp",
-     "serializedName": "derivedProp",
-     "doc": "The index property",
-     "type": {
-      "$ref": "82"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived.derivedProp",
-     "serializationOptions": {
-      "$id": "102",
-      "json": {
-       "$id": "103",
-       "name": "derivedProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "96"
-  },
-  {
-   "$id": "104",
-   "kind": "model",
-   "name": "DifferentSpreadFloatDerived",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from a model that spread Record<float32> with the different known property type",
-   "decorators": [],
-   "baseModel": {
-    "$id": "105",
-    "kind": "model",
-    "name": "DifferentSpreadFloatRecord",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
-    "usage": "Input,Output,Json",
-    "doc": "The model spread Record<float32> with the different known property type",
-    "decorators": [],
-    "additionalProperties": {
-     "$id": "106",
-     "kind": "float32",
-     "name": "float32",
-     "crossLanguageDefinitionId": "TypeSpec.float32",
-     "decorators": []
-    },
-    "properties": [
-     {
-      "$id": "107",
-      "kind": "property",
-      "name": "name",
-      "serializedName": "name",
-      "doc": "The id property",
-      "type": {
-       "$id": "108",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord.name",
-      "serializationOptions": {
-       "$id": "109",
-       "json": {
-        "$id": "110",
-        "name": "name"
-       }
-      }
-     }
-    ]
-   },
-   "properties": [
-    {
-     "$id": "111",
-     "kind": "property",
-     "name": "derivedProp",
-     "serializedName": "derivedProp",
-     "doc": "The index property",
-     "type": {
-      "$id": "112",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived.derivedProp",
-     "serializationOptions": {
-      "$id": "113",
-      "json": {
-       "$id": "114",
-       "name": "derivedProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "105"
-  },
-  {
-   "$id": "115",
-   "kind": "model",
-   "name": "DifferentSpreadStringDerived",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from a model that spread Record<string> with the different known property type",
-   "decorators": [],
-   "baseModel": {
-    "$id": "116",
-    "kind": "model",
-    "name": "DifferentSpreadStringRecord",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
-    "usage": "Input,Output,Json",
-    "doc": "The model spread Record<string> with the different known property type",
-    "decorators": [],
-    "additionalProperties": {
-     "$id": "117",
-     "kind": "string",
-     "name": "string",
-     "crossLanguageDefinitionId": "TypeSpec.string",
-     "decorators": []
-    },
-    "properties": [
-     {
-      "$id": "118",
-      "kind": "property",
-      "name": "id",
-      "serializedName": "id",
-      "doc": "The name property",
-      "type": {
-       "$id": "119",
-       "kind": "float32",
-       "name": "float32",
-       "crossLanguageDefinitionId": "TypeSpec.float32",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord.id",
-      "serializationOptions": {
-       "$id": "120",
-       "json": {
-        "$id": "121",
-        "name": "id"
-       }
-      }
-     }
-    ]
-   },
-   "properties": [
-    {
-     "$id": "122",
-     "kind": "property",
-     "name": "derivedProp",
-     "serializedName": "derivedProp",
-     "doc": "The index property",
-     "type": {
-      "$id": "123",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived.derivedProp",
-     "serializationOptions": {
-      "$id": "124",
-      "json": {
-       "$id": "125",
-       "name": "derivedProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "116"
-  },
-  {
-   "$id": "126",
-   "kind": "model",
-   "name": "SpreadModelArrayRecord",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord",
-   "usage": "Input,Output,Json",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "127",
-    "kind": "array",
-    "name": "ArrayModelForRecord",
-    "valueType": {
-     "$ref": "82"
-    },
-    "crossLanguageDefinitionId": "TypeSpec.Array",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "128",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$id": "129",
-      "kind": "array",
-      "name": "ArrayModelForRecord",
-      "valueType": {
-       "$ref": "82"
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord.knownProp",
-     "serializationOptions": {
-      "$id": "130",
-      "json": {
-       "$id": "131",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "132",
-   "kind": "model",
-   "name": "IsModelArrayAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model is from Record<ModelForRecord[]> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "133",
-    "kind": "array",
-    "name": "ArrayModelForRecord",
-    "valueType": {
-     "$ref": "82"
-    },
-    "crossLanguageDefinitionId": "TypeSpec.Array",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "134",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$id": "135",
-      "kind": "array",
-      "name": "ArrayModelForRecord",
-      "valueType": {
-       "$ref": "82"
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties.knownProp",
-     "serializationOptions": {
-      "$id": "136",
-      "json": {
-       "$id": "137",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "138",
-   "kind": "model",
-   "name": "ExtendsModelArrayAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from Record<ModelForRecord[]> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "139",
-    "kind": "array",
-    "name": "ArrayModelForRecord",
-    "valueType": {
-     "$ref": "82"
-    },
-    "crossLanguageDefinitionId": "TypeSpec.Array",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "140",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$id": "141",
-      "kind": "array",
-      "name": "ArrayModelForRecord",
-      "valueType": {
-       "$ref": "82"
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties.knownProp",
-     "serializationOptions": {
-      "$id": "142",
-      "json": {
-       "$id": "143",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "144",
-   "kind": "model",
-   "name": "SpreadModelRecord",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<ModelForRecord> with the same known property type",
-   "decorators": [],
-   "additionalProperties": {
-    "$ref": "82"
-   },
-   "properties": [
-    {
-     "$id": "145",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$ref": "82"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord.knownProp",
-     "serializationOptions": {
-      "$id": "146",
-      "json": {
-       "$id": "147",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "148",
-   "kind": "model",
-   "name": "IsModelAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model is from Record<ModelForRecord> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$ref": "82"
-   },
-   "properties": [
-    {
-     "$id": "149",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$ref": "82"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties.knownProp",
-     "serializationOptions": {
-      "$id": "150",
-      "json": {
-       "$id": "151",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "152",
-   "kind": "model",
-   "name": "ExtendsModelAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from Record<ModelForRecord> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$ref": "82"
-   },
-   "properties": [
-    {
-     "$id": "153",
-     "kind": "property",
-     "name": "knownProp",
-     "serializedName": "knownProp",
-     "type": {
-      "$ref": "82"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties.knownProp",
-     "serializationOptions": {
-      "$id": "154",
-      "json": {
-       "$id": "155",
-       "name": "knownProp"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "156",
-   "kind": "model",
-   "name": "SpreadFloatRecord",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<float32> with the same known property type",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "157",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "158",
-     "kind": "property",
-     "name": "id",
-     "serializedName": "id",
-     "doc": "The id property",
-     "type": {
-      "$id": "159",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord.id",
-     "serializationOptions": {
-      "$id": "160",
-      "json": {
-       "$id": "161",
-       "name": "id"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "162",
-   "kind": "model",
-   "name": "IsFloatAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model is from Record<float32> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "163",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "164",
-     "kind": "property",
-     "name": "id",
-     "serializedName": "id",
-     "doc": "The id property",
-     "type": {
-      "$id": "165",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties.id",
-     "serializationOptions": {
-      "$id": "166",
-      "json": {
-       "$id": "167",
-       "name": "id"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "168",
-   "kind": "model",
-   "name": "ExtendsFloatAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from Record<float32> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "169",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "170",
-     "kind": "property",
-     "name": "id",
-     "serializedName": "id",
-     "doc": "The id property",
-     "type": {
-      "$id": "171",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties.id",
-     "serializationOptions": {
-      "$id": "172",
-      "json": {
-       "$id": "173",
-       "name": "id"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "174",
-   "kind": "model",
-   "name": "SpreadStringRecord",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
-   "usage": "Input,Output,Json",
-   "doc": "The model spread Record<string> with the same known property type",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "175",
-    "kind": "string",
-    "name": "string",
-    "crossLanguageDefinitionId": "TypeSpec.string",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "176",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "177",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord.name",
-     "serializationOptions": {
-      "$id": "178",
-      "json": {
-       "$id": "179",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "180",
-   "kind": "model",
-   "name": "IsStringAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model is from Record<string> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "181",
-    "kind": "string",
-    "name": "string",
-    "crossLanguageDefinitionId": "TypeSpec.string",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "182",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "183",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties.name",
-     "serializationOptions": {
-      "$id": "184",
-      "json": {
-       "$id": "185",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "186",
-   "kind": "model",
-   "name": "ExtendsStringAdditionalProperties",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
-   "usage": "Input,Output,Json",
-   "doc": "The model extends from Record<string> type.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "187",
-    "kind": "string",
-    "name": "string",
-    "crossLanguageDefinitionId": "TypeSpec.string",
-    "decorators": []
-   },
-   "properties": [
-    {
-     "$id": "188",
-     "kind": "property",
-     "name": "name",
-     "serializedName": "name",
-     "doc": "The name property",
-     "type": {
-      "$id": "189",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties.name",
-     "serializationOptions": {
-      "$id": "190",
-      "json": {
-       "$id": "191",
-       "name": "name"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "192",
-   "kind": "model",
-   "name": "IsUnknownAdditionalPropertiesDiscriminated",
-   "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
-   "usage": "Input,Output,Json",
-   "doc": "The model is Record<unknown> with a discriminator.",
-   "decorators": [],
-   "additionalProperties": {
-    "$id": "193",
     "kind": "unknown",
     "name": "unknown",
     "crossLanguageDefinitionId": "",
     "decorators": []
    },
-   "discriminatorProperty": {
-    "$id": "194",
-    "kind": "property",
-    "name": "kind",
-    "serializedName": "kind",
-    "doc": "The discriminator",
-    "type": {
-     "$id": "195",
-     "kind": "string",
-     "name": "string",
-     "crossLanguageDefinitionId": "TypeSpec.string",
-     "decorators": []
-    },
-    "optional": false,
-    "readOnly": false,
-    "discriminator": true,
-    "flatten": false,
-    "decorators": [],
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated.kind",
-    "serializationOptions": {
-     "$id": "196",
-     "json": {
-      "$id": "197",
-      "name": "kind"
-     }
-    }
-   },
    "properties": [
     {
-     "$id": "198",
+     "$id": "13",
      "kind": "property",
      "name": "name",
      "serializedName": "name",
      "doc": "The name property",
      "type": {
-      "$id": "199",
+      "$id": "14",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1625,192 +142,38 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated.name",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties.name",
      "serializationOptions": {
-      "$id": "200",
+      "$id": "15",
       "json": {
-       "$id": "201",
+       "$id": "16",
        "name": "name"
       }
      }
-    },
-    {
-     "$ref": "194"
     }
-   ],
-   "discriminatedSubtypes": {
-    "$id": "202",
-    "derived": {
-     "$id": "203",
-     "kind": "model",
-     "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
-     "namespace": "Type.Property.AdditionalProperties",
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
-     "usage": "Input,Output,Json",
-     "doc": "The derived discriminated type",
-     "discriminatorValue": "derived",
-     "decorators": [],
-     "baseModel": {
-      "$ref": "192"
-     },
-     "properties": [
-      {
-       "$id": "204",
-       "kind": "property",
-       "name": "kind",
-       "serializedName": "kind",
-       "type": {
-        "$id": "205",
-        "kind": "constant",
-        "valueType": {
-         "$id": "206",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "derived",
-        "decorators": []
-       },
-       "optional": false,
-       "readOnly": false,
-       "discriminator": true,
-       "flatten": false,
-       "decorators": [],
-       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.kind",
-       "serializationOptions": {
-        "$id": "207",
-        "json": {
-         "$id": "208",
-         "name": "kind"
-        }
-       }
-      },
-      {
-       "$id": "209",
-       "kind": "property",
-       "name": "index",
-       "serializedName": "index",
-       "doc": "The index property",
-       "type": {
-        "$id": "210",
-        "kind": "int32",
-        "name": "int32",
-        "crossLanguageDefinitionId": "TypeSpec.int32",
-        "decorators": []
-       },
-       "optional": false,
-       "readOnly": false,
-       "discriminator": false,
-       "flatten": false,
-       "decorators": [],
-       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.index",
-       "serializationOptions": {
-        "$id": "211",
-        "json": {
-         "$id": "212",
-         "name": "index"
-        }
-       }
-      },
-      {
-       "$id": "213",
-       "kind": "property",
-       "name": "age",
-       "serializedName": "age",
-       "doc": "The age property",
-       "type": {
-        "$id": "214",
-        "kind": "float32",
-        "name": "float32",
-        "crossLanguageDefinitionId": "TypeSpec.float32",
-        "decorators": []
-       },
-       "optional": true,
-       "readOnly": false,
-       "discriminator": false,
-       "flatten": false,
-       "decorators": [],
-       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.age",
-       "serializationOptions": {
-        "$id": "215",
-        "json": {
-         "$id": "216",
-         "name": "age"
-        }
-       }
-      }
-     ]
-    }
-   }
+   ]
   },
   {
-   "$ref": "203"
-  },
-  {
-   "$id": "217",
+   "$id": "17",
    "kind": "model",
-   "name": "IsUnknownAdditionalPropertiesDerived",
+   "name": "ExtendsUnknownAdditionalPropertiesDerived",
    "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
-   "doc": "The model extends from a type that is Record<unknown> type",
+   "doc": "The model extends from a type that extends from Record<unknown>.",
    "decorators": [],
    "baseModel": {
-    "$id": "218",
-    "kind": "model",
-    "name": "IsUnknownAdditionalProperties",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
-    "usage": "Input,Output,Json",
-    "doc": "The model is from Record<unknown> type.",
-    "decorators": [],
-    "additionalProperties": {
-     "$id": "219",
-     "kind": "unknown",
-     "name": "unknown",
-     "crossLanguageDefinitionId": "",
-     "decorators": []
-    },
-    "properties": [
-     {
-      "$id": "220",
-      "kind": "property",
-      "name": "name",
-      "serializedName": "name",
-      "doc": "The name property",
-      "type": {
-       "$id": "221",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties.name",
-      "serializationOptions": {
-       "$id": "222",
-       "json": {
-        "$id": "223",
-        "name": "name"
-       }
-      }
-     }
-    ]
+    "$ref": "11"
    },
    "properties": [
     {
-     "$id": "224",
+     "$id": "18",
      "kind": "property",
      "name": "index",
      "serializedName": "index",
      "doc": "The index property",
      "type": {
-      "$id": "225",
+      "$id": "19",
       "kind": "int32",
       "name": "int32",
       "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -1821,23 +184,23 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived.index",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived.index",
      "serializationOptions": {
-      "$id": "226",
+      "$id": "20",
       "json": {
-       "$id": "227",
+       "$id": "21",
        "name": "index"
       }
      }
     },
     {
-     "$id": "228",
+     "$id": "22",
      "kind": "property",
      "name": "age",
      "serializedName": "age",
      "doc": "The age property",
      "type": {
-      "$id": "229",
+      "$id": "23",
       "kind": "float32",
       "name": "float32",
       "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -1848,11 +211,11 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived.age",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived.age",
      "serializationOptions": {
-      "$id": "230",
+      "$id": "24",
       "json": {
-       "$id": "231",
+       "$id": "25",
        "name": "age"
       }
      }
@@ -1860,10 +223,7 @@
    ]
   },
   {
-   "$ref": "218"
-  },
-  {
-   "$id": "232",
+   "$id": "26",
    "kind": "model",
    "name": "ExtendsUnknownAdditionalPropertiesDiscriminated",
    "namespace": "Type.Property.AdditionalProperties",
@@ -1872,20 +232,20 @@
    "doc": "The model extends from Record<unknown> with a discriminator.",
    "decorators": [],
    "additionalProperties": {
-    "$id": "233",
+    "$id": "27",
     "kind": "unknown",
     "name": "unknown",
     "crossLanguageDefinitionId": "",
     "decorators": []
    },
    "discriminatorProperty": {
-    "$id": "234",
+    "$id": "28",
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
     "doc": "The discriminator",
     "type": {
-     "$id": "235",
+     "$id": "29",
      "kind": "string",
      "name": "string",
      "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1898,22 +258,22 @@
     "decorators": [],
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated.kind",
     "serializationOptions": {
-     "$id": "236",
+     "$id": "30",
      "json": {
-      "$id": "237",
+      "$id": "31",
       "name": "kind"
      }
     }
    },
    "properties": [
     {
-     "$id": "238",
+     "$id": "32",
      "kind": "property",
      "name": "name",
      "serializedName": "name",
      "doc": "The name property",
      "type": {
-      "$id": "239",
+      "$id": "33",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1926,21 +286,21 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated.name",
      "serializationOptions": {
-      "$id": "240",
+      "$id": "34",
       "json": {
-       "$id": "241",
+       "$id": "35",
        "name": "name"
       }
      }
     },
     {
-     "$ref": "234"
+     "$ref": "28"
     }
    ],
    "discriminatedSubtypes": {
-    "$id": "242",
+    "$id": "36",
     "derived": {
-     "$id": "243",
+     "$id": "37",
      "kind": "model",
      "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
      "namespace": "Type.Property.AdditionalProperties",
@@ -1950,19 +310,19 @@
      "discriminatorValue": "derived",
      "decorators": [],
      "baseModel": {
-      "$ref": "232"
+      "$ref": "26"
      },
      "properties": [
       {
-       "$id": "244",
+       "$id": "38",
        "kind": "property",
        "name": "kind",
        "serializedName": "kind",
        "type": {
-        "$id": "245",
+        "$id": "39",
         "kind": "constant",
         "valueType": {
-         "$id": "246",
+         "$id": "40",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1978,21 +338,21 @@
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived.kind",
        "serializationOptions": {
-        "$id": "247",
+        "$id": "41",
         "json": {
-         "$id": "248",
+         "$id": "42",
          "name": "kind"
         }
        }
       },
       {
-       "$id": "249",
+       "$id": "43",
        "kind": "property",
        "name": "index",
        "serializedName": "index",
        "doc": "The index property",
        "type": {
-        "$id": "250",
+        "$id": "44",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2005,21 +365,21 @@
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived.index",
        "serializationOptions": {
-        "$id": "251",
+        "$id": "45",
         "json": {
-         "$id": "252",
+         "$id": "46",
          "name": "index"
         }
        }
       },
       {
-       "$id": "253",
+       "$id": "47",
        "kind": "property",
        "name": "age",
        "serializedName": "age",
        "doc": "The age property",
        "type": {
-        "$id": "254",
+        "$id": "48",
         "kind": "float32",
         "name": "float32",
         "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -2032,9 +392,9 @@
        "decorators": [],
        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived.age",
        "serializationOptions": {
-        "$id": "255",
+        "$id": "49",
         "json": {
-         "$id": "256",
+         "$id": "50",
          "name": "age"
         }
        }
@@ -2044,72 +404,75 @@
    }
   },
   {
-   "$ref": "243"
+   "$ref": "37"
   },
   {
-   "$id": "257",
+   "$id": "51",
    "kind": "model",
-   "name": "ExtendsUnknownAdditionalPropertiesDerived",
+   "name": "IsUnknownAdditionalProperties",
    "namespace": "Type.Property.AdditionalProperties",
-   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
    "usage": "Input,Output,Json",
-   "doc": "The model extends from a type that extends from Record<unknown>.",
+   "doc": "The model is from Record<unknown> type.",
    "decorators": [],
-   "baseModel": {
-    "$id": "258",
-    "kind": "model",
-    "name": "ExtendsUnknownAdditionalProperties",
-    "namespace": "Type.Property.AdditionalProperties",
-    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
-    "usage": "Input,Output,Json",
-    "doc": "The model extends from Record<unknown> type.",
-    "decorators": [],
-    "additionalProperties": {
-     "$id": "259",
-     "kind": "unknown",
-     "name": "unknown",
-     "crossLanguageDefinitionId": "",
-     "decorators": []
-    },
-    "properties": [
-     {
-      "$id": "260",
-      "kind": "property",
-      "name": "name",
-      "serializedName": "name",
-      "doc": "The name property",
-      "type": {
-       "$id": "261",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "optional": false,
-      "readOnly": false,
-      "discriminator": false,
-      "flatten": false,
-      "decorators": [],
-      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties.name",
-      "serializationOptions": {
-       "$id": "262",
-       "json": {
-        "$id": "263",
-        "name": "name"
-       }
-      }
-     }
-    ]
+   "additionalProperties": {
+    "$id": "52",
+    "kind": "unknown",
+    "name": "unknown",
+    "crossLanguageDefinitionId": "",
+    "decorators": []
    },
    "properties": [
     {
-     "$id": "264",
+     "$id": "53",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "54",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties.name",
+     "serializationOptions": {
+      "$id": "55",
+      "json": {
+       "$id": "56",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "57",
+   "kind": "model",
+   "name": "IsUnknownAdditionalPropertiesDerived",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from a type that is Record<unknown> type",
+   "decorators": [],
+   "baseModel": {
+    "$ref": "51"
+   },
+   "properties": [
+    {
+     "$id": "58",
      "kind": "property",
      "name": "index",
      "serializedName": "index",
      "doc": "The index property",
      "type": {
-      "$id": "265",
+      "$id": "59",
       "kind": "int32",
       "name": "int32",
       "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2120,23 +483,23 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived.index",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived.index",
      "serializationOptions": {
-      "$id": "266",
+      "$id": "60",
       "json": {
-       "$id": "267",
+       "$id": "61",
        "name": "index"
       }
      }
     },
     {
-     "$id": "268",
+     "$id": "62",
      "kind": "property",
      "name": "age",
      "serializedName": "age",
      "doc": "The age property",
      "type": {
-      "$id": "269",
+      "$id": "63",
       "kind": "float32",
       "name": "float32",
       "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -2147,11 +510,11 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived.age",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived.age",
      "serializationOptions": {
-      "$id": "270",
+      "$id": "64",
       "json": {
-       "$id": "271",
+       "$id": "65",
        "name": "age"
       }
      }
@@ -2159,7 +522,1644 @@
    ]
   },
   {
-   "$ref": "258"
+   "$id": "66",
+   "kind": "model",
+   "name": "IsUnknownAdditionalPropertiesDiscriminated",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
+   "usage": "Input,Output,Json",
+   "doc": "The model is Record<unknown> with a discriminator.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "67",
+    "kind": "unknown",
+    "name": "unknown",
+    "crossLanguageDefinitionId": "",
+    "decorators": []
+   },
+   "discriminatorProperty": {
+    "$id": "68",
+    "kind": "property",
+    "name": "kind",
+    "serializedName": "kind",
+    "doc": "The discriminator",
+    "type": {
+     "$id": "69",
+     "kind": "string",
+     "name": "string",
+     "crossLanguageDefinitionId": "TypeSpec.string",
+     "decorators": []
+    },
+    "optional": false,
+    "readOnly": false,
+    "discriminator": true,
+    "flatten": false,
+    "decorators": [],
+    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated.kind",
+    "serializationOptions": {
+     "$id": "70",
+     "json": {
+      "$id": "71",
+      "name": "kind"
+     }
+    }
+   },
+   "properties": [
+    {
+     "$id": "72",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "73",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated.name",
+     "serializationOptions": {
+      "$id": "74",
+      "json": {
+       "$id": "75",
+       "name": "name"
+      }
+     }
+    },
+    {
+     "$ref": "68"
+    }
+   ],
+   "discriminatedSubtypes": {
+    "$id": "76",
+    "derived": {
+     "$id": "77",
+     "kind": "model",
+     "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
+     "namespace": "Type.Property.AdditionalProperties",
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
+     "usage": "Input,Output,Json",
+     "doc": "The derived discriminated type",
+     "discriminatorValue": "derived",
+     "decorators": [],
+     "baseModel": {
+      "$ref": "66"
+     },
+     "properties": [
+      {
+       "$id": "78",
+       "kind": "property",
+       "name": "kind",
+       "serializedName": "kind",
+       "type": {
+        "$id": "79",
+        "kind": "constant",
+        "valueType": {
+         "$id": "80",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "derived",
+        "decorators": []
+       },
+       "optional": false,
+       "readOnly": false,
+       "discriminator": true,
+       "flatten": false,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.kind",
+       "serializationOptions": {
+        "$id": "81",
+        "json": {
+         "$id": "82",
+         "name": "kind"
+        }
+       }
+      },
+      {
+       "$id": "83",
+       "kind": "property",
+       "name": "index",
+       "serializedName": "index",
+       "doc": "The index property",
+       "type": {
+        "$id": "84",
+        "kind": "int32",
+        "name": "int32",
+        "crossLanguageDefinitionId": "TypeSpec.int32",
+        "decorators": []
+       },
+       "optional": false,
+       "readOnly": false,
+       "discriminator": false,
+       "flatten": false,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.index",
+       "serializationOptions": {
+        "$id": "85",
+        "json": {
+         "$id": "86",
+         "name": "index"
+        }
+       }
+      },
+      {
+       "$id": "87",
+       "kind": "property",
+       "name": "age",
+       "serializedName": "age",
+       "doc": "The age property",
+       "type": {
+        "$id": "88",
+        "kind": "float32",
+        "name": "float32",
+        "crossLanguageDefinitionId": "TypeSpec.float32",
+        "decorators": []
+       },
+       "optional": true,
+       "readOnly": false,
+       "discriminator": false,
+       "flatten": false,
+       "decorators": [],
+       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived.age",
+       "serializationOptions": {
+        "$id": "89",
+        "json": {
+         "$id": "90",
+         "name": "age"
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "$ref": "77"
+  },
+  {
+   "$id": "91",
+   "kind": "model",
+   "name": "ExtendsStringAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from Record<string> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "92",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "93",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "94",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties.name",
+     "serializationOptions": {
+      "$id": "95",
+      "json": {
+       "$id": "96",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "97",
+   "kind": "model",
+   "name": "IsStringAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model is from Record<string> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "98",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "99",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "100",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties.name",
+     "serializationOptions": {
+      "$id": "101",
+      "json": {
+       "$id": "102",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "103",
+   "kind": "model",
+   "name": "SpreadStringRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<string> with the same known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "104",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "105",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "106",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord.name",
+     "serializationOptions": {
+      "$id": "107",
+      "json": {
+       "$id": "108",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "109",
+   "kind": "model",
+   "name": "ExtendsFloatAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from Record<float32> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "110",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "111",
+     "kind": "property",
+     "name": "id",
+     "serializedName": "id",
+     "doc": "The id property",
+     "type": {
+      "$id": "112",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties.id",
+     "serializationOptions": {
+      "$id": "113",
+      "json": {
+       "$id": "114",
+       "name": "id"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "115",
+   "kind": "model",
+   "name": "IsFloatAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model is from Record<float32> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "116",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "117",
+     "kind": "property",
+     "name": "id",
+     "serializedName": "id",
+     "doc": "The id property",
+     "type": {
+      "$id": "118",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties.id",
+     "serializationOptions": {
+      "$id": "119",
+      "json": {
+       "$id": "120",
+       "name": "id"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "121",
+   "kind": "model",
+   "name": "SpreadFloatRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<float32> with the same known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "122",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "123",
+     "kind": "property",
+     "name": "id",
+     "serializedName": "id",
+     "doc": "The id property",
+     "type": {
+      "$id": "124",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord.id",
+     "serializationOptions": {
+      "$id": "125",
+      "json": {
+       "$id": "126",
+       "name": "id"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "127",
+   "kind": "model",
+   "name": "ExtendsModelAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from Record<ModelForRecord> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "128",
+    "kind": "model",
+    "name": "ModelForRecord",
+    "namespace": "Type.Property.AdditionalProperties",
+    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
+    "usage": "Input,Output,Json",
+    "doc": "model for record",
+    "decorators": [],
+    "properties": [
+     {
+      "$id": "129",
+      "kind": "property",
+      "name": "state",
+      "serializedName": "state",
+      "doc": "The state property",
+      "type": {
+       "$id": "130",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string",
+       "decorators": []
+      },
+      "optional": false,
+      "readOnly": false,
+      "discriminator": false,
+      "flatten": false,
+      "decorators": [],
+      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord.state",
+      "serializationOptions": {
+       "$id": "131",
+       "json": {
+        "$id": "132",
+        "name": "state"
+       }
+      }
+     }
+    ]
+   },
+   "properties": [
+    {
+     "$id": "133",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$ref": "128"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties.knownProp",
+     "serializationOptions": {
+      "$id": "134",
+      "json": {
+       "$id": "135",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$ref": "128"
+  },
+  {
+   "$id": "136",
+   "kind": "model",
+   "name": "IsModelAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model is from Record<ModelForRecord> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$ref": "128"
+   },
+   "properties": [
+    {
+     "$id": "137",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$ref": "128"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties.knownProp",
+     "serializationOptions": {
+      "$id": "138",
+      "json": {
+       "$id": "139",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "140",
+   "kind": "model",
+   "name": "SpreadModelRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<ModelForRecord> with the same known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$ref": "128"
+   },
+   "properties": [
+    {
+     "$id": "141",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$ref": "128"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord.knownProp",
+     "serializationOptions": {
+      "$id": "142",
+      "json": {
+       "$id": "143",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "144",
+   "kind": "model",
+   "name": "ExtendsModelArrayAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from Record<ModelForRecord[]> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "145",
+    "kind": "array",
+    "name": "ArrayModelForRecord",
+    "valueType": {
+     "$ref": "128"
+    },
+    "crossLanguageDefinitionId": "TypeSpec.Array",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "146",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$id": "147",
+      "kind": "array",
+      "name": "ArrayModelForRecord",
+      "valueType": {
+       "$ref": "128"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties.knownProp",
+     "serializationOptions": {
+      "$id": "148",
+      "json": {
+       "$id": "149",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "150",
+   "kind": "model",
+   "name": "IsModelArrayAdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
+   "usage": "Input,Output,Json",
+   "doc": "The model is from Record<ModelForRecord[]> type.",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "151",
+    "kind": "array",
+    "name": "ArrayModelForRecord",
+    "valueType": {
+     "$ref": "128"
+    },
+    "crossLanguageDefinitionId": "TypeSpec.Array",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "152",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$id": "153",
+      "kind": "array",
+      "name": "ArrayModelForRecord",
+      "valueType": {
+       "$ref": "128"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties.knownProp",
+     "serializationOptions": {
+      "$id": "154",
+      "json": {
+       "$id": "155",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "156",
+   "kind": "model",
+   "name": "SpreadModelArrayRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord",
+   "usage": "Input,Output,Json",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "157",
+    "kind": "array",
+    "name": "ArrayModelForRecord",
+    "valueType": {
+     "$ref": "128"
+    },
+    "crossLanguageDefinitionId": "TypeSpec.Array",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "158",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$id": "159",
+      "kind": "array",
+      "name": "ArrayModelForRecord",
+      "valueType": {
+       "$ref": "128"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord.knownProp",
+     "serializationOptions": {
+      "$id": "160",
+      "json": {
+       "$id": "161",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "162",
+   "kind": "model",
+   "name": "DifferentSpreadStringRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<string> with the different known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "163",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "164",
+     "kind": "property",
+     "name": "id",
+     "serializedName": "id",
+     "doc": "The name property",
+     "type": {
+      "$id": "165",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord.id",
+     "serializationOptions": {
+      "$id": "166",
+      "json": {
+       "$id": "167",
+       "name": "id"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "168",
+   "kind": "model",
+   "name": "DifferentSpreadFloatRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<float32> with the different known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "169",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "170",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The id property",
+     "type": {
+      "$id": "171",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord.name",
+     "serializationOptions": {
+      "$id": "172",
+      "json": {
+       "$id": "173",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "174",
+   "kind": "model",
+   "name": "DifferentSpreadModelRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<ModelForRecord> with the different known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$ref": "128"
+   },
+   "properties": [
+    {
+     "$id": "175",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$id": "176",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord.knownProp",
+     "serializationOptions": {
+      "$id": "177",
+      "json": {
+       "$id": "178",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "179",
+   "kind": "model",
+   "name": "DifferentSpreadModelArrayRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<ModelForRecord[]> with the different known property type",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "180",
+    "kind": "array",
+    "name": "ArrayModelForRecord",
+    "valueType": {
+     "$ref": "128"
+    },
+    "crossLanguageDefinitionId": "TypeSpec.Array",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "181",
+     "kind": "property",
+     "name": "knownProp",
+     "serializedName": "knownProp",
+     "type": {
+      "$id": "182",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord.knownProp",
+     "serializationOptions": {
+      "$id": "183",
+      "json": {
+       "$id": "184",
+       "name": "knownProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "185",
+   "kind": "model",
+   "name": "DifferentSpreadStringDerived",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from a model that spread Record<string> with the different known property type",
+   "decorators": [],
+   "baseModel": {
+    "$ref": "162"
+   },
+   "properties": [
+    {
+     "$id": "186",
+     "kind": "property",
+     "name": "derivedProp",
+     "serializedName": "derivedProp",
+     "doc": "The index property",
+     "type": {
+      "$id": "187",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived.derivedProp",
+     "serializationOptions": {
+      "$id": "188",
+      "json": {
+       "$id": "189",
+       "name": "derivedProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "190",
+   "kind": "model",
+   "name": "DifferentSpreadFloatDerived",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from a model that spread Record<float32> with the different known property type",
+   "decorators": [],
+   "baseModel": {
+    "$ref": "168"
+   },
+   "properties": [
+    {
+     "$id": "191",
+     "kind": "property",
+     "name": "derivedProp",
+     "serializedName": "derivedProp",
+     "doc": "The index property",
+     "type": {
+      "$id": "192",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived.derivedProp",
+     "serializationOptions": {
+      "$id": "193",
+      "json": {
+       "$id": "194",
+       "name": "derivedProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "195",
+   "kind": "model",
+   "name": "DifferentSpreadModelDerived",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
+   "decorators": [],
+   "baseModel": {
+    "$ref": "174"
+   },
+   "properties": [
+    {
+     "$id": "196",
+     "kind": "property",
+     "name": "derivedProp",
+     "serializedName": "derivedProp",
+     "doc": "The index property",
+     "type": {
+      "$ref": "128"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived.derivedProp",
+     "serializationOptions": {
+      "$id": "197",
+      "json": {
+       "$id": "198",
+       "name": "derivedProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "199",
+   "kind": "model",
+   "name": "DifferentSpreadModelArrayDerived",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
+   "usage": "Input,Output,Json",
+   "doc": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
+   "decorators": [],
+   "baseModel": {
+    "$ref": "179"
+   },
+   "properties": [
+    {
+     "$id": "200",
+     "kind": "property",
+     "name": "derivedProp",
+     "serializedName": "derivedProp",
+     "doc": "The index property",
+     "type": {
+      "$id": "201",
+      "kind": "array",
+      "name": "ArrayModelForRecord",
+      "valueType": {
+       "$ref": "128"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived.derivedProp",
+     "serializationOptions": {
+      "$id": "202",
+      "json": {
+       "$id": "203",
+       "name": "derivedProp"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "204",
+   "kind": "model",
+   "name": "MultipleSpreadRecord",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<string> and Record<float32>",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "205",
+    "kind": "union",
+    "name": "MultipleSpreadRecordAdditionalProperty",
+    "variantTypes": [
+     {
+      "$id": "206",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     {
+      "$id": "207",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     }
+    ],
+    "namespace": "",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "208",
+     "kind": "property",
+     "name": "flag",
+     "serializedName": "flag",
+     "doc": "The name property",
+     "type": {
+      "$id": "209",
+      "kind": "boolean",
+      "name": "boolean",
+      "crossLanguageDefinitionId": "TypeSpec.boolean",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord.flag",
+     "serializationOptions": {
+      "$id": "210",
+      "json": {
+       "$id": "211",
+       "name": "flag"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "212",
+   "kind": "model",
+   "name": "SpreadRecordForUnion",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<string | float32>",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "213",
+    "kind": "union",
+    "name": "SpreadRecordForUnionAdditionalProperty",
+    "variantTypes": [
+     {
+      "$id": "214",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     {
+      "$id": "215",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     }
+    ],
+    "namespace": "",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "216",
+     "kind": "property",
+     "name": "flag",
+     "serializedName": "flag",
+     "doc": "The name property",
+     "type": {
+      "$id": "217",
+      "kind": "boolean",
+      "name": "boolean",
+      "crossLanguageDefinitionId": "TypeSpec.boolean",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion.flag",
+     "serializationOptions": {
+      "$id": "218",
+      "json": {
+       "$id": "219",
+       "name": "flag"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "220",
+   "kind": "model",
+   "name": "SpreadRecordForNonDiscriminatedUnion",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<WidgetData0 | WidgetData1>",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "221",
+    "kind": "union",
+    "name": "SpreadRecordForNonDiscriminatedUnionAdditionalProperty",
+    "variantTypes": [
+     {
+      "$id": "222",
+      "kind": "model",
+      "name": "WidgetData0",
+      "namespace": "Type.Property.AdditionalProperties",
+      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
+       {
+        "$id": "223",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "type": {
+         "$id": "224",
+         "kind": "constant",
+         "valueType": {
+          "$ref": "2"
+         },
+         "value": "kind0",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0.kind",
+        "serializationOptions": {
+         "$id": "225",
+         "json": {
+          "$id": "226",
+          "name": "kind"
+         }
+        }
+       },
+       {
+        "$id": "227",
+        "kind": "property",
+        "name": "fooProp",
+        "serializedName": "fooProp",
+        "type": {
+         "$id": "228",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0.fooProp",
+        "serializationOptions": {
+         "$id": "229",
+         "json": {
+          "$id": "230",
+          "name": "fooProp"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "$id": "231",
+      "kind": "model",
+      "name": "WidgetData1",
+      "namespace": "Type.Property.AdditionalProperties",
+      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
+       {
+        "$id": "232",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "type": {
+         "$id": "233",
+         "kind": "constant",
+         "valueType": {
+          "$ref": "5"
+         },
+         "value": "kind1",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.kind",
+        "serializationOptions": {
+         "$id": "234",
+         "json": {
+          "$id": "235",
+          "name": "kind"
+         }
+        }
+       },
+       {
+        "$id": "236",
+        "kind": "property",
+        "name": "start",
+        "serializedName": "start",
+        "type": {
+         "$id": "237",
+         "kind": "utcDateTime",
+         "name": "utcDateTime",
+         "encode": "rfc3339",
+         "wireType": {
+          "$id": "238",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.start",
+        "serializationOptions": {
+         "$id": "239",
+         "json": {
+          "$id": "240",
+          "name": "start"
+         }
+        }
+       },
+       {
+        "$id": "241",
+        "kind": "property",
+        "name": "end",
+        "serializedName": "end",
+        "type": {
+         "$id": "242",
+         "kind": "utcDateTime",
+         "name": "utcDateTime",
+         "encode": "rfc3339",
+         "wireType": {
+          "$id": "243",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "decorators": []
+        },
+        "optional": true,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1.end",
+        "serializationOptions": {
+         "$id": "244",
+         "json": {
+          "$id": "245",
+          "name": "end"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "namespace": "",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "246",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "247",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion.name",
+     "serializationOptions": {
+      "$id": "248",
+      "json": {
+       "$id": "249",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$ref": "222"
+  },
+  {
+   "$ref": "231"
+  },
+  {
+   "$id": "250",
+   "kind": "model",
+   "name": "SpreadRecordForNonDiscriminatedUnion2",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<WidgetData2 | WidgetData1>",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "251",
+    "kind": "union",
+    "name": "SpreadRecordForNonDiscriminatedUnion2AdditionalProperty",
+    "variantTypes": [
+     {
+      "$id": "252",
+      "kind": "model",
+      "name": "WidgetData2",
+      "namespace": "Type.Property.AdditionalProperties",
+      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
+       {
+        "$id": "253",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "type": {
+         "$id": "254",
+         "kind": "constant",
+         "valueType": {
+          "$ref": "8"
+         },
+         "value": "kind1",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2.kind",
+        "serializationOptions": {
+         "$id": "255",
+         "json": {
+          "$id": "256",
+          "name": "kind"
+         }
+        }
+       },
+       {
+        "$id": "257",
+        "kind": "property",
+        "name": "start",
+        "serializedName": "start",
+        "type": {
+         "$id": "258",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2.start",
+        "serializationOptions": {
+         "$id": "259",
+         "json": {
+          "$id": "260",
+          "name": "start"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "$ref": "231"
+     }
+    ],
+    "namespace": "",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "261",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "262",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2.name",
+     "serializationOptions": {
+      "$id": "263",
+      "json": {
+       "$id": "264",
+       "name": "name"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$ref": "252"
+  },
+  {
+   "$id": "265",
+   "kind": "model",
+   "name": "SpreadRecordForNonDiscriminatedUnion3",
+   "namespace": "Type.Property.AdditionalProperties",
+   "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
+   "usage": "Input,Output,Json",
+   "doc": "The model spread Record<WidgetData2[] | WidgetData1>",
+   "decorators": [],
+   "additionalProperties": {
+    "$id": "266",
+    "kind": "union",
+    "name": "SpreadRecordForNonDiscriminatedUnion3AdditionalProperty",
+    "variantTypes": [
+     {
+      "$id": "267",
+      "kind": "array",
+      "name": "ArrayWidgetData2",
+      "valueType": {
+       "$ref": "252"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     {
+      "$ref": "231"
+     }
+    ],
+    "namespace": "",
+    "decorators": []
+   },
+   "properties": [
+    {
+     "$id": "268",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "The name property",
+     "type": {
+      "$id": "269",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3.name",
+     "serializationOptions": {
+      "$id": "270",
+      "json": {
+       "$id": "271",
+       "name": "name"
+      }
+     }
+    }
+   ]
   }
  ],
  "clients": [
@@ -2254,7 +2254,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "258"
+          "$ref": "11"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2313,7 +2313,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "258"
+          "$ref": "11"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2436,7 +2436,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "257"
+          "$ref": "17"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2495,7 +2495,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "257"
+          "$ref": "17"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2618,7 +2618,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "232"
+          "$ref": "26"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2677,7 +2677,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "232"
+          "$ref": "26"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2800,7 +2800,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "218"
+          "$ref": "51"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2859,7 +2859,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "218"
+          "$ref": "51"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2982,7 +2982,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "217"
+          "$ref": "57"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3041,7 +3041,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "217"
+          "$ref": "57"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3164,7 +3164,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "192"
+          "$ref": "66"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3223,7 +3223,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "192"
+          "$ref": "66"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3346,7 +3346,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "186"
+          "$ref": "91"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3405,7 +3405,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "186"
+          "$ref": "91"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3528,7 +3528,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "180"
+          "$ref": "97"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3587,7 +3587,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "180"
+          "$ref": "97"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3710,7 +3710,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "174"
+          "$ref": "103"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3769,7 +3769,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "174"
+          "$ref": "103"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3892,7 +3892,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "168"
+          "$ref": "109"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3951,7 +3951,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "168"
+          "$ref": "109"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4074,7 +4074,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "162"
+          "$ref": "115"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4133,7 +4133,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "162"
+          "$ref": "115"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4256,7 +4256,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "156"
+          "$ref": "121"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4315,7 +4315,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "156"
+          "$ref": "121"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4438,7 +4438,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "152"
+          "$ref": "127"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4497,7 +4497,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "152"
+          "$ref": "127"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4620,7 +4620,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "148"
+          "$ref": "136"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4679,7 +4679,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "148"
+          "$ref": "136"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4802,7 +4802,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "144"
+          "$ref": "140"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4861,7 +4861,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "144"
+          "$ref": "140"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4984,7 +4984,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "138"
+          "$ref": "144"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5043,7 +5043,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "138"
+          "$ref": "144"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5166,7 +5166,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "132"
+          "$ref": "150"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5225,7 +5225,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "132"
+          "$ref": "150"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5348,7 +5348,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "126"
+          "$ref": "156"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5407,7 +5407,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "126"
+          "$ref": "156"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5530,7 +5530,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "116"
+          "$ref": "162"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5589,7 +5589,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "116"
+          "$ref": "162"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5712,7 +5712,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "105"
+          "$ref": "168"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5771,7 +5771,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "105"
+          "$ref": "168"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5894,7 +5894,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "96"
+          "$ref": "174"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5953,7 +5953,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "96"
+          "$ref": "174"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6076,7 +6076,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "80"
+          "$ref": "179"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -6135,7 +6135,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "80"
+          "$ref": "179"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6258,7 +6258,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "115"
+          "$ref": "185"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -6317,7 +6317,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "115"
+          "$ref": "185"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6440,7 +6440,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "104"
+          "$ref": "190"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -6499,7 +6499,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "104"
+          "$ref": "190"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6622,7 +6622,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "95"
+          "$ref": "195"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -6681,7 +6681,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "95"
+          "$ref": "195"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6804,7 +6804,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "79"
+          "$ref": "199"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -6863,7 +6863,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "79"
+          "$ref": "199"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -6986,7 +6986,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "71"
+          "$ref": "204"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -7045,7 +7045,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "71"
+          "$ref": "204"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -7168,7 +7168,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "63"
+          "$ref": "212"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -7227,7 +7227,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "63"
+          "$ref": "212"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -7350,7 +7350,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "48"
+          "$ref": "220"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -7409,7 +7409,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "48"
+          "$ref": "220"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -7532,7 +7532,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "42"
+          "$ref": "250"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -7591,7 +7591,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "42"
+          "$ref": "250"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -7714,7 +7714,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "11"
+          "$ref": "265"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -7773,7 +7773,7 @@
          "nameInRequest": "body",
          "doc": "body",
          "type": {
-          "$ref": "11"
+          "$ref": "265"
          },
          "location": "Body",
          "isApiVersion": false,

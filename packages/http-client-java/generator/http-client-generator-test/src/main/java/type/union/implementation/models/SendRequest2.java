@@ -11,7 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import type.union.models.StringAndArrayCases;
+import type.union.models.StringExtensibleNamedUnion;
 
 /**
  * The SendRequest2 model.
@@ -22,7 +22,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * The prop property.
      */
     @Generated
-    private final StringAndArrayCases prop;
+    private final StringExtensibleNamedUnion prop;
 
     /**
      * Creates an instance of SendRequest2 class.
@@ -30,7 +30,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * @param prop the prop value to set.
      */
     @Generated
-    public SendRequest2(StringAndArrayCases prop) {
+    public SendRequest2(StringExtensibleNamedUnion prop) {
         this.prop = prop;
     }
 
@@ -40,7 +40,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
      * @return the prop value.
      */
     @Generated
-    public StringAndArrayCases getProp() {
+    public StringExtensibleNamedUnion getProp() {
         return this.prop;
     }
 
@@ -51,7 +51,7 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeJsonField("prop", this.prop);
+        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
         return jsonWriter.writeEndObject();
     }
 
@@ -67,13 +67,13 @@ public final class SendRequest2 implements JsonSerializable<SendRequest2> {
     @Generated
     public static SendRequest2 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            StringAndArrayCases prop = null;
+            StringExtensibleNamedUnion prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = StringAndArrayCases.fromJson(reader);
+                    prop = StringExtensibleNamedUnion.fromString(reader.getString());
                 } else {
                     reader.skipChildren();
                 }

@@ -14,10 +14,10 @@ export function EncodeUint8Array(): ay.Children {
       export
       refkey={refkey}
       name="encodeUint8Array"
-      parameters={{
-        value: { type: "Uint8Array | undefined | null", refkey: valueRef },
-        encoding: { type: "BufferEncoding", refkey: encodingRef },
-      }}
+      parameters={[
+        { name: "value", type: "Uint8Array | undefined | null", refkey: valueRef },
+        { name: "encoding", type: "BufferEncoding", refkey: encodingRef },
+      ]}
       returnType="string | undefined"
     >
       {ay.code`
@@ -40,7 +40,7 @@ export function DecodeBase64(): ay.Children {
     <ts.FunctionDeclaration
       export
       name="decodeBase64"
-      parameters={{ value: { type: "string", refkey: valueRef } }}
+      parameters={[{ name: "value", type: "string", refkey: valueRef }]}
       returnType="Uint8Array | undefined"
       refkey={refkey}
     >

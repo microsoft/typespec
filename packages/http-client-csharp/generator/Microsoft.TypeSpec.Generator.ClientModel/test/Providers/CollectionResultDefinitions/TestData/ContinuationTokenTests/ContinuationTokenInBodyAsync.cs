@@ -10,13 +10,13 @@ using Sample.Models;
 
 namespace Sample
 {
-    internal partial class GetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
+    internal partial class CatClientGetCatsAsyncCollectionResult : global::System.ClientModel.Primitives.AsyncCollectionResult
     {
         private readonly global::Sample.CatClient _client;
         private readonly string _myToken;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public GetCatsAsyncCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.Argument.AssertNotNull(myToken, nameof(myToken));
 
