@@ -34,13 +34,6 @@ jobs:
           Contents: "*.vsix"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
-      - task: CopyFiles@2
-        displayName: "Copy VS extension .vsix to artifact directory"
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
-
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
         inputs:
@@ -90,8 +83,3 @@ jobs:
           path: $(Build.ArtifactStagingDirectory)/vscode-extension
           artifact: vscode-extension-unsigned
           displayName: Publish VSCode extension(.vsix) as pipeline artifacts
-
-        - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/vs-extension
-          artifact: vs-extension-unsigned
-          displayName: Publish VS extension(.vsix) as pipeline artifacts
