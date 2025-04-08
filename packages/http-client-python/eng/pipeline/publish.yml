@@ -30,3 +30,4 @@ extends:
           LanguageShortName: "python"
           CadlRanchName: "@typespec/http-client-python"
           EnableCadlRanchReport: false
+          PythonVersion: "3.9"
