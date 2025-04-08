@@ -113,8 +113,6 @@ export async function resolveModule(
   specifier: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
-  const realpath = async (x: string) => normalizePath(await host.realpath(x));
-
   const { baseDir } = options;
   const absoluteStart = await realpath(resolvePath(baseDir));
 
@@ -156,6 +154,17 @@ export async function resolveModule(
     "MODULE_NOT_FOUND",
     `Cannot find module '${specifier}' from '${baseDir}'`,
   );
+
+  async function realpath(path: string): Promise<string> {
+    try {
+      return normalizePath(await host.realpath(path));
+    } catch (e: any) {
+      if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+        return path;
+      }
+      throw e;
+    }
+  }
 
   /**
    * Returns a list of all the parent directory and the given one.
@@ -293,6 +302,7 @@ export async function resolveModule(
         subPath === "" ? "." : `./${subPath}`,
         pkg.exports,
       );
+      console.log("Resolved", match);
     } catch (error) {
       if (error instanceof NoMatchingConditionsError) {
         // For back compat we allow to fallback to main field for the `.` entry.
