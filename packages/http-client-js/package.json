@@ -17,7 +17,7 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "test:e2e": "pnpm emit:e2e && node eng/scripts/run-e2e-tests.js",
+    "test:e2e": "pnpm emit:e2e && build:test && node eng/scripts/run-e2e-tests.js",
     "format": "prettier . --write",
     "build:test": "tsc -p tsconfig.test.json",
     "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",

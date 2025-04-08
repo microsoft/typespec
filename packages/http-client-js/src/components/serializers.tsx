@@ -1,4 +1,5 @@
 import * as ts from "@alloy-js/typescript";
+import { Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   DateDeserializer,
@@ -43,7 +44,7 @@ export function ModelSerializers(props: ModelSerializersProps) {
         .filter((m) => m.kind === "Model" || m.kind === "Union")
         .map((type) => {
           let bytesDefaultEncoding: "base64" | "none" = "base64";
-          if ($.model.is(type) && type.baseModel && $.model.isHttpFile(type.baseModel)) {
+          if (isOrExtendsFile(type)) {
             bytesDefaultEncoding = "none";
           }
 
@@ -56,4 +57,16 @@ export function ModelSerializers(props: ModelSerializersProps) {
         })}
     </ts.SourceFile>
   );
+}
+
+function isOrExtendsFile(type: Type) {
+  if (!$.model.is(type)) {
+    return false;
+  }
+
+  if ($.model.isHttpFile(type)) {
+    return true;
+  }
+
+  return type.baseModel && $.model.is(type.baseModel);
 }
