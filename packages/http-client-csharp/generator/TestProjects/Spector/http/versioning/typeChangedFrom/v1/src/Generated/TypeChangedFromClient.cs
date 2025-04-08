@@ -20,12 +20,12 @@ namespace Versioning.TypeChangedFrom
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Test(BinaryContent content, int @param, RequestOptions options = null) => throw null;
+        public virtual ClientResult Test(int @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> TestAsync(BinaryContent content, int @param, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(int @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(TestModel body, int @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(int @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, int @param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<TestModel>> TestAsync(int @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -60,10 +60,10 @@ try {
     Invoke-LoggedCommand "java -version"
     Invoke-LoggedCommand "mvn -version"
 
-    Invoke-LoggedCommand "mvn clean install --no-transfer-progress -T 1C -f ./pom.xml"
-
-    # check code format
+    # check code format, before package
     Invoke-LoggedCommand "mvn spotless:check --activate-profiles test"
+
+    Invoke-LoggedCommand "mvn clean install --no-transfer-progress -T 1C -f ./pom.xml"
 }
 finally {
     Pop-Location

@@ -84,7 +84,7 @@ public final class MixedTypesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> send(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData sendRequest,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData sendRequest9,
             RequestOptions requestOptions, Context context);
 
         @Post("/type/union/mixed-types")
@@ -94,7 +94,7 @@ public final class MixedTypesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> sendSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData sendRequest, RequestOptions requestOptions, Context context);
+            @BodyParam("application/json") BinaryData sendRequest9, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -183,7 +183,7 @@ public final class MixedTypesImpl {
      * }
      * </pre>
      * 
-     * @param sendRequest The sendRequest parameter.
+     * @param sendRequest9 The sendRequest9 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -192,10 +192,10 @@ public final class MixedTypesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponseAsync(BinaryData sendRequest, RequestOptions requestOptions) {
+    public Mono<Response<Void>> sendWithResponseAsync(BinaryData sendRequest9, RequestOptions requestOptions) {
         final String contentType = "application/json";
         return FluxUtil.withContext(
-            context -> service.send(this.client.getEndpoint(), contentType, sendRequest, requestOptions, context));
+            context -> service.send(this.client.getEndpoint(), contentType, sendRequest9, requestOptions, context));
     }
 
     /**
@@ -218,7 +218,7 @@ public final class MixedTypesImpl {
      * }
      * </pre>
      * 
-     * @param sendRequest The sendRequest parameter.
+     * @param sendRequest9 The sendRequest9 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -227,8 +227,8 @@ public final class MixedTypesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest, RequestOptions requestOptions) {
+    public Response<Void> sendWithResponse(BinaryData sendRequest9, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest, requestOptions, Context.NONE);
+        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest9, requestOptions, Context.NONE);
     }
 }

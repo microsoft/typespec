@@ -10,7 +10,7 @@
    "name": "ErrorInRange",
    "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
-   "usage": "Error,Json,Exception",
+   "usage": "Json,Exception",
    "decorators": [],
    "properties": [
     {
@@ -73,7 +73,7 @@
    "name": "DefaultError",
    "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
-   "usage": "Error,Json,Exception",
+   "usage": "Json,Exception",
    "decorators": [],
    "properties": [
     {
@@ -110,7 +110,7 @@
    "name": "NotFoundError",
    "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
-   "usage": "Error,Json,Exception",
+   "usage": "Json,Exception",
    "decorators": [],
    "properties": [
     {
@@ -173,7 +173,7 @@
    "name": "Standard4XXError",
    "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
-   "usage": "Error,Json,Exception",
+   "usage": "Json,Exception",
    "decorators": [],
    "properties": [
     {

@@ -58,9 +58,9 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
   const inputType = props.target === "transport" ? <>{typeRef} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
-    input_: { type: inputType, refkey: inputRef, optional: true },
-  };
+  const parameters: ts.ParameterDescriptor[] = [
+    { name: "input_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   const declarationRefkey = getJsonUnionTransformRefkey(props.type, props.target);
   return (

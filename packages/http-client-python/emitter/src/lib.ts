@@ -1,11 +1,19 @@
 import {
   SdkContext,
-  SdkEmitterOptions,
-  SdkEmitterOptionsSchema,
+  UnbrandedSdkEmitterOptions,
 } from "@azure-tools/typespec-client-generator-core";
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
-export interface PythonEmitterOptions extends SdkEmitterOptions {
+export interface PythonEmitterOptions {
+  "api-version"?: string;
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
+
   "package-version"?: string;
   "package-name"?: string;
   "generate-packaging-files"?: boolean;
@@ -22,8 +30,11 @@ export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
 
 export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
   type: "object",
-  additionalProperties: true,
+  additionalProperties: true, // since we test azure with unbranded emitter, we need to allow additional properties
   properties: {
+    ...UnbrandedSdkEmitterOptions["api-version"],
+    ...UnbrandedSdkEmitterOptions["license"],
+
     "package-version": {
       type: "string",
       nullable: true,
@@ -69,7 +80,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
     },
-    ...SdkEmitterOptionsSchema.properties,
   },
   required: [],
 };
