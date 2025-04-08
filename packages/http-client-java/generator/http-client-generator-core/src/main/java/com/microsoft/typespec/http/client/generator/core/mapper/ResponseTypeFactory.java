@@ -57,14 +57,16 @@ final class ResponseTypeFactory {
 
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return isByteStream(bodyType) ? binaryResponse(settings) : mono(GenericType.Response(bodyType));
+                return isByteStream(bodyType, settings)
+                    ? binaryResponse(settings)
+                    : mono(GenericType.Response(bodyType));
             }
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-            // If the responseBodyType is InputStream it needs to be converted to BinaryData so
-            // that it is a valid return type for async method.
-            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? ClassType.BINARY_DATA : bodyType;
+            // If the responseBodyType is InputStream it needs to be converted to proper binary return type so
+            // that it is valid for async method.
+            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? binaryResponseBodyType(settings) : bodyType;
             return mono(GenericType.RestResponse(headersType, bType));
         }
 
@@ -87,9 +89,16 @@ final class ResponseTypeFactory {
         return mono(GenericType.Response(bodyType));
     }
 
-    private static IType binaryResponse(JavaSettings settings) {
+    private static IType binaryResponseBodyType(JavaSettings settings) {
         // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
-        return settings.isFluent()
+        return settings.isFluent() || settings.isDataPlaneClient()
+            ? ClassType.BINARY_DATA
+            : GenericType.FLUX_BYTE_BUFFER;
+    }
+
+    private static IType binaryResponse(JavaSettings settings) {
+        // Not touching vanilla for now. Storage is still using Flux<ByteBuffer> and StreamResponse.
+        return settings.isFluent() || settings.isDataPlaneClient()
             ? mono(GenericType.Response(ClassType.BINARY_DATA))
             : mono(ClassType.STREAM_RESPONSE);
     }
@@ -142,7 +151,7 @@ final class ResponseTypeFactory {
             || operation.getExtensions().getXmsPageable().getNextOperation() != operation;
     }
 
-    private static boolean isByteStream(IType type) {
-        return (type == ClassType.INPUT_STREAM) || (type == ClassType.BINARY_DATA);
+    private static boolean isByteStream(IType type, JavaSettings settings) {
+        return (type == ClassType.INPUT_STREAM) || (type == binaryResponseBodyType(settings));
     }
 }
