@@ -14,11 +14,7 @@ jobs:
         parameters:
           useDotNet: true
 
-      - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
-        workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
-        displayName: Update vscode telemetry key
-
-      - script: pnpm build --filter "typespec-vs"
+      - script: pnpm build --filter "typespec-vs..."
         displayName: Build
 
       - task: CopyFiles@2
