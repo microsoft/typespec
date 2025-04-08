@@ -2,6 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
+import { HttpAuth, type OAuth2Flow } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../lib.js";
 import { buildClientParameters } from "../../utils/parameters.jsx";
@@ -37,7 +38,7 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   );
 
   let credentialsRef: string | undefined;
-  if (clientConstructor.parameters.properties.has("credential")) {
+  if (parameters.some((p) => p.name === "credential")) {
     credentialsRef = "credential";
   }
 
@@ -75,64 +76,112 @@ interface ClientFactoryArgumentsProps {
 function ClientFactoryArguments(props: ClientFactoryArgumentsProps) {
   const params = [<>{props.endpointRef},</>];
 
-  if (props.credentialsRef) {
-    params.push(<>{props.credentialsRef},</>);
-  }
-
   return [
     ...params,
-    <ClientOptionsExpression>
-      <CredentialOptions client={props.client} />
-    </ClientOptionsExpression>,
+    props.credentialsRef ? (
+      <ClientOptionsExpression>
+        {props.credentialsRef}
+        <AuthSchemeOptions client={props.client} />
+      </ClientOptionsExpression>
+    ) : (
+      <ClientOptionsExpression />
+    ),
   ];
 }
 
-interface CredentialOptionsProps {
+interface AuthSchemeOptionsProps {
   client: cl.Client;
 }
 
-function CredentialOptions(props: CredentialOptionsProps) {
+interface AuthSchemeProps {
+  scheme: HttpAuth;
+  client: cl.Client;
+}
+
+function AuthScheme(props: AuthSchemeProps) {
+  switch (props.scheme.type) {
+    case "http":
+      return (
+        <ts.ObjectExpression>
+          <ay.List comma>
+            <ts.ObjectProperty name="kind" jsValue="http" />
+            <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme.toLowerCase()} />
+          </ay.List>
+        </ts.ObjectExpression>
+      );
+    case "apiKey":
+      if (props.scheme.in !== "header") {
+        reportDiagnostic($.program, { code: "non-model-parts", target: props.client.service });
+        return null;
+      }
+
+      return (
+        <ts.ObjectExpression>
+          <ay.List comma>
+            <ts.ObjectProperty name="kind" jsValue="apiKey" />
+            <ts.ObjectProperty name="apiKeyLocation" jsValue={props.scheme.in} />
+            <ts.ObjectProperty name="name" jsValue={props.scheme.name} />
+          </ay.List>
+        </ts.ObjectExpression>
+      );
+    case "oauth2":
+      return (
+        <ts.ObjectExpression>
+          <ay.List comma>
+            <ts.ObjectProperty name="kind" jsValue="oauth2" />
+            <ts.ObjectProperty name="flows">
+              [
+              <ay.For each={props.scheme.flows} comma line>
+                {(flow) => <OAuth2Flow flow={flow} />}
+              </ay.For>
+              ]
+            </ts.ObjectProperty>
+          </ay.List>
+        </ts.ObjectExpression>
+      );
+    default:
+      return null;
+  }
+}
+
+interface OAuth2FlowProps {
+  flow: OAuth2Flow;
+}
+
+function OAuth2Flow(props: OAuth2FlowProps) {
+  // rename type to kind and clean up the scopes
+  const { type, ...rewrittenFlow } = {
+    kind: props.flow.type,
+    ...props.flow,
+    // scopes are sometimes duplicated so converting to set and back to dedupe
+    scopes: [...new Set(props.flow.scopes.map((s) => s.value))],
+  };
+
+  return <ts.ObjectExpression jsValue={rewrittenFlow} />;
+}
+
+function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   const clientCredential = $.client.getAuth(props.client);
 
   if (clientCredential.schemes.length === 0) {
     return null;
   }
 
-  if (clientCredential.schemes.length !== 1) {
-    reportDiagnostic($.program, {
-      code: "multiple-auth-schemes-not-yet-supported",
-      target: props.client.type,
-    });
-  }
+  // Filtering out custom http schemes for "http/custom" spector scenario
+  // TODO: Should typekit allow for arbitrary strings on scheme with http auth type?
+  const supportedSchemes = clientCredential.schemes.filter(
+    (s) => s.type !== "http" || ["Basic", "Bearer"].includes(s.scheme),
+  );
 
-  const scheme = clientCredential.schemes[0];
-
-  switch (scheme.type) {
-    case "http":
-      // Todo: handle scopes?
-      return (
-        <ts.ObjectProperty name="credentials">
-          <ts.ObjectExpression>
-            <ts.ObjectProperty name="apiKeyHeaderName" jsValue={"Authorization"} />
-          </ts.ObjectExpression>
-        </ts.ObjectProperty>
-      );
-    case "apiKey":
-      if (scheme.in !== "header") {
-        reportDiagnostic($.program, { code: "non-model-parts", target: props.client.service });
-        return null;
-      }
-
-      return (
-        <ts.ObjectProperty name="credentials">
-          <ts.ObjectExpression>
-            <ts.ObjectProperty name="apiKeyHeaderName" jsValue={scheme.name} />
-          </ts.ObjectExpression>
-        </ts.ObjectProperty>
-      );
-    default:
-      return null;
-  }
+  return (
+    <ts.ObjectProperty name="authSchemes">
+      [
+      <ay.For each={supportedSchemes} comma line>
+        {(scheme) => <AuthScheme scheme={scheme} client={props.client} />}
+      </ay.For>
+      ]
+    </ts.ObjectProperty>
+  );
 }
 
 interface ClientOptionsExpressionProps {

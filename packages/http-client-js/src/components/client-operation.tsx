@@ -61,10 +61,10 @@ export function ClientOperation(props: ClientOperationProps) {
   const returnType = $.httpOperation.getReturnType(props.httpOperation);
   const responseRefkey = ay.refkey(props.httpOperation, "http-response");
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
-  const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
-    client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
+  const signatureParams: ts.ParameterDescriptor[] = [
+    { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
     ...getOperationParameters(props.httpOperation),
-  };
+  ];
   return (
     <ay.List hardline>
       <OperationOptionsDeclaration operation={props.httpOperation} />
