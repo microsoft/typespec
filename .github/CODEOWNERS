@@ -5,6 +5,12 @@
 .chronus/changes/
 
 ######################
+# Emiter Shared
+######################
+/eng/emitters/                               @m-nash @iscai-msft
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
+
+######################
 # CSharp
 ######################
 /packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @nisha-bhatia
@@ -26,11 +32,6 @@
 # JavaScript
 ######################
 /packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
-
-######################
-# Emiter Shared
-######################
-/eng/emitters/                               @m-nash @iscai-msft
 
 ######################
 # IDE
