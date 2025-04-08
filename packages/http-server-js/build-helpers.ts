@@ -6,10 +6,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const HELPER_DECLARATION_PATH = path.resolve("generated-defs", "helpers");
-const HELPER_SRC_PATH = path.resolve("src", "helpers");
+const GENERATED_DEFS = path.resolve("generated-defs");
 
-console.log("Building JS server generator helpers.");
+const HELPER_DECLARATION_PATH = path.resolve(GENERATED_DEFS, "helpers");
+const HELPER_SRC_PATH = path.resolve("src", "helpers");
 
 async function* visitAllFiles(base: string): AsyncIterable<string> {
   const contents = await fs.readdir(base, { withFileTypes: true });
@@ -23,7 +23,37 @@ async function* visitAllFiles(base: string): AsyncIterable<string> {
   }
 }
 
+async function buildPackageJsonTs() {
+  console.log("Building package.json.ts");
+  const packageJson = await fs.readFile(path.resolve("package.json"), "utf-8");
+
+  const parsed = JSON.parse(packageJson);
+
+  const mergedDependencies: Record<string, string> = {
+    ...parsed.devDependencies,
+    ...parsed.dependencies,
+  };
+
+  const fileText = [
+    "// Copyright (c) Microsoft Corporation",
+    "// Licensed under the MIT license.",
+    "",
+    `export const hsjsDependencies: Record<string, string> = {`,
+    ...Object.entries(mergedDependencies).map(([name, version]) => {
+      return `  ${JSON.stringify(name)}: ${JSON.stringify(version)},`;
+    }),
+    "};",
+    "",
+  ].join("\n");
+
+  await fs.writeFile(path.resolve(GENERATED_DEFS, "package.json.ts"), fileText);
+}
+
 async function main() {
+  console.log("Building JS server generator helpers.");
+
+  await buildPackageJsonTs();
+
   const allFiles: string[] = [];
   const indices = new Map<string, string[]>();
 

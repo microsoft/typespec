@@ -4,8 +4,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "resolveJsonModule": true
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["package.json", "src/**/*.ts", "generated-defs/**/*.ts", "src/scripts/scaffold/bin.mts"]
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts", "src/scripts/scaffold/bin.mts"]
 }

@@ -3,7 +3,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import hsjsPackageJson from "../../../package.json" with { type: "json" };
+import { hsjsDependencies } from "../../../generated-defs/package.json.js";
 
 import { compile, formatDiagnostic, NodeHost, OperationContainer } from "@typespec/compiler";
 
@@ -775,9 +775,7 @@ function updatePackageJson(
   let hadError = false;
 
   for (const dependency of externalDependencies) {
-    const dependencyVersion =
-      (hsjsPackageJson as any).dependencies![dependency] ??
-      (hsjsPackageJson as any).devDependencies![dependency];
+    const dependencyVersion = hsjsDependencies[dependency];
 
     if (!dependencyVersion) {
       hadError = true;
@@ -788,7 +786,7 @@ function updatePackageJson(
     updateObjectPath(["dependencies", dependency], dependencyVersion);
 
     const typesDependency = `@types/${dependency}`;
-    const typesDependencyVersion = (hsjsPackageJson as any).devDependencies![typesDependency];
+    const typesDependencyVersion = hsjsDependencies[typesDependency];
     if (typesDependencyVersion) {
       updateObjectPath(["devDependencies", typesDependency], typesDependencyVersion);
     }
