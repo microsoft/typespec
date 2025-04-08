@@ -1,7 +1,10 @@
 jobs:
   - job: build
     displayName: Build Packages
-
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
     variables:
       TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 

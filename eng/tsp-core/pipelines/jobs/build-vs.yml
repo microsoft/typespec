@@ -1,0 +1,36 @@
+jobs:
+  - job: build_vs
+    displayName: Build VS extension
+    pool:
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
+
+    variables:
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    steps:
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+        parameters:
+          useDotNet: true
+
+      - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
+        workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
+        displayName: Update vscode telemetry key
+
+      - script: pnpm build --filter "typespec-vs"
+        displayName: Build
+
+      - task: CopyFiles@2
+        displayName: "Copy VS extension .vsix to artifact directory"
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/vs-extension
+          artifact: vs-extension-unsigned
+          displayName: Publish VS extension(.vsix) as pipeline artifacts
