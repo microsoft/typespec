@@ -61,7 +61,7 @@ jobs:
           inlineScript: |
             az storage blob upload-batch \
               --auth-mode login \
-              --destination $web \
+              --destination "$web" \
               --account-name "cadlplayground" \
               --destination-path / \
               --source "./packages/playground-website/dist/web/" \
