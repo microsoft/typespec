@@ -1,5 +1,6 @@
 {
   "name": "typespec-vs",
+  "private": true,
   "author": "Microsoft Corporation",
   "version": "0.68.0",
   "description": "TypeSpec Language Support for Visual Studio",
