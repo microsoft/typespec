@@ -31,8 +31,6 @@ public class BinaryMapper implements IMapper<BinarySchema, IType> {
             return null;
         }
         // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
-        return (JavaSettings.getInstance().isDataPlaneClient() || JavaSettings.getInstance().isFluent())
-            ? ClassType.BINARY_DATA
-            : GenericType.FLUX_BYTE_BUFFER;
+        return JavaSettings.getInstance().isVanilla() ? GenericType.FLUX_BYTE_BUFFER : ClassType.BINARY_DATA;
     }
 }

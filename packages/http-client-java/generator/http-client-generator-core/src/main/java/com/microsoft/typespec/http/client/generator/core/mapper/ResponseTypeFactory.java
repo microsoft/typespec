@@ -58,7 +58,7 @@ final class ResponseTypeFactory {
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
                 return isByteStream(bodyType, settings)
-                    ? binaryResponse(settings)
+                    ? binaryResponseMono(settings)
                     : mono(GenericType.Response(bodyType));
             }
 
@@ -71,14 +71,14 @@ final class ResponseTypeFactory {
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
-            return binaryResponse(settings);
+            return binaryResponseMono(settings);
         }
 
         if (bodyType.equals(ClassType.BINARY_DATA)) {
             final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
             if (useInputStream) {
-                return binaryResponse(settings);
+                return binaryResponseMono(settings);
             }
         }
 
@@ -91,16 +91,14 @@ final class ResponseTypeFactory {
 
     private static IType binaryResponseBodyType(JavaSettings settings) {
         // Not touching vanilla for now. Storage is still using Flux<ByteBuffer>.
-        return settings.isFluent() || settings.isDataPlaneClient()
-            ? ClassType.BINARY_DATA
-            : GenericType.FLUX_BYTE_BUFFER;
+        return settings.isVanilla() ? GenericType.FLUX_BYTE_BUFFER : ClassType.BINARY_DATA;
     }
 
-    private static IType binaryResponse(JavaSettings settings) {
+    private static IType binaryResponseMono(JavaSettings settings) {
         // Not touching vanilla for now. Storage is still using Flux<ByteBuffer> and StreamResponse.
-        return settings.isFluent() || settings.isDataPlaneClient()
-            ? mono(GenericType.Response(ClassType.BINARY_DATA))
-            : mono(ClassType.STREAM_RESPONSE);
+        return settings.isVanilla()
+            ? mono(ClassType.STREAM_RESPONSE)
+            : mono(GenericType.Response(ClassType.BINARY_DATA));
     }
 
     /**
@@ -152,6 +150,6 @@ final class ResponseTypeFactory {
     }
 
     private static boolean isByteStream(IType type, JavaSettings settings) {
-        return (type == ClassType.INPUT_STREAM) || (type == binaryResponseBodyType(settings));
+        return type == ClassType.INPUT_STREAM || type == binaryResponseBodyType(settings);
     }
 }

@@ -364,9 +364,9 @@ public class ProxyMethod {
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
                     } else if (innerGenericType.getName().equals("Response")
-                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER
-                        && JavaSettings.getInstance().isFluent()) {
-                        // proxy method for LRO client methods
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER) {
+                        // Mono<Response<Flux<ByteBuffer>>> => Response<BinaryData>
+                        // for both vanilla, and fluent LRO initial response
                         return GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
