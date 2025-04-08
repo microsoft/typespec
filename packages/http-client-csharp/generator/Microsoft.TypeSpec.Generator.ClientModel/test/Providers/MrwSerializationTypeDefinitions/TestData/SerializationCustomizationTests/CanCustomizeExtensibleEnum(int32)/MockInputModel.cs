@@ -1,6 +1,6 @@
 #nullable disable
 
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Sample.Models

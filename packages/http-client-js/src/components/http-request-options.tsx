@@ -41,7 +41,12 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   return (
     <EncodingProvider defaults={{ bytes: "base64", datetime: "rfc7231" }}>
       <ts.ObjectProperty name="headers">
-        <HttpRequestParametersExpression parameters={headers} optionsParameter={optionsParam} />,
+        <HttpRequestParametersExpression
+          parameters={headers}
+          optionsParameter={optionsParam}
+          httpOperation={httpOperation}
+        />
+        ,
       </ts.ObjectProperty>
     </EncodingProvider>
   );
