@@ -214,7 +214,6 @@ export class CodeModelBuilder {
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
   private baseJavaNamespace!: string;
-  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptionsDev;
   private codeModel: CodeModel;
@@ -303,16 +302,12 @@ export class CodeModelBuilder {
       });
     }
 
-    // java namespace
+    // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core,
+    // or some model (e.g. Options, FileDetails) that is created in this emitter.
+    // otherwise, the clientNamespace from SdkType will be used.
     if (this.options.namespace) {
-      // legacy mode, clientNamespace from TCGC will be ignored
-      this.legacyJavaNamespace = true;
       this.baseJavaNamespace = this.options.namespace;
     } else {
-      this.legacyJavaNamespace = false;
-      // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core,
-      // or some model (e.g. Options, FileDetails) that is created in this emitter.
-      // otherwise, the clientNamespace from SdkType will be used.
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
@@ -2984,6 +2979,7 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.namespace;
 
+    // we still keep the mapping of models from TypeSpec namespace and Azure namespace to "baseJavaNamespace"
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
       if (this.isBranded()) {
@@ -3022,7 +3018,7 @@ export class CodeModelBuilder {
       }
     }
 
-    if (this.legacyJavaNamespace || !clientNamespace) {
+    if (!clientNamespace) {
       return this.baseJavaNamespace;
     } else {
       return this.escapeJavaNamespace(clientNamespace.toLowerCase());
