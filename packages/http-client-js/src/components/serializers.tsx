@@ -59,7 +59,7 @@ export function ModelSerializers(props: ModelSerializersProps) {
   );
 }
 
-function isOrExtendsFile(type: Type) {
+function isOrExtendsFile(type: Type): boolean {
   if (!$.model.is(type)) {
     return false;
   }
@@ -68,5 +68,5 @@ function isOrExtendsFile(type: Type) {
     return true;
   }
 
-  return type.baseModel && $.model.is(type.baseModel);
+  return type.baseModel ? isOrExtendsFile(type.baseModel) : false;
 }
