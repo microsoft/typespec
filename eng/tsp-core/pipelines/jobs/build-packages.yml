@@ -49,7 +49,7 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
+      - script: pnpm chronus pack --exclude standalone --exclude typespec-vs --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
         displayName: Pack next packages
 
       # Publish Next playground
@@ -59,12 +59,12 @@ jobs:
           azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: |
-            az storage blob upload-batch ^
-              --auth-mode login ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/web/" ^
+            az storage blob upload-batch \
+              --auth-mode login \
+              --destination $web \
+              --account-name "cadlplayground" \
+              --destination-path / \
+              --source "./packages/playground-website/dist/web/" \
               --overwrite
 
     templateContext:
