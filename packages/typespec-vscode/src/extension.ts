@@ -9,7 +9,7 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
-import { normalizeSlashes } from "./path-utils.js";
+import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
@@ -64,16 +64,21 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CommandName.InstallImportPackage, async () => {
+    commands.registerCommand(CommandName.NpmInstallImportPackage, async (path: string) => {
       try {
-        const projectFiles = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-        if (!projectFiles) {
-          logger.error("No workspace folder found.");
-          return;
-        }
+        const projectFiles = getDirectoryPath(path);
         await spawnExecutionAndLogToOutput("npm", ["install"], normalizeSlashes(projectFiles));
+
+        // Will not recompile after installation, so consider the user experience, close the current file and reopen it
+        const filePath = vscode.window.activeTextEditor?.document.uri.fsPath;
+        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+        if (filePath) {
+          const documentUri = vscode.Uri.file(filePath);
+          const reopenedDocument = await vscode.workspace.openTextDocument(documentUri);
+          await vscode.window.showTextDocument(reopenedDocument);
+        }
       } catch (error) {
-        logger.error("Failed to execute npm install", [error]);
+        logger.error("Failed to execute npm install, see details: ", [error]);
       }
     }),
   );
