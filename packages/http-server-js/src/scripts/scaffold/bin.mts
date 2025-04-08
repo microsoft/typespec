@@ -799,19 +799,6 @@ function updatePackageJson(
     process.exit(1);
   }
 
-  // if (express.isExpress) {
-  //   updateObjectPath(["dependencies", "express"], "^5.0.1");
-  //   updateObjectPath(["devDependencies", "@types/express"], "^5.0.0");
-
-  //   if (express.openApi3) {
-  //     updateObjectPath(["dependencies", "swagger-ui-express"], "^5.0.1");
-  //     updateObjectPath(["devDependencies", "@types/swagger-ui-express"], "^4.1.7");
-  //   }
-
-  //   updateObjectPath(["dependencies", "morgan"], "^1.10.0");
-  //   updateObjectPath(["devDependencies", "@types/morgan"], "^1.9.9");
-  // }
-
   return changed;
 
   function updateObjectPath(path: string[], value: string) {
