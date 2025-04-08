@@ -2,10 +2,12 @@
 
 #nullable disable
 
+using System;
+
 namespace _Type.Union
 {
     public partial class GetResponse5
     {
-        public GetResponseProp1 Prop => throw null;
+        public BinaryData Prop => throw null;
     }
 }

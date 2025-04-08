@@ -18,9 +18,9 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.StringExtensiblesImpl;
-import type.union.implementation.models.SendRequest8;
-import type.union.models.GetResponse8;
-import type.union.models.GetResponseProp3;
+import type.union.implementation.models.SendRequest1;
+import type.union.models.GetResponse1;
+import type.union.models.GetResponseProp1;
 
 /**
  * Initializes a new instance of the asynchronous UnionClient type.
@@ -77,7 +77,7 @@ public final class StringExtensibleAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest8 The sendRequest8 parameter.
+     * @param sendRequest1 The sendRequest1 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -87,8 +87,8 @@ public final class StringExtensibleAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest8, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest8, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest1, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest1, requestOptions);
     }
 
     /**
@@ -103,11 +103,11 @@ public final class StringExtensibleAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse8> get() {
+    public Mono<GetResponse1> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse8.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse1.class));
     }
 
     /**
@@ -124,11 +124,11 @@ public final class StringExtensibleAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> send(GetResponseProp3 prop) {
+    public Mono<Void> send(GetResponseProp1 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest8 sendRequest8Obj = new SendRequest8(prop);
-        BinaryData sendRequest8 = BinaryData.fromObject(sendRequest8Obj);
-        return sendWithResponse(sendRequest8, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest1 sendRequest1Obj = new SendRequest1(prop);
+        BinaryData sendRequest1 = BinaryData.fromObject(sendRequest1Obj);
+        return sendWithResponse(sendRequest1, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

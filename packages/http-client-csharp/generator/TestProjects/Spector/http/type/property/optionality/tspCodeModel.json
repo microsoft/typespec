@@ -6,118 +6,9 @@
   {
    "$id": "2",
    "kind": "enum",
-   "name": "UnionFloatLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
+   "name": "StringLiteralProperty_property",
    "valueType": {
     "$id": "3",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "values": [
-    {
-     "$id": "4",
-     "kind": "enumvalue",
-     "name": "1.25",
-     "value": 1.25,
-     "valueType": {
-      "$id": "5",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "2"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "6",
-     "kind": "enumvalue",
-     "name": "2.375",
-     "value": 2.375,
-     "valueType": {
-      "$id": "7",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "2"
-     },
-     "decorators": []
-    }
-   ],
-   "namespace": "",
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "8",
-   "kind": "enum",
-   "name": "UnionIntLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
-   "valueType": {
-    "$id": "9",
-    "kind": "int32",
-    "name": "int32",
-    "crossLanguageDefinitionId": "TypeSpec.int32",
-    "decorators": []
-   },
-   "values": [
-    {
-     "$id": "10",
-     "kind": "enumvalue",
-     "name": "1",
-     "value": 1,
-     "valueType": {
-      "$id": "11",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "8"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "12",
-     "kind": "enumvalue",
-     "name": "2",
-     "value": 2,
-     "valueType": {
-      "$id": "13",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "8"
-     },
-     "decorators": []
-    }
-   ],
-   "namespace": "",
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "14",
-   "kind": "enum",
-   "name": "UnionStringLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
-   "valueType": {
-    "$id": "15",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -125,86 +16,33 @@
    },
    "values": [
     {
-     "$id": "16",
+     "$id": "4",
      "kind": "enumvalue",
      "name": "hello",
      "value": "hello",
+     "doc": "hello",
      "valueType": {
-      "$id": "17",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
+      "$ref": "3"
      },
      "enumType": {
-      "$ref": "14"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "18",
-     "kind": "enumvalue",
-     "name": "world",
-     "value": "world",
-     "valueType": {
-      "$id": "19",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "14"
-     },
-     "decorators": []
-    }
-   ],
-   "namespace": "",
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "20",
-   "kind": "enum",
-   "name": "FloatLiteralProperty_property",
-   "valueType": {
-    "$id": "21",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "values": [
-    {
-     "$id": "22",
-     "kind": "enumvalue",
-     "name": "1.25",
-     "value": 1.25,
-     "doc": "1.25",
-     "valueType": {
-      "$ref": "21"
-     },
-     "enumType": {
-      "$ref": "20"
+      "$ref": "2"
      }
     }
    ],
    "crossLanguageDefinitionId": "",
    "namespace": "Type.Property.Optional",
-   "doc": "The FloatLiteralProperty_property",
+   "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
    "decorators": []
   },
   {
-   "$id": "23",
+   "$id": "5",
    "kind": "enum",
    "name": "IntLiteralProperty_property",
    "valueType": {
-    "$id": "24",
+    "$id": "6",
     "kind": "int32",
     "name": "int32",
     "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -212,16 +50,16 @@
    },
    "values": [
     {
-     "$id": "25",
+     "$id": "7",
      "kind": "enumvalue",
      "name": "1",
      "value": 1,
      "doc": "1",
      "valueType": {
-      "$ref": "24"
+      "$ref": "6"
      },
      "enumType": {
-      "$ref": "23"
+      "$ref": "5"
      }
     }
    ],
@@ -234,11 +72,46 @@
    "decorators": []
   },
   {
-   "$id": "26",
+   "$id": "8",
    "kind": "enum",
-   "name": "StringLiteralProperty_property",
+   "name": "FloatLiteralProperty_property",
    "valueType": {
-    "$id": "27",
+    "$id": "9",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "10",
+     "kind": "enumvalue",
+     "name": "1.25",
+     "value": 1.25,
+     "doc": "1.25",
+     "valueType": {
+      "$ref": "9"
+     },
+     "enumType": {
+      "$ref": "8"
+     }
+    }
+   ],
+   "crossLanguageDefinitionId": "",
+   "namespace": "Type.Property.Optional",
+   "doc": "The FloatLiteralProperty_property",
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "11",
+   "kind": "enum",
+   "name": "UnionStringLiteralPropertyProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
+   "valueType": {
+    "$id": "12",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -246,23 +119,150 @@
    },
    "values": [
     {
-     "$id": "28",
+     "$id": "13",
      "kind": "enumvalue",
      "name": "hello",
      "value": "hello",
-     "doc": "hello",
      "valueType": {
-      "$ref": "27"
+      "$id": "14",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
      },
      "enumType": {
-      "$ref": "26"
-     }
+      "$ref": "11"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "15",
+     "kind": "enumvalue",
+     "name": "world",
+     "value": "world",
+     "valueType": {
+      "$id": "16",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "11"
+     },
+     "decorators": []
     }
    ],
-   "crossLanguageDefinitionId": "",
-   "namespace": "Type.Property.Optional",
-   "doc": "The StringLiteralProperty_property",
-   "isFixed": false,
+   "namespace": "",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "17",
+   "kind": "enum",
+   "name": "UnionIntLiteralPropertyProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
+   "valueType": {
+    "$id": "18",
+    "kind": "int32",
+    "name": "int32",
+    "crossLanguageDefinitionId": "TypeSpec.int32",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "19",
+     "kind": "enumvalue",
+     "name": "1",
+     "value": 1,
+     "valueType": {
+      "$id": "20",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "17"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "21",
+     "kind": "enumvalue",
+     "name": "2",
+     "value": 2,
+     "valueType": {
+      "$id": "22",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "17"
+     },
+     "decorators": []
+    }
+   ],
+   "namespace": "",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "23",
+   "kind": "enum",
+   "name": "UnionFloatLiteralPropertyProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
+   "valueType": {
+    "$id": "24",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "25",
+     "kind": "enumvalue",
+     "name": "1.25",
+     "value": 1.25,
+     "valueType": {
+      "$id": "26",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "23"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "27",
+     "kind": "enumvalue",
+     "name": "2.375",
+     "value": 2.375,
+     "valueType": {
+      "$id": "28",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "23"
+     },
+     "decorators": []
+    }
+   ],
+   "namespace": "",
+   "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
    "decorators": []
@@ -272,19 +272,19 @@
   {
    "$id": "29",
    "kind": "model",
-   "name": "RequiredAndOptionalProperty",
+   "name": "StringProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with required and optional properties",
+   "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
    "decorators": [],
    "properties": [
     {
      "$id": "30",
      "kind": "property",
-     "name": "optionalProperty",
-     "serializedName": "optionalProperty",
-     "doc": "optional string property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
      "type": {
       "$id": "31",
       "kind": "string",
@@ -297,73 +297,51 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.optionalProperty",
+     "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty.property",
      "serializationOptions": {
       "$id": "32",
       "json": {
        "$id": "33",
-       "name": "optionalProperty"
+       "name": "property"
       }
      }
-    },
+    }
+   ]
+  },
+  {
+   "$id": "34",
+   "kind": "model",
+   "name": "BytesProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
+   "decorators": [],
+   "properties": [
     {
-     "$id": "34",
+     "$id": "35",
      "kind": "property",
-     "name": "requiredProperty",
-     "serializedName": "requiredProperty",
-     "doc": "required int property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
      "type": {
-      "$id": "35",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "$id": "36",
+      "kind": "bytes",
+      "name": "bytes",
+      "encode": "base64",
+      "crossLanguageDefinitionId": "TypeSpec.bytes",
       "decorators": []
      },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.requiredProperty",
-     "serializationOptions": {
-      "$id": "36",
-      "json": {
-       "$id": "37",
-       "name": "requiredProperty"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "38",
-   "kind": "model",
-   "name": "UnionFloatLiteralProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with union of float literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "39",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$ref": "2"
-     },
      "optional": true,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty.property",
      "serializationOptions": {
-      "$id": "40",
+      "$id": "37",
       "json": {
-       "$id": "41",
+       "$id": "38",
        "name": "property"
       }
      }
@@ -371,102 +349,34 @@
    ]
   },
   {
-   "$id": "42",
+   "$id": "39",
    "kind": "model",
-   "name": "UnionIntLiteralProperty",
+   "name": "DatetimeProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with union of int literal property",
+   "doc": "Model with a datetime property",
    "decorators": [],
    "properties": [
     {
-     "$id": "43",
+     "$id": "40",
      "kind": "property",
      "name": "property",
      "serializedName": "property",
      "doc": "Property",
      "type": {
-      "$ref": "8"
-     },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property",
-     "serializationOptions": {
-      "$id": "44",
-      "json": {
-       "$id": "45",
-       "name": "property"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "46",
-   "kind": "model",
-   "name": "UnionStringLiteralProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with union of string literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "47",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$ref": "14"
-     },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property",
-     "serializationOptions": {
-      "$id": "48",
-      "json": {
-       "$id": "49",
-       "name": "property"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "50",
-   "kind": "model",
-   "name": "BooleanLiteralProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with boolean literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "51",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$id": "52",
-      "kind": "constant",
-      "valueType": {
-       "$id": "53",
-       "kind": "boolean",
-       "name": "boolean",
-       "crossLanguageDefinitionId": "TypeSpec.boolean",
+      "$id": "41",
+      "kind": "utcDateTime",
+      "name": "utcDateTime",
+      "encode": "rfc3339",
+      "wireType": {
+       "$id": "42",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string",
        "decorators": []
       },
-      "value": true,
+      "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
       "decorators": []
      },
      "optional": true,
@@ -474,7 +384,93 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty.property",
+     "serializationOptions": {
+      "$id": "43",
+      "json": {
+       "$id": "44",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "45",
+   "kind": "model",
+   "name": "DurationProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with a duration property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "46",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "47",
+      "kind": "duration",
+      "name": "duration",
+      "encode": "ISO8601",
+      "wireType": {
+       "$id": "48",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string",
+       "decorators": []
+      },
+      "crossLanguageDefinitionId": "TypeSpec.duration",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty.property",
+     "serializationOptions": {
+      "$id": "49",
+      "json": {
+       "$id": "50",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "51",
+   "kind": "model",
+   "name": "PlainDateProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with a plainDate property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "52",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "53",
+      "kind": "plainDate",
+      "name": "plainDate",
+      "crossLanguageDefinitionId": "TypeSpec.plainDate",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty.property",
      "serializationOptions": {
       "$id": "54",
       "json": {
@@ -488,11 +484,11 @@
   {
    "$id": "56",
    "kind": "model",
-   "name": "FloatLiteralProperty",
+   "name": "PlainTimeProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with float literal property",
+   "doc": "Model with a plainTime property",
    "decorators": [],
    "properties": [
     {
@@ -503,11 +499,9 @@
      "doc": "Property",
      "type": {
       "$id": "58",
-      "kind": "constant",
-      "valueType": {
-       "$ref": "20"
-      },
-      "value": 1.25,
+      "kind": "plainTime",
+      "name": "plainTime",
+      "crossLanguageDefinitionId": "TypeSpec.plainTime",
       "decorators": []
      },
      "optional": true,
@@ -515,7 +509,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty.property",
      "serializationOptions": {
       "$id": "59",
       "json": {
@@ -529,11 +523,11 @@
   {
    "$id": "61",
    "kind": "model",
-   "name": "IntLiteralProperty",
+   "name": "CollectionsByteProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with int literal property",
+   "doc": "Model with collection bytes properties",
    "decorators": [],
    "properties": [
     {
@@ -544,173 +538,10 @@
      "doc": "Property",
      "type": {
       "$id": "63",
-      "kind": "constant",
-      "valueType": {
-       "$ref": "23"
-      },
-      "value": 1,
-      "decorators": []
-     },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty.property",
-     "serializationOptions": {
-      "$id": "64",
-      "json": {
-       "$id": "65",
-       "name": "property"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "66",
-   "kind": "model",
-   "name": "StringLiteralProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with string literal property",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "67",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$id": "68",
-      "kind": "constant",
-      "valueType": {
-       "$ref": "26"
-      },
-      "value": "hello",
-      "decorators": []
-     },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty.property",
-     "serializationOptions": {
-      "$id": "69",
-      "json": {
-       "$id": "70",
-       "name": "property"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "71",
-   "kind": "model",
-   "name": "CollectionsModelProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with collection models properties",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "72",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$id": "73",
-      "kind": "array",
-      "name": "ArrayStringProperty",
-      "valueType": {
-       "$id": "74",
-       "kind": "model",
-       "name": "StringProperty",
-       "namespace": "Type.Property.Optional",
-       "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
-       "usage": "Input,Output,Json",
-       "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
-       "decorators": [],
-       "properties": [
-        {
-         "$id": "75",
-         "kind": "property",
-         "name": "property",
-         "serializedName": "property",
-         "doc": "Property",
-         "type": {
-          "$id": "76",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "optional": true,
-         "readOnly": false,
-         "discriminator": false,
-         "flatten": false,
-         "decorators": [],
-         "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty.property",
-         "serializationOptions": {
-          "$id": "77",
-          "json": {
-           "$id": "78",
-           "name": "property"
-          }
-         }
-        }
-       ]
-      },
-      "crossLanguageDefinitionId": "TypeSpec.Array",
-      "decorators": []
-     },
-     "optional": true,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty.property",
-     "serializationOptions": {
-      "$id": "79",
-      "json": {
-       "$id": "80",
-       "name": "property"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "74"
-  },
-  {
-   "$id": "81",
-   "kind": "model",
-   "name": "CollectionsByteProperty",
-   "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
-   "usage": "Input,Output,Json",
-   "doc": "Model with collection bytes properties",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "82",
-     "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
-     "type": {
-      "$id": "83",
       "kind": "array",
       "name": "Array",
       "valueType": {
-       "$id": "84",
+       "$id": "64",
        "kind": "bytes",
        "name": "bytes",
        "encode": "base64",
@@ -727,6 +558,171 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty.property",
      "serializationOptions": {
+      "$id": "65",
+      "json": {
+       "$id": "66",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "67",
+   "kind": "model",
+   "name": "CollectionsModelProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with collection models properties",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "68",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "69",
+      "kind": "array",
+      "name": "ArrayStringProperty",
+      "valueType": {
+       "$ref": "29"
+      },
+      "crossLanguageDefinitionId": "TypeSpec.Array",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty.property",
+     "serializationOptions": {
+      "$id": "70",
+      "json": {
+       "$id": "71",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "72",
+   "kind": "model",
+   "name": "StringLiteralProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with string literal property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "73",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "74",
+      "kind": "constant",
+      "valueType": {
+       "$ref": "2"
+      },
+      "value": "hello",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty.property",
+     "serializationOptions": {
+      "$id": "75",
+      "json": {
+       "$id": "76",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "77",
+   "kind": "model",
+   "name": "IntLiteralProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with int literal property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "78",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "79",
+      "kind": "constant",
+      "valueType": {
+       "$ref": "5"
+      },
+      "value": 1,
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty.property",
+     "serializationOptions": {
+      "$id": "80",
+      "json": {
+       "$id": "81",
+       "name": "property"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "82",
+   "kind": "model",
+   "name": "FloatLiteralProperty",
+   "namespace": "Type.Property.Optional",
+   "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
+   "usage": "Input,Output,Json",
+   "doc": "Model with float literal property",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "83",
+     "kind": "property",
+     "name": "property",
+     "serializedName": "property",
+     "doc": "Property",
+     "type": {
+      "$id": "84",
+      "kind": "constant",
+      "valueType": {
+       "$ref": "8"
+      },
+      "value": 1.25,
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty.property",
+     "serializationOptions": {
       "$id": "85",
       "json": {
        "$id": "86",
@@ -739,11 +735,11 @@
   {
    "$id": "87",
    "kind": "model",
-   "name": "PlainTimeProperty",
+   "name": "BooleanLiteralProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with a plainTime property",
+   "doc": "Model with boolean literal property",
    "decorators": [],
    "properties": [
     {
@@ -754,9 +750,15 @@
      "doc": "Property",
      "type": {
       "$id": "89",
-      "kind": "plainTime",
-      "name": "plainTime",
-      "crossLanguageDefinitionId": "TypeSpec.plainTime",
+      "kind": "constant",
+      "valueType": {
+       "$id": "90",
+       "kind": "boolean",
+       "name": "boolean",
+       "crossLanguageDefinitionId": "TypeSpec.boolean",
+       "decorators": []
+      },
+      "value": true,
       "decorators": []
      },
      "optional": true,
@@ -764,11 +766,11 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty.property",
      "serializationOptions": {
-      "$id": "90",
+      "$id": "91",
       "json": {
-       "$id": "91",
+       "$id": "92",
        "name": "property"
       }
      }
@@ -776,34 +778,30 @@
    ]
   },
   {
-   "$id": "92",
+   "$id": "93",
    "kind": "model",
-   "name": "PlainDateProperty",
+   "name": "UnionStringLiteralProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with a plainDate property",
+   "doc": "Model with union of string literal property",
    "decorators": [],
    "properties": [
     {
-     "$id": "93",
+     "$id": "94",
      "kind": "property",
      "name": "property",
      "serializedName": "property",
      "doc": "Property",
      "type": {
-      "$id": "94",
-      "kind": "plainDate",
-      "name": "plainDate",
-      "crossLanguageDefinitionId": "TypeSpec.plainDate",
-      "decorators": []
+      "$ref": "11"
      },
      "optional": true,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property",
      "serializationOptions": {
       "$id": "95",
       "json": {
@@ -817,11 +815,11 @@
   {
    "$id": "97",
    "kind": "model",
-   "name": "DurationProperty",
+   "name": "UnionIntLiteralProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with a duration property",
+   "doc": "Model with union of int literal property",
    "decorators": [],
    "properties": [
     {
@@ -831,30 +829,18 @@
      "serializedName": "property",
      "doc": "Property",
      "type": {
-      "$id": "99",
-      "kind": "duration",
-      "name": "duration",
-      "encode": "ISO8601",
-      "wireType": {
-       "$id": "100",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "crossLanguageDefinitionId": "TypeSpec.duration",
-      "decorators": []
+      "$ref": "17"
      },
      "optional": true,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property",
      "serializationOptions": {
-      "$id": "101",
+      "$id": "99",
       "json": {
-       "$id": "102",
+       "$id": "100",
        "name": "property"
       }
      }
@@ -862,46 +848,34 @@
    ]
   },
   {
-   "$id": "103",
+   "$id": "101",
    "kind": "model",
-   "name": "DatetimeProperty",
+   "name": "UnionFloatLiteralProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
    "usage": "Input,Output,Json",
-   "doc": "Model with a datetime property",
+   "doc": "Model with union of float literal property",
    "decorators": [],
    "properties": [
     {
-     "$id": "104",
+     "$id": "102",
      "kind": "property",
      "name": "property",
      "serializedName": "property",
      "doc": "Property",
      "type": {
-      "$id": "105",
-      "kind": "utcDateTime",
-      "name": "utcDateTime",
-      "encode": "rfc3339",
-      "wireType": {
-       "$id": "106",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
-      "decorators": []
+      "$ref": "23"
      },
      "optional": true,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property",
      "serializationOptions": {
-      "$id": "107",
+      "$id": "103",
       "json": {
-       "$id": "108",
+       "$id": "104",
        "name": "property"
       }
      }
@@ -909,40 +883,66 @@
    ]
   },
   {
-   "$id": "109",
+   "$id": "105",
    "kind": "model",
-   "name": "BytesProperty",
+   "name": "RequiredAndOptionalProperty",
    "namespace": "Type.Property.Optional",
-   "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
+   "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
    "usage": "Input,Output,Json",
-   "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
+   "doc": "Model with required and optional properties",
    "decorators": [],
    "properties": [
+    {
+     "$id": "106",
+     "kind": "property",
+     "name": "optionalProperty",
+     "serializedName": "optionalProperty",
+     "doc": "optional string property",
+     "type": {
+      "$id": "107",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.optionalProperty",
+     "serializationOptions": {
+      "$id": "108",
+      "json": {
+       "$id": "109",
+       "name": "optionalProperty"
+      }
+     }
+    },
     {
      "$id": "110",
      "kind": "property",
-     "name": "property",
-     "serializedName": "property",
-     "doc": "Property",
+     "name": "requiredProperty",
+     "serializedName": "requiredProperty",
+     "doc": "required int property",
      "type": {
       "$id": "111",
-      "kind": "bytes",
-      "name": "bytes",
-      "encode": "base64",
-      "crossLanguageDefinitionId": "TypeSpec.bytes",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
       "decorators": []
      },
-     "optional": true,
+     "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty.property",
+     "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty.requiredProperty",
      "serializationOptions": {
       "$id": "112",
       "json": {
        "$id": "113",
-       "name": "property"
+       "name": "requiredProperty"
       }
      }
     }
@@ -1041,7 +1041,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "74"
+          "$ref": "29"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1101,7 +1101,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "74"
+          "$ref": "29"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1159,7 +1159,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "74"
+          "$ref": "29"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1234,7 +1234,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "74"
+          "$ref": "29"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1357,7 +1357,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "109"
+          "$ref": "34"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1417,7 +1417,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "109"
+          "$ref": "34"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1475,7 +1475,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "109"
+          "$ref": "34"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1550,7 +1550,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "109"
+          "$ref": "34"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1673,7 +1673,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "103"
+          "$ref": "39"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1733,7 +1733,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "103"
+          "$ref": "39"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -1791,7 +1791,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "103"
+          "$ref": "39"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1866,7 +1866,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "103"
+          "$ref": "39"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -1989,7 +1989,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "97"
+          "$ref": "45"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2049,7 +2049,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "97"
+          "$ref": "45"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2107,7 +2107,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "97"
+          "$ref": "45"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2182,7 +2182,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "97"
+          "$ref": "45"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2305,7 +2305,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "92"
+          "$ref": "51"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2365,7 +2365,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "92"
+          "$ref": "51"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2423,7 +2423,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "92"
+          "$ref": "51"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2498,7 +2498,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "92"
+          "$ref": "51"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2621,7 +2621,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "87"
+          "$ref": "56"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2681,7 +2681,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "87"
+          "$ref": "56"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2739,7 +2739,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "87"
+          "$ref": "56"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2814,7 +2814,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "87"
+          "$ref": "56"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -2937,7 +2937,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "81"
+          "$ref": "61"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -2997,7 +2997,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "81"
+          "$ref": "61"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3055,7 +3055,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "81"
+          "$ref": "61"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3130,7 +3130,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "81"
+          "$ref": "61"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3253,7 +3253,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "71"
+          "$ref": "67"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3313,7 +3313,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "71"
+          "$ref": "67"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3371,7 +3371,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "71"
+          "$ref": "67"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3446,7 +3446,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "71"
+          "$ref": "67"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3569,7 +3569,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "66"
+          "$ref": "72"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3629,7 +3629,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "66"
+          "$ref": "72"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3687,7 +3687,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "66"
+          "$ref": "72"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3762,7 +3762,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "66"
+          "$ref": "72"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -3885,7 +3885,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "61"
+          "$ref": "77"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -3945,7 +3945,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "61"
+          "$ref": "77"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4003,7 +4003,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "61"
+          "$ref": "77"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4078,7 +4078,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "61"
+          "$ref": "77"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4201,7 +4201,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "56"
+          "$ref": "82"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4261,7 +4261,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "56"
+          "$ref": "82"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4319,7 +4319,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "56"
+          "$ref": "82"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4394,7 +4394,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "56"
+          "$ref": "82"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4517,7 +4517,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "50"
+          "$ref": "87"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4577,7 +4577,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "50"
+          "$ref": "87"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4635,7 +4635,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "50"
+          "$ref": "87"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4710,7 +4710,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "50"
+          "$ref": "87"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -4833,7 +4833,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "46"
+          "$ref": "93"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4893,7 +4893,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "46"
+          "$ref": "93"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -4951,7 +4951,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "46"
+          "$ref": "93"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5026,7 +5026,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "46"
+          "$ref": "93"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5149,7 +5149,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "42"
+          "$ref": "97"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5209,7 +5209,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "42"
+          "$ref": "97"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5267,7 +5267,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "42"
+          "$ref": "97"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5342,7 +5342,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "42"
+          "$ref": "97"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5465,7 +5465,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "38"
+          "$ref": "101"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5525,7 +5525,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "38"
+          "$ref": "101"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5583,7 +5583,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "38"
+          "$ref": "101"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5658,7 +5658,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "38"
+          "$ref": "101"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5782,7 +5782,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "29"
+          "$ref": "105"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5842,7 +5842,7 @@
           200
          ],
          "bodyType": {
-          "$ref": "29"
+          "$ref": "105"
          },
          "headers": [],
          "isErrorResponse": false,
@@ -5900,7 +5900,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "29"
+          "$ref": "105"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -5975,7 +5975,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "29"
+          "$ref": "105"
          },
          "location": "Body",
          "isApiVersion": false,

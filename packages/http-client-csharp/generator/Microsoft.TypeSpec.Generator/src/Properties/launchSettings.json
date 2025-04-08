@@ -1,10 +1,5 @@
 {
   "profiles": {
-    "Debug-SampleGenerator-Test-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/SampleGenerator/Unbranded-TypeSpec -g SampleCodeModelGenerator",
-      "commandName": "Executable",
-      "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SampleGenerator/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
-    },
     "http-authentication-api-key": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/authentication/api-key -g StubLibraryGenerator",
       "commandName": "Executable",
@@ -330,8 +325,13 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
-    "Unbranded-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -g ScmCodeModelGenerator",
+    "Sample-Service": {
+      "commandLineArgs": "$(SolutionDir)/../../../docs/samples/client/csharp/SampleService/main.tsp -g ScmCodeModelGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "Sample-TypeSpec": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     }

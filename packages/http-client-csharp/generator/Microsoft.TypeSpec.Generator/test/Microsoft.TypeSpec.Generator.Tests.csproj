@@ -3,13 +3,13 @@
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.csproj" />
     <ProjectReference Include="common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
-    <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
-    <Compile Remove="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/PipelineRequestHeadersExtensions.cs" />
+    <Compile Include="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/PipelineRequestHeadersExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

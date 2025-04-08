@@ -600,6 +600,69 @@ it("handles enum, complex type properties, and circular references", async () =>
   );
 });
 
+it("handles integer enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** An integer enum */
+      enum IntegerEnum { /** one */ One: 1, /** three */Three: 3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** enum */
+        barProp?: IntegerEnum;
+
+        /** non-nullable enum */
+        bazProp: IntegerEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public IntegerEnum? BarProp { get; set; }`,
+          `public IntegerEnum BazProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("handles non-integer numeric enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A floating point enum */
+      enum DoubleEnum { /** one */ One: 1.1, /** three */Three: 3.333, /** five */ Five: 5.55555}
+      /** A mixed integer and float enum */
+      enum MixedEnum { /** one */ One: 1, /** three */Three: 3.3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** nullable enum */
+        barNullableProp?: DoubleEnum;
+        /** enum */
+        barProp: DoubleEnum;
+        /** non-nullable enum */
+        bazProp: MixedEnum;
+        /** nullable enum */
+        bazNullableProp?: MixedEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public double BarProp { get; set; }`,
+          `public double? BarNullableProp { get; set; }`,
+          `public double BazProp { get; set; }`,
+          `public double? BazNullableProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
 it("processes sub-namespaces of a service", async () => {
   await compileAndValidateSingleModel(
     runner,

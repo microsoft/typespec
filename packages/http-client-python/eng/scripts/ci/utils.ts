@@ -20,10 +20,12 @@ const argv = parseArgs({
 export async function executeCommand(command: string, args: string[]) {
   const execFileAsync = promisify(execFile);
   try {
-    await execFileAsync(command, args);
+    await execFileAsync(command, args, { shell: true });
     console.log(chalk.green(`${command} passed`));
-  } catch (err) {
-    console.error(chalk.red(`Error executing ${command}: ${err}`));
+  } catch (err: any) {
+    console.error(chalk.red(`Error executing ${command}`));
+    if (err.stdout) console.error(chalk.yellow("STDOUT:"), err.stdout);
+    if (err.stderr) console.error(chalk.yellow("STDERR:"), err.stderr);
     process.exit(1);
   }
 }
