@@ -302,7 +302,6 @@ export async function resolveModule(
         subPath === "" ? "." : `./${subPath}`,
         pkg.exports,
       );
-      console.log("Resolved", match);
     } catch (error) {
       if (error instanceof NoMatchingConditionsError) {
         // For back compat we allow to fallback to main field for the `.` entry.
