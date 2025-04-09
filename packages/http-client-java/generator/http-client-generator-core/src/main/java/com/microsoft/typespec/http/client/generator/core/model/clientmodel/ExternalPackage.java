@@ -8,12 +8,18 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 public class ExternalPackage {
 
     public static final String CLIENTCORE_PACKAGE_NAME = "io.clientcore.core";
+    public static final String CLIENTCORE_JSON_PACKAGE_NAME = "io.clientcore.core.serialization.json";
 
     public static final String AZURE_CORE_PACKAGE_NAME = "com.azure.core";
     public static final String AZURE_JSON_PACKAGE_NAME = "com.azure.json";
 
     public static final ExternalPackage CORE
         = new Builder().packageName(CLIENTCORE_PACKAGE_NAME).groupId("io.clientcore").artifactId("core").build();
+
+//    public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
+//        .groupId("io.clientcore")
+//        .artifactId("core-json")
+//        .build();
 
     private final String packageName;
     private final String groupId;
@@ -67,6 +73,12 @@ public class ExternalPackage {
                         packageName = AZURE_CORE_PACKAGE_NAME;
                         groupId = "com.azure";
                         artifactId = "azure-core";
+                        break;
+
+                    case CLIENTCORE_JSON_PACKAGE_NAME:
+                        packageName = AZURE_JSON_PACKAGE_NAME;
+                        groupId = "com.azure";
+                        artifactId = "azure-json";
                         break;
                 }
             }
