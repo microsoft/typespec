@@ -589,6 +589,48 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       });
     });
   });
+
+  describe("union templates", () => {
+    it("can be referenced from a property", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        model Pet {
+          prop: U<"b">;
+        };
+        `,
+      );
+      expect(res.components.schemas.Pet.properties.prop).toEqual({
+        type: "string",
+        enum: ["a", "b"],
+      });
+    });
+    it("can be referenced in another union", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        union A {string, U<"b"> }
+        `,
+      );
+      expect(res.components.schemas.A).toEqual({
+        anyOf: [{ type: "string" }, { type: "string", enum: ["a", "b"] }],
+      });
+    });
+    it("can be used in operation response", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        op test(): U<"b">;
+        `,
+      );
+      expect(res.paths["/"].get.responses["200"].content["text/plain"].schema).toEqual({
+        anyOf: [
+          { type: "string", enum: ["a"] },
+          { type: "string", enum: ["b"] },
+        ],
+      });
+    });
+  });
 });
 
 worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {

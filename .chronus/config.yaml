@@ -42,6 +42,7 @@ versionPolicies:
       - "@typespec/openapi3"
       - "@typespec/json-schema"
       - "typespec-vscode"
+      - "@typespec/prettier-plugin-typespec"
 
   - name: typespec-preview
     type: lockstep
@@ -50,7 +51,6 @@ versionPolicies:
       - "@typespec/versioning"
       - "@typespec/rest"
       - "@typespec/protobuf"
-      - "@typespec/prettier-plugin-typespec"
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/internal-build-utils"

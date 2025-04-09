@@ -68,7 +68,7 @@ export async function defaultEncoding(
   const path = parse("/default").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(options?.value && { value: dateRfc7231Serializer(options?.value) }),
+      ...(options?.value && { value: dateRfc7231Serializer(options.value) }),
     },
   };
   const response = await client.pathUnchecked(path).get(httpRequestOptions);

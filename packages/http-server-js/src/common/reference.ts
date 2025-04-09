@@ -231,6 +231,18 @@ export function emitTypeReference(
     case "Number":
     case "Boolean":
       return String(type.value);
+    case "EnumMember": {
+      if (typeof type.value === "string") {
+        return escapeUnsafeChars(JSON.stringify(type.value));
+      } else if (typeof type.value === "number") {
+        return String(type.value);
+      } else if (type.value === undefined) {
+        return escapeUnsafeChars(JSON.stringify(type.name));
+      } else {
+        void (type.value satisfies never);
+        return "unknown";
+      }
+    }
     case "Intrinsic":
       switch (type.name) {
         case "never":
@@ -276,7 +288,13 @@ export function emitTypeReference(
 
       return typeName;
     }
-    case "ModelProperty": {
+    case "Tuple": {
+      const elementTypes = type.values.map((e) => emitTypeReference(ctx, e, position, module));
+
+      return `[${elementTypes.join(", ")}]`;
+    }
+    case "ModelProperty":
+    case "UnionVariant": {
       // Forward to underlying type.
       return emitTypeReference(ctx, type.type, position, module, options);
     }
