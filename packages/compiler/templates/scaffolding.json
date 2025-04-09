@@ -67,6 +67,7 @@
     ]
   },
   "library-ts": {
+    "target": "library",
     "title": "TypeSpec library",
     "description": "Build your own TypeSpec library with custom types, decorators or linters.",
     "compilerVersion": "1.0.0-rc.0",
@@ -143,6 +144,7 @@
     ]
   },
   "emitter-ts": {
+    "target": "library",
     "title": "TypeSpec emitter",
     "description": "Create a new package that emits artifacts from TypeSpec.",
     "compilerVersion": "1.0.0-rc.0",
