@@ -84,6 +84,8 @@ namespace Pets {
 }
 ```
 
+### Implicit body resolution
+
 Note that in the absence of explicit `@body`:
 
 1. The set of parameters that are not marked @header, @query, or @path form the request body.
@@ -102,6 +104,165 @@ namespace Pets {
   op create(...Pet): {};
 }
 ```
+
+### `@body` vs `@bodyRoot`
+
+The `@body` decorator defines the property which type will be exactly the body. Annotating a property inside a `@body` with applicable metadata (`@header`, `@path`, `@query` for request and `@header`, `@statusCode` for response) will be ignored and log a warning.
+The `@bodyRoot` decorator defines the property where the implicit body resolution will be applied(By default the root of the operation).
+
+Nesting `@body` and `@bodyRoot` while mostly pointless can happen when using templates to build operations. A warning will be emitted if nesting happens inline.
+The meaning when nesting them is as follow:
+
+- As soon as `@body` is reached the content is exactly the body which means any nested `@bodyRoot` or `@body` will be ignored.
+- When reaching a `@bodyRoot` it will keep looking for `@body` and `@bodyRoot` nested and if found the deepest one will be used as the body.
+
+Examples
+
+<table>
+<tr>
+  <th>Code</th>
+  <th>Example Payload</th>
+</tr>
+<tr>
+  <td>
+
+```typespec
+op case1(
+  @header foo: string, //
+  name: string,
+  age: int32,
+): void;
+```
+
+  </td>
+  <td>
+
+```http
+POST /
+Foo: bar
+{
+  "name": "Rex",
+  "age": 3
+}
+```
+
+  </td>
+```
+  </td>
+</tr>
+<tr>
+  <td>
+
+```typespec
+op case2(
+  body: {
+    @header foo: string;
+    name: string;
+    age: int32;
+  },
+): void;
+```
+
+  </td>
+  <td>
+
+```http
+POST /
+Foo: bar
+{
+  "body": {
+    "name": "Rex",
+    "age": 3
+  }
+}
+```
+
+  </td>
+</tr>
+<tr>
+  <td>
+
+```typespec
+op case3(
+  @body body: {
+    @header foo: string; // warning: `@header` is ignored
+    name: string;
+    age: int32;
+  },
+): void;
+```
+
+  </td>
+  <td>
+
+```http
+POST /
+{
+  "name": "Rex",
+  "age": 3
+}
+```
+
+  </td>
+</tr>
+<tr>
+  <td>
+
+```typespec
+op case4(
+  @bodyRoot body: {
+    @header foo: string;
+    name: string;
+    age: int32;
+  },
+): void;
+```
+
+  </td>
+  <td>
+
+```http
+POST /
+Foo: bar
+{
+  "name": "Rex",
+  "age": 3
+}
+```
+
+  </td>
+</tr>
+<tr>
+  <td>
+
+```typespec
+op case5(
+  // This bodyRoot is a noop and will log a warning
+  @bodyRoot body: {
+    @bodyRoot reallyBody: {
+      @header foo: string;
+      name: string;
+      age: int32;
+    };
+  },
+): void;
+```
+
+  </td>
+  <td>
+
+```http
+POST /
+Foo: bar
+{
+  "name": "Rex",
+  "age": 3
+}
+```
+
+  </td>
+</tr>
+</table>
 
 ## Headers
 
