@@ -28,7 +28,12 @@ import { keywordSafe } from "../../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
 import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
 import { Encoder, JS_SCALAR_UNKNOWN, JsScalar, getJsScalar } from "../scalar.js";
-import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
+import {
+  SerializableType,
+  SerializationContext,
+  isSerializableType,
+  requireSerialization,
+} from "./index.js";
 
 /**
  * Memoization cache for requiresJsonSerialization.
@@ -84,6 +89,8 @@ export function requiresJsonSerialization(
     case "ModelProperty":
       requiresSerialization = requiresJsonSerialization(ctx, module, type.type);
       break;
+    case "Enum":
+      requiresSerialization = false;
   }
 
   _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
@@ -114,12 +121,7 @@ function isHttpMetadata(ctx: JsContext, property: ModelProperty): boolean {
 }
 
 function isSerializable(type: Type): type is SerializableType | ModelProperty {
-  return (
-    type.kind === "Model" ||
-    type.kind === "Scalar" ||
-    type.kind === "Union" ||
-    type.kind === "ModelProperty"
-  );
+  return type.kind === "ModelProperty" || isSerializableType(type);
 }
 
 export function* emitJsonSerialization(
@@ -211,6 +213,14 @@ function* emitToJson(
 
       return;
     }
+    case "Enum": {
+      yield `return input;`;
+      return;
+    }
+    default: {
+      void (type satisfies never);
+      throw new UnimplementedError(`emitToJson: ${(type as Type).kind}`);
+    }
   }
 }
 
@@ -300,7 +310,6 @@ function transposeExpressionToJson(
     case "Boolean":
       return literalToExpr(type);
     case "Interface":
-    case "Enum":
     case "EnumMember":
     case "TemplateParameter":
     case "Namespace":
@@ -443,6 +452,14 @@ function* emitFromJson(
       });
 
       return;
+    }
+    case "Enum": {
+      yield `return input;`;
+      return;
+    }
+    default: {
+      void (type satisfies never);
+      throw new UnimplementedError(`emitFromJson: ${(type as Type).kind}`);
     }
   }
 }
