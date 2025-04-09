@@ -77,9 +77,8 @@ public class EncodeBytesTests {
         byte[] bytes = responseClient.base64();
         Assertions.assertArrayEquals(DATA, bytes);
 
-        // TODO: bug in tcgc https://github.com/Azure/typespec-azure/pull/2411
-//        bytes = responseClient.base64url();
-//        Assertions.assertArrayEquals(DATA, bytes);
+        bytes = responseClient.base64url();
+        Assertions.assertArrayEquals(DATA, bytes);
     }
 
     @Test

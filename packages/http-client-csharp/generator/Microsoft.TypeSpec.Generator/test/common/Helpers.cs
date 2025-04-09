@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             [CallerFilePath] string filePath = "")
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
-            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Unbranded-TypeSpec", "src", "Generated", "Internal");
+            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
             var project = CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
             var compilation = await project.GetCompilationAsync();
             Assert.IsNotNull(compilation);

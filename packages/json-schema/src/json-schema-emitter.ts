@@ -268,6 +268,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return values;
   }
 
+  unionInstantiation(union: Union, name: string): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.unionLiteral(union);
+    }
+
+    return this.unionDeclaration(union, name);
+  }
+
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
 

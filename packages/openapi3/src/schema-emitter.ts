@@ -286,6 +286,14 @@ export class OpenAPI3SchemaEmitterBase<
     return this.modelDeclaration(model, name);
   }
 
+  unionInstantiation(union: Union, name: string): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.unionLiteral(union);
+    }
+
+    return this.unionDeclaration(union, name);
+  }
+
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       type: "array",

@@ -1,6 +1,6 @@
 #nullable disable
 
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Models
 {

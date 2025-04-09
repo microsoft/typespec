@@ -14,30 +14,31 @@ export function getOperationOptionsParameterRefkey(operation: HttpOperation) {
   return ay.refkey(operation, "operation-options-parameter");
 }
 
-export function getOperationParameters(
-  operation: HttpOperation,
-): Record<string, ts.ParameterDescriptor | ay.Children> {
+export function getOperationParameters(operation: HttpOperation): ts.ParameterDescriptor[] {
   const transformNamer = useTransformNamePolicy();
   const requiredParameters = operation.parameters.properties
     .filter((p) => !p.property.optional && !hasDefaultValue(p))
     .filter((p) => p.path.length === 1);
 
-  const parameters: Record<string, ts.ParameterDescriptor | ay.Children> = {};
+  const parameters: ts.ParameterDescriptor[] = [];
 
   for (const parameter of requiredParameters) {
+    const name = transformNamer.getApplicationName(parameter.property);
     const parameterDescriptor: ts.ParameterDescriptor = {
+      name,
       refkey: ay.refkey(parameter.property, "operation-parameter"),
       type: <ef.TypeExpression type={parameter.property.type} />,
     };
-    const name = transformNamer.getApplicationName(parameter.property);
-    parameters[name] = parameterDescriptor;
+
+    parameters.push(parameterDescriptor);
   }
 
-  parameters["options"] = {
+  parameters.push({
+    name: "options",
     refkey: getOperationOptionsParameterRefkey(operation),
     type: getOperationOptionsTypeRefkey(operation),
     optional: true,
-  };
+  });
 
   return parameters;
 }
