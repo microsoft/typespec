@@ -190,13 +190,18 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
     return JSON.stringify(true);
   }
   if ($.scalar.isNumeric(scalar) || $.scalar.extendsNumeric(scalar)) {
-    switch ((scalar as Scalar).name) {
-      case "integer":
-      case "int64":
-      case "uint64":
-        return "42n";
-      default:
-        return "42";
+    if (
+      $.scalar.extendsSafeint(scalar) ||
+      $.scalar.extendsInt32(scalar) ||
+      $.scalar.extendsUint32(scalar) ||
+      $.scalar.extendsFloat64(scalar)
+    ) {
+      return "42";
+    } else if ($.scalar.extendsInteger(scalar)) {
+      return "42n";
+    } else {
+      module.imports.push({ from: "decimal.js", binder: ["Decimal"] });
+      return "new Decimal(42)";
     }
   }
 
