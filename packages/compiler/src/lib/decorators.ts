@@ -78,8 +78,8 @@ import {
   DiagnosticTarget,
   Enum,
   EnumValue,
-  Interface,
   IndeterminateEntity,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
@@ -957,15 +957,20 @@ function validatePropertyName(context: DecoratorContext, target: Model, name: st
         propertyName: name,
         type: getTypeName(source),
       },
-      messageId: 'typeMissingProperty',
+      messageId: "typeMissingProperty",
       target: getExactDiagnosticTarget(entity, name),
     });
   }
 }
 
-function getExactDiagnosticTarget(entity: Type | Value | IndeterminateEntity, name: string): DiagnosticTarget {
-  if('kind' in entity && entity.kind === 'Union') {
-    return entity.node.options.find((option) => 'value' in option && option.value === name) ?? entity;
+function getExactDiagnosticTarget(
+  entity: Type | Value | IndeterminateEntity,
+  name: string,
+): DiagnosticTarget {
+  if ("kind" in entity && entity.kind === "Union") {
+    return (
+      entity.node.options.find((option) => "value" in option && option.value === name) ?? entity
+    );
   }
   return entity;
 }

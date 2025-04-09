@@ -863,8 +863,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unexpected-property",
-          message:
-            "Property 'notMee' does not exist in type 'OriginalModel'.",
+          message: "Property 'notMee' does not exist in type 'OriginalModel'.",
           pos: 190,
           end: 198,
         },
