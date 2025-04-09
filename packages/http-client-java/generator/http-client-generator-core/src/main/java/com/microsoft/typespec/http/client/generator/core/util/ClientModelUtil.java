@@ -458,7 +458,9 @@ public class ClientModelUtil {
             // !classType.getPackage().startsWith(JavaSettings.getInstance().getPackage());
             final boolean typeInExternalPackage = classType.getPackage().startsWith("java.")
                 || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
                 || classType.getPackage().startsWith(ExternalPackage.AZURE_CORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_JSON_PACKAGE_NAME)
                 || classType.getPackage().startsWith("com.azure.v2.core");
             return !typeInExternalPackage && getClientModel(classType.getName()) != null;
         } else {
