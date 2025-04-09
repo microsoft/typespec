@@ -4266,21 +4266,7 @@
       "continuationToken": {
        "$id": "456",
        "parameter": {
-        "$id": "457",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "452"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "451"
        },
        "responseSegments": [
         "nextToken"
@@ -4294,18 +4280,18 @@
      "decorators": []
     },
     {
-     "$id": "458",
+     "$id": "457",
      "name": "ListWithContinuationTokenHeaderResponse",
      "resourceName": "SampleTypeSpec",
      "doc": "List things with continuation token header response",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "459",
+       "$id": "458",
        "name": "token",
        "nameInRequest": "token",
        "type": {
-        "$id": "460",
+        "$id": "459",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4322,7 +4308,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "461",
+       "$id": "460",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
@@ -4341,7 +4327,7 @@
      ],
      "responses": [
       {
-       "$id": "462",
+       "$id": "461",
        "statusCodes": [
         200
        ],
@@ -4350,11 +4336,11 @@
        },
        "headers": [
         {
-         "$id": "463",
+         "$id": "462",
          "name": "nextToken",
          "nameInResponse": "next-token",
          "type": {
-          "$id": "464",
+          "$id": "463",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4373,28 +4359,14 @@
      "path": "/continuation/header",
      "bufferResponse": true,
      "paging": {
-      "$id": "465",
+      "$id": "464",
       "itemPropertySegments": [
        "things"
       ],
       "continuationToken": {
-       "$id": "466",
+       "$id": "465",
        "parameter": {
-        "$id": "467",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "460"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "458"
        },
        "responseSegments": [
         "next-token"
@@ -4408,14 +4380,14 @@
      "decorators": []
     },
     {
-     "$id": "468",
+     "$id": "466",
      "name": "ListWithPaging",
      "resourceName": "SampleTypeSpec",
      "doc": "List things with paging",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "469",
+       "$id": "467",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
@@ -4434,7 +4406,7 @@
      ],
      "responses": [
       {
-       "$id": "470",
+       "$id": "468",
        "statusCodes": [
         200
        ],
@@ -4453,7 +4425,7 @@
      "path": "/list/paging",
      "bufferResponse": true,
      "paging": {
-      "$id": "471",
+      "$id": "469",
       "itemPropertySegments": [
        "items"
       ]
@@ -4466,11 +4438,11 @@
    ],
    "parameters": [
     {
-     "$id": "472",
+     "$id": "470",
      "name": "sampleTypeSpecUrl",
      "nameInRequest": "sampleTypeSpecUrl",
      "type": {
-      "$id": "473",
+      "$id": "471",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4494,9 +4466,9 @@
   }
  ],
  "auth": {
-  "$id": "474",
+  "$id": "472",
   "apiKey": {
-   "$id": "475",
+   "$id": "473",
    "name": "my-api-key",
    "in": "header"
   }

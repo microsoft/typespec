@@ -9,7 +9,7 @@ import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/logger-level.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
-import { CSharpEmitterContext } from "../../../src/sdk-context.js";
+import { createCSharpEmitterContext, CSharpEmitterContext } from "../../../src/sdk-context.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -127,16 +127,5 @@ export async function createCSharpSdkContext(
     sdkContextOptions,
   );
   const Logger = await getLogger();
-  return {
-    ...context,
-    logger: new Logger(program.program, LoggerLevel.INFO),
-    __typeCache: {
-      crossLanguageDefinitionIds: new Map(),
-      clients: new Map(),
-      types: new Map(),
-      models: new Map(),
-      enums: new Map(),
-      constants: new Map(),
-    },
-  };
+  return createCSharpEmitterContext(context, new Logger(program.program, LoggerLevel.INFO));
 }
