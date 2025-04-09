@@ -913,9 +913,18 @@ importers:
         specifier: ~2.7.0
         version: 2.7.0
     devDependencies:
+      '@types/express':
+        specifier: ^5.0.1
+        version: 5.0.1
+      '@types/morgan':
+        specifier: ^1.9.9
+        version: 1.9.9
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.13
+      '@types/swagger-ui-express':
+        specifier: ^4.1.8
+        version: 4.1.8
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -943,6 +952,12 @@ importers:
       '@vitest/ui':
         specifier: ^3.0.9
         version: 3.0.9(vitest@3.0.9)
+      decimal.js:
+        specifier: ^10.5.0
+        version: 10.5.0
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
       fs-extra:
         specifier: ^11.2.0
         version: 11.3.0
@@ -952,6 +967,9 @@ importers:
       inquirer:
         specifier: ^12.5.0
         version: 12.5.0(@types/node@22.13.13)
+      morgan:
+        specifier: ^1.10.0
+        version: 1.10.0
       ora:
         specifier: ^8.1.1
         version: 8.2.0
@@ -964,6 +982,9 @@ importers:
       picocolors:
         specifier: ~1.1.1
         version: 1.1.1
+      swagger-ui-express:
+        specifier: ^5.0.1
+        version: 5.0.1(express@5.1.0)
       tsx:
         specifier: ^4.19.3
         version: 4.19.3
@@ -1993,7 +2014,7 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@types/morgan':
-        specifier: ^1.9.4
+        specifier: ^1.9.9
         version: 1.9.9
       '@types/multer':
         specifier: ^1.4.10
@@ -5925,9 +5946,6 @@ packages:
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
-  '@types/node@18.19.83':
-    resolution: {integrity: sha512-D69JeR5SfFS5H6FLbUaS0vE4r1dGhmMBbG4Ed6BNS4wkDK8GZjsdCShT5LCN59vOHEUHnFCY9J4aclXlIphMkA==}
-
   '@types/node@18.19.86':
     resolution: {integrity: sha512-fifKayi175wLyKyc5qUfyENhQ1dCNI1UNjp653d8kuYcPQN5JhX3dGuP/XmvPTg/xRBn1VTLpbmi+H/Mr7tLfQ==}
 
@@ -5992,6 +6010,9 @@ packages:
 
   '@types/swagger-ui-dist@3.30.5':
     resolution: {integrity: sha512-SrXhD9L8qeIxJzN+o1kmf3wXeVf/+Km3jIdRM1+Yq3I5b/dlF5TcGr5WCVM7I/cBYpgf43/gCPIucQ13AhICiw==}
+
+  '@types/swagger-ui-express@4.1.8':
+    resolution: {integrity: sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==}
 
   '@types/swagger-ui@3.52.4':
     resolution: {integrity: sha512-7NV7q8BfupqdQxr26OkM0g0YEPB9uXnKGzXadgcearvI9MoCHt3F72lPTX3fZZIlrr21DC0IK26wcDMZ37oFDA==}
@@ -11630,6 +11651,12 @@ packages:
 
   swagger-ui-dist@5.20.1:
     resolution: {integrity: sha512-qBPCis2w8nP4US7SvUxdJD3OwKcqiWeZmjN2VWhq2v+ESZEXOP/7n4DeiOiiZcGYTKMHAHUUrroHaTsjUWTEGw==}
+
+  swagger-ui-express@5.0.1:
+    resolution: {integrity: sha512-SrNU3RiBGTLLmFU8GIJdOdanJTl4TOmT27tt3bWWHppqYmAZ6IDuEuBvMU6nZq0zLEe6b/1rACXCgLZqO6ZfrA==}
+    engines: {node: '>= v0.10.32'}
+    peerDependencies:
+      express: '>=4.0.0 || >=5.0.0-beta'
 
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
@@ -17566,10 +17593,6 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@18.19.83':
-    dependencies:
-      undici-types: 5.26.5
-
   '@types/node@18.19.86':
     dependencies:
       undici-types: 5.26.5
@@ -17638,6 +17661,11 @@ snapshots:
       '@types/node': 22.13.13
 
   '@types/swagger-ui-dist@3.30.5': {}
+
+  '@types/swagger-ui-express@4.1.8':
+    dependencies:
+      '@types/express': 5.0.1
+      '@types/serve-static': 1.15.7
 
   '@types/swagger-ui@3.52.4': {}
 
@@ -18518,7 +18546,7 @@ snapshots:
 
   '@yarnpkg/pnp@4.0.9':
     dependencies:
-      '@types/node': 18.19.83
+      '@types/node': 18.19.86
       '@yarnpkg/fslib': 3.1.2
 
   '@yarnpkg/pnp@4.1.0':
@@ -24976,6 +25004,11 @@ snapshots:
   swagger-ui-dist@5.20.1:
     dependencies:
       '@scarf/scarf': 1.4.0
+
+  swagger-ui-express@5.0.1(express@5.1.0):
+    dependencies:
+      express: 5.1.0
+      swagger-ui-dist: 5.20.1
 
   symbol-tree@3.2.4: {}
 
