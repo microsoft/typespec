@@ -46,7 +46,7 @@
     "ajv": "~8.17.1",
     "body-parser": "^1.20.3",
     "deep-equal": "^2.2.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "globby": "~14.1.0",
     "js-yaml": "^4.1.0",
     "micromatch": "^4.0.8",
