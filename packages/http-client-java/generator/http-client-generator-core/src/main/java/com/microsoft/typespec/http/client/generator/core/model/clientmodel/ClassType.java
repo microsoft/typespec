@@ -177,8 +177,7 @@ public class ClassType implements IType {
                 return new Builder(false)
                     .packageName(classKey.getPackage()
                         .getName()
-                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
-                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME))
+                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME))
                     .name(classKey.getSimpleName());
             }
         } else {

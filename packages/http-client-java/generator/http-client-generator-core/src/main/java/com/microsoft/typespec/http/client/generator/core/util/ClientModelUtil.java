@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
@@ -447,8 +448,19 @@ public class ClientModelUtil {
     public static boolean isClientModel(IType type) {
         if (type instanceof ClassType) {
             ClassType classType = (ClassType) type;
-            return classType.getPackage().startsWith(JavaSettings.getInstance().getPackage())
-                && getClientModel(classType.getName()) != null;
+            /*
+             * It is possible in TypeSpec that the models be in different package of the package in JavaSettings.
+             * Therefore, we now check:
+             * 1. The package of the class is not in java.*
+             * 2. The package of the class is not in core package (clientcore or azure-core)
+             */
+            // final boolean typeInExternalPackage =
+            // !classType.getPackage().startsWith(JavaSettings.getInstance().getPackage());
+            final boolean typeInExternalPackage = classType.getPackage().startsWith("java.")
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_CORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith("com.azure.v2.core");
+            return !typeInExternalPackage && getClientModel(classType.getName()) != null;
         } else {
             return false;
         }

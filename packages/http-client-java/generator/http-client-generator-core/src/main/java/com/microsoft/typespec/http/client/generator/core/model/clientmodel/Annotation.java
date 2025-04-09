@@ -107,7 +107,6 @@ public class Annotation {
                 this.packageName(clazz.getPackage()
                     .getName()
                     .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
-                    .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
                     .replace(".annotation", ".annotations"));
             }
 
