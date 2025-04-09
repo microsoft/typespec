@@ -7,7 +7,6 @@ import {
   SdkContext,
   SdkHttpOperation,
   SdkHttpResponse,
-  SdkMethodParameter,
   SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
@@ -60,6 +59,7 @@ export function fromSdkServiceMethod(
 ): InputServiceMethod | undefined {
   const methodKind = method.kind;
   // TO-DO: Consider following the tcgc model pattern of keeping paging, lro, lor-paging metadata at the method level
+  // https://github.com/microsoft/typespec/issues/6912
   switch (methodKind) {
     case "basic":
       return createServiceMethod<InputBasicServiceMethod>(sdkContext, method, uri, rootApiVersions);
@@ -180,7 +180,7 @@ function createServiceMethod<T extends InputServiceMethod>(
     doc: method.doc,
     summary: method.summary,
     operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
-    parameters: [...fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions).values()],
+    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions),
     response: fromSdkServiceMethodResponse(sdkContext, method.response),
     exception: method.exception
       ? fromSdkServiceMethodResponse(sdkContext, method.exception)
@@ -216,21 +216,21 @@ function fromSdkServiceMethodParameters(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
-): Map<SdkMethodParameter, InputParameter> {
-  const parameters = new Map<SdkMethodParameter, InputParameter>();
+): InputParameter[] {
+  const parameters: InputParameter[] = [];
 
   for (const p of method.parameters) {
     const methodInputParameter = fromParameter(sdkContext, p, rootApiVersions);
     const operationHttpParameter = getHttpOperationParameter(method, p);
 
     if (!operationHttpParameter) {
-      parameters.set(p, methodInputParameter);
+      parameters.push(methodInputParameter);
       continue;
     }
 
     // post-process the method parameter with information from the operation parameter
     updateMethodParameter(sdkContext, methodInputParameter, operationHttpParameter);
-    parameters.set(p, methodInputParameter);
+    parameters.push(methodInputParameter);
   }
 
   return parameters;
@@ -283,11 +283,7 @@ function fromSdkOperationParameters(
   }
 
   if (operation.bodyParam) {
-    const bodyParam = fromParameter(
-      sdkContext,
-      operation.bodyParam,
-      rootApiVersions,
-    );
+    const bodyParam = fromParameter(sdkContext, operation.bodyParam, rootApiVersions);
     parameters.push(bodyParam);
   }
   return parameters;

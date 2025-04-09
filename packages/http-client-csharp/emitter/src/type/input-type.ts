@@ -5,6 +5,7 @@ import {
   AccessFlags,
   DecoratorInfo,
   SdkBuiltInKinds,
+  SdkModelPropertyType,
   SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
@@ -122,7 +123,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: InputModelPropertyKind;
+  kind: SdkModelPropertyType["kind"];
   name: string;
   serializedName: string;
   type: InputType;
@@ -132,13 +133,6 @@ export interface InputModelProperty extends InputTypeBase {
   crossLanguageDefinitionId: string;
   flatten: boolean;
   serializationOptions?: SerializationOptions;
-}
-
-export enum InputModelPropertyKind {
-  Property = "property",
-  Header = "header",
-  Query = "query",
-  Path = "path",
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

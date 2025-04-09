@@ -32,7 +32,6 @@ import {
   InputEnumTypeValue,
   InputLiteralType,
   InputModelProperty,
-  InputModelPropertyKind,
   InputModelType,
   InputPrimitiveType,
   InputType,
@@ -202,7 +201,7 @@ export function fromSdkModelType(
     literalTypeContext.propertyName = serializedName;
 
     const modelHeaderProperty: InputModelProperty = {
-      kind: getModelPropertyKind(property),
+      kind: property.kind,
       name: property.name,
       serializedName: serializedName,
       summary: property.summary,
@@ -234,7 +233,7 @@ export function fromSdkModelType(
     literalTypeContext.propertyName = serializedName;
 
     const modelProperty: InputModelProperty = {
-      kind: InputModelPropertyKind.Property,
+      kind: property.kind,
       name: property.name,
       serializedName: serializedName,
       summary: property.summary,
@@ -494,18 +493,5 @@ function isReadOnly(prop: SdkModelPropertyType): boolean {
     return true;
   } else {
     return false;
-  }
-}
-
-function getModelPropertyKind(prop: SdkModelPropertyType): InputModelPropertyKind {
-  switch (prop.kind) {
-    case "header":
-      return InputModelPropertyKind.Header;
-    case "query":
-      return InputModelPropertyKind.Query;
-    case "path":
-      return InputModelPropertyKind.Path;
-    default:
-      return InputModelPropertyKind.Property;
   }
 }

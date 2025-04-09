@@ -2,7 +2,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputModelPropertyKind } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -204,11 +203,11 @@ describe("Operation Converter", () => {
         strictEqual(body.properties.length, 2);
         strictEqual(body.properties[0].name, "foo");
         strictEqual(body.properties[0].type.kind, "string");
-        strictEqual(body.properties[0].kind, InputModelPropertyKind.Header);
+        strictEqual(body.properties[0].kind, "header");
         // body property
         strictEqual(body.properties[1].name, "bar");
         strictEqual(body.properties[1].type.kind, "int32");
-        strictEqual(body.properties[1].kind, InputModelPropertyKind.Property);
+        strictEqual(body.properties[1].kind, "property");
       });
     });
   });

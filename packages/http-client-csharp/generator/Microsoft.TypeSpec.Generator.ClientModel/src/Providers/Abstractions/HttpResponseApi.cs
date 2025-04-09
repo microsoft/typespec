@@ -18,7 +18,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract ScopedApi<Stream> ContentStream();
 
         public abstract ScopedApi<BinaryData> Content();
-        public abstract ScopedApi<HttpResponseHeadersApi> Headers();
 
         public abstract ScopedApi<bool> IsError();
 

@@ -25,7 +25,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
 
         public virtual IHttpResponseApi HttpResponseApi => PipelineResponseProvider.Instance;
-        public virtual IHttpResponseHeadersApi HttpResponseHeadersApi => PipelineResponseHeadersProvider.Instance;
 
         public virtual IHttpMessageApi HttpMessageApi => PipelineMessageProvider.Instance;
 
