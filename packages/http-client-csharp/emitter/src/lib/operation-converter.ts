@@ -289,7 +289,7 @@ function fromSdkOperationParameters(
   return parameters;
 }
 
-function fromParameter(
+export function fromParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkModelPropertyType,
   rootApiVersions: string[],
