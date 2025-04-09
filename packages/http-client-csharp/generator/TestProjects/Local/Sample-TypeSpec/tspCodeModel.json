@@ -4369,21 +4369,7 @@
       "continuationToken": {
        "$id": "482",
        "parameter": {
-        "$id": "483",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "476"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "475"
        },
        "responseSegments": [
         "nextToken"
@@ -4397,18 +4383,18 @@
      "decorators": []
     },
     {
-     "$id": "484",
+     "$id": "483",
      "name": "ListWithContinuationTokenHeaderResponse",
      "resourceName": "SampleTypeSpec",
      "doc": "List things with continuation token header response",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "485",
+       "$id": "484",
        "name": "token",
        "nameInRequest": "token",
        "type": {
-        "$id": "486",
+        "$id": "485",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4425,14 +4411,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "487",
+       "$id": "486",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "488",
+        "$id": "487",
         "kind": "constant",
         "valueType": {
-         "$id": "489",
+         "$id": "488",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4454,7 +4440,7 @@
      ],
      "responses": [
       {
-       "$id": "490",
+       "$id": "489",
        "statusCodes": [
         200
        ],
@@ -4463,11 +4449,11 @@
        },
        "headers": [
         {
-         "$id": "491",
+         "$id": "490",
          "name": "nextToken",
          "nameInResponse": "next-token",
          "type": {
-          "$id": "492",
+          "$id": "491",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4486,28 +4472,14 @@
      "path": "/continuation/header",
      "bufferResponse": true,
      "paging": {
-      "$id": "493",
+      "$id": "492",
       "itemPropertySegments": [
        "things"
       ],
       "continuationToken": {
-       "$id": "494",
+       "$id": "493",
        "parameter": {
-        "$id": "495",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "486"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "484"
        },
        "responseSegments": [
         "next-token"
@@ -4521,21 +4493,21 @@
      "decorators": []
     },
     {
-     "$id": "496",
+     "$id": "494",
      "name": "ListWithPaging",
      "resourceName": "SampleTypeSpec",
      "doc": "List things with paging",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "497",
+       "$id": "495",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "498",
+        "$id": "496",
         "kind": "constant",
         "valueType": {
-         "$id": "499",
+         "$id": "497",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4557,7 +4529,7 @@
      ],
      "responses": [
       {
-       "$id": "500",
+       "$id": "498",
        "statusCodes": [
         200
        ],
@@ -4576,7 +4548,7 @@
      "path": "/list/paging",
      "bufferResponse": true,
      "paging": {
-      "$id": "501",
+      "$id": "499",
       "itemPropertySegments": [
        "items"
       ]
@@ -4589,11 +4561,11 @@
    ],
    "parameters": [
     {
-     "$id": "502",
+     "$id": "500",
      "name": "sampleTypeSpecUrl",
      "nameInRequest": "sampleTypeSpecUrl",
      "type": {
-      "$id": "503",
+      "$id": "501",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4617,9 +4589,9 @@
   }
  ],
  "auth": {
-  "$id": "504",
+  "$id": "502",
   "apiKey": {
-   "$id": "505",
+   "$id": "503",
    "name": "my-api-key",
    "in": "header"
   }
