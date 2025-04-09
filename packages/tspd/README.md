@@ -5,7 +5,7 @@
 TypeSpec tspd is a tool to help you build TypeSpec libraries and emitters. It provide the ability to
 
 - Generate decorator signatures and type checks
-- Generate documentation for library types
+- Generate documentation for library types and emitter options
 
 ## Usage
 
