@@ -70,11 +70,7 @@ final class ResponseTypeFactory {
             return mono(GenericType.RestResponse(headersType, bType));
         }
 
-        if (bodyType.equals(ClassType.INPUT_STREAM)
-            // Need to map Mono<Response<Flux<ByteBuffer>>> to Mono<StreamResponse> for vanilla, in order for
-            // sync-over-async method implementation to work.
-            // DPG and MGMT won't have FluxBB as response body type.
-            || bodyType.equals(GenericType.FLUX_BYTE_BUFFER)) {
+        if (bodyType.equals(ClassType.INPUT_STREAM)) {
             return binaryResponseMono(settings);
         }
 
