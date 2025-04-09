@@ -4,4 +4,4 @@ packages:
   - "@typespec/spector"
 ---
 
-Aligned @types/morgan devDependency versions.
+Aligned `@types/morgan` devDependency versions.
