@@ -591,7 +591,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         IType restAPIMethodReturnBodyClientType = responseBodyType.getClientType();
         if (responseBodyType.equals(ClassType.INPUT_STREAM)) {
-            returnTypeHolder.asyncReturnType = createAsyncBinaryReturnType();
+            returnTypeHolder.asyncReturnType = GenericType.FLUX_BYTE_BUFFER;
             returnTypeHolder.syncReturnType = responseBodyType.getClientType();
         } else {
             if (restAPIMethodReturnBodyClientType != PrimitiveType.VOID) {
@@ -602,7 +602,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             returnTypeHolder.syncReturnType = responseBodyType.getClientType();
             // for vanilla + text/xx(e.g. text/powershell) Content-Type
             if (responseBodyType == GenericType.FLUX_BYTE_BUFFER && settings.isVanilla()) {
-                returnTypeHolder.syncReturnType = ClassType.BINARY_DATA;
+                returnTypeHolder.syncReturnType = JavaSettings.getInstance().isInputStreamForBinary()
+                    ? ClassType.INPUT_STREAM
+                    : ClassType.BINARY_DATA;
             }
         }
 
@@ -1221,15 +1223,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      */
     private IType createAsyncBodyReturnType(IType restAPIMethodReturnBodyClientType) {
         return GenericType.Mono(restAPIMethodReturnBodyClientType);
-    }
-
-    /**
-     * Creates an asynchronous binary return type.
-     *
-     * @return The asynchronous binary return type.
-     */
-    private IType createAsyncBinaryReturnType() {
-        return GenericType.Flux(ClassType.BYTE_BUFFER);
     }
 
     /**
