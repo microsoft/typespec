@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!inputParameter.IsRequired)
             {
                 type = !type.IsCollection ? type.WithNullable(true) : type;
-                DefaultValue = Snippet.Null;
+                DefaultValue = Snippet.Default;
             }
             Type = type;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable

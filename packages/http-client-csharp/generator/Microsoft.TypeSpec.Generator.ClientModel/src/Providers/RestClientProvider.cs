@@ -224,6 +224,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     statement = request.SetHeaders([Literal(inputParameter.NameInRequest), toStringExpression.As<string>()]);
                 }
+
+                if (!TryGetSpecialHeaderParam(inputParameter, out _) && (!inputParameter.IsRequired || type?.IsNullable == true ||
+                   (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
+                {
+                    statement = BuildQueryOrHeaderParameterNullCheck(type, valueExpression, statement);
+                }
+
                 statements.Add(statement);
             }
 
@@ -296,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
                     (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
                 {
-                    statement = BuildQueryParameterNullCheck(paramType, valueExpression, statement);
+                    statement = BuildQueryOrHeaderParameterNullCheck(paramType, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -305,7 +312,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static IfStatement BuildQueryParameterNullCheck(
+        private static IfStatement BuildQueryOrHeaderParameterNullCheck(
             CSharpType? parameterType,
             ValueExpression valueExpression,
             MethodBodyStatement originalStatement)

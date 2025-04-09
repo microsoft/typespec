@@ -357,9 +357,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else if (param.Location == ParameterLocation.Body)
                 {
                     // Add any non-body parameters that may have been declared within the request body model
+                    List<ValueExpression>? requiredParameters = null;
+                    List<ValueExpression>? optionalParameters = null;
+
                     if (param.Type.Equals(bodyModel?.Type) == true)
                     {
-                        AddNonBodyModelPropertiesConversions(param, bodyModel, conversions);
+                        var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
+                        if (parameterConversions != null)
+                        {
+                            requiredParameters = parameterConversions.Value.RequiredParameters;
+                            optionalParameters = parameterConversions.Value.OptionalParameters;
+                        }
+                    }
+
+                    // Add required non-body parameters
+                    if (requiredParameters != null)
+                    {
+                        conversions.AddRange(requiredParameters);
                     }
 
                     if (param.Type.IsReadOnlyMemory || param.Type.IsList)
@@ -382,6 +396,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         conversions.Add(param);
                     }
+
+                    // Add optional non-body parameters
+                    if (optionalParameters != null)
+                    {
+                        conversions.AddRange(optionalParameters);
+                    }
                 }
                 else if (param.Type.IsEnum)
                 {
@@ -399,10 +419,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private void AddNonBodyModelPropertiesConversions(
-            ParameterProvider bodyParam,
-            ModelProvider bodyModel,
-            List<ValueExpression> conversions)
+        private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
+            GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, ModelProvider bodyModel)
         {
             // Extract non-body properties from the body model
             var nonBodyProperties = bodyModel.CanonicalView.Properties
@@ -412,7 +430,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
             if (nonBodyProperties.Count == 0)
-                return;
+                return null;
+
+            List<ValueExpression> required = [];
+            List<ValueExpression> optional = [];
 
             // Add properties for matching protocol parameters
             foreach (var protocolParameter in ProtocolMethodParameters)
@@ -420,9 +441,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (protocolParameter.Location != ParameterLocation.Body &&
                     nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty))
                 {
-                    conversions.Add(bodyParam.Property(nonBodyProperty.Name));
+                    var conversion = bodyParam.Property(nonBodyProperty.Name);
+                    if (protocolParameter.DefaultValue != null)
+                    {
+                        optional.Add(conversion);
+                    }
+                    else
+                    {
+                        required.Add(conversion);
+                    }
                 }
             }
+
+            return (required, optional);
         }
 
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
