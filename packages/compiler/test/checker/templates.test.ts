@@ -1,7 +1,7 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
+import { Diagnostic, Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
 import { isUnknownType } from "../../src/index.js";
 import {
   BasicTestRunner,
@@ -398,6 +398,38 @@ describe("compiler: templates", () => {
     const t = b.type.properties.get("t")!.type;
     strictEqual(t.kind, "String" as const);
     strictEqual(t.value, "bye");
+  });
+
+  it("can reference parent parameters in default", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface A<T> {
+          op foo<U = T>(): U;
+        }
+        alias B = A<string>;
+        @test op MyOp is B.foo;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "string");
+  });
+
+  it("can override default provided by parent parameters", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface A<T> {
+          op foo<U = T>(): U;
+        }
+        alias B = A<string>;
+        @test op MyOp is B.foo<bytes>;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "bytes");
   });
 
   it("emit diagnostics if referencing itself", async () => {

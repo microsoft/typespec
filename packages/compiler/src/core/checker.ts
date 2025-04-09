@@ -947,7 +947,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-    return mapper ? mapper.getMappedType(type) : type;
+    if (mapper) {
+      let mappedType = mapper.getMappedType(type);
+      // recursively resolve the mapped type so long as it is
+      // still a TemplateParameter, since there may be multiple
+      // levels of mapping (e.g. when referencing defaults)
+      while (
+        mappedType.entityKind === "Type" &&
+        mappedType.kind === "TemplateParameter" &&
+        mapper.getMappedType(mappedType) !== mappedType
+      ) {
+        mappedType = mapper.getMappedType(mappedType);
+      }
+      return mappedType;
+    }
+    return type;
   }
 
   function getResolvedTypeParameterDefault(
@@ -4316,9 +4330,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound,
         );
-        if (isTemplateInstance(type) && type.name === "Foo") {
-          getSymbolLinks(type.symbol);
-        }
         mutate(type.symbol).type = type;
         break;
       case "Union":
