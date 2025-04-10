@@ -12,13 +12,11 @@ export interface CSharpEmitterOptions {
   "api-version"?: string;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
   "generator-name"?: string;
-  "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
@@ -63,12 +61,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Set to `true` to overwrite the csproj if it already exists. The default value is `false`.",
     },
-    "clear-output-folder": {
-      type: "boolean",
-      nullable: true,
-      description:
-        "Indicates if you want to clear the output folder before generating. The default value is `true`.",
-    },
     "save-inputs": {
       type: "boolean",
       nullable: true,
@@ -104,12 +96,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.",
-    },
-    "emitter-extension-path": {
-      type: "string",
-      nullable: true,
-      description:
-        "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
     },
     "update-code-model": {
       type: "object",
@@ -148,7 +134,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
 export const defaultOptions = {
   "api-version": "latest",
   "new-project": false,
-  "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
@@ -156,7 +141,6 @@ export const defaultOptions = {
   debug: undefined,
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
-  "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
   "sdk-context-options": undefined,
 };

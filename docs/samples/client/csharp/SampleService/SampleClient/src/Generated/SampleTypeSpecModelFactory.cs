@@ -155,5 +155,14 @@ namespace SampleTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
+        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
+        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default)
+        {
+
+            return new ModelWithEmbeddedNonBodyParameters(name, additionalBinaryDataProperties: null);
+        }
     }
 }

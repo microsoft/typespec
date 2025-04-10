@@ -55,6 +55,7 @@ function myExecSync(command: string, flavor: string, name?: string): void {
     return;
   }
   execSync(getCommand(command, flavor, name), { stdio: "inherit" });
+  execSync(getCommand(command, "unittests", name), { stdio: "inherit" });
 }
 
 let venvPath = join(root, "venv");

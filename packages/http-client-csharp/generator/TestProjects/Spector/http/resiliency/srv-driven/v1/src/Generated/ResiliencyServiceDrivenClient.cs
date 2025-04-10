@@ -40,8 +40,8 @@ namespace Resiliency.ServiceDriven
 
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromOneOptional(string parameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }
