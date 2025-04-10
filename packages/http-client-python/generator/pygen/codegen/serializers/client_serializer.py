@@ -87,7 +87,7 @@ class ClientSerializer:
                 [
                     '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
                     "_endpoints = get_arm_endpoints(_cloud)",
-                    f"if not {endpoint_parameter.client_name}:",
+                    f"if {endpoint_parameter.client_name} is _Unset:",
                     f'    {endpoint_parameter.client_name} = _endpoints["resource_manager"]',
                     'credential_scopes = kwargs.pop("credential_scopes", _endpoints["credential_scopes"])',
                 ]
