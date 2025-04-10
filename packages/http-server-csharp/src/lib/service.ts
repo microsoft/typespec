@@ -66,11 +66,12 @@ import {
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
+  CollectionType,
   ControllerContext,
   NameCasingType,
   ResponseInfo,
 } from "./interfaces.js";
-import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
 import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
@@ -117,6 +118,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
   const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
+  CSharpServiceOptions.getInstance().initialize(context.options);
 
   function getFileWriter(program: Program): FileExists {
     return async (path: string) =>
@@ -137,14 +139,26 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
+      const collectionDeclaration = this.collectionDeclaration(elementType);
       return this.emitter.result.declaration(
         ensureCSharpIdentifier(this.emitter.getProgram(), array, name),
-        code`${this.emitter.emitTypeReference(elementType)}[]`,
+        code`${collectionDeclaration}`,
       );
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(elementType)}[]`);
+      return this.collectionDeclaration(elementType);
+    }
+
+    collectionDeclaration(elementType: Type): EmitterOutput<string> {
+      const collectionType = CSharpServiceOptions.getInstance().collectionType;
+      switch (collectionType) {
+        case CollectionType.IEnumerable:
+          return code`IEnumerable<${this.emitter.emitTypeReference(elementType)}>`;
+        case CollectionType.Array:
+        default:
+          return code`${this.emitter.emitTypeReference(elementType)}[]`;
+      }
     }
 
     booleanLiteral(boolean: BooleanLiteral): EmitterOutput<string> {
@@ -540,7 +554,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #findPropertyType(property: ModelProperty): EmittedTypeInfo {
-      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type, property);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {

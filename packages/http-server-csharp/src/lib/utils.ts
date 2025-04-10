@@ -14,6 +14,7 @@ import {
   Union,
   getFriendlyName,
   getMinValue,
+  isArrayModelType,
   isErrorModel,
   isNullType,
   isNumericType,
@@ -41,21 +42,24 @@ import {
   isStatusCode,
 } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
+import { getUniqueItems } from "@typespec/json-schema";
 import { camelCase, pascalCase } from "change-case";
 import { createServer } from "net";
 import { getAttributes } from "./attributes.js";
 import {
   Attribute,
   BooleanValue,
+  CSharpCollectionType,
   CSharpOperationParameter,
   CSharpType,
   CSharpValue,
+  CollectionType,
   NameCasingType,
   NullValue,
   NumericValue,
   StringValue,
 } from "./interfaces.js";
-import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
 import { getDoubleType, getEnumType } from "./type-helpers.js";
 
 const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
@@ -162,15 +166,33 @@ export function getCSharpType(
         if (resolvedItem === undefined) return undefined;
         const { type: itemType, value: _ } = resolvedItem;
 
+        const uniqueItems = getUniqueItems(program, type);
+        const isByte = ["byte", "SByte"].includes(itemType.name);
+        const collectionType = CSharpServiceOptions.getInstance().collectionType;
+
+        const returnTypeCollection = uniqueItems
+          ? CollectionType.ISet
+          : isByte
+            ? CollectionType.Array
+            : collectionType;
+
+        const returnType =
+          returnTypeCollection === CollectionType.Array
+            ? `${itemType.name}[]`
+            : `${returnTypeCollection}<${itemType.name}>`;
         return {
-          type: new CSharpType({
-            name: `${itemType.name}[]`,
-            namespace: itemType.namespace,
-            isBuiltIn: itemType.isBuiltIn,
-            isValueType: false,
-            isClass: itemType.isClass,
-            isCollection: true,
-          }),
+          type: new CSharpCollectionType(
+            {
+              name: returnType,
+              namespace: itemType.namespace,
+              isBuiltIn: itemType.isBuiltIn,
+              isValueType: false,
+              isClass: itemType.isClass,
+              isCollection: true,
+            },
+            returnTypeCollection,
+            itemType.name,
+          ),
         };
       }
       if (isRecord(type))
@@ -974,11 +996,11 @@ export interface EmittedTypeInfo {
 export class CSharpOperationHelpers {
   constructor(inEmitter: AssetEmitter<string, CSharpServiceEmitterOptions>) {
     this.emitter = inEmitter;
-    this.#anonymousModels = new Map<Model, EmittedTypeInfo>();
+    this.#anonymousModels = new Map<Model, EmittedTypeInfo & { hasUniqueItems: boolean }>();
     this.#opCache = new Map<Operation, CSharpOperationParameter[]>();
   }
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
-  #anonymousModels: Map<Model, EmittedTypeInfo>;
+  #anonymousModels: Map<Model, EmittedTypeInfo & { hasUniqueItems: boolean }>;
   #opCache: Map<Operation, CSharpOperationParameter[]>;
   getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
     function safeConcat(...names: (string | undefined)[]): string {
@@ -1102,7 +1124,7 @@ export class CSharpOperationHelpers {
               typeReference: csType,
               defaultValue: csValue,
               nullableType: isNullable,
-            } = this.getTypeInfo(program, propDef.type);
+            } = this.getTypeInfo(program, propDef.type, propDef);
             // cSharp does not allow array defaults in operation parameters
             if (!canHaveDefault(program, propDef)) {
               csValue = undefined;
@@ -1139,7 +1161,7 @@ export class CSharpOperationHelpers {
               typeReference: csType,
               defaultValue: csValue,
               nullableType: isNullable,
-            } = this.getTypeInfo(program, bodyParam.type.type);
+            } = this.getTypeInfo(program, bodyParam.type.type, bodyParam.type);
             if (!canHaveDefault(program, bodyParam.type)) {
               csValue = undefined;
             }
@@ -1191,7 +1213,7 @@ export class CSharpOperationHelpers {
         typeReference: paramType,
         defaultValue: paramValue,
         nullableType: isNullable,
-      } = this.getTypeInfo(program, parameter.param.type);
+      } = this.getTypeInfo(program, parameter.param.type, parameter.param);
       const optName = ensureCSharpIdentifier(
         program,
         parameter.param,
@@ -1215,7 +1237,7 @@ export class CSharpOperationHelpers {
     this.#opCache.set(operation.operation, result);
     return result;
   }
-  getTypeInfo(program: Program, tsType: Type): EmittedTypeInfo {
+  getTypeInfo(program: Program, tsType: Type, modelProperty?: ModelProperty): EmittedTypeInfo {
     const myEmitter = this.emitter;
     function extractStringValue(type: Type, span: StringTemplateSpan): string {
       switch (type.kind) {
@@ -1287,32 +1309,69 @@ export class CSharpOperationHelpers {
           const { defaultValue: itemDefault } = this.getTypeInfo(program, value);
           defaults.push(itemDefault);
         }
-        return {
-          typeReference: code`${csharpType.getTypeReference()}[]`,
-          defaultValue: `[${defaults.join(", ")}]`,
-          nullableType: csharpType.isNullable,
-        };
+        const collectionType = CSharpServiceOptions.getInstance().collectionType;
+
+        switch (collectionType) {
+          case CollectionType.IEnumerable:
+            return {
+              typeReference: code`IEnumerable<${csharpType.getTypeReference()}>`,
+              defaultValue: `new List<${csharpType.getTypeReference()}> {${defaults.join(", ")}}`,
+              nullableType: csharpType.isNullable,
+            };
+          case CollectionType.Array:
+          default:
+            return {
+              typeReference: code`${csharpType.getTypeReference()}[]`,
+              defaultValue: `{${defaults.join(", ")}}`,
+              nullableType: csharpType.isNullable,
+            };
+        }
+
       case "Model":
-        let modelResult: EmittedTypeInfo;
+        let modelResult: EmittedTypeInfo & { hasUniqueItems: boolean };
+        const hasUniqueItems = modelProperty
+          ? getUniqueItems(program, modelProperty) !== undefined
+          : false;
+
         const cachedResult = this.#anonymousModels.get(tsType);
-        if (cachedResult) {
+        if (cachedResult && cachedResult.hasUniqueItems === hasUniqueItems) {
           return cachedResult;
         }
+
         if (isRecord(tsType)) {
           modelResult = {
             typeReference: code`System.Text.Json.Nodes.JsonObject`,
             nullableType: false,
+            hasUniqueItems: hasUniqueItems,
           };
+        } else if (isArrayModelType(program, tsType)) {
+          const typeReference = code`${this.emitter.emitTypeReference(tsType.indexer.value)}`;
+          modelResult = isByteType(tsType.indexer.value)
+            ? {
+                typeReference: code`${typeReference}[]`,
+                nullableType: false,
+                hasUniqueItems: hasUniqueItems,
+              }
+            : {
+                typeReference: hasUniqueItems
+                  ? code`ISet<${typeReference}>`
+                  : code`${this.emitter.emitTypeReference(tsType)}`,
+                nullableType: false,
+                hasUniqueItems: hasUniqueItems,
+              };
         } else {
           modelResult = {
             typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
             nullableType: false,
+            hasUniqueItems: hasUniqueItems,
           };
         }
+
         this.#anonymousModels.set(tsType, modelResult);
+
         return modelResult;
       case "ModelProperty":
-        return this.getTypeInfo(program, tsType.type);
+        return this.getTypeInfo(program, tsType.type, tsType);
       case "Enum":
         if (getEnumType(tsType) === "double")
           return { typeReference: getDoubleType().getTypeReference(), nullableType: false };
@@ -1547,4 +1606,8 @@ export function getStatusCode(program: Program, model: Model) {
     default:
       return { value: getMinValue(program, statusCodeProperty) ?? `default` };
   }
+}
+
+export function isByteType(type: Type): boolean {
+  return type.kind === "Scalar" && ["int8", "uint8"].includes(type.name);
 }

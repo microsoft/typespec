@@ -82,3 +82,9 @@ The service http port when hosting the project locally.
 **Type:** `number`
 
 The service https port when hosting the project locally.
+
+### `collection-type`
+
+**Type:** `"array" | "enumerable"`
+
+Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.
