@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
       - main
+      - publish-perf
       # For patch releases
       - release/*
   paths:
@@ -25,13 +26,9 @@ extends:
         dependsOn: []
         displayName: Build
 
-        pool:
-          name: $(WINDOWSPOOL)
-          image: $(WINDOWSVMIMAGE)
-          os: windows
-
         jobs:
-          - template: /eng/tsp-core/pipelines/jobs/build-for-publish.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/build-packages.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/build-vs.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
           - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
             parameters:
@@ -99,25 +96,3 @@ extends:
                 displayName: "Build"
               - script: docker push $(imageName) --all-tags
                 displayName: "Push"
-
-      - stage: validate_manifest
-        displayName: Validate Manifest
-        dependsOn: build
-        jobs:
-          - job: validate_manifest
-            displayName: Validate Manifest
-            pool:
-              name: $(WINDOWSPOOL)
-              image: $(WINDOWSVMIMAGE)
-              os: windows
-            variables:
-              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-            steps:
-              - template: /eng/tsp-core/pipelines/templates/install.yml
-              - template: /eng/tsp-core/pipelines/templates/build.yml
-
-              - script: pnpm run validate-scenarios --debug
-                displayName: Validate Scenarios
-
-              - script: pnpm run validate-mock-apis --debug
-                displayName: Validate mock apis
