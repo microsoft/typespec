@@ -1473,7 +1473,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return pollResponseType;
         }
         if (details != null && details.getIntermediateType() != null) {
-            pollResponseType = createTypeFromModelName(details.getIntermediateType(), JavaSettings.getInstance());
+            pollResponseType = createTypeFromModelName(details.getIntermediateType());
         }
         // azure-core wants poll response to be non-null
         if (pollResponseType.asNullable() == ClassType.VOID) {
@@ -1490,7 +1490,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return resultType;
         }
         if (details != null && details.getFinalType() != null) {
-            resultType = createTypeFromModelName(details.getFinalType(), JavaSettings.getInstance());
+            resultType = createTypeFromModelName(details.getFinalType());
         }
         // azure-core wants poll response to be non-null
         if (resultType.asNullable() == ClassType.VOID) {
@@ -1597,11 +1597,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
             // PollingDetails would override LongRunningMetadata
             if (pollingDetails.getIntermediateType() != null) {
-                intermediateType
-                    = createTypeFromModelName(pollingDetails.getIntermediateType(), JavaSettings.getInstance());
+                intermediateType = createTypeFromModelName(pollingDetails.getIntermediateType());
             }
             if (pollingDetails.getFinalType() != null) {
-                finalType = createTypeFromModelName(pollingDetails.getFinalType(), JavaSettings.getInstance());
+                finalType = createTypeFromModelName(pollingDetails.getFinalType());
             }
 
             // PollingStrategy
@@ -1640,7 +1639,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param modelName the model name. If it is simple name, package name from JavaSetting will be used.
      * @return IType of the model
      */
-    private static IType createTypeFromModelName(String modelName, JavaSettings settings) {
+    private static IType createTypeFromModelName(String modelName) {
         String finalTypeName;
         String finalTypePackage;
         if (modelName.contains(".")) {
