@@ -6,7 +6,7 @@
 from typing import List, cast
 
 from . import utils
-from ..models import Client, ParameterMethodLocation, Parameter
+from ..models import Client, ParameterMethodLocation, Parameter, ParameterLocation
 from .parameter_serializer import ParameterSerializer, PopKwargType
 from ...utils import build_policies
 
@@ -87,7 +87,7 @@ class ClientSerializer:
                 [
                     '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
                     "_endpoints = get_arm_endpoints(_cloud)",
-                    f"if {endpoint_parameter.client_name} is _Unset:",
+                    f"if not {endpoint_parameter.client_name}:",
                     f'    {endpoint_parameter.client_name} = _endpoints["resource_manager"]',
                     'credential_scopes = kwargs.pop("credential_scopes", _endpoints["credential_scopes"])',
                 ]
@@ -95,7 +95,14 @@ class ClientSerializer:
         config_name = f"{self.client.name}Configuration"
         config_call = ", ".join(
             [
-                f"{p.client_name}={p.client_name}"
+                (
+                    f"{p.client_name}="
+                    + (
+                        f"cast(str, {p.client_name})"
+                        if p.location == ParameterLocation.ENDPOINT_PATH
+                        else p.client_name
+                    )
+                )
                 for p in self.client.config.parameters.method
                 if p.method_location != ParameterMethodLocation.KWARG
             ]

@@ -84,7 +84,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         if self.need_cloud_setting:
             for p in self.parameters.parameters:
                 if p.location == ParameterLocation.ENDPOINT_PATH:
-                    p.default_to_unset_sentinel = True
+                    p.client_default_value = None
                     break
 
     @property
@@ -254,16 +254,9 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
             ImportType.STDLIB,
         )
         if self.need_cloud_setting:
-            file_import.add_submodule_import(
-                "azure.core.settings",
-                "settings",
-                ImportType.SDKCORE,
-            )
-            file_import.add_submodule_import(
-                "azure.mgmt.core.tools",
-                "get_arm_endpoints",
-                ImportType.SDKCORE,
-            )
+            file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
+            file_import.add_submodule_import("azure.core.settings", "settings", ImportType.SDKCORE)
+            file_import.add_submodule_import("azure.mgmt.core.tools", "get_arm_endpoints", ImportType.SDKCORE)
         return file_import
 
     @property
