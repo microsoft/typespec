@@ -39,15 +39,19 @@ export function InterfaceMember(props: InterfaceMemberProps) {
 
   if ($.operation.is(props.type)) {
     const returnType = <TypeExpression type={props.type.returnType} />;
-    const params = <FunctionDeclaration.Parameters type={props.type.parameters} />;
+    const params = (
+      <ay.Scope>
+        <FunctionDeclaration.Parameters type={props.type.parameters} />
+      </ay.Scope>
+    );
 
     return (
       <ts.InterfaceMember
         name={name}
         type={
-          <ay.Scope>
+          <>
             ({params}) =&gt {returnType}
-          </ay.Scope>
+          </>
         }
         refkey={props.refkey ?? ay.refkey(props.type)}
       />
