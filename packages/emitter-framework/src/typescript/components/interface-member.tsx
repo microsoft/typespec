@@ -30,10 +30,9 @@ export function InterfaceMember(props: InterfaceMemberProps) {
     return (
       <ts.InterfaceMember
         name={name}
-        optional={props.optional === true || props.type.optional === true}
+        optional={props.optional ?? props.type.optional}
         type={<TypeExpression type={unpackedType} />}
         refkey={ay.refkey(props.type)}
-        readonly={Boolean(props.type.decorators?.find((d) => d.decorator.name === "@readonly"))}
       />
     );
   }
@@ -47,11 +46,10 @@ export function InterfaceMember(props: InterfaceMemberProps) {
         name={name}
         type={
           <>
-            ({params}): {returnType}
+            ({params}) =&gt {returnType}
           </>
         }
         refkey={props.refkey ?? ay.refkey(props.type)}
-        readonly={Boolean(props.type.decorators?.find((d) => d.decorator.name === "@readonly"))}
       />
     );
   }

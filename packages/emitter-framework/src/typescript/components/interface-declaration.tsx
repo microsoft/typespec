@@ -44,7 +44,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
       refkey={refkey}
       extends={extendsType}
     >
-      {interfaceMembers(props)}
+      <InterfaceBody {...props} />
     </ts.InterfaceDeclaration>
   );
 }
@@ -59,11 +59,11 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
   type: Model | Interface;
 }
 
-export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
+export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
     <>
       {"{"}
-      {interfaceMembers({ type, children })}
+      <InterfaceBody {...props} />
       {"}"}
     </>
   );
@@ -111,11 +111,14 @@ function getExtendsType(type: Model | Interface): Children | undefined {
   );
 }
 
-function interfaceMembers({ type, children }: TypedInterfaceDeclarationProps) {
+/**
+ * Renders the members of an interface from its properties, including any additional children.
+ */
+function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
-  if ($.model.is(type)) {
-    typeMembers = $.model.getProperties(type);
-    const additionalProperties = $.model.getAdditionalPropertiesRecord(type);
+  if ($.model.is(props.type)) {
+    typeMembers = $.model.getProperties(props.type);
+    const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
     if (additionalProperties) {
       typeMembers.set(
         "additionalProperties",
@@ -127,17 +130,17 @@ function interfaceMembers({ type, children }: TypedInterfaceDeclarationProps) {
       );
     }
   } else {
-    typeMembers = createRekeyableMap(type.operations);
+    typeMembers = createRekeyableMap(props.type.operations);
   }
 
   return (
     <>
-      <ay.For each={Array.from(typeMembers.entries())} line ender=";">
-        {([_, prop]) => {
-          return <InterfaceMember type={prop} />;
+      <ay.For each={Array.from(typeMembers.values())} line ender=";">
+        {(typeMember) => {
+          return <InterfaceMember type={typeMember} />;
         }}
       </ay.For>
-      {children}
+      {props.children}
     </>
   );
 }
