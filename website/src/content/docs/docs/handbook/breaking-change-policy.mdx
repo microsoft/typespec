@@ -79,7 +79,7 @@ When those APIs become stable the unstable APIs will be deprecated then removed 
 
 Emitter output are not guaranteed to be producing the exact same output as the previous version for the same input. A change that is semantically equivalent wouldn't be considered a breaking change by the emitter.
 
-### Loading multiple instance of the compiler/libraries
+### Loading multiple instances of the compiler/libraries
 
 TypeSpec runs in a plugin system and it expects that only a single instance of the compiler and each library is loaded at once.
 However in some scenarios, it might happen that multiple instances are loaded, for example trying to run an emitter located in a different project with `tsp compile . --emit /path/to/different/repo`.
