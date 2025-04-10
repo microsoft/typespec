@@ -99,7 +99,7 @@ class ClientSerializer:
                     f"{p.client_name}="
                     + (
                         f"cast(str, {p.client_name})"
-                        if p.location == ParameterLocation.ENDPOINT_PATH
+                        if self.client.need_cloud_setting and p.location == ParameterLocation.ENDPOINT_PATH
                         else p.client_name
                     )
                 )
