@@ -42,7 +42,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateMockClientProvider()
         {
-            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("foo", InputFactory.Operation("foo"));
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(clientResponseApi: TestClientResponseApi.Instance);
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
