@@ -675,7 +675,7 @@ describe("Typescript Interface", () => {
         const expectedContent = await format(
           `export interface WidgetOperationsExtended {
           getName: (id: string) => Widget;
-          delete: (id_2: string) => void;
+          delete: (id: string) => void;
         }
         export interface Widget {
           id: string;

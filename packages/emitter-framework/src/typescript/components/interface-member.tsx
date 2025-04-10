@@ -45,9 +45,9 @@ export function InterfaceMember(props: InterfaceMemberProps) {
       <ts.InterfaceMember
         name={name}
         type={
-          <>
+          <ay.Scope>
             ({params}) =&gt {returnType}
-          </>
+          </ay.Scope>
         }
         refkey={props.refkey ?? ay.refkey(props.type)}
       />
