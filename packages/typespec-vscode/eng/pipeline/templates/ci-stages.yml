@@ -15,4 +15,3 @@ stages:
       os: windows
     jobs:
       - template: /eng/tsp-core/pipelines/templates/build.yml
-      

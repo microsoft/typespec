@@ -38,7 +38,7 @@ interface EmitQuickPickButton extends QuickInputButton {
 
 /**
  * configure emitter.
- * @param context 
+ * @param context
  * @returns emitter
  */
 async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitter | undefined> {

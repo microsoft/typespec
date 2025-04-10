@@ -32,7 +32,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   eng: ["eng/", ".github/"],
   "ui:playground": ["packages/playground/"],
   "ui:type-graph-viewer": ["packages/html-program-viewer/"],
-  spector: ["packages/spector/", "packages/http-specs"]
+  spector: ["packages/spector/", "packages/http-specs"],
 };
 
 /**
