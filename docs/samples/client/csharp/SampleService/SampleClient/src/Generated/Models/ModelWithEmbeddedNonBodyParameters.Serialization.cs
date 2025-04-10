@@ -74,6 +74,10 @@ namespace SampleTypeSpec
                 return null;
             }
             string name = default;
+            string requiredHeader = default;
+            string optionalHeader = default;
+            string requiredQuery = default;
+            string optionalQuery = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -87,7 +91,13 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new ModelWithEmbeddedNonBodyParameters(name, additionalBinaryDataProperties);
+            return new ModelWithEmbeddedNonBodyParameters(
+                name,
+                requiredHeader,
+                optionalHeader,
+                requiredQuery,
+                optionalQuery,
+                additionalBinaryDataProperties);
         }
 
         BinaryData IPersistableModel<ModelWithEmbeddedNonBodyParameters>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
