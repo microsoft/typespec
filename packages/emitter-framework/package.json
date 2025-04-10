@@ -38,7 +38,7 @@
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.10.0",
+    "@alloy-js/cli": "^0.10.1",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@alloy-js/core": "^0.10.0",
     "@alloy-js/typescript": "^0.10.0",

@@ -411,8 +411,8 @@ importers:
   packages/emitter-framework:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.10.0
-        version: 0.10.0
+        specifier: ^0.10.1
+        version: 0.10.1
       '@alloy-js/core':
         specifier: ^0.10.0
         version: 0.10.0
@@ -662,8 +662,8 @@ importers:
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.10.0
-        version: 0.10.0
+        specifier: ^0.10.1
+        version: 0.10.1
       '@alloy-js/core':
         specifier: ^0.10.0
         version: 0.10.0
@@ -720,8 +720,8 @@ importers:
         version: 3.5.3
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.10.0
-        version: 0.10.0
+        specifier: ^0.10.1
+        version: 0.10.1
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
@@ -2657,8 +2657,8 @@ packages:
   '@alloy-js/babel-preset@0.2.0':
     resolution: {integrity: sha512-EbIQiXyRa2Osd5iBwFT2C7s8IBKhQlgMaGA9sasFTo31KGYa5Tim51on8tjdlvGUEWUmJz7KlKA/hjWpchTgDQ==}
 
-  '@alloy-js/cli@0.10.0':
-    resolution: {integrity: sha512-qTEa+E2MSiZlnNFlsxMBOl0Q8As7o+Xfw8at84047gWppdhhaP4ITtNnw5v7EaPUGKePXnfivCG9MdozQfbpFw==}
+  '@alloy-js/cli@0.10.1':
+    resolution: {integrity: sha512-VQ/6uViE7qj0YDjE/IgpaF36IMMmN7JkZ+gAVY0uuMk01sOaoCC6crsdHdaIqJDDj6Vuy8ycv2MO+NseSU4Hhg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -13027,7 +13027,7 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@alloy-js/cli@0.10.0':
+  '@alloy-js/cli@0.10.1':
     dependencies:
       '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
       '@babel/core': 7.26.10
