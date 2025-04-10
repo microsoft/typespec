@@ -1,5 +1,5 @@
 /**
- * This file defines a React component that transforms an HTTP multipart operation part
+ * This file defines a component that transforms an HTTP multipart operation part
  * using Alloy and TypeSpec libraries. It converts the part into a JSON transport format
  * by applying a JSON transformation on the body of the part. The component handles
  * naming policies and content type validations.
@@ -24,7 +24,7 @@ export interface SimplePartTransformProps {
 }
 
 /**
- * React component that transforms a simple HTTP multipart part into a JSON transport format.
+ * Component that transforms a simple HTTP multipart part into a JSON transport format.
  * It validates the part's content type and constructs expressions to reference the part's body,
  * potentially handling nested properties.
  *

@@ -1,5 +1,5 @@
 /*
- * This file contains a React component that transforms an HTTP operation multipart body
+ * This file contains a component that transforms an HTTP operation multipart body
  * into an array representation of multipart parts. Each part is transformed individually
  * using the HttpPartTransform component.
  */

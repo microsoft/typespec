@@ -1,7 +1,7 @@
 /**
  * This file defines utilities for constructing and sending HTTP requests in a paging-enabled operation.
  * It includes functions to generate unique reference keys, parameter definitions for the request functions,
- * and a React component to build the request sending function for a given HTTP operation.
+ * and a component to build the request sending function for a given HTTP operation.
  */
 import * as ay from "@alloy-js/core";
 import { List, Refkey, StatementList, code, refkey } from "@alloy-js/core";

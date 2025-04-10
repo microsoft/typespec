@@ -1,4 +1,4 @@
-// This file defines a React component that transforms an HTTP operation part into its corresponding JSX component.
+// This file defines a component that transforms an HTTP operation part into its corresponding JSX component.
 // Depending on properties of the HTTP operation part, the component delegates rendering to one of three sub-components:
 // - ArrayPartTransform: used for parts that represent multiple values (multi-part).
 // - FilePartTransform: used for parts with an associated filename (file upload).
