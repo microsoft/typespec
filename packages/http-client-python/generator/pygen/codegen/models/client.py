@@ -84,7 +84,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         if self.need_cloud_setting:
             for p in self.parameters.parameters:
                 if p.location == ParameterLocation.ENDPOINT_PATH:
-                    p.client_default_value = None
+                    p.default_to_unset_sentinel = True
                     break
 
     @property
