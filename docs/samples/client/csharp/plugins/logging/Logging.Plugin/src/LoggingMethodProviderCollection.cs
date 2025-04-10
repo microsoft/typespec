@@ -15,8 +15,8 @@ namespace Logging.Plugin
 {
     internal class LoggingMethodProviderCollection : ScmMethodProviderCollection
     {
-        public LoggingMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
-            : base(operation, enclosingType)
+        public LoggingMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+            : base(serviceMethod, enclosingType)
         {
         }
 
