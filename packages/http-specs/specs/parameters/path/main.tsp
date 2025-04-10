@@ -22,7 +22,7 @@ namespace Parameters.Path;
   /normal/foo
   ```
   """)
-@route("/normal")
+@route("/normal/{name}")
 op normal(@path name: string): NoContentResponse;
 
 @scenario
@@ -44,5 +44,5 @@ op normal(@path name: string): NoContentResponse;
   /optional/foo
   ```
   """)
-@route("/optional")
+@route("/optional{/name}")
 op optional(@path name?: string): NoContentResponse;
