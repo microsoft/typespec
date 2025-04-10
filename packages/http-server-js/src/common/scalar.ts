@@ -143,6 +143,21 @@ const DURATION_BIGINT_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
   };
 };
 
+/**
+ * Resolves the encoding of Duration values to a BigDecimal number of seconds.
+ */
+const DURATION_BIGDECIMAL_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
+  module.imports.push(
+    { from: dateTimeModule, binder: ["Duration"] },
+    { from: "decimal.js", binder: ["Decimal"] },
+  );
+
+  return {
+    encodeTemplate: "new Decimal(Duration.totalSeconds({}).toString())",
+    decodeTemplate: "Duration.fromSeconds({}.toNumber())",
+  };
+};
+
 const TYPESPEC_DURATION: ScalarInfo = {
   type: function importDuration(_, module) {
     module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
@@ -163,7 +178,7 @@ const TYPESPEC_DURATION: ScalarInfo = {
       },
     },
     ...Object.fromEntries(
-      ["int32", "uint32"].map((n) => [
+      ["int32", "uint32", "float32", "float64"].map((n) => [
         `TypeSpec.${n}`,
         {
           default: { via: "seconds" },
@@ -180,6 +195,10 @@ const TYPESPEC_DURATION: ScalarInfo = {
         },
       ]),
     ),
+    "TypeSpec.float": {
+      default: { via: "seconds" },
+      seconds: DURATION_BIGDECIMAL_ENCODING,
+    },
   },
   defaultEncodings: {
     byMimeType: {
@@ -200,6 +219,23 @@ const NUMBER: ScalarInfo = {
     },
   },
   isJsonCompatible: true,
+};
+
+const BIGDECIMAL: ScalarInfo = {
+  type(_, module) {
+    module.imports.push({ from: "decimal.js", binder: ["Decimal"] });
+
+    return "Decimal";
+  },
+  encodings: {
+    "TypeSpec.string": {
+      default: {
+        encodeTemplate: "{}.toString()",
+        decodeTemplate: "new Decimal({})",
+      },
+    },
+  },
+  isJsonCompatible: false,
 };
 
 /**
@@ -286,6 +322,11 @@ const SCALARS = new Map<string, ScalarInfo>([
   ["TypeSpec.int16", NUMBER],
   ["TypeSpec.int8", NUMBER],
   ["TypeSpec.safeint", NUMBER],
+
+  ["TypeSpec.numeric", BIGDECIMAL],
+  ["TypeSpec.float", BIGDECIMAL],
+  ["TypeSpec.decimal", BIGDECIMAL],
+  ["TypeSpec.decimal128", BIGDECIMAL],
 
   [
     "TypeSpec.integer",
