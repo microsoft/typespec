@@ -32,7 +32,6 @@ namespace Microsoft.TypeSpec.Generator
         private Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,
-            bool clearOutputFolder,
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
@@ -40,7 +39,6 @@ namespace Microsoft.TypeSpec.Generator
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
-            ClearOutputFolder = clearOutputFolder;
             PackageName = packageName;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
@@ -52,7 +50,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static class Options
         {
-            public const string ClearOutputFolder = "clear-output-folder";
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
@@ -90,11 +87,6 @@ namespace Microsoft.TypeSpec.Generator
         internal string PackageName { get; }
 
         /// <summary>
-        /// True if the output folder should be cleared before generating the code.
-        /// </summary>
-        internal bool ClearOutputFolder { get; private set; }
-
-        /// <summary>
         /// True if a sample project should be generated.
         /// </summary>
         internal bool GenerateSampleProject { get; private set; }
@@ -126,7 +118,6 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadOption(root, Options.ClearOutputFolder),
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
@@ -160,7 +151,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.ClearOutputFolder, true },
             { Options.DisableXmlDocs, false },
         };
 
@@ -169,7 +159,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly HashSet<string> _knownOptions = new()
         {
-            Options.ClearOutputFolder,
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,

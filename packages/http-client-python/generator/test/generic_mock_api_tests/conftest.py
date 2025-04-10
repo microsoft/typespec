@@ -10,7 +10,7 @@ import pytest
 import importlib
 from pathlib import Path
 
-FILE_FOLDER = Path(__file__).parent
+DATA_FOLDER = Path(__file__).parent.parent
 
 
 def start_server_process():
@@ -65,11 +65,11 @@ def key_credential(core_library):
 
 @pytest.fixture
 def png_data() -> bytes:
-    with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
+    with open(str(DATA_FOLDER / "data/image.png"), "rb") as file_in:
         return file_in.read()
 
 
 @pytest.fixture
 def jpg_data() -> bytes:
-    with open(str(FILE_FOLDER / "data/image.jpg"), "rb") as file_in:
+    with open(str(DATA_FOLDER / "data/image.jpg"), "rb") as file_in:
         return file_in.read()

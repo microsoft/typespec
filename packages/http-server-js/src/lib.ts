@@ -148,6 +148,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
       },
     },
+    "unrecognized-media-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`unrecognized media (MIME) type '${"mediaType"}' for type '${"type"}'.`,
+      },
+    },
   },
 });
 
