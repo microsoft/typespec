@@ -52,6 +52,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
       ? `${options["package-pprint-name"]}`
       : `"${options["package-pprint-name"]}"`;
   }
+  console.log("hello")
 }
 
 async function createPythonSdkContext(
