@@ -1540,6 +1540,108 @@ it("handles multipartBody requests and shared routes", async () => {
   );
 });
 
+it("handles complex multipartBody requests", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      model Bar<T extends {}> {
+        ...T;
+      }
+
+      model FileRequiredMetaData extends File {
+        filename: string;
+        contentType: string;
+      }
+        
+      model Address {
+        city: string;
+      }
+
+      model FooRequest {
+        id: HttpPart<string>;
+        address: HttpPart<Address>;
+        profileImage: HttpPart<FileRequiredMetaData>;
+        previousAddresses: HttpPart<Address[]>;
+        pictures: HttpPart<FileRequiredMetaData>[];
+      }
+
+      model FooJsonRequest {
+        mediaType: string;
+        filename: string;
+        contents: bytes;
+      }
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooBinary(
+        @path id: string,
+        @header("content-type") contentType: "multipart/form-data", 
+        @multipartBody body: FooRequest
+      ): void;
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooJson(
+        @path id: string,
+        @header("content-type") contentType: "application/json", 
+        @body body: FooJsonRequest
+      ): void;
+      `,
+    [
+      [
+        "FooJsonRequest.cs",
+        [
+          "public partial class FooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "using Microsoft.AspNetCore.Http.Extensions;",
+          `[Consumes("multipart/form-data")]`,
+          "public virtual async Task<IActionResult> FooBinary(string id)",
+          ".FooBinaryAsync(id, reader)",
+          "public virtual async Task<IActionResult> FooJson(string id, FooJsonRequest body)",
+          ".FooJsonAsync(id, body)",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "Task FooBinaryAsync( string id, MultipartReader reader);",
+          "Task FooJsonAsync( string id, FooJsonRequest body);",
+        ],
+      ],
+      [
+        "BarFooJsonRequest.cs",
+        [
+          "public partial class BarFooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+    ],
+  );
+
+  const files = [...runner.fs.keys()];
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("HttpPartFile.cs")),
+    false,
+  );
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("FooRequest.cs")),
+    false,
+  );
+});
+
 it("Produces NoContent result", async () => {
   await compileAndValidateMultiple(
     runner,

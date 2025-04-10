@@ -141,6 +141,29 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
     #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
+    #getOrAddNamespaceForType(type: Type): string | undefined {
+      switch (type.kind) {
+        case "Boolean":
+        case "String":
+        case "StringTemplate":
+        case "Number":
+        case "Scalar":
+        case "Intrinsic":
+        case "FunctionParameter":
+        case "ScalarConstructor":
+        case "StringTemplateSpan":
+        case "TemplateParameter":
+        case "Tuple":
+          return undefined;
+        case "EnumMember":
+          return this.#getOrAddNamespaceForType(type.enum);
+        case "ModelProperty":
+        case "UnionVariant":
+          return this.#getOrAddNamespaceForType(type.type);
+        default:
+          return this.#getOrAddNamespace(type.namespace);
+      }
+    }
     #getOrAddNamespace(typespecNamespace?: Namespace): string {
       if (!typespecNamespace?.name) return this.#getDefaultNamespace();
       let resolvedNamespace: string | undefined = this.#namespaces.get(typespecNamespace);
@@ -168,11 +191,21 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(elementType)}[]`);
+      this.emitter.emitType(elementType, this.emitter.getContext());
+      const csType = getCSharpType(
+        this.emitter.getProgram(),
+        array,
+        this.#getOrAddNamespaceForType(elementType),
+      );
+      if (csType?.type) {
+        return code`${csType.type.getTypeReference(this.emitter.getContext()?.scope)}`;
+      }
+
+      return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
     }
 
     booleanLiteral(boolean: BooleanLiteral): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${boolean.value === true ? "true" : "false"}`);
+      return code`${boolean.value === true ? "true" : "false"}`;
     }
 
     unionLiteral(union: Union): EmitterOutput<string> {
@@ -423,7 +456,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelDeclarationContext(model: Model, name: string): Context {
-      if (this.#isMultipartModel(model)) return {};
+      if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
@@ -432,7 +465,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelInstantiationContext(model: Model): Context {
-      if (this.#isMultipartModel(model)) return {};
+      if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName: string = getModelInstantiationName(
         this.emitter.getProgram(),
         model,
