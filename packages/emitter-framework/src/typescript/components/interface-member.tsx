@@ -51,6 +51,7 @@ export function InterfaceMember(props: InterfaceMemberProps) {
           </>
         }
         refkey={props.refkey ?? ay.refkey(props.type)}
+        readonly={Boolean(props.type.decorators?.find((d) => d.decorator.name === "@readonly"))}
       />
     );
   }

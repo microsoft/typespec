@@ -49,13 +49,12 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
     <ts.InterfaceDeclaration
       default={props.default}
       export={props.export}
+      children={children}
       kind={props.kind}
       name={name}
       refkey={refkey}
       extends={extendsType}
-    >
-      {children}
-    </ts.InterfaceDeclaration>
+    ></ts.InterfaceDeclaration>
   );
 }
 
