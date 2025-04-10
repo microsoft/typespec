@@ -65,3 +65,9 @@ extends:
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
+
+      # Run vscode stages if RunVSCode == true
+      - template: packages/typespec-vscode/eng/pipelines/stages/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunVSCode'])

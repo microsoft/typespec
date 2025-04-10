@@ -36,6 +36,11 @@ interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
 
+/**
+ * configure emitter.
+ * @param context 
+ * @returns emitter
+ */
 async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitter | undefined> {
   const emitterKinds = getRegisterEmitterTypes();
   const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {

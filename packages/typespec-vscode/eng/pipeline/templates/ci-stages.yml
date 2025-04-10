@@ -1,0 +1,18 @@
+parameters:
+  - name: Condition
+    type: string
+    default: true
+  - name: DependsOn
+    type: object
+    default: []
+
+stages:
+  - stage: vscode_extension_UI_Test
+    displayName: "VSCode Extension UI Test"
+    pool:
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
+    jobs:
+      - template: /eng/tsp-core/pipelines/templates/build.yml
+      

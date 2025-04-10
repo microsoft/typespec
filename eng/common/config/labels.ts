@@ -19,6 +19,10 @@ export const AreaLabels = defineLabels({
     color: "846da1",
     description: "Issues for VS, VSCode, Monaco, etc.",
   },
+  "ide:vscode": {
+    color: "846da1",
+    description: "Issues for VSCode",
+  },
   "lib:http": {
     color: "c7aee6",
     description: "",

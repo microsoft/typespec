@@ -7,6 +7,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "compiler:core": ["packages/compiler/"],
   "compiler:emitter-framework": [],
   ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
+  "ide:vscode": ["packages/typespec-vscode/"],
   "lib:http": ["packages/http/"],
   "lib:openapi": ["packages/openapi/"],
   "lib:rest": ["packages/rest/"],
@@ -31,7 +32,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   eng: ["eng/", ".github/"],
   "ui:playground": ["packages/playground/"],
   "ui:type-graph-viewer": ["packages/html-program-viewer/"],
-  spector: ["packages/spector/", "packages/http-specs"],
+  spector: ["packages/spector/", "packages/http-specs"]
 };
 
 /**
@@ -60,6 +61,7 @@ export const CIRules = {
     ...ignore(AreaPaths["emitter:client:java"]),
     ...ignore(AreaPaths["emitter:client:python"]),
   ],
+  VSCode: [...AreaPaths["ide:vscode"]],
 };
 
 function ignore(paths: string[]) {
