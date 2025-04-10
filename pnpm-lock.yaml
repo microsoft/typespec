@@ -8,12 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@alloy-js/babel-preset':
-        specifier: ^0.2.0
-        version: 0.2.0(@babel/core@7.26.10)
-      '@babel/preset-typescript':
-        specifier: ^7.27.0
-        version: 7.27.0(@babel/core@7.26.10)
       '@chronus/chronus':
         specifier: ^1.0.1
         version: 1.0.1
@@ -416,24 +410,18 @@ importers:
 
   packages/emitter-framework:
     devDependencies:
-      '@alloy-js/babel-preset':
-        specifier: ^0.2.0
-        version: 0.2.0(@babel/core@7.26.10)
+      '@alloy-js/cli':
+        specifier: ^0.10.0
+        version: 0.10.0
       '@alloy-js/core':
         specifier: ^0.10.0
         version: 0.10.0
+      '@alloy-js/rollup-plugin':
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
       '@alloy-js/typescript':
         specifier: ^0.10.0
         version: 0.10.0
-      '@babel/cli':
-        specifier: ^7.24.8
-        version: 7.27.0(@babel/core@7.26.10)
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.26.10
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
       '@types/minimist':
         specifier: ^1.2.5
         version: 1.2.5
@@ -673,24 +661,18 @@ importers:
 
   packages/http-client:
     devDependencies:
-      '@alloy-js/babel-preset':
-        specifier: ^0.2.0
-        version: 0.2.0(@babel/core@7.26.10)
+      '@alloy-js/cli':
+        specifier: ^0.10.0
+        version: 0.10.0
       '@alloy-js/core':
         specifier: ^0.10.0
         version: 0.10.0
+      '@alloy-js/rollup-plugin':
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
       '@alloy-js/typescript':
         specifier: ^0.10.0
         version: 0.10.0
-      '@babel/cli':
-        specifier: ^7.24.8
-        version: 7.27.0(@babel/core@7.26.10)
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.26.10
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.13
@@ -737,18 +719,12 @@ importers:
         specifier: ~3.5.3
         version: 3.5.3
     devDependencies:
-      '@alloy-js/babel-preset':
-        specifier: ^0.2.0
-        version: 0.2.0(@babel/core@7.26.10)
-      '@babel/cli':
-        specifier: ^7.24.8
-        version: 7.27.0(@babel/core@7.26.10)
-      '@babel/core':
-        specifier: ^7.26.10
-        version: 7.26.10
-      '@rollup/plugin-babel':
-        specifier: ^6.0.4
-        version: 6.0.4(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
+      '@alloy-js/cli':
+        specifier: ^0.10.0
+        version: 0.10.0
+      '@alloy-js/rollup-plugin':
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
@@ -2681,8 +2657,17 @@ packages:
   '@alloy-js/babel-preset@0.2.0':
     resolution: {integrity: sha512-EbIQiXyRa2Osd5iBwFT2C7s8IBKhQlgMaGA9sasFTo31KGYa5Tim51on8tjdlvGUEWUmJz7KlKA/hjWpchTgDQ==}
 
+  '@alloy-js/cli@0.10.0':
+    resolution: {integrity: sha512-qTEa+E2MSiZlnNFlsxMBOl0Q8As7o+Xfw8at84047gWppdhhaP4ITtNnw5v7EaPUGKePXnfivCG9MdozQfbpFw==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   '@alloy-js/core@0.10.0':
     resolution: {integrity: sha512-w/ibAFpE0ilr+r9LdlbkAfebV9FkLuxvSvDiWgHaUbOwMDsv/vODNhmDc+YakTY64X71Bn0WwZe9Rub/EvhslQ==}
+
+  '@alloy-js/rollup-plugin@0.1.0':
+    resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
+    engines: {node: '>=18.0.0'}
 
   '@alloy-js/typescript@0.10.0':
     resolution: {integrity: sha512-KjktpJLO7kbvYfxu1wl0jqpfvcSEE3ZABcQZolqHKfze0+IxJ5Fgv8Wh4ZO4nkT+2qrcF/eJ5Y4Ir4Jm0UNwmQ==}
@@ -2843,13 +2828,6 @@ packages:
   '@azure/storage-blob@12.27.0':
     resolution: {integrity: sha512-IQjj9RIzAKatmNca3D6bT0qJ+Pkox1WZGOg2esJF2YLHb45pQKOwGPIAV+w3rfgkj7zV3RMxpn/c6iftzSOZJQ==}
     engines: {node: '>=18.0.0'}
-
-  '@babel/cli@7.27.0':
-    resolution: {integrity: sha512-bZfxn8DRxwiVzDO5CEeV+7IqXeCkzI4yYnrQbpwjT76CUyossQc6RYE7n+xfm0/2k40lPaCpW0FhxYs7EBAetw==}
-    engines: {node: '>=6.9.0'}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
 
   '@babel/code-frame@7.12.11':
     resolution: {integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==}
@@ -4914,9 +4892,6 @@ packages:
 
   '@nevware21/ts-utils@0.11.8':
     resolution: {integrity: sha512-62Y1mHgSu99IK4BRKC3sxdj/uIBHy6SDof3WUd29jom2HQy8sGCUdbYtFwMOkbUS6rahkL11Eg/ImtwsQsCnyw==}
-
-  '@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3':
-    resolution: {integrity: sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -7350,10 +7325,6 @@ packages:
     resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
     engines: {node: '>=18'}
 
-  commander@6.2.1:
-    resolution: {integrity: sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==}
-    engines: {node: '>= 6'}
-
   commander@7.2.0:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
@@ -8507,9 +8478,6 @@ packages:
   fs-minipass@3.0.3:
     resolution: {integrity: sha512-XUBA9XClHbnJWSfBzjkm6RvPsyg3sryZt06BEQoXcF7EK/xpGaQYJgQKDJSUH5SGZ76Y7pFx1QBnXz09rU5Fbw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-
-  fs-readdir-recursive@1.1.0:
-    resolution: {integrity: sha512-GNanXlVr2pf02+sPN40XN8HG+ePaNcvM0q5mZBd668Obwb0yD5GiUbZOFgwn8kGMY6I3mdyDJzieUy3PTYyTRA==}
 
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
@@ -11376,10 +11344,6 @@ packages:
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     hasBin: true
 
-  slash@2.0.0:
-    resolution: {integrity: sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==}
-    engines: {node: '>=6'}
-
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -13063,6 +13027,16 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
 
+  '@alloy-js/cli@0.10.0':
+    dependencies:
+      '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
+      '@babel/core': 7.26.10
+      '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
+      pathe: 1.1.2
+      picocolors: 1.1.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@alloy-js/core@0.10.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
@@ -13074,6 +13048,17 @@ snapshots:
       pathe: 1.1.2
       prettier: 3.5.3
     transitivePeerDependencies:
+      - supports-color
+
+  '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)':
+    dependencies:
+      '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
+      '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
+      '@rollup/plugin-babel': 6.0.4(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@types/babel__core'
+      - rollup
       - supports-color
 
   '@alloy-js/typescript@0.10.0':
@@ -13415,20 +13400,6 @@ snapshots:
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
-
-  '@babel/cli@7.27.0(@babel/core@7.26.10)':
-    dependencies:
-      '@babel/core': 7.26.10
-      '@jridgewell/trace-mapping': 0.3.25
-      commander: 6.2.1
-      convert-source-map: 2.0.0
-      fs-readdir-recursive: 1.1.0
-      glob: 7.2.3
-      make-dir: 2.1.0
-      slash: 2.0.0
-    optionalDependencies:
-      '@nicolo-ribaudo/chokidar-2': 2.1.8-no-fsevents.3
-      chokidar: 3.6.0
 
   '@babel/code-frame@7.12.11':
     dependencies:
@@ -16311,9 +16282,6 @@ snapshots:
       '@nevware21/ts-utils': 0.11.8
 
   '@nevware21/ts-utils@0.11.8': {}
-
-  '@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3':
-    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -19586,8 +19554,6 @@ snapshots:
 
   commander@13.1.0: {}
 
-  commander@6.2.1: {}
-
   commander@7.2.0: {}
 
   commander@8.3.0: {}
@@ -21013,8 +20979,6 @@ snapshots:
   fs-minipass@3.0.3:
     dependencies:
       minipass: 7.1.2
-
-  fs-readdir-recursive@1.1.0: {}
 
   fs.realpath@1.0.0: {}
 
@@ -24746,8 +24710,6 @@ snapshots:
       '@types/sax': 1.2.7
       arg: 5.0.2
       sax: 1.4.1
-
-  slash@2.0.0: {}
 
   slash@3.0.0: {}
 

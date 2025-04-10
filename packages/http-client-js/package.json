@@ -60,10 +60,8 @@
     "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@alloy-js/babel-preset": "^0.2.0",
-    "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.26.10",
-    "@rollup/plugin-babel": "^6.0.4",
+    "@alloy-js/cli": "^0.10.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/yargs": "~17.0.33",
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
