@@ -35,26 +35,17 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const extendsType = props.extends ?? getExtendsType(props.type);
 
-  const members = props.type ? [membersFromType(props.type)] : [];
-
-  const children = [...members];
-
-  if (Array.isArray(props.children)) {
-    children.push(...props.children);
-  } else if (props.children) {
-    children.push(props.children);
-  }
-
   return (
     <ts.InterfaceDeclaration
       default={props.default}
       export={props.export}
-      children={children}
       kind={props.kind}
       name={name}
       refkey={refkey}
       extends={extendsType}
-    ></ts.InterfaceDeclaration>
+    >
+      {interfaceMembers(props)}
+    </ts.InterfaceDeclaration>
   );
 }
 
@@ -69,13 +60,10 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 }
 
 export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
-  const members = type ? membersFromType(type) : [];
-
   return (
     <>
       {"{"}
-      {members}
-      {children}
+      {interfaceMembers({ type, children })}
       {"}"}
     </>
   );
@@ -123,7 +111,7 @@ function getExtendsType(type: Model | Interface): Children | undefined {
   );
 }
 
-function membersFromType(type: Model | Interface): Children {
+function interfaceMembers({ type, children }: TypedInterfaceDeclarationProps) {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(type)) {
     typeMembers = $.model.getProperties(type);
@@ -143,10 +131,13 @@ function membersFromType(type: Model | Interface): Children {
   }
 
   return (
-    <ay.For each={Array.from(typeMembers.entries())} line>
-      {([_, prop]) => {
-        return <InterfaceMember type={prop} />;
-      }}
-    </ay.For>
+    <>
+      <ay.For each={Array.from(typeMembers.entries())} line ender=";">
+        {([_, prop]) => {
+          return <InterfaceMember type={prop} />;
+        }}
+      </ay.For>
+      {children}
+    </>
   );
 }
