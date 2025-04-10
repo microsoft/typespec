@@ -136,7 +136,7 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = null, CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -165,7 +165,7 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = null, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2341,7 +2341,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithContinuationToken(string token = null, CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> ListWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2363,7 +2363,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenAsync(string token = null, CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2445,7 +2445,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithContinuationTokenHeaderResponse(string token = null, CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> ListWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2467,7 +2467,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenHeaderResponseAsync(string token = null, CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2582,6 +2582,136 @@ namespace SampleTypeSpec
             finally
             {
                 Console.WriteLine("Exiting method ListWithPagingAsync.");
+            }
+        }
+
+        /// <summary>
+        /// [Protocol Method] An operation with embedded parameters within the body
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="requiredHeader"/>, <paramref name="requiredQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult EmbeddedParameters(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
+        {
+            try
+            {
+                Console.WriteLine("Entering method EmbeddedParameters.");
+                Argument.AssertNotNull(requiredHeader, nameof(requiredHeader));
+                Argument.AssertNotNull(requiredQuery, nameof(requiredQuery));
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine("Exiting method EmbeddedParameters.");
+            }
+        }
+
+        /// <summary>
+        /// [Protocol Method] An operation with embedded parameters within the body
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="requiredHeader"/>, <paramref name="requiredQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> EmbeddedParametersAsync(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
+        {
+            try
+            {
+                Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                Argument.AssertNotNull(requiredHeader, nameof(requiredHeader));
+                Argument.AssertNotNull(requiredQuery, nameof(requiredQuery));
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine("Exiting method EmbeddedParametersAsync.");
+            }
+        }
+
+        /// <summary> An operation with embedded parameters within the body. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult EmbeddedParameters(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                Console.WriteLine("Entering method EmbeddedParameters.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine("Exiting method EmbeddedParameters.");
+            }
+        }
+
+        /// <summary> An operation with embedded parameters within the body. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> EmbeddedParametersAsync(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine("Exiting method EmbeddedParametersAsync.");
             }
         }
     }

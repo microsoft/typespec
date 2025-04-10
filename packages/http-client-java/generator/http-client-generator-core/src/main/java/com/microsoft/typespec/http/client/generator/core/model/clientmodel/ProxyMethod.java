@@ -349,7 +349,9 @@ public class ProxyMethod {
 
     private IType mapToSyncType(IType type) {
         if (type == GenericType.FLUX_BYTE_BUFFER) {
-            return ClassType.BINARY_DATA;
+            return JavaSettings.getInstance().isInputStreamForBinary()
+                ? GenericType.Response(ClassType.INPUT_STREAM)
+                : GenericType.Response(ClassType.BINARY_DATA);
         }
 
         if (type instanceof GenericType) {
@@ -363,10 +365,11 @@ public class ProxyMethod {
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
-                    } else if (innerGenericType.getName().equals("Response")
-                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER
-                        && JavaSettings.getInstance().isFluent()) {
-                        return GenericType.Response(ClassType.BINARY_DATA);
+                    } else if ((innerGenericType.getName().equals("Response")
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER)) {
+                        return JavaSettings.getInstance().isInputStreamForBinary()
+                            ? GenericType.Response(ClassType.INPUT_STREAM)
+                            : GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
 

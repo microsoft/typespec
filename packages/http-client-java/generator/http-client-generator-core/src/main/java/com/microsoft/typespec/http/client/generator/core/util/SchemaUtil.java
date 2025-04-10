@@ -107,8 +107,14 @@ public class SchemaUtil {
     /*
      * Returns raw response type.
      * In case of binary response:
-     * For DPG, returns BinaryData
-     * For vanilla/mgmt, returns InputStream
+     *
+     * 1. response.binary=true(e.g. Content-Type=application/zip):
+     * For DPG, returns BinaryData.
+     * For vanilla/mgmt, returns InputStream if use-input-stream-for-binary=true, otherwise, returns BinaryData.
+     *
+     * 2. response with BinarySchema(e.g. Content-Type=text/powershell):
+     * For vanilla, returns Flux<ByteBuffer>.
+     * For DPG/mgmt, returns BinaryData.
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
