@@ -90,7 +90,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
     @property
     def need_cloud_setting(self) -> bool:
         return bool(
-            self.code_model.options["azure_arm"]
+            self.code_model.options.get("azure_arm", False)
             and self.credential_scopes is not None
             and self.endpoint_parameter is not None
         )
