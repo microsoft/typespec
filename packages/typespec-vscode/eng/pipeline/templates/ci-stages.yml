@@ -8,10 +8,13 @@ parameters:
 
 stages:
   - stage: vscode_extension_UI_Test
-    displayName: "VSCode Extension UI Test"
+    displayName: "VSCode Extension - UI Test"
     pool:
       name: $(WINDOWSPOOL)
       image: $(WINDOWSVMIMAGE)
       os: windows
     jobs:
-      - template: /eng/tsp-core/pipelines/templates/build.yml
+      - job: UI_Test
+        displayName: "UI Test"
+        steps:
+          - template: /eng/tsp-core/pipelines/templates/build.yml
