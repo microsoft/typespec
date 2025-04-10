@@ -17,4 +17,5 @@ stages:
       - job: UI_Test
         displayName: "UI Test"
         steps:
+          - template: /eng/tsp-core/pipelines/templates/install.yml
           - template: /eng/tsp-core/pipelines/templates/build.yml
