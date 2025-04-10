@@ -35,5 +35,17 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
     );
   }
 
-  return <ts.ObjectProperty name={JSON.stringify(targetName)} value={propertyValue} />;
+  if (props.target === "transport") {
+    return (
+      <ay.NamePolicyContext.Provider value={{ getName: (n) => n }}>
+        <ts.ObjectProperty name={targetName} value={propertyValue} />
+      </ay.NamePolicyContext.Provider>
+    );
+  }
+
+  return (
+    <>
+      <ts.ObjectProperty name={JSON.stringify(targetName)} value={propertyValue} />
+    </>
+  );
 }

@@ -37,10 +37,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     // if they pass in a flavor other than azure, we want to ignore the value
     (options as any).flavor = undefined;
   }
-  if (
-    (options as any).flavor === undefined &&
-    sdkContext.emitContext.emitterOutputDir.includes("azure")
-  ) {
+  if (sdkContext.sdkPackage.crossLanguagePackageId.toLowerCase().includes("azure")) {
     (options as any).flavor = "azure";
   }
 
@@ -163,6 +160,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
+    if (key === "license") continue; // skip license since it is passed in codeModel
     commandArgs[key] = value;
   }
   if (resolvedOptions["generate-packaging-files"]) {

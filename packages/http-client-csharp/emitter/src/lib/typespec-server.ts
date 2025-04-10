@@ -6,7 +6,7 @@ import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
+import { InputParameterKind } from "../type/input-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
@@ -59,7 +59,7 @@ export function resolveServers(
           // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
           getExtensions(sdkContext.program, prop).get("x-ms-skip-url-encoding") === true,
         explode: false,
-        kind: InputOperationParameterKind.Client,
+        kind: InputParameterKind.Client,
         defaultValue: defaultValue,
       };
 
@@ -83,7 +83,7 @@ export function resolveServers(
         isEndpoint: true,
         skipUrlEncoding: false,
         explode: false,
-        kind: InputOperationParameterKind.Client,
+        kind: InputParameterKind.Client,
         defaultValue: {
           type: {
             kind: "string",

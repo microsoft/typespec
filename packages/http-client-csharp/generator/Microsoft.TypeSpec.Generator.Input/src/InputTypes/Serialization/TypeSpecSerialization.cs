@@ -54,6 +54,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputJsonSerializationOptionsConverter(referenceHandler),
                     new TypeSpecInputXmlSerializationOptionsConverter(referenceHandler),
                     new TypeSpecInputXmlNamespaceOptionsConverter(referenceHandler),
+                    new TypeSpecInputServiceMethodConverter(referenceHandler),
+                    new TypeSpecInputServiceMethodResponseConverter(referenceHandler),
                 }
             };
 

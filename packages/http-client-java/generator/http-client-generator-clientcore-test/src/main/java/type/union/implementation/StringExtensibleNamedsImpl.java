@@ -12,7 +12,7 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
-import type.union.GetResponse7;
+import type.union.GetResponse2;
 
 /**
  * An instance of this class provides access to all the operations defined in StringExtensibleNameds.
@@ -49,7 +49,7 @@ public final class StringExtensibleNamedsImpl {
             path = "/type/union/string-extensible-named",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<GetResponse7> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<GetResponse2> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(
@@ -58,7 +58,7 @@ public final class StringExtensibleNamedsImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> sendSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData sendRequest7, RequestOptions requestOptions);
+            @BodyParam("application/json") BinaryData sendRequest2, RequestOptions requestOptions);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class StringExtensibleNamedsImpl {
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<GetResponse7> getWithResponse(RequestOptions requestOptions) {
+    public Response<GetResponse2> getWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions);
     }
@@ -94,13 +94,13 @@ public final class StringExtensibleNamedsImpl {
      * }
      * </pre>
      * 
-     * @param sendRequest7 The sendRequest7 parameter.
+     * @param sendRequest2 The sendRequest2 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<Void> sendWithResponse(BinaryData sendRequest7, RequestOptions requestOptions) {
+    public Response<Void> sendWithResponse(BinaryData sendRequest2, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest7, requestOptions);
+        return service.sendSync(this.client.getEndpoint(), contentType, sendRequest2, requestOptions);
     }
 }

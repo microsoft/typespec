@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "0.67.1",
+  "version": "1.0.0-rc.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -49,7 +49,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
     "api-extractor": "api-extractor run --local --verbose",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",

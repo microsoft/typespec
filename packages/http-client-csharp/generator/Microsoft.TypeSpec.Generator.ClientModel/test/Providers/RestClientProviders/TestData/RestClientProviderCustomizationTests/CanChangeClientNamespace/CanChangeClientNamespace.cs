@@ -3,7 +3,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Custom;
 

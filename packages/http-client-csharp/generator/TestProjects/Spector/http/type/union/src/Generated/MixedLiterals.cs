@@ -19,9 +19,9 @@ namespace _Type.Union
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<GetResponse1> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<GetResponse8> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<GetResponse1>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<GetResponse8>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 

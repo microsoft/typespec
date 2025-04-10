@@ -14,6 +14,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.util.Base64Url;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import encode.bytes.implementation.ResponseBodiesImpl;
@@ -135,7 +136,7 @@ public final class ResponseBodyAsyncClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * Base64Url
      * }
      * </pre>
      * 
@@ -241,6 +242,6 @@ public final class ResponseBodyAsyncClient {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return base64urlWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(byte[].class));
+            .map(protocolMethodData -> protocolMethodData.toObject(Base64Url.class).decodedBytes());
     }
 }
