@@ -972,13 +972,11 @@ public class ClientModelUtil {
      * @return the ModelPropertySegment represents the model and property
      */
     public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
-        ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
-        ClientModelProperty property = Stream
-            .concat(responseBodyModel.getProperties().stream(),
-                ClientModelUtil.getParentProperties(responseBodyModel).stream())
-            .filter(p -> p.getSerializedName().equals(propertySerializedName))
-            .findAny()
-            .orElse(null);
+        final ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        final Stream<ClientModelProperty> allProperties = Stream.concat(responseBodyModel.getProperties().stream(),
+            ClientModelUtil.getParentProperties(responseBodyModel).stream());
+        final ClientModelProperty property
+            = allProperties.filter(p -> p.getSerializedName().equals(propertySerializedName)).findAny().orElse(null);
         return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
     }
 
