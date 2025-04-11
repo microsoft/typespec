@@ -1,7 +1,14 @@
 import * as ay from "@alloy-js/core";
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
+import {
+  Interface,
+  isNeverType,
+  Model,
+  ModelProperty,
+  Operation,
+  RekeyableMap,
+} from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { reportDiagnostic } from "../../lib.js";
@@ -133,9 +140,18 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
     typeMembers = createRekeyableMap(props.type.operations);
   }
 
+  // Ensure that we have members to render, otherwise skip rendering the ender property.
+  const validTypeMembers = Array.from(typeMembers.values()).filter((member) => {
+    if ($.modelProperty.is(member) && isNeverType(member.type)) {
+      return false;
+    }
+    return true;
+  });
+  const enderProp = validTypeMembers.length > 0 ? { ender: ";" } : {};
+
   return (
     <>
-      <ay.For each={Array.from(typeMembers.values())} line ender=";">
+      <ay.For each={validTypeMembers} line {...enderProp}>
         {(typeMember) => {
           return <InterfaceMember type={typeMember} />;
         }}

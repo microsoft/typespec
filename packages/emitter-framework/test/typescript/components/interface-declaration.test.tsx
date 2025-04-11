@@ -337,6 +337,39 @@ describe("Typescript Interface", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
+      it("renders an empty interface", async () => {
+        const program = await getProgram(`
+        namespace DemoService;
+    
+        model Widget{
+          property: never;
+        }
+        `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const models = Array.from((namespace as Namespace).models.values());
+
+        const res = render(
+          <Output>
+            <SourceFile path="test.ts">
+              <InterfaceDeclaration export type={models[0]} />
+            </SourceFile>
+          </Output>,
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+        const expectedContent = await format(
+          `export interface Widget {
+          }`,
+          {
+            parser: "typescript",
+          },
+        );
+        expect(actualContent).toBe(expectedContent);
+      });
+
       it("can override interface name", async () => {
         const program = await getProgram(`
         namespace DemoService;
