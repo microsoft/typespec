@@ -6,9 +6,11 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities
@@ -392,6 +394,41 @@ public class Operation extends Metadata {
      */
     public Boolean getInternalApi() {
         return internalApi;
+    }
+
+    /**
+     * Checks if this operation is pageable.
+     *
+     * @return true if this operation is pageable, false otherwise.
+     */
+    public boolean isPageable() {
+        final XmsExtensions extensions = super.getExtensions();
+        return extensions != null && extensions.getXmsPageable() != null;
+    }
+
+    /**
+     * Checks if this operation is a long-running operation (LRO).
+     *
+     * @return true if this operation is a long-running operation, false otherwise.
+     */
+    public boolean isLro() {
+        final XmsExtensions extensions = super.getExtensions();
+        return extensions != null && extensions.isXmsLongRunningOperation();
+    }
+
+    /**
+     * Checks if this operation has a header schema response.
+     *
+     * @return true if this operation has a header schema response, false otherwise.
+     */
+    public boolean hasHeaderSchemaResponse() {
+        return this.getResponses()
+            .stream()
+            .filter(r -> r.getProtocol() != null
+                && r.getProtocol().getHttp() != null
+                && r.getProtocol().getHttp().getHeaders() != null)
+            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
+            .anyMatch(Objects::nonNull);
     }
 
     /**

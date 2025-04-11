@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -213,9 +212,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                final boolean isPageable
-                    = operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null;
-                if (isPageable) {
+                if (operation.isPageable()) {
                     // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
                     // PagedIterable.iterableByPage(int)
 
@@ -256,29 +253,28 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         parameters.add(clientMethodParameter);
                     }
 
-                    if (!(parameter.getSchema() instanceof ConstantSchema) && parameter.getGroupedBy() == null) {
-                        MethodParameter methodParameter;
-                        String expression;
+                    transformationProcessor.addParameter(clientMethodParameter, parameter);
+
+                    if (!parameter.isConstant() && parameter.getGroupedBy() == null) {
+                        final MethodParameter methodParameter;
+                        final String expression;
                         if (parameter.getImplementation() != Parameter.ImplementationLocation.CLIENT) {
                             methodParameter = clientMethodParameter;
-                            expression = clientMethodParameter.getName();
+                            expression = methodParameter.getName();
                         } else {
                             ProxyMethodParameter proxyParameter = Mappers.getProxyParameterMapper().map(parameter);
                             methodParameter = proxyParameter;
                             expression = proxyParameter.getParameterReference();
                         }
 
-                        // Validations
-                        if (methodParameter.isRequired()
-                            && !(methodParameter.getClientType() instanceof PrimitiveType)) {
+                        if (methodParameter.isRequired() && methodParameter.isReference()) {
                             requiredParameterExpressions.add(expression);
                         }
-                        String validation = methodParameter.getClientType().validate(expression);
+                        final String validation = methodParameter.getClientType().validate(expression);
                         if (validation != null) {
                             validateExpressions.put(expression, validation);
                         }
                     }
-                    transformationProcessor.addParameter(clientMethodParameter, parameter);
                 }
 
                 final ParameterTransformations transformations = transformationProcessor.process(request);
@@ -288,12 +284,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final boolean generateOnlyRequiredParameters = settings.isRequiredParameterClientMethods()
                     && defaultOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
 
-                JavaVisibility methodVisibilityInWrapperClient = JavaVisibility.Public;
+                final JavaVisibility methodVisibilityInWrapperClient;
                 if (operation.getInternalApi() == Boolean.TRUE
                     || (isProtocolMethod && operation.getGenerateProtocolApi() == Boolean.FALSE)) {
                     // Client method is package private in wrapper client, so that the client or developer can still
                     // invoke it.
                     methodVisibilityInWrapperClient = JavaVisibility.PackagePrivate;
+                } else {
+                    methodVisibilityInWrapperClient = JavaVisibility.Public;
                 }
 
                 builder.parameters(parameters)
@@ -303,7 +301,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
                     .methodPageDetails(null);
 
-                if (isPageable) {
+                if (operation.isPageable()) {
                     IType responseType = proxyMethod.getRawResponseBodyType() != null
                         ? proxyMethod.getRawResponseBodyType()
                         : proxyMethod.getResponseBodyType();
@@ -333,8 +331,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                 generateOnlyRequiredParameters, defaultOverloadType);
                         }
                     }
-                } else if (operation.getExtensions() != null
-                    && operation.getExtensions().isXmsLongRunningOperation()
+                } else if (operation.isLro()
                     && (settings.isFluent() || settings.getPollingConfig("default") != null)
                     && !returnTypeHolder.syncReturnType.equals(ClassType.INPUT_STREAM)) {
                     // temporary skip InputStream, no idea how to do this in PollerFlux
@@ -1473,7 +1470,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return pollResponseType;
         }
         if (details != null && details.getIntermediateType() != null) {
-            pollResponseType = createTypeFromModelName(details.getIntermediateType(), JavaSettings.getInstance());
+            pollResponseType = createTypeFromModelName(details.getIntermediateType());
         }
         // azure-core wants poll response to be non-null
         if (pollResponseType.asNullable() == ClassType.VOID) {
@@ -1490,7 +1487,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return resultType;
         }
         if (details != null && details.getFinalType() != null) {
-            resultType = createTypeFromModelName(details.getFinalType(), JavaSettings.getInstance());
+            resultType = createTypeFromModelName(details.getFinalType());
         }
         // azure-core wants poll response to be non-null
         if (resultType.asNullable() == ClassType.VOID) {
@@ -1597,11 +1594,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
             // PollingDetails would override LongRunningMetadata
             if (pollingDetails.getIntermediateType() != null) {
-                intermediateType
-                    = createTypeFromModelName(pollingDetails.getIntermediateType(), JavaSettings.getInstance());
+                intermediateType = createTypeFromModelName(pollingDetails.getIntermediateType());
             }
             if (pollingDetails.getFinalType() != null) {
-                finalType = createTypeFromModelName(pollingDetails.getFinalType(), JavaSettings.getInstance());
+                finalType = createTypeFromModelName(pollingDetails.getFinalType());
             }
 
             // PollingStrategy
@@ -1640,7 +1636,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param modelName the model name. If it is simple name, package name from JavaSetting will be used.
      * @return IType of the model
      */
-    private static IType createTypeFromModelName(String modelName, JavaSettings settings) {
+    private static IType createTypeFromModelName(String modelName) {
         String finalTypeName;
         String finalTypePackage;
         if (modelName.contains(".")) {

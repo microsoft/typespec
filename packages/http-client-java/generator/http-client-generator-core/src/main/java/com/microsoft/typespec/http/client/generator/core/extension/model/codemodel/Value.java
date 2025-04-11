@@ -167,6 +167,15 @@ public class Value extends Metadata {
     }
 
     /**
+     * Checks if the value is a constant.
+     *
+     * @return true if the value is a constant, false otherwise.
+     */
+    public boolean isConstant() {
+        return schema instanceof ConstantSchema;
+    }
+
+    /**
      * Sets the schema of the value. (Required)
      *
      * @param schema The schema of the value.

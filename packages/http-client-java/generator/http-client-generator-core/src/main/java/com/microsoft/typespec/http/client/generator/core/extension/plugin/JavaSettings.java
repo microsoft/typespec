@@ -1312,6 +1312,9 @@ public class JavaSettings {
 
         /**
          * Gets the strategy for polling.
+         * <p>
+         * See the 'com.azure.core.util.polling.PollingStrategy' contract for more details.
+         * </p>
          *
          * @return The strategy for polling.
          */
@@ -1325,6 +1328,9 @@ public class JavaSettings {
 
         /**
          * Gets the sync strategy for polling.
+         * <p>
+         * See the 'com.azure.core.util.polling.PollingStrategy' contract for more details.
+         * </p>
          *
          * @return The sync strategy for polling.
          */
@@ -1337,7 +1343,7 @@ public class JavaSettings {
         }
 
         /**
-         * Gets the intermediate type for polling.
+         * Gets the type of the poll response when the long-running operation is in progress.
          *
          * @return The intermediate type for polling.
          */
@@ -1346,7 +1352,7 @@ public class JavaSettings {
         }
 
         /**
-         * Gets the final type for polling.
+         * Gets the type of the poll response once the long-running operation is completed.
          *
          * @return The final type for polling.
          */
@@ -1414,16 +1420,16 @@ public class JavaSettings {
     /**
      * Gets the polling configuration for the specified operation.
      *
-     * @param operation The operation name.
+     * @param operationId The operation name.
      * @return The polling configuration for the specified operation, or the default polling configuration if no
      * configuration is specified for the operation.
      */
-    public PollingDetails getPollingConfig(String operation) {
+    public PollingDetails getPollingConfig(String operationId) {
         if (pollingConfig == null) {
             return null;
         }
         for (String key : pollingConfig.keySet()) {
-            if (key.equalsIgnoreCase(operation)) {
+            if (key.equalsIgnoreCase(operationId)) {
                 return pollingConfig.get(key);
             }
         }
