@@ -894,7 +894,7 @@ This test is testing sending a ssv collection format array query parameters
 
 ### Parameters_Path_normal
 
-- Endpoint: `get /parameters/path/normal`
+- Endpoint: `get /parameters/path/normal/{name}`
 
 Test case for normal path parameter.
 
@@ -912,7 +912,7 @@ Expected request path:
 
 ### Parameters_Path_optional
 
-- Endpoint: `get /parameters/path/optional`
+- Endpoint: `get /parameters/path/optional{/name}`
 
 Test case for optional path parameter.
 
