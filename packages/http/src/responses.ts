@@ -2,6 +2,7 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  getDiscriminatedUnion,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
@@ -31,7 +32,7 @@ export function getResponsesForOperation(
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
   const responses = new ResponseIndex();
-  if (responseType.kind === "Union") {
+  if (responseType.kind === "Union" && !getDiscriminatedUnion(program, responseType)[0]) {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
