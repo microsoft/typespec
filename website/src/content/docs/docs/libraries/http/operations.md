@@ -107,10 +107,10 @@ namespace Pets {
 
 ### `@body` vs `@bodyRoot`
 
-The `@body` decorator defines the property which type will be exactly the body. Annotating a property inside a `@body` with applicable metadata (`@header`, `@path`, `@query` for request and `@header`, `@statusCode` for response) will be ignored and log a warning.
+The `@body` decorator applies to a request parameter or model property. The type of that decorated property or parameter will be exactly the http request or response body. If the body type is a Model, annotating any property in that model with applicable metadata (`@header`, `@path`, `@query` for request and `@header`, `@statusCode` for response) will be ignored and log a warning.
 The `@bodyRoot` decorator similarly applies to a property or parameter.  The type of that decorated property or parameter is similarly used to define the request or response body.  If the body type is not a model, the behavior is identical to `@body`. If the body type is a model, instead of exactly defining *only* the body, the model may also contain properties annotated as applicable http metadata. Such properties will be treated as http metadata, will not be included in the request or response body, and will not result in a warning.
 
-Nesting `@body` and `@bodyRoot` while mostly pointless can happen when using templates to build operations. A warning will be emitted if nesting happens inline.
+Nesting `@body` and `@bodyRoot`, while mostly pointless, can happen when using templates to build operations. A warning will be emitted if nesting happens inline.
 The meaning when nesting them is as follow:
 
 - As soon as `@body` is reached the content is exactly the body which means any nested `@bodyRoot` or `@body` will be ignored.
