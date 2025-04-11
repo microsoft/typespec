@@ -68,11 +68,9 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 
 export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
-    <>
-      {"{"}
+    <ay.Block>
       <InterfaceBody {...props} />
-      {"}"}
-    </>
+    </ay.Block>
   );
 }
 
