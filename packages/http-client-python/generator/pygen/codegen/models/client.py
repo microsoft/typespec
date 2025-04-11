@@ -85,6 +85,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
             for p in self.parameters.parameters:
                 if p.location == ParameterLocation.ENDPOINT_PATH:
                     p.client_default_value = None
+                    p.optional = True
                     break
 
     @property
