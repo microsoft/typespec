@@ -122,7 +122,12 @@ class ParameterSerializer:
         retval = ["path_format_arguments = {"]
         retval.extend(
             [
-                '    "{}": {},'.format(
+                '{}    "{}": {},'.format(
+                    (
+                        f'"" if {path_parameter.full_client_name} is None else "/" + '
+                        if path_parameter.optional
+                        else ""
+                    ),
                     path_parameter.wire_name,
                     self.serialize_parameter(path_parameter, serializer_name),
                 )
