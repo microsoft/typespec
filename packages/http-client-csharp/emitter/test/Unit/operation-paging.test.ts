@@ -41,7 +41,7 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -72,7 +72,7 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -105,7 +105,7 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -136,7 +136,7 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -151,7 +151,7 @@ describe("Next link operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
 });
@@ -181,7 +181,7 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -213,7 +213,7 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -246,7 +246,7 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -279,7 +279,7 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -312,7 +312,7 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].operations[0].paging;
+    const paging = root.clients[0].methods[0].operation.paging;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -331,7 +331,7 @@ describe("Continuation token operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].methods[0].operation.crossLanguageDefinitionId}.`,
     );
   });
 });

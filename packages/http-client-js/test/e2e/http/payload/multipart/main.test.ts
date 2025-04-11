@@ -74,7 +74,7 @@ describe("Payload.MultiPart", () => {
     });
 
     it("should send anonymous model with multipart/form-data", async () => {
-      await client.anonymousModel(jpegContents);
+      await client.anonymousModel({ profileImage: jpegContents });
     });
   });
 

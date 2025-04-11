@@ -105,23 +105,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
+        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
         /// </summary>
-        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="serviceMethod>The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
-        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        internal MethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {
-            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
+            MethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
             var visitors = ScmCodeModelGenerator.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
-                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                    methods = scmVisitor.Visit(serviceMethod, enclosingType, methods);
                 }
             }
             return methods;

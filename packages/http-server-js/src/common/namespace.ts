@@ -23,7 +23,15 @@ import { emitOperationGroup } from "./interface.js";
  * @param namespace - The root namespace to begin traversing.
  */
 export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
-  const { enums, interfaces, models, unions, namespaces, scalars, operations } = namespace;
+  const {
+    enums,
+    interfaces,
+    models,
+    unions,
+    namespaces,
+    scalars,
+    operations: _operations,
+  } = namespace;
 
   for (const type of cat<DeclarationType>(
     enums.values(),
@@ -41,7 +49,9 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
     visitAllTypes(ctx, ns);
   }
 
-  if (operations.size > 0) {
+  const operations = [..._operations.values()].filter((op) => op.isFinished);
+
+  if (operations.length > 0) {
     // If the namespace has any floating operations in it, we will synthesize an interface for them in the parent module.
     // This requires some special handling by other parts of the emitter to ensure that the interface for a namespace's
     // own operations is properly imported.
