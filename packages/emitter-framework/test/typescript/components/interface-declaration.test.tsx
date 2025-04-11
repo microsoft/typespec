@@ -337,7 +337,7 @@ describe("Typescript Interface", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
-      it("renders an empty interface", async () => {
+      it("renders an empty interface with a never-typed member", async () => {
         const program = await getProgram(`
         namespace DemoService;
     
