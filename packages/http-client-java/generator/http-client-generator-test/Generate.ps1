@@ -34,6 +34,9 @@ $generateScript = {
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
+  } elseif ($tspFile -match "client[\\/]namespace[\\/]") {
+    # specify the namespace, but @clientNamespace in client.tsp should take precedence
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=client.namespace"""
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
     # override examples-dir
     $tspOptions += " --option ""@typespec/http-client-java.examples-dir={project-root}/specs/azure/example/basic/examples"""
