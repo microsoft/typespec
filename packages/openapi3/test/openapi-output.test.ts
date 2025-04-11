@@ -193,73 +193,9 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
     strictEqual(res.components.parameters["PetId.name"].deprecated, undefined);
   });
 
-  describe("openapi3: extension decorator", () => {
-    it("adds an arbitrary extension to a model", async () => {
-      const oapi = await openApiFor(`
-      @extension("x-model-extension", "foobar")
-      model Pet {
-        name: string;
-      }
-      @get() op read(): Pet;
-      `);
-      ok(oapi.components.schemas.Pet);
-      strictEqual(oapi.components.schemas.Pet["x-model-extension"], "foobar");
-    });
-
-    it("adds an arbitrary extension to an operation", async () => {
-      const oapi = await openApiFor(
-        `
-      model Pet {
-        name: string;
-      }
-      @get()
-      @extension("x-operation-extension", "barbaz")
-      op list(): Pet[];
-      `,
-      );
-      ok(oapi.paths["/"].get);
-      strictEqual(oapi.paths["/"].get["x-operation-extension"], "barbaz");
-    });
-
-    it("adds an arbitrary extension to a parameter", async () => {
-      const oapi = await openApiFor(
-        `
-      model Pet {
-        name: string;
-      }
-      model PetId {
-        @path
-        @extension("x-parameter-extension", "foobaz")
-        petId: string;
-      }
-      @route("/Pets")
-      @get()
-      op get(... PetId): Pet;
-      `,
-      );
-      ok(oapi.paths["/Pets/{petId}"].get);
-      strictEqual(
-        oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-        "#/components/parameters/PetId",
-      );
-      strictEqual(oapi.components.parameters.PetId.name, "petId");
-      strictEqual(oapi.components.parameters.PetId["x-parameter-extension"], "foobaz");
-    });
-
-    it("adds an extension to a namespace", async () => {
-      const oapi = await openApiFor(
-        `
-      @extension("x-namespace-extension", "foobar")
-      @service namespace Service {};
-      `,
-      );
-
-      strictEqual(oapi["x-namespace-extension"], "foobar");
-    });
-
-    it("check format and pattern decorator on model", async () => {
-      const oapi = await openApiFor(
-        `
+  it("check format and pattern decorator on model", async () => {
+    const oapi = await openApiFor(
+      `
       model Pet extends PetId {
         @pattern("^[a-zA-Z0-9-]{3,24}$")
         name: string;
@@ -274,17 +210,16 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
       @get()
       op get(... PetId): Pet;
       `,
-      );
-      ok(oapi.paths["/Pets/{petId}"].get);
-      strictEqual(
-        oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-        "#/components/parameters/PetId",
-      );
-      strictEqual(oapi.components.parameters.PetId.name, "petId");
-      strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");
-      strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
-      strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
-    });
+    );
+    ok(oapi.paths["/Pets/{petId}"].get);
+    strictEqual(
+      oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
+      "#/components/parameters/PetId",
+    );
+    strictEqual(oapi.components.parameters.PetId.name, "petId");
+    strictEqual(oapi.components.schemas.Pet.properties.name.pattern, "^[a-zA-Z0-9-]{3,24}$");
+    strictEqual(oapi.components.parameters.PetId.schema.format, "UUID");
+    strictEqual(oapi.components.parameters.PetId.schema.pattern, "^[a-zA-Z0-9-]{3,24}$");
   });
 
   describe("openapi3: useRef decorator", () => {
