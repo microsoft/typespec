@@ -114,7 +114,7 @@ Nesting `@body` and `@bodyRoot` while mostly pointless can happen when using tem
 The meaning when nesting them is as follow:
 
 - As soon as `@body` is reached the content is exactly the body which means any nested `@bodyRoot` or `@body` will be ignored.
-- When reaching a `@bodyRoot` it will keep looking for `@body` and `@bodyRoot` nested and if found the deepest one will be used as the body.
+- if `@bodyRoot` is reached before any occurrence of `@body`, it will keep looking for nested properties decorated with  `@body` or `@bodyRoot` and if found the deepest one will be used to determine the body.
 
 Examples
 
