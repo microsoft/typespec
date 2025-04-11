@@ -76,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
-                .. GetMultipartFormDataBinaryContentDefinition()
+                .. GetMultipartFormDataBinaryContentDefinition(),
+                new ModelReaderWriterContextDefinition()
             ];
         }
 

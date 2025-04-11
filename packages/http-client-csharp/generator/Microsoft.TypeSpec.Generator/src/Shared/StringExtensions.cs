@@ -289,5 +289,22 @@ namespace Microsoft.TypeSpec.Generator
             // otherwise, right is longer, we check its next character, if it is the dot, return true, otherwise return false.
             return rightSpan[^(leftSpan.Length + 1)] == '.';
         }
+
+        public static string RemovePeriods(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            Span<char> buffer = stackalloc char[input.Length];
+            int index = 0;
+
+            foreach (char c in input)
+            {
+                if (c != '.')
+                    buffer[index++] = c;
+            }
+
+            return buffer.Slice(0, index).ToString();
+        }
     }
 }
