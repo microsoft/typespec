@@ -1454,7 +1454,7 @@ export class CSharpOperationHelpers {
           };
         } else {
           modelResult = {
-            typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+            typeReference: code`${this.emitter.emitTypeReference(tsType, this.emitter.getContext())}`,
             nullableType: false,
           };
         }

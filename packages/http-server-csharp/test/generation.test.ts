@@ -35,6 +35,18 @@ function assertFileContains(fileName: string, fileContents: string, searchString
   );
 }
 
+function assertFileDoesNotContain(
+  fileName: string,
+  fileContents: string,
+  searchString: string,
+): void {
+  assert.strictEqual(
+    fileContents.includes(searchString),
+    false,
+    `Unwanted "${searchString}" found in ${fileName}, contents of file: ${fileContents}`,
+  );
+}
+
 async function compileAndValidateSingleModel(
   runner: BasicTestRunner,
   code: string,
@@ -55,16 +67,27 @@ async function compile(
 
 async function compileAndValidateMultiple(
   runner: BasicTestRunner,
-  code: string,
+  code: string | [string, string],
   fileChecks: [string, string[]][],
+  notFileChecks?: [string, string[]][],
 ): Promise<void> {
-  const spec = getStandardService(code);
+  const spec =
+    typeof code === "string" ? getStandardService(code) : getStandardService(code[0], code[1]);
   await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
       assertFileContains(modelKey, modelContents, element);
     });
+  }
+
+  if (notFileChecks) {
+    for (const [fileToCheck, expectedContent] of notFileChecks) {
+      const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
+      expectedContent.forEach((element) => {
+        assertFileDoesNotContain(modelKey, modelContents, element);
+      });
+    }
   }
 }
 
@@ -1260,6 +1283,135 @@ it("generates appropriate types for records", async () => {
   );
 });
 
+it("generates appropriate types for inherited instantiated models", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model BarResponse extends File {
+        
+      }
+
+      @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
+      @route("/foo") @get op bar(): BarResponse;
+      `,
+    [
+      [
+        "FileStringNameBytes.cs",
+        ["namespace TypeSpec.Http", "public partial class FileStringNameBytes"],
+      ],
+      [
+        "BarResponse.cs",
+        [
+          "using TypeSpec.Http;",
+          "namespace Microsoft.Contoso",
+          "public partial class BarResponse : FileStringNameBytes",
+        ],
+      ],
+      [
+        "ContosoOperationsFooRequest.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
+          "public partial class ContosoOperationsFooRequest",
+          "public JsonObject RecordProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso.Controllers",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(JsonObject))]",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          `public virtual async Task<IActionResult> Bar()`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
+          `Task<JsonObject> FooAsync( JsonObject recordProp);`,
+          `Task<BarResponse> BarAsync( );`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates appropriate types for arrays", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    [
+      `
+      @doc("Template to have Array operations")
+      interface ArrayOperations<TArr> {
+        /** Get an array value */
+        @get
+        get(): TArr;
+ 
+        /** Put an array value */
+        @put
+        put(@body body: TArr): void;
+      }
+
+
+      @doc("Array inner model")
+    model InnerModel {
+      @doc("Required string property")
+      property: string;
+
+      @doc("self reference")
+      children?: InnerModel[];
+    }
+
+    alias NullableModel = InnerModel | null;
+    @doc("Array of nullable model values")
+    @route("/nullable-model")
+    interface NullableModelValue
+      extends ArrayOperations<NullableModel[]> {}
+      `,
+      "Type.Array",
+    ],
+    [
+      [
+        "InnerModel.cs",
+        [
+          "namespace TypeName.Array",
+          "public partial class InnerModel",
+          "public string Property { get; set; }",
+          "public InnerModel[] Children { get; set; }",
+        ],
+      ],
+      [
+        "NullableModelValueController.cs",
+        [
+          "using TypeName.Array;",
+          "namespace TypeName.Array.Controllers",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(InnerModel[]))]",
+          `public virtual async Task<IActionResult> GetName()`,
+          "[ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]",
+          `public virtual async Task<IActionResult> Put(InnerModel[] body)`,
+        ],
+      ],
+      [
+        "INullableModelValue.cs",
+        [
+          "namespace TypeName.Array",
+          `Task<InnerModel[]> GetNameAsync( );`,
+          `Task PutAsync( InnerModel[] body);`,
+        ],
+      ],
+    ],
+    [
+      ["InnerModel.cs", ["using TypeSpec.Service", "using undefined"]],
+      ["INullableModelValue.cs", ["using TypeSpec.Service", "using undefined"]],
+      ["NullableModelValueController.cs", ["using TypeSpec.Service", "using undefined"]],
+    ],
+  );
+});
+
 it("generates appropriate types for literal tuples in operation parameters", async () => {
   await compileAndValidateMultiple(
     runner,
@@ -1604,6 +1756,7 @@ it("handles complex multipartBody requests", async () => {
         [
           "using Microsoft.AspNetCore.WebUtilities;",
           "using Microsoft.AspNetCore.Http.Extensions;",
+          "using Microsoft.Contoso;",
           `[Consumes("multipart/form-data")]`,
           "public virtual async Task<IActionResult> FooBinary(string id)",
           ".FooBinaryAsync(id, reader)",
@@ -1617,15 +1770,6 @@ it("handles complex multipartBody requests", async () => {
           "using Microsoft.AspNetCore.WebUtilities;",
           "Task FooBinaryAsync( string id, MultipartReader reader);",
           "Task FooJsonAsync( string id, FooJsonRequest body);",
-        ],
-      ],
-      [
-        "BarFooJsonRequest.cs",
-        [
-          "public partial class BarFooJsonRequest",
-          "public string MediaType { get; set; }",
-          "public string Filename { get; set; }",
-          "public byte[] Contents { get; set; }",
         ],
       ],
     ],

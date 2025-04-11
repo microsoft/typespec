@@ -37,6 +37,7 @@ import {
   isErrorModel,
   isNeverType,
   isNullType,
+  isNumericType,
   isTemplateDeclaration,
   isVoidType,
   resolvePath,
@@ -70,6 +71,7 @@ import {
   ControllerContext,
   NameCasingType,
   ResponseInfo,
+  checkOrAddNamespaceToScope,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
 import { getProjectHelpers } from "./project.js";
@@ -142,6 +144,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
     #getOrAddNamespaceForType(type: Type): string | undefined {
+      const program = this.emitter.getProgram();
       switch (type.kind) {
         case "Boolean":
         case "String":
@@ -160,9 +163,31 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         case "ModelProperty":
         case "UnionVariant":
           return this.#getOrAddNamespaceForType(type.type);
+        case "Model":
+          if (isRecord(type) && type.indexer)
+            return this.#getOrAddNamespaceForType(type.indexer.value);
+          if (type.indexer !== undefined && isNumericType(program, type.indexer?.key))
+            return this.#getOrAddNamespaceForType(type.indexer.value);
+          return this.#getOrAddNamespace(type.namespace);
+        case "Union":
+          if (isStringEnumType(program, type)) return this.#getOrAddNamespace(type.namespace);
+          const unionType = this.#coalesceTsUnion(type);
+          if (unionType === undefined) return undefined;
+          return this.#getOrAddNamespaceForType(unionType);
         default:
           return this.#getOrAddNamespace(type.namespace);
       }
+    }
+    #coalesceTsUnion(union: Union): Type | undefined {
+      let result: Type | undefined = undefined;
+      for (const [_, variant] of union.variants) {
+        if (!isNullType(variant.type)) {
+          if (result !== undefined && result !== variant.type) return undefined;
+          result = variant.type;
+        }
+      }
+
+      return result;
     }
     #getOrAddNamespace(typespecNamespace?: Namespace): string {
       if (!typespecNamespace?.name) return this.#getDefaultNamespace();
@@ -341,6 +366,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         return "";
       }
       const isErrorType = isErrorModel(this.emitter.getProgram(), model);
+      if (model.baseModel && model.baseModel.namespace !== model.namespace) {
+        const resolvedNs = this.#getOrAddNamespaceForType(model.baseModel);
+        if (resolvedNs) checkOrAddNamespaceToScope(resolvedNs, this.emitter.getContext().scope);
+      }
       const baseModelRef = model.baseModel
         ? code`: ${this.emitter.emitTypeReference(model.baseModel, this.emitter.getContext())}`
         : "";
@@ -1185,7 +1214,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       pathDown: Scope<string>[],
       commonScope: Scope<string> | null,
     ): string | EmitEntity<string> {
-      if (targetDeclaration.name) return targetDeclaration.name;
+      //if (targetDeclaration.name) return targetDeclaration.name;
       return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
     }
 
