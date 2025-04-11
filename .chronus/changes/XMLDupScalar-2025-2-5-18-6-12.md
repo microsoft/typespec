@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Loss array.items.type if multiple scalars
+Fix various issues when using xml payloads and custom scalars
