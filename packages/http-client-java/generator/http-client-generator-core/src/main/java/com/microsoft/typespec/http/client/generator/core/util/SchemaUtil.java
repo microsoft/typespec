@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.util;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -179,23 +178,18 @@ public class SchemaUtil {
 
     /**
      * Whether response contains header schemas.
-     * <p>
-     * Response headers will be omitted, as polling method has return type as SyncPoller or PollerFlux, not Response.
      *
      * @param operation the operation
      * @param settings the JavaSetting object
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        return operation.getResponses()
-            .stream()
-            .filter(r -> r.getProtocol() != null
-                && r.getProtocol().getHttp() != null
-                && r.getProtocol().getHttp().getHeaders() != null)
-            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
-            .anyMatch(Objects::nonNull)
-            && operationIsNotFluentLRO(operation, settings)
-            && operationIsNotDataPlaneLRO(operation, settings);
+        if (operation.isLro() && (settings.isFluent() || settings.isDataPlaneClient())) {
+            // Response headers will be omitted, as LRO method has return type as SyncPoller or PollerFlux, not
+            // Response.
+            return false;
+        }
+        return operation.hasHeaderSchemaResponse();
     }
 
     /**
@@ -327,19 +321,6 @@ public class SchemaUtil {
 
     private static boolean containsBinaryResponse(Operation operation) {
         return operation.getResponses().stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
-    }
-
-    // SyncPoller or PollerFlux does not contain full Response and hence does not have headers
-    private static boolean operationIsNotFluentLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isFluent()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
-    }
-
-    private static boolean operationIsNotDataPlaneLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isDataPlaneClient()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     public static String getDefaultName(Metadata m) {
