@@ -23,7 +23,7 @@ export interface Widget {
   name: string;
   subWidget: {
     location: string;
-    age?: number
+    age?: number;
   };
 }
 ```

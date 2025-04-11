@@ -24,7 +24,7 @@ export async function foo(
     temperature: {
       body: number;
       contentType: "text/plain";
-    }
+    };
   },
   options?: FooOptions,
 ): Promise<void> {
