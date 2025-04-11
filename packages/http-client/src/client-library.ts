@@ -72,17 +72,13 @@ function getEffectiveClient(program: Program, namespace: Namespace): InternalCli
   return undefined;
 }
 
-const operationClientMap = new Map<Program, Map<HttpOperation, Client>>();
+const _operationClientMap = new WeakMap<Program, Map<HttpOperation, Client>>();
 
 export function createClientLibrary(
   program: Program,
   options: CreateClientLibraryOptions = {},
 ): ClientLibrary {
   const $ = unsafe_$(program);
-
-  if (!operationClientMap.has(program)) {
-    operationClientMap.set(program, new Map<HttpOperation, Client>());
-  }
 
   let topLevel: InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
@@ -114,11 +110,13 @@ export function createClientLibrary(
     topLevelClients.push(client);
   }
 
+  const operationClientMap = getOperationClientMapping(program);
+
   return {
     topLevel: topLevelClients,
     dataTypes: Array.from(dataTypes),
     getClientForOperation(operation: HttpOperation) {
-      return operationClientMap.get(program)?.get(operation);
+      return operationClientMap.get(operation);
     },
   };
 }
@@ -133,6 +131,7 @@ function visitClient(
   dataTypes: Set<Model | Union | Enum>,
   options?: VisitClientOptions,
 ): Client {
+  const operationClientMap = getOperationClientMapping(program);
   const $ = unsafe_$(program);
   // First create a partial `Client` object.
   // We’ll fill in subClients *after* we have `c`.
@@ -153,7 +152,7 @@ function visitClient(
 
   // Now store the prepared operations
   currentClient.operations = $.client.listHttpOperations(client).map((o) => {
-    operationClientMap.get(program)?.set(o, currentClient);
+    operationClientMap.set(o, currentClient);
 
     return {
       client: currentClient,
@@ -178,4 +177,11 @@ function visitClient(
   }
 
   return currentClient;
+}
+
+function getOperationClientMapping(program: Program): Map<HttpOperation, Client> {
+  if (!_operationClientMap.has(program)) {
+    _operationClientMap.set(program, new Map<HttpOperation, Client>());
+  }
+  return _operationClientMap.get(program)!;
 }

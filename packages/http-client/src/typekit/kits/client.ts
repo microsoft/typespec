@@ -6,6 +6,7 @@ import {
   Namespace,
   NoTarget,
   Operation,
+  Program,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import {
@@ -93,8 +94,12 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
-export const clientCache = new Map<Namespace | Interface, InternalClient>();
-export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
+export const _clientCache = new WeakMap<Program, WeakMap<Namespace | Interface, InternalClient>>();
+export const _clientOperationMapping = new WeakMap<
+  Program,
+  WeakMap<InternalClient, HttpOperation[]>
+>();
+export const _operationClientCache = new WeakMap<Program, WeakMap<HttpOperation, InternalClient>>();
 
 defineKit<TypekitExtension>({
   client: {
@@ -119,6 +124,7 @@ defineKit<TypekitExtension>({
       return clients;
     },
     getClient(namespace) {
+      const clientCache = getClientCache(this.program);
       if (!namespace) {
         reportDiagnostic(this.program, {
           code: "undefined-namespace-for-client",
@@ -153,8 +159,9 @@ defineKit<TypekitExtension>({
       return client.type.kind === "Namespace";
     },
     listHttpOperations(client) {
-      if (clientOperationCache.has(client)) {
-        return clientOperationCache.get(client)!;
+      const clientOperationMapping = getClientOperationMapping(this.program);
+      if (clientOperationMapping.has(client)) {
+        return clientOperationMapping.get(client)!;
       }
 
       if (client.type.kind === "Interface" && isTemplateDeclaration(client.type)) {
@@ -173,8 +180,14 @@ defineKit<TypekitExtension>({
         operations.push(clientOperation);
       }
 
-      const httpOperations = operations.map((o) => this.httpOperation.get(o));
-      clientOperationCache.set(client, httpOperations);
+      const operationClientMapping = getOperationClientMapping(this.program);
+
+      const httpOperations = operations.map((o) => {
+        const httpOp = this.httpOperation.get(o);
+        operationClientMapping.set(httpOp, client);
+        return httpOp;
+      });
+      clientOperationMapping.set(client, httpOperations);
 
       return httpOperations;
     },
@@ -283,3 +296,28 @@ defineKit<TypekitExtension>({
     },
   },
 });
+
+export function getOperationClientMapping(
+  program: Program,
+): WeakMap<HttpOperation, InternalClient> {
+  if (!_operationClientCache.has(program)) {
+    _operationClientCache.set(program, new WeakMap());
+  }
+  return _operationClientCache.get(program)!;
+}
+
+export function getClientOperationMapping(
+  program: Program,
+): WeakMap<InternalClient, HttpOperation[]> {
+  if (!_clientOperationMapping.has(program)) {
+    _clientOperationMapping.set(program, new WeakMap());
+  }
+  return _clientOperationMapping.get(program)!;
+}
+
+function getClientCache(program: Program): WeakMap<Namespace | Interface, InternalClient> {
+  if (!_clientCache.has(program)) {
+    _clientCache.set(program, new WeakMap());
+  }
+  return _clientCache.get(program)!;
+}
