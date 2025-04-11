@@ -9,7 +9,6 @@ import { TypeExpression } from "./type-expression.js";
 export interface InterfaceMemberProps {
   type: ModelProperty | Operation;
   optional?: boolean;
-  refkey?: ay.Refkey;
 }
 
 export function InterfaceMember(props: InterfaceMemberProps) {
@@ -32,7 +31,6 @@ export function InterfaceMember(props: InterfaceMemberProps) {
         name={name}
         optional={props.optional ?? props.type.optional}
         type={<TypeExpression type={unpackedType} />}
-        refkey={ay.refkey(props.type)}
       />
     );
   }
@@ -53,7 +51,6 @@ export function InterfaceMember(props: InterfaceMemberProps) {
             ({params}) =&gt {returnType}
           </>
         }
-        refkey={props.refkey ?? ay.refkey(props.type)}
       />
     );
   }
