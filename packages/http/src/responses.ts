@@ -2,7 +2,6 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
-  getDiscriminatedUnion,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
@@ -15,6 +14,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
@@ -32,7 +32,7 @@ export function getResponsesForOperation(
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
   const responses = new ResponseIndex();
-  if (responseType.kind === "Union" && !getDiscriminatedUnion(program, responseType)[0]) {
+  if ($.union.is(responseType) && !$.union.getDiscriminatedUnion(responseType)) {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
