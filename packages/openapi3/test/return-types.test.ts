@@ -221,6 +221,32 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
     });
   });
 
+  it("defines single responses for a discriminated union return type", async () => {
+    const res = await openApiFor(
+      `
+      model HeavyWidget {
+        heavy: string;
+      }
+
+      model LightWidget {
+        light: string;
+      }
+
+      @discriminated
+      union Widget {
+        heavy: HeavyWidget,
+        light: LightWidget,
+      }
+      @get op read(): Widget;
+      `,
+    );
+    ok(res.paths["/"].get.responses["200"]);
+    ok(res.components.schemas.Widget);
+    deepStrictEqual(res.paths["/"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Widget",
+    });
+  });
+
   it("defines the response media type from the content-type header if present", async () => {
     const res = await openApiFor(
       `
