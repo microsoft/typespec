@@ -37,10 +37,10 @@ export async function createCSharpServiceEmitterTestRunner(
   return result;
 }
 
-export function getStandardService(code: string): string {
+export function getStandardService(code: string, ns?: string): string {
   return `
-  @service(#{title: "Microsoft.Contoso"})
-    namespace Microsoft.Contoso {
+  @service(#{title: "${ns ? ns : "Microsoft.Contoso"}"})
+    namespace ${ns ? ns : "Microsoft.Contoso"} {
       ${code}
     }`;
 }
