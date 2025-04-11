@@ -405,13 +405,17 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test interface A<T> {
-          op foo<U = T>(): U;
+          op foo<R = T, P = R>(params: P): R;
         }
         alias B = A<string>;
         @test op MyOp is B.foo;
       `,
     );
     const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    const params = MyOp.parameters.properties.get("params");
+    ok(params, "Expected params to be defined");
+    strictEqual(params.type.kind, "Scalar");
+    strictEqual(params.type.name, "string");
     strictEqual(MyOp.returnType.kind, "Scalar");
     strictEqual(MyOp.returnType.name, "string");
   });

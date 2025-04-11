@@ -947,21 +947,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-    if (mapper) {
-      let mappedType = mapper.getMappedType(type);
-      // recursively resolve the mapped type so long as it is
-      // still a TemplateParameter, since there may be multiple
-      // levels of mapping (e.g. when referencing defaults)
-      while (
-        mappedType.entityKind === "Type" &&
-        mappedType.kind === "TemplateParameter" &&
-        mapper.getMappedType(mappedType) !== mappedType
-      ) {
-        mappedType = mapper.getMappedType(mappedType);
-      }
-      return mappedType;
-    }
-    return type;
+    return mapper ? mapper.getMappedType(type) : type;
   }
 
   function getResolvedTypeParameterDefault(
@@ -1148,6 +1134,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: readonly TemplateArgumentNode[],
     decls: readonly TemplateParameterDeclarationNode[],
     mapper: TypeMapper | undefined,
+    parentMapper?: TypeMapper,
   ): Map<TemplateParameter, Type | Value | IndeterminateEntity> {
     const params = new Map<string, TemplateParameter>();
     const positional: TemplateParameter[] = [];
@@ -1257,7 +1244,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (init === null) {
-        const argumentMapper = createTypeMapper(mapperParams, mapperArgs, { node, mapper });
+        const argumentMapper = createTypeMapper(
+          mapperParams,
+          mapperArgs,
+          { node, mapper },
+          parentMapper,
+        );
         const defaultValue = getResolvedTypeParameterDefault(param, decl, argumentMapper);
         if (defaultValue) {
           commit(param, defaultValue);
@@ -1439,6 +1431,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           argumentNodes,
           templateParameters,
           mapper,
+          declaredType.templateMapper,
         );
 
         baseType = getOrInstantiateTemplate(
