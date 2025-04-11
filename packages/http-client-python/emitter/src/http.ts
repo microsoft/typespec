@@ -339,8 +339,18 @@ function emitFlattenedParameter(
   };
 }
 
-function emitHttpPathParameter(context: PythonSdkContext, parameter: SdkPathParameter) {
+function emitHttpPathParameter(
+  context: PythonSdkContext,
+  parameter: SdkPathParameter,
+  operation: SdkHttpOperation,
+): Record<string, any> {
   const base = emitParamBase(context, parameter);
+  if (parameter.optional && operation.path.includes(`/{${parameter.serializedName}}`)) {
+    operation.path = operation.path.replace(
+      `/{${parameter.serializedName}}`,
+      `{${parameter.serializedName}}`,
+    );
+  }
   return {
     ...base,
     wireName: parameter.serializedName,
@@ -410,7 +420,7 @@ function emitHttpParameters(
         parameters.push(emitHttpQueryParameter(context, parameter, method));
         break;
       case "path":
-        parameters.push(emitHttpPathParameter(context, parameter));
+        parameters.push(emitHttpPathParameter(context, parameter, operation));
         break;
     }
   }

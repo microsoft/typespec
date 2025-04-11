@@ -357,6 +357,9 @@ class Parameter(_ParameterBase):
         )
         if self.code_model.options["only_path_and_body_params_positional"] and query_or_header:
             return ParameterMethodLocation.KEYWORD_ONLY
+        # for optional path parameter, we need to use keyword only
+        if self.location == ParameterLocation.PATH and self.optional:
+            return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
     @classmethod
