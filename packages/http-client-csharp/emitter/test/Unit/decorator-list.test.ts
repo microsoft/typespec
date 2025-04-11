@@ -67,9 +67,10 @@ describe("Test emitting decorator list", () => {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const operations = root.clients[0].operations;
-    strictEqual(operations.length, 1);
-    deepStrictEqual(operations[0].decorators, [
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    deepStrictEqual(operation.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
@@ -153,9 +154,10 @@ describe("Test emitting decorator list", () => {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
-    const operations = root.clients[0].operations;
-    strictEqual(operations.length, 1);
-    const idParameters = operations[0].parameters.filter((p) => p.name === "ClientId");
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    const idParameters = operation.parameters.filter((p) => p.name === "ClientId");
     strictEqual(idParameters.length, 1);
     deepStrictEqual(idParameters[0].decorators, [
       {

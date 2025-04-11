@@ -138,8 +138,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
             var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var catClient = InputFactory.Client("catClient", operations: [operation], clientNamespace: "Cats");
-            var felineClient = InputFactory.Client("felineClient", operations: [operation], clientNamespace: "Felines");
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation);
+            var catClient = InputFactory.Client("catClient", methods: [inputServiceMethod], clientNamespace: "Cats");
+            var felineClient = InputFactory.Client("felineClient", methods: [inputServiceMethod], clientNamespace: "Felines");
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [catClient, felineClient]);
 
             var catClientCollectionResult = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
@@ -167,7 +168,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
             var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var client = InputFactory.Client("catClient", operations: [operation]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
         }
