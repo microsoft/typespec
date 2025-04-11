@@ -60,6 +60,8 @@ export interface CompileService {
   notifyChange(document: TextDocument): void;
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
+
+  getMainFileForDocument(path: string): Promise<string>;
 }
 
 export interface CompileServiceOptions {
@@ -82,7 +84,7 @@ export function createCompileService({
   const updated = new UpdateManger((document) => compile(document));
   let configFilePath: string | undefined;
 
-  return { compile, getScript, on, notifyChange };
+  return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
@@ -99,6 +101,15 @@ export function createCompileService({
     updated.scheduleUpdate(document);
   }
 
+  /**
+   * Compile the given document.
+   * First, the main.tsp file will be obtained for compilation.
+   * If the current document is not the main.tsp file or not included in the compilation starting from the main file found,
+   * the current document will be recompiled and returned as part of the result.
+   * Otherwise, the compilation of main.tsp will be returned as part of the result.
+   * @param document The document to compile. tsp file that is open or not opened in workspace.
+   * @returns see {@link CompileResult} for more details.
+   */
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
   ): Promise<CompileResult | undefined> {
@@ -165,9 +176,7 @@ export function createCompileService({
       }
 
       const doc = "version" in document ? document : serverHost.getOpenDocumentByURL(document.uri);
-      compilerAssert(doc, "Failed to get document.");
-      const resolvedPath = await fileService.getPath(doc);
-      const script = program.sourceFiles.get(resolvedPath);
+      const script = program.sourceFiles.get(path);
       compilerAssert(script, "Failed to get script.");
 
       const result: CompileResult = { program, document: doc, script, optionsFromConfig };
