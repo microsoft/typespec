@@ -1,6 +1,6 @@
 import vscode from "vscode";
-import { isPathAbsolute, normalizeSlashes } from "./path-utils.js";
-import { CommandName } from "./types.js";
+import { getDirectoryPath, isPathAbsolute, resolvePath } from "./path-utils.js";
+import { CodeActionCommand } from "./types.js";
 import { loadPackageJsonFile } from "./utils.js";
 
 export function createCodeActionProvider() {
@@ -62,65 +62,60 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       return actions;
     }
 
-    const uris = await vscode.workspace
-      .findFiles("**/package.json", "**/node_modules/**")
-      .then((uris) =>
-        uris
-          .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-          .map((uri) => normalizeSlashes(uri.fsPath)),
-      );
-    if (uris.length === 0) {
-      return actions;
-    }
-
-    const packageNames: Map<string, string> = new Map();
-    for (const uri of uris) {
-      const packageJson = await loadPackageJsonFile(uri);
-      if (packageJson && packageJson.peerDependencies) {
-        for (const key in packageJson.peerDependencies) {
-          if (!packageNames.has(key) && !key.startsWith("./") && !isPathAbsolute(key)) {
-            packageNames.set(key, uri);
-          }
-        }
-      }
-      if (packageJson && packageJson.dependencies) {
-        for (const key in packageJson.dependencies) {
-          if (!packageNames.has(key) && !key.startsWith("./") && !isPathAbsolute(key)) {
-            packageNames.set(key, uri);
-          }
-        }
-      }
-      if (packageJson && packageJson.devDependencies) {
-        for (const key in packageJson.devDependencies) {
-          if (!packageNames.has(key) && !key.startsWith("./") && !isPathAbsolute(key)) {
-            packageNames.set(key, uri);
-          }
-        }
-      }
-    }
-
     for (const diagnostic of diagnostics) {
-      const targets = diagnostic.message.match(/"([^"]+)"/);
-      if (targets === null) {
-        continue;
-      }
+      if ("data" in diagnostic) {
+        if (diagnostic.data && typeof diagnostic.data === "object" && "file" in diagnostic.data) {
+          const packageFile = diagnostic.data.file as string;
+          const targetPackageUri = await this.findPackageJsonFilePath(
+            getDirectoryPath(packageFile),
+          );
+          if (targetPackageUri === undefined) {
+            continue;
+          }
 
-      // The position with index 0 contains double quotes, and the position with 1 does not contain
-      const targetPackage = targets[1];
-      if (!packageNames.has(targetPackage)) {
-        continue;
-      }
+          const targets = diagnostic.message.match(/"([^"]+)"/);
+          if (targets === null) {
+            continue;
+          }
 
-      const action = this.createInstallPackageCodeAction(
-        diagnostic,
-        packageNames.get(targetPackage)!,
-      );
-      if (!actions.some((item) => item.title === action.title)) {
-        actions.push(action);
+          // The position with index 0 contains double quotes, and the position with 1 does not contain
+          const packageNameIndex = 1;
+          const targetPackage = targets[packageNameIndex];
+
+          const packageJson = await loadPackageJsonFile(targetPackageUri);
+          if (
+            !targetPackage.startsWith("./") &&
+            !isPathAbsolute(targetPackage) &&
+            packageJson &&
+            (Object.prototype.hasOwnProperty.call(packageJson.peerDependencies, targetPackage) ||
+              Object.prototype.hasOwnProperty.call(packageJson.dependencies, targetPackage) ||
+              Object.prototype.hasOwnProperty.call(packageJson.devDependencies, targetPackage))
+          ) {
+            const action = this.createInstallPackageCodeAction(diagnostic, targetPackageUri);
+            if (!actions.some((item) => item.title === action.title)) {
+              actions.push(action);
+            }
+          }
+        }
       }
     }
 
     return actions;
+  }
+
+  private async findPackageJsonFilePath(startPath: string): Promise<string | undefined> {
+    let currentPath = startPath;
+    const projectRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    while (projectRoot && currentPath.length <= projectRoot.length) {
+      const packageJsonPath = resolvePath(currentPath, "package.json");
+      const stats = await vscode.workspace.fs.stat(vscode.Uri.file(packageJsonPath));
+      if (stats.type === vscode.FileType.File) {
+        return packageJsonPath;
+      }
+      currentPath = getDirectoryPath(currentPath);
+    }
+
+    return undefined;
   }
 
   private createInstallPackageCodeAction(
@@ -128,11 +123,11 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     path: string,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
-      "Install(Npm) Package for Unrecognized Import",
+      "Npm install Package for Unrecognized Import",
       vscode.CodeActionKind.QuickFix,
     );
     action.command = {
-      command: CommandName.NpmInstallImportPackage,
+      command: CodeActionCommand.NpmInstallImportPackage,
       title: diagnostic.message,
       arguments: [path],
     };
@@ -151,7 +146,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       vscode.CodeActionKind.QuickFix,
     );
     action.command = {
-      command: CommandName.OpenUrl,
+      command: CodeActionCommand.OpenUrl,
       title: diagnostic.message,
       arguments: [url],
     };

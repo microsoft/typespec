@@ -15,6 +15,7 @@ import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
+  CodeActionCommand,
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
@@ -54,7 +55,7 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CommandName.OpenUrl, (url: string) => {
+    commands.registerCommand(CodeActionCommand.OpenUrl, (url: string) => {
       try {
         vscode.env.openExternal(vscode.Uri.parse(url));
       } catch (error) {
@@ -64,19 +65,10 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CommandName.NpmInstallImportPackage, async (path: string) => {
+    commands.registerCommand(CodeActionCommand.NpmInstallImportPackage, async (path: string) => {
       try {
         const projectFiles = getDirectoryPath(path);
         await spawnExecutionAndLogToOutput("npm", ["install"], normalizeSlashes(projectFiles));
-
-        // Will not recompile after installation, so consider the user experience, close the current file and reopen it
-        const filePath = vscode.window.activeTextEditor?.document.uri.fsPath;
-        await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-        if (filePath) {
-          const documentUri = vscode.Uri.file(filePath);
-          const reopenedDocument = await vscode.workspace.openTextDocument(documentUri);
-          await vscode.window.showTextDocument(reopenedDocument);
-        }
       } catch (error) {
         logger.error("Failed to execute npm install, see details: ", [error]);
       }
