@@ -400,12 +400,14 @@ function* emitFromJson(
           const scalarEncoder = scalar.getEncoding(encoding.encoding ?? "default", encoding.type);
 
           if (scalarEncoder) {
-            expr = transposeExpressionFromJson(
-              ctx,
-              // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
-              scalarEncoder.target.scalar as Scalar,
-              scalarEncoder.decode(expr),
-              module,
+            expr = scalarEncoder.decode(
+              transposeExpressionFromJson(
+                ctx,
+                // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
+                scalarEncoder.target.scalar as Scalar,
+                expr,
+                module,
+              ),
             );
           } else {
             reportDiagnostic(ctx.program, {

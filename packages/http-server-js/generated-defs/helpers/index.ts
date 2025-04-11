@@ -16,6 +16,7 @@ export async function createModule(parent: Module): Promise<Module> {
   };
 
   // Child modules
+  await import("./temporal/index.js").then((m) => m.createModule(module));
   await import("./datetime.js").then((m) => m.createModule(module));
   await import("./header.js").then((m) => m.createModule(module));
   await import("./http.js").then((m) => m.createModule(module));
