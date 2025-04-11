@@ -1,3 +1,9 @@
+/**
+ * This file defines a handler to process HTTP operations that involve pagination.
+ * It generates functions to send paginated requests, extract elements from paged responses,
+ * and build an asynchronous iterator over the paged data.
+ */
+
 import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
@@ -28,11 +34,29 @@ import {
 import { extractPagingDetail, PagingDetail } from "../paging/util.js";
 import { OperationHandler } from "../types.js";
 
+/**
+ * Handler for paginated HTTP operations.
+ * Evaluates if an HTTP operation supports pagination and handles its implementation.
+ */
 export const PaginatedOperationHandler: OperationHandler = {
+  /**
+   * Checks if it can handle the given HTTP operation.
+   * It verifies if the operation has paging metadata defined.
+   * @param httpOperation - The HTTP operation to check.
+   */
   canHandle(httpOperation: HttpOperation): boolean {
     const pagingMetadata = $.operation.getPagingMetadata(httpOperation.operation);
     return pagingMetadata !== undefined;
   },
+
+  /**
+   * Handles the paginated HTTP operation by generating the necessary code to support pagination.
+   * It sets up the client, operation parameters, and paged iterator as well as the functions
+   * needed to send requests and process responses.
+   *
+   * @param httpOperation - The HTTP operation to handle.
+   * @returns A list of generated components and function declarations for the operation.
+   */
   handle(httpOperation: HttpOperation): Children {
     const clientLibrary = cl.useClientLibrary();
     const client = clientLibrary.getClientForOperation(httpOperation);
@@ -49,12 +73,13 @@ export const PaginatedOperationHandler: OperationHandler = {
     const operationRefkey = ay.refkey(httpOperation.operation);
     const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
+
     const signatureParams: ts.ParameterDescriptor[] = [
       { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
       ...getOperationParameters(httpOperation),
     ];
     const pagingDetail = extractPagingDetail(httpOperation, pagingOperation);
-    // Exclude from operation options and include them into PageSettings
+    // Exclude paging-specific settings from operation options and include them into PageSettings.
     const excludes = getPageSettingProperties(pagingOperation).map((p) => p.property);
     return (
       <ay.List>
@@ -89,18 +114,39 @@ export const PaginatedOperationHandler: OperationHandler = {
   },
 };
 
+/**
+ * Describes the properties passed to the GetPagedResponse component.
+ * @property httpOperation - The HTTP operation object.
+ * @property pageDetail - Details about the paging configuration.
+ * @property operationParams - List of parameters for the operation.
+ */
 interface GetPagedResponseProps {
   httpOperation: HttpOperation;
   pageDetail: PagingDetail;
   operationParams: ts.ParameterDescriptor[];
 }
+
+/**
+ * Helper function to generate a reference key for the getPagedResponse function.
+ * @param httpOperation - The HTTP operation to use for generating the reference key.
+ */
 function getPagedResponseFunctionRefkey(httpOperation: HttpOperation) {
   return ay.refkey(httpOperation, "get-paged-response");
 }
 
+/**
+ * Component that generates the function for sending paginated HTTP requests and processing responses.
+ *
+ * This function handles the logic of calling the appropriate API method depending on the paging pattern (e.g., nextLink)
+ * and prepares the combined options for client requests.
+ *
+ * @param props - The properties required to generate the function, including HTTP operation details and paging configuration.
+ * @returns A FunctionDeclaration that represents the getPagedResponse function.
+ */
 function GetPagedResponse(props: GetPagedResponseProps) {
   const pagingDetail = props.pageDetail;
   const httpOperation = props.httpOperation;
+  // Define parameters for the getPagedResponse function
   const params: ts.ParameterDescriptor[] = [
     { name: "nextToken", type: "string", optional: true, refkey: ay.refkey() },
     {
@@ -112,7 +158,9 @@ function GetPagedResponse(props: GetPagedResponseProps) {
   ];
   // TODO: template can't resolve the ref key so fallback to useTSNamePolicy
   const namePolicy = ts.useTSNamePolicy();
+  // Generate a function name based on the operation's name appended with "Send"
   const functionName = namePolicy.getName(httpOperation.operation.name + "Send", "function");
+  // Build a string of parameters for the send function, excluding the last parameter
   const sendParamStr = props.operationParams
     .map((param) => param.name)
     .slice(0, -1)
@@ -161,16 +209,37 @@ function GetPagedResponse(props: GetPagedResponseProps) {
   );
 }
 
+/**
+ * Helper function to generate a reference key for the getElements function.
+ * @param httpOperation - The HTTP operation to use for generating the reference key.
+ */
+function getElementsRefkey(httpOperation: HttpOperation) {
+  return ay.refkey(httpOperation, "get-elements");
+}
+
+/**
+ * Describes the properties for the GetElements component.
+ * @property httpOperation - The HTTP operation object.
+ * @property pageDetail - Details about the paging configuration.
+ */
 interface GetElementsProps {
   httpOperation: HttpOperation;
   pageDetail: PagingDetail;
 }
-function getElementsRefkey(httpOperation: HttpOperation) {
-  return ay.refkey(httpOperation, "get-elements");
-}
+
+/**
+ * Component that generates the function to extract the items array from a paged response.
+ *
+ * The generated function (getElements) takes a paged response and returns the array
+ * of items from it based on the paging output configuration.
+ *
+ * @param props - Contains the HTTP operation and paging configuration details.
+ * @returns A FunctionDeclaration that represents the getElements function.
+ */
 function GetElements(props: GetElementsProps) {
   const pagingDetail = props.pageDetail;
   const httpOperation = props.httpOperation;
+  // Define parameter for the getElements function to extract items from the response.
   const params = [
     {
       name: "response",

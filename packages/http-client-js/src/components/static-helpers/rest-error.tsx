@@ -1,15 +1,39 @@
+/**
+ * This module defines a RestError class and a helper function to create instances of it.
+ * The RestError encapsulates details from an HTTP response to provide richer error information.
+ */
+
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 
+/**
+ * Generates a unique reference key for the RestError class.
+ *
+ * @returns A reference key for the RestError class
+ */
 export function getRestErrorRefkey() {
   return ay.refkey("rest-error", "static-helpers", "class");
 }
 
+/**
+ * Generates a unique reference key for the createRestError function.
+ *
+ * @returns A reference key for the createRestError function
+ */
 export function getCreateRestErrorRefkey() {
   return ay.refkey("create-rest-error", "static-helpers", "function");
 }
 
+/**
+ * Constructs the RestError class and associated helper function.
+ *
+ * The RestError class extends the native Error class and includes details from
+ * an HTTP response such as request, response, status, body, and headers. It also
+ * provides a static helper method to create a RestError directly from an HTTP response.
+ *
+ * @returns An component containing the RestError class declaration and the createRestError function
+ */
 export function RestError() {
   const requestRefkey = ay.refkey("request", "rest-error-class-field");
   const responseRefkey = ay.refkey("response", "rest-error-class-field");
@@ -19,6 +43,7 @@ export function RestError() {
   const constructorRefkey = ay.refkey("constructor", "rest-error-class-method");
   const fromHttpResponseRefkey = ay.refkey("from-http-response", "rest-error-class-method");
 
+  // Declaration of the RestError class which extends the built-in Error class
   const restErrorClass = (
     <ts.ClassDeclaration export name="RestError" extends="Error" refkey={getRestErrorRefkey()}>
       <ay.StatementList>
@@ -84,6 +109,7 @@ export function RestError() {
     </ts.ClassDeclaration>
   );
 
+  // Helper function to create a RestError instance. It delegates error creation to the static method.
   const createRestError = (
     <ts.FunctionDeclaration
       export
@@ -98,5 +124,6 @@ export function RestError() {
     </ts.FunctionDeclaration>
   );
 
+  // Return the class declaration and helper function along with newlines for readability.
   return [restErrorClass, "\n\n", createRestError];
 }
