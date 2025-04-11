@@ -1,4 +1,5 @@
-import { Page } from "playwright/test"
+import { Page } from "playwright"
+import { screenShot } from "./utils"
 
 /**
  * When emitting a select project event, it will select the project with the given name.
@@ -18,6 +19,7 @@ async function emitSelectProject(page: Page, text: string) {
  * @param type emit type
  */
 async function emitSelectType(page: Page, type: string) {
+  await screenShot.screenShot("select_emitter_type.png")
   await page.locator("a").filter({ hasText: type }).click()
 }
 
@@ -26,6 +28,7 @@ async function emitSelectType(page: Page, type: string) {
  * @param page vscode project
  */
 async function emitSelectLanguageForOpenapi(page: Page) {
+  await screenShot.screenShot("select_language_openapi.png")
   await page
     .locator("a")
     .filter({ hasText: /^OpenAPI3$/ })

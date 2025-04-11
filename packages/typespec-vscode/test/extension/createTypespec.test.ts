@@ -1,4 +1,4 @@
-import { afterEach, beforeEach } from "vitest"
+import { beforeAll, beforeEach } from "vitest"
 import {
   contrastResult,
   start,
@@ -8,7 +8,7 @@ import {
   closeVscode,
   installExtension,
 } from "./common/commonSteps"
-import { screenshotSelf, test } from "./common/utils"
+import { screenShot, test } from "./common/utils"
 import fs from "node:fs"
 import path from "node:path"
 import {
@@ -16,6 +16,10 @@ import {
   selectEmitters,
   selectTemplate,
 } from "./common/createSteps"
+
+beforeAll(() => {
+  screenShot.setCreateType("create")
+})
 
 beforeEach(() => {
   const dir = path.resolve(__dirname, "./CreateTypespecProject")
@@ -30,15 +34,15 @@ beforeEach(() => {
 })
 
 test("CreateTypespec-Generic REST API", async ({ launch }) => {
+  screenShot.setDir("CreateTypespec-Generic REST API1")
   const workspacePath = path.resolve(__dirname, "./CreateTypespecProject")
   const { page } = await launch({
     workspacePath,
   })
   // await installExtensionForFile(
   //   page,
-  //   path.resolve(__dirname, "../../extension.vsix")
+  //   path.resolve(__dirname, "../extension.vsix")
   // )
-
   await installExtension(page)
 
   await start(page, {
@@ -55,7 +59,47 @@ test("CreateTypespec-Generic REST API", async ({ launch }) => {
     "Failed to create project Successful",
     [10, 10]
   )
-  await closeVscode(page)
+  await closeVscode()
+  await contrastResult(
+    [
+      ".gitignore",
+      "main.tsp",
+      "node_modules",
+      "package-lock.json",
+      "package.json",
+      "tspconfig.yaml",
+    ],
+    workspacePath
+  )
+})
+
+test("CreateTypespec-Generic REST API 2", async ({ launch }) => {
+  screenShot.setDir("CreateTypespec-Generic REST API1")
+  const workspacePath = path.resolve(__dirname, "./CreateTypespecProject")
+  const { page } = await launch({
+    workspacePath,
+  })
+  // await installExtensionForFile(
+  //   page,
+  //   path.resolve(__dirname, "../extension.vsix")
+  // )
+  await installExtension(page)
+
+  await start(page, {
+    folderName: "CreateTypespecProject",
+    command: "Create Typespec Project",
+  })
+  await selectFolder()
+  await selectTemplate(page, "Generic REST API")
+  await inputProjectName(page)
+  await selectEmitters(page, ["OpenAPI"])
+  await preContrastResult(
+    page,
+    "Project created!",
+    "Failed to create project Successful",
+    [10, 10]
+  )
+  await closeVscode()
   await contrastResult(
     [
       ".gitignore",

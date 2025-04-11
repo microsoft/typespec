@@ -1,5 +1,5 @@
-import { Locator, Page } from "playwright/test"
-import { retry, sleep } from "./utils"
+import { Locator, Page } from "playwright"
+import { retry, screenShot, sleep } from "./utils"
 import { keyboard, Key } from "@nut-tree-fork/nut-js"
 import fs from "node:fs"
 
@@ -39,6 +39,8 @@ async function contrastResult(res: string[], dir: string) {
     resLength = fs.readdirSync(dir).length
   }
   if (resLength !== res.length) {
+    await screenShot.screenShot("error.png")
+    screenShot.save()
     throw new Error("Failed to matches all files")
   }
 }
@@ -55,24 +57,24 @@ async function start(
   { folderName, command }: { folderName: string; command: string }
 ) {
   await page.locator("li").filter({ hasText: folderName }).first().click()
-
+  await screenShot.screenShot("open_top_panel.png")
   await page
     .getByRole("textbox", { name: "input" })
     .first()
-    .fill(`>TypeSpec: ${command}`)
+    .fill(`>Typespec: ${command}`)
   let listForCreate: Locator
   await retry(
     5,
     async () => {
       listForCreate = page
         .locator("a")
-        .filter({ hasText: command })
+        .filter({ hasText: `TypeSpec: ${command}` })
         .first()
       return (await listForCreate.count()) > 0
     },
     "Failed to find the specified option"
   )
-
+  await screenShot.screenShot("input_command.png")
   await listForCreate!.click()
 }
 
@@ -88,6 +90,7 @@ async function selectFolder(file: string = "") {
     }
     await keyboard.type(file)
   }
+  await screenShot.screenShot("select_folder.png")
   await keyboard.pressKey(Key.Enter)
 }
 
@@ -108,6 +111,7 @@ async function notEmptyFolderContinue(page: Page) {
     "Failed to find yes button",
     1
   )
+  await screenShot.screenShot("not_empty_folder_continue.png")
   await yesBtn!.click()
 }
 
@@ -116,21 +120,28 @@ async function notEmptyFolderContinue(page: Page) {
  * @param page vscode object
  */
 async function installExtension(page: Page) {
+  await screenShot.screenShot("open_vscode.png")
   await page
     .getByRole("tab", { name: /Extensions/ })
     .locator("a")
     .click()
+  await screenShot.screenShot("change_extension.png")
+
   await page.keyboard.type("Typespec")
+  await screenShot.screenShot("input_extension_name.png")
+
   await page
     .getByLabel(/TypeSpec/)
     .getByRole("button", { name: "Install" })
     .click()
+    await screenShot.screenShot("install_extension.png")
   await page.getByRole("button", { name: "Trust Publisher & Install" }).click()
   await sleep(10)
   await page
     .getByRole("tab", { name: /Explorer/ })
     .locator("a")
     .click()
+  await screenShot.screenShot("change_explorer.png")
 }
 
 /**
@@ -139,10 +150,12 @@ async function installExtension(page: Page) {
  * @param fullFilePath The absolute address of the plugin `vsix` needs to be obtained using the path.resolve method
  */
 async function installExtensionForFile(page: Page, fullFilePath: string) {
+  await screenShot.screenShot("open_vscode.png")
   await page
     .getByRole("tab", { name: /Extensions/ })
     .locator("a")
     .click()
+  await screenShot.screenShot("change_extension.png")
   let moreItem: Locator
   await retry(
     10,
@@ -154,6 +167,7 @@ async function installExtensionForFile(page: Page, fullFilePath: string) {
     1
   )
   await moreItem!.click()
+  await screenShot.screenShot("more_item.png")
   let fromInstall: Locator
   await retry(
     10,
@@ -166,25 +180,27 @@ async function installExtensionForFile(page: Page, fullFilePath: string) {
   )
   await fromInstall!.click()
   await selectFolder(fullFilePath)
-  await sleep(3)
-  await page.keyboard.press("Enter")
   await retry(
-    10,
+    30,
     async () => {
-      const installed = await page.getByText(/Completed installing/).first()
+      const installed = page.getByText(/Completed installing/).first()
       return (await installed.count()) > 0
     },
     "Failed to find installed status",
-    3
+    1
   )
+  await screenShot.screenShot("extension_installed.png")
+  await sleep(5)
   await page
     .getByRole("tab", { name: /Explorer/ })
     .locator("a")
     .click()
+  await screenShot.screenShot("change_explorer.png")
 }
 
-async function closeVscode(page: Page) {
-  await page.keyboard.press("Alt+F4")
+async function closeVscode() {
+  await keyboard.pressKey(Key.LeftAlt, Key.F4)
+  await keyboard.releaseKey(Key.LeftAlt, Key.F4)
 }
 
 export {
@@ -195,5 +211,5 @@ export {
   notEmptyFolderContinue,
   installExtension,
   installExtensionForFile,
-  closeVscode
+  closeVscode,
 }
