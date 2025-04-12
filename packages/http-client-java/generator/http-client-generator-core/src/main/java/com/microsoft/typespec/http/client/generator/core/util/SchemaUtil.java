@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -97,9 +96,7 @@ public class SchemaUtil {
      * For vanilla/mgmt, returns InputStream
      */
     public static IType getOperationResponseType(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-
+        final Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
         return getOperationResponseType(responseBodySchema, operation, settings);
     }
 
@@ -117,24 +114,22 @@ public class SchemaUtil {
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
-        IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
-
-        if (responseBodyType == null) {
-            if (operationIsHeadAsBoolean(operation)) {
-                // Azure core would internally convert the response status code to boolean.
-                responseBodyType = PrimitiveType.BOOLEAN;
-            } else if (containsBinaryResponse(operation)) {
-                if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
-                    responseBodyType = ClassType.BINARY_DATA;
-                } else {
-                    responseBodyType = ClassType.INPUT_STREAM;
-                }
+        final IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
+        if (responseBodyType != null) {
+            return responseBodyType;
+        }
+        if (operation.checksResourceExistenceWithHead()) {
+            // Azure core would internally convert the response status code of HEAD to boolean.
+            return PrimitiveType.BOOLEAN;
+        }
+        if (operation.hasBinaryResponse()) {
+            if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
+                return ClassType.BINARY_DATA;
             } else {
-                responseBodyType = PrimitiveType.VOID;
+                return ClassType.INPUT_STREAM;
             }
         }
-
-        return responseBodyType;
+        return PrimitiveType.VOID;
     }
 
     public static Property getDiscriminatorProperty(ObjectSchema compositeType) {
@@ -317,10 +312,6 @@ public class SchemaUtil {
             return Collections.emptySet();
         }
         return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
-    }
-
-    private static boolean containsBinaryResponse(Operation operation) {
-        return operation.getResponses().stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
     }
 
     public static String getDefaultName(Metadata m) {

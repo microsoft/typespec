@@ -272,6 +272,10 @@ public class Schema extends Metadata {
         this.usage = usage;
     }
 
+    public boolean isXmlWrapped() {
+        return serialization != null && serialization.getXml() != null && serialization.getXml().isWrapped();
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return writeParentProperties(jsonWriter.writeStartObject()).writeEndObject();

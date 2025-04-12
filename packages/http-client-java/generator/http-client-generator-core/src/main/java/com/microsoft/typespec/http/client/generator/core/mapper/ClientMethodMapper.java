@@ -225,13 +225,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
-                final boolean proxyMethodUsesBinaryData = proxyMethod.getParameters()
-                    .stream()
-                    .anyMatch(proxyMethodParameter -> proxyMethodParameter.getClientType() == ClassType.BINARY_DATA);
-                final boolean proxyMethodUsesFluxByteBuffer = proxyMethod.getParameters()
-                    .stream()
-                    .anyMatch(
-                        proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
+                final boolean proxyMethodUsesBinaryData = proxyMethod.hasParameterOfType(ClassType.BINARY_DATA);
 
                 for (Parameter parameter : codeModelParameters) {
                     ClientMethodParameter clientMethodParameter
@@ -377,7 +371,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     builder.methodVisibility(simpleAsyncMethodVisibilityWithContext);
                     addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
-                    if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
+                    final boolean proxyMethodHasFbbParameter
+                        = proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER);
+                    if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodHasFbbParameter) {
                         // WithResponseSync, with required and optional parameters
                         builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
@@ -533,10 +529,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         boolean isCustomHeaderIgnored) {
         ReturnTypeHolder returnTypeHolder = new ReturnTypeHolder();
 
-        if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
+        if (operation.isPageable()) {
             // Mono<SimpleResponse<Page>>
-            Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-                operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
+            Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
             if (!(responseBodySchema instanceof ObjectSchema)) {
                 throw new IllegalArgumentException(
                     String.format("[JavaCheck/SchemaError] no common parent found for client models %s",
@@ -696,7 +691,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         boolean isNextMethod = (nextOperation == operation);
 
         IType lroIntermediateType = null;
-        if (operation.getExtensions().isXmsLongRunningOperation() && !isNextMethod) {
+        if (operation.isLro() && !isNextMethod) {
             lroIntermediateType = SchemaUtil.getOperationResponseType(operation, settings);
         }
 

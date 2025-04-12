@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
+import com.azure.core.http.HttpMethod;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities
@@ -417,18 +419,46 @@ public class Operation extends Metadata {
     }
 
     /**
-     * Checks if this operation has a header schema response.
+     * Checks if this operation has response defined with header schema.
      *
      * @return true if this operation has a header schema response, false otherwise.
      */
     public boolean hasHeaderSchemaResponse() {
-        return this.getResponses()
-            .stream()
+        return responses.stream()
             .filter(r -> r.getProtocol() != null
                 && r.getProtocol().getHttp() != null
                 && r.getProtocol().getHttp().getHeaders() != null)
             .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
             .anyMatch(Objects::nonNull);
+    }
+
+    /**
+     * Gets a stream of schemas defined for this operation responses.
+     *
+     * @return a stream of response schemas.
+     */
+    public Stream<Schema> getResponseSchemas() {
+        return responses.stream().map(Response::getSchema).filter(Objects::nonNull);
+    }
+
+    /**
+     * Checks if this operation has a binary response.
+     *
+     * @return true if this operation has a binary response, false otherwise.
+     */
+    public boolean hasBinaryResponse() {
+        return responses.stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
+    }
+
+    /**
+     * Inspects if this operation is to check a resource existence with Http HEAD.
+     *
+     * @return true if this operation checks resource existence with Http HEAD, false otherwise.
+     */
+    public boolean checksResourceExistenceWithHead() {
+        return requests.stream()
+            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
+            && responses.stream().anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
     }
 
     /**
