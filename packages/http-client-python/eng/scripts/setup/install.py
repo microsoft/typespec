@@ -47,6 +47,7 @@ def main():
         venv_context = env_builder.context
 
         python_run(venv_context, "pip", ["install", "-U", "pip"])
+        python_run(venv_context, "pip", ["install", "-U", "black"])
         python_run(venv_context, "pip", ["install", "-e", f"{_ROOT_DIR}/generator"])
 
 
