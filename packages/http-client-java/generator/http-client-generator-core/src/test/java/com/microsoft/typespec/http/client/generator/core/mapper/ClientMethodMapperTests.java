@@ -97,11 +97,11 @@ public class ClientMethodMapperTests {
         // Mono<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);        // Mono<Boolean>
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response
         operation = operationWithDescOnOperationAndResponseSchema(operationDesc, responseSchemaDesc);
@@ -109,11 +109,11 @@ public class ClientMethodMapperTests {
         // Response<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);        // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
 
         // description on schema
@@ -123,17 +123,17 @@ public class ClientMethodMapperTests {
         // Mono<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         // Mono<Boolean>
         Assertions.assertEquals(expectedDescription, description);
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         // Mono<T>
         Assertions.assertEquals(expectedDescription, description);
         baseType = GenericType.Response(ClassType.STRING);
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription
             = "desc from response schema along with {@link Response} on successful completion of {@link Mono}";
         Assertions.assertEquals(expectedDescription, description);
@@ -144,17 +144,17 @@ public class ClientMethodMapperTests {
         // Response<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response<T>
         baseType = GenericType.Mono(ClassType.STRING);
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
 
         // no description on either operation or schema
@@ -163,19 +163,19 @@ public class ClientMethodMapperTests {
         // Mono<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "A {@link Mono} that completes when a successful response is received";
         Assertions.assertEquals(expectedDescription, description);
         // Mono<Boolean>
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = String.format("%s on successful completion of {@link Mono}", "whether resource exists");
         Assertions.assertEquals(expectedDescription, description);
         // Mono<Response>
         baseType = GenericType.Response(ClassType.STRING);
         returnType = GenericType.Mono(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the response body along with {@link Response} on successful completion of {@link Mono}";
         Assertions.assertEquals(expectedDescription, description);
 
@@ -184,19 +184,19 @@ public class ClientMethodMapperTests {
         // Response<Void>
         baseType = PrimitiveType.VOID;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the {@link Response}";
         Assertions.assertEquals(expectedDescription, description);
         // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = String.format("%s along with {@link Response}", "whether resource exists");
         Assertions.assertEquals(expectedDescription, description);
         // Response<T>
         baseType = ClassType.STRING;
         returnType = GenericType.Response(baseType);
-        description = ClientMethodMapperAccessor.getDescription(operation, returnType, baseType);
+        description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the response body along with {@link Response}";
         Assertions.assertEquals(expectedDescription, description);
     }
