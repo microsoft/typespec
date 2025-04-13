@@ -9,6 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 public class ClientMethodMapperAccessor extends ClientMethodMapper {
 
     public static String getDescription(Operation operation, IType returnType, IType baseType) {
-        return returnTypeDescription(operation, returnType, baseType);
+        return ClientMethodsReturnType.returnTypeDescription(operation, returnType, baseType);
     }
 }

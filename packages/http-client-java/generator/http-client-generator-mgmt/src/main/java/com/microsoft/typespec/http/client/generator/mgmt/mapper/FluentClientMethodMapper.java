@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapp
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
@@ -25,7 +24,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
     @Override
     protected void createAdditionalLroMethods(Operation operation, ClientMethod.Builder builder,
-        List<ClientMethod> methods, boolean isProtocolMethod, IType asyncReturnType, IType syncReturnType,
+        List<ClientMethod> methods, boolean isProtocolMethod, ClientMethodsReturnType methodsReturnType,
         ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
@@ -34,7 +33,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         // API
 
         // async
-        methods.add(builder.returnValue(createLongRunningAsyncReturnValue(operation, asyncReturnType, syncReturnType))
+        methods.add(builder.returnValue(methodsReturnType.getFor(ClientMethodType.LongRunningAsync))
             .name(proxyMethod.getSimpleAsyncMethodName())
             .onlyRequiredParameters(false)
             .type(ClientMethodType.LongRunningAsync)
@@ -56,7 +55,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             parameters, getContextParameter(isProtocolMethod));
 
         // sync
-        methods.add(builder.returnValue(createLongRunningSyncReturnValue(operation, syncReturnType))
+        methods.add(builder.returnValue(methodsReturnType.getFor(ClientMethodType.LongRunningSync))
             .name(proxyMethod.getName())
             .onlyRequiredParameters(false)
             .type(ClientMethodType.LongRunningSync)
