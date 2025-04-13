@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
@@ -234,19 +233,10 @@ public class SchemaUtil {
         if (type.asNullable() == ClassType.VOID) {
             return type;
         }
-        if (operationIsHeadAsBoolean(operation)) {
+        if (operation.checksResourceExistenceWithHead()) {
             return type;
         }
         return ClassType.BINARY_DATA;
-    }
-
-    private static boolean operationIsHeadAsBoolean(Operation operation) {
-        return operation.getRequests()
-            .stream()
-            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
-            && operation.getResponses()
-                .stream()
-                .anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
     }
 
     /**

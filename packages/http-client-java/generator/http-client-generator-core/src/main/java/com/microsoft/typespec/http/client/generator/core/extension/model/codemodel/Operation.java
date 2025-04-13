@@ -458,7 +458,7 @@ public class Operation extends Metadata {
     public boolean checksResourceExistenceWithHead() {
         return requests.stream()
             .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
-            && responses.stream().anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
+            && responses.stream().anyMatch(res -> res.getProtocol().getHttp().getStatusCodes().contains("404"));
     }
 
     /**

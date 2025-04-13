@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -973,11 +974,14 @@ public class ClientModelUtil {
      */
     public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
         final ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
-        final Stream<ClientModelProperty> allProperties = Stream.concat(responseBodyModel.getProperties().stream(),
-            ClientModelUtil.getParentProperties(responseBodyModel).stream());
-        final ClientModelProperty property
-            = allProperties.filter(p -> p.getSerializedName().equals(propertySerializedName)).findAny().orElse(null);
-        return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
+        final Optional<ClientModelProperty> propertyOpt = findProperty(responseBodyModel, propertySerializedName);
+        return propertyOpt.map(property -> new ModelPropertySegment(responseBodyModel, property)).orElse(null);
+    }
+
+    public static Optional<ClientModelProperty> findProperty(ClientModel model, String propertyName) {
+        final Stream<ClientModelProperty> allProperties
+            = Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream());
+        return allProperties.filter(p -> p.getSerializedName().equals(propertyName)).findFirst();
     }
 
     private static boolean hasNoUsage(ClientModel model) {

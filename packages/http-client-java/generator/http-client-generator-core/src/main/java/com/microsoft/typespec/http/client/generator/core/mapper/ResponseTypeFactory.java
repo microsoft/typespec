@@ -21,7 +21,7 @@ final class ResponseTypeFactory {
     }
 
     /**
-     * Create a response type client model representing async method return value.
+     * Create a response type client model representing return value of 'WithResponseAsync' async methods.
      *
      * @param operation the operation.
      * @param bodyType the type of the response body.
