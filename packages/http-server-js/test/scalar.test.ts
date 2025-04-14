@@ -27,6 +27,7 @@ describe("scalar", () => {
     const ctx: JsContext = {
       program: runner.program,
       rootModule: module,
+      options: {},
     } as JsContext;
 
     return [ctx, module];
