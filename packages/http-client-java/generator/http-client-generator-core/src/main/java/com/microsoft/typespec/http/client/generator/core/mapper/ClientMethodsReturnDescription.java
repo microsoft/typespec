@@ -21,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeDescriptionAssembler;
+import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeJavaDocAssembler;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -128,6 +128,11 @@ public final class ClientMethodsReturnDescription {
             case LongRunningAsync:
                 return createReturnValue(asyncReturnType, syncReturnType);
 
+            case LongRunningBeginSync:
+            case LongRunningBeginAsync:
+                throw new UnsupportedOperationException(
+                    "Use 'getReturnValue(ClientMethodType, MethodPollingDetails)' for 'LongRunningBegin' method types.");
+
             default:
                 throw new IllegalArgumentException("Unsupported method type: " + methodType);
         }
@@ -143,9 +148,7 @@ public final class ClientMethodsReturnDescription {
      * @param pollingDetails the long-running polling details.
      * @return the return value.
      */
-    public ReturnValue getLroBeginReturnValue(ClientMethodType methodType, MethodPollingDetails pollingDetails) {
-        assert methodType == ClientMethodType.LongRunningBeginSync
-            || methodType == ClientMethodType.LongRunningBeginAsync;
+    public ReturnValue getReturnValue(ClientMethodType methodType, MethodPollingDetails pollingDetails) {
         final JavaSettings settings = JavaSettings.getInstance();
         switch (methodType) {
             case LongRunningBeginSync:
@@ -169,7 +172,8 @@ public final class ClientMethodsReturnDescription {
                     return createReturnValue(returnType, pollingDetails.getFinalType());
                 }
             default:
-                throw new IllegalArgumentException("Unsupported method type: " + methodType);
+                throw new IllegalArgumentException("Unsupported method type: " + methodType
+                    + ". Use 'getReturnValue(ClientMethodType)' for non-'LongRunningBegin' method types.");
         }
     }
 
@@ -249,12 +253,12 @@ public final class ClientMethodsReturnDescription {
      */
     private static ClientMethodsReturnDescription createForInputStream(Operation operation, boolean isProtocolMethod,
         boolean isCustomHeaderIgnored, JavaSettings settings) {
-        IType asyncRestResponseReturnType = ResponseTypeFactory
+        final IType asyncRestResponseReturnType = ResponseTypeFactory
             .createAsyncResponse(operation, ClassType.INPUT_STREAM, isProtocolMethod, settings, isCustomHeaderIgnored)
             .getClientType();
-        IType asyncReturnType = GenericType.FLUX_BYTE_BUFFER;
-        IType syncReturnType = ClassType.INPUT_STREAM;
-        IType syncReturnWithResponse = ResponseTypeFactory.createSyncResponse(operation, syncReturnType,
+        final IType asyncReturnType = GenericType.FLUX_BYTE_BUFFER;
+        final IType syncReturnType = ClassType.INPUT_STREAM;
+        final IType syncReturnWithResponse = ResponseTypeFactory.createSyncResponse(operation, syncReturnType,
             isProtocolMethod, settings, isCustomHeaderIgnored);
         return new ClientMethodsReturnDescription(operation, asyncRestResponseReturnType, asyncReturnType,
             syncReturnType, syncReturnWithResponse);
@@ -299,8 +303,8 @@ public final class ClientMethodsReturnDescription {
             // void methods don't have a return value, therefore no return Javadoc.
             return null;
         }
-        String description = null;
-        // try the description of the operation
+        String javaDoc = null;
+        // Create the JavaDoc from the operation's summary and description, if available.
         if (operation.getLanguage() != null && operation.getLanguage().getDefault() != null) {
             String operationDescription = SchemaUtil.mergeSummaryWithDescription(operation.getSummary(),
                 operation.getLanguage().getDefault().getDescription());
@@ -308,51 +312,51 @@ public final class ClientMethodsReturnDescription {
                 if (operationDescription.toLowerCase().startsWith("get ")
                     || operationDescription.toLowerCase().startsWith("gets ")) {
                     int startIndex = operationDescription.indexOf(" ") + 1;
-                    description = formatReturnTypeJavaDoc(operationDescription.substring(startIndex));
+                    javaDoc = formatReturnTypeJavaDoc(operationDescription.substring(startIndex));
                 }
             }
         }
 
-        // try the description on the schema of return type
-        if (description == null && operation.getResponses() != null && !operation.getResponses().isEmpty()) {
+        // Create the JavaDoc from the operation's response schema (i.e, the return type), if available.
+        if (javaDoc == null && operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             Schema responseSchema = operation.getResponses().get(0).getSchema();
             if (responseSchema != null && !CoreUtils.isNullOrEmpty(responseSchema.getSummary())) {
-                description = formatReturnTypeJavaDoc(responseSchema.getSummary());
+                javaDoc = formatReturnTypeJavaDoc(responseSchema.getSummary());
             } else if (responseSchema != null
                 && responseSchema.getLanguage() != null
                 && responseSchema.getLanguage().getDefault() != null) {
                 String responseSchemaDescription = responseSchema.getLanguage().getDefault().getDescription();
                 if (!CoreUtils.isNullOrEmpty(responseSchemaDescription)) {
-                    description = formatReturnTypeJavaDoc(responseSchemaDescription);
+                    javaDoc = formatReturnTypeJavaDoc(responseSchemaDescription);
                 }
             }
         }
 
-        if (description == null
+        if (javaDoc == null
             && baseType == PrimitiveType.BOOLEAN
             && HttpMethod.HEAD == MethodUtil.getHttpMethod(operation)) {
             // Mono<Boolean> of HEAD method
-            description = "whether resource exists";
+            javaDoc = "whether resource exists";
         }
 
-        description = ReturnTypeDescriptionAssembler.assemble(description, returnType, baseType);
-        return description == null ? "the response" : description;
+        javaDoc = ReturnTypeJavaDocAssembler.assemble(javaDoc, returnType, baseType);
+        return javaDoc == null ? "the response" : javaDoc;
     }
 
-    private static String formatReturnTypeJavaDoc(String description) {
-        description = description.trim();
-        int endIndex = description.indexOf(". ");   // Get 1st sentence.
-        if (endIndex == -1 && !description.isEmpty() && description.charAt(description.length() - 1) == '.') {
+    private static String formatReturnTypeJavaDoc(String javaDoc) {
+        javaDoc = javaDoc.trim();
+        int endIndex = javaDoc.indexOf(". ");   // Get 1st sentence.
+        if (endIndex == -1 && !javaDoc.isEmpty() && javaDoc.charAt(javaDoc.length() - 1) == '.') {
             // Remove last period.
-            endIndex = description.length() - 1;
+            endIndex = javaDoc.length() - 1;
         }
         if (endIndex != -1) {
-            description = description.substring(0, endIndex);
+            javaDoc = javaDoc.substring(0, endIndex);
         }
-        if (!description.isEmpty() && Character.isUpperCase(description.charAt(0))) {
-            description = description.substring(0, 1).toLowerCase() + description.substring(1);
+        if (!javaDoc.isEmpty() && Character.isUpperCase(javaDoc.charAt(0))) {
+            javaDoc = javaDoc.substring(0, 1).toLowerCase() + javaDoc.substring(1);
         }
-        return description;
+        return javaDoc;
     }
 
     private ClientMethodsReturnDescription(Operation operation, IType asyncRestResponseReturnType,

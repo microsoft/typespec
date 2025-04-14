@@ -255,7 +255,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             expression = proxyParameter.getParameterReference();
                         }
 
-                        if (methodParameter.isRequired() && methodParameter.isReference()) {
+                        if (methodParameter.isRequired() && methodParameter.isReferenceClientType()) {
                             requiredParameterExpressions.add(expression);
                         }
                         final String validation = methodParameter.getClientType().validate(expression);
@@ -875,8 +875,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
             // begin method async
             methods.add(builder
-                .returnValue(clientMethodsReturnDescription
-                    .getLroBeginReturnValue(ClientMethodType.LongRunningBeginAsync, methodPollingDetails))
+                .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginAsync,
+                    methodPollingDetails))
                 .name(asyncMethodName)
                 .onlyRequiredParameters(false)
                 .type(ClientMethodType.LongRunningBeginAsync)
@@ -906,8 +906,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 || JavaSettings.getInstance().isSyncStackEnabled())) {
             // begin method sync
             methods.add(builder
-                .returnValue(clientMethodsReturnDescription
-                    .getLroBeginReturnValue(ClientMethodType.LongRunningBeginSync, methodPollingDetails))
+                .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginSync,
+                    methodPollingDetails))
                 .name(syncMethodName)
                 .onlyRequiredParameters(false)
                 .type(ClientMethodType.LongRunningBeginSync)

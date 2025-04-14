@@ -156,7 +156,7 @@ public abstract class MethodParameter {
      *
      * @return true if this parameter is of primitive type, false otherwise.
      */
-    public final boolean isPrimitive() {
+    public final boolean isPrimitiveClientType() {
         return clientType instanceof PrimitiveType;
     }
 
@@ -165,8 +165,8 @@ public abstract class MethodParameter {
      *
      * @return true if this parameter is of java reference type, false otherwise.
      */
-    public final boolean isReference() {
-        return !isPrimitive();
+    public final boolean isReferenceClientType() {
+        return !isPrimitiveClientType();
     }
 
     /**

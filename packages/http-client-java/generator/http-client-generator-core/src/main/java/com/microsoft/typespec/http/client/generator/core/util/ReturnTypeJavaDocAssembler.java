@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import reactor.core.publisher.Mono;
 
-public class ReturnTypeDescriptionAssembler {
+public class ReturnTypeJavaDocAssembler {
 
     /**
      * Assemble description for return types.
