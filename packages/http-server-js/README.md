@@ -45,6 +45,12 @@ If set to `true`, the emitter will generate a router that exposes an Express.js 
 
 If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.
 
+### `datetime`
+
+**Type:** `"temporal-polyfill" | "temporal" | "date-duration"`
+
+The type of datetime models to use for TypeSpecs DateTime and Duration types.
+
 ### `omit-unreachable-types`
 
 **Type:** `boolean`
