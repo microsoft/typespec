@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 defaultValue: Constant.String(contentType),
                 nameInRequest: "Content-Type",
                 isContentType: true,
-                kind: InputOperationParameterKind.Constant);
+                kind: InputParameterKind.Constant);
 
         public static InputParameter Parameter(
             string name,
@@ -76,7 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputConstant? defaultValue = null,
             InputRequestLocation location = InputRequestLocation.Body,
             bool isRequired = false,
-            InputOperationParameterKind kind = InputOperationParameterKind.Method,
+            InputParameterKind kind = InputParameterKind.Method,
             bool isEndpoint = false,
             bool isContentType = false,
             bool isApiVersion = false,
@@ -148,16 +148,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDiscriminator = false,
             string? wireName = null,
             string? summary = null,
-            string? doc = null)
+            string? serializedName = null,
+            string? doc = null,
+            InputModelPropertyKind kind = InputModelPropertyKind.Property)
         {
             return new InputModelProperty(
                 name,
+                kind,
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
+                serializedName,
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
@@ -210,6 +214,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputUnionType("union", [.. types]);
         }
 
+        public static InputBasicServiceMethod BasicServiceMethod(
+            string name,
+            InputOperation operation,
+            string access = "public",
+            IReadOnlyList<InputParameter>? parameters = null,
+            InputServiceMethodResponse? response = null,
+            InputServiceMethodResponse? exception = null)
+        {
+            return new InputBasicServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty);
+        }
+
+        public static InputPagingServiceMethod PagingServiceMethod(
+           string name,
+           InputOperation operation,
+           string access = "public",
+           IReadOnlyList<InputParameter>? parameters = null,
+           InputServiceMethodResponse? response = null,
+           InputServiceMethodResponse? exception = null)
+        {
+            return new InputPagingServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty);
+        }
+
         public static InputOperation Operation(
             string name,
             string access = "public",
@@ -259,19 +311,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                [],
+                headers ?? [],
                 false,
                 ["application/json"]);
         }
 
+        public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
+        {
+            return new InputServiceMethodResponse(type, resultSegments);
+        }
+
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -281,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
-                operations is null ? [] : [.. operations],
+                methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,
                 clientChildren);

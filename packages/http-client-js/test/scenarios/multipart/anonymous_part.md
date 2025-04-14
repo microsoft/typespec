@@ -20,7 +20,12 @@ op foo(
 ```ts src/api/testClientOperations.ts function foo
 export async function foo(
   client: TestClientContext,
-  body: { temperature: { body: number; contentType: "text/plain" } },
+  body: {
+    temperature: {
+      body: number;
+      contentType: "text/plain";
+    };
+  },
   options?: FooOptions,
 ): Promise<void> {
   const path = parse("/").expand({});

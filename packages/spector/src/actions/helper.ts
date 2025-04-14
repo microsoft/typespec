@@ -38,7 +38,7 @@ function resolveUrl(request: ServiceRequest) {
     }
   }
 
-  endpoint = endpoint.replaceAll("[:]", ":");
+  endpoint = endpoint.replaceAll("\\:", ":");
 
   if (request.query) {
     const query = new URLSearchParams();

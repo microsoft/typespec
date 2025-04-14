@@ -69,11 +69,9 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
-            if (CodeModelGenerator.Instance.Configuration.ClearOutputFolder)
-            {
-                DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
-                DeleteDirectory(generatedTestOutputPath, _filesToKeep);
-            }
+            // Delete any old generated files
+            DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+            DeleteDirectory(generatedTestOutputPath, _filesToKeep);
 
             await generatedCodeWorkspace.PostProcessAsync();
 
