@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model } from "@typespec/compiler";
+import { Model, ModelProperty } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
 
@@ -18,7 +18,19 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
   }
 
   if (props.target === "application") {
-    const properties = $.model.getProperties(props.type, { includeExtended: true });
+    const properties = new Map<string, ModelProperty>();
+    for (const [key, value] of $.model.getProperties(props.type, { includeExtended: true })) {
+      if (
+        !$.type.isNever(value.type) &&
+        !$.modelProperty.isHttpHeader(value) &&
+        !$.modelProperty.isHttpPathParam(value) &&
+        !$.modelProperty.isHttpQueryParam(value)
+      ) {
+        continue;
+      }
+      properties.set(key, value);
+    }
+
     const destructuredProperties = ay.mapJoin(
       () => properties,
       (name) => name,

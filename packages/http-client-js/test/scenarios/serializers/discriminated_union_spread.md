@@ -62,7 +62,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
   }
   return {
     additionalProperties: jsonRecordWidgetDataToApplicationTransform(
-      (({ name, ...rest }) => rest)(input_),
+      (({ ...rest }) => rest)(input_),
     ),
     name: input_.name,
   }!;

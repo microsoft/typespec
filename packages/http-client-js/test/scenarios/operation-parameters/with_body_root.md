@@ -49,7 +49,6 @@ The options bag should like all the optional parameters of the operation
 
 ```ts src/api/testClientOperations.ts interface CreateOptions
 export interface CreateOptions extends OperationOptions {
-  age?: string;
   foo?: string;
 }
 ```
