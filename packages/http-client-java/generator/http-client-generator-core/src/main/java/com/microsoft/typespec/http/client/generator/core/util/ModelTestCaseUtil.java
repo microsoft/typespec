@@ -105,7 +105,8 @@ public class ModelTestCaseUtil {
         } else if (type.asNullable() == ClassType.DOUBLE) {
             return RANDOM.nextDouble() * 100;
         } else if (type.asNullable() == ClassType.BOOLEAN) {
-            return RANDOM.nextBoolean();
+            // always returns false for boolean, for HEAD operation
+            return false;
         } else if (type == ClassType.STRING) {
             return randomString();
         } else if (type.asNullable() == ClassType.UNIX_TIME_LONG) {
