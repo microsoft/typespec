@@ -11,15 +11,17 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkHttpParameter,
   SdkModelPropertyType,
   SdkModelType,
   SdkTupleType,
   SdkType,
   SdkUnionType,
   getAccessOverride,
-  isReadOnly,
+  isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -132,10 +134,11 @@ export function fromSdkModelType(
 
     const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
     for (const property of modelType.properties) {
-      if (property.kind !== "property") {
+      const ourProperty = fromSdkModelProperty(sdkContext, property);
+
+      if (!ourProperty) {
         continue;
       }
-      const ourProperty = fromSdkModelProperty(sdkContext, property);
       propertiesDict.set(property, ourProperty);
     }
 
@@ -162,6 +165,46 @@ export function fromSdkModelType(
   return inputModelType;
 
   function fromSdkModelProperty(
+    sdkContext: CSharpEmitterContext,
+    property: SdkModelPropertyType,
+  ): InputModelProperty | undefined {
+    switch (property.kind) {
+      case "property":
+        return fromSdkBodyModelProperty(sdkContext, property);
+      case "header":
+      case "query":
+      case "path":
+        return fromSdkHttpParameterModelProperty(sdkContext, property);
+      default:
+        return undefined;
+    }
+  }
+
+  function fromSdkHttpParameterModelProperty(
+    sdkContext: CSharpEmitterContext,
+    property: SdkHttpParameter,
+  ): InputModelProperty {
+    const targetType = property.type;
+
+    const modelHeaderProperty: InputModelProperty = {
+      kind: property.kind,
+      name: property.name,
+      serializedName: property.serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, targetType),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      discriminator: false,
+      flatten: false,
+    };
+
+    return modelHeaderProperty;
+  }
+
+  function fromSdkBodyModelProperty(
     sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
   ): InputModelProperty {
@@ -370,4 +413,16 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
+}
+
+function isReadOnly(prop: SdkModelPropertyType): boolean {
+  if (prop.kind === "property") {
+    return tcgcIsReadOnly(prop);
+  }
+
+  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
+    return true;
+  } else {
+    return false;
+  }
 }
