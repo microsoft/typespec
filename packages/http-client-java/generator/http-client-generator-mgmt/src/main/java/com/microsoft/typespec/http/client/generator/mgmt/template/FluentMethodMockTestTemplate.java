@@ -19,6 +19,9 @@ import com.microsoft.typespec.http.client.generator.core.template.example.ModelE
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,8 +30,6 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {
@@ -72,6 +73,7 @@ public class FluentMethodMockTestTemplate
             fluentReturnType = FluentUtils.getValueTypeFromResponseType(fluentReturnType);
         }
         final boolean hasReturnValue = fluentReturnType.asNullable() != ClassType.VOID;
+        final boolean isCheckExistence = fluentReturnType.asNullable() == ClassType.BOOLEAN;
 
         // method invocation
         String clientMethodInvocationWithResponse;
@@ -99,7 +101,7 @@ public class FluentMethodMockTestTemplate
         fluentReturnType.addImportsTo(imports, false);
 
         // create response body with mocked data
-        int statusCode = fluentMethodMockUnitTest.getResponse().getStatusCode();
+        int statusCode = isCheckExistence? 404 : fluentMethodMockUnitTest.getResponse().getStatusCode();
         Object jsonObject = fluentMethodMockUnitTest.getResponse().getBody();
         ExampleNode verificationNode = fluentMethodMockUnitTest.getResponseVerificationNode();
         String verificationObjectName = fluentMethodMockUnitTest.getResponseVerificationVariableName();
@@ -129,12 +131,16 @@ public class FluentMethodMockTestTemplate
             classBlock.publicMethod(
                 "void test" + CodeNamer.toPascalCase(clientMethod.getName()) + "() throws Exception", methodBlock -> {
                     // response
-                    methodBlock.line("String responseStr = " + ClassType.STRING.defaultValueExpression(jsonStr) + ";");
-                    methodBlock.line();
+                    if (!isCheckExistence) {
+                        methodBlock.line("String responseStr = " + ClassType.STRING.defaultValueExpression(jsonStr) + ";");
+                        methodBlock.line();
+                    }
+
+                    String responseBodyBytes = isCheckExistence ? "" : ", responseStr.getBytes(StandardCharsets.UTF_8)";
 
                     // prepare mock class
                     methodBlock.line("HttpClient httpClient = response -> Mono.just(new MockHttpResponse(response, "
-                        + statusCode + ", responseStr.getBytes(StandardCharsets.UTF_8)));");
+                        + statusCode + responseBodyBytes +"));");
 
                     // initialize manager
                     String exampleMethodName = exampleMethod.getExample().getEntryType().getName();
