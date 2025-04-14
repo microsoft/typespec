@@ -1154,6 +1154,15 @@ public class JavaSettings {
         return dataPlaneClient;
     }
 
+    /**
+     * Whether the client is vanilla client.
+     *
+     * @return Whether the client is a vanilla client.
+     */
+    public boolean isVanilla() {
+        return isBranded() && !isDataPlaneClient() && !isFluent();
+    }
+
     private final boolean useIterable;
 
     /**

@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var inputLibrary = new InputLibrary(Helpers.GetAssetFileOrDirectoryPath(false));
             var inputNamespace = inputLibrary.Load();
 
-            var nextLinkOperation = inputNamespace.Clients.First().Operations.FirstOrDefault(x => x.Name == "ListWithNextLink");
+            var nextLinkOperation = inputNamespace.Clients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithNextLink")?.Operation;
             Assert.IsNotNull(nextLinkOperation);
             Assert.IsNotNull(nextLinkOperation!.Paging);
 
@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("next", nextLink.ResponseSegments[0]);
             Assert.AreEqual(InputResponseLocation.Body, nextLink.ResponseLocation);
 
-            var continuationOperation = inputNamespace.Clients.First().Operations.FirstOrDefault(x => x.Name == "ListWithContinuationToken");
+            var continuationOperation = inputNamespace.Clients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithContinuationToken")?.Operation;
             Assert.IsNotNull(continuationOperation);
             Assert.IsNotNull(continuationOperation!.Paging);
 

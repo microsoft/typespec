@@ -150,7 +150,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
       export
       name={functionName}
       refkey={ref}
-      parameters={{ item: itemType }}
+      parameters={[{ name: "item", type: itemType }]}
       returnType={returnType}
     >
       {transformExpression}

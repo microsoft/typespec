@@ -1,4 +1,4 @@
-import { Children, refkey as getRefkey } from "@alloy-js/core";
+import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
@@ -18,45 +18,57 @@ export function getReturnType(
 }
 
 export interface BuildParameterDescriptorsOptions {
-  params?: Record<string, Children | ts.ParameterDescriptor>;
+  params?: ts.ParameterDescriptor[] | string[] | undefined;
   mode?: "prepend" | "append" | "replace";
 }
 
 export function buildParameterDescriptors(
   type: Model,
   options: BuildParameterDescriptorsOptions = {},
-) {
+): ts.ParameterDescriptor[] | undefined {
+  const optionsParams = normalizeParameters(options.params);
+
   if (options.mode === "replace") {
-    return options.params;
+    return optionsParams;
   }
-  const operationParams: Record<string, Children | ts.ParameterDescriptor> = {};
 
   const modelProperties = $.model.getProperties(type);
-  for (const prop of modelProperties.values()) {
-    const [paramName, paramDescriptor] = buildParameterDescriptor(prop);
-    operationParams[paramName] = paramDescriptor;
-  }
+  const operationParams = [...modelProperties.values()].map(buildParameterDescriptor);
 
   // Merge parameters based on location
   const allParams =
     options.mode === "append"
-      ? { ...operationParams, ...options.params }
-      : { ...options.params, ...operationParams };
+      ? operationParams.concat(optionsParams)
+      : optionsParams.concat(operationParams);
 
   return allParams;
 }
 
-export function buildParameterDescriptor(
-  modelProperty: ModelProperty,
-): [string, ts.ParameterDescriptor] {
+export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
   const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
-  const paramDescriptor: ts.ParameterDescriptor = {
+  return {
+    name: paramName,
     refkey: getRefkey(modelProperty),
     optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
   };
+}
 
-  return [paramName, paramDescriptor];
+/**
+ * Convert a parameter descriptor array, string array, or undefined to
+ * a parameter descriptor array.
+ */
+function normalizeParameters(
+  params: ts.ParameterDescriptor[] | string[] | undefined,
+): ts.ParameterDescriptor[] {
+  if (!params) return [];
+
+  return params.map((param) => {
+    if (typeof param === "string") {
+      return { name: param };
+    }
+    return param;
+  });
 }
