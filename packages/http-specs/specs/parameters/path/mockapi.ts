@@ -3,7 +3,7 @@ import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 Scenarios.Parameters_Path_normal = passOnSuccess({
-  uri: "/parameters/path/normal",
+  uri: "/parameters/path/normal/foo",
   method: "get",
 
   response: {
