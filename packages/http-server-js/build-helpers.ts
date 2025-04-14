@@ -162,7 +162,7 @@ async function main() {
       allFiles
         .filter((f) => f.startsWith(dir))
         // Remove the directory prefix and then check if it's a nested directory lower.
-        .map((f) => /^\/([a-zA-Z_-]+)\//.exec(f.replace(dir, "")))
+        .map((f) => /^[/\\]([a-zA-Z_-]+)[/\\]/.exec(f.replace(dir, "")))
         .filter((match) => !!match)
         .map((match) => match[1]),
     );
