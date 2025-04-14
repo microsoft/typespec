@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import process from "process";
@@ -239,6 +239,8 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command, { stdio: [process.stdin, process.stdout] });
+      await runBlack(venvPath, outputDir);
+      await checkForPylintIssues(outputDir);
     }
   }
 }
@@ -281,4 +283,64 @@ async function setupPyodideCall(root: string) {
     }
   }
   return pyodide;
+}
+
+async function runBlack(venvPath: string, outputDir: string): Promise<void> {
+  const blackCommand = `${venvPath} -m black --line-length=120 --fast ${outputDir}`;
+  await new Promise((resolve, reject) => {
+    exec(blackCommand, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(stdout);
+    });
+  }); 
+}
+
+function checkForPylintIssues(outputDir: string) {
+  const processFile = (filePath: string) => {
+    let fileContent = "";
+    try {
+      fileContent = fs.readFileSync(filePath, 'utf-8');
+    } catch (e: any) {
+      throw e;
+    }
+
+    let pylintDisables: string[] = [];
+    let lines: string[] = fileContent.split("\n");
+    if (lines.length > 0) {
+      if (!lines[0].includes("line-too-long") && lines.some(line => line.length > 120)) {
+        pylintDisables.push("line-too-long", "useless-suppression");
+      }
+      if (!lines[0].includes("too-many-lines") && lines.length > 1000) {
+        pylintDisables.push("too-many-lines");
+      }
+      if (pylintDisables.length > 0) {
+        fileContent = lines[0].includes("pylint: disable=")
+          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join("\n")
+          : `# pylint: disable=${pylintDisables.join(",")}\n` + fileContent;
+      }
+    }
+
+    try {
+      fs.writeFileSync(filePath, fileContent);
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  const walkDir = (dir: string) => {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        walkDir(filePath);
+      } else if (file.endsWith('.py')) {
+        processFile(filePath);
+      }
+    });
+  };
+
+  walkDir(outputDir);
 }
