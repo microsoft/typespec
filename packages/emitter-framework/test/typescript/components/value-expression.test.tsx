@@ -1,9 +1,9 @@
 import { Output, render } from "@alloy-js/core";
 import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { EnumValue, Namespace, Numeric, NumericValue, Value } from "@typespec/compiler";
+import { EnumValue, Model, Namespace, Numeric, NumericValue, Value } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { assert, beforeAll, expect, it } from "vitest";
+import { assert, beforeAll, describe, expect, it } from "vitest";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
 import { getProgram, initEmptyProgram } from "../test-host.js";
 
@@ -17,27 +17,40 @@ it("renders strings", async () => {
   await testValueExpression(value, `"test"`);
 });
 
-it("renders integers", async () => {
-  const value = $.value.createNumeric(42);
+describe("numeric values", () => {
+  it("renders integers", async () => {
+    const value = $.value.createNumeric(42);
 
-  await testValueExpression(value, `42`);
-});
+    await testValueExpression(value, `42`);
+  });
 
-it("renders decimals", async () => {
-  const value = $.value.createNumeric(42.5);
+  it("renders decimals", async () => {
+    const value = $.value.createNumeric(42.5);
 
-  await testValueExpression(value, `42.5`);
-});
+    await testValueExpression(value, `42.5`);
+  });
 
-it("renders bigints", async () => {
-  const digits = "1234567890123456789012345678901234567890";
-  const value: NumericValue = {
-    entityKind: "Value",
-    valueKind: "NumericValue",
-    value: Numeric(digits),
-  } as NumericValue;
+  it("renders bigints", async () => {
+    const digits = "1234567890123456789012345678901234567890";
+    const value: NumericValue = {
+      entityKind: "Value",
+      valueKind: "NumericValue",
+      value: Numeric(digits),
+    } as NumericValue;
 
-  await testValueExpression(value, `${digits}n`);
+    await testValueExpression(value, `${digits}n`);
+  });
+
+  it("throws on invalid numbers", async () => {
+    const digits = "123456789123456789.112233445566778899";
+    const value: NumericValue = {
+      entityKind: "Value",
+      valueKind: "NumericValue",
+      value: Numeric(digits),
+    } as NumericValue;
+
+    await expect(testValueExpression(value, ``)).rejects.toThrow("BigInt value must be an integer");
+  });
 });
 
 it("renders booleans", async () => {
@@ -103,13 +116,12 @@ it("throws on unsupported scalar", async () => {
       }
     `);
   const [namespace] = program.resolveTypeReference("DemoService");
-  const customScalar = (namespace as Namespace).models.get("IpAddress");
-  assert.exists(customScalar, "unable to find custom scalar");
-  const decorator = customScalar?.decorators.find((d) => d.definition?.name === "@example");
-  assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
-  const value = decorator.args[0].value as Value;
+  const model = (namespace as Namespace).models.get("IpAddress");
+  assert.exists(model, "unable to find IpAddress model");
+
+  const value = getExampleValue(model);
   await expect(testValueExpression(value, ``)).rejects.toThrow(
-    "Unsupported scalar constructor: fromInt",
+    /Unsupported scalar constructor fromInt/,
   );
 });
 
@@ -121,10 +133,11 @@ it("renders empty objects", async () => {
       model ObjectValue {};
     `);
   const [namespace] = program.resolveTypeReference("DemoService");
-  const objectValue = (namespace as Namespace).models.get("ObjectValue");
-  const decorator = objectValue?.decorators.find((d) => d.definition?.name === "@example");
-  assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
-  await testValueExpression(decorator.args[0].value as Value, `{}`);
+  const model = (namespace as Namespace).models.get("ObjectValue");
+  assert.exists(model, "unable to find ObjectValue model");
+
+  const value = getExampleValue(model);
+  await testValueExpression(value, `{}`);
 });
 
 it("renders objects with properties", async () => {
@@ -139,11 +152,12 @@ it("renders objects with properties", async () => {
       };
     `);
   const [namespace] = program.resolveTypeReference("DemoService");
-  const objectValue = (namespace as Namespace).models.get("ObjectValue");
-  const decorator = objectValue?.decorators.find((d) => d.definition?.name === "@example");
-  assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
+  const model = (namespace as Namespace).models.get("ObjectValue");
+  assert.exists(model, "unable to find ObjectValue model");
+
+  const value = getExampleValue(model);
   await testValueExpression(
-    decorator.args[0].value as Value,
+    value,
     dedent(`
       {
         a: 5,
@@ -166,6 +180,7 @@ it("renders enums", async () => {
   const [namespace] = program.resolveTypeReference("DemoService");
   const colors = (namespace as Namespace).enums.get("Color");
   assert.exists(colors, "unable to find Color enum");
+
   const red = colors?.members.get("Red");
   assert.exists(red, "unable to find Red enum member");
   await testValueExpression(
@@ -204,9 +219,19 @@ async function testValueExpression(value: Value, expected: string) {
 
   assert.exists(testFile, "test.ts file not rendered");
 
+  console.log(testFile.contents);
   assert.equal(
     testFile.contents,
     `${prefix}${expected}`,
     "test.ts file contents do not match expected",
   );
+}
+
+/**
+ * Extracts the value marked with the @example decorator from a model.
+ */
+function getExampleValue(model: Model): Value {
+  const decorator = model?.decorators.find((d) => d.definition?.name === "@example");
+  assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
+  return decorator.args[0].value as Value;
 }
