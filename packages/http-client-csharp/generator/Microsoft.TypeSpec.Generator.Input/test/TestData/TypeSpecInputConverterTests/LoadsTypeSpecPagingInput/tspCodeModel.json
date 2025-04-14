@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
  "$id": "1",
  "name": "SampleTypeSpec",
  "apiVersions": [
@@ -2280,6 +2279,124 @@
      }
     }
    ]
+  },
+  {
+   "$id": "301",
+   "kind": "model",
+   "name": "ModelWithEmbeddedNonBodyParameters",
+   "namespace": "SampleTypeSpec",
+   "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters",
+   "usage": "Input,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "302",
+     "kind": "property",
+     "name": "name",
+     "serializedName": "name",
+     "doc": "name of the ModelWithEmbeddedNonBodyParameters",
+     "type": {
+      "$id": "303",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.name",
+     "serializationOptions": {
+      "$id": "304",
+      "json": {
+       "$id": "305",
+       "name": "name"
+      }
+     }
+    },
+    {
+     "$id": "306",
+     "kind": "header",
+     "name": "requiredHeader",
+     "serializedName": "required-header",
+     "doc": "required header parameter",
+     "type": {
+      "$id": "307",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredHeader",
+     "discriminator": false,
+     "flatten": false
+    },
+    {
+     "$id": "308",
+     "kind": "header",
+     "name": "optionalHeader",
+     "serializedName": "optional-header",
+     "doc": "optional header parameter",
+     "type": {
+      "$id": "309",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalHeader",
+     "discriminator": false,
+     "flatten": false
+    },
+    {
+     "$id": "310",
+     "kind": "query",
+     "name": "requiredQuery",
+     "serializedName": "requiredQuery",
+     "doc": "required query parameter",
+     "type": {
+      "$id": "311",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredQuery",
+     "discriminator": false,
+     "flatten": false
+    },
+    {
+     "$id": "312",
+     "kind": "query",
+     "name": "optionalQuery",
+     "serializedName": "optionalQuery",
+     "doc": "optional query parameter",
+     "type": {
+      "$id": "313",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": true,
+     "readOnly": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalQuery",
+     "discriminator": false,
+     "flatten": false
+    }
+   ]
   }
  ],
  "constants": [
@@ -2308,12 +2425,12 @@
    "$ref": "131"
   },
   {
-   "$id": "301",
+   "$id": "314",
    "kind": "constant",
    "name": "sayHiContentType",
    "namespace": "",
    "valueType": {
-    "$id": "302",
+    "$id": "315",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2323,12 +2440,12 @@
    "decorators": []
   },
   {
-   "$id": "303",
+   "$id": "316",
    "kind": "constant",
    "name": "HelloAgainRequestContentType",
    "namespace": "",
    "valueType": {
-    "$id": "304",
+    "$id": "317",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2338,12 +2455,12 @@
    "decorators": []
   },
   {
-   "$id": "305",
+   "$id": "318",
    "kind": "constant",
    "name": "helloAgainContentType",
    "namespace": "",
    "valueType": {
-    "$id": "306",
+    "$id": "319",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2353,12 +2470,12 @@
    "decorators": []
   },
   {
-   "$id": "307",
+   "$id": "320",
    "kind": "constant",
    "name": "noContentTypeContentType",
    "namespace": "",
    "valueType": {
-    "$id": "308",
+    "$id": "321",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2368,12 +2485,12 @@
    "decorators": []
   },
   {
-   "$id": "309",
+   "$id": "322",
    "kind": "constant",
    "name": "helloDemo2ContentType",
    "namespace": "",
    "valueType": {
-    "$id": "310",
+    "$id": "323",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2383,12 +2500,12 @@
    "decorators": []
   },
   {
-   "$id": "311",
+   "$id": "324",
    "kind": "constant",
    "name": "createLiteralContentType",
    "namespace": "",
    "valueType": {
-    "$id": "312",
+    "$id": "325",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2398,12 +2515,12 @@
    "decorators": []
   },
   {
-   "$id": "313",
+   "$id": "326",
    "kind": "constant",
    "name": "HelloLiteralRequestP1",
    "namespace": "",
    "valueType": {
-    "$id": "314",
+    "$id": "327",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2413,12 +2530,12 @@
    "decorators": []
   },
   {
-   "$id": "315",
+   "$id": "328",
    "kind": "constant",
    "name": "helloLiteralContentType",
    "namespace": "",
    "valueType": {
-    "$id": "316",
+    "$id": "329",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2428,12 +2545,12 @@
    "decorators": []
   },
   {
-   "$id": "317",
+   "$id": "330",
    "kind": "constant",
    "name": "topActionContentType",
    "namespace": "",
    "valueType": {
-    "$id": "318",
+    "$id": "331",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2443,12 +2560,12 @@
    "decorators": []
   },
   {
-   "$id": "319",
+   "$id": "332",
    "kind": "constant",
    "name": "topAction2ContentType",
    "namespace": "",
    "valueType": {
-    "$id": "320",
+    "$id": "333",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2458,12 +2575,12 @@
    "decorators": []
   },
   {
-   "$id": "321",
+   "$id": "334",
    "kind": "constant",
    "name": "patchActionContentType",
    "namespace": "",
    "valueType": {
-    "$id": "322",
+    "$id": "335",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2473,12 +2590,12 @@
    "decorators": []
   },
   {
-   "$id": "323",
+   "$id": "336",
    "kind": "constant",
    "name": "anonymousBodyContentType",
    "namespace": "",
    "valueType": {
-    "$id": "324",
+    "$id": "337",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2488,12 +2605,12 @@
    "decorators": []
   },
   {
-   "$id": "325",
+   "$id": "338",
    "kind": "constant",
    "name": "friendlyModelContentType",
    "namespace": "",
    "valueType": {
-    "$id": "326",
+    "$id": "339",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2503,12 +2620,12 @@
    "decorators": []
   },
   {
-   "$id": "327",
+   "$id": "340",
    "kind": "constant",
    "name": "projectedNameModelContentType",
    "namespace": "",
    "valueType": {
-    "$id": "328",
+    "$id": "341",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2518,12 +2635,12 @@
    "decorators": []
   },
   {
-   "$id": "329",
+   "$id": "342",
    "kind": "constant",
    "name": "returnsAnonymousModelContentType",
    "namespace": "",
    "valueType": {
-    "$id": "330",
+    "$id": "343",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2533,12 +2650,12 @@
    "decorators": []
   },
   {
-   "$id": "331",
+   "$id": "344",
    "kind": "constant",
    "name": "GetUnknownValueResponse6",
    "namespace": "",
    "valueType": {
-    "$id": "332",
+    "$id": "345",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2548,12 +2665,12 @@
    "decorators": []
   },
   {
-   "$id": "333",
+   "$id": "346",
    "kind": "constant",
    "name": "internalProtocolContentType",
    "namespace": "",
    "valueType": {
-    "$id": "334",
+    "$id": "347",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2563,12 +2680,12 @@
    "decorators": []
   },
   {
-   "$id": "335",
+   "$id": "348",
    "kind": "constant",
    "name": "ListWithNextLinkContentType",
    "namespace": "",
    "valueType": {
-    "$id": "336",
+    "$id": "349",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2578,12 +2695,12 @@
    "decorators": []
   },
   {
-   "$id": "337",
+   "$id": "350",
    "kind": "constant",
    "name": "ListWithContinuationTokenContentType",
    "namespace": "",
    "valueType": {
-    "$id": "338",
+    "$id": "351",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2593,12 +2710,12 @@
    "decorators": []
   },
   {
-   "$id": "339",
+   "$id": "352",
    "kind": "constant",
    "name": "ListWithContinuationTokenHeaderResponseContentType",
    "namespace": "",
    "valueType": {
-    "$id": "340",
+    "$id": "353",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2608,12 +2725,27 @@
    "decorators": []
   },
   {
-   "$id": "341",
+   "$id": "354",
    "kind": "constant",
    "name": "ListWithPagingContentType",
    "namespace": "",
    "valueType": {
-    "$id": "342",
+    "$id": "355",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "356",
+   "kind": "constant",
+   "name": "EmbeddedParametersContentType",
+   "namespace": "",
+   "valueType": {
+    "$id": "357",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2625,25 +2757,142 @@
  ],
  "clients": [
   {
-   "$id": "343",
+   "$id": "358",
    "kind": "client",
    "name": "SampleTypeSpecClient",
    "namespace": "SampleTypeSpec",
    "doc": "This is a sample typespec project.",
-   "operations": [
+   "methods": [
     {
-     "$id": "344",
+     "$id": "359",
+     "kind": "basic",
      "name": "sayHi",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Return hi",
      "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Return hi",
+     "operation": {
+      "$id": "360",
+      "name": "sayHi",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Return hi",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "361",
+        "name": "headParameter",
+        "nameInRequest": "head-parameter",
+        "type": {
+         "$id": "362",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "363",
+        "name": "queryParameter",
+        "nameInRequest": "queryParameter",
+        "type": {
+         "$id": "364",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "365",
+        "name": "optionalQuery",
+        "nameInRequest": "optionalQuery",
+        "type": {
+         "$id": "366",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "367",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "314"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "368",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/hello",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.sayHi",
+      "decorators": []
+     },
      "parameters": [
       {
-       "$id": "345",
+       "$id": "369",
        "name": "headParameter",
        "nameInRequest": "head-parameter",
        "type": {
-        "$id": "346",
+        "$id": "370",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2660,11 +2909,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "347",
+       "$id": "371",
        "name": "queryParameter",
        "nameInRequest": "queryParameter",
        "type": {
-        "$id": "348",
+        "$id": "372",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2681,11 +2930,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "349",
+       "$id": "373",
        "name": "optionalQuery",
        "nameInRequest": "optionalQuery",
        "type": {
-        "$id": "350",
+        "$id": "374",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2702,388 +2951,218 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "351",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "301"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "352",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/hello",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi",
-     "decorators": []
-    },
-    {
-     "$id": "353",
-     "name": "helloAgain",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Return hi again",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "354",
-       "name": "p1",
-       "nameInRequest": "p1",
-       "type": {
-        "$id": "355",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "356",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "type": {
-        "$ref": "303"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "357",
-       "name": "p2",
-       "nameInRequest": "p2",
-       "type": {
-        "$id": "358",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Path",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "359",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "305"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "360",
-       "name": "action",
-       "nameInRequest": "action",
-       "type": {
-        "$ref": "151"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "361",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "151"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/againHi/{p2}",
-     "requestMediaTypes": [
-      "text/plain"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain",
-     "decorators": []
-    },
-    {
-     "$id": "362",
-     "name": "noContentType",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Return hi again",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "363",
-       "name": "p1",
-       "nameInRequest": "p1",
-       "type": {
-        "$id": "364",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "365",
-       "name": "p2",
-       "nameInRequest": "p2",
-       "type": {
-        "$id": "366",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Path",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "367",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "307"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "368",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "307"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "369",
-       "name": "action",
-       "nameInRequest": "action",
-       "type": {
-        "$ref": "151"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "370",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "151"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/noContentType/{p2}",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": false,
-     "crossLanguageDefinitionId": "SampleTypeSpec.noContentType",
-     "decorators": []
-    },
-    {
-     "$id": "371",
-     "name": "helloDemo2",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Return hi in demo2",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "372",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "309"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "373",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/demoHi",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2",
-     "decorators": []
-    },
-    {
-     "$id": "374",
-     "name": "createLiteral",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Create with literal value",
-     "accessibility": "public",
-     "parameters": [
-      {
        "$id": "375",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
+       "name": "accept",
+       "nameInRequest": "accept",
        "type": {
-        "$ref": "311"
+        "$ref": "314"
        },
        "location": "Header",
        "isApiVersion": false,
-       "isContentType": true,
+       "isContentType": false,
        "isEndpoint": false,
        "explode": false,
        "isRequired": true,
        "kind": "Constant",
        "decorators": [],
        "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "376",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.sayHi"
+    },
+    {
+     "$id": "377",
+     "kind": "basic",
+     "name": "helloAgain",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Return hi again",
+     "operation": {
+      "$id": "378",
+      "name": "helloAgain",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Return hi again",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "379",
+        "name": "p1",
+        "nameInRequest": "p1",
+        "type": {
+         "$id": "380",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "381",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "type": {
+         "$ref": "316"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "382",
+        "name": "p2",
+        "nameInRequest": "p2",
+        "type": {
+         "$id": "383",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Path",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "384",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "318"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "385",
+        "name": "action",
+        "nameInRequest": "action",
+        "type": {
+         "$ref": "151"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "386",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "151"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/againHi/{p2}",
+      "requestMediaTypes": [
+       "text/plain"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "387",
+       "name": "p1",
+       "nameInRequest": "p1",
+       "type": {
+        "$id": "388",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "376",
-       "name": "accept",
-       "nameInRequest": "Accept",
+       "$id": "389",
+       "name": "action",
+       "nameInRequest": "action",
        "type": {
-        "$ref": "311"
+        "$ref": "151"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "390",
+       "name": "contentType",
+       "nameInRequest": "content-type",
+       "type": {
+        "$ref": "316"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -3096,7 +3175,493 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "377",
+       "$id": "391",
+       "name": "p2",
+       "nameInRequest": "p2",
+       "type": {
+        "$id": "392",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Path",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "393",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "318"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "394",
+      "type": {
+       "$ref": "151"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.helloAgain"
+    },
+    {
+     "$id": "395",
+     "kind": "basic",
+     "name": "noContentType",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Return hi again",
+     "operation": {
+      "$id": "396",
+      "name": "noContentType",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Return hi again",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "397",
+        "name": "p1",
+        "nameInRequest": "p1",
+        "type": {
+         "$id": "398",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "399",
+        "name": "p2",
+        "nameInRequest": "p2",
+        "type": {
+         "$id": "400",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Path",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "401",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "320"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "402",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "320"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "403",
+        "name": "action",
+        "nameInRequest": "action",
+        "type": {
+         "$ref": "151"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "404",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "151"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/noContentType/{p2}",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": false,
+      "crossLanguageDefinitionId": "SampleTypeSpec.noContentType",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "405",
+       "name": "p1",
+       "nameInRequest": "p1",
+       "type": {
+        "$id": "406",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "407",
+       "name": "action",
+       "nameInRequest": "action",
+       "type": {
+        "$ref": "151"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "408",
+       "name": "p2",
+       "nameInRequest": "p2",
+       "type": {
+        "$id": "409",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Path",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "410",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "320"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "411",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "320"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "412",
+      "type": {
+       "$ref": "151"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": false,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.noContentType"
+    },
+    {
+     "$id": "413",
+     "kind": "basic",
+     "name": "helloDemo2",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Return hi in demo2",
+     "operation": {
+      "$id": "414",
+      "name": "helloDemo2",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Return hi in demo2",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "415",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "322"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "416",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/demoHi",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "417",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "322"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "418",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2"
+    },
+    {
+     "$id": "419",
+     "kind": "basic",
+     "name": "createLiteral",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Create with literal value",
+     "operation": {
+      "$id": "420",
+      "name": "createLiteral",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Create with literal value",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "421",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "324"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "422",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "324"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "423",
+        "name": "body",
+        "nameInRequest": "body",
+        "type": {
+         "$ref": "72"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "424",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/literal",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "425",
        "name": "body",
        "nameInRequest": "body",
        "type": {
@@ -3111,49 +3676,14 @@
        "kind": "Method",
        "decorators": [],
        "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
+      },
       {
-       "$id": "378",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/literal",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral",
-     "decorators": []
-    },
-    {
-     "$id": "379",
-     "name": "helloLiteral",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Send literal parameters",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "380",
-       "name": "p1",
-       "nameInRequest": "p1",
+       "$id": "426",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "313"
+        "$ref": "324"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -3166,7 +3696,165 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "381",
+       "$id": "427",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "324"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "428",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.createLiteral"
+    },
+    {
+     "$id": "429",
+     "kind": "basic",
+     "name": "helloLiteral",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Send literal parameters",
+     "operation": {
+      "$id": "430",
+      "name": "helloLiteral",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Send literal parameters",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "431",
+        "name": "p1",
+        "nameInRequest": "p1",
+        "type": {
+         "$ref": "326"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "432",
+        "name": "p2",
+        "nameInRequest": "p2",
+        "type": {
+         "$ref": "101"
+        },
+        "location": "Path",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "433",
+        "name": "p3",
+        "nameInRequest": "p3",
+        "type": {
+         "$ref": "131"
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "434",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "328"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "435",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/helloLiteral/{p2}",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "436",
+       "name": "p1",
+       "nameInRequest": "p1",
+       "type": {
+        "$ref": "326"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "437",
        "name": "p2",
        "nameInRequest": "p2",
        "type": {
@@ -3183,7 +3871,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "382",
+       "$id": "438",
        "name": "p3",
        "nameInRequest": "p3",
        "type": {
@@ -3200,11 +3888,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "383",
+       "$id": "439",
        "name": "accept",
-       "nameInRequest": "Accept",
+       "nameInRequest": "accept",
        "type": {
-        "$ref": "315"
+        "$ref": "328"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -3217,1210 +3905,142 @@
        "skipUrlEncoding": false
       }
      ],
-     "responses": [
-      {
-       "$id": "384",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+     "response": {
+      "$id": "440",
+      "type": {
+       "$ref": "72"
       }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/helloLiteral/{p2}",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral",
-     "decorators": []
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.helloLiteral"
     },
     {
-     "$id": "385",
+     "$id": "441",
+     "kind": "basic",
      "name": "topAction",
-     "resourceName": "SampleTypeSpec",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
      "doc": "top level method",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "386",
-       "name": "action",
-       "nameInRequest": "action",
-       "type": {
-        "$id": "387",
-        "kind": "utcDateTime",
-        "name": "utcDateTime",
-        "encode": "rfc3339",
-        "wireType": {
-         "$id": "388",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
-        "decorators": []
-       },
-       "location": "Path",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "389",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "317"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "390",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/top/{action}",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.topAction",
-     "decorators": []
-    },
-    {
-     "$id": "391",
-     "name": "topAction2",
-     "resourceName": "SampleTypeSpec",
-     "doc": "top level method2",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "392",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "319"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "393",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/top2",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": false,
-     "crossLanguageDefinitionId": "SampleTypeSpec.topAction2",
-     "decorators": []
-    },
-    {
-     "$id": "394",
-     "name": "patchAction",
-     "resourceName": "SampleTypeSpec",
-     "doc": "top level patch",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "395",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "321"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "396",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "321"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "397",
-       "name": "body",
-       "nameInRequest": "body",
-       "type": {
-        "$ref": "72"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "398",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "PATCH",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/patch",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": false,
-     "crossLanguageDefinitionId": "SampleTypeSpec.patchAction",
-     "decorators": []
-    },
-    {
-     "$id": "399",
-     "name": "anonymousBody",
-     "resourceName": "SampleTypeSpec",
-     "doc": "body parameter without body decorator",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "400",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "323"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "401",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "323"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "402",
-       "name": "thing",
-       "nameInRequest": "thing",
-       "type": {
-        "$ref": "72"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "403",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/anonymousBody",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody",
-     "decorators": []
-    },
-    {
-     "$id": "404",
-     "name": "friendlyModel",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Model can have its friendly name",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "405",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "325"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "406",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "325"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "407",
-       "name": "friend",
-       "nameInRequest": "friend",
-       "type": {
-        "$ref": "262"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "408",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "262"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/friendlyName",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel",
-     "decorators": []
-    },
-    {
-     "$id": "409",
-     "name": "addTimeHeader",
-     "resourceName": "SampleTypeSpec",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "410",
-       "name": "repeatabilityFirstSent",
-       "nameInRequest": "Repeatability-First-Sent",
-       "type": {
-        "$id": "411",
-        "kind": "utcDateTime",
-        "name": "utcDateTime",
-        "encode": "rfc7231",
-        "wireType": {
-         "$id": "412",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": false,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "413",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader",
-     "decorators": []
-    },
-    {
-     "$id": "414",
-     "name": "projectedNameModel",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Model can have its projected name",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "415",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "327"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "416",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "327"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "417",
-       "name": "renamedModel",
-       "nameInRequest": "renamedModel",
-       "type": {
-        "$ref": "267"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "418",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "267"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/projectedName",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel",
-     "decorators": []
-    },
-    {
-     "$id": "419",
-     "name": "returnsAnonymousModel",
-     "resourceName": "SampleTypeSpec",
-     "doc": "return anonymous model",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "420",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "329"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "421",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "272"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/returnsAnonymousModel",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel",
-     "decorators": []
-    },
-    {
-     "$id": "422",
-     "name": "getUnknownValue",
-     "resourceName": "SampleTypeSpec",
-     "doc": "get extensible enum",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "423",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "424",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "425",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "331"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "text/plain",
-        "text/plain",
-        "text/plain",
-        "text/plain",
-        "text/plain",
-        "text/plain",
-        "text/plain",
-        "text/plain"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/unknown-value",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue",
-     "decorators": []
-    },
-    {
-     "$id": "426",
-     "name": "internalProtocol",
-     "resourceName": "SampleTypeSpec",
-     "doc": "When set protocol false and convenient true, then the protocol method should be internal",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "427",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$ref": "333"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "428",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "333"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "429",
-       "name": "body",
-       "nameInRequest": "body",
-       "type": {
-        "$ref": "72"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "430",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "72"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/internalProtocol",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": false,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol",
-     "decorators": []
-    },
-    {
-     "$id": "431",
-     "name": "stillConvenient",
-     "resourceName": "SampleTypeSpec",
-     "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
-     "accessibility": "public",
-     "parameters": [],
-     "responses": [
-      {
-       "$id": "432",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/stillConvenient",
-     "bufferResponse": true,
-     "generateProtocolMethod": false,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient",
-     "decorators": []
-    },
-    {
-     "$id": "433",
-     "name": "headAsBoolean",
-     "resourceName": "SampleTypeSpec",
-     "doc": "head as boolean.",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "434",
-       "name": "id",
-       "nameInRequest": "id",
-       "type": {
-        "$id": "435",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Path",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "436",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "HEAD",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/headAsBoolean/{id}",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean",
-     "decorators": []
-    },
-    {
-     "$id": "437",
-     "name": "WithApiVersion",
-     "resourceName": "SampleTypeSpec",
-     "doc": "Return hi again",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "438",
-       "name": "p1",
-       "nameInRequest": "p1",
-       "type": {
-        "$id": "439",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "440",
-       "name": "apiVersion",
-       "nameInRequest": "apiVersion",
-       "type": {
-        "$id": "441",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Query",
-       "isApiVersion": true,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Client",
-       "defaultValue": {
-        "$id": "442",
+     "operation": {
+      "$id": "442",
+      "name": "topAction",
+      "resourceName": "SampleTypeSpec",
+      "doc": "top level method",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "443",
+        "name": "action",
+        "nameInRequest": "action",
         "type": {
-         "$id": "443",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "value": "2024-08-16-preview"
-       },
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "444",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/WithApiVersion",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion",
-     "decorators": []
-    },
-    {
-     "$id": "445",
-     "name": "ListWithNextLink",
-     "resourceName": "SampleTypeSpec",
-     "doc": "List things with nextlink",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "446",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "335"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "447",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "273"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/link",
-     "bufferResponse": true,
-     "paging": {
-      "$id": "448",
-      "itemPropertySegments": [
-       "things"
-      ],
-      "nextLink": {
-       "$id": "449",
-       "responseSegments": [
-        "next"
-       ],
-       "responseLocation": "Body"
-      }
-     },
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
-     "decorators": []
-    },
-    {
-     "$id": "450",
-     "name": "ListWithContinuationToken",
-     "resourceName": "SampleTypeSpec",
-     "doc": "List things with continuation token",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "451",
-       "name": "token",
-       "nameInRequest": "token",
-       "type": {
-        "$id": "452",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Query",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": false,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "453",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "337"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "454",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "282"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/continuation",
-     "bufferResponse": true,
-     "paging": {
-      "$id": "455",
-      "itemPropertySegments": [
-       "things"
-      ],
-      "continuationToken": {
-       "$id": "456",
-       "parameter": {
-        "$id": "457",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "452"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
-       },
-       "responseSegments": [
-        "nextToken"
-       ],
-       "responseLocation": "Body"
-      }
-     },
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
-     "decorators": []
-    },
-    {
-     "$id": "458",
-     "name": "ListWithContinuationTokenHeaderResponse",
-     "resourceName": "SampleTypeSpec",
-     "doc": "List things with continuation token header response",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "459",
-       "name": "token",
-       "nameInRequest": "token",
-       "type": {
-        "$id": "460",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "location": "Query",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": false,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "461",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$ref": "339"
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "462",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "291"
-       },
-       "headers": [
-        {
-         "$id": "463",
-         "name": "nextToken",
-         "nameInResponse": "next-token",
-         "type": {
-          "$id": "464",
+         "$id": "444",
+         "kind": "utcDateTime",
+         "name": "utcDateTime",
+         "encode": "rfc3339",
+         "wireType": {
+          "$id": "445",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
           "decorators": []
-         }
-        }
-       ],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/continuation/header",
-     "bufferResponse": true,
-     "paging": {
-      "$id": "465",
-      "itemPropertySegments": [
-       "things"
-      ],
-      "continuationToken": {
-       "$id": "466",
-       "parameter": {
-        "$id": "467",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "460"
+         },
+         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "decorators": []
         },
-        "location": "Query",
+        "location": "Path",
         "isApiVersion": false,
         "isContentType": false,
         "isEndpoint": false,
         "explode": false,
-        "isRequired": false,
+        "isRequired": true,
         "kind": "Method",
         "decorators": [],
         "skipUrlEncoding": false
        },
-       "responseSegments": [
-        "next-token"
-       ],
-       "responseLocation": "Header"
-      }
+       {
+        "$id": "446",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "330"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "447",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/top/{action}",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.topAction",
+      "decorators": []
      },
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
-     "decorators": []
-    },
-    {
-     "$id": "468",
-     "name": "ListWithPaging",
-     "resourceName": "SampleTypeSpec",
-     "doc": "List things with paging",
-     "accessibility": "public",
      "parameters": [
       {
-       "$id": "469",
-       "name": "accept",
-       "nameInRequest": "Accept",
+       "$id": "448",
+       "name": "action",
+       "nameInRequest": "action",
        "type": {
-        "$ref": "341"
+        "$id": "449",
+        "kind": "utcDateTime",
+        "name": "utcDateTime",
+        "encode": "rfc3339",
+        "wireType": {
+         "$id": "450",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+        "decorators": []
+       },
+       "location": "Path",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "451",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "330"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -4433,45 +4053,2505 @@
        "skipUrlEncoding": false
       }
      ],
-     "responses": [
+     "response": {
+      "$id": "452",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.topAction"
+    },
+    {
+     "$id": "453",
+     "kind": "basic",
+     "name": "topAction2",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "top level method2",
+     "operation": {
+      "$id": "454",
+      "name": "topAction2",
+      "resourceName": "SampleTypeSpec",
+      "doc": "top level method2",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "455",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "332"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "456",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/top2",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": false,
+      "crossLanguageDefinitionId": "SampleTypeSpec.topAction2",
+      "decorators": []
+     },
+     "parameters": [
       {
-       "$id": "470",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "296"
+       "$id": "457",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "332"
        },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{sampleTypeSpecUrl}",
-     "path": "/list/paging",
-     "bufferResponse": true,
-     "paging": {
-      "$id": "471",
-      "itemPropertySegments": [
+     "response": {
+      "$id": "458",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": false,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.topAction2"
+    },
+    {
+     "$id": "459",
+     "kind": "basic",
+     "name": "patchAction",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "top level patch",
+     "operation": {
+      "$id": "460",
+      "name": "patchAction",
+      "resourceName": "SampleTypeSpec",
+      "doc": "top level patch",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "461",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "334"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "462",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "334"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "463",
+        "name": "body",
+        "nameInRequest": "body",
+        "type": {
+         "$ref": "72"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "464",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "PATCH",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/patch",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": false,
+      "crossLanguageDefinitionId": "SampleTypeSpec.patchAction",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "465",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$ref": "72"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "466",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "334"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "467",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "334"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "468",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.patchAction"
+    },
+    {
+     "$id": "469",
+     "kind": "basic",
+     "name": "anonymousBody",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "body parameter without body decorator",
+     "operation": {
+      "$id": "470",
+      "name": "anonymousBody",
+      "resourceName": "SampleTypeSpec",
+      "doc": "body parameter without body decorator",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "471",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "336"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "472",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "336"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "473",
+        "name": "thing",
+        "nameInRequest": "thing",
+        "type": {
+         "$ref": "72"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Spread",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "474",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/anonymousBody",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "475",
+       "name": "name",
+       "nameInRequest": "name",
+       "doc": "name of the Thing",
+       "type": {
+        "$id": "476",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "477",
+       "name": "requiredUnion",
+       "nameInRequest": "requiredUnion",
+       "doc": "required Union",
+       "type": {
+        "$ref": "78"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "478",
+       "name": "requiredLiteralString",
+       "nameInRequest": "requiredLiteralString",
+       "doc": "required literal string",
+       "type": {
+        "$ref": "86"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "479",
+       "name": "requiredNullableString",
+       "nameInRequest": "requiredNullableString",
+       "doc": "required nullable string",
+       "type": {
+        "$ref": "91"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "480",
+       "name": "optionalNullableString",
+       "nameInRequest": "optionalNullableString",
+       "doc": "required optional string",
+       "type": {
+        "$ref": "96"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "481",
+       "name": "requiredLiteralInt",
+       "nameInRequest": "requiredLiteralInt",
+       "doc": "required literal int",
+       "type": {
+        "$ref": "101"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "482",
+       "name": "requiredLiteralFloat",
+       "nameInRequest": "requiredLiteralFloat",
+       "doc": "required literal float",
+       "type": {
+        "$ref": "106"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "483",
+       "name": "requiredLiteralBool",
+       "nameInRequest": "requiredLiteralBool",
+       "doc": "required literal bool",
+       "type": {
+        "$ref": "111"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "484",
+       "name": "optionalLiteralString",
+       "nameInRequest": "optionalLiteralString",
+       "doc": "optional literal string",
+       "type": {
+        "$ref": "116"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "485",
+       "name": "optionalLiteralInt",
+       "nameInRequest": "optionalLiteralInt",
+       "doc": "optional literal int",
+       "type": {
+        "$ref": "121"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "486",
+       "name": "optionalLiteralFloat",
+       "nameInRequest": "optionalLiteralFloat",
+       "doc": "optional literal float",
+       "type": {
+        "$ref": "126"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "487",
+       "name": "optionalLiteralBool",
+       "nameInRequest": "optionalLiteralBool",
+       "doc": "optional literal bool",
+       "type": {
+        "$ref": "131"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "488",
+       "name": "requiredBadDescription",
+       "nameInRequest": "requiredBadDescription",
+       "doc": "description with xml <|endoftext|>",
+       "type": {
+        "$id": "489",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "490",
+       "name": "optionalNullableList",
+       "nameInRequest": "optionalNullableList",
+       "doc": "optional nullable collection",
+       "type": {
+        "$ref": "140"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "491",
+       "name": "requiredNullableList",
+       "nameInRequest": "requiredNullableList",
+       "doc": "required nullable collection",
+       "type": {
+        "$ref": "146"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "492",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "336"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "493",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "336"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "494",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.anonymousBody"
+    },
+    {
+     "$id": "495",
+     "kind": "basic",
+     "name": "friendlyModel",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Model can have its friendly name",
+     "operation": {
+      "$id": "496",
+      "name": "friendlyModel",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Model can have its friendly name",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "497",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "338"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "498",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "338"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "499",
+        "name": "friend",
+        "nameInRequest": "friend",
+        "type": {
+         "$ref": "262"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Spread",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "500",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "262"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/friendlyName",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "501",
+       "name": "name",
+       "nameInRequest": "name",
+       "doc": "name of the NotFriend",
+       "type": {
+        "$id": "502",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "503",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "338"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "504",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "338"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "505",
+      "type": {
+       "$ref": "262"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.friendlyModel"
+    },
+    {
+     "$id": "506",
+     "kind": "basic",
+     "name": "addTimeHeader",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "operation": {
+      "$id": "507",
+      "name": "addTimeHeader",
+      "resourceName": "SampleTypeSpec",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "508",
+        "name": "repeatabilityFirstSent",
+        "nameInRequest": "Repeatability-First-Sent",
+        "type": {
+         "$id": "509",
+         "kind": "utcDateTime",
+         "name": "utcDateTime",
+         "encode": "rfc7231",
+         "wireType": {
+          "$id": "510",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "511",
+        "statusCodes": [
+         204
+        ],
+        "headers": [],
+        "isErrorResponse": false
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "512",
+       "name": "repeatabilityFirstSent",
+       "nameInRequest": "Repeatability-First-Sent",
+       "type": {
+        "$id": "513",
+        "kind": "utcDateTime",
+        "name": "utcDateTime",
+        "encode": "rfc7231",
+        "wireType": {
+         "$id": "514",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "crossLanguageDefinitionId": "TypeSpec.utcDateTime",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "515"
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.addTimeHeader"
+    },
+    {
+     "$id": "516",
+     "kind": "basic",
+     "name": "projectedNameModel",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Model can have its projected name",
+     "operation": {
+      "$id": "517",
+      "name": "projectedNameModel",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Model can have its projected name",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "518",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "340"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "519",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "340"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "520",
+        "name": "renamedModel",
+        "nameInRequest": "renamedModel",
+        "type": {
+         "$ref": "267"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Spread",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "521",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "267"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/projectedName",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "522",
+       "name": "name",
+       "nameInRequest": "name",
+       "doc": "name of the ModelWithClientName",
+       "type": {
+        "$id": "523",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "524",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "340"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "525",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "340"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "526",
+      "type": {
+       "$ref": "267"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel"
+    },
+    {
+     "$id": "527",
+     "kind": "basic",
+     "name": "returnsAnonymousModel",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "return anonymous model",
+     "operation": {
+      "$id": "528",
+      "name": "returnsAnonymousModel",
+      "resourceName": "SampleTypeSpec",
+      "doc": "return anonymous model",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "529",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "342"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "530",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "272"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/returnsAnonymousModel",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "531",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "342"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "532",
+      "type": {
+       "$ref": "272"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel"
+    },
+    {
+     "$id": "533",
+     "kind": "basic",
+     "name": "getUnknownValue",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "get extensible enum",
+     "operation": {
+      "$id": "534",
+      "name": "getUnknownValue",
+      "resourceName": "SampleTypeSpec",
+      "doc": "get extensible enum",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "535",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$id": "536",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "537",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "344"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "text/plain",
+         "text/plain",
+         "text/plain",
+         "text/plain",
+         "text/plain",
+         "text/plain",
+         "text/plain",
+         "text/plain"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/unknown-value",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "538",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "536"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "539",
+      "type": {
+       "$ref": "344"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.getUnknownValue"
+    },
+    {
+     "$id": "540",
+     "kind": "basic",
+     "name": "internalProtocol",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "When set protocol false and convenient true, then the protocol method should be internal",
+     "operation": {
+      "$id": "541",
+      "name": "internalProtocol",
+      "resourceName": "SampleTypeSpec",
+      "doc": "When set protocol false and convenient true, then the protocol method should be internal",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "542",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "346"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "543",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "346"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "544",
+        "name": "body",
+        "nameInRequest": "body",
+        "type": {
+         "$ref": "72"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "545",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "72"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/internalProtocol",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": false,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "546",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$ref": "72"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "547",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "346"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "548",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "346"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "549",
+      "type": {
+       "$ref": "72"
+      }
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": false,
+     "crossLanguageDefinitionId": "SampleTypeSpec.internalProtocol"
+    },
+    {
+     "$id": "550",
+     "kind": "basic",
+     "name": "stillConvenient",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
+     "operation": {
+      "$id": "551",
+      "name": "stillConvenient",
+      "resourceName": "SampleTypeSpec",
+      "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
+      "accessibility": "public",
+      "parameters": [],
+      "responses": [
+       {
+        "$id": "552",
+        "statusCodes": [
+         204
+        ],
+        "headers": [],
+        "isErrorResponse": false
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/stillConvenient",
+      "bufferResponse": true,
+      "generateProtocolMethod": false,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient",
+      "decorators": []
+     },
+     "parameters": [],
+     "response": {
+      "$id": "553"
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": false,
+     "crossLanguageDefinitionId": "SampleTypeSpec.stillConvenient"
+    },
+    {
+     "$id": "554",
+     "kind": "basic",
+     "name": "headAsBoolean",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "head as boolean.",
+     "operation": {
+      "$id": "555",
+      "name": "headAsBoolean",
+      "resourceName": "SampleTypeSpec",
+      "doc": "head as boolean.",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "556",
+        "name": "id",
+        "nameInRequest": "id",
+        "type": {
+         "$id": "557",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Path",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "558",
+        "statusCodes": [
+         204
+        ],
+        "headers": [],
+        "isErrorResponse": false
+       }
+      ],
+      "httpMethod": "HEAD",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/headAsBoolean/{id}",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "559",
+       "name": "id",
+       "nameInRequest": "id",
+       "type": {
+        "$id": "560",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Path",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "561"
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.headAsBoolean"
+    },
+    {
+     "$id": "562",
+     "kind": "basic",
+     "name": "WithApiVersion",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "Return hi again",
+     "operation": {
+      "$id": "563",
+      "name": "WithApiVersion",
+      "resourceName": "SampleTypeSpec",
+      "doc": "Return hi again",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "564",
+        "name": "p1",
+        "nameInRequest": "p1",
+        "type": {
+         "$id": "565",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "566",
+        "name": "apiVersion",
+        "nameInRequest": "apiVersion",
+        "type": {
+         "$id": "567",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": true,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Client",
+        "defaultValue": {
+         "$id": "568",
+         "type": {
+          "$id": "569",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string"
+         },
+         "value": "2024-08-16-preview"
+        },
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "570",
+        "statusCodes": [
+         204
+        ],
+        "headers": [],
+        "isErrorResponse": false
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/WithApiVersion",
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "571",
+       "name": "p1",
+       "nameInRequest": "p1",
+       "type": {
+        "$id": "572",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "573"
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion"
+    },
+    {
+     "$id": "574",
+     "kind": "paging",
+     "name": "ListWithNextLink",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "List things with nextlink",
+     "operation": {
+      "$id": "575",
+      "name": "ListWithNextLink",
+      "resourceName": "SampleTypeSpec",
+      "doc": "List things with nextlink",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "576",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "348"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "577",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "273"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/link",
+      "bufferResponse": true,
+      "paging": {
+       "$id": "578",
+       "itemPropertySegments": [
+        "things"
+       ],
+       "nextLink": {
+        "$id": "579",
+        "responseSegments": [
+         "next"
+        ],
+        "responseLocation": "Body"
+       }
+      },
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "580",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "348"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "581",
+      "type": {
+       "$id": "582",
+       "kind": "array",
+       "name": "ArrayThing",
+       "valueType": {
+        "$ref": "72"
+       },
+       "crossLanguageDefinitionId": "TypeSpec.Array",
+       "decorators": []
+      },
+      "resultSegments": [
+       "things"
+      ]
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink"
+    },
+    {
+     "$id": "583",
+     "kind": "paging",
+     "name": "ListWithContinuationToken",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "List things with continuation token",
+     "operation": {
+      "$id": "584",
+      "name": "ListWithContinuationToken",
+      "resourceName": "SampleTypeSpec",
+      "doc": "List things with continuation token",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "585",
+        "name": "token",
+        "nameInRequest": "token",
+        "type": {
+         "$id": "586",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "587",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "350"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "588",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "282"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/continuation",
+      "bufferResponse": true,
+      "paging": {
+       "$id": "589",
+       "itemPropertySegments": [
+        "things"
+       ],
+       "continuationToken": {
+        "$id": "590",
+        "parameter": {
+         "$ref": "585"
+        },
+        "responseSegments": [
+         "nextToken"
+        ],
+        "responseLocation": "Body"
+       }
+      },
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "591",
+       "name": "token",
+       "nameInRequest": "token",
+       "type": {
+        "$id": "592",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "593",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "350"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "594",
+      "type": {
+       "$id": "595",
+       "kind": "array",
+       "name": "ArrayThing",
+       "valueType": {
+        "$ref": "72"
+       },
+       "crossLanguageDefinitionId": "TypeSpec.Array",
+       "decorators": []
+      },
+      "resultSegments": [
+       "things"
+      ]
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken"
+    },
+    {
+     "$id": "596",
+     "kind": "paging",
+     "name": "ListWithContinuationTokenHeaderResponse",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "List things with continuation token header response",
+     "operation": {
+      "$id": "597",
+      "name": "ListWithContinuationTokenHeaderResponse",
+      "resourceName": "SampleTypeSpec",
+      "doc": "List things with continuation token header response",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "598",
+        "name": "token",
+        "nameInRequest": "token",
+        "type": {
+         "$id": "599",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "600",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "352"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "601",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "291"
+        },
+        "headers": [
+         {
+          "$id": "602",
+          "name": "nextToken",
+          "nameInResponse": "next-token",
+          "type": {
+           "$id": "603",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          }
+         }
+        ],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/continuation/header",
+      "bufferResponse": true,
+      "paging": {
+       "$id": "604",
+       "itemPropertySegments": [
+        "things"
+       ],
+       "continuationToken": {
+        "$id": "605",
+        "parameter": {
+         "$ref": "598"
+        },
+        "responseSegments": [
+         "next-token"
+        ],
+        "responseLocation": "Header"
+       }
+      },
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "606",
+       "name": "token",
+       "nameInRequest": "token",
+       "type": {
+        "$id": "607",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "608",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "352"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "609",
+      "type": {
+       "$id": "610",
+       "kind": "array",
+       "name": "ArrayThing",
+       "valueType": {
+        "$ref": "72"
+       },
+       "crossLanguageDefinitionId": "TypeSpec.Array",
+       "decorators": []
+      },
+      "resultSegments": [
+       "things"
+      ]
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse"
+    },
+    {
+     "$id": "611",
+     "kind": "paging",
+     "name": "ListWithPaging",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "List things with paging",
+     "operation": {
+      "$id": "612",
+      "name": "ListWithPaging",
+      "resourceName": "SampleTypeSpec",
+      "doc": "List things with paging",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "613",
+        "name": "accept",
+        "nameInRequest": "Accept",
+        "type": {
+         "$ref": "354"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "614",
+        "statusCodes": [
+         200
+        ],
+        "bodyType": {
+         "$ref": "296"
+        },
+        "headers": [],
+        "isErrorResponse": false,
+        "contentTypes": [
+         "application/json"
+        ]
+       }
+      ],
+      "httpMethod": "GET",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/list/paging",
+      "bufferResponse": true,
+      "paging": {
+       "$id": "615",
+       "itemPropertySegments": [
+        "items"
+       ]
+      },
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "616",
+       "name": "accept",
+       "nameInRequest": "accept",
+       "type": {
+        "$ref": "354"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "617",
+      "type": {
+       "$id": "618",
+       "kind": "array",
+       "name": "ArrayThing",
+       "valueType": {
+        "$ref": "72"
+       },
+       "crossLanguageDefinitionId": "TypeSpec.Array",
+       "decorators": []
+      },
+      "resultSegments": [
        "items"
       ]
      },
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
-     "decorators": []
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging"
+    },
+    {
+     "$id": "619",
+     "kind": "basic",
+     "name": "EmbeddedParameters",
+     "accessibility": "public",
+     "apiVersions": [
+      "2024-07-16-preview",
+      "2024-08-16-preview"
+     ],
+     "doc": "An operation with embedded parameters within the body",
+     "operation": {
+      "$id": "620",
+      "name": "EmbeddedParameters",
+      "resourceName": "SampleTypeSpec",
+      "doc": "An operation with embedded parameters within the body",
+      "accessibility": "public",
+      "parameters": [
+       {
+        "$id": "621",
+        "name": "requiredHeader",
+        "nameInRequest": "required-header",
+        "doc": "required header parameter",
+        "type": {
+         "$id": "622",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "623",
+        "name": "optionalHeader",
+        "nameInRequest": "optional-header",
+        "doc": "optional header parameter",
+        "type": {
+         "$id": "624",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "625",
+        "name": "requiredQuery",
+        "nameInRequest": "requiredQuery",
+        "doc": "required query parameter",
+        "type": {
+         "$id": "626",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "627",
+        "name": "optionalQuery",
+        "nameInRequest": "optionalQuery",
+        "doc": "optional query parameter",
+        "type": {
+         "$id": "628",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "location": "Query",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": false,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "629",
+        "name": "contentType",
+        "nameInRequest": "Content-Type",
+        "doc": "Body parameter's content type. Known values are application/json",
+        "type": {
+         "$ref": "356"
+        },
+        "location": "Header",
+        "isApiVersion": false,
+        "isContentType": true,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Constant",
+        "decorators": [],
+        "skipUrlEncoding": false
+       },
+       {
+        "$id": "630",
+        "name": "body",
+        "nameInRequest": "body",
+        "type": {
+         "$ref": "301"
+        },
+        "location": "Body",
+        "isApiVersion": false,
+        "isContentType": false,
+        "isEndpoint": false,
+        "explode": false,
+        "isRequired": true,
+        "kind": "Method",
+        "decorators": [],
+        "skipUrlEncoding": false
+       }
+      ],
+      "responses": [
+       {
+        "$id": "631",
+        "statusCodes": [
+         204
+        ],
+        "headers": [],
+        "isErrorResponse": false
+       }
+      ],
+      "httpMethod": "POST",
+      "uri": "{sampleTypeSpecUrl}",
+      "path": "/embeddedParameters",
+      "requestMediaTypes": [
+       "application/json"
+      ],
+      "bufferResponse": true,
+      "generateProtocolMethod": true,
+      "generateConvenienceMethod": true,
+      "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters",
+      "decorators": []
+     },
+     "parameters": [
+      {
+       "$id": "632",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$ref": "301"
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      },
+      {
+       "$id": "633",
+       "name": "contentType",
+       "nameInRequest": "contentType",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$ref": "356"
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "response": {
+      "$id": "634"
+     },
+     "isOverride": false,
+     "generateConvenient": true,
+     "generateProtocol": true,
+     "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters"
     }
    ],
    "parameters": [
     {
-     "$id": "472",
+     "$id": "635",
      "name": "sampleTypeSpecUrl",
      "nameInRequest": "sampleTypeSpecUrl",
      "type": {
-      "$id": "473",
+      "$id": "636",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4495,1257 +6575,11 @@
   }
  ],
  "auth": {
-  "$id": "474",
+  "$id": "637",
   "apiKey": {
-   "$id": "475",
+   "$id": "638",
    "name": "my-api-key",
    "in": "header"
   }
  }
 }
-=======
-    "$id": "1",
-    "name": "SampleTypeSpec",
-    "apiVersions": [
-     "2024-07-16-preview",
-     "2024-08-16-preview"
-    ],
-    "enums": [
-     {
-      "$id": "2",
-      "kind": "enum",
-      "name": "Thing_requiredLiteralString",
-      "valueType": {
-       "$id": "3",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "4",
-        "kind": "enumvalue",
-        "name": "accept",
-        "value": "accept",
-        "doc": "accept",
-        "valueType": {
-         "$ref": "3"
-        },
-        "enumType": {
-         "$ref": "2"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_requiredLiteralString",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "5",
-      "kind": "enum",
-      "name": "Thing_requiredLiteralInt",
-      "valueType": {
-       "$id": "6",
-       "kind": "int32",
-       "name": "int32",
-       "crossLanguageDefinitionId": "TypeSpec.int32",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "7",
-        "kind": "enumvalue",
-        "name": "123",
-        "value": 123,
-        "doc": "123",
-        "valueType": {
-         "$ref": "6"
-        },
-        "enumType": {
-         "$ref": "5"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_requiredLiteralInt",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "8",
-      "kind": "enum",
-      "name": "Thing_requiredLiteralFloat",
-      "valueType": {
-       "$id": "9",
-       "kind": "float32",
-       "name": "float32",
-       "crossLanguageDefinitionId": "TypeSpec.float32",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "10",
-        "kind": "enumvalue",
-        "name": "1.23",
-        "value": 1.23,
-        "doc": "1.23",
-        "valueType": {
-         "$ref": "9"
-        },
-        "enumType": {
-         "$ref": "8"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_requiredLiteralFloat",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "11",
-      "kind": "enum",
-      "name": "Thing_optionalLiteralString",
-      "valueType": {
-       "$id": "12",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "13",
-        "kind": "enumvalue",
-        "name": "reject",
-        "value": "reject",
-        "doc": "reject",
-        "valueType": {
-         "$ref": "12"
-        },
-        "enumType": {
-         "$ref": "11"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_optionalLiteralString",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "14",
-      "kind": "enum",
-      "name": "Thing_optionalLiteralInt",
-      "valueType": {
-       "$id": "15",
-       "kind": "int32",
-       "name": "int32",
-       "crossLanguageDefinitionId": "TypeSpec.int32",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "16",
-        "kind": "enumvalue",
-        "name": "456",
-        "value": 456,
-        "doc": "456",
-        "valueType": {
-         "$ref": "15"
-        },
-        "enumType": {
-         "$ref": "14"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_optionalLiteralInt",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "17",
-      "kind": "enum",
-      "name": "Thing_optionalLiteralFloat",
-      "valueType": {
-       "$id": "18",
-       "kind": "float32",
-       "name": "float32",
-       "crossLanguageDefinitionId": "TypeSpec.float32",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "19",
-        "kind": "enumvalue",
-        "name": "4.56",
-        "value": 4.56,
-        "doc": "4.56",
-        "valueType": {
-         "$ref": "18"
-        },
-        "enumType": {
-         "$ref": "17"
-        }
-       }
-      ],
-      "crossLanguageDefinitionId": "",
-      "namespace": "SampleTypeSpec",
-      "doc": "The Thing_optionalLiteralFloat",
-      "isFixed": false,
-      "isFlags": false,
-      "usage": "Output,Json",
-      "decorators": []
-     },
-     {
-      "$id": "20",
-      "kind": "enum",
-      "name": "Versions",
-      "crossLanguageDefinitionId": "SampleTypeSpec.Versions",
-      "valueType": {
-       "$id": "21",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string",
-       "decorators": []
-      },
-      "values": [
-       {
-        "$id": "22",
-        "kind": "enumvalue",
-        "name": "2024-07-16-preview",
-        "value": "2024-07-16-preview",
-        "valueType": {
-         "$id": "23",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "enumType": {
-         "$ref": "20"
-        },
-        "decorators": []
-       },
-       {
-        "$id": "24",
-        "kind": "enumvalue",
-        "name": "2024-08-16-preview",
-        "value": "2024-08-16-preview",
-        "valueType": {
-         "$id": "25",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "enumType": {
-         "$ref": "20"
-        },
-        "decorators": []
-       }
-      ],
-      "namespace": "SampleTypeSpec",
-      "isFixed": true,
-      "isFlags": false,
-      "usage": "ApiVersionEnum",
-      "decorators": []
-     }
-    ],
-    "models": [
-     {
-      "$id": "26",
-      "kind": "model",
-      "name": "ListWithNextLinkResponse",
-      "namespace": "SampleTypeSpec",
-      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous",
-      "usage": "Output,Json",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "27",
-        "kind": "property",
-        "name": "things",
-        "serializedName": "things",
-        "type": {
-         "$id": "28",
-         "kind": "array",
-         "name": "ArrayThing",
-         "valueType": {
-          "$id": "29",
-          "kind": "model",
-          "name": "Thing",
-          "namespace": "SampleTypeSpec",
-          "crossLanguageDefinitionId": "SampleTypeSpec.Thing",
-          "usage": "Output,Json",
-          "doc": "A model with a few properties of literal types",
-          "decorators": [],
-          "properties": [
-           {
-            "$id": "30",
-            "kind": "property",
-            "name": "name",
-            "serializedName": "name",
-            "doc": "name of the Thing",
-            "type": {
-             "$id": "31",
-             "kind": "string",
-             "name": "string",
-             "crossLanguageDefinitionId": "TypeSpec.string",
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.name",
-            "serializationOptions": {
-             "$id": "32",
-             "json": {
-              "$id": "33",
-              "name": "name"
-             }
-            }
-           },
-           {
-            "$id": "34",
-            "kind": "property",
-            "name": "requiredUnion",
-            "serializedName": "requiredUnion",
-            "doc": "required Union",
-            "type": {
-             "$id": "35",
-             "kind": "union",
-             "name": "ThingRequiredUnion",
-             "variantTypes": [
-              {
-               "$id": "36",
-               "kind": "string",
-               "name": "string",
-               "crossLanguageDefinitionId": "TypeSpec.string",
-               "decorators": []
-              },
-              {
-               "$id": "37",
-               "kind": "array",
-               "name": "Array",
-               "valueType": {
-                "$id": "38",
-                "kind": "string",
-                "name": "string",
-                "crossLanguageDefinitionId": "TypeSpec.string",
-                "decorators": []
-               },
-               "crossLanguageDefinitionId": "TypeSpec.Array",
-               "decorators": []
-              },
-              {
-               "$id": "39",
-               "kind": "int32",
-               "name": "int32",
-               "crossLanguageDefinitionId": "TypeSpec.int32",
-               "decorators": []
-              }
-             ],
-             "namespace": "",
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredUnion",
-            "serializationOptions": {
-             "$id": "40",
-             "json": {
-              "$id": "41",
-              "name": "requiredUnion"
-             }
-            }
-           },
-           {
-            "$id": "42",
-            "kind": "property",
-            "name": "requiredLiteralString",
-            "serializedName": "requiredLiteralString",
-            "doc": "required literal string",
-            "type": {
-             "$id": "43",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "2"
-             },
-             "value": "accept",
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralString",
-            "serializationOptions": {
-             "$id": "44",
-             "json": {
-              "$id": "45",
-              "name": "requiredLiteralString"
-             }
-            }
-           },
-           {
-            "$id": "46",
-            "kind": "property",
-            "name": "requiredNullableString",
-            "serializedName": "requiredNullableString",
-            "doc": "required nullable string",
-            "type": {
-             "$id": "47",
-             "kind": "nullable",
-             "type": {
-              "$id": "48",
-              "kind": "string",
-              "name": "string",
-              "crossLanguageDefinitionId": "TypeSpec.string",
-              "decorators": []
-             },
-             "namespace": ""
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredNullableString",
-            "serializationOptions": {
-             "$id": "49",
-             "json": {
-              "$id": "50",
-              "name": "requiredNullableString"
-             }
-            }
-           },
-           {
-            "$id": "51",
-            "kind": "property",
-            "name": "optionalNullableString",
-            "serializedName": "optionalNullableString",
-            "doc": "required optional string",
-            "type": {
-             "$id": "52",
-             "kind": "nullable",
-             "type": {
-              "$id": "53",
-              "kind": "string",
-              "name": "string",
-              "crossLanguageDefinitionId": "TypeSpec.string",
-              "decorators": []
-             },
-             "namespace": ""
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalNullableString",
-            "serializationOptions": {
-             "$id": "54",
-             "json": {
-              "$id": "55",
-              "name": "optionalNullableString"
-             }
-            }
-           },
-           {
-            "$id": "56",
-            "kind": "property",
-            "name": "requiredLiteralInt",
-            "serializedName": "requiredLiteralInt",
-            "doc": "required literal int",
-            "type": {
-             "$id": "57",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "5"
-             },
-             "value": 123,
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralInt",
-            "serializationOptions": {
-             "$id": "58",
-             "json": {
-              "$id": "59",
-              "name": "requiredLiteralInt"
-             }
-            }
-           },
-           {
-            "$id": "60",
-            "kind": "property",
-            "name": "requiredLiteralFloat",
-            "serializedName": "requiredLiteralFloat",
-            "doc": "required literal float",
-            "type": {
-             "$id": "61",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "8"
-             },
-             "value": 1.23,
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralFloat",
-            "serializationOptions": {
-             "$id": "62",
-             "json": {
-              "$id": "63",
-              "name": "requiredLiteralFloat"
-             }
-            }
-           },
-           {
-            "$id": "64",
-            "kind": "property",
-            "name": "requiredLiteralBool",
-            "serializedName": "requiredLiteralBool",
-            "doc": "required literal bool",
-            "type": {
-             "$id": "65",
-             "kind": "constant",
-             "valueType": {
-              "$id": "66",
-              "kind": "boolean",
-              "name": "boolean",
-              "crossLanguageDefinitionId": "TypeSpec.boolean",
-              "decorators": []
-             },
-             "value": false,
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredLiteralBool",
-            "serializationOptions": {
-             "$id": "67",
-             "json": {
-              "$id": "68",
-              "name": "requiredLiteralBool"
-             }
-            }
-           },
-           {
-            "$id": "69",
-            "kind": "property",
-            "name": "optionalLiteralString",
-            "serializedName": "optionalLiteralString",
-            "doc": "optional literal string",
-            "type": {
-             "$id": "70",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "11"
-             },
-             "value": "reject",
-             "decorators": []
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralString",
-            "serializationOptions": {
-             "$id": "71",
-             "json": {
-              "$id": "72",
-              "name": "optionalLiteralString"
-             }
-            }
-           },
-           {
-            "$id": "73",
-            "kind": "property",
-            "name": "optionalLiteralInt",
-            "serializedName": "optionalLiteralInt",
-            "doc": "optional literal int",
-            "type": {
-             "$id": "74",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "14"
-             },
-             "value": 456,
-             "decorators": []
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralInt",
-            "serializationOptions": {
-             "$id": "75",
-             "json": {
-              "$id": "76",
-              "name": "optionalLiteralInt"
-             }
-            }
-           },
-           {
-            "$id": "77",
-            "kind": "property",
-            "name": "optionalLiteralFloat",
-            "serializedName": "optionalLiteralFloat",
-            "doc": "optional literal float",
-            "type": {
-             "$id": "78",
-             "kind": "constant",
-             "valueType": {
-              "$ref": "17"
-             },
-             "value": 4.56,
-             "decorators": []
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralFloat",
-            "serializationOptions": {
-             "$id": "79",
-             "json": {
-              "$id": "80",
-              "name": "optionalLiteralFloat"
-             }
-            }
-           },
-           {
-            "$id": "81",
-            "kind": "property",
-            "name": "optionalLiteralBool",
-            "serializedName": "optionalLiteralBool",
-            "doc": "optional literal bool",
-            "type": {
-             "$id": "82",
-             "kind": "constant",
-             "valueType": {
-              "$id": "83",
-              "kind": "boolean",
-              "name": "boolean",
-              "crossLanguageDefinitionId": "TypeSpec.boolean",
-              "decorators": []
-             },
-             "value": true,
-             "decorators": []
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalLiteralBool",
-            "serializationOptions": {
-             "$id": "84",
-             "json": {
-              "$id": "85",
-              "name": "optionalLiteralBool"
-             }
-            }
-           },
-           {
-            "$id": "86",
-            "kind": "property",
-            "name": "requiredBadDescription",
-            "serializedName": "requiredBadDescription",
-            "doc": "description with xml <|endoftext|>",
-            "type": {
-             "$id": "87",
-             "kind": "string",
-             "name": "string",
-             "crossLanguageDefinitionId": "TypeSpec.string",
-             "decorators": []
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredBadDescription",
-            "serializationOptions": {
-             "$id": "88",
-             "json": {
-              "$id": "89",
-              "name": "requiredBadDescription"
-             }
-            }
-           },
-           {
-            "$id": "90",
-            "kind": "property",
-            "name": "optionalNullableList",
-            "serializedName": "optionalNullableList",
-            "doc": "optional nullable collection",
-            "type": {
-             "$id": "91",
-             "kind": "nullable",
-             "type": {
-              "$id": "92",
-              "kind": "array",
-              "name": "Array1",
-              "valueType": {
-               "$id": "93",
-               "kind": "int32",
-               "name": "int32",
-               "crossLanguageDefinitionId": "TypeSpec.int32",
-               "decorators": []
-              },
-              "crossLanguageDefinitionId": "TypeSpec.Array",
-              "decorators": []
-             },
-             "namespace": ""
-            },
-            "optional": true,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.optionalNullableList",
-            "serializationOptions": {
-             "$id": "94",
-             "json": {
-              "$id": "95",
-              "name": "optionalNullableList"
-             }
-            }
-           },
-           {
-            "$id": "96",
-            "kind": "property",
-            "name": "requiredNullableList",
-            "serializedName": "requiredNullableList",
-            "doc": "required nullable collection",
-            "type": {
-             "$id": "97",
-             "kind": "nullable",
-             "type": {
-              "$id": "98",
-              "kind": "array",
-              "name": "Array1",
-              "valueType": {
-               "$id": "99",
-               "kind": "int32",
-               "name": "int32",
-               "crossLanguageDefinitionId": "TypeSpec.int32",
-               "decorators": []
-              },
-              "crossLanguageDefinitionId": "TypeSpec.Array",
-              "decorators": []
-             },
-             "namespace": ""
-            },
-            "optional": false,
-            "readOnly": false,
-            "discriminator": false,
-            "flatten": false,
-            "decorators": [],
-            "crossLanguageDefinitionId": "SampleTypeSpec.Thing.requiredNullableList",
-            "serializationOptions": {
-             "$id": "100",
-             "json": {
-              "$id": "101",
-              "name": "requiredNullableList"
-             }
-            }
-           }
-          ]
-         },
-         "crossLanguageDefinitionId": "TypeSpec.Array",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous.things",
-        "serializationOptions": {
-         "$id": "102",
-         "json": {
-          "$id": "103",
-          "name": "things"
-         }
-        }
-       },
-       {
-        "$id": "104",
-        "kind": "property",
-        "name": "next",
-        "serializedName": "next",
-        "type": {
-         "$id": "105",
-         "kind": "url",
-         "name": "url",
-         "crossLanguageDefinitionId": "TypeSpec.url",
-         "decorators": []
-        },
-        "optional": true,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink.Response.anonymous.next",
-        "serializationOptions": {
-         "$id": "106",
-         "json": {
-          "$id": "107",
-          "name": "next"
-         }
-        }
-       }
-      ]
-     },
-     {
-      "$ref": "29"
-     },
-     {
-      "$id": "108",
-      "kind": "model",
-      "name": "ListWithContinuationTokenResponse",
-      "namespace": "",
-      "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken.Response.anonymous",
-      "usage": "Output,Json",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "109",
-        "kind": "property",
-        "name": "things",
-        "serializedName": "things",
-        "type": {
-         "$id": "110",
-         "kind": "array",
-         "name": "ArrayThing",
-         "valueType": {
-          "$ref": "29"
-         },
-         "crossLanguageDefinitionId": "TypeSpec.Array",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "ListWithContinuationToken.Response.anonymous.things",
-        "serializationOptions": {
-         "$id": "111",
-         "json": {
-          "$id": "112",
-          "name": "things"
-         }
-        }
-       }
-      ]
-     }
-    ],
-    "clients": [
-     {
-      "$id": "113",
-      "kind": "client",
-      "name": "SampleTypeSpecClient",
-      "namespace": "SampleTypeSpec",
-      "doc": "This is a sample typespec project.",
-      "methods": [
-       {
-        "$id": "114",
-        "kind": "paging",
-        "name": "ListWithNextLink",
-        "accessibility": "public",
-        "apiVersions": [
-         "2024-07-16-preview",
-         "2024-08-16-preview"
-        ],
-        "doc": "List things with nextlink",
-        "operation": {
-         "$id": "115",
-         "name": "ListWithNextLink",
-         "resourceName": "SampleTypeSpec",
-         "doc": "List things with nextlink",
-         "accessibility": "public",
-         "parameters": [
-          {
-           "$id": "116",
-           "name": "accept",
-           "nameInRequest": "Accept",
-           "type": {
-            "$id": "117",
-            "kind": "constant",
-            "valueType": {
-             "$id": "118",
-             "kind": "string",
-             "name": "string",
-             "crossLanguageDefinitionId": "TypeSpec.string",
-             "decorators": []
-            },
-            "value": "application/json",
-            "decorators": []
-           },
-           "location": "Header",
-           "isApiVersion": false,
-           "isContentType": false,
-           "isEndpoint": false,
-           "explode": false,
-           "isRequired": true,
-           "kind": "Constant",
-           "decorators": [],
-           "skipUrlEncoding": false
-          }
-         ],
-         "responses": [
-          {
-           "$id": "119",
-           "statusCodes": [
-            200
-           ],
-           "bodyType": {
-            "$ref": "26"
-           },
-           "headers": [],
-           "isErrorResponse": false,
-           "contentTypes": [
-            "application/json"
-           ]
-          }
-         ],
-         "httpMethod": "GET",
-         "uri": "{sampleTypeSpecUrl}",
-         "path": "/link",
-         "bufferResponse": true,
-         "paging": {
-          "$id": "120",
-          "itemPropertySegments": [
-           "things"
-          ],
-          "nextLink": {
-           "$id": "121",
-           "responseSegments": [
-            "next"
-           ],
-           "responseLocation": "Body"
-          }
-         },
-         "generateProtocolMethod": true,
-         "generateConvenienceMethod": true,
-         "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
-         "decorators": []
-        },
-        "parameters": [
-         {
-          "$id": "122",
-          "name": "accept",
-          "nameInRequest": "accept",
-          "type": {
-           "$ref": "117"
-          },
-          "location": "Header",
-          "isApiVersion": false,
-          "isContentType": false,
-          "isEndpoint": false,
-          "explode": false,
-          "isRequired": true,
-          "kind": "Constant",
-          "decorators": [],
-          "skipUrlEncoding": false
-         }
-        ],
-        "response": {
-         "$id": "123",
-         "type": {
-          "$id": "124",
-          "kind": "array",
-          "name": "ArrayThing",
-          "valueType": {
-           "$ref": "29"
-          },
-          "crossLanguageDefinitionId": "TypeSpec.Array",
-          "decorators": []
-         },
-         "resultSegments": [
-          "things"
-         ]
-        },
-        "isOverride": false,
-        "generateConvenient": true,
-        "generateProtocol": true,
-        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink"
-       },
-       {
-        "$id": "125",
-        "kind": "paging",
-        "name": "ListWithContinuationToken",
-        "accessibility": "public",
-        "apiVersions": [
-         "2024-07-16-preview",
-         "2024-08-16-preview"
-        ],
-        "doc": "List things with continuation token",
-        "operation": {
-         "$id": "126",
-         "name": "ListWithContinuationToken",
-         "resourceName": "SampleTypeSpec",
-         "doc": "List things with continuation token",
-         "accessibility": "public",
-         "parameters": [
-          {
-           "$id": "127",
-           "name": "token",
-           "nameInRequest": "token",
-           "type": {
-            "$id": "128",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "location": "Query",
-           "isApiVersion": false,
-           "isContentType": false,
-           "isEndpoint": false,
-           "explode": false,
-           "isRequired": true,
-           "kind": "Method",
-           "decorators": [],
-           "skipUrlEncoding": false
-          },
-          {
-           "$id": "129",
-           "name": "accept",
-           "nameInRequest": "Accept",
-           "type": {
-            "$id": "130",
-            "kind": "constant",
-            "valueType": {
-             "$id": "131",
-             "kind": "string",
-             "name": "string",
-             "crossLanguageDefinitionId": "TypeSpec.string",
-             "decorators": []
-            },
-            "value": "application/json",
-            "decorators": []
-           },
-           "location": "Header",
-           "isApiVersion": false,
-           "isContentType": false,
-           "isEndpoint": false,
-           "explode": false,
-           "isRequired": true,
-           "kind": "Constant",
-           "decorators": [],
-           "skipUrlEncoding": false
-          }
-         ],
-         "responses": [
-          {
-           "$id": "132",
-           "statusCodes": [
-            200
-           ],
-           "bodyType": {
-            "$ref": "108"
-           },
-           "headers": [
-            {
-             "$id": "133",
-             "name": "nextToken",
-             "nameInResponse": "nextToken",
-             "type": {
-              "$id": "134",
-              "kind": "string",
-              "name": "string",
-              "crossLanguageDefinitionId": "TypeSpec.string",
-              "decorators": []
-             }
-            }
-           ],
-           "isErrorResponse": false,
-           "contentTypes": [
-            "application/json"
-           ]
-          }
-         ],
-         "httpMethod": "GET",
-         "uri": "{sampleTypeSpecUrl}",
-         "path": "/continuation",
-         "bufferResponse": true,
-         "paging": {
-          "$id": "135",
-          "itemPropertySegments": [
-           "things"
-          ],
-          "continuationToken": {
-           "$id": "136",
-           "parameter": {
-            "$id": "137",
-            "name": "token",
-            "nameInRequest": "token",
-            "type": {
-             "$ref": "128"
-            },
-            "location": "Query",
-            "isApiVersion": false,
-            "isContentType": false,
-            "isEndpoint": false,
-            "explode": false,
-            "isRequired": true,
-            "kind": "Method",
-            "decorators": [],
-            "skipUrlEncoding": false
-           },
-           "responseSegments": [
-            "nextToken"
-           ],
-           "responseLocation": "Header"
-          }
-         },
-         "generateProtocolMethod": true,
-         "generateConvenienceMethod": true,
-         "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
-         "decorators": []
-        },
-        "parameters": [
-         {
-          "$id": "138",
-          "name": "token",
-          "nameInRequest": "token",
-          "type": {
-           "$id": "139",
-           "kind": "string",
-           "name": "string",
-           "crossLanguageDefinitionId": "TypeSpec.string",
-           "decorators": []
-          },
-          "location": "Query",
-          "isApiVersion": false,
-          "isContentType": false,
-          "isEndpoint": false,
-          "explode": false,
-          "isRequired": true,
-          "kind": "Method",
-          "decorators": [],
-          "skipUrlEncoding": false
-         },
-         {
-          "$id": "140",
-          "name": "accept",
-          "nameInRequest": "accept",
-          "type": {
-           "$ref": "130"
-          },
-          "location": "Header",
-          "isApiVersion": false,
-          "isContentType": false,
-          "isEndpoint": false,
-          "explode": false,
-          "isRequired": true,
-          "kind": "Constant",
-          "decorators": [],
-          "skipUrlEncoding": false
-         }
-        ],
-        "response": {
-         "$id": "141",
-         "type": {
-          "$id": "142",
-          "kind": "array",
-          "name": "ArrayThing",
-          "valueType": {
-           "$ref": "29"
-          },
-          "crossLanguageDefinitionId": "TypeSpec.Array",
-          "decorators": []
-         },
-         "resultSegments": [
-          "things"
-         ]
-        },
-        "isOverride": false,
-        "generateConvenient": true,
-        "generateProtocol": true,
-        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken"
-       }
-      ],
-      "parameters": [
-       {
-        "$id": "143",
-        "name": "sampleTypeSpecUrl",
-        "nameInRequest": "sampleTypeSpecUrl",
-        "type": {
-         "$id": "144",
-         "kind": "url",
-         "name": "url",
-         "crossLanguageDefinitionId": "TypeSpec.url"
-        },
-        "location": "Uri",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isRequired": true,
-        "isEndpoint": true,
-        "skipUrlEncoding": false,
-        "explode": false,
-        "kind": "Client"
-       }
-      ],
-      "decorators": [],
-      "crossLanguageDefinitionId": "SampleTypeSpec",
-      "apiVersions": [
-       "2024-07-16-preview",
-       "2024-08-16-preview"
-      ]
-     }
-    ],
-    "auth": {
-     "$id": "145",
-     "apiKey": {
-      "$id": "146",
-      "name": "my-api-key",
-      "in": "header"
-     }
-    }
-   }
->>>>>>> origin/main

@@ -257,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 InputNullableType nullableType => GetEnumValueType(nullableType.Type),
                 InputEnumType enumType => enumType.ValueType,
-                //InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                InputLiteralType literalType => GetEnumValueType(CodeModelGenerator.Instance.TypeFactory.GetLiteralValueType(literalType)),
                 InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
                 InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
                 _ => null
