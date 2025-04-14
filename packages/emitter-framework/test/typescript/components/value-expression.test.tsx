@@ -1,62 +1,74 @@
 import { Output, render } from "@alloy-js/core";
+import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { ArrayValue, EnumValue, Namespace, Value } from "@typespec/compiler";
+import { EnumValue, Namespace, Numeric, NumericValue, Value } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { format } from "prettier";
-import { assert, describe, expect, it } from "vitest";
+import { assert, beforeAll, describe, expect, it } from "vitest";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
-import { getProgram } from "../test-host.js";
+import { getProgram, initEmptyProgram } from "../test-host.js";
 
-describe("ValueExpression", () => {
+describe("TypeScript ValueExpression", () => {
+  beforeAll(async () => {
+    await initEmptyProgram();
+  });
+
   async function testValueExpression(value: Value, expected: string) {
+    const prefix = "const val = ";
     const res = render(
       <Output>
         <SourceFile path="test.ts">
-          const val = <ValueExpression value={value} />
+          {prefix}
+          <ValueExpression value={value} />
         </SourceFile>
       </Output>,
     );
     const testFile = res.contents.find((file) => file.path === "test.ts");
 
     assert.exists(testFile, "test.ts file not rendered");
-    const actualContent = await format(testFile.contents as string, { parser: "typescript" });
-    const expectedContent = await format(`const val = ${expected}`, {
-      parser: "typescript",
-    });
-    expect(actualContent).toBe(expectedContent);
+
+    assert.equal(
+      testFile.contents,
+      `${prefix}${expected}`,
+      "test.ts file contents do not match expected",
+    );
   }
 
-  it("handles string value", async () => {
-    // Error: Default typekits may not be used until a program is set in the compiler.
-    // TODO: better way to set this up so I can use typekit?
-    await getProgram(``);
+  it("renders strings", async () => {
     const value = $.value.createString("test");
 
     await testValueExpression(value, `"test"`);
   });
 
-  it("handles numeric value", async () => {
-    await getProgram(``);
+  it("renders integers", async () => {
     const value = $.value.createNumeric(42);
 
     await testValueExpression(value, `42`);
   });
 
-  it("handles decimal numeric value", async () => {
-    await getProgram(``);
+  it("renders decimals", async () => {
     const value = $.value.createNumeric(42.5);
+
     await testValueExpression(value, `42.5`);
   });
 
-  it("handles boolean value", async () => {
-    await getProgram(``);
+  it("renders bigints", async () => {
+    const digits = "1234567890123456789012345678901234567890";
+    const value: NumericValue = {
+      entityKind: "Value",
+      valueKind: "NumericValue",
+      value: Numeric(digits),
+    } as NumericValue;
+
+    await testValueExpression(value, `${digits}n`);
+  });
+
+  it("renders booleans", async () => {
     const value = $.value.createBoolean(true);
     await testValueExpression(value, `true`);
   });
 
-  it("handles null value", async () => {
-    await getProgram(``);
-    const value: Value = {
+  it("renders nulls", async () => {
+    const value = {
       entityKind: "Value",
       valueKind: "NullValue",
       value: null,
@@ -64,30 +76,27 @@ describe("ValueExpression", () => {
     await testValueExpression(value, `null`);
   });
 
-  it("handles empty array value", async () => {
-    // TODO: is there a better way to create an empty array value?
-    await getProgram(``);
-    const value: ArrayValue = {
+  it("renders empty arrays", async () => {
+    // Can be replaced with with TypeKit once #6976 is implemented
+    const value = {
       entityKind: "Value",
       valueKind: "ArrayValue",
       values: [],
-      type: {},
-    } as unknown as ArrayValue;
+    } as unknown as Value;
     await testValueExpression(value, `[]`);
   });
 
-  it("handles array with mixed values", async () => {
-    await getProgram(``);
-    const value: ArrayValue = {
+  it("renders arrays with mixed values", async () => {
+    // Can be replaced with with TypeKit once #6976 is implemented
+    const value = {
       entityKind: "Value",
       valueKind: "ArrayValue",
       values: [$.value.createString("foo"), $.value.createNumeric(42), $.value.createBoolean(true)],
-      type: {},
-    } as unknown as ArrayValue;
+    } as Value;
     await testValueExpression(value, `["foo", 42, true]`);
   });
 
-  it.todo("handles fromISO scalar value", async () => {
+  it("renders scalars", async () => {
     const program = await getProgram(`
       namespace DemoService;
       model DateRange {
@@ -99,14 +108,35 @@ describe("ValueExpression", () => {
     const dateRange = (namespace as Namespace).models.get("DateRange");
     const minDate = dateRange?.properties.get("minDate")?.defaultValue;
     assert.exists(minDate, "unable to find minDate property");
-    await testValueExpression(minDate, "2024-02-15T18:36:03Z`");
+    await testValueExpression(minDate, `"2024-02-15T18:36:03Z"`);
   });
 
-  it("throws on unsupported scalar constructor", async () => {
-    // TODO: implement test
+  it("throws on unsupported scalar", async () => {
+    const program = await getProgram(`
+      namespace DemoService;
+
+      scalar ipv4 extends string {
+        init fromInt(value: uint32);
+      }
+
+      @example (#{ip: ipv4.fromInt(2130706433)})
+      model IpAddress {
+        ip: ipv4;
+      }
+    `);
+    const [namespace] = program.resolveTypeReference("DemoService");
+    const customScalar = (namespace as Namespace).models.get("IpAddress");
+    assert.exists(customScalar, "unable to find custom scalar");
+    const decorator = customScalar?.decorators.find((d) => d.definition?.name === "@example");
+    assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
+    const value = decorator.args[0].value as Value;
+    await expect(testValueExpression(value, ``)).rejects.toThrow(
+      "Unsupported scalar constructor: fromInt",
+    );
   });
 
-  it("handles empty object value", async () => {
+  it("renders empty objects", async () => {
+    // Can be replaced with with TypeKit once #6976 is implemented
     const program = await getProgram(`
       namespace DemoService;
       @example(#{})
@@ -119,7 +149,8 @@ describe("ValueExpression", () => {
     await testValueExpression(decorator.args[0].value as Value, `{}`);
   });
 
-  it("handles object with mixed property types", async () => {
+  it("renders objects with properties", async () => {
+    // Can be replaced with with TypeKit once #6976 is implemented
     const program = await getProgram(`
       namespace DemoService;
       @example(#{a: 5, b: "foo", c: true})
@@ -135,15 +166,17 @@ describe("ValueExpression", () => {
     assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
     await testValueExpression(
       decorator.args[0].value as Value,
-      `{
-        a: 5, 
-        b: "foo", 
-        c: true
-      };`,
+      dedent(`
+      {
+        a: 5,
+        b: "foo",
+        c: true,
+      }`),
     );
   });
 
-  it("handles enum value", async () => {
+  it("renders enums", async () => {
+    // Can be replaced with with TypeKit once #6976 is implemented
     const program = await getProgram(`
       namespace DemoService;
       enum Color {

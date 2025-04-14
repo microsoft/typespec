@@ -22,13 +22,19 @@ export function ValueExpression(props: ValueExpressionProps): Children {
     case "StringValue":
     case "BooleanValue":
     case "NullValue":
-      return ts.ValueExpression({ jsValue: props.value.value });
+      return <ts.ValueExpression jsValue={props.value.value} />;
     case "NumericValue":
-      return ts.ValueExpression({ jsValue: props.value.value.asNumber() });
+      // if its a bigint, we need to add the n suffix
+      if (props.value.value.asNumber()) {
+        return <ts.ValueExpression jsValue={props.value.value.asNumber()} />;
+      }
+      return <ts.ValueExpression jsValue={props.value.value.asBigInt()} />;
     case "ArrayValue":
-      return ts.ArrayExpression({
-        jsValue: props.value.values.map((v) => ValueExpression({ value: v })),
-      });
+      return (
+        <ts.ArrayExpression
+          jsValue={props.value.values.map((v) => ValueExpression({ value: v }))}
+        />
+      );
     case "ScalarValue":
       const { value } = props.value;
 
@@ -46,6 +52,6 @@ export function ValueExpression(props: ValueExpressionProps): Children {
       }
       return <ts.ObjectExpression jsValue={jsProperties} />;
     case "EnumValue":
-      return ts.ValueExpression({ jsValue: props.value.value.value ?? props.value.value.name });
+      return <ts.ValueExpression jsValue={props.value.value.value ?? props.value.value.name} />;
   }
 }
