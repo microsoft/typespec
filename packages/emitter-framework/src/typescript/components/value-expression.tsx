@@ -24,7 +24,6 @@ export function ValueExpression(props: ValueExpressionProps): Children {
     case "NullValue":
       return <ts.ValueExpression jsValue={props.value.value} />;
     case "NumericValue":
-      // if its a bigint, we need to add the n suffix
       if (props.value.value.asNumber()) {
         return <ts.ValueExpression jsValue={props.value.value.asNumber()} />;
       }
