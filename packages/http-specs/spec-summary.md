@@ -1157,7 +1157,7 @@ Expected input body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -1185,7 +1185,7 @@ Expected response body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -7535,7 +7535,7 @@ Expected request body:
 
 - Endpoint: `post /versioning/removed/api-version:{version}/v3`
 
-path: "/versioning/removed/api-version[:]v1/v3"
+path: "/versioning/removed/api-version:v1/v3"
 Expected request body:
 
 ```json
@@ -7548,7 +7548,7 @@ Expected response body:
 { "id": "123", "enumProp": "enumMemberV1" }
 ```
 
-path: "/versioning/removed/api-version[:]v2preview/v3"
+path: "/versioning/removed/api-version:v2preview/v3"
 Expected request body:
 
 ```json
@@ -7561,7 +7561,7 @@ Expected response body:
 { "id": "123" }
 ```
 
-path: "/versioning/removed/api-version[:]v2/v3"
+path: "/versioning/removed/api-version:v2/v3"
 Expected request body:
 
 ```json

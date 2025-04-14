@@ -230,6 +230,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE_EXPORT_TARGET",
             `Import "test-lib" resolving to "/ws/proj/node_modules/test-lib/missing.js" is not a file.`,
+            expect.anything(),
           ),
         );
       });
@@ -244,6 +245,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE_EXPORT_TARGET",
             `Could not resolve import "test-lib"  using exports defined in file:///ws/proj/node_modules/test-lib. Invalid mapping: "index.js".`,
+            expect.anything(),
           ),
         );
       });
@@ -261,6 +263,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
+            expect.anything(),
           ),
         );
       });
@@ -366,6 +369,7 @@ describe("packages", () => {
               new ResolveModuleError(
                 "INVALID_MODULE",
                 `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
+                expect.anything(),
               ),
             );
           });
@@ -537,6 +541,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE_IMPORT_TARGET",
             `Import "#utils" resolving to "/ws/proj/missing.js" is not a file.`,
+            expect.anything(),
           ),
         );
       });
@@ -552,6 +557,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+            expect.anything(),
           ),
         );
       });
@@ -564,6 +570,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+            expect.anything(),
           ),
         );
       });
@@ -592,6 +599,7 @@ describe("resolve self", () => {
               new ResolveModuleError(
                 "INVALID_MODULE",
                 `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+                expect.anything(),
               ),
             );
           });
