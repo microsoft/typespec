@@ -12,27 +12,6 @@ describe("TypeScript ValueExpression", () => {
     await initEmptyProgram();
   });
 
-  async function testValueExpression(value: Value, expected: string) {
-    const prefix = "const val = ";
-    const res = render(
-      <Output>
-        <SourceFile path="test.ts">
-          {prefix}
-          <ValueExpression value={value} />
-        </SourceFile>
-      </Output>,
-    );
-    const testFile = res.contents.find((file) => file.path === "test.ts");
-
-    assert.exists(testFile, "test.ts file not rendered");
-
-    assert.equal(
-      testFile.contents,
-      `${prefix}${expected}`,
-      "test.ts file contents do not match expected",
-    );
-  }
-
   it("renders strings", async () => {
     const value = $.value.createString("test");
 
@@ -209,3 +188,27 @@ describe("TypeScript ValueExpression", () => {
     );
   });
 });
+
+/**
+ * Helper that renders a value expression and checks the output against the expected value.
+ */
+async function testValueExpression(value: Value, expected: string) {
+  const prefix = "const val = ";
+  const res = render(
+    <Output>
+      <SourceFile path="test.ts">
+        {prefix}
+        <ValueExpression value={value} />
+      </SourceFile>
+    </Output>,
+  );
+  const testFile = res.contents.find((file) => file.path === "test.ts");
+
+  assert.exists(testFile, "test.ts file not rendered");
+
+  assert.equal(
+    testFile.contents,
+    `${prefix}${expected}`,
+    "test.ts file contents do not match expected",
+  );
+}

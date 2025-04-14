@@ -7,13 +7,13 @@ import { Value } from "@typespec/compiler";
  */
 interface ValueExpressionProps {
   /**
-   * The TypeSpec value to be converted to a TypeScript expression.
+   * The TypeSpec value to be converted to a JavaScript expression.
    */
   value: Value;
 }
 
 /**
- * Generates a TypeScript value expression from a TypeSpec value.
+ * Generates a JavaScript value expression from a TypeSpec value.
  * @param props properties for the value expression
  * @returns {@link Children} representing the JavaScript value expression
  */
@@ -32,16 +32,14 @@ export function ValueExpression(props: ValueExpressionProps): Children {
     case "ArrayValue":
       return (
         <ts.ArrayExpression
-          jsValue={props.value.values.map((v) => ValueExpression({ value: v }))}
+          jsValue={props.value.values.map((v) => (
+            <ValueExpression value={v} />
+          ))}
         />
       );
     case "ScalarValue":
-      const { value } = props.value;
-
       if (props.value.value.name === "fromISO") {
-        return ValueExpression({
-          value: value.args[0],
-        });
+        return <ValueExpression value={props.value.value.args[0]} />;
       } else {
         throw new Error("Unsupported scalar constructor: " + props.value.value.name);
       }
