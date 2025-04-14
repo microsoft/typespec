@@ -43,6 +43,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
+  "azure/client-generator-core/client-initialization": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization",
+  },
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
   },

@@ -214,11 +214,21 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
       });
     }
   }
+  let clientName = camelToSnakeCase(parameter.name);
+  if (
+    parameter.kind !== "endpoint" &&
+    parameter.kind !== "credential" &&
+    parameter.kind !== "method" &&
+    parameter.onClient &&
+    parameter.correspondingMethodParams[0]
+  ) {
+    clientName = camelToSnakeCase(parameter.correspondingMethodParams[0].name);
+  }
   return {
     optional: parameter.optional,
     description: (parameter.summary ? parameter.summary : parameter.doc) ?? "",
     addedOn: getAddedOn(context, parameter),
-    clientName: camelToSnakeCase(parameter.name),
+    clientName,
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
     isContinuationToken: isContinuationToken(parameter, method),
