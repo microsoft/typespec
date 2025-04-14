@@ -19,33 +19,32 @@ interface ValueExpressionProps {
  */
 export function ValueExpression(props: ValueExpressionProps): Children {
   switch (props.value.valueKind) {
-    case "NumericValue":
-      return ts.ValueExpression({ jsValue: props.value.value.asNumber() });
     case "StringValue":
     case "BooleanValue":
     case "NullValue":
       return ts.ValueExpression({ jsValue: props.value.value });
+    case "NumericValue":
+      return ts.ValueExpression({ jsValue: props.value.value.asNumber() });
     case "ArrayValue":
       return ts.ArrayExpression({
-        jsValue: props.value.values,
+        jsValue: props.value.values.map((v) => ValueExpression({ value: v })),
       });
     case "ScalarValue":
-      console.log("ScalarValue", props.value);
       const { value } = props.value;
 
       if (props.value.value.name === "fromISO") {
-        console.log("fromISO", props.value.value.args[0]);
-        return ts.ValueExpression({
-          jsValue: value.args[0],
+        return ValueExpression({
+          value: value.args[0],
         });
-        // return ValueExpression({
-        //   value: props.value.value.args[0],
-        // });
       } else {
         throw new Error("Unsupported scalar constructor: " + props.value.value.name);
       }
     case "ObjectValue":
-      return ts.ValueExpression({ jsValue: props.value.properties });
+      const jsProperties: Record<string, Children> = {};
+      for (const [key, value] of props.value.properties) {
+        jsProperties[key] = ValueExpression({ value: value.value });
+      }
+      return <ts.ObjectExpression jsValue={jsProperties} />;
     case "EnumValue":
       return ts.ValueExpression({ jsValue: props.value.value.value ?? props.value.value.name });
   }

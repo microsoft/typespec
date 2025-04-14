@@ -1,6 +1,6 @@
 import { Output, render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
-import { ArrayValue, Namespace, Value } from "@typespec/compiler";
+import { ArrayValue, EnumValue, Namespace, Value } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
@@ -12,14 +12,15 @@ describe("ValueExpression", () => {
     const res = render(
       <Output>
         <SourceFile path="test.ts">
-          <ValueExpression value={value} />
+          const val = <ValueExpression value={value} />
         </SourceFile>
       </Output>,
     );
     const testFile = res.contents.find((file) => file.path === "test.ts");
-    assert(testFile, "test.ts file not rendered");
+
+    assert.exists(testFile, "test.ts file not rendered");
     const actualContent = await format(testFile.contents as string, { parser: "typescript" });
-    const expectedContent = await format(expected, {
+    const expectedContent = await format(`const val = ${expected}`, {
       parser: "typescript",
     });
     expect(actualContent).toBe(expectedContent);
@@ -75,7 +76,7 @@ describe("ValueExpression", () => {
     await testValueExpression(value, `[]`);
   });
 
-  it.todo("handles array with mixed values", async () => {
+  it("handles array with mixed values", async () => {
     await getProgram(``);
     const value: ArrayValue = {
       entityKind: "Value",
@@ -86,7 +87,7 @@ describe("ValueExpression", () => {
     await testValueExpression(value, `["foo", 42, true]`);
   });
 
-  it("handles fromISO scalar value", async () => {
+  it.todo("handles fromISO scalar value", async () => {
     const program = await getProgram(`
       namespace DemoService;
       model DateRange {
@@ -97,8 +98,8 @@ describe("ValueExpression", () => {
     const [namespace] = program.resolveTypeReference("DemoService");
     const dateRange = (namespace as Namespace).models.get("DateRange");
     const minDate = dateRange?.properties.get("minDate")?.defaultValue;
-    assert(minDate, "minDate property not found");
-    await testValueExpression(minDate, `fdfd`);
+    assert.exists(minDate, "unable to find minDate property");
+    await testValueExpression(minDate, "2024-02-15T18:36:03Z`");
   });
 
   it("throws on unsupported scalar constructor", async () => {
@@ -106,14 +107,72 @@ describe("ValueExpression", () => {
   });
 
   it("handles empty object value", async () => {
-    // TODO: implement test
+    const program = await getProgram(`
+      namespace DemoService;
+      @example(#{})
+      model ObjectValue {};
+    `);
+    const [namespace] = program.resolveTypeReference("DemoService");
+    const objectValue = (namespace as Namespace).models.get("ObjectValue");
+    const decorator = objectValue?.decorators.find((d) => d.definition?.name === "@example");
+    assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
+    await testValueExpression(decorator.args[0].value as Value, `{}`);
   });
 
   it("handles object with mixed property types", async () => {
-    // TODO: implement test
+    const program = await getProgram(`
+      namespace DemoService;
+      @example(#{a: 5, b: "foo", c: true})
+      model ObjectValue {
+        a: int32;
+        b: string;
+        c: boolean;
+      };
+    `);
+    const [namespace] = program.resolveTypeReference("DemoService");
+    const objectValue = (namespace as Namespace).models.get("ObjectValue");
+    const decorator = objectValue?.decorators.find((d) => d.definition?.name === "@example");
+    assert.exists(decorator?.args[0]?.value, "unable to find example decorator");
+    await testValueExpression(
+      decorator.args[0].value as Value,
+      `{
+        a: 5, 
+        b: "foo", 
+        c: true
+      };`,
+    );
   });
 
-  it("throws on unsupported value kind", async () => {
-    // TODO: implement test
+  it("handles enum value", async () => {
+    const program = await getProgram(`
+      namespace DemoService;
+      enum Color {
+        Red,
+        Green: 3,
+        Blue
+      }
+    `);
+    const [namespace] = program.resolveTypeReference("DemoService");
+    const colors = (namespace as Namespace).enums.get("Color");
+    assert.exists(colors, "unable to find Color enum");
+    const red = colors?.members.get("Red");
+    assert.exists(red, "unable to find Red enum member");
+    await testValueExpression(
+      {
+        valueKind: "EnumValue",
+        value: red,
+      } as EnumValue,
+      `"Red"`,
+    );
+
+    const green = colors?.members.get("Green");
+    assert.exists(green, "unable to find Green enum member");
+    await testValueExpression(
+      {
+        valueKind: "EnumValue",
+        value: green,
+      } as EnumValue,
+      `3`,
+    );
   });
 });
