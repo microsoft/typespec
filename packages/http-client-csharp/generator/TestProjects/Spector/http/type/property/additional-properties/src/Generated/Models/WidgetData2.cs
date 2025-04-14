@@ -8,7 +8,7 @@ namespace _Type.Property.AdditionalProperties
     {
         public WidgetData2(string start) => throw null;
 
-        public WidgetData2Kind Kind => throw null;
+        public WidgetData1Kind Kind => throw null;
 
         public string Start
         {

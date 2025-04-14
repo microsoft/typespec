@@ -355,13 +355,12 @@ function fromSdkConstantType(
   literalType = {
     kind: constantType.kind,
     name: constantType.name,
-    namespace: "", // TODO -- constantType now does not have namespace, therefore here we use empty. In the next version, TCGC will be updated to have namespace for constantType.
     valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
     value: constantType.value,
     decorators: constantType.decorators,
   };
 
-  sdkContext.__typeCache.updateTypeCache(name, literalType); // TODO -- use the cache method in SdkContext
+  sdkContext.__typeCache.updateTypeCache(name, literalType);
 
   return literalType;
 }

@@ -80,6 +80,10 @@ namespace Microsoft.TypeSpec.Generator
                     var input = CreateCSharpType(GetLiteralValueType(literalType));
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
+                case InputEnumTypeValue enumValueType:
+                    var enumValue = CreateCSharpType(enumValueType.ValueType);
+                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
+                    break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)

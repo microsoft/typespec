@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class InputEnumTypeValue
+    public class InputEnumTypeValue : InputType
     {
-        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, string? summary, string? doc)
+        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, string? summary, string? doc) : base(name)
         {
             Name = name;
             Value = value;
@@ -16,12 +14,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             Doc = doc;
         }
 
-        public string Name { get; }
         public object Value { get; }
         public InputPrimitiveType ValueType { get; }
         public string? Summary { get; }
         public string? Doc { get; }
-        public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
 
         public virtual string GetJsonValueString() => GetValueString();
         public string GetValueString() => Value.ToString() ?? string.Empty;

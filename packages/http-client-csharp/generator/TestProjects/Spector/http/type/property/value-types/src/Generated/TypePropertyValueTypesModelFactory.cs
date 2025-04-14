@@ -67,6 +67,6 @@ namespace _Type.Property.ValueTypes
 
         public static UnionFloatLiteralProperty UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty @property = default) => throw null;
 
-        public static UnionEnumValueProperty UnionEnumValueProperty(ExtendedEnum @property = default) => throw null;
+        public static UnionEnumValueProperty UnionEnumValueProperty(string @property = default) => throw null;
     }
 }

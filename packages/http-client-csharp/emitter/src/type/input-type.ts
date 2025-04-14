@@ -62,7 +62,6 @@ export interface InputPrimitiveType extends InputTypeBase {
 export interface InputLiteralType extends InputTypeBase {
   kind: "constant";
   name: string;
-  namespace: string;
   valueType: InputPrimitiveType;
   value: string | number | boolean | null;
 }

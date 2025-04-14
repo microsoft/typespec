@@ -60,7 +60,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 InputPrimitiveTypeKind.String => rawValue.Value.GetString() ?? throw new JsonException(),
                 InputPrimitiveTypeKind.Int32 => rawValue.Value.GetInt32(),
                 InputPrimitiveTypeKind.Float32 => rawValue.Value.GetSingle(),
-                InputPrimitiveTypeKind.Float64 => rawValue.Value.GetDouble(),
                 InputPrimitiveTypeKind.Boolean => rawValue.Value.GetBoolean(),
                 _ => throw new JsonException($"Not supported literal type {valueKind}.")
             };
