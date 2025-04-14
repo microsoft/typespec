@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-`--trace` cli option option applies to all commands now
+`--trace` cli option applies to all commands now
