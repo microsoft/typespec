@@ -38,7 +38,10 @@ import {
 /**
  * Memoization cache for requiresJsonSerialization.
  */
-const _REQUIRES_JSON_SERIALIZATION = new WeakMap<SerializableType | ModelProperty, boolean>();
+const _REQUIRES_JSON_SERIALIZATION = new WeakMap<
+  SerializableType | Scalar | ModelProperty,
+  boolean
+>();
 
 export function requiresJsonSerialization(
   ctx: JsContext,
@@ -46,7 +49,7 @@ export function requiresJsonSerialization(
   type: Type,
   diagnosticTarget: DiagnosticTarget | typeof NoTarget = NoTarget,
 ): boolean {
-  if (!isSerializable(type)) return false;
+  if (!isJsonSerializable(type)) return false;
 
   if (_REQUIRES_JSON_SERIALIZATION.has(type)) {
     return _REQUIRES_JSON_SERIALIZATION.get(type)!;
@@ -107,7 +110,7 @@ function propertyRequiresJsonSerialization(
     isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
     resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
-    (isSerializable(property.type) &&
+    (isJsonSerializable(property.type) &&
       requiresJsonSerialization(ctx, module, property.type, property))
   );
 }
@@ -120,8 +123,8 @@ function isHttpMetadata(ctx: JsContext, property: ModelProperty): boolean {
   );
 }
 
-function isSerializable(type: Type): type is SerializableType | ModelProperty {
-  return type.kind === "ModelProperty" || isSerializableType(type);
+function isJsonSerializable(type: Type): type is SerializableType | Scalar | ModelProperty {
+  return type.kind === "ModelProperty" || type.kind === "Scalar" || isSerializableType(type);
 }
 
 export function* emitJsonSerialization(
@@ -194,10 +197,6 @@ function* emitToJson(
 
       return;
     }
-    case "Scalar": {
-      yield `throw new Error("Unimplemented: scalar JSON serialization");`;
-      return;
-    }
     case "Union": {
       const codeTree = differentiateUnion(ctx, module, type);
 
@@ -224,7 +223,7 @@ function* emitToJson(
   }
 }
 
-function transposeExpressionToJson(
+export function transposeExpressionToJson(
   ctx: SerializationContext,
   type: Type,
   expr: string,
@@ -435,10 +434,6 @@ function* emitFromJson(
 
       return;
     }
-    case "Scalar": {
-      yield `throw new Error("Unimplemented: scalar JSON serialization");`;
-      return;
-    }
     case "Union": {
       const codeTree = differentiateUnion(ctx, module, type);
 
@@ -466,7 +461,7 @@ function* emitFromJson(
   }
 }
 
-function transposeExpressionFromJson(
+export function transposeExpressionFromJson(
   ctx: SerializationContext,
   type: Type,
   expr: string,
