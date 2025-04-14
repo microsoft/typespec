@@ -219,7 +219,6 @@ async function testValueExpression(value: Value, expected: string) {
 
   assert.exists(testFile, "test.ts file not rendered");
 
-  console.log(testFile.contents);
   assert.equal(
     testFile.contents,
     `${prefix}${expected}`,
