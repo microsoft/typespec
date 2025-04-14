@@ -186,21 +186,45 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
           decodeTemplate: `${temporalRef}.Duration.from({})`,
         },
       },
-      "TypeSpec.int32": {
-        default: { via: "seconds" },
-        seconds: {
-          encodeTemplate: (_, module) => {
-            module.imports.push({
-              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
-              binder: [`durationTotalSeconds`],
-            });
+      ...Object.fromEntries(
+        ["int32", "uint32", "float32", "float64"].map((n) => [
+          `TypeSpec.${n}`,
+          {
+            default: { via: "seconds" },
+            seconds: {
+              encodeTemplate: (_, module) => {
+                module.imports.push({
+                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+                  binder: [`durationTotalSeconds`],
+                });
 
-            return `durationTotalSeconds({})`;
+                return `durationTotalSeconds({})`;
+              },
+              decodeTemplate: `${temporalRef}.Duration.from({ seconds: {} })`,
+            },
           },
-          decodeTemplate: `${temporalRef}.Duration.from({ seconds: {} })`,
-        },
-      },
-      "TypeSpec.int64": {
+        ]),
+      ),
+      ...Object.fromEntries(
+        ["int64", "uint64", "integer"].map((n) => [
+          `TypeSpec.${n}`,
+          {
+            default: { via: "seconds" },
+            seconds: {
+              encodeTemplate: (_, module) => {
+                module.imports.push({
+                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+                  binder: [`durationTotalSecondsBigInt`],
+                });
+
+                return `durationTotalSecondsBigInt({})`;
+              },
+              decodeTemplate: `${temporalRef}.Duration.from({ seconds: globalThis.Number({}) })`,
+            },
+          },
+        ]),
+      ),
+      "TypeSpec.float": {
         default: { via: "seconds" },
         seconds: {
           encodeTemplate: (_, module) => {
@@ -209,10 +233,15 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
               binder: [`durationTotalSecondsBigInt`],
             });
 
-            return `durationTotalSecondsBigInt({})`;
+            return `new Decimal(durationTotalSecondsBigInt({}).toString())`;
           },
-          decodeTemplate: `${temporalRef}.Duration.from({ seconds: globalThis.Number({}) })`,
+          decodeTemplate: `${temporalRef}.Duration.from({ seconds: {}.toNumber() })`,
         },
+      },
+    },
+    defaultEncodings: {
+      byMimeType: {
+        "application/json": ["TypeSpec.string", "iso8601"],
       },
     },
   };
