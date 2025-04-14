@@ -1420,7 +1420,7 @@ public class JavaSettings {
     /**
      * Gets the polling configuration for the specified operation.
      *
-     * @param operationId The operation name.
+     * @param operationId The operation id.
      * @return The polling configuration for the specified operation, or the default polling configuration if no
      * configuration is specified for the operation.
      */
