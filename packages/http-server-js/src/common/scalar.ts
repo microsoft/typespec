@@ -13,6 +13,7 @@ import { UnreachableError } from "../util/error.js";
 import { module as dateTimeModule } from "../../generated-defs/helpers/datetime.js";
 import { module as temporalNativeHelpers } from "../../generated-defs/helpers/temporal/native.js";
 import { module as temporalPolyfillHelpers } from "../../generated-defs/helpers/temporal/polyfill.js";
+import { emitDocumentation } from "./documentation.js";
 
 /**
  * A specification of a TypeSpec scalar type.
@@ -157,7 +158,7 @@ const DURATION_BIGDECIMAL_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
 
   return {
     encodeTemplate: "new Decimal(Duration.totalSeconds({}).toString())",
-    decodeTemplate: "Duration.fromSeconds({}.toNumber())",
+    decodeTemplate: "Duration.fromSeconds(({}).toNumber())",
   };
 };
 
@@ -176,13 +177,13 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
   const isPolyfill = mode === "temporal-polyfill";
 
   return {
-    type: `${temporalRef}.Duration`,
+    type: "Temporal.Duration",
     isJsonCompatible: false,
     encodings: {
       "TypeSpec.string": {
         default: { via: "iso8601" },
         iso8601: {
-          encodeTemplate: `{}.toString()`,
+          encodeTemplate: `({}).toString()`,
           decodeTemplate: `${temporalRef}.Duration.from({})`,
         },
       },
@@ -235,7 +236,7 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
 
             return `new Decimal(durationTotalSecondsBigInt({}).toString())`;
           },
-          decodeTemplate: `${temporalRef}.Duration.from({ seconds: {}.toNumber() })`,
+          decodeTemplate: `${temporalRef}.Duration.from({ seconds: ({}).toNumber() })`,
         },
       },
     },
@@ -319,7 +320,7 @@ const BIGDECIMAL: ScalarInfo = {
   encodings: {
     "TypeSpec.string": {
       default: {
-        encodeTemplate: "{}.toString()",
+        encodeTemplate: "({}).toString()",
         decodeTemplate: "new Decimal({})",
       },
     },
@@ -495,16 +496,16 @@ function dateTime(t: DateTimeType): Dependent<ScalarInfo> {
 
     switch (t) {
       case "plainDate":
-        type = isTemporal ? `${temporalRef}.PlainDate` : "Date";
+        type = isTemporal ? "Temporal.PlainDate" : "Date";
         break;
       case "plainTime":
-        type = isTemporal ? `${temporalRef}.PlainTime` : "Date";
+        type = isTemporal ? "Temporal.PlainTime" : "Date";
         break;
       case "utcDateTime":
-        type = isTemporal ? `${temporalRef}.Instant` : "Date";
+        type = isTemporal ? "Temporal.Instant" : "Date";
         break;
       case "offsetDateTime":
-        type = isTemporal ? `${temporalRef}.ZonedDateTime` : "Date";
+        type = isTemporal ? "Temporal.ZonedDateTime" : "Date";
         break;
       default:
         void (t satisfies never);
@@ -542,7 +543,7 @@ const TEMPORAL_ENCODERS = (
         default: { via: "iso8601" },
         rfc3339: { via: "iso8601" },
         iso8601: {
-          encodeTemplate: "{}.toString()",
+          encodeTemplate: "({}).toString()",
           decodeTemplate: `${temporal}.PlainDate.from({})`,
         },
       },
@@ -552,7 +553,7 @@ const TEMPORAL_ENCODERS = (
         default: { via: "iso8601" },
         rfc3339: { via: "iso8601" },
         iso8601: {
-          encodeTemplate: "{}.toString()",
+          encodeTemplate: "({}).toString()",
           decodeTemplate: `${temporal}.PlainTime.from({})`,
         },
       },
@@ -563,7 +564,7 @@ const TEMPORAL_ENCODERS = (
         default: { via: "iso8601" },
         rfc3339: { via: "iso8601" },
         iso8601: {
-          encodeTemplate: "{}.toString()",
+          encodeTemplate: "({}).toString()",
           decodeTemplate: `${temporal}.Instant.from({})`,
         },
         "http-date": { via: "rfc7231" },
@@ -589,14 +590,14 @@ const TEMPORAL_ENCODERS = (
       "TypeSpec.int32": {
         default: { via: "unixTimestamp" },
         unixTimestamp: {
-          encodeTemplate: "globalThis.Math.floor({}.epochMilliseconds / 1000)",
+          encodeTemplate: "globalThis.Math.floor(({}).epochMilliseconds / 1000)",
           decodeTemplate: `${temporal}.Instant.fromEpochMilliseconds({} * 1000)`,
         },
       },
       "TypeSpec.int64": {
         default: { via: "unixTimestamp" },
         unixTimestamp: {
-          encodeTemplate: "{}.epochNanoseconds / 1_000_000_000n",
+          encodeTemplate: "({}).epochNanoseconds / 1_000_000_000n",
           decodeTemplate: `${temporal}.Instant.fromEpochNanoseconds({} * 1_000_000_000n)`,
         },
       },
@@ -607,7 +608,7 @@ const TEMPORAL_ENCODERS = (
         default: { via: "iso8601" },
         rfc3339: { via: "iso8601" },
         iso8601: {
-          encodeTemplate: "{}.toString()",
+          encodeTemplate: "({}).toString()",
           decodeTemplate: `${temporal}.ZonedDateTime.from({})`,
         },
         "http-date": { via: "rfc7231" },
@@ -618,7 +619,7 @@ const TEMPORAL_ENCODERS = (
               binder: [`formatHttpDate`],
             });
 
-            return `formatHttpDate({}.toInstant())`;
+            return `formatHttpDate(({}).toInstant())`;
           },
           decodeTemplate: (ctx, module) => {
             module.imports.push({
@@ -644,14 +645,14 @@ const LEGACY_DATETIME_ENCODER: ScalarInfo["encodings"] = {
       via: "iso8601",
     },
     iso8601: {
-      encodeTemplate: "{}.toISOString()",
+      encodeTemplate: "({}).toISOString()",
       decodeTemplate: "new globalThis.Date({})",
     },
     rfc3339: {
       via: "iso8601",
     },
     rfc7231: {
-      encodeTemplate: "{}.toUTCString()",
+      encodeTemplate: "({}).toUTCString()",
       decodeTemplate: "new globalThis.Date({})",
     },
     "http-date": {
@@ -661,14 +662,14 @@ const LEGACY_DATETIME_ENCODER: ScalarInfo["encodings"] = {
   "TypeSpec.int32": {
     default: { via: "unixTimestamp" },
     unixTimestamp: {
-      encodeTemplate: "globalThis.Math.floor({}.getTime() / 1000)",
+      encodeTemplate: "globalThis.Math.floor(({}).getTime() / 1000)",
       decodeTemplate: `new globalThis.Date({} * 1000)`,
     },
   },
   "TypeSpec.int64": {
     default: { via: "unixTimestamp" },
     unixTimestamp: {
-      encodeTemplate: "globalThis.BigInt({}.getTime()) / 1000n",
+      encodeTemplate: "globalThis.BigInt(({}).getTime()) / 1000n",
       decodeTemplate: `new globalThis.Date(globalThis.Number({}) * 1000)`,
     },
   },
@@ -684,12 +685,14 @@ const LEGACY_DATETIME_ENCODER: ScalarInfo["encodings"] = {
  * @param scalar - The scalar to emit.
  * @returns a string that declares an alias to the scalar type in TypeScript.
  */
-export function emitScalar(ctx: JsContext, scalar: Scalar, module: Module): string {
+export function* emitScalar(ctx: JsContext, scalar: Scalar, module: Module): Iterable<string> {
   const jsScalar = getJsScalar(ctx, module, scalar, scalar.node.id);
 
   const name = parseCase(scalar.name).pascalCase;
 
-  return `type ${name} = ${jsScalar.type};`;
+  yield* emitDocumentation(ctx, scalar);
+
+  yield `export type ${name} = ${jsScalar.type};`;
 }
 
 /**

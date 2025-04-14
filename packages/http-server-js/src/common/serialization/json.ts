@@ -504,13 +504,13 @@ export function transposeExpressionFromJson(
 
       const encoder = getScalarEncoder(ctx, type, scalar);
 
-      const decoded = encoder.decode(expr);
-
       if (encoder.target.isJsonCompatible || !encoder.target.scalar) {
-        return decoded;
+        return encoder.decode(expr);
       } else {
         // Assertion: encoder.target.scalar is a scalar because "unknown" is JSON compatible.
-        return transposeExpressionFromJson(ctx, encoder.target.scalar as Scalar, decoded, module);
+        return encoder.decode(
+          transposeExpressionFromJson(ctx, encoder.target.scalar as Scalar, expr, module),
+        );
       }
     case "Union":
       if (!requiresJsonSerialization(ctx, module, type)) {
