@@ -46,7 +46,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 if (item.IsLiteral && item.Literal != null)
                 {
                     var literalValue = item.Literal;
-                    if (item.FrameworkType == typeof(string))
+                    var literalUnderlyingType = item.IsFrameworkType ?
+                        item.FrameworkType :
+                        item.UnderlyingEnumType;
+                    if (literalUnderlyingType == typeof(string))
                     {
                         description = new XmlDocStatement("description", [$"{literalValue:L}"]);
                     }

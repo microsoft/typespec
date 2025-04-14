@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
 
-        internal HashSet<string> UnionTypes { get; } = [];
+        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -88,7 +88,11 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            UnionTypes.Add(unionInput.Name);
+                            // we only keep the type if it is not framework type and not literal
+                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
+                            {
+                                UnionVariantTypesToKeep.Add(unionInput.Name);
+                            }
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
