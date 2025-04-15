@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typing import AsyncIterable
-from specs.azure.core.page import models, aio
+from azure.core.page import models, aio
 
 VALID_USER = models.User(id=1, name="Madge", etag="11bdc430-65e8-45ad-81d9-8ffa60d55b59")
 

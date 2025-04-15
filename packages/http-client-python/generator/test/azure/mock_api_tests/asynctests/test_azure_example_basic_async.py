@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.example.basic.aio import AzureExampleClient
-from specs.azure.example.basic.models import ActionRequest, Model
+from azure.example.basic.aio import AzureExampleClient
+from azure.example.basic.models import ActionRequest, Model
 
 
 @pytest.fixture

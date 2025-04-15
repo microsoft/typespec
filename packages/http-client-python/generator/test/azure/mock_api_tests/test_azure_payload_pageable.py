@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.payload.pageable import PageableClient
+from azure.payload.pageable import PageableClient
 
 
 @pytest.fixture

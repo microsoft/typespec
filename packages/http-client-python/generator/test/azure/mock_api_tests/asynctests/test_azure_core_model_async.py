@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.core.model.aio import ModelClient
-from specs.azure.core.model.models import AzureEmbeddingModel
+from azure.core.model.aio import ModelClient
+from azure.core.model.models import AzureEmbeddingModel
 
 
 @pytest.fixture

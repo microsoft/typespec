@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.core.scalar import ScalarClient, models
+from azure.core.scalar import ScalarClient, models
 
 
 @pytest.fixture

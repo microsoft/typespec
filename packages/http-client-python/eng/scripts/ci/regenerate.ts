@@ -37,51 +37,6 @@ interface TspCommand {
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "azure/client-generator-core/access": {
-    namespace: "specs.azure.clientgenerator.core.access",
-  },
-  "azure/client-generator-core/api-version": {
-    namespace: "specs.azure.clientgenerator.core.apiversion",
-  },
-  "azure/client-generator-core/client-initialization": {
-    namespace: "specs.azure.clientgenerator.core.clientinitialization",
-  },
-  "azure/client-generator-core/flatten-property": {
-    namespace: "specs.azure.clientgenerator.core.flattenproperty",
-  },
-  "azure/client-generator-core/usage": {
-    namespace: "specs.azure.clientgenerator.core.usage",
-  },
-  "azure/core/basic": {
-    namespace: "specs.azure.core.basic",
-  },
-  "azure/core/lro/rpc": {
-    namespace: "specs.azure.core.lro.rpc",
-  },
-  "azure/core/lro/standard": {
-    namespace: "specs.azure.core.lro.standard",
-  },
-  "azure/core/model": {
-    namespace: "specs.azure.core.model",
-  },
-  "azure/core/page": {
-    namespace: "specs.azure.core.page",
-  },
-  "azure/core/scalar": {
-    namespace: "specs.azure.core.scalar",
-  },
-  "azure/core/traits": {
-    namespace: "specs.azure.core.traits",
-  },
-  "azure/encode/duration": {
-    namespace: "specs.azure.encode.duration",
-  },
-  "azure/example/basic": {
-    namespace: "specs.azure.example.basic",
-  },
-  "azure/payload/pageable": {
-    namespace: "specs.azure.payload.pageable",
-  },
   "client/structure/default": {
     namespace: "client.structure.service",
   },

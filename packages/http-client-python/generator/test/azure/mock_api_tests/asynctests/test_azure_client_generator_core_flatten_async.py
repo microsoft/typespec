@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.clientgenerator.core.flattenproperty.aio import FlattenPropertyClient
-from specs.azure.clientgenerator.core.flattenproperty.models import (
+from azure.clientgenerator.core.flattenproperty.aio import FlattenPropertyClient
+from azure.clientgenerator.core.flattenproperty.models import (
     FlattenModel,
     ChildModel,
     NestedFlattenModel,

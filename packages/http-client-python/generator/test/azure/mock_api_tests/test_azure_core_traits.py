@@ -9,8 +9,8 @@ from datetime import datetime
 import pytest
 from azure.core.exceptions import HttpResponseError
 from azure.core import MatchConditions
-from specs.azure.core.traits import TraitsClient
-from specs.azure.core.traits.models import UserActionParam
+from azure.core.traits import TraitsClient
+from azure.core.traits.models import UserActionParam
 
 
 @pytest.fixture

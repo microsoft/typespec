@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.clientgenerator.core.usage import UsageClient
-from specs.azure.clientgenerator.core.usage import models
+from azure.clientgenerator.core.usage import UsageClient
+from azure.clientgenerator.core.usage import models
 
 
 @pytest.fixture

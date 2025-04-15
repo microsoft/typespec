@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from specs.azure.clientgenerator.core.access import AccessClient
-from specs.azure.clientgenerator.core.access import models
+from azure.clientgenerator.core.access import AccessClient
+from azure.clientgenerator.core.access import models
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def test_no_decorator_in_internal(client: AccessClient):
     assert result == models._models.NoDecoratorModelInInternal(name="sample")
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import NoDecoratorModelInInternal
+        from azure.clientgenerator.core.access.models import NoDecoratorModelInInternal
 
     with pytest.raises(AttributeError):
         client.internal_operation.no_decorator_in_internal(name="sample")
@@ -40,7 +40,7 @@ def test_internal_decorator_in_internal(client: AccessClient):
     assert result == models._models.InternalDecoratorModelInInternal(name="sample")
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import InternalDecoratorModelInInternal
+        from azure.clientgenerator.core.access.models import InternalDecoratorModelInInternal
 
     with pytest.raises(AttributeError):
         client.internal_operation.internal_decorator_in_internal(name="sample")
@@ -72,10 +72,10 @@ def test_operation(client: AccessClient):
     assert result == models._models.OuterModel(name="Madge", inner=models._models.InnerModel(name="Madge"))
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import OuterModel
+        from azure.clientgenerator.core.access.models import OuterModel
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import InnerModel
+        from azure.clientgenerator.core.access.models import InnerModel
 
     with pytest.raises(AttributeError):
         client.shared_model_in_operation.operation(name="sample")
@@ -86,7 +86,7 @@ def test_discriminator(client: AccessClient):
     assert result == models._models.RealModel(name="Madge")
 
     with pytest.raises(ImportError):
-        from specs.azure.clientgenerator.core.access.models import RealModel
+        from azure.clientgenerator.core.access.models import RealModel
 
     with pytest.raises(AttributeError):
         client.shared_model_in_operation.discriminator(kind="real")
