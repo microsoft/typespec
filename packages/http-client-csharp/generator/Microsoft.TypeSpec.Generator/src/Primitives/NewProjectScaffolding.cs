@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
-            new("System.ClientModel", "1.3.0"),
+            new("System.ClientModel", "1.4.0-alpha.20250403.104"),
             new("System.Text.Json", "8.0.5")
         };
 
