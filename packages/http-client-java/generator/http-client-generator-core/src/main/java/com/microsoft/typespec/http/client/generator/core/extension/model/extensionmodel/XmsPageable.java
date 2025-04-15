@@ -29,18 +29,18 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
     }
 
     /**
-     * Gets the name of the item in the pageable response.
+     * Gets the serialized name of the property in the pageable response that contains the list of page elements.
      *
-     * @return The name of the item in the pageable response.
+     * @return The serialized name of the property referencing the list of page elements.
      */
     public String getItemName() {
         return itemName;
     }
 
     /**
-     * Sets the name of the item in the pageable response.
+     * Sets the serialized name of the property in the pageable response that contains the list of page elements.
      *
-     * @param itemName The name of the item in the pageable response.
+     * @param itemName The serialized name of the property referencing the list of page elements.
      */
     public void setItemName(String itemName) {
         this.itemName = itemName;
