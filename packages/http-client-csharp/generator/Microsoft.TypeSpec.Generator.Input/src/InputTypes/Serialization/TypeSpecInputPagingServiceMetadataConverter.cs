@@ -8,22 +8,22 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal class TypeSpecInputOperationPagingConverter : JsonConverter<InputOperationPaging>
+    internal sealed class TypeSpecInputPagingServiceMetadataConverter : JsonConverter<InputPagingServiceMetadata>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecInputOperationPagingConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputPagingServiceMetadataConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
 
-        public override InputOperationPaging? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputOperationPaging>(_referenceHandler.CurrentResolver) ?? CreateInputOperationPaging(ref reader, null, options, _referenceHandler.CurrentResolver);
+        public override InputPagingServiceMetadata? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputPagingServiceMetadata>(_referenceHandler.CurrentResolver) ?? CreateInputPagingServiceMetadata(ref reader, null, options, _referenceHandler.CurrentResolver);
 
-        public override void Write(Utf8JsonWriter writer, InputOperationPaging value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputPagingServiceMetadata value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputOperationPaging CreateInputOperationPaging(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputPagingServiceMetadata CreateInputPagingServiceMetadata(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null;
             IReadOnlyList<string>? itemPropertySegments = null;
@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var result = new InputOperationPaging(itemPropertySegments ?? [], nextLink, continuationToken);
+            var result = new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken);
             if (id != null)
             {
                 resolver.AddReference(id, result);
