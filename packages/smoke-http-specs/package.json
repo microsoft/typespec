@@ -24,7 +24,7 @@
     "url": "https://github.com/microsoft/typespec/issues"
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
-  "devDependencies": {
+  "peerDependencies": {
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
