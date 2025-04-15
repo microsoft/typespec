@@ -892,6 +892,49 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
+### Parameters_Path_normal
+
+- Endpoint: `get /parameters/path/normal/{name}`
+
+Test case for normal path parameter.
+
+Should generate an operation like below:
+
+```
+normal(name: string)
+```
+
+Expected request path:
+
+```
+/normal/foo
+```
+
+### Parameters_Path_optional
+
+- Endpoint: `get /parameters/path/optional{/name}`
+
+Test case for optional path parameter.
+
+Should generate an operation like below:
+
+```
+optional(name?: string)
+```
+
+Expected two request:
+First request path:
+
+```
+/optional
+```
+
+Second request path:
+
+```
+/optional/foo
+```
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1157,7 +1200,7 @@ Expected input body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -1185,7 +1228,7 @@ Expected response body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
