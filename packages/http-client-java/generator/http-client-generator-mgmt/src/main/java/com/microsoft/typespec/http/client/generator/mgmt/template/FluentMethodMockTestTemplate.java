@@ -19,9 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.template.example.ModelE
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {
@@ -101,7 +100,7 @@ public class FluentMethodMockTestTemplate
         fluentReturnType.addImportsTo(imports, false);
 
         // create response body with mocked data
-        int statusCode = isCheckExistence? 404 : fluentMethodMockUnitTest.getResponse().getStatusCode();
+        int statusCode = isCheckExistence ? 404 : fluentMethodMockUnitTest.getResponse().getStatusCode();
         Object jsonObject = fluentMethodMockUnitTest.getResponse().getBody();
         ExampleNode verificationNode = fluentMethodMockUnitTest.getResponseVerificationNode();
         String verificationObjectName = fluentMethodMockUnitTest.getResponseVerificationVariableName();
@@ -132,7 +131,8 @@ public class FluentMethodMockTestTemplate
                 "void test" + CodeNamer.toPascalCase(clientMethod.getName()) + "() throws Exception", methodBlock -> {
                     // response
                     if (!isCheckExistence) {
-                        methodBlock.line("String responseStr = " + ClassType.STRING.defaultValueExpression(jsonStr) + ";");
+                        methodBlock
+                            .line("String responseStr = " + ClassType.STRING.defaultValueExpression(jsonStr) + ";");
                         methodBlock.line();
                     }
 
@@ -140,7 +140,7 @@ public class FluentMethodMockTestTemplate
 
                     // prepare mock class
                     methodBlock.line("HttpClient httpClient = response -> Mono.just(new MockHttpResponse(response, "
-                        + statusCode + responseBodyBytes +"));");
+                        + statusCode + responseBodyBytes + "));");
 
                     // initialize manager
                     String exampleMethodName = exampleMethod.getExample().getEntryType().getName();
@@ -154,7 +154,11 @@ public class FluentMethodMockTestTemplate
                     methodBlock.line();
                     // verification
                     if (hasReturnValue) {
-                        assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        if (isCheckExistence) {
+                            methodBlock.line("Assertions.assertFalse(" + verificationObjectName + ")");
+                        } else {
+                            assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        }
                     }
                 });
 
