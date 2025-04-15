@@ -302,8 +302,8 @@ function checkForPylintIssues(outputDir: string) {
   const processFile = (filePath: string) => {
     let fileContent = "";
     fileContent = fs.readFileSync(filePath, "utf-8");
-    let pylintDisables: string[] = [];
-    let lines: string[] = fileContent.split("\n");
+    const pylintDisables: string[] = [];
+    const lines: string[] = fileContent.split("\n");
     if (lines.length > 0) {
       if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
         pylintDisables.push("line-too-long", "useless-suppression");
