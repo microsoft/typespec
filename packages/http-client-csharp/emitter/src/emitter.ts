@@ -61,7 +61,6 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-
     // Write out the dotnet model to the output path
     const sdkContext = createCSharpEmitterContext(
       await createSdkContext(
