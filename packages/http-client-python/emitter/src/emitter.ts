@@ -295,14 +295,14 @@ async function runBlack(venvPath: string, outputDir: string): Promise<void> {
       }
       resolve(stdout);
     });
-  }); 
+  });
 }
 
 function checkForPylintIssues(outputDir: string) {
   const processFile = (filePath: string) => {
     let fileContent = "";
     try {
-      fileContent = fs.readFileSync(filePath, 'utf-8');
+      fileContent = fs.readFileSync(filePath, "utf-8");
     } catch (e: any) {
       throw e;
     }
@@ -310,7 +310,7 @@ function checkForPylintIssues(outputDir: string) {
     let pylintDisables: string[] = [];
     let lines: string[] = fileContent.split("\n");
     if (lines.length > 0) {
-      if (!lines[0].includes("line-too-long") && lines.some(line => line.length > 120)) {
+      if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
         pylintDisables.push("line-too-long", "useless-suppression");
       }
       if (!lines[0].includes("too-many-lines") && lines.length > 1000) {
@@ -332,11 +332,11 @@ function checkForPylintIssues(outputDir: string) {
 
   const walkDir = (dir: string) => {
     const files = fs.readdirSync(dir);
-    files.forEach(file => {
+    files.forEach((file) => {
       const filePath = path.join(dir, file);
       if (fs.statSync(filePath).isDirectory()) {
         walkDir(filePath);
-      } else if (file.endsWith('.py')) {
+      } else if (file.endsWith(".py")) {
         processFile(filePath);
       }
     });
