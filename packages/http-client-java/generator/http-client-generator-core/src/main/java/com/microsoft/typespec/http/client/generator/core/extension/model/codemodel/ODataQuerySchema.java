@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents an ODataQuery value.
  */
@@ -36,25 +31,5 @@ public class ODataQuerySchema extends Schema {
         }
 
         return other instanceof ODataQuerySchema;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.toJson(jsonWriter);
-    }
-
-    /**
-     * Deserializes an ODataQuerySchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An ODataQuerySchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ODataQuerySchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ODataQuerySchema::new, (schema, fieldName, reader) -> {
-            if (!schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
     }
 }
