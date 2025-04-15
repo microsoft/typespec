@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  CreateSdkContextOptions,
+  SdkContext,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -24,7 +28,6 @@ import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -62,6 +65,13 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
+    const defaultSDKContextOptions: CreateSdkContextOptions = {
+      versioning: {
+        previewStringRegex: /$/,
+      },
+      additionalDecorators: [],
+    };
+
     // Write out the dotnet model to the output path
     const sdkContext = createCSharpEmitterContext(
       await createSdkContext(
