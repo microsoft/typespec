@@ -301,12 +301,7 @@ async function runBlack(venvPath: string, outputDir: string): Promise<void> {
 function checkForPylintIssues(outputDir: string) {
   const processFile = (filePath: string) => {
     let fileContent = "";
-    try {
-      fileContent = fs.readFileSync(filePath, "utf-8");
-    } catch (e: any) {
-      throw e;
-    }
-
+    fileContent = fs.readFileSync(filePath, "utf-8");
     let pylintDisables: string[] = [];
     let lines: string[] = fileContent.split("\n");
     if (lines.length > 0) {
@@ -323,11 +318,7 @@ function checkForPylintIssues(outputDir: string) {
       }
     }
 
-    try {
-      fs.writeFileSync(filePath, fileContent);
-    } catch (e) {
-      throw e;
-    }
+    fs.writeFileSync(filePath, fileContent);
   };
 
   const walkDir = (dir: string) => {
