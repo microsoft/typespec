@@ -102,7 +102,6 @@ public class FluentMethodMockTestTemplate
         fluentReturnType.addImportsTo(imports, false);
 
         // create response body with mocked data
-        // we'll assert false on checkExistence request afterward
         int statusCode = fluentMethodMockUnitTest.getResponse().getStatusCode();
         Object jsonObject = fluentMethodMockUnitTest.getResponse().getBody();
         ExampleNode verificationNode = fluentMethodMockUnitTest.getResponseVerificationNode();
