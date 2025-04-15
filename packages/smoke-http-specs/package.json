@@ -1,6 +1,6 @@
 {
   "name": "@typespec/smoke-http-specs",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.0",
   "description": "Spec scenarios for smoke tests",
   "main": "dist/index.js",
   "type": "module",
