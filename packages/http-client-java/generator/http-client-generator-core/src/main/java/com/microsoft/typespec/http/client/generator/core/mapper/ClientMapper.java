@@ -513,8 +513,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<String, XmlSequenceWrapper> xmlSequenceWrappers = new LinkedHashMap<>();
         for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
             for (Operation operation : operationGroup.getOperations()) {
-                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-                    operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
+                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
 
                 if (responseBodySchema instanceof ArraySchema) {
                     parseXmlSequenceWrappers((ArraySchema) responseBodySchema, xmlSequenceWrappers, settings);
