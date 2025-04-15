@@ -22,7 +22,7 @@ VERSION_MAP = {
   "azure-mgmt-core": "1.3.2",
   "azure-core": "1.30.0",
   "typing-extensions": "4.6.0",
-  "corehttp": "1.0.0",
+  "corehttp": "1.0.0b6",
 }
 
 MIN_PYTHON_VERSION = "3.9"
