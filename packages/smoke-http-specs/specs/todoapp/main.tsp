@@ -64,7 +64,7 @@ model TodoItem {
   /** When the todo item was last updated */
   @visibility(Lifecycle.Read) updatedAt: utcDateTime;
 
-  /** When the todo item was makred as completed */
+  /** When the todo item was marked as completed */
   @visibility(Lifecycle.Read) completedAt?: utcDateTime;
 
   // Want the read form to be normalized to TodoLabelRecord[], but can't
