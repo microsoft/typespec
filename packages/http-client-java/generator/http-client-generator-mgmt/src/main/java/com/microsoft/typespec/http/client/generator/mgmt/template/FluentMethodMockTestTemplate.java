@@ -155,7 +155,7 @@ public class FluentMethodMockTestTemplate
                     // verification
                     if (hasReturnValue) {
                         if (isCheckExistence) {
-                            methodBlock.line("Assertions.assertFalse(" + verificationObjectName + ")");
+                            methodBlock.line("Assertions.assertFalse(" + verificationObjectName + ");");
                         } else {
                             assertionVisitor.getAssertions().forEach(methodBlock::line);
                         }
