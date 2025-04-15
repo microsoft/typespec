@@ -65,19 +65,13 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-    const defaultSDKContextOptions: CreateSdkContextOptions = {
-      versioning: {
-        previewStringRegex: /$/,
-      },
-      additionalDecorators: [],
-    };
 
     // Write out the dotnet model to the output path
     const sdkContext = createCSharpEmitterContext(
       await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        options["sdk-context-options"] ?? defaultSDKContextOptions,
+        options["sdk-context-options"],
       ),
       logger,
     );
