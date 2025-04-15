@@ -1,0 +1,33 @@
+{
+  "name": "@typespec/smoke-http-specs",
+  "version": "0.1.0-alpha.1",
+  "description": "Spec scenarios for smoke tests",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "watch": "tsc -p ./tsconfig.build.json --watch",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean": "rimraf dist/ temp/",
+    "ci": "prettier specs --write",
+    "test": "echo \"Error: no test specified\""
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "homepage": "https://github.com/microsoft/typespec#readme",
+  "devDependencies": {
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/versioning": "workspace:^"
+  }
+}
