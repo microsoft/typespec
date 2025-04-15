@@ -240,7 +240,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command, { stdio: [process.stdin, process.stdout] });
       await runBlack(venvPath, outputDir);
-      await checkForPylintIssues(outputDir);
+      checkForPylintIssues(outputDir);
     }
   }
 }
