@@ -697,6 +697,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/emitter-framework':
+        specifier: workspace:^
+        version: link:../emitter-framework
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
