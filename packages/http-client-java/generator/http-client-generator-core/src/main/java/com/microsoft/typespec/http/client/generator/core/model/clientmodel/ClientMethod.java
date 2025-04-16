@@ -9,6 +9,7 @@ import com.azure.core.util.UrlBuilder;
 import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
@@ -46,6 +47,7 @@ public class ClientMethod {
     /**
      * The parameters of this ClientMethod.
      */
+    private final List<ClientMethodParameter> _parameters;
     private final List<ClientMethodParameter> parameters;
     private final List<ClientMethodParameter> methodParameters;
     private final List<ClientMethodParameter> methodRequiredParameters;
@@ -105,6 +107,30 @@ public class ClientMethod {
     private final String parametersDeclaration;
     private final String argumentList;
 
+    public ClientMethod.Builder newBuilder() {
+        return new ClientMethod.Builder().description(description)
+            .returnValue(returnValue)
+            .name(name)
+            .parameters(_parameters)
+            .onlyRequiredParameters(onlyRequiredParameters)
+            .type(type)
+            .proxyMethod(proxyMethod)
+            .validateExpressions(validateExpressions)
+            .clientReference(clientReference)
+            .requiredNullableParameterExpressions(requiredNullableParameterExpressions)
+            .groupedParameterRequired(isGroupedParameterRequired)
+            .groupedParameterTypeName(groupedParameterTypeName)
+            .methodPageDetails(methodPageDetails)
+            .parameterTransformations(parameterTransformations)
+            .methodVisibility(methodVisibility)
+            .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
+            .implementationDetails(implementationDetails)
+            .methodPollingDetails(methodPollingDetails)
+            .methodDocumentation(externalDocumentation)
+            .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
+            .hasWithContextOverload(hasWithContextOverload);
+    }
+
     /**
      * Create a new ClientMethod with the provided properties.
      *
@@ -138,6 +164,7 @@ public class ClientMethod {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
+        this._parameters = parameters;
         this.parameters = List.copyOf(parameters);
         this.methodParameters = parameters.stream()
             .filter(parameter -> !parameter.isFromClient()
@@ -794,8 +821,9 @@ public class ClientMethod {
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
         public ClientMethod build() {
-            return new ClientMethod(description, returnValue, name, parameters, onlyRequiredParameters, type,
-                proxyMethod, validateExpressions, clientReference, requiredNullableParameterExpressions,
+            return new ClientMethod(description, returnValue, name, CollectionUtil.toImmutableList(parameters),
+                onlyRequiredParameters, type, proxyMethod, CollectionUtil.toImmutableMap(validateExpressions),
+                clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
                 externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload);
