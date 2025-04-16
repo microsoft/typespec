@@ -17,12 +17,12 @@ from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
 VERSION_MAP = {
-  "msrest": "0.7.1",
-  "isodate": "0.6.1",
-  "azure-mgmt-core": "1.3.2",
-  "azure-core": "1.30.0",
-  "typing-extensions": "4.6.0",
-  "corehttp": "1.0.0b6",
+    "msrest": "0.7.1",
+    "isodate": "0.6.1",
+    "azure-mgmt-core": "1.3.2",
+    "azure-core": "1.30.0",
+    "typing-extensions": "4.6.0",
+    "corehttp": "1.0.0b6",
 }
 
 MIN_PYTHON_VERSION = "3.9"
@@ -34,7 +34,11 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_setup_file(self) -> str:
         template = self.env.get_template("packaging_templates/setup.py.jinja2")
-        params = {}
+        params = {
+            "VERSION_MAP": VERSION_MAP,
+            "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
+            "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+        }
         params.update(self.code_model.options)
         return template.render(code_model=self.code_model, **params)
 
