@@ -7,6 +7,8 @@ import {
   SdkContext,
   SdkHttpOperation,
   SdkHttpResponse,
+  SdkLroPagingServiceMethod,
+  SdkLroServiceMethod,
   SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
@@ -28,20 +30,18 @@ import { InputParameterKind } from "../type/input-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
   InputBasicServiceMethod,
+  InputContinuationToken,
   InputLongRunningPagingServiceMethod,
+  InputLongRunningServiceMetadata,
   InputLongRunningServiceMethod,
+  InputNextLink,
+  InputPagingServiceMetadata,
   InputPagingServiceMethod,
   InputServiceMethod,
   InputServiceMethodResponse,
 } from "../type/input-service-method.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
-import {
-  InputContinuationToken,
-  InputNextLink,
-  InputOperationPaging,
-} from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -58,32 +58,49 @@ export function fromSdkServiceMethod(
   rootApiVersions: string[],
 ): InputServiceMethod | undefined {
   const methodKind = method.kind;
-  // TO-DO: Consider following the tcgc model pattern of keeping paging, lro, lor-paging metadata at the method level
-  // https://github.com/microsoft/typespec/issues/6912
+
   switch (methodKind) {
     case "basic":
       return createServiceMethod<InputBasicServiceMethod>(sdkContext, method, uri, rootApiVersions);
     case "paging":
-      return createServiceMethod<InputPagingServiceMethod>(
+      const pagingServiceMethod = createServiceMethod<InputPagingServiceMethod>(
         sdkContext,
         method,
         uri,
         rootApiVersions,
       );
+      pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
+        sdkContext,
+        method,
+        rootApiVersions,
+        uri,
+      );
+      return pagingServiceMethod;
     case "lro":
-      return createServiceMethod<InputLongRunningServiceMethod>(
+      const lroServiceMethod = createServiceMethod<InputLongRunningServiceMethod>(
         sdkContext,
         method,
         uri,
         rootApiVersions,
       );
+      lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
+      return lroServiceMethod;
     case "lropaging":
-      return createServiceMethod<InputLongRunningPagingServiceMethod>(
+      const lroPagingMethod = createServiceMethod<InputLongRunningPagingServiceMethod>(
         sdkContext,
         method,
         uri,
         rootApiVersions,
       );
+      lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
+      lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
+        sdkContext,
+        method,
+        rootApiVersions,
+        uri,
+      );
+      return lroPagingMethod;
+
     default:
       sdkContext.logger.reportDiagnostic({
         code: "unsupported-service-method",
@@ -130,8 +147,6 @@ export function fromSdkServiceMethodOperation(
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     requestMediaTypes: getRequestMediaTypes(method.operation),
     bufferResponse: true,
-    longRunning: loadLongRunningOperation(sdkContext, method),
-    paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
@@ -338,13 +353,10 @@ export function fromParameter(
   return retVar;
 }
 
-function loadLongRunningOperation(
+function loadLongRunningMetadata(
   sdkContext: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
-): OperationLongRunning | undefined {
-  if (method.kind !== "lro") {
-    return undefined;
-  }
+  method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): InputLongRunningServiceMetadata {
   return {
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     finalResponse: {
@@ -453,16 +465,12 @@ function getMediaTypes(type: SdkType): string[] {
   return [];
 }
 
-function loadOperationPaging(
+function loadPagingServiceMetadata(
   context: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
-): InputOperationPaging | undefined {
-  if (method.kind !== "paging" || method.pagingMetadata === undefined) {
-    return undefined;
-  }
-
+): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
@@ -477,7 +485,7 @@ function loadOperationPaging(
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.operation = fromSdkServiceMethodOperation(
+      nextLink.operation = fromSdkServiceMethod(
         context,
         method.pagingMetadata.nextLinkOperation,
         uri,
@@ -529,7 +537,7 @@ function getResponseSegmentName(segment: SdkModelPropertyType): string {
 
 function getResponseLocation(
   context: CSharpEmitterContext,
-  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   p: SdkModelPropertyType,
 ): ResponseLocation {
   switch (p?.kind) {

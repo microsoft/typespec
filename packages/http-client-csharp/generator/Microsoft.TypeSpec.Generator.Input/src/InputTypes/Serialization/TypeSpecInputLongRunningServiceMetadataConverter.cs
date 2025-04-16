@@ -7,24 +7,24 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecOperationLongRunningConverter : JsonConverter<InputOperationLongRunning>
+    internal sealed class TypeSpecInputLongRunningServiceMetadataConverter : JsonConverter<InputLongRunningServiceMetadata>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecOperationLongRunningConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputLongRunningServiceMetadataConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
 
-        public override InputOperationLongRunning? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override InputLongRunningServiceMetadata? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return reader.ReadReferenceAndResolve<InputOperationLongRunning>(_referenceHandler.CurrentResolver) ?? CreateOperationLongRunning(ref reader, null, options);
+            return reader.ReadReferenceAndResolve<InputLongRunningServiceMetadata>(_referenceHandler.CurrentResolver) ?? CreateOperationLongRunning(ref reader, null, options);
         }
 
-        public override void Write(Utf8JsonWriter writer, InputOperationLongRunning value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputLongRunningServiceMetadata value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private InputOperationLongRunning CreateOperationLongRunning(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
+        private InputLongRunningServiceMetadata CreateOperationLongRunning(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
         {
             var isFirstProperty = id == null;
             int finalStateVia = default;
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var result = new InputOperationLongRunning(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath);
+            var result = new InputLongRunningServiceMetadata(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath);
 
             if (id != null)
             {
