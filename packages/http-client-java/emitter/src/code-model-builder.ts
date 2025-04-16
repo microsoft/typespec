@@ -43,6 +43,7 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  InitializedByFlags,
   SdkArrayType,
   SdkBodyModelPropertyType,
   SdkBodyParameter,
@@ -712,6 +713,12 @@ export class CodeModelBuilder {
       for (const subClient of subClients) {
         const codeModelSubclient = this.processClient(subClient);
         codeModelClient.addSubClient(codeModelSubclient);
+        if (subClient.clientInitialization.initializedBy | InitializedByFlags.Individually) {
+          codeModelSubclient.buildMethodPublic = true;
+        }
+        if (subClient.clientInitialization.initializedBy | InitializedByFlags.Parent) {
+          codeModelSubclient.parentAccessorPublic = true;
+        }
       }
     } else {
       // operations under operation groups
