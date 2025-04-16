@@ -212,10 +212,10 @@ public class ModelTestCaseUtil {
             return;
         } else {
             if (property.isRequired()
-                    // required property must be generated
-                    // optional property only be generated when still have depth remains
-                    // we assume here that there is no infinitely nested required properties
-                    || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
+                // required property must be generated
+                // optional property only be generated when still have depth remains
+                // we assume here that there is no infinitely nested required properties
+                || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
                 if (property.isAdditionalProperties()) {
                     value = jsonFromType(depth, new MapType(ClassType.STRING));
                     if (value != null) {
@@ -223,8 +223,8 @@ public class ModelTestCaseUtil {
                     }
                 } else {
                     value = jsonFromType(depth, property.getWireType());
-                    addForProperty(jsonObject, property.getSerializedName(), modelNeedsFlatten || property.getNeedsFlatten(),
-                            value);
+                    addForProperty(jsonObject, property.getSerializedName(),
+                        modelNeedsFlatten || property.getNeedsFlatten(), value);
                 }
             }
         }
