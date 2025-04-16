@@ -1373,9 +1373,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         return retval
 
     def _get_next_callback(self, builder: PagingOperationType) -> List[str]:
-        retval = [
-            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}=None):"  # pylint: disable=line-too-long
-        ]
+        retval = [f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}=None):"]
         retval.append(f"    _request = prepare_request({builder.next_variable_name})")
         retval.append("")
         retval.extend([f"    {l}" for l in self.make_pipeline_call(builder)])

@@ -150,7 +150,6 @@ class OptionsRetriever:
     def package_version(self) -> Optional[str]:
         return str(self.options.get("package-version", ""))
 
-    
     @property
     def header_text(self) -> Optional[str]:
         return self.options.get("header-text")
