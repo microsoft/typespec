@@ -79,10 +79,10 @@ export function JsonModelTransformDeclaration(
   const inputType = props.target === "transport" ? <>{ay.refkey(props.type)} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
+  const parameters: ts.ParameterDescriptor[] = [
     // Make the input optional to make the transform more robust and check against null and undefined
-    input_: { type: inputType, refkey: inputRef, optional: true },
-  };
+    { name: "input_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   const spread = $.model.getSpreadType(props.type);
   const hasAdditionalProperties = spread && $.model.is(spread) && $.record.is(spread);

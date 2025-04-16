@@ -86,9 +86,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException("Parameter must have kind");
             }
-            Enum.TryParse<InputOperationParameterKind>(kind, ignoreCase: true, out var parameterKind);
+            Enum.TryParse<InputParameterKind>(kind, ignoreCase: true, out var parameterKind);
 
-            if (parameterKind == InputOperationParameterKind.Constant && parameterType is not InputLiteralType)
+            if (parameterKind == InputParameterKind.Constant && parameterType is not InputLiteralType)
             {
                 throw new JsonException($"Operation parameter '{name}' is constant, but its type is '{parameterType.Name}'.");
             }

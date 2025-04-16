@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Model, NoTarget, Scalar, Type, Union } from "@typespec/compiler";
+import { Enum, Model, NoTarget, Scalar, Type, Union } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
@@ -9,10 +10,16 @@ import { createOrGetModuleForNamespace } from "../namespace.js";
 import { emitTypeReference } from "../reference.js";
 import { emitJsonSerialization, requiresJsonSerialization } from "./json.js";
 
-export type SerializableType = Model | Scalar | Union;
+export type SerializableType = Model | Scalar | Union | Enum;
 
 export function isSerializableType(t: Type): t is SerializableType {
-  return t.kind === "Model" || t.kind === "Scalar" || t.kind === "Union";
+  return (
+    t.kind === "Model" ||
+    t.kind === "Scalar" ||
+    t.kind === "Union" ||
+    t.kind === "Intrinsic" ||
+    t.kind === "Enum"
+  );
 }
 
 export type SerializationContentType = "application/json";
@@ -26,6 +33,11 @@ export function requireSerialization(
 ): void {
   if (!isSerializableType(type)) {
     throw new UnimplementedError(`no implementation of JSON serialization for type '${type.kind}'`);
+  }
+
+  // Ignore array and record types
+  if ($(ctx.program).array.is(type) || $(ctx.program).record.is(type)) {
+    return requireSerialization(ctx, (type as Model).indexer!.value, contentType);
   }
 
   let serializationsForType = _SERIALIZATIONS_MAP.get(type);

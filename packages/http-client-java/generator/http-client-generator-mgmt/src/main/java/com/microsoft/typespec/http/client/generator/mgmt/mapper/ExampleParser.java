@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.LiteralNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
@@ -69,12 +70,15 @@ public class ExampleParser {
     public List<FluentExample> parseMethodGroup(MethodGroupClient methodGroup) {
         List<FluentClientMethodExample> methodExamples = new ArrayList<>();
 
-        methodGroup.getClientMethods().forEach(m -> {
-            List<FluentClientMethodExample> examples = ExampleParser.parseMethod(methodGroup, m);
-            if (examples != null) {
-                methodExamples.addAll(examples);
-            }
-        });
+        methodGroup.getClientMethods()
+            .stream()
+            .filter(m -> m.getMethodVisibility() == JavaVisibility.Public)
+            .forEach(m -> {
+                List<FluentClientMethodExample> examples = ExampleParser.parseMethod(methodGroup, m);
+                if (examples != null) {
+                    methodExamples.addAll(examples);
+                }
+            });
 
         Map<String, FluentExample> examples = new HashMap<>();
         methodExamples.forEach(e -> {
@@ -138,7 +142,11 @@ public class ExampleParser {
     private FluentExample getExample(Map<String, FluentExample> examples, MethodGroupClient methodGroup,
         ClientMethod clientMethod, String exampleName) {
         String groupName = methodGroup.getClassBaseName();
-        String methodName = clientMethod.getProxyMethod().getName();
+        String proxyMethodName = clientMethod.getProxyMethod().getName();
+        String methodName = clientMethod.getProxyMethod().isSync() && proxyMethodName.endsWith("Sync")
+            // Remove "Sync" suffix as it'll appear in example class name otherwise.
+            ? proxyMethodName.substring(0, proxyMethodName.length() - "Sync".length())
+            : proxyMethodName;
         String name = CodeNamer.toPascalCase(groupName) + CodeNamer.toPascalCase(methodName);
         if (!this.aggregateExamples) {
             name += com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer

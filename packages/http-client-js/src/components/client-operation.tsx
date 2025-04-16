@@ -2,10 +2,14 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
+import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
+import { reportDiagnostic } from "../lib.js";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
 import { HttpRequest } from "./http-request.jsx";
 import { HttpResponse } from "./http-response.jsx";
+import { OperationPipeline } from "./operation-handlers/operation-pipeline.jsx";
+import { PaginatedOperationHandler } from "./operation-handlers/paging/paginated-operation-handler.jsx";
 import { OperationOptionsDeclaration } from "./operation-options.jsx";
 import { getOperationParameters } from "./operation-parameters.jsx";
 
@@ -25,40 +29,60 @@ export function ClientOperations(props: ClientOperationsProps) {
   return (
     <ts.SourceFile path={`${fileName}.ts`}>
       <ay.For each={clientOperations}>
-        {(operation) => <ClientOperation clientOperation={operation} />}
+        {(operation) => (
+          <OperationPipeline
+            httpOperation={operation.httpOperation}
+            pipeline={{ handlers: [PaginatedOperationHandler] }}
+          />
+        )}
       </ay.For>
     </ts.SourceFile>
   );
 }
 
 export interface ClientOperationProps {
-  clientOperation: cl.ClientOperation;
+  httpOperation: HttpOperation;
+  refkey: ay.Refkey;
+  internal?: boolean;
 }
 
 export function ClientOperation(props: ClientOperationProps) {
-  const client = props.clientOperation.client;
-  const returnType = $.httpOperation.getReturnType(props.clientOperation.httpOperation);
-  const responseRefkey = ay.refkey(props.clientOperation, "http-response");
+  const clientLibrary = cl.useClientLibrary();
+  const client = clientLibrary.getClientForOperation(props.httpOperation);
+
+  if (!client) {
+    reportDiagnostic($.program, {
+      code: "client-not-found",
+      target: props.httpOperation.operation,
+    });
+    return;
+  }
+
+  const returnType = $.httpOperation.getReturnType(props.httpOperation);
+  const responseRefkey = ay.refkey(props.httpOperation, "http-response");
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
-  const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
-    client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-    ...getOperationParameters(props.clientOperation.httpOperation),
-  };
+  const signatureParams: ts.ParameterDescriptor[] = [
+    { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
+    ...getOperationParameters(props.httpOperation),
+  ];
   return (
-    <>
-      <OperationOptionsDeclaration operation={props.clientOperation.httpOperation} />
+    <ay.List hardline>
+      <OperationOptionsDeclaration operation={props.httpOperation} />
       <FunctionDeclaration
-        export
+        export={!props.internal}
         async
-        type={props.clientOperation.httpOperation.operation}
+        type={props.httpOperation.operation}
         returnType={<TypeExpression type={returnType} />}
         parametersMode="replace"
         parameters={signatureParams}
+        refkey={props.refkey}
       >
-        <HttpRequest operation={props.clientOperation} responseRefkey={responseRefkey} />
-        <HttpResponse operation={props.clientOperation} responseRefkey={responseRefkey} />
+        <ay.List hardline>
+          <HttpRequest httpOperation={props.httpOperation} responseRefkey={responseRefkey} />
+          <HttpResponse httpOperation={props.httpOperation} responseRefkey={responseRefkey} />
+        </ay.List>
       </FunctionDeclaration>
       ;
-    </>
+    </ay.List>
   );
 }

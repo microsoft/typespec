@@ -16,6 +16,18 @@ from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
+VERSION_MAP = {
+  "msrest": "0.7.1",
+  "isodate": "0.6.1",
+  "azure-mgmt-core": "1.3.2",
+  "azure-core": "1.30.0",
+  "typing-extensions": "4.6.0",
+  "corehttp": "1.0.0b6",
+}
+
+MIN_PYTHON_VERSION = "3.9"
+MAX_PYTHON_VERSION = "3.12"
+
 
 class GeneralSerializer(BaseSerializer):
     """General serializer for SDK root level files"""
@@ -48,6 +60,9 @@ class GeneralSerializer(BaseSerializer):
             "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
             "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
             "client_name": self.code_model.clients[0].name,
+            "VERSION_MAP": VERSION_MAP,
+            "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
+            "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
         }
         params.update(self.code_model.options)
         params.update(kwargs)

@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client
 
+## 0.4.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.3.0
 
 ### Deprecations
@@ -18,12 +25,8 @@
 
 - [#6460](https://github.com/microsoft/typespec/pull/6460) Update dependency structure for EmitterFramework, HttpClient and JS Emitter
 
-
-
-
 ## 0.2.0
 
 ### Features
 
 - [#5996](https://github.com/microsoft/typespec/pull/5996) Adding Emitter Framework and Http Client packages
-

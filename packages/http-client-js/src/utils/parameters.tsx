@@ -3,37 +3,37 @@ import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
-import { HttpAuth, HttpProperty } from "@typespec/http";
+import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
 
-export function buildClientParameters(client: cl.Client): Record<string, ts.ParameterDescriptor> {
+export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor[] {
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
-  const params = parameters.reduce(
-    (acc, param) => {
-      const paramsDescriptor = buildClientParameterDescriptor(param);
-      if (!paramsDescriptor) {
-        return acc;
+  const params = parameters.flatMap(
+    (param) => {
+      const descriptor = buildClientParameterDescriptor(param);
+      if (!descriptor) {
+        return [];
       }
-      const [name, descriptor] = paramsDescriptor;
 
       if (!descriptor.optional) {
-        acc[name] = descriptor;
+        return [descriptor];
       }
 
-      return acc;
+      return [];
     },
     {} as Record<string, ts.ParameterDescriptor>,
   );
 
-  if (!params["options"]) {
-    params["options"] = {
+  if (!params.some((p) => p.name === "options")) {
+    params.push({
+      name: "options",
       refkey: ay.refkey(),
       optional: true,
       type: getClientContextOptionsRef(client),
-    };
+    });
   }
 
   return params;
@@ -41,7 +41,7 @@ export function buildClientParameters(client: cl.Client): Record<string, ts.Para
 
 function buildClientParameterDescriptor(
   modelProperty: ModelProperty,
-): [string, ts.ParameterDescriptor] | undefined {
+): ts.ParameterDescriptor | undefined {
   const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
 
   if (authSchemes) {
@@ -52,30 +52,45 @@ function buildClientParameterDescriptor(
     const credentialType = Array.from(
       new Set(authSchemes.filter((s) => s.type !== "noAuth").map((s) => getCredentialType(s))),
     );
-    return [
-      "credential",
-      {
-        refkey: ay.refkey(modelProperty),
-        optional: modelProperty.optional,
-        type: ay.mapJoin(
-          () => credentialType,
-          (t) => t,
-          { joiner: " | " },
-        ),
-      },
-    ];
+    return {
+      name: "credential",
+      refkey: ay.refkey(modelProperty),
+      optional: modelProperty.optional,
+      type: ay.mapJoin(
+        () => credentialType,
+        (t) => t,
+        { joiner: " | " },
+      ),
+    };
   }
 
   return buildParameterDescriptor(modelProperty);
 }
 
+const oauth2FlowRefs: Record<OAuth2FlowType, ay.Refkey> = {
+  authorizationCode: httpRuntimeTemplateLib.AuthorizationCodeFlow,
+  clientCredentials: httpRuntimeTemplateLib.ClientCredentialsFlow,
+  password: httpRuntimeTemplateLib.PasswordFlow,
+  implicit: httpRuntimeTemplateLib.ImplicitFlow,
+};
+
 function getCredentialType(scheme: HttpAuth) {
   switch (scheme.type) {
     case "apiKey":
+      return httpRuntimeTemplateLib.ApiKeyCredential;
     case "http":
-      return httpRuntimeTemplateLib.KeyCredential;
+      if (scheme.scheme === "Basic") {
+        return httpRuntimeTemplateLib.BasicCredential;
+      } else {
+        return httpRuntimeTemplateLib.BearerTokenCredential;
+      }
     case "oauth2":
-      return httpRuntimeTemplateLib.TokenCredential;
+      const flowType = ay.mapJoin(
+        () => scheme.flows,
+        (x) => oauth2FlowRefs[x.type],
+        { joiner: " | " },
+      );
+      return ay.code`${httpRuntimeTemplateLib.OAuth2TokenCredential}<${flowType}>`;
     default:
       return null;
   }
