@@ -24,16 +24,17 @@ import { KEYWORDS } from "../../util/keywords.js";
  * @throws Error if a property cannot be mocked
  */
 function mockModel(ctx: JsContext, module: Module, type: Model): string {
-  if ($.array.is(type)) {
+  const tk = $(ctx.program);
+  if (tk.array.is(type)) {
     return mockArray(ctx, module, type);
   }
 
-  if ($.record.is(type)) {
+  if (tk.record.is(type)) {
     return mockRecord(ctx, module, type);
   }
 
   const mock: string[][] = [];
-  const properties = $.model.getProperties(type, { includeExtended: true });
+  const properties = tk.model.getProperties(type, { includeExtended: true });
 
   // If no properties exist, return an empty object
   if (properties.size === 0) {
@@ -72,7 +73,8 @@ function mockModel(ctx: JsContext, module: Module, type: Model): string {
  * @returns A JavaScript string representation of the mock array
  */
 function mockArray(ctx: JsContext, module: Module, type: Model): string {
-  const elementType = $.array.getElementType(type);
+  const tk = $(ctx.program);
+  const elementType = tk.array.getElementType(type);
   const mockedType = mockType(ctx, module, elementType);
 
   // If we can't mock the element type, return an empty array
@@ -90,7 +92,8 @@ function mockArray(ctx: JsContext, module: Module, type: Model): string {
  * @returns A JavaScript string representation of the mock record
  */
 function mockRecord(ctx: JsContext, module: Module, type: Model): string {
-  const elementType = $.record.getElementType(type);
+  const tk = $(ctx.program);
+  const elementType = tk.record.getElementType(type);
   const mockedType = mockType(ctx, module, elementType);
 
   if (mockedType === undefined) {
@@ -134,23 +137,24 @@ function mockLiteral(type: LiteralType): string {
  * @returns A JavaScript string representation of the mock data, or undefined if the type cannot be mocked
  */
 export function mockType(ctx: JsContext, module: Module, type: Type): string | undefined {
-  if ($.model.is(type)) {
+  const tk = $(ctx.program);
+  if (tk.model.is(type)) {
     return mockModel(ctx, module, type);
   }
 
-  if ($.literal.is(type)) {
+  if (tk.literal.is(type)) {
     return mockLiteral(type);
   }
 
-  if ($.modelProperty.is(type)) {
+  if (tk.modelProperty.is(type)) {
     return mockModelProperty(ctx, module, type);
   }
 
-  if ($.scalar.is(type)) {
+  if (tk.scalar.is(type)) {
     return mockScalar(ctx, module, type);
   }
 
-  if ($.union.is(type)) {
+  if (tk.union.is(type)) {
     return mockUnion(ctx, module, type);
   }
 
@@ -186,18 +190,19 @@ function mockUnion(ctx: JsContext, module: Module, union: Union): string | undef
  * @returns A JavaScript string representation of a suitable mock value for the scalar type
  */
 function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | undefined {
-  if ($.scalar.isBoolean(scalar) || $.scalar.extendsBoolean(scalar)) {
+  const tk = $(ctx.program);
+  if (tk.scalar.isBoolean(scalar) || tk.scalar.extendsBoolean(scalar)) {
     return JSON.stringify(true);
   }
-  if ($.scalar.isNumeric(scalar) || $.scalar.extendsNumeric(scalar)) {
+  if (tk.scalar.isNumeric(scalar) || tk.scalar.extendsNumeric(scalar)) {
     if (
-      $.scalar.extendsSafeint(scalar) ||
-      $.scalar.extendsInt32(scalar) ||
-      $.scalar.extendsUint32(scalar) ||
-      $.scalar.extendsFloat64(scalar)
+      tk.scalar.extendsSafeint(scalar) ||
+      tk.scalar.extendsInt32(scalar) ||
+      tk.scalar.extendsUint32(scalar) ||
+      tk.scalar.extendsFloat64(scalar)
     ) {
       return "42";
-    } else if ($.scalar.extendsInteger(scalar)) {
+    } else if (tk.scalar.extendsInteger(scalar)) {
       return "42n";
     } else {
       module.imports.push({ from: "decimal.js", binder: ["Decimal"] });
@@ -205,15 +210,15 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
     }
   }
 
-  if ($.scalar.isUtcDateTime(scalar) || $.scalar.extendsUtcDateTime(scalar)) {
+  if (tk.scalar.isUtcDateTime(scalar) || tk.scalar.extendsUtcDateTime(scalar)) {
     return "new Date()";
   }
 
-  if ($.scalar.isBytes(scalar) || $.scalar.extendsBytes(scalar)) {
+  if (tk.scalar.isBytes(scalar) || tk.scalar.extendsBytes(scalar)) {
     return "new Uint8Array()";
   }
 
-  if ($.scalar.isDuration(scalar) || $.scalar.extendsDuration(scalar)) {
+  if (tk.scalar.isDuration(scalar) || tk.scalar.extendsDuration(scalar)) {
     module.imports.push({
       from: dateTimeHelper,
       binder: ["Duration"],
@@ -222,23 +227,23 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
     return 'Duration.parseISO8601("P1Y2M3DT4H5M6S")';
   }
 
-  if ($.scalar.isOffsetDateTime(scalar) || $.scalar.extendsOffsetDateTime(scalar)) {
+  if (tk.scalar.isOffsetDateTime(scalar) || tk.scalar.extendsOffsetDateTime(scalar)) {
     return JSON.stringify("2022-01-01T00:00:00Z");
   }
 
-  if ($.scalar.isPlainDate(scalar) || $.scalar.extendsPlainDate(scalar)) {
+  if (tk.scalar.isPlainDate(scalar) || tk.scalar.extendsPlainDate(scalar)) {
     return JSON.stringify("2022-01-01");
   }
 
-  if ($.scalar.isPlainTime(scalar) || $.scalar.extendsPlainTime(scalar)) {
+  if (tk.scalar.isPlainTime(scalar) || tk.scalar.extendsPlainTime(scalar)) {
     return JSON.stringify("00:00:00");
   }
 
-  if ($.scalar.isUrl(scalar) || $.scalar.extendsUrl(scalar)) {
+  if (tk.scalar.isUrl(scalar) || tk.scalar.extendsUrl(scalar)) {
     return JSON.stringify("https://example.com");
   }
 
-  if ($.scalar.isString(scalar) || $.scalar.extendsString(scalar)) {
+  if (tk.scalar.isString(scalar) || tk.scalar.extendsString(scalar)) {
     return JSON.stringify("mock-string");
   }
 
