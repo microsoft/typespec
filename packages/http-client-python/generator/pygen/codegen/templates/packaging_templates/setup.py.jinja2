@@ -69,7 +69,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        {% for version in range(min_version, max_version)  %}
+        {% for version in range(min_version, max_version + 1)  %}
         "Programming Language :: Python :: 3.{{ version }}",
         {% endfor %}
         "License :: OSI Approved :: MIT License",
