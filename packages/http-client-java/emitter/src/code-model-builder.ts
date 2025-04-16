@@ -712,13 +712,13 @@ export class CodeModelBuilder {
       // subclient, no operation group
       for (const subClient of subClients) {
         const codeModelSubclient = this.processClient(subClient);
-        codeModelClient.addSubClient(codeModelSubclient);
-        codeModelSubclient.buildMethodPublic = Boolean(
+        const buildMethodPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Individually,
         );
-        codeModelSubclient.parentAccessorPublic = Boolean(
+        const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent,
         );
+        codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
     } else {
       // operations under operation groups
