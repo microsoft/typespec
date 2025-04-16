@@ -7,7 +7,7 @@ using Microsoft.TypeSpec.Generator.Input;
 namespace Microsoft.TypeSpec.Generator.Providers
 {
     /// <summary>
-    /// Represent a type that already exists in depdencies
+    /// Represent a type that already exists in dependencies
     /// </summary>
     public class SystemObjectTypeProvider : ModelProvider
     {
