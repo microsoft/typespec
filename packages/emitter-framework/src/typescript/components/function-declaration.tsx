@@ -17,8 +17,6 @@ export type FunctionDeclarationProps =
 
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
   if (!isTypedFunctionDeclarationProps(props)) {
-    if (!props.name) {
-    }
     return <ts.FunctionDeclaration {...props} />;
   }
 

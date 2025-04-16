@@ -1,5 +1,6 @@
 export * from "./class-method.js";
 export * from "./function-declaration.js";
+export * from "./function-expression.js";
 export * from "./interface-declaration.js";
 export * from "./interface-member.js";
 export * from "./static-serializers.js";
