@@ -204,28 +204,22 @@ public class ModelTestCaseUtil {
     private static void addForProperty(int depth, Map<String, Object> jsonObject, ClientModelProperty property,
         boolean modelNeedsFlatten) {
         final boolean maxDepthReached = depth > CONFIGURATION.maxDepth;
-
-        Object value = null;
-        if (property.isConstant()) {
-            // TODO (weidxu): skip for now, as the property.getDefaultValue() is the code, not the raw data
-            // value = property.getDefaultValue();
-            return;
-        } else {
-            if (property.isRequired()
-                // required property must be generated
-                // optional property only be generated when still have depth remains
-                // we assume here that there is no infinitely nested required properties
-                || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability)) {
-                if (property.isAdditionalProperties()) {
-                    value = jsonFromType(depth, new MapType(ClassType.STRING));
-                    if (value != null) {
-                        ((Map<String, Object>) value).forEach(jsonObject::putIfAbsent);
-                    }
-                } else {
-                    value = jsonFromType(depth, property.getWireType());
-                    addForProperty(jsonObject, property.getSerializedName(),
-                        modelNeedsFlatten || property.getNeedsFlatten(), value);
+        // TODO (weidxu): skip constant property for now, as the property.getDefaultValue() is the code, not the raw
+        // data
+        if (!property.isConstant() && (
+        // required property must be generated
+        property.isRequired()
+            // optional property only be generated when still have depth remains
+            // we assume here that there is no infinitely nested required properties
+            || (!maxDepthReached && RANDOM.nextFloat() > CONFIGURATION.nullableProbability))) {
+            Object value = jsonFromType(depth, property.getWireType());
+            if (property.isAdditionalProperties()) {
+                if (value != null) {
+                    ((Map<String, Object>) value).forEach(jsonObject::putIfAbsent);
                 }
+            } else {
+                addForProperty(jsonObject, property.getSerializedName(),
+                    modelNeedsFlatten || property.getNeedsFlatten(), value);
             }
         }
     }
