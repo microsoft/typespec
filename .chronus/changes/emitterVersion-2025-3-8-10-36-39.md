@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-Send emitter version in telemetry
+Fix the issue where the emitter version is undefined in telemetry.
