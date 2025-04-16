@@ -61,11 +61,10 @@ namespace Microsoft.TypeSpec.Generator
             }
             else
             {
-                var values = new List<InputEnumTypeValue>
-                {
-                    new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, null, literal.Value.ToString())
-                };
-                valueType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
+                var values = new List<InputEnumTypeValue>();
+                var enumType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
+                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, enumType, null, literal.Value.ToString()));
+                valueType = enumType;
             }
             LiteralValueTypeCache.Add(literal, valueType);
             return valueType;
@@ -81,8 +80,8 @@ namespace Microsoft.TypeSpec.Generator
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
                 case InputEnumTypeValue enumValueType:
-                    var enumValue = CreateCSharpType(enumValueType.ValueType);
-                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
+                    // for enum value, we redirect to its corresponding enum type instead
+                    type = CreateCSharpType(enumValueType.EnumType);
                     break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();

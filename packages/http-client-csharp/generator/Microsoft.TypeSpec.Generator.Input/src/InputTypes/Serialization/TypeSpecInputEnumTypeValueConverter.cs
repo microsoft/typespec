@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             var isFirstProperty = id == null;
             JsonElement? rawValue = null;
             InputPrimitiveType? valueType = null;
+            InputEnumType? enumType = null;
             string? summary = null;
             string? doc = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -37,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadComplexType("value", options, ref rawValue)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
+                    || reader.TryReadComplexType("enumType", options, ref enumType)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
@@ -53,11 +55,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             valueType = valueType ?? throw new JsonException("EnumValue must have valueType");
 
+            enumType = enumType ?? throw new JsonException("EnumValue must have enumType");
+
             InputEnumTypeValue enumValue = valueType.Kind switch
             {
-                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, summary, doc) { Decorators = decorators ?? [] },
-                InputPrimitiveTypeKind.Int32 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, summary, doc) { Decorators = decorators ?? [] },
-                InputPrimitiveTypeKind.Float32 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, summary, doc) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.String => new InputEnumTypeStringValue(name, rawValue.Value.GetString() ?? throw new JsonException(), valueType, enumType, summary, doc) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Int32 => new InputEnumTypeIntegerValue(name, rawValue.Value.GetInt32(), valueType, enumType, summary, doc) { Decorators = decorators ?? [] },
+                InputPrimitiveTypeKind.Float32 => new InputEnumTypeFloatValue(name, rawValue.Value.GetSingle(), valueType, enumType, summary, doc) { Decorators = decorators ?? [] },
                 _ => throw new JsonException()
             };
             if (id != null)
