@@ -18,7 +18,6 @@ import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
 import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
 import { defineKit } from "../define-kit.js";
-import { $ } from "../index.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
@@ -231,7 +230,7 @@ defineKit<TypekitExtension>({
     },
     getDiscriminator(type) {
       let discriminator: Discriminator | undefined;
-      if ($.model.is(type)) {
+      if (this.model.is(type)) {
         discriminator = getDiscriminator(this.program, type);
       } else {
         const unionDiscriminator = ignoreDiagnostics(getDiscriminatedUnion(this.program, type));

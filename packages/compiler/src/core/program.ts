@@ -1,6 +1,5 @@
 import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
-import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -268,7 +267,6 @@ async function createProgram(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-  setCurrentProgram(program);
 
   const resolver = createResolver(program);
   resolver.resolveProgram();
