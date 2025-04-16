@@ -713,12 +713,12 @@ export class CodeModelBuilder {
       for (const subClient of subClients) {
         const codeModelSubclient = this.processClient(subClient);
         codeModelClient.addSubClient(codeModelSubclient);
-        if (subClient.clientInitialization.initializedBy | InitializedByFlags.Individually) {
-          codeModelSubclient.buildMethodPublic = true;
-        }
-        if (subClient.clientInitialization.initializedBy | InitializedByFlags.Parent) {
-          codeModelSubclient.parentAccessorPublic = true;
-        }
+        codeModelSubclient.buildMethodPublic = Boolean(
+          subClient.clientInitialization.initializedBy & InitializedByFlags.Individually,
+        );
+        codeModelSubclient.parentAccessorPublic = Boolean(
+          subClient.clientInitialization.initializedBy & InitializedByFlags.Parent,
+        );
       }
     } else {
       // operations under operation groups
