@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputType Type { get; }
         public InputRequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
-        public InputParameterKind Kind { get; }
+        public InputParameterKind Kind { get; set; }
         public bool IsRequired { get; }
         public bool IsApiVersion => _isApiVersion || Type is InputEnumType enumType && enumType.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
         public bool IsContentType { get; }
