@@ -1,8 +1,9 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
 import { getProgram } from "../test-host.js";
 
@@ -19,7 +20,7 @@ describe("Typescript Type Alias Declaration", () => {
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
@@ -46,7 +47,7 @@ describe("Typescript Type Alias Declaration", () => {
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
@@ -73,7 +74,7 @@ describe("Typescript Type Alias Declaration", () => {
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
@@ -100,7 +101,7 @@ describe("Typescript Type Alias Declaration", () => {
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration export type={scalar} />
             </SourceFile>

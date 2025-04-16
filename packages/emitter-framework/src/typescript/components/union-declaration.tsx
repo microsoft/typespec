@@ -1,7 +1,7 @@
 import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
 import { UnionExpression } from "./union-expression.js";
 
@@ -13,6 +13,7 @@ export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps
 export type UnionDeclarationProps = TypedUnionDeclarationProps | ts.TypeDeclarationProps;
 
 export function UnionDeclaration(props: UnionDeclarationProps) {
+  const { $ } = useTsp();
   if (!isTypedUnionDeclarationProps(props)) {
     return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
   }

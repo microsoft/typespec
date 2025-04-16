@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface UnionExpressionProps {
@@ -11,6 +11,7 @@ export interface UnionExpressionProps {
 }
 
 export function UnionExpression({ type, children }: UnionExpressionProps) {
+  const { $ } = useTsp();
   const items = ($.union.is(type) ? type.variants : type.members) as Map<
     string,
     UnionVariant | EnumMember

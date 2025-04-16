@@ -1,8 +1,9 @@
 import { For, refkey } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/experimental/typekit";
 import "@typespec/http/experimental/typekit";
+import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { ArrayExpression } from "./array-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
@@ -14,8 +15,9 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
+  const { $ } = useTsp();
   const type = $.httpPart.unpack(props.type);
-  if (isDeclaration(type)) {
+  if (isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
     return <Reference refkey={refkey(type)} />;
@@ -26,7 +28,7 @@ export function TypeExpression(props: TypeExpressionProps) {
   switch (type.kind) {
     case "Scalar":
     case "Intrinsic":
-      return <>{getScalarIntrinsicExpression(type)}</>;
+      return <>{getScalarIntrinsicExpression($, type)}</>;
     case "Boolean":
     case "Number":
     case "String":
@@ -110,7 +112,7 @@ const intrinsicNameToTSType = new Map<string, string | null>([
   ["url", "string"], // Matches TypeScript's `string`
 ]);
 
-function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | null {
+function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string | null {
   let intrinsicName: string;
   if ($.scalar.is(type)) {
     if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
@@ -143,7 +145,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
   return tsType;
 }
 
-function isDeclaration(type: Type): boolean {
+function isDeclaration($: Typekit, type: Type): boolean {
   switch (type.kind) {
     case "Namespace":
     case "Interface":
