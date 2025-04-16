@@ -234,5 +234,20 @@ export class Realm {
     return this.#types;
   }
 
-  static realmForType = new WeakMap<Type, Realm>();
+  static realmForType = singleton("Realm.realmForType", () => new WeakMap<Type, Realm>());
+}
+
+/**
+ * Create a singleton instance that is shared across the process.
+ * This is to have a true singleton even if multiple instance of the compiler/library are loaded.
+ * @param key - The key to use for the singleton.
+ * @param init - The function to call to create the singleton.
+ */
+function singleton<T>(key: string, init: () => T): T {
+  const sym = Symbol.for(key);
+  if (!(globalThis as any)[sym]) {
+    (globalThis as any)[sym] = init();
+  }
+
+  return (globalThis as any)[sym];
 }
