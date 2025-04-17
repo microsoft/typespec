@@ -297,6 +297,16 @@ public class ProxyMethod {
         return customHeaderIgnored;
     }
 
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasParameterOfType(IType type) {
+        return parameters.stream().anyMatch(p -> p.getClientType() == type);
+    }
+
     public ProxyMethod toSync() {
         if (isSync) {
             return this;

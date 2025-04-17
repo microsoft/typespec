@@ -131,14 +131,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var paging = InputFactory.NextLinkOperationPaging("cats", "nextCat", InputResponseLocation.Body);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", InputResponseLocation.Body);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
-            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
             var catClient = InputFactory.Client("catClient", methods: [inputServiceMethod], clientNamespace: "Cats");
             var felineClient = InputFactory.Client("felineClient", methods: [inputServiceMethod], clientNamespace: "Felines");
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [catClient, felineClient]);
@@ -161,14 +161,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
-            var paging = InputFactory.NextLinkOperationPaging("cats", "nextCat", responseLocation);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata("cats", "nextCat", responseLocation);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
-            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);

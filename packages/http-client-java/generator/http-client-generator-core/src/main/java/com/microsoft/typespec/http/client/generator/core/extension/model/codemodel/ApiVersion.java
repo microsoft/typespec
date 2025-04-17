@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -23,7 +18,7 @@ import java.util.Objects;
  * <p>
  * - semver-range style (ie, '^1.0.0' or '~1.0.0' )
  */
-public class ApiVersion implements JsonSerializable<ApiVersion> {
+public class ApiVersion {
     private String version;
     private ApiVersion.Range range;
 
@@ -92,33 +87,6 @@ public class ApiVersion implements JsonSerializable<ApiVersion> {
 
         ApiVersion rhs = ((ApiVersion) other);
         return Objects.equals(version, rhs.version) && Objects.equals(range, rhs.range);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("version", version)
-            .writeStringField("range", range == null ? null : range.toString())
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an ApiVersion instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An ApiVersion instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ApiVersion fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ApiVersion::new, (version, fieldName, reader) -> {
-            if ("version".equals(fieldName)) {
-                version.version = reader.getString();
-            } else if ("range".equals(fieldName)) {
-                version.range = ApiVersion.Range.fromValue(reader.getString());
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 
     /**
