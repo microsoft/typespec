@@ -6,6 +6,10 @@ import { TypeExpression } from "./type-expression.jsx";
 
 export interface FunctionTypeProps extends ts.FunctionTypeProps {
   type?: Operation;
+  /**
+   * Where the parameters from passed to the `parameters` prop should be placed
+   * relative the ones created from the TypeSpec operation.
+   */
   parametersMode?: "prepend" | "append" | "replace";
 }
 /**
