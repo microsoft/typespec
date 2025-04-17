@@ -16,6 +16,12 @@ export const TspContext: ComponentContext<{ program: Program; $?: Typekit }> = c
 export function useTsp() {
   const context = useContext(TspContext)!;
 
+  if (!context) {
+    throw new Error(
+      "TspContext is not set. Make sure the component is wrapped in TspContext.Provider or the emitter framework Output component.",
+    );
+  }
+
   if (!context.$) {
     context.$ = unsafe_$(context.program);
   }
