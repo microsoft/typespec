@@ -65,7 +65,7 @@ export function jsonDogToApplicationTransform(input_?: any): Dog {
   }
   return {
     additionalProperties: jsonRecordExtraFeatureToApplicationTransform(
-      (({ id, name, color, ...rest }) => rest)(input_),
+      (({ ...rest }) => rest)(input_),
     ),
     id: input_.id,
     name: input_.name,

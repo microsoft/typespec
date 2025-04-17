@@ -21,7 +21,13 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
   // Need to skip never properties
   const properties = Array.from(
     $.model.getProperties(props.type, { includeExtended: true }).values(),
-  ).filter((p) => !$.type.isNever(p.type));
+  ).filter(
+    (p) =>
+      !$.type.isNever(p.type) &&
+      !$.modelProperty.isHttpHeader(p) &&
+      !$.modelProperty.isHttpPathParam(p) &&
+      !$.modelProperty.isHttpQueryParam(p),
+  );
 
   const discriminator = $.type.getDiscriminator(props.type);
 

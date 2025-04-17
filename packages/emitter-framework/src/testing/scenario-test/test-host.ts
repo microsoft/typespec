@@ -6,8 +6,11 @@ import {
   TestHostConfig,
   TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
+import { EventsTestLibrary } from "@typespec/events/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
+import { SSETestLibrary } from "@typespec/sse/testing";
+import { StreamsTestLibrary } from "@typespec/streams/testing";
 import { join, relative } from "path";
 
 export interface EmittedFile {
@@ -28,12 +31,29 @@ async function createEmitterTestRunner(
     testLibrary,
     HttpTestLibrary,
     RestTestLibrary,
+    StreamsTestLibrary,
+    SSETestLibrary,
+    EventsTestLibrary,
   ];
   const host = await createTestHost({ libraries });
 
   return createTestWrapper(host, {
-    autoImports: options.autoImports ?? ["@typespec/http", "@typespec/rest"],
-    autoUsings: options.autoUsings ?? ["TypeSpec.Http", "TypeSpec.Rest"],
+    autoImports: options.autoImports ?? [
+      "@typespec/http",
+      "@typespec/rest",
+      "@typespec/http/streams",
+      "@typespec/streams",
+      "@typespec/sse",
+      "@typespec/events",
+    ],
+    autoUsings: options.autoUsings ?? [
+      "TypeSpec.Http",
+      "TypeSpec.Rest",
+      "TypeSpec.Http.Streams",
+      "TypeSpec.Streams",
+      "TypeSpec.SSE",
+      "TypeSpec.Events",
+    ],
     compilerOptions: options.compilerOptions ?? {
       noEmit: false,
       emit: [testLibrary.name],
