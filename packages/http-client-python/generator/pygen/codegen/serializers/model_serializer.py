@@ -165,7 +165,7 @@ class MsrestModelSerializer(_ModelSerializer):
         basename = (
             "msrest.serialization.Model"
             if self.code_model.options["client_side_validation"]
-            else "_serialization.Model"
+            else "serialization.Model"
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])

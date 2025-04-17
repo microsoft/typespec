@@ -421,10 +421,10 @@ class JinjaSerializer(ReaderAndWriter):
                 vendor_folder_path / Path("utils.py"),
                 general_serializer.need_vendor_utils_file(),
             )
-        # write _serialization.py
+        # write _vendor/serialization.py
         if not (self.code_model.options["client_side_validation"] or self.code_model.options["multiapi"]):
             self.write_file(
-                vendor_folder_path / Path("_serialization.py"),
+                vendor_folder_path / Path("serialization.py"),
                 general_serializer.serialize_serialization_file(),
             )
 
