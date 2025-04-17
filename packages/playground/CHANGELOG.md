@@ -1,5 +1,27 @@
 # Change Log - @typespec/playground
 
+## 0.8.1
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6753](https://github.com/microsoft/typespec/pull/6753) Guard against diagnostic reported without a target
+
+
+## 0.8.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
 ## 0.7.2
 
 No changes, version bump only.

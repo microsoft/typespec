@@ -1,7 +1,7 @@
 #nullable disable
 
 using System;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Sample.Models;
 

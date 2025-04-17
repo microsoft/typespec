@@ -1,5 +1,35 @@
 # Change Log - @typespec/versioning
 
+## 0.68.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove deprecated versioning projection, switch to the mutator approach
+
+  ```diff lang="tsp"
+  // Step 1: Update to retrieve the mutation instead of projections
+  -const versions = buildVersionProjections(program, service.type);
+  +const versions = getVersioningMutators(program, service.type);
+  
+  // Step 2: call mutator instead of projection api
+  -const projectedProgram = projectProgram(originalProgram, versionRecord.projections);
+  +const subgraph = unsafe_mutateSubgraphWithNamespace(program, [mutator], service.type);
+  +subgraph.type // this is the mutated service namespace
+  ```
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
 ## 0.66.0
 
 No changes, version bump only.

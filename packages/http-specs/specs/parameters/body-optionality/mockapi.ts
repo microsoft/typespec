@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string, data: any) {
@@ -6,7 +6,7 @@ function createServerTests(uri: string, data: any) {
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 204,
@@ -27,9 +27,9 @@ Scenarios.Parameters_BodyOptionality_OptionalExplicit = passOnSuccess([
     uri: "/parameters/body-optionality/optional-explicit/set",
     method: "post",
     request: {
-      body: {
+      body: json({
         name: "foo",
-      },
+      }),
     },
     response: {
       status: 204,

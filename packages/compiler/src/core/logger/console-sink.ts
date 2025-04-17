@@ -2,22 +2,31 @@ import { codeFrameColumns } from "@babel/code-frame";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
+import { getRelatedLocations, getSourceLocation } from "../diagnostics.js";
 import { getRelativePathFromDirectory } from "../path-utils.js";
-import { LogLevel, LogSink, ProcessedLog, SourceLocation, TrackActionTask } from "../types.js";
+import {
+  Diagnostic,
+  LogLevel,
+  LogSink,
+  ProcessedLog,
+  SourceLocation,
+  TrackActionTask,
+} from "../types.js";
 import { DynamicTask } from "./dynamic-task.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
-
+/** @internal */
 export interface FormatLogOptions {
   pathRelativeTo?: string;
   pretty?: boolean;
   excludeLogLevel?: boolean;
 }
-
+/** @internal */
 export interface ConsoleSinkOptions extends FormatLogOptions {
   /** @internal */
   trackAction?: boolean;
 }
 
+/** @internal */
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
     const isTTY = process.stdout?.isTTY && !process.env.CI;
@@ -49,6 +58,7 @@ function hyperlink(text: string, url: string | undefined, options: FormatLogOpti
   return text;
 }
 
+/** @internal */
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
   const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
   const level: string = options.excludeLogLevel === true ? "" : formatLevel(options, log.level);
@@ -69,6 +79,25 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   } else {
     return content;
   }
+}
+
+export interface FormatDiagnosticOptions {
+  readonly pretty?: boolean;
+  readonly pathRelativeTo?: string;
+}
+
+export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
+  return formatLog(
+    {
+      code: diagnostic.code,
+      level: diagnostic.severity,
+      message: diagnostic.message,
+      url: diagnostic.url,
+      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+      related: getRelatedLocations(diagnostic),
+    },
+    { pretty: options?.pretty ?? false, pathRelativeTo: options?.pathRelativeTo },
+  );
 }
 
 function color(options: FormatLogOptions, text: string, color: Formatter) {
@@ -147,7 +176,7 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
-export async function trackAction<T>(
+async function trackAction<T>(
   message: string,
   finalMessage: string,
   asyncAction: (task: TrackActionTask) => Promise<T>,

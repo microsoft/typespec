@@ -487,7 +487,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         x: {
           anyOf: [
             {
-              type: "object",
+              type: "string",
               allOf: [{ $ref: "#/components/schemas/MyStr" }],
               nullable: true,
             },
@@ -525,6 +525,44 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       });
     });
 
+    describe("scalar type property that extends std scalar should always be set as corresponding JSON type when nullable property is present", () => {
+      it.each([
+        ["bytes", "string"],
+        ["numeric", "number"],
+        ["integer", "integer"],
+        ["int8", "integer"],
+        ["int16", "integer"],
+        ["int32", "integer"],
+        ["int64", "integer"],
+        ["safeint", "integer"],
+        ["uint8", "integer"],
+        ["uint16", "integer"],
+        ["uint32", "integer"],
+        ["uint64", "integer"],
+        ["float", "number"],
+        ["float32", "number"],
+        ["float64", "number"],
+        ["decimal", "number"],
+        ["decimal128", "number"],
+        ["string", "string"],
+        ["boolean", "boolean"],
+        ["plainDate", "string"],
+        ["utcDateTime", "string"],
+        ["offsetDateTime", "string"],
+        ["plainTime", "string"],
+        ["duration", "string"],
+        ["url", "string"],
+      ])("%s", async (scalarDeclaration: string, expectedType: string) => {
+        const openApi = await openApiFor(`
+      scalar StdScalar extends ${scalarDeclaration};
+      model A {
+        x: StdScalar | null;
+      }
+      `);
+        expect(openApi.components.schemas.A.properties.x.type).toEqual(expectedType);
+      });
+    });
+
     describe("null and another single variant produce allOf", () => {
       it.each([
         ["model", "model Other {}"],
@@ -548,6 +586,48 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi3/union-null",
         message: "Cannot have a union containing only null types.",
+      });
+    });
+  });
+
+  describe("union templates", () => {
+    it("can be referenced from a property", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        model Pet {
+          prop: U<"b">;
+        };
+        `,
+      );
+      expect(res.components.schemas.Pet.properties.prop).toEqual({
+        type: "string",
+        enum: ["a", "b"],
+      });
+    });
+    it("can be referenced in another union", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        union A {string, U<"b"> }
+        `,
+      );
+      expect(res.components.schemas.A).toEqual({
+        anyOf: [{ type: "string" }, { type: "string", enum: ["a", "b"] }],
+      });
+    });
+    it("can be used in operation response", async () => {
+      const res = await openApiFor(
+        `
+        union U<T> { "a", T }
+        op test(): U<"b">;
+        `,
+      );
+      expect(res.paths["/"].get.responses["200"].content["text/plain"].schema).toEqual({
+        anyOf: [
+          { type: "string", enum: ["a"] },
+          { type: "string", enum: ["b"] },
+        ],
       });
     });
   });

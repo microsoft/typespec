@@ -21,7 +21,7 @@ function createQueryServerTests(
     uri,
     method: "get",
     request: {
-      params: paramData,
+      query: paramData,
     },
     response: {
       status: 204,
@@ -93,7 +93,7 @@ function createPropertyServerTests(
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,

@@ -15,12 +15,15 @@ import com.azure.core.management.exception.ManagementError;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.management.polling.PollerFactory;
+import com.azure.core.management.polling.SyncPollerFactory;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.AsyncPollResponse;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollerFlux;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
 import java.io.IOException;
@@ -35,6 +38,8 @@ import tsptest.armresourceprovider.fluent.ArmResourceProviderClient;
 import tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ChildResourcesInterfacesClient;
 import tsptest.armresourceprovider.fluent.CustomTemplateResourceInterfacesClient;
+import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
+import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.OperationsClient;
 import tsptest.armresourceprovider.fluent.TopLevelArmResourceInterfacesClient;
 
@@ -198,6 +203,34 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
     }
 
     /**
+     * The ManagedMaintenanceWindowStatusOperationsClient object to access its operations.
+     */
+    private final ManagedMaintenanceWindowStatusOperationsClient managedMaintenanceWindowStatusOperations;
+
+    /**
+     * Gets the ManagedMaintenanceWindowStatusOperationsClient object to access its operations.
+     * 
+     * @return the ManagedMaintenanceWindowStatusOperationsClient object.
+     */
+    public ManagedMaintenanceWindowStatusOperationsClient getManagedMaintenanceWindowStatusOperations() {
+        return this.managedMaintenanceWindowStatusOperations;
+    }
+
+    /**
+     * The ModelInterfaceSameNamesClient object to access its operations.
+     */
+    private final ModelInterfaceSameNamesClient modelInterfaceSameNames;
+
+    /**
+     * Gets the ModelInterfaceSameNamesClient object to access its operations.
+     * 
+     * @return the ModelInterfaceSameNamesClient object.
+     */
+    public ModelInterfaceSameNamesClient getModelInterfaceSameNames() {
+        return this.modelInterfaceSameNames;
+    }
+
+    /**
      * Initializes an instance of ArmResourceProviderClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -220,6 +253,8 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
         this.customTemplateResourceInterfaces = new CustomTemplateResourceInterfacesClientImpl(this);
         this.operations = new OperationsClientImpl(this);
         this.childExtensionResourceInterfaces = new ChildExtensionResourceInterfacesClientImpl(this);
+        this.managedMaintenanceWindowStatusOperations = new ManagedMaintenanceWindowStatusOperationsClientImpl(this);
+        this.modelInterfaceSameNames = new ModelInterfaceSameNamesClientImpl(this);
     }
 
     /**
@@ -257,6 +292,23 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
         HttpPipeline httpPipeline, Type pollResultType, Type finalResultType, Context context) {
         return PollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
             defaultPollInterval, activationResponse, context);
+    }
+
+    /**
+     * Gets long running operation result.
+     * 
+     * @param activationResponse the response of activation operation.
+     * @param pollResultType type of poll result.
+     * @param finalResultType type of final result.
+     * @param context the context shared by all requests.
+     * @param <T> type of poll result.
+     * @param <U> type of final result.
+     * @return SyncPoller for poll result and final result.
+     */
+    public <T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse,
+        Type pollResultType, Type finalResultType, Context context) {
+        return SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
+            defaultPollInterval, () -> activationResponse, context);
     }
 
     /**

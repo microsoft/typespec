@@ -2,7 +2,7 @@
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API service.",
-    "compilerVersion": "0.66.0",
+    "compilerVersion": "1.0.0-rc.0",
     "libraries": [
       "@typespec/http",
       "@typespec/rest",
@@ -47,14 +47,16 @@
       "@typespec/http-server-csharp": {
         "label": "C# server stubs",
         "options": {
-          "emitter-output-dir": "{output-dir}/server/generated"
-        }
+          "emitter-output-dir": "{output-dir}/server/aspnet"
+        },
+        "message": "\n\tGenerated ASP.Net services require dotnet 9:\n\thttps://dotnet.microsoft.com/download \n\n\tCreate an ASP.Net service project for your TypeSpec:\n\t> npx hscs-scaffold . --use-swaggerui --overwrite\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hscs/start\n         "
       },
       "@typespec/http-server-js": {
         "label": "JavaScript server stubs",
         "options": {
-          "emitter-output-dir": "{output-dir}/server"
-        }
+          "emitter-output-dir": "{output-dir}/server/js"
+        },
+        "message": "\n\tGenerated JavaScript services require a service runtime:\n\thttps://nodejs.org/download \n\n\tCreate a JavaScript service project for your TypeSpec:\n\t> npx hsjs-scaffold\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hsjs/start\n"
       }
     },
     "files": [
@@ -67,7 +69,7 @@
   "library-ts": {
     "title": "TypeSpec library",
     "description": "Build your own TypeSpec library with custom types, decorators or linters.",
-    "compilerVersion": "0.66.0",
+    "compilerVersion": "1.0.0-rc.0",
     "libraries": [],
     "files": [
       {
@@ -143,7 +145,7 @@
   "emitter-ts": {
     "title": "TypeSpec emitter",
     "description": "Create a new package that emits artifacts from TypeSpec.",
-    "compilerVersion": "0.66.0",
+    "compilerVersion": "1.0.0-rc.0",
     "libraries": [],
     "files": [
       {

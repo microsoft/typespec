@@ -579,8 +579,9 @@ describe("uri template", () => {
         "/foo{?one*,two*}",
       ],
 
-      // cspell:ignore Atwo
+      // cspell:ignore Atwo Dtwo
       [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
+      [`@query("one-two") one: string`, "/foo{?one%2Dtwo}"],
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
@@ -619,8 +620,11 @@ describe("uri template", () => {
 
   describe("emit diagnostic if using any of the path options when parameter is already defined in the uri template", () => {
     it.each([
+      "#{ allowReserved: false }",
       "#{ allowReserved: true }",
+      "#{ explode: false }",
       "#{ explode: true }",
+      `#{ style: "simple" }`,
       `#{ style: "label" }`,
       `#{ style: "matrix" }`,
       `#{ style: "fragment" }`,
@@ -638,7 +642,7 @@ describe("uri template", () => {
   });
 
   describe("emit diagnostic if using any of the query options when parameter is already defined in the uri template", () => {
-    it.each(["#{ explode: true }"])("%s", async (options) => {
+    it.each(["#{ explode: false }", "#{ explode: true }"])("%s", async (options) => {
       const diagnostics = await diagnoseOperations(
         `@route("/bar{?foo}") op foo(@query(${options}) foo: string): void;`,
       );

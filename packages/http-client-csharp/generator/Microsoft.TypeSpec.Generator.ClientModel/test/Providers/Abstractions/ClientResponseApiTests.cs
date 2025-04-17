@@ -42,9 +42,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateMockClientProvider()
         {
-            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
-            MockHelpers.LoadMockPlugin(clientResponseApi: TestClientResponseApi.Instance);
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("foo", InputFactory.Operation("foo"));
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clientResponseApi: TestClientResponseApi.Instance);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
             return clientProvider!;
         }
@@ -91,11 +92,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
             public override TypeProvider CreateClientCollectionResultDefinition(
                 ClientProvider client,
-                InputOperation operation,
+                InputPagingServiceMethod serviceMethod,
                 CSharpType? type,
                 bool isAsync)
             {
-                return new CollectionResultDefinition(client, operation, type, isAsync);
+                return new CollectionResultDefinition(client, serviceMethod, type, isAsync);
             }
 
             public override CSharpType ClientResponseExceptionType => typeof(NotImplementedException);

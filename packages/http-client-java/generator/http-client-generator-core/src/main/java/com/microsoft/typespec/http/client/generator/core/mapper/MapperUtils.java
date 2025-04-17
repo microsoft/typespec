@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -21,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Contains utility methods to help map from modelerfour to Java Autorest.
@@ -127,30 +125,24 @@ public final class MapperUtils {
         }
     }
 
-    static IType handleResponseSchema(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-        boolean xmlWrapperResponse = responseBodySchema != null
-            && responseBodySchema.getSerialization() != null
-            && responseBodySchema.getSerialization().getXml() != null
-            && responseBodySchema.getSerialization().getXml().isWrapped();
-
-        if (!xmlWrapperResponse) {
-            return SchemaUtil.getOperationResponseType(responseBodySchema, operation, settings);
+    static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
+        final Schema responseSchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
+        if (responseSchema != null && responseSchema.isXmlWrapped()) {
+            // Create and return type for the XML wrapped schema.
+            //
+            // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized
+            // ObjectSchema.
+            final ArraySchema arraySchema = (ArraySchema) responseSchema;
+            final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
+            final String classPackage = settings.isCustomType(className)
+                ? settings.getPackage(className)
+                : settings.getPackage(settings.getImplementationSubpackage() + ".models");
+            return new ClassType.Builder().packageName(classPackage)
+                .name(className)
+                .extensions(responseSchema.getExtensions())
+                .build();
         }
-
-        // XML wrapped response types are tricky as they're defined as ArraySchema but in reality it's a specialized
-        // ObjectSchema.
-        ArraySchema arraySchema = (ArraySchema) responseBodySchema;
-        String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
-        String classPackage = settings.isCustomType(className)
-            ? settings.getPackage(className)
-            : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-
-        return new ClassType.Builder().packageName(classPackage)
-            .name(className)
-            .extensions(responseBodySchema.getExtensions())
-            .build();
+        return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
     }
 
     private MapperUtils() {

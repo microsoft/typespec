@@ -28,23 +28,13 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
-  } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
-  } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
-    # TODO https://github.com/Azure/autorest.java/issues/2964
-    # also serve as a test for "use-object-for-unknown" emitter option
-    $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
-  }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
+  # output of "tsp compile" seems trigger powershell error or exit, hence the ">$null 2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
-  $generateOutput = Invoke-Expression $tspCommand
+  Invoke-Expression $tspCommand >$null 2>&1
   $timer.Stop()
 
   $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
@@ -55,7 +45,6 @@ $generateScript = {
   $tspCommand
   ========================
   FAILED (Time elapsed: $($timer.ToString()))
-  $([String]::Join("`n", $generateOutput))
     "
   } else {
     Write-Host "
@@ -67,7 +56,7 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
@@ -104,4 +93,8 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }

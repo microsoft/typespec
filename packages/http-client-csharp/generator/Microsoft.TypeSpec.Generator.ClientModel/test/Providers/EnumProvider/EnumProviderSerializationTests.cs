@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [OneTimeSetUp]
         public void Setup()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         private static object[] ValidateTypes(bool isExtensible)
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [TestCaseSource(nameof(ValidateTypes), [false])]
         public void ValidateToEnumMethodsFixed(InputEnumType inputEnum)
         {
-            TypeProvider? enumType = ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            TypeProvider? enumType = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
             var serialization = enumType!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
@@ -66,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [TestCaseSource(nameof(ValidateTypes), [false])]
         public void ValidateToSerialMethodsFixed(InputEnumType inputEnum)
         {
-            TypeProvider? enumType = ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            TypeProvider? enumType = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
             var serialization = enumType!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
@@ -95,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [TestCaseSource(nameof(ValidateTypes), [true])]
         public void ValidateToEnumMethodsExtensible(InputEnumType inputEnum)
         {
-            TypeProvider? enumType = ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            TypeProvider? enumType = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
             var serialization = enumType!.SerializationProviders.FirstOrDefault();
 
@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [TestCaseSource(nameof(ValidateTypes), [true])]
         public void ValidateToSerialMethodsExtensible(InputEnumType inputEnum)
         {
-            TypeProvider? enumType = ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+            TypeProvider? enumType = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
             Assert.NotNull(enumType);
             TypeProvider? serialization = enumType!.SerializationProviders.FirstOrDefault();
 

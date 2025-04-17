@@ -26,19 +26,22 @@ function Get-TspCommand {
         [string]$generationDir,
         [bool]$generateStub = $false,
         [string]$libraryNameOverride = $null,
-        [string]$apiVersion = $null
+        [string]$apiVersion = $null,
+        [bool]$newProject = $true
     )
+    $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit @typespec/http-client-csharp"
+    $command += " --emit $emitterDir"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
     }
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
     $command += " --option @typespec/http-client-csharp.save-inputs=true"
+
     if ($generateStub) {
-        $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
+        $command += " --option @typespec/http-client-csharp.generator-name=StubLibraryGenerator"
     }
 
     if ($libraryNameOverride) {
@@ -47,6 +50,11 @@ function Get-TspCommand {
     
     if ($apiVersion) {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
+    }
+    
+    # Regenerate the csproj to reflect updates to NewProjectScaffolding, emitter default is to set new-project=false
+    if ($newProject) {
+        $command += " --option @typespec/http-client-csharp.new-project=true"
     }
 
     return $command
@@ -62,7 +70,8 @@ function Refresh-Build {
 
     # we don't want to build the entire solution because the test projects might not build until after regeneration
     # generating Microsoft.TypeSpec.Generator.ClientModel.csproj is enough
-    Invoke "dotnet build $repoRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel.StubLibrary/src"
+    Invoke "dotnet build $repoRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel/src"
+
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE

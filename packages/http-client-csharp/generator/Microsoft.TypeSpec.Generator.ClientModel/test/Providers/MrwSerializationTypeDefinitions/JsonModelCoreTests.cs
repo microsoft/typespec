@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         public JsonModelCoreTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider)
+            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider)
                 => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
         }
 
@@ -98,6 +98,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void BinaryDataAdditionalProperties()
         {
             var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)], additionalProperties: InputPrimitiveType.Any);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
+            var writer = new TypeProviderWriter(mrwProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // This test validates that non-body properties are not included in the body serialization of the model
+        [Test]
+        public void NonBodyPropertyKindsInModel()
+        {
+            var inputModel = InputFactory.Model(
+               "ModelWithNonBodyParameters",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+               ]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);

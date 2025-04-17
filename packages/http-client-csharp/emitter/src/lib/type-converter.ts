@@ -11,15 +11,17 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkHttpParameter,
   SdkModelPropertyType,
   SdkModelType,
   SdkTupleType,
   SdkType,
   SdkUnionType,
   getAccessOverride,
-  isReadOnly,
+  isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -42,11 +44,11 @@ export function fromSdkType(
   sdkType: SdkType,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  if (sdkContext.__typeCache.types.has(sdkType)) {
-    return sdkContext.__typeCache.types.get(sdkType)!;
+  let retVar = sdkContext.__typeCache.types.get(sdkType);
+  if (retVar) {
+    return retVar;
   }
 
-  let retVar: InputType;
   switch (sdkType.kind) {
     case "nullable":
       const inputType = fromSdkType(sdkContext, sdkType.type);
@@ -104,30 +106,8 @@ export function fromSdkType(
       break;
   }
 
-  updateSdkTypeReferences(sdkContext, sdkType, retVar);
+  sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
   return retVar;
-}
-
-function updateTypeCache(sdkContext: CSharpEmitterContext, typeName: string, type: InputType) {
-  if (type.kind === "model") {
-    sdkContext.__typeCache.models.set(typeName, type);
-  } else if (type.kind === "enum") {
-    sdkContext.__typeCache.enums.set(typeName, type);
-  }
-}
-
-function updateSdkTypeReferences(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-  inputType: InputType,
-) {
-  sdkContext.__typeCache.types.set(sdkType, inputType);
-  if ("crossLanguageDefinitionId" in sdkType) {
-    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
-      sdkType.crossLanguageDefinitionId,
-      sdkType.__raw,
-    );
-  }
 }
 
 export function fromSdkModelType(
@@ -151,7 +131,7 @@ export function fromSdkModelType(
       decorators: modelType.decorators,
     } as InputModelType;
 
-    updateTypeCache(sdkContext, modelTypeName, inputModelType);
+    sdkContext.__typeCache.updateTypeCache(modelTypeName, inputModelType);
 
     inputModelType.additionalProperties = modelType.additionalProperties
       ? fromSdkType(sdkContext, modelType.additionalProperties)
@@ -159,14 +139,15 @@ export function fromSdkModelType(
 
     const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
     for (const property of modelType.properties) {
-      if (property.kind !== "property") {
-        continue;
-      }
       const ourProperty = fromSdkModelProperty(sdkContext, property, {
         modelName: modelTypeName,
         usage: modelType.usage,
         namespace: modelType.namespace,
       } as LiteralTypeContext);
+
+      if (!ourProperty) {
+        continue;
+      }
       propertiesDict.set(property, ourProperty);
     }
 
@@ -193,6 +174,51 @@ export function fromSdkModelType(
   return inputModelType;
 
   function fromSdkModelProperty(
+    sdkContext: CSharpEmitterContext,
+    property: SdkModelPropertyType,
+    literalTypeContext: LiteralTypeContext,
+  ): InputModelProperty | undefined {
+    switch (property.kind) {
+      case "property":
+        return fromSdkBodyModelProperty(sdkContext, property, literalTypeContext);
+      case "header":
+      case "query":
+      case "path":
+        return fromSdkHttpParameterModelProperty(sdkContext, property, literalTypeContext);
+      default:
+        return undefined;
+    }
+  }
+
+  function fromSdkHttpParameterModelProperty(
+    sdkContext: CSharpEmitterContext,
+    property: SdkHttpParameter,
+    literalTypeContext: LiteralTypeContext,
+  ): InputModelProperty {
+    const targetType = property.type;
+
+    const serializedName = property.serializedName;
+    literalTypeContext.propertyName = serializedName;
+
+    const modelHeaderProperty: InputModelProperty = {
+      kind: property.kind,
+      name: property.name,
+      serializedName: serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, targetType, literalTypeContext),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      discriminator: false,
+      flatten: false,
+    };
+
+    return modelHeaderProperty;
+  }
+
+  function fromSdkBodyModelProperty(
     sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
     literalTypeContext: LiteralTypeContext,
@@ -256,7 +282,7 @@ export function fromSdkEnumType(
       decorators: enumType.decorators,
     };
     if (addToCollection) {
-      updateTypeCache(sdkContext, enumName, inputEnumType);
+      sdkContext.__typeCache.updateTypeCache(enumName, inputEnumType);
     }
     for (const v of enumType.values) {
       values.push(fromSdkEnumValueType(sdkContext, v));
@@ -379,7 +405,7 @@ function fromSdkConstantType(
       decorators: constantType.decorators,
     };
 
-    updateTypeCache(sdkContext, enumName, enumType);
+    sdkContext.__typeCache.updateTypeCache(enumName, enumType);
 
     values.push({
       kind: "enumvalue",
@@ -456,4 +482,16 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
+}
+
+function isReadOnly(prop: SdkModelPropertyType): boolean {
+  if (prop.kind === "property") {
+    return tcgcIsReadOnly(prop);
+  }
+
+  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
+    return true;
+  } else {
+    return false;
+  }
 }

@@ -15,9 +15,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void MultipartOperationDoesNotHaveConvenienceMethods()
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
-            MockHelpers.LoadMockPlugin(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
-            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             Assert.AreEqual(2, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "options" && p.Type.Equals(typeof(RequestOptions))));
@@ -27,9 +28,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void MultipartOperationShouldHaveContentTypeParam()
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
-            MockHelpers.LoadMockPlugin(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
-            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             Assert.AreEqual(2, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "contentType" && p.Type.Equals(typeof(string))));

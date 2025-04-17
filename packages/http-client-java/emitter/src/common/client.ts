@@ -59,13 +59,20 @@ export class Client extends Aspect implements Client {
     this.globals.push(...parameters);
   }
 
-  addSubClient(subClient: Client) {
+  /**
+   * Add a sub Client to Client.
+   *
+   * @param subClient the sub Client
+   * @param buildMethodPublic the sub Client can be initialized by its ClientBuilder
+   * @param parentAccessorPublic the sub Client can be accessed by its parent Client
+   */
+  addSubClient(subClient: Client, buildMethodPublic: boolean, parentAccessorPublic: boolean) {
     subClient.parent = this;
-    subClient.buildMethodPublic = false;
-    subClient.parentAccessorPublic = true;
+    subClient.buildMethodPublic = buildMethodPublic;
+    subClient.parentAccessorPublic = parentAccessorPublic;
     this.subClients.push(subClient);
 
-    // at present, sub client must have same namespace of its parent client
+    // at present, sub client must be in same namespace of its parent client
     subClient.language.java!.namespace = this.language.java!.namespace;
   }
 }

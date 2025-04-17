@@ -14,7 +14,6 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.BinaryData;
 import response.statuscoderange.implementation.StatusCodeRangeClientImpl;
 
 /**
@@ -37,47 +36,33 @@ public final class StatusCodeRangeClient {
 
     /**
      * The errorResponseStatusCodeInRange operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
+    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.errorResponseStatusCodeInRangeWithResponse(requestOptions);
     }
 
     /**
      * The errorResponseStatusCode404 operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
+    public Response<Void> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
         return this.serviceClient.errorResponseStatusCode404WithResponse(requestOptions);
     }
 
@@ -89,14 +74,13 @@ public final class StatusCodeRangeClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public int errorResponseStatusCodeInRange() {
+    public void errorResponseStatusCodeInRange() {
         // Generated convenience method for errorResponseStatusCodeInRangeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return errorResponseStatusCodeInRangeWithResponse(requestOptions).getValue().toObject(Integer.class);
+        errorResponseStatusCodeInRangeWithResponse(requestOptions).getValue();
     }
 
     /**
@@ -107,13 +91,12 @@ public final class StatusCodeRangeClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public int errorResponseStatusCode404() {
+    public void errorResponseStatusCode404() {
         // Generated convenience method for errorResponseStatusCode404WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return errorResponseStatusCode404WithResponse(requestOptions).getValue().toObject(Integer.class);
+        errorResponseStatusCode404WithResponse(requestOptions).getValue();
     }
 }

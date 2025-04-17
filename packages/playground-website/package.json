@@ -35,9 +35,9 @@
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
     "build-samples": "node ./samples/build.js",
-    "build": "npm run build-samples && pnpm build:lib && vite build 2>&1",
+    "build": "pnpm build-samples && pnpm build:lib && vite build 2>&1",
     "build:lib": "vite build --config vite.lib.config.ts",
-    "preview": "npm run build && vite preview",
+    "preview": "pnpm build && vite preview",
     "start": "vite",
     "test": "vitest run",
     "test:watch": "vitest -w",
@@ -53,8 +53,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.60.0",
-    "@fluentui/react-icons": "^2.0.279",
+    "@fluentui/react-components": "~9.61.2",
+    "@fluentui/react-icons": "^2.0.292",
     "@typespec/compiler": "workspace:^",
     "@typespec/events": "workspace:^",
     "@typespec/html-program-viewer": "workspace:^",
@@ -74,24 +74,24 @@
     "react-dom": "~18.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.9",
-    "@playwright/test": "^1.50.1",
+    "@babel/core": "^7.26.10",
+    "@playwright/test": "^1.51.1",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~22.13.9",
+    "@types/node": "~22.13.11",
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui": "~3.52.4",
     "@vitejs/plugin-react": "~4.3.4",
-    "@vitest/coverage-v8": "^3.0.7",
-    "@vitest/ui": "^3.0.7",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@vitest/ui": "^3.0.9",
     "c8": "^10.1.3",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
     "rollup-plugin-visualizer": "~5.14.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0",
+    "vite": "^6.2.4",
     "vite-plugin-dts": "4.5.3",
     "vite-plugin-node-polyfills": "^0.23.0",
-    "vitest": "^3.0.7"
+    "vitest": "^3.0.9"
   }
 }

@@ -25,7 +25,8 @@ The client signature should include a positional parameter for credential of typ
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-  constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
+
+  constructor(endpoint: string, credential: ApiKeyCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {
@@ -41,7 +42,7 @@ The client context should setup the pipeline to use the credential in the header
 ```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
-  credential: KeyCredential,
+  credential: ApiKeyCredential,
   options?: TestClientOptions,
 ): TestClientContext {
   const params: Record<string, any> = {
@@ -54,11 +55,16 @@ export function createTestClientContext(
           throw new Error(`Missing parameter: ${key}`);
         })(),
   );
-  return getClient(resolvedEndpoint, credential, {
+  return getClient(resolvedEndpoint, {
     ...options,
-    credentials: {
-      apiKeyHeaderName: "X-API-KEY",
-    },
+    credential,
+    authSchemes: [
+      {
+        kind: "apiKey",
+        apiKeyLocation: "header",
+        name: "X-API-KEY",
+      },
+    ],
   });
 }
 ```

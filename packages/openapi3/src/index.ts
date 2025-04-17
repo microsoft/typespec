@@ -1,11 +1,73 @@
 export const namespace = "TypeSpec.OpenAPI";
 
 export { convertOpenAPI3Document } from "./cli/actions/convert/convert.js";
-export * from "./decorators.js";
+export { $oneOf, $useRef, getOneOf, getRef } from "./decorators.js";
 export { $lib } from "./lib.js";
-export * from "./openapi.js";
+export {
+  $onEmit,
+  getOpenAPI3,
+  resolveOptions,
+  type ResolvedOpenAPI3EmitterOptions,
+} from "./openapi.js";
 
-export * from "./types.js";
+export type {
+  CommonOpenAPI3Schema,
+  Extensions,
+  HttpMethod,
+  JsonSchema,
+  JsonSchemaType,
+  JsonType,
+  OpenAPI3ApiKeySecurityScheme,
+  OpenAPI3AuthorizationCodeOAuthFlow,
+  OpenAPI3ClientCredentialsFlow,
+  OpenAPI3Components,
+  OpenAPI3Discriminator,
+  OpenAPI3Document,
+  OpenAPI3Encoding,
+  OpenAPI3Example,
+  OpenAPI3ExternalDocs,
+  OpenAPI3Header,
+  OpenAPI3HeaderParameter,
+  OpenAPI3HttpSecurityScheme,
+  OpenAPI3ImplicitOAuthFlow,
+  OpenAPI3Info,
+  OpenAPI3Link,
+  OpenAPI3MediaType,
+  OpenAPI3OAuth2Flow,
+  OpenAPI3OAuth2SecurityScheme,
+  OpenAPI3OAuthFlows,
+  OpenAPI3OpenIdConnectSecurityScheme,
+  OpenAPI3Operation,
+  OpenAPI3Parameter,
+  OpenAPI3ParameterBase,
+  OpenAPI3ParameterType,
+  OpenAPI3PasswordOAuthFlow,
+  OpenAPI3PathItem,
+  OpenAPI3PathParameter,
+  OpenAPI3QueryParameter,
+  OpenAPI3RequestBody,
+  OpenAPI3Response,
+  OpenAPI3Responses,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+  OpenAPI3SecurityScheme,
+  OpenAPI3SecuritySchemeBase,
+  OpenAPI3Server,
+  OpenAPI3ServerVariable,
+  OpenAPI3ServiceRecord,
+  OpenAPI3StatusCode,
+  OpenAPI3Tag,
+  OpenAPI3UnversionedServiceRecord,
+  OpenAPI3VersionedDocumentRecord,
+  OpenAPI3VersionedServiceRecord,
+  OpenAPI3XmlSchema,
+  OpenAPIComponents3_1,
+  OpenAPIDocument3_1,
+  OpenAPISchema3_1,
+  Ref,
+  Refable,
+  SupportedOpenAPIDocuments,
+} from "./types.js";
 
 /** @internal */
 export { $decorators } from "./tsp-index.js";

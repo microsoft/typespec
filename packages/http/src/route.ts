@@ -81,8 +81,19 @@ export function resolvePathAndParameters(
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
-  // the operation parameters
+  // the operation parameters and are correctly defined when optional
   for (const routeParam of parsedUriTemplate.parameters) {
+    const parameter = parameters.parameters.find((x) => x.name === routeParam.name);
+    if (parameter?.type === "path" && parameter.param.optional && routeParam.operator !== "/") {
+      diagnostics.add(
+        createDiagnostic({
+          code: "optional-needs-path-expansion",
+          format: { paramName: parameter.param.name },
+          target: parameter.param,
+        }),
+      );
+    }
+
     const decoded = decodeURIComponent(routeParam.name);
     if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
       diagnostics.add(
@@ -206,7 +217,11 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
 };
 
 export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
-  const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+  const operator = param.param.optional
+    ? "/"
+    : param.allowReserved
+      ? "+"
+      : styleToOperator[param.style];
   return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
 }
 
@@ -234,7 +249,9 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
 }
 
 function escapeUriTemplateParamName(name: string) {
-  return name.replaceAll(":", "%3A");
+  return encodeURIComponent(name).replace(/[:-]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
 }
 
 export function setRouteProducer(

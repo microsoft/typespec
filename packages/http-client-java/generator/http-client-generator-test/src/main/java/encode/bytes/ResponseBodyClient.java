@@ -42,7 +42,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -51,7 +51,7 @@ public final class ResponseBodyClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return represent a byte array along with {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -159,14 +159,14 @@ public final class ResponseBodyClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array.
+     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] defaultMethod() {
+    public BinaryData defaultMethod() {
         // Generated convenience method for defaultMethodWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return defaultMethodWithResponse(requestOptions).getValue().toObject(byte[].class);
+        return defaultMethodWithResponse(requestOptions).getValue();
     }
 
     /**

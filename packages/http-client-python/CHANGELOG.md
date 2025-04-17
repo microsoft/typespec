@@ -1,5 +1,48 @@
 # Change Log - @typespec/http-client-python
 
+## 0.9.2
+
+### Bug Fixes
+
+- [#6974](https://github.com/microsoft/typespec/pull/6974) Allow `_` in namespaces
+
+### Other Changes
+
+- Drop support for python3.8
+
+## 0.9.1
+
+### Bug Fixes
+
+- [6846](https://github.com/microsoft/typespec/pull/6846) fix license header for legacy SDK
+
+## 0.9.0
+
+### Features
+
+- [#6549](https://github.com/microsoft/typespec/pull/6549) Pass authentication flows info into credential policy for unbranded
+
+
+## 0.8.2
+
+### Bug Fixes
+
+- [#5649](https://github.com/microsoft/typespec/pull/5649) Always respect namespace from TCGC
+
+
+## 0.8.1
+
+### Other Changes
+
+- Bump `@typespec/*` 0.67.0
+
+## 0.8.0
+
+### Features
+
+- [#6242](https://github.com/microsoft/typespec/pull/6242) support continuation token for paging
+
+
 ## 0.7.1
 
 ### Bug Fixes

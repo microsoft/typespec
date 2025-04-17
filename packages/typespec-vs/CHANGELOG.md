@@ -1,5 +1,20 @@
 # Change Log - typespec-vs
 
+## 0.68.0
+
+No changes, version bump only.
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bug Fixes
+
+- [#6144](https://github.com/microsoft/typespec/pull/6144) Add missing node to list of suggestion when tsp server cannot start
+
+
 ## 0.66.0
 
 ### Features

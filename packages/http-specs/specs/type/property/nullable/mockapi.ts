@@ -7,7 +7,6 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
     get: passOnSuccess({
       uri: url,
       method: `get`,
-      request: {},
       response: {
         status: 200,
         body: json(value),
@@ -18,13 +17,13 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
       uri: url,
       method: `patch`,
       request: {
-        body: {
-          requiredProperty: "foo",
-          nullableProperty: patchNullableProperty || null,
-        },
-        headers: {
-          "Content-Type": "application/merge-patch+json",
-        },
+        body: json(
+          {
+            requiredProperty: "foo",
+            nullableProperty: patchNullableProperty || null,
+          },
+          "application/merge-patch+json",
+        ),
       },
       response: {
         status: 204,

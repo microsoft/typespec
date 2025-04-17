@@ -24,13 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider) =>
                 inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
         }
 
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
-            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
@@ -765,7 +765,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false, new(json: new("requiredInt"))),
+                new InputModelProperty("requiredInt", InputModelPropertyKind.Property, "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false, "requiredInt", new(json: new("requiredInt"))),
              };
 
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());

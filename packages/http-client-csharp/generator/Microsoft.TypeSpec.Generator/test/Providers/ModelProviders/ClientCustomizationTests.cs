@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var client = new ClientTypeProvider();
             var outputLibrary = new ClientOutputLibrary(client);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -109,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var client = new ClientTypeProvider();
             var outputLibrary = new ClientOutputLibrary(client);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -181,7 +181,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(5, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+            Assert.AreEqual(5, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var client = new ClientTypeProvider();
 
             var outputLibrary = new ClientOutputLibrary(client);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -234,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var client = new ClientTypeProvider();
 
             var outputLibrary = new ClientOutputLibrary(client);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -284,7 +284,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(4, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
+            Assert.AreEqual(4, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
         }
 
         [Test]
@@ -293,19 +293,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var client = new ClientTypeProvider();
 
             var outputLibrary = new ClientOutputLibrary(client);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            var attributes = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").CustomCodeView!.Attributes;
+            var attributes = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").CustomCodeView!.Attributes;
             Assert.AreEqual(4, attributes.Count);
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
-            Assert.AreEqual("[global::UnbrandedTypeSpec.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
+            Assert.AreEqual("[global::SampleTypeSpec.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
 
             // validate that the properties are cached
             Assert.AreSame(attributes[0].Type, attributes[0].Type);

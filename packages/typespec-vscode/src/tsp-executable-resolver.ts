@@ -2,6 +2,7 @@ import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
+import { getDirectoryPath } from "./path-utils.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { SettingName } from "./types.js";
 import { checkInstalledNode, isFile, loadModule, useShellInExec } from "./utils.js";
@@ -86,7 +87,7 @@ export async function resolveTypeSpecServer(
     logger.info(
       "Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.",
     );
-    serverPath = await resolveLocalCompiler(workspaceFolder);
+    serverPath = await resolveLocalCompilerInWorkspaces();
   }
 
   if (!serverPath) {
@@ -135,6 +136,43 @@ export async function resolveTypeSpecServer(
   }
 }
 
+async function resolveLocalCompilerInWorkspaces(): Promise<string | undefined> {
+  try {
+    if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
+      return undefined;
+    }
+    const FIRST_WORKSPACE_INDEX = 0;
+    const SECOND_WORKSPACE_INDEX = 1;
+    // Try to resolve compiler from the first workspace folder directly which should work in most cases
+    const firstWorkspaceFolder = workspace.workspaceFolders[FIRST_WORKSPACE_INDEX].uri.fsPath;
+    const path = await resolveLocalCompiler(firstWorkspaceFolder);
+    if (path) {
+      return path;
+    }
+    // Fallback to search the whole workspaces which will trigger more heavy operations
+    const folders = (await workspace.findFiles("**/package.json", "**/node_modules/**")).map(
+      (uri) => getDirectoryPath(uri.fsPath),
+    );
+    const otherWorkspaceFolder = workspace.workspaceFolders
+      .slice(SECOND_WORKSPACE_INDEX)
+      .map((wf) => wf.uri.fsPath);
+    folders.push(...otherWorkspaceFolder);
+    const uniqueFolders = new Set(folders);
+
+    for (const folder of uniqueFolders) {
+      logger.debug(`Try to resolve compiler from folder: ${folder}`);
+      const path = await resolveLocalCompiler(folder);
+      if (path) {
+        return path;
+      }
+    }
+    return undefined;
+  } catch (e) {
+    logger.debug("Exception when resolving compiler from workspaces", [e]);
+    return undefined;
+  }
+}
+
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
   try {
     const executable = await loadModule(baseDir, "@typespec/compiler");
@@ -146,12 +184,12 @@ async function resolveLocalCompiler(baseDir: string): Promise<string | undefined
       return executable.path;
     } else {
       logger.debug(
-        `Failed to resolve compiler from local. Unexpected executable type: ${executable.type}`,
+        `Failed to resolve compiler from local '${baseDir}'. Unexpected executable type: ${executable.type}`,
       );
     }
   } catch (e) {
     // Couldn't find the module
-    logger.debug("Exception when resolving compiler from local", [e]);
+    logger.debug(`Exception when resolving compiler from local '${baseDir}'`, [e]);
     return undefined;
   }
   return undefined;

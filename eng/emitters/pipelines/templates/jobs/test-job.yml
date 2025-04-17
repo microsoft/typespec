@@ -48,6 +48,10 @@ parameters:
     type: boolean
     default: true
 
+  - name: PythonVersion
+    type: string
+    default: "3.12"
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -69,7 +73,7 @@ jobs:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: $(nodeVersion)
+          NodeVersion: ${{ parameters.NodeVersion }}
           BuildArtifactName: ${{ parameters.BuildArtifactName }}
           ${{ if ne(length(parameters.TestMatrix), 0) }}:
             TestArgs: $(TestArguments)
@@ -78,6 +82,7 @@ jobs:
           EmitArtifacts: ${{ parameters.EmitArtifacts }}
           CadlRanchName: ${{ parameters.CadlRanchName }}
           EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
+          PythonVersion: ${{ parameters.PythonVersion }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:

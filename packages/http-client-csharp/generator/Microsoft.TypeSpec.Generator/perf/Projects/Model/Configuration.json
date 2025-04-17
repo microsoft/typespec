@@ -1,6 +1,6 @@
 {
   "output-folder": ".",
-  "namespace": "UnbrandedTypeSpec",
-  "package-name": "UnbrandedTypeSpec",
+  "namespace": "SampleTypeSpec",
+  "package-name": "SampleTypeSpec",
   "use-model-reader-writer": true
 }

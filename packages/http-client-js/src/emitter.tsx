@@ -9,6 +9,7 @@ import { Output } from "./components/output.jsx";
 import { ModelSerializers } from "./components/serializers.js";
 import { Interfaces } from "./components/static-helpers/interfaces.jsx";
 import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
+import { PagingHelpers } from "./components/static-helpers/paging-helper.jsx";
 import { RestError } from "./components/static-helpers/rest-error.jsx";
 import { JsClientEmitterOptions } from "./lib.js";
 
@@ -33,12 +34,15 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
           <ay.SourceDirectory path="models">
             <ts.BarrelFile export="models" />
             <Models />
-            <ModelSerializers />
+            <ay.SourceDirectory path="internal">
+              <ModelSerializers />
+            </ay.SourceDirectory>
           </ay.SourceDirectory>
           <ay.SourceDirectory path="api">
             <OperationsDirectory />
           </ay.SourceDirectory>
           <ay.SourceDirectory path="helpers">
+            <PagingHelpers />
             <Interfaces />
             <MultipartHelpers />
             <ts.SourceFile path="error.ts">

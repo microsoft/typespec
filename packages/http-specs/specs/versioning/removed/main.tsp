@@ -115,7 +115,7 @@ scalar V1Scalar extends int32;
 /**
  * This operation should not be generated with latest version's signature.
  */
-#suppress "@azure-tools/cadl-ranch-expect/missing-scenario" "by design"
+#suppress "@typespec/spector/missing-scenario" "by design"
 @route("/v1")
 @post
 @removed(Versions.v2)
@@ -140,7 +140,7 @@ op v2(@body body: ModelV2, @removed(Versions.v2) @query param: string): ModelV2;
 @route("/interface-v1")
 @removed(Versions.v2)
 interface InterfaceV1 {
-  #suppress "@azure-tools/cadl-ranch-expect/missing-scenario" "by design"
+  #suppress "@typespec/spector/missing-scenario" "by design"
   @post
   @route("/v1")
   v1InInterface(@body body: ModelV1): ModelV1;
@@ -149,7 +149,7 @@ interface InterfaceV1 {
 /** This operation will pass different paths and different request bodies based on different versions. */
 @scenario
 @scenarioDoc("""
-  path: "/versioning/removed/api-version[:]v1/v3"
+  path: "/versioning/removed/api-version:v1/v3"
   Expected request body:
   ```json
   { "id": "123", "enumProp": "enumMemberV1" }
@@ -160,7 +160,7 @@ interface InterfaceV1 {
   { "id": "123", "enumProp": "enumMemberV1" }
   ```
   
-  path: "/versioning/removed/api-version[:]v2preview/v3"
+  path: "/versioning/removed/api-version:v2preview/v3"
   Expected request body:
   ```json
   { "id": "123"}
@@ -171,7 +171,7 @@ interface InterfaceV1 {
   { "id": "123"}
   ```
   
-  path: "/versioning/removed/api-version[:]v2/v3"
+  path: "/versioning/removed/api-version:v2/v3"
   Expected request body:
   ```json
   { "id": "123", "enumProp": "enumMemberV1" }

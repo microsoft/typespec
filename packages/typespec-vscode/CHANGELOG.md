@@ -1,5 +1,38 @@
 # Change Log - typespec-vscode
 
+## 0.68.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6668](https://github.com/microsoft/typespec/pull/6668) Fix error when upgrading to use latest telemetry library
+- [#6690](https://github.com/microsoft/typespec/pull/6690) Fix the issue to log compiler information as an error. And remove PREVIEW prefix for server code emitter
+- [#6694](https://github.com/microsoft/typespec/pull/6694) compiler can be resolved automatically when it's not installed in the root folder of the first opened workspace.
+- [#6620](https://github.com/microsoft/typespec/pull/6620) Update menu item and command text for "Show OpenAPI3 Documentation" and "Import TypeSpec from OpenApi3"
+
+
+## 0.67.0
+
+### Features
+
+- [#6178](https://github.com/microsoft/typespec/pull/6178) Update references to JS emitter
+- [#5972](https://github.com/microsoft/typespec/pull/5972) Select multiple emitters to generate multiple codes at one time
+- [#6295](https://github.com/microsoft/typespec/pull/6295) Improve the "Create TypeSpec Project" user experience
+- [#6015](https://github.com/microsoft/typespec/pull/6015) add openapi3 preview
+- [#6123](https://github.com/microsoft/typespec/pull/6123) Support telemetry
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6144](https://github.com/microsoft/typespec/pull/6144) Add missing node to list of suggestion when tsp server cannot start
+
+
 ## 0.66.0
 
 ### Features

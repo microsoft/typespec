@@ -10,38 +10,25 @@ import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight
 
 TypeSpec can be used in two ways:
 
-- Npm package for use with Node.js and other package managers.
+- Npm package for use with [Node.js](https://nodejs.org/)
 - A standalone executable without any additional dependencies. <Badge text="Experimental" variant="caution" />
 
 <Tabs>
   <TabItem label="Node.JS">
-  
-Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
 
-```bash
-npm --version
-```
+<Steps>
 
-#### Package manager
+1. Install [Node.js LTS](https://nodejs.org/en/download/)
 
-TypeSpec uses node package linking to manage dependencies. Any package manager that produce a `node_modules` directory should work:
+2. Install the TypeSpec CLI
 
-- npm 7+. To update npm, run `npm install -g npm`
-- pnpm
-- yarn
+   ```bash
+   npm install -g @typespec/compiler
+   ```
 
-:::caution
-Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
-:::
+</Steps>
 
-#### Install tsp (optional)
-
-To have access to the `tsp` command globally, install the `@typespec/compiler` package:
-Altnatively, you can run `npx tsp` instead in any project that has the compiler as a dependency.
-
-```bash
-npm install -g @typespec/compiler
-```
+[See package manager doc](../handbook/package-manager.md) for more information on package managers.
 
   </TabItem>
   <TabItem label="Standalone (Experimental)">
@@ -77,7 +64,7 @@ curl -fsSL https://typespec.io/install.sh | bash
   </TabItem>
 </Tabs>
 
-## Install the VS and VSCode extensions
+## Install the VS and VS Code extensions
 
 TypeSpec provides extensions for the following editors:
 
@@ -85,6 +72,9 @@ TypeSpec provides extensions for the following editors:
 - [Visual Studio](./editor/vs.md)
 
 ## Create a new TypeSpec project
+
+<Tabs>
+  <TabItem label="CLI">
 
 <Steps>
 
@@ -103,6 +93,21 @@ TypeSpec provides extensions for the following editors:
    ```
 
 </Steps>
+  </TabItem>
+  <TabItem label="VS Code">
+
+<Steps>
+
+1. Invoke the command `>TypeSpec: Create TypeSpec Project` to create TypeSpec project, or click `Create TypeSpec Project` button from the Primary Sidebar of Explorer.
+2. Follow Quick Picks to select root folder of your project, pick the `Generic REST API` template, input your project name, make sure the `@typespec/http` and `@typespec/openapi3` libraries are selected, then return to launch project scaffolding.
+
+</Steps>
+
+![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
+
+  </TabItem>
+</Tabs>
+
 You should now have a basic TypeSpec project setup with a structure looking like this:
 
 {/* prettier-ignore */}

@@ -48,7 +48,7 @@ export async function imageJpegContentType(
 
 ## Serializers
 
-```ts src/models/serializers.ts function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTransform
 export function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTransform(
   input_?: any,
 ): FileWithHttpPartSpecificContentTypeRequest {
@@ -61,10 +61,25 @@ export function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTrans
 }
 ```
 
-```ts src/models/serializers.ts function jsonFileSpecificContentTypeToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToApplicationTransform
 export function jsonFileSpecificContentTypeToApplicationTransform(
   input_?: any,
 ): FileSpecificContentType {
+  if (!input_) {
+    return input_ as any;
+  }
+  return {
+    filename: input_.filename,
+    contentType: input_.contentType,
+    contents: input_.contents,
+  }!;
+}
+```
+
+```ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToTransportTransform
+export function jsonFileSpecificContentTypeToTransportTransform(
+  input_?: FileSpecificContentType | null,
+): any {
   if (!input_) {
     return input_ as any;
   }

@@ -47,7 +47,7 @@ const vitestArgs = ["vitest", "run"];
 if (testPath) {
   vitestArgs.push(testPath);
 } else {
-  vitestArgs.push("test/e2e");
+  vitestArgs.push(...["--config", "./vitest.config.e2e.ts"]);
 }
 
 /**
@@ -100,7 +100,7 @@ const runE2eTests = async () => {
   const stopServer = async () => {
     spinner.start("Shutting down mock server...");
     try {
-      await execPromise("npm run stop:server");
+      await execPromise("pnpm stop:server");
       spinner.succeed(pc.green("✅ Mock server stopped successfully."));
     } catch (err) {
       spinner.fail(pc.red("❌ Failed to stop the server gracefully."));

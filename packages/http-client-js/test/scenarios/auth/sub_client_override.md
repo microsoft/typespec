@@ -34,7 +34,8 @@ The subclient is not a child of the TestClient because they have different param
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-  constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
+
+  constructor(endpoint: string, credential: BasicCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {
@@ -48,6 +49,7 @@ The sub client shouldn't take a credential
 ```ts src/testClient.ts class SubClient
 export class SubClient {
   #context: SubClientContext;
+
   constructor(endpoint: string, options?: SubClientOptions) {
     this.#context = createSubClientContext(endpoint, options);
   }
@@ -64,7 +66,7 @@ The client context should setup the pipeline to use the credential in the Author
 ```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
-  credential: KeyCredential,
+  credential: BasicCredential,
   options?: TestClientOptions,
 ): TestClientContext {
   const params: Record<string, any> = {
@@ -77,11 +79,15 @@ export function createTestClientContext(
           throw new Error(`Missing parameter: ${key}`);
         })(),
   );
-  return getClient(resolvedEndpoint, credential, {
+  return getClient(resolvedEndpoint, {
     ...options,
-    credentials: {
-      apiKeyHeaderName: "Authorization",
-    },
+    credential,
+    authSchemes: [
+      {
+        kind: "http",
+        scheme: "basic",
+      },
+    ],
   });
 }
 ```
@@ -103,7 +109,7 @@ export function createSubClientContext(
           throw new Error(`Missing parameter: ${key}`);
         })(),
   );
-  return getClient(resolvedEndpoint, credential, {
+  return getClient(resolvedEndpoint, {
     ...options,
   });
 }

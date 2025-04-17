@@ -8,6 +8,7 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
@@ -104,13 +105,8 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
-export function removeUnderscoresFromNamespace(name?: string): string {
-  // needed because of the _specs_ tests
-  return (name || "").replace(/_/g, "");
-}
-
-export function getImplementation<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function getImplementation(
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
@@ -151,10 +147,11 @@ type ParamBase = {
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
+  isContinuationToken: boolean;
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
@@ -169,9 +166,38 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   return type.apiVersions[0];
 }
 
+export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
+  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  method?: SdkServiceMethod<TServiceOperation>,
+  input: boolean = true,
+): boolean {
+  const parameterSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenParameterSegments
+      : undefined;
+  const responseSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenResponseSegments
+      : undefined;
+  if (!parameterSegments || !responseSegments) return false;
+  if (input) {
+    return Boolean(
+      parameterSegments &&
+        parameterSegments.length > 0 &&
+        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+    );
+  }
+
+  return Boolean(
+    responseSegments && responseSegments.length > 0 && responseSegments.at(-1) === parameter,
+  );
+}
+
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
+  method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -190,6 +216,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
+    isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
 }
@@ -210,31 +237,42 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
-export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  clientNamespace: string,
-) {
-  const rootNamespace = removeUnderscoresFromNamespace(
-    context.sdkPackage.rootNamespace,
-  ).toLowerCase();
-  if (!context.emitContext.options["enable-typespec-namespace"]) {
-    return rootNamespace;
+const LIB_NAMESPACE = [
+  "azure.core",
+  "azure.resourcemanager",
+  "azure.clientgenerator.core",
+  "typespec.rest",
+  "typespec.http",
+  "typespec.versioning",
+];
+
+export function getRootNamespace(context: PythonSdkContext): string {
+  let rootNamespace = "";
+  if (context.sdkPackage.clients.length > 0) {
+    rootNamespace = context.sdkPackage.clients[0].namespace;
+  } else if (context.sdkPackage.models.length > 0) {
+    const result = context.sdkPackage.models
+      .map((model) => model.namespace)
+      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
+    if (result.length > 0) {
+      result.sort();
+      rootNamespace = result[0];
+    }
+  } else if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
+
+  return rootNamespace.toLowerCase();
+}
+
+export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
   if (
-    [
-      "azure.core",
-      "azure.resourcemanager",
-      "azure.clientgenerator.core",
-      "typespec.rest",
-      "typespec.http",
-      "typespec.versioning",
-    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
+    clientNamespace === "" ||
+    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
   ) {
-    return rootNamespace;
+    return getRootNamespace(context);
   }
-  return clientNamespace === ""
-    ? rootNamespace
-    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return clientNamespace.toLowerCase();
 }
 
 function parseToken(token: Token): string {

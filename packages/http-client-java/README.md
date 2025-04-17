@@ -1,8 +1,16 @@
-# TypeSpec Java Emitter Library
+# @typespec/http-client-java
 
-This is a TypeSpec library that will emit a Java SDK from TypeSpec.
+TypeSpec library for emitting Java client from the TypeSpec REST protocol binding
 
-## Prerequisite
+## Install
+
+```bash
+npm install @typespec/http-client-java
+```
+
+## Usage
+
+### Prerequisite
 
 Install [Node.js](https://nodejs.org/) 20 or above. (Verify by running `node --version`)
 
@@ -10,24 +18,41 @@ Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (V
 
 Install [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn --version`)
 
-## Getting started
+## Usage
 
-### Initialize TypeSpec Project
+1. Via the command line
 
-Follow the [TypeSpec Getting Started](https://typespec.io/docs/) documentation to initialize your TypeSpec project.
-
-Ensure that `npx tsp compile .` runs correctly.
-
-### Add Java Emitter http-client-java
-
-Run the command `npm install @typespec/http-client-java`.
-
-### Generate Java Client SDK
-
-Run the command `npx tsp compile <path-to-typespec-file> --emit @typespec/http-client-java`
-
-e.g.
-
-```cmd
-npx tsp compile main.tsp --emit @typespec/http-client-java
+```bash
+tsp compile . --emit=@typespec/http-client-java
 ```
+
+2. Via the config
+
+```yaml
+emit:
+  - "@typespec/http-client-java"
+```
+
+The config can be extended with options as follows:
+
+```yaml
+emit:
+  - "@typespec/http-client-java"
+options:
+  "@typespec/http-client-java":
+    option: value
+```
+
+## Emitter options
+
+### `license`
+
+**Type:** `object`
+
+License information for the generated client code.
+
+### `dev-options`
+
+**Type:** `object`
+
+Developer options for http-client-java emitter.

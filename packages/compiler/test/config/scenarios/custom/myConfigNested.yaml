@@ -4,14 +4,12 @@ emit:
 parameters:
   service-name:
     default: "Sphere"
-  metadata:
-    bar: "Bar"
-    Owner: "Microsoft"
-    default: "Metadata default"
+  owner:
+    default: "Microsoft"
 options:
   description:
     name: "Testing name: {service-name}"
     details:
-      one: "Type: {metadata.bar}"
+      one: "Type: {owner}"
       two:
-        two-one: "Default: {metadata.default}"
+        two-one: "Default: {owner}"

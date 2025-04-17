@@ -32,15 +32,10 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import {
-  emitParamBase,
-  getClientNamespace,
-  getImplementation,
-  removeUnderscoresFromNamespace,
-} from "./utils.js";
+import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -56,7 +51,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -72,7 +67,7 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -88,7 +83,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -103,8 +98,8 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   }
 }
 
-function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+function emitMethodParameter(
+  context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
@@ -158,7 +153,7 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -176,38 +171,33 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   prefix: string,
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
-  for (const method of client.methods) {
-    if (method.kind === "clientaccessor") {
-      const operationGroup = method.response;
-      const name = `${prefix}${operationGroup.name}`;
-      let operations: Record<string, any>[] = [];
-      for (const method of operationGroup.methods) {
-        if (method.kind === "clientaccessor") continue;
-        operations = operations.concat(emitMethod(context, rootClient, method, name));
-      }
-      operationGroups.push({
-        name: name,
-        className: name,
-        propertyName: operationGroup.name,
-        operations: operations,
-        operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
-        clientNamespace: getClientNamespace(context, operationGroup.namespace),
-      });
+  for (const operationGroup of client.children ?? []) {
+    const name = `${prefix}${operationGroup.name}`;
+    let operations: Record<string, any>[] = [];
+    for (const method of operationGroup.methods) {
+      operations = operations.concat(emitMethod(context, rootClient, method, name));
     }
+    operationGroups.push({
+      name: name,
+      className: name,
+      propertyName: operationGroup.name,
+      operations: operations,
+      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
+      clientNamespace: getClientNamespace(context, operationGroup.namespace),
+    });
   }
 
   // root client should deal with mixin operation group
   if (prefix === "") {
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
-      if (method.kind === "clientaccessor") continue;
       operations = operations.concat(emitMethod(context, rootClient, method, ""));
     }
     if (operations.length > 0) {
@@ -232,7 +222,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitClient<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
 ): Record<string, any> {
   if (client.clientInitialization) {
@@ -275,15 +265,16 @@ function onlyUsedByPolling(usage: UsageFlags): boolean {
   );
 }
 
-export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
-  sdkContext: PythonSdkContext<TServiceOperation>,
-) {
+export function emitCodeModel(sdkContext: PythonSdkContext) {
   // Get types
   const sdkPackage = sdkContext.sdkPackage;
   const codeModel: Record<string, any> = {
-    namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
+    namespace: getRootNamespace(sdkContext),
     clients: [],
   };
+  if (sdkPackage.licenseInfo) {
+    codeModel["licenseInfo"] = sdkPackage.licenseInfo;
+  }
   for (const client of sdkPackage.clients) {
     codeModel["clients"].push(emitClient(sdkContext, client));
   }

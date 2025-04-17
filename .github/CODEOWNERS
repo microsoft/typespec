@@ -5,29 +5,33 @@
 .chronus/changes/
 
 ######################
+# Emiter Shared
+######################
+/eng/emitters/                               @m-nash @iscai-msft
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
+
+######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @nisha-bhatia
+/docs/samples/client/csharp                  @nisha-bhatia @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
 ######################
-/packages/http-client-java/                  @srnagar @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python
 ######################
 /packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
 
 ######################
 # JavaScript
 ######################
 /packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
-
-######################
-# Emiter Shared
-######################
-/eng/emitters/                               @m-nash @iscai-msft
 
 ######################
 # IDE

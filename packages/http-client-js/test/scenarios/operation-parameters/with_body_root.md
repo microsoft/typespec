@@ -27,7 +27,7 @@ export async function create(
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(options?.foo && { foo: options?.foo }),
+      ...(widget.foo && { foo: widget.foo }),
     },
     body: jsonWidgetToTransportTransform(widget),
   };
@@ -59,6 +59,7 @@ export interface CreateOptions extends OperationOptions {
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
+
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }

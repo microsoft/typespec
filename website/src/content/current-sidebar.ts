@@ -1,11 +1,27 @@
-import type { SidebarItem } from "@typespec/astro-utils/sidebar";
+import type { Badge, SidebarItem } from "@typespec/astro-utils/sidebar";
 
+type LibraryStability = "stable" | "preview" | "beta" | "alpha";
+
+function getBadgeForLibraryStability(stability: LibraryStability | undefined): Badge | undefined {
+  switch (stability) {
+    case "preview":
+      return { text: "preview", variant: "tip" };
+    case "beta":
+      return { text: "beta", variant: "caution" };
+    case "alpha":
+      return { text: "alpha", variant: "caution" };
+    case "stable":
+    default:
+      return undefined;
+  }
+}
 function createLibraryReferenceStructure(
   libDir: string,
   labelName: string,
   hasLinterRules: boolean,
   extra: SidebarItem[],
-): any {
+  stability?: LibraryStability,
+): SidebarItem {
   const rules = {
     label: "Rules",
     autogenerate: { directory: `${libDir}/rules` },
@@ -13,6 +29,7 @@ function createLibraryReferenceStructure(
   return {
     label: labelName,
     index: `${libDir}/reference`,
+    badge: getBadgeForLibraryStability(stability),
     items: [
       ...(hasLinterRules ? [rules] : []),
       {
@@ -52,12 +69,13 @@ const sidebar: SidebarItem[] = [
       "handbook/cli",
       "handbook/style-guide",
       "handbook/formatter",
+      "handbook/package-manager",
       "handbook/reproducibility",
+      "handbook/breaking-change-policy",
       {
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
       },
-      "handbook/releases",
       "handbook/faq",
     ],
   },
@@ -104,27 +122,41 @@ const sidebar: SidebarItem[] = [
   {
     label: "📚 Libraries",
     items: [
-      createLibraryReferenceStructure("libraries/events", "Events", false, []),
       createLibraryReferenceStructure("libraries/http", "Http", true, [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
         "libraries/http/operations",
+        "libraries/http/files",
         "libraries/http/content-types",
         "libraries/http/multipart",
         "libraries/http/encoding",
         "libraries/http/examples",
       ]),
-      createLibraryReferenceStructure("libraries/rest", "Rest", false, [
-        "libraries/rest/cheat-sheet",
-        "libraries/rest/resource-routing",
-      ]),
       createLibraryReferenceStructure("libraries/openapi", "OpenAPI", false, []),
-      createLibraryReferenceStructure("libraries/sse", "Server-Sent Events", false, []),
-      createLibraryReferenceStructure("libraries/streams", "Streams", false, []),
-      createLibraryReferenceStructure("libraries/versioning", "Versioning", false, [
-        "libraries/versioning/guide",
-      ]),
-      createLibraryReferenceStructure("libraries/xml", "Xml", false, ["libraries/xml/guide"]),
+      createLibraryReferenceStructure(
+        "libraries/rest",
+        "Rest",
+        false,
+        ["libraries/rest/cheat-sheet", "libraries/rest/resource-routing"],
+        "preview",
+      ),
+      createLibraryReferenceStructure("libraries/events", "Events", false, [], "preview"),
+      createLibraryReferenceStructure("libraries/sse", "SSE", false, [], "preview"),
+      createLibraryReferenceStructure("libraries/streams", "Streams", false, [], "preview"),
+      createLibraryReferenceStructure(
+        "libraries/versioning",
+        "Versioning",
+        false,
+        ["libraries/versioning/guide"],
+        "preview",
+      ),
+      createLibraryReferenceStructure(
+        "libraries/xml",
+        "Xml",
+        false,
+        ["libraries/xml/guide"],
+        "preview",
+      ),
     ],
   },
   {
@@ -136,9 +168,13 @@ const sidebar: SidebarItem[] = [
         "emitters/openapi3/cli",
         "emitters/openapi3/diagnostics",
       ]),
-      createLibraryReferenceStructure("emitters/protobuf", "Protobuf", false, [
-        "emitters/protobuf/guide",
-      ]),
+      createLibraryReferenceStructure(
+        "emitters/protobuf",
+        "Protobuf",
+        false,
+        ["emitters/protobuf/guide"],
+        "preview",
+      ),
       {
         label: "Clients",
         items: [
@@ -148,6 +184,47 @@ const sidebar: SidebarItem[] = [
             "Javascript",
             false,
             [],
+            "preview",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-java",
+            "Java",
+            false,
+            [],
+            "preview",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-python",
+            "Python",
+            false,
+            [],
+            "preview",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-csharp",
+            "CSharp",
+            false,
+            [],
+            "preview",
+          ),
+        ],
+      },
+      {
+        label: "Servers",
+        items: [
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-csharp",
+            "ASP.Net",
+            false,
+            ["emitters/servers/http-server-csharp/project"],
+            "alpha",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-js",
+            "JavaScript",
+            false,
+            ["emitters/servers/http-server-js/project"],
+            "alpha",
           ),
         ],
       },

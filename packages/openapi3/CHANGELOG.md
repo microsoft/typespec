@@ -1,5 +1,52 @@
 # Change Log - @typespec/openapi3
 
+## 1.0.0-rc.0
+
+### Breaking Changes
+
+- [#6557](https://github.com/microsoft/typespec/pull/6557) Remove support for removed feature implicit multipart.
+- [#6563](https://github.com/microsoft/typespec/pull/6563) Separate file bodies into their own `bodyKind`.
+  
+  The HTTP library will now return a body with `bodyKind: "file"` in all cases where emitters should treat the body as a file upload or download. Emitters that previously attempted to recognize File bodies by checking the `type` of an HTTP `"single"` body may now simply check if the `bodyKind` is `"file"`. This applies to all HTTP payloads where an `HttpOperationBody` can appear, including requests, responses, and multipart parts.
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6559](https://github.com/microsoft/typespec/pull/6559) Fix missing application of description on multipart properties
+- [#6729](https://github.com/microsoft/typespec/pull/6729) Fix duplicate name error when using named union inside multipart part.
+- [#6506](https://github.com/microsoft/typespec/pull/6506) Fix union of custom scalar with `null` creating an `object` with `allOf` reference
+
+
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Deprecations
+
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Related changes based on `http` library deprecation removal.
+
+### Features
+
+- [#6268](https://github.com/microsoft/typespec/pull/6268) `@typespec/versioning` is now an optional dependency.
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Remove support for `@discriminator` on union
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6289](https://github.com/microsoft/typespec/pull/6289) Fix `utcDateTime` and `offsetDateTime` not using format `http-date` in header by default as the default http encoding defines
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+- [#6473](https://github.com/microsoft/typespec/pull/6473) Adds support for `@encode` to specify array encodings for `@query` parameters
+
+
 ## 0.66.0
 
 ### Breaking Changes

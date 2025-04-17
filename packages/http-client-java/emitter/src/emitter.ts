@@ -9,16 +9,12 @@ import { promises } from "fs";
 import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { CodeModelBuilder } from "./code-model-builder.js";
+import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { EmitterOptions, LibName, reportDiagnostic } from "./lib.js";
+import { LibName, reportDiagnostic } from "./lib.js";
+import { EmitterOptions } from "./options.js";
 import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
-
-type CodeModelEmitterOptions = EmitterOptions & {
-  "output-dir": string;
-  arm?: boolean;
-};
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
@@ -27,7 +23,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   }
 
   if (!program.hasError()) {
-    const options = context.options;
+    const options = context.options as EmitterOptionsDev;
     if (!options["flavor"]) {
       if (LibName === "@azure-tools/typespec-java") {
         options["flavor"] = "azure";
@@ -60,12 +56,12 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const moduleRoot = resolvePath(__dirname, "..", "..");
 
       const outputPath = context.emitterOutputDir;
-      (options as CodeModelEmitterOptions)["output-dir"] = getNormalizedAbsolutePath(
-        outputPath,
-        undefined,
-      );
+      options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
 
-      (options as CodeModelEmitterOptions).arm = codeModel.arm;
+      options.arm = codeModel.arm;
+      if (codeModel.info?.license?.extensions?.header) {
+        options["license-header"] = codeModel.info.license.extensions.header;
+      }
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 

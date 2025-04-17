@@ -35,6 +35,7 @@ export interface SingleBodyTransformDeclarationProps {
 export function SingleBodyTransformDeclaration(props: SingleBodyTransformDeclarationProps) {
   const inputRef = ay.refkey(props.payload, "property");
   const payloadParameter: ts.ParameterDescriptor = {
+    name: "payload",
     type: <ef.TypeExpression type={props.payload.type} />,
     refkey: inputRef,
   };
@@ -43,7 +44,7 @@ export function SingleBodyTransformDeclaration(props: SingleBodyTransformDeclara
     <ts.FunctionDeclaration
       export
       name={props.name}
-      parameters={{ payload: payloadParameter }}
+      parameters={[payloadParameter]}
       refkey={props.refkey}
     >
       return <JsonTransform itemRef={inputRef} target="transport" type={props.payload.type} />
@@ -62,6 +63,8 @@ function TransformToTransportDeclaration(props: TransformToTransportDeclarationP
   if (!requestPayload || !requestPayload.property) {
     return;
   }
+
+  if (requestPayload.bodyKind === "file") return;
 
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.operation.name}_payload_to_transport`, "function");

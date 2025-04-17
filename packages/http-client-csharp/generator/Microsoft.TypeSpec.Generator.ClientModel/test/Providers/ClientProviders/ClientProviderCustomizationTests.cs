@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -21,13 +22,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
 
             var clientProviderMethods = clientProvider!.Methods;
@@ -52,13 +54,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
 
             var clientProviderMethods = clientProvider!.Methods;
@@ -83,17 +86,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task CanAddMethodSameName()
         {
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
-            ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
 
             var clientProviderMethods = clientProvider!.Methods;
@@ -122,13 +124,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
 
             // The client provider method should not have a protocol method
@@ -156,17 +159,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(false)]
         public async Task CanReplaceStructMethod(bool isStructCustomized)
         {
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)
-            ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(isStructCustomized.ToString()));
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
 
             // The client provider method should not have a protocol method
@@ -203,23 +205,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
             Assert.IsTrue(clientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
 
             // Find the REST client provider
-            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
+            var restClientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
             Assert.IsNotNull(restClientProvider);
             Assert.IsTrue(restClientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
 
             // Find the client options provider
-            var clientOptionsProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
+            var clientOptionsProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
             Assert.IsNotNull(clientOptionsProvider);
             // The client options were not customized
             Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
@@ -238,24 +241,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the client provider - we customize both to be internal because otherwise the build would fail as the client options
             // would be less accessible than the client
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
             Assert.IsTrue(clientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
 
             // Find the REST client provider
-            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
+            var restClientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider);
             Assert.IsNotNull(restClientProvider);
             Assert.IsTrue(restClientProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
 
             // Find the client options provider
-            var clientOptionsProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
+            var clientOptionsProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
             Assert.IsNotNull(clientOptionsProvider);
             // The client options were not customized
             Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
@@ -274,18 +278,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("custom", parent: inputClient.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [inputClient, subClient],
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            InputClient subClient = InputFactory.Client("custom", parent: inputClient);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the sub-client provider
-            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "CustomClient");
+            var subClientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "CustomClient");
             Assert.IsNotNull(subClientProvider);
 
             // find the parent client provider
-            var parentClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
+            var parentClientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
             Assert.IsNotNull(parentClientProvider);
 
             // find the sub-client factory method
@@ -301,14 +306,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("dog", operations: [], parameters: [], parent: inputClient.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [inputClient, subClient],
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            InputClient subClient = InputFactory.Client("dog", methods: [], parameters: [], parent: inputClient);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // find the parent client provider
-            var parentClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
+            var parentClientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
             Assert.IsNotNull(parentClientProvider);
 
             // the sub-client caching field should not be present
