@@ -1,5 +1,5 @@
 ---
-changeKind: minor
+changeKind: feature
 packages:
   - "@typespec/compiler"
 ---
