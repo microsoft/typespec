@@ -414,7 +414,7 @@ class JinjaSerializer(ReaderAndWriter):
         if self.code_model.need_vendor_folder(async_mode=False, client_namespace=namespace):
             self.write_file(
                 vendor_folder_path / Path("__init__.py"),
-                self.code_model.options["license_header"],
+                self.code_model.license_header,
             )
         if self.code_model.need_vendor_utils(async_mode=False, client_namespace=namespace):
             self.write_file(

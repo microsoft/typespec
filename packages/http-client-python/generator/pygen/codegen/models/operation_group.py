@@ -159,7 +159,7 @@ class OperationGroup(BaseModel):
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                    serialize_namespace,
                     f"{self.code_model.namespace}._vendor.utils",
                 ),
                 "ClientMixinABC",
