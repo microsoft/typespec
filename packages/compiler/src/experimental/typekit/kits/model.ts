@@ -5,6 +5,7 @@ import {
   getDiscriminatedUnionFromInheritance,
 } from "../../../core/helpers/discriminator-utils.js";
 import { getDiscriminator } from "../../../core/intrinsic-type-state.js";
+import { Program } from "../../../core/program.js";
 import type {
   Model,
   ModelIndexer,
@@ -141,7 +142,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
-const spreadCache = new Map<Model, Model>();
+const _spreadCache = new WeakMap<Program, WeakMap<Model, Model>>();
 defineKit<TypekitExtension>({
   model: {
     create(desc) {
@@ -172,6 +173,7 @@ defineKit<TypekitExtension>({
       return getEffectiveModelType(this.program, model, filter);
     },
     getSpreadType(model) {
+      const spreadCache = getSpreadCache(this.program);
       if (spreadCache.has(model)) {
         return spreadCache.get(model);
       }
@@ -255,3 +257,10 @@ defineKit<TypekitExtension>({
     },
   },
 });
+
+function getSpreadCache(program: Program): WeakMap<Model, Model> {
+  if (!_spreadCache.has(program)) {
+    _spreadCache.set(program, new WeakMap());
+  }
+  return _spreadCache.get(program)!;
+}
