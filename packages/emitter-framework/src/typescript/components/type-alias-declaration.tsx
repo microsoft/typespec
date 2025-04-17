@@ -13,8 +13,8 @@ export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps
 export type TypeAliasDeclarationProps = TypedAliasDeclarationProps | ts.TypeDeclarationProps;
 
 /**
- * Create a TypeScript type alias declaration. Pass the `type` alias to emit the
- * type as the provided TypeSpec type.
+ * Create a TypeScript type alias declaration. Pass the `type` prop to emit the
+ * type alias as the provided TypeSpec type.
  */
 export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   if (!isTypedAliasDeclarationProps(props)) {

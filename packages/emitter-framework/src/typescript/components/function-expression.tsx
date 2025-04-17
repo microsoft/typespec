@@ -8,7 +8,7 @@ export interface FunctionExpressionProps extends ts.FunctionExpressionProps {
   type?: Operation;
   /**
    * Where the parameters from passed to the `parameters` prop should be placed
-   * relative the ones created from the T`ypeSpec operation.
+   * relative the ones created from the TypeSpec operation.
    */
   parametersMode?: "prepend" | "append" | "replace";
 }
