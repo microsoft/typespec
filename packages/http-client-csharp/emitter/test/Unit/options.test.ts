@@ -118,7 +118,7 @@ describe("Configuration tests", async () => {
     );
   });
 
-  it.only("Can create configuration with custom options", async () => {
+  it("Can create configuration with custom options", async () => {
     interface TestEmitterOptions extends CSharpEmitterOptions {
       namespace?: string;
     }
