@@ -102,7 +102,6 @@ export function createEmitterContext(
 ): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
-    emitterOutputDir: "./",
     options: options ?? {
       "new-project": false,
       "clear-output-folder": false,

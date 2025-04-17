@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -95,13 +93,7 @@ public class FluentNamer extends Preprocessor {
     }
 
     private CodeModel loadCodeModel(String file) throws IOException {
-        if (!file.startsWith("{")) {
-            return yamlMapper.loadAs(file, CodeModel.class);
-        } else {
-            try (JsonReader jsonReader = JsonProviders.createReader(file)) {
-                return CodeModel.fromJson(jsonReader);
-            }
-        }
+        return yamlMapper.loadAs(file, CodeModel.class);
     }
 
     private Yaml createYaml() {
