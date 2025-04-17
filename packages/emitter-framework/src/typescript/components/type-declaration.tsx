@@ -27,5 +27,7 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
       return <EnumDeclaration type={type} {...restProps} />;
     case "Scalar":
       return <TypeAliasDeclaration type={type} {...restProps} />;
+    case "Operation":
+      return <TypeAliasDeclaration type={type} {...restProps} />;
   }
 }

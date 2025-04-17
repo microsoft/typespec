@@ -564,7 +564,7 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (id: string) => string;
+          getName(id: string): string;
         }`,
           {
             parser: "typescript",
@@ -605,8 +605,8 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (foo: Foo) => string;
-          getOtherName: (name: string) => string
+          getName(foo: Foo): string;
+          getOtherName(name: string): string
         }
         export interface Foo {
           name: string;
@@ -654,7 +654,7 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (id: string) => Widget;
+          getName(id: string): Widget;
         }
         export interface Widget {
           id: string;
@@ -707,8 +707,8 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperationsExtended {
-          getName: (id: string) => Widget;
-          delete: (id: string) => void;
+          getName(id: string): Widget;
+          delete(id: string): void;
         }
         export interface Widget {
           id: string;
