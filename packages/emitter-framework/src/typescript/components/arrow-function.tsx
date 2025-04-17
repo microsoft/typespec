@@ -18,7 +18,7 @@ export interface ArrowFunctionProps extends ts.ArrowFunctionProps {
  * function by converting from a TypeSpec Operation. Any other props provided
  * will take precedence.
  */
-export function ArrowFunction(props: ArrowFunctionProps) {
+export function ArrowFunction(props: Readonly<ArrowFunctionProps>) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
     ["type"],
