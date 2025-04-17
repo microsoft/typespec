@@ -66,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            return [.. models];
+            return [.. models.Where(m => m is not SystemObjectTypeProvider)];
         }
 
         protected virtual TypeProvider[] BuildTypeProviders()

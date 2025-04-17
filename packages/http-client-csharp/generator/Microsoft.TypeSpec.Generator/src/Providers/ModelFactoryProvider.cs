@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
-                if (modelProvider is null)
+                if (modelProvider is null || modelProvider is SystemObjectTypeProvider)
                     continue;
 
                 var fullConstructor = modelProvider.FullConstructor;
