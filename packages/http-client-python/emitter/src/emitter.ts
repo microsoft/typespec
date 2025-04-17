@@ -239,11 +239,13 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command, { stdio: [process.stdin, process.stdout] });
-      const excludeDirs = ["__pycache__/*", "node_modules/*", "venv/*", "env/*"];
-      const excludeArg = `--exclude "${excludeDirs.join("|")}"`;
-      execSync(`${venvPath} -m black --line-length=120 --fast ${outputDir} ${excludeArg}`, {
-        stdio: [process.stdin, process.stdout],
-      });
+      const blackExcludeDirs = ["__pycache__/*", "node_modules/*", "venv/*", "env/*"];
+      execSync(
+        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join(" | ")}"`,
+        {
+          stdio: [process.stdin, process.stdout],
+        },
+      );
       checkForPylintIssues(outputDir);
     }
   }
