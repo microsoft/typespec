@@ -23,7 +23,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
-import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
+import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -55,7 +55,7 @@ function findProjectRoot(path: string): string | undefined {
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
-  const outputFolder = _resolveOutputFolder(context);
+  const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);

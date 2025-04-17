@@ -4,7 +4,7 @@ import { EmitContext, Program } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
-import { _resolveOutputFolder, CSharpEmitterOptions } from "../../src/options.js";
+import { CSharpEmitterOptions } from "../../src/options.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -174,19 +174,5 @@ describe("Emitter output directory tests", async () => {
         `,
       runner,
     );
-  });
-
-  it("should use default output directory if not specified", () => {
-    const context = createEmitterContext(program, {});
-    const outputFolder = _resolveOutputFolder(context);
-    expect(outputFolder).toBe("tsp-output");
-  });
-
-  it("should use output directory from passed in options", () => {
-    const context = createEmitterContext(program, {
-      "emitter-output-dir": "./custom-output",
-    });
-    const outputFolder = _resolveOutputFolder(context);
-    expect(outputFolder).toBe("custom-output");
   });
 });

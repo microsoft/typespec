@@ -42,12 +42,6 @@ options:
 
 ## Emitter options
 
-### `emitter-output-dir`
-
-**Type:** `string`
-
-The output directory for the generated C# code. If not specified, the default is `./tsp-output`.
-
 ### `api-version`
 
 **Type:** `string`
