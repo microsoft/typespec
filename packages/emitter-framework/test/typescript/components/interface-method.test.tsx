@@ -8,12 +8,6 @@ import { InterfaceMethod } from "../../../src/typescript/components/interface-me
 import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createEmitterFrameworkTestRunner();
-});
-
 describe("interface methods with a `type` prop", () => {
   let runner: BasicTestRunner;
 
