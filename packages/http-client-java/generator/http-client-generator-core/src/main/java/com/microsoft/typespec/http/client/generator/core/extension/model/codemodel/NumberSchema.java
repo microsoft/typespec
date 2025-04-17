@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents a Number value.
  */
@@ -150,50 +145,5 @@ public class NumberSchema extends PrimitiveSchema {
      */
     public void setEncode(String encode) {
         this.encode = encode;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeDoubleField("precision", precision)
-            .writeDoubleField("multipleOf", multipleOf)
-            .writeDoubleField("maximum", maximum)
-            .writeBooleanField("exclusiveMaximum", exclusiveMaximum)
-            .writeDoubleField("minimum", minimum)
-            .writeBooleanField("exclusiveMinimum", exclusiveMinimum)
-            .writeStringField("encode", encode)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a NumberSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A NumberSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static NumberSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, NumberSchema::new, (schema, fieldName, reader) -> {
-            if (schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                return;
-            }
-
-            if ("precision".equals(fieldName)) {
-                schema.precision = reader.getDouble();
-            } else if ("multipleOf".equals(fieldName)) {
-                schema.multipleOf = reader.getDouble();
-            } else if ("maximum".equals(fieldName)) {
-                schema.maximum = reader.getDouble();
-            } else if ("exclusiveMaximum".equals(fieldName)) {
-                schema.exclusiveMaximum = reader.getBoolean();
-            } else if ("minimum".equals(fieldName)) {
-                schema.minimum = reader.getDouble();
-            } else if ("exclusiveMinimum".equals(fieldName)) {
-                schema.exclusiveMinimum = reader.getBoolean();
-            } else if ("encode".equals(fieldName)) {
-                schema.encode = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }
