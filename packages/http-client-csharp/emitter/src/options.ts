@@ -9,6 +9,7 @@ import { CodeModel } from "./type/code-model.js";
  * @beta
  */
 export interface CSharpEmitterOptions {
+  "emitter-output-dir"?: string;
   "api-version"?: string;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
@@ -39,6 +40,12 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
+    "emitter-output-dir": {
+      type: "string",
+      nullable: true,
+      description:
+        "The output directory for the generated C# code. If not specified, the default is `./tsp-output`.",
+    },
     "api-version": {
       type: "string",
       nullable: true,
@@ -167,5 +174,7 @@ export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
  * @internal
  */
 export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
-  return resolvePath(context.emitterOutputDir ?? "./tsp-output");
+  return resolvePath(
+    context.emitterOutputDir ?? context.options["emitter-output-dir"] ?? "./tsp-output",
+  );
 }
