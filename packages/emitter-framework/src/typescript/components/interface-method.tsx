@@ -10,7 +10,7 @@ export interface InterfaceMethodProps extends Omit<ts.InterfaceMethodProps, "nam
   parametersMode?: "prepend" | "append" | "replace";
 }
 
-export function InterfaceMethod(props: InterfaceMethodProps) {
+export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
     ["type"],
