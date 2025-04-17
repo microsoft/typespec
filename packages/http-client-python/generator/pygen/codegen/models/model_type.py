@@ -318,11 +318,11 @@ class GeneratedModelType(ModelType):
             )
             if self.is_form_data:
                 file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor.model_base"),
-                "Model",
-                ImportType.LOCAL,
-                alias="_Model",
-            )
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor.model_base"),
+                    "Model",
+                    ImportType.LOCAL,
+                    alias="_Model",
+                )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
