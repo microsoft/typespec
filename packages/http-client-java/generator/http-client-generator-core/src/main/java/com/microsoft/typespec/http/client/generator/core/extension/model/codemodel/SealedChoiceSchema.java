@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents a choice of several values (ie, an 'enum').
  */
@@ -40,25 +35,5 @@ public class SealedChoiceSchema extends ChoiceSchema {
         }
 
         return sharedEquals(this, (SealedChoiceSchema) other);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.toJson(jsonWriter);
-    }
-
-    /**
-     * Deserializes a SealedChoiceSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A SealedChoiceSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static SealedChoiceSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, SealedChoiceSchema::new, (schema, fieldName, reader) -> {
-            if (!schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                reader.skipChildren();
-            }
-        });
     }
 }

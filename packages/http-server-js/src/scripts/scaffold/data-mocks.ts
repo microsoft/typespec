@@ -12,8 +12,10 @@ import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsContext, Module } from "../../ctx.js";
 import { isUnspeakable, parseCase } from "../../util/case.js";
 
-import { module as dateTimeHelper } from "../../../generated-defs/helpers/datetime.js";
 import { KEYWORDS } from "../../util/keywords.js";
+import { getFullyQualifiedTypeName } from "../../util/name.js";
+
+import { module as dateTimeHelper } from "../../../generated-defs/helpers/datetime.js";
 
 /**
  * Generates a mock value for a TypeSpec Model.
@@ -186,6 +188,8 @@ function mockUnion(ctx: JsContext, module: Module, union: Union): string | undef
  * @returns A JavaScript string representation of a suitable mock value for the scalar type
  */
 function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | undefined {
+  const dateTimeMode = ctx.options.datetime ?? "temporal-polyfill";
+
   if ($.scalar.isBoolean(scalar) || $.scalar.extendsBoolean(scalar)) {
     return JSON.stringify(true);
   }
@@ -205,8 +209,53 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
     }
   }
 
-  if ($.scalar.isUtcDateTime(scalar) || $.scalar.extendsUtcDateTime(scalar)) {
-    return "new Date()";
+  if ($.scalar.isUtcDateTime(scalar)) {
+    if (dateTimeMode === "date-duration") {
+      return "new Date()";
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      // Current instant
+      return "Temporal.Now.instant()";
+    }
+  }
+
+  if (
+    $.scalar.isOffsetDateTime(scalar) ||
+    $.scalar.isPlainDate(scalar) ||
+    $.scalar.isPlainTime(scalar)
+  ) {
+    if (dateTimeMode === "date-duration") {
+      return "new Date()";
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      // Current instant
+      switch ((scalar as Scalar).name) {
+        case "offsetDateTime":
+          return "Temporal.Now.zonedDateTimeISO()";
+        case "plainDate":
+          return "Temporal.Now.zonedDateTimeISO().toPlainDate()";
+        case "plainTime":
+          return "Temporal.Now.zonedDateTimeISO().toPlainTime()";
+        default:
+          throw new Error("Unexpected scalar type: " + (scalar as Scalar).name);
+      }
+    }
+  }
+
+  if (getFullyQualifiedTypeName(scalar) === "TypeSpec.unixTimestamp32") {
+    return "Math.floor(new Date().getTime() / 1000)";
   }
 
   if ($.scalar.isBytes(scalar) || $.scalar.extendsBytes(scalar)) {
@@ -214,12 +263,23 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
   }
 
   if ($.scalar.isDuration(scalar) || $.scalar.extendsDuration(scalar)) {
-    module.imports.push({
-      from: dateTimeHelper,
-      binder: ["Duration"],
-    });
+    if (dateTimeMode === "date-duration") {
+      module.imports.push({
+        from: dateTimeHelper,
+        binder: ["Duration"],
+      });
 
-    return 'Duration.parseISO8601("P1Y2M3DT4H5M6S")';
+      return 'Duration.parseISO8601("P1Y2M3DT4H5M6S")';
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      return `Temporal.Duration.from({ years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6 })`;
+    }
   }
 
   if ($.scalar.isOffsetDateTime(scalar) || $.scalar.extendsOffsetDateTime(scalar)) {

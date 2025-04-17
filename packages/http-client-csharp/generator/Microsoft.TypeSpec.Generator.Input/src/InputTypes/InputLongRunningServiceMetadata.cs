@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public sealed class InputOperationLongRunning
+    public sealed class InputLongRunningServiceMetadata
     {
-        public InputOperationLongRunning(int finalStateVia, InputOperationResponse finalResponse, string? resultPath)
+        public InputLongRunningServiceMetadata(int finalStateVia, InputOperationResponse finalResponse, string? resultPath)
         {
             FinalStateVia = finalStateVia;
             FinalResponse = finalResponse;
             ResultPath = resultPath;
         }
 
-        public InputOperationLongRunning() : this(1, new InputOperationResponse(), null) { }
+        public InputLongRunningServiceMetadata() : this(1, new InputOperationResponse(), null) { }
 
         public int FinalStateVia { get; }
         public InputOperationResponse FinalResponse { get; }

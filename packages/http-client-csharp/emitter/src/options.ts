@@ -17,6 +17,7 @@ export interface CSharpEmitterOptions {
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
   "generator-name"?: string;
+  "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
@@ -96,6 +97,12 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.",
+    },
+    "emitter-extension-path": {
+      type: "string",
+      nullable: true,
+      description:
+        "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
     },
     "update-code-model": {
       type: "object",
