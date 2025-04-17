@@ -238,7 +238,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(command, { stdio: [process.stdin, process.stdout] });
       const blackExcludeDirs = ["__pycache__/*", "node_modules/*", "venv/*", "env/*"];
       execSync(
-        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join(" | ")}"`,
+        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
         {
           stdio: [process.stdin, process.stdout],
         },
