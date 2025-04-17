@@ -410,7 +410,7 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_and_write_vendor_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        vendor_folder_path = exec_path / Path(f"_vendor")
+        vendor_folder_path = exec_path / Path("_vendor")
         if self.code_model.need_vendor_folder(async_mode=False, client_namespace=namespace):
             self.write_file(
                 vendor_folder_path / Path("__init__.py"),

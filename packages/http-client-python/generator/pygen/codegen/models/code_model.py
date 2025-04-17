@@ -269,7 +269,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def need_vendored_mixin(self) -> bool:
-        return any(c_n for c_n in self.client_namespace_types.keys() if self.has_mixin(c_n))
+        return any(c_n for c_n in self.client_namespace_types if self.has_mixin(c_n))
 
     def has_mixin(self, client_namespace: str) -> bool:
         return any(c for c in self.get_clients(client_namespace) if c.has_mixin)
