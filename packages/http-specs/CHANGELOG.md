@@ -1,5 +1,21 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.19
+
+No changes, version bump only.
+
+## 0.1.0-alpha.18
+
+### Features
+
+- [#6926](https://github.com/microsoft/typespec/pull/6926) Upgrade to express v5
+- [#6943](https://github.com/microsoft/typespec/pull/6943) Spector test for optional path parameter.
+
+### Bug Fixes
+
+- [#6954](https://github.com/microsoft/typespec/pull/6954) Updated expected float value of 1.1 to 1.25 - a value that can be exactly represented as IEEE754 (specs/payload/json-merge-patch/).
+
+
 ## 0.1.0-alpha.17
 
 No changes, version bump only.
