@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents a reference to external documentation.
  */
-public class ExternalDocumentation implements JsonSerializable<ExternalDocumentation> {
+public class ExternalDocumentation {
     private String description;
     private String url;
     private DictionaryAny extensions;
@@ -104,35 +99,5 @@ public class ExternalDocumentation implements JsonSerializable<ExternalDocumenta
         return Objects.equals(description, rhs.description)
             && Objects.equals(url, rhs.url)
             && Objects.equals(extensions, rhs.extensions);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("description", description)
-            .writeStringField("url", url)
-            .writeJsonField("extensions", extensions)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an ExternalDocumentation instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An ExternalDocumentation instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ExternalDocumentation fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ExternalDocumentation::new, (documentation, fieldName, reader) -> {
-            if ("description".equals(fieldName)) {
-                documentation.description = reader.getString();
-            } else if ("url".equals(fieldName)) {
-                documentation.url = reader.getString();
-            } else if ("extensions".equals(fieldName)) {
-                documentation.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

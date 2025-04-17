@@ -50,8 +50,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? externalDocsUrl = null;
             IReadOnlyList<string>? requestMediaTypes = null;
             bool bufferResponse = false;
-            InputOperationLongRunning? longRunning = null;
-            InputOperationPaging? paging = null;
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             string? crossLanguageDefinitionId = null;
@@ -73,8 +71,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("externalDocsUrl", ref externalDocsUrl)
                     || reader.TryReadComplexType("requestMediaTypes", options, ref requestMediaTypes)
                     || reader.TryReadBoolean("bufferResponse", ref bufferResponse)
-                    || reader.TryReadComplexType("longRunning", options, ref longRunning)
-                    || reader.TryReadComplexType("paging", options, ref paging)
                     || reader.TryReadBoolean("generateProtocolMethod", ref generateProtocolMethod)
                     || reader.TryReadBoolean("generateConvenienceMethod", ref generateConvenienceMethod)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
@@ -100,8 +96,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.ExternalDocsUrl = externalDocsUrl;
             operation.RequestMediaTypes = requestMediaTypes;
             operation.BufferResponse = bufferResponse;
-            operation.LongRunning = longRunning;
-            operation.Paging = paging;
             operation.GenerateProtocolMethod = generateProtocolMethod;
             operation.GenerateConvenienceMethod = generateConvenienceMethod;
             operation.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("InputOperation must have CrossLanguageDefinitionId");
