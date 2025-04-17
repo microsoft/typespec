@@ -1,4 +1,5 @@
-import { useTSNamePolicy } from "@alloy-js/typescript";
+import * as ay from "@alloy-js/core";
+import * as ts from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { getHttpPart } from "@typespec/http";
@@ -10,37 +11,47 @@ export interface InterfaceMemberProps {
   optional?: boolean;
 }
 
-export function InterfaceMember({ type, optional }: InterfaceMemberProps) {
-  const namer = useTSNamePolicy();
-  const name = namer.getName(type.name, "object-member-getter");
+export function InterfaceMember(props: InterfaceMemberProps) {
+  const namer = ts.useTSNamePolicy();
+  const name = namer.getName(props.type.name, "object-member-getter");
 
-  if ($.modelProperty.is(type)) {
-    const optionality = optional === true || type.optional === true ? "?" : "";
-
-    if (isNeverType(type.type)) {
+  if ($.modelProperty.is(props.type)) {
+    if (isNeverType(props.type.type)) {
       return null;
     }
 
-    let unpackedType = type.type;
-    const part = getHttpPart($.program, type.type);
+    let unpackedType = props.type.type;
+    const part = getHttpPart($.program, props.type.type);
     if (part) {
       unpackedType = part.type;
     }
 
     return (
-      <>
-        "{name}"{optionality}: <TypeExpression type={unpackedType} />;
-      </>
+      <ts.InterfaceMember
+        name={name}
+        optional={props.optional ?? props.type.optional}
+        type={<TypeExpression type={unpackedType} />}
+      />
     );
   }
 
-  if ($.operation.is(type)) {
-    const returnType = <TypeExpression type={type.returnType} />;
-    const params = <FunctionDeclaration.Parameters type={type.parameters} />;
+  if ($.operation.is(props.type)) {
+    const returnType = <TypeExpression type={props.type.returnType} />;
+    const params = (
+      <ay.Scope>
+        <FunctionDeclaration.Parameters type={props.type.parameters} />
+      </ay.Scope>
+    );
+
     return (
-      <>
-        {name}({params}): {returnType};
-      </>
+      <ts.InterfaceMember
+        name={name}
+        type={
+          <>
+            ({params}) =&gt {returnType}
+          </>
+        }
+      />
     );
   }
 }

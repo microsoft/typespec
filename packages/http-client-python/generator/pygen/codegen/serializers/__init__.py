@@ -202,6 +202,8 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
             package_files = _PACKAGE_FILES
+            if not self.code_model.license_description:
+                package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package_mode"]).exists():
             env = Environment(
                 loader=FileSystemLoader(str(Path(self.code_model.options["package_mode"]))),
@@ -273,7 +275,7 @@ class JinjaSerializer(ReaderAndWriter):
         if not "" in group_names:
             self.write_file(
                 rest_path / Path("__init__.py"),
-                self.code_model.options["license_header"],
+                self.code_model.license_header,
             )
 
     def _serialize_and_write_single_rest_layer(

@@ -1,3 +1,4 @@
+import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { JSONSchemaType } from "@typespec/compiler";
 
 // typespec-java has another "options.ts" file, with same "export".
@@ -12,13 +13,23 @@ export interface DevOptions {
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
 }
 
+export interface License {
+  name: string;
+  company?: string;
+  link?: string;
+  header?: string;
+  description?: string;
+}
+
 export interface EmitterOptions {
+  license?: License;
   "dev-options"?: DevOptions;
 }
 
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
+    ...UnbrandedSdkEmitterOptions.license,
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",

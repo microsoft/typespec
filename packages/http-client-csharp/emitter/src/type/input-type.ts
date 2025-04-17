@@ -5,17 +5,37 @@ import {
   AccessFlags,
   DecoratorInfo,
   SdkBuiltInKinds,
+  SdkModelPropertyType,
   SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
+import { InputParameter } from "./input-parameter.js";
+import { InputServiceMethod } from "./input-service-method.js";
 
-interface InputTypeBase {
+export interface InputClient extends DecoratedType {
+  kind: "client";
+  name: string;
+  namespace: string;
+  doc?: string;
+  summary?: string;
+  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
+  methods: InputServiceMethod[];
+  apiVersions: string[];
+  crossLanguageDefinitionId: string;
+  parent?: InputClient;
+  children?: InputClient[];
+}
+
+interface DecoratedType {
+  decorators?: DecoratorInfo[];
+}
+
+interface InputTypeBase extends DecoratedType {
   kind: string;
   summary?: string;
   doc?: string;
   deprecation?: string;
-  decorators?: DecoratorInfo[];
 }
 
 export type InputType =
@@ -103,7 +123,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
+  kind: SdkModelPropertyType["kind"];
   name: string;
   serializedName: string;
   type: InputType;
@@ -112,7 +132,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

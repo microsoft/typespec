@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -84,36 +80,5 @@ public class AndSchema extends ComplexSchema {
         }
         AndSchema rhs = ((AndSchema) other);
         return Objects.equals(allOf, rhs.allOf) && Objects.equals(discriminatorValue, rhs.discriminatorValue);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject())
-            .writeArrayField("allOf", allOf, JsonWriter::writeJson)
-            .writeStringField("discriminatorValue", discriminatorValue)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an AndSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An AndSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static AndSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, AndSchema::new, (schema, fieldName, reader) -> {
-            if (schema.tryConsumeParentProperties(schema, fieldName, reader)) {
-                return;
-            }
-
-            if ("allOf".equals(fieldName)) {
-                schema.allOf = reader.readArray(ComplexSchema::fromJson);
-            } else if ("discriminatorValue".equals(fieldName)) {
-                schema.discriminatorValue = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

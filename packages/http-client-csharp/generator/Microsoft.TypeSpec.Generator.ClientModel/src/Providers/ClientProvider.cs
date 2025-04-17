@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -36,6 +36,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
+        /// <summary>
+        /// This field is not one of the fields in this client, but the field in my parent client to get myself.
+        /// </summary>
         private readonly FieldProvider? _clientCachingField;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
@@ -142,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             _endpointParameterName = new(GetEndpointParameterName);
             _additionalClientFields = new(BuildAdditionalClientFields);
-            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Methods.SelectMany(m => m.Operation.Parameters).Where(p => p.Kind == InputParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
             _subClients = new(GetSubClients);
@@ -504,12 +507,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
-            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Operations.Count * 4) + subClientCount);
+            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
 
-            // Build methods for all the operations
-            foreach (var operation in _inputClient.Operations)
+            foreach (var serviceMethod in _inputClient.Methods)
             {
-                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(serviceMethod, this);
                 if (clientMethods != null)
                 {
                     methods.AddRange(clientMethods);
@@ -597,19 +599,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
-            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
-            var subClients = new List<ClientProvider>(inputClients.Count);
+            var subClients = new List<ClientProvider>(_inputClient.Children.Count);
 
-            foreach (var client in inputClients)
+            foreach (var client in _inputClient.Children)
             {
-                // add direct child clients
-                if (client.Parent != null && client.Parent == _inputClient.Key)
+                var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+                if (subClient != null)
                 {
-                    var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
-                    if (subClient != null)
-                    {
-                        subClients.Add(subClient);
-                    }
+                    subClients.Add(subClient);
                 }
             }
 

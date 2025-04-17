@@ -52,6 +52,8 @@ By default, the `Content-Type` of individual request parts is set automatically 
 
 See [Content types](./content-types.md) for more information about how the HTTP library handles the Content-Type header.
 
+See [Files](./files.md) for more information about how the HTTP library handles file bodies.
+
 ## Part names
 
 There is multiple ways to define a part name. The priority is as follows:

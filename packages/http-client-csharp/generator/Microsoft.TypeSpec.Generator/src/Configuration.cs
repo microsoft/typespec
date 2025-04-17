@@ -23,28 +23,26 @@ namespace Microsoft.TypeSpec.Generator
         private const string GeneratedFolderName = "Generated";
         private const string ConfigurationFileName = "Configuration.json";
 
-        // for mocking
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Configuration()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            OutputDirectory = null!;
-            AdditionalConfigOptions = null!;
-            PackageName = null!;
         }
 
         private Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,
-            bool clearOutputFolder,
             string packageName,
             bool disableXmlDocs,
-            UnreferencedTypesHandlingOption unreferencedTypesHandling)
+            UnreferencedTypesHandlingOption unreferencedTypesHandling,
+            LicenseInfo? licenseInfo)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
-            ClearOutputFolder = clearOutputFolder;
             PackageName = packageName;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
+            LicenseInfo = licenseInfo;
         }
 
         /// <summary>
@@ -52,7 +50,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static class Options
         {
-            public const string ClearOutputFolder = "clear-output-folder";
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
@@ -67,6 +64,11 @@ namespace Microsoft.TypeSpec.Generator
         /// Gets the root output directory for the generated library.
         /// </summary>
         public string OutputDirectory { get; }
+
+        /// <summary>
+        /// Gets the license information for the generated library.
+        /// </summary>
+        public LicenseInfo? LicenseInfo { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 
@@ -83,11 +85,6 @@ namespace Microsoft.TypeSpec.Generator
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
         internal string PackageName { get; }
-
-        /// <summary>
-        /// True if the output folder should be cleared before generating the code.
-        /// </summary>
-        internal bool ClearOutputFolder { get; private set; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -121,10 +118,32 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadOption(root, Options.ClearOutputFolder),
                 ReadRequiredStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
-                ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
+                ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
+                ReadLicenseInfo(root));
+        }
+
+        private static LicenseInfo? ReadLicenseInfo(JsonElement root)
+        {
+            if (root.TryGetProperty("license", out JsonElement licenseElement))
+            {
+                // All license properties are required. They are defaulted to empty string.
+                string name = licenseElement.GetProperty("name").GetString()!;
+                string company = licenseElement.GetProperty("company").GetString()!;
+                string link = licenseElement.GetProperty("link").GetString()!;
+                string header = licenseElement.GetProperty("header").GetString()!;
+                string description = licenseElement.GetProperty("description").GetString()!;
+
+                return new LicenseInfo(
+                    name,
+                    company,
+                    link,
+                    header,
+                    description);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -132,7 +151,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.ClearOutputFolder, true },
             { Options.DisableXmlDocs, false },
         };
 
@@ -141,7 +159,6 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly HashSet<string> _knownOptions = new()
         {
-            Options.ClearOutputFolder,
             Options.PackageName,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,

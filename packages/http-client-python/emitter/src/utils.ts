@@ -105,11 +105,6 @@ export function camelToSnakeCase(name: string): string {
   return result_final;
 }
 
-export function removeUnderscoresFromNamespace(name?: string): string {
-  // needed because of the _specs_ tests
-  return (name || "").replace(/_/g, "");
-}
-
 export function getImplementation(
   context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
@@ -267,7 +262,7 @@ export function getRootNamespace(context: PythonSdkContext): string {
     rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
 
-  return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
+  return rootNamespace.toLowerCase();
 }
 
 export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
@@ -277,7 +272,7 @@ export function getClientNamespace(context: PythonSdkContext, clientNamespace: s
   ) {
     return getRootNamespace(context);
   }
-  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return clientNamespace.toLowerCase();
 }
 
 function parseToken(token: Token): string {

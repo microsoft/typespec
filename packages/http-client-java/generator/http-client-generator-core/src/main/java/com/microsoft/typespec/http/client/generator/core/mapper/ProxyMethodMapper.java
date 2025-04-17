@@ -93,7 +93,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * <p>
      * operationId or language.default could be null for generated method like "listNext"
      * </p>
-     * 
+     *
      * @param operation the operation.
      * @param settings the settings that may use to resolve the operation id.
      * @return the operation id.
@@ -257,7 +257,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * the method check for mediaTypes first as that is more specific than the knownMediaType
      * if there are multiple, we'll use the generic type
      * </p>
-     * 
+     *
      * @param request the request.
      * @return the content type defined for the request.
      */
@@ -305,59 +305,68 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         builder.examples(getExamples(operation, builderSource.getOperationId()));
         // The base async proxy method.
         //
-        final ProxyMethod proxyMethod = builder.build();
-        methods.add(proxyMethod);
+        final ProxyMethod method = builder.build();
+        methods.add(method);
 
-        // The async proxy method variant with custom headers.
+        // The async proxy method variant without custom headers.
         //
-        final ProxyMethod customHeaderProxyMethod
-            = createCustomHeaderMethod(operation, settings, operationName, proxyMethod);
-        if (customHeaderProxyMethod != null) {
-            methods.add(customHeaderProxyMethod);
+        final ProxyMethod noCustomHeaderMethod = createNoCustomHeaderMethod(operation, settings, operationName, method);
+        if (noCustomHeaderMethod != null) {
+            methods.add(noCustomHeaderMethod);
         }
 
-        // The BinaryData overloaded async proxy method variant, and
-        // the async proxy method with BinaryData and custom headers.
+        // The async proxy method overload with BinaryData parameter,
         //
-        final ProxyMethod binaryDataProxyMethod
-            = createMethodOverloadForBinaryData(proxyMethod, proxyMethod.getParameters());
-        if (binaryDataProxyMethod != null) {
-            methods.add(binaryDataProxyMethod);
-            final ProxyMethod customHeaderBinaryDataProxyMethod
-                = createCustomHeaderMethod(operation, settings, operationName, binaryDataProxyMethod);
-            if (customHeaderBinaryDataProxyMethod != null) {
-                methods.add(customHeaderBinaryDataProxyMethod);
+        final ProxyMethod binaryDataMethod = createMethodOverloadForBinaryData(method);
+        if (binaryDataMethod != null) {
+            methods.add(binaryDataMethod);
+            final ProxyMethod noCustomHeaderBinaryDataMethod
+                = createNoCustomHeaderMethod(operation, settings, operationName, binaryDataMethod);
+            if (noCustomHeaderBinaryDataMethod != null) {
+                methods.add(noCustomHeaderBinaryDataMethod);
             }
         }
 
         // The sync proxy method variants.
         //
-        final List<ProxyMethod> asyncProxyMethods = new ArrayList<>(methods);
+        final List<ProxyMethod> asyncMethods = new ArrayList<>(methods);
         if (settings.isSyncStackEnabled()) {
             final List<ProxyMethod> syncMethods = createSyncProxyMethods(methods);
             methods.addAll(syncMethods);
         }
         if (settings.getSyncMethods() == JavaSettings.SyncMethodsGeneration.SYNC_ONLY) {
-            methods.removeAll(asyncProxyMethods);
+            methods.removeAll(asyncMethods);
         }
         return methods;
     }
 
-    private static ProxyMethod createCustomHeaderMethod(Operation operation, JavaSettings settings,
-        String operationName, ProxyMethod baseMethod) {
+    /**
+     * If the given {@code proxyMethod} returns Mono&lt;ResponseBase&lt;H, T&gt&gt;, then create a new proxy method
+     * that returns Mono&lt;Response&lt;T&gt&gt; i.e. return type with custom headers (H) dropped.
+     *
+     * @param operation the operation.
+     * @param settings the Java settings.
+     * @param operationName the base name to use for the new method name, it will be named as
+     * {operationName}NoCustomHeaders.
+     * @param method the proxy method to inspect for ResponseBase return type.
+     * @return the new proxy method variant that ignores custom headers in its return type.
+     */
+    private static ProxyMethod createNoCustomHeaderMethod(Operation operation, JavaSettings settings,
+        String operationName, ProxyMethod method) {
         if (settings.isDisableTypedHeadersMethods()) {
+            // disable-typed-headers-methods:true would have never produced a method returning ResponseBase<H, T>.
             return null;
         }
-        final IType responseBodyType = baseMethod.getResponseBodyType();
-        final IType asyncRestResponseReturnType = baseMethod.getReturnType();
-        final ProxyMethod.Builder builder = baseMethod.newBuilder();
-        if (settings.isNoCustomHeaders()
-            && asyncRestResponseReturnType instanceof GenericType
-            && ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0] instanceof GenericType
-            && ((GenericType) ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0]).getName()
-                .equals("ResponseBase")) {
+        final boolean disableNoCustomHeaderMethod = !settings.isNoCustomHeaders();
+        if (disableNoCustomHeaderMethod) {
+            // no-custom-headers:false means do not generate the '*NoCustomHeaders(..)' method.
+            return null;
+        }
+
+        if (returnsResponseBase(method)) {
+            final ProxyMethod.Builder builder = method.newBuilder();
             final IType asyncResponseWithNoHeaders = ResponseTypeFactory.createAsyncResponse(operation,
-                responseBodyType, settings.isDataPlaneClient(), settings, true);
+                method.getResponseBodyType(), settings.isDataPlaneClient(), settings, true);
             builder.returnType(asyncResponseWithNoHeaders);
             builder.name(operationName + "NoCustomHeaders");
             builder.customHeaderIgnored(true);
@@ -367,32 +376,32 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     }
 
     /**
-     * if the given method has a Flux of ByteBuffer parameter, create a method overload for it with BinaryData.
+     * if the given method has a Flux&lt;ByteBuffer&gt; parameter, create a method overload with BinaryData parameter.
      *
      * @param method the method to check and create overload for.
-     * @param parameters the parameters.
      * @return the new method overload with BinaryData parameter, or null if no Flux of ByteBuffer parameter found.
      */
-    private static ProxyMethod createMethodOverloadForBinaryData(ProxyMethod method,
-        List<ProxyMethodParameter> parameters) {
-        final ProxyMethodParameter fluxByteBufferParameter = parameters.stream()
+    private static ProxyMethod createMethodOverloadForBinaryData(ProxyMethod method) {
+        final ProxyMethodParameter fluxByteBufferParameter = method.getParameters()
+            .stream()
             .filter(parameter -> parameter.getClientType() == GenericType.FLUX_BYTE_BUFFER)
             .findFirst()
             .orElse(null);
         if (fluxByteBufferParameter == null) {
             return null;
         }
-        final ProxyMethod.Builder builder = method.newBuilder();
-        final List<ProxyMethodParameter> methodParameters = new ArrayList<>(parameters);
-        final int i = parameters.indexOf(fluxByteBufferParameter);
-        methodParameters.remove(i);
+        final List<ProxyMethodParameter> parameters = new ArrayList<>(method.getParameters());
+        final int i = method.getParameters().indexOf(fluxByteBufferParameter);
+        parameters.remove(i);
         final ProxyMethodParameter binaryDataParameter = fluxByteBufferParameter.newBuilder()
             .wireType(ClassType.BINARY_DATA)
             .rawType(ClassType.BINARY_DATA)
             .clientType(ClassType.BINARY_DATA)
             .build();
-        methodParameters.add(i, binaryDataParameter);
-        builder.parameters(methodParameters);
+        parameters.add(i, binaryDataParameter);
+
+        final ProxyMethod.Builder builder = method.newBuilder();
+        builder.parameters(parameters);
         return builder.build();
     }
 
@@ -491,6 +500,25 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                     .map(new XmsExampleWrapper(e.getValue(), operationId, e.getKey()))));
         }
         return null;
+    }
+
+    /**
+     * Check if the given async proxy method's return type is Mono&lt;ResponseBase&lt;H, T&gt&gt;
+     *
+     * @param proxyMethod the proxy method to check.
+     * @return true if the proxy method returns ResponseBase wrapped in a Mono, false otherwise.
+     */
+    private static boolean returnsResponseBase(ProxyMethod proxyMethod) {
+        final IType type = proxyMethod.getReturnType();
+        if (!(type instanceof GenericType)) {
+            return false;
+        }
+        final IType typeArg = ((GenericType) type).getTypeArguments()[0];
+        if (!(typeArg instanceof GenericType)) {
+            return false;
+        }
+        final GenericType genericTypeArg = ((GenericType) typeArg);
+        return genericTypeArg.getName().equals("ResponseBase");
     }
 
     private static final class SwaggerExceptionDefinitions {

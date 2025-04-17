@@ -36,7 +36,7 @@ describe("Typescript Enum Member Expression", () => {
         three = 3
       }
       interface Bar {
-        "one": Foo.one;
+        one: Foo.one;
       }
     `);
   });
@@ -70,7 +70,7 @@ describe("Typescript Enum Member Expression", () => {
         three = "three"
       }
       interface Bar {
-        "one": Foo.one;
+        one: Foo.one;
       }
     `);
   });
@@ -102,7 +102,7 @@ describe("Typescript Union Member Expression", () => {
     expect(output).toBe(d`
       type Foo = 1 | 2 | 3;
       interface Bar {
-        "one": 1;
+        one: 1;
       }
     `);
   });
@@ -132,7 +132,7 @@ describe("Typescript Union Member Expression", () => {
     expect(output).toBe(d`
       type Foo = "one" | "two" | "three";
       interface Bar {
-        "one": "one";
+        one: "one";
       }
     `);
   });

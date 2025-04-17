@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.ClientModel;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
@@ -13,33 +13,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private static TypeProvider[] BuildClientTypes()
         {
             var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
-            var clientTypes = new List<TypeProvider>();
+            var clients = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {
-                var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-                if (client == null)
-                {
-                    continue;
-                }
-                clientTypes.Add(client);
-                clientTypes.Add(client.RestClient);
-                var clientOptions = client.ClientOptions.Value;
-                if (clientOptions != null)
-                {
-                    clientTypes.Add(clientOptions);
-                }
-
-                foreach (var method in client.Methods)
-                {
-                    if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
-                    {
-                        clientTypes.Add(scmMethod.CollectionDefinition);
-                        ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
-                    }
-                }
+                BuildClient(inputClient, clients);
             }
 
-            return [.. clientTypes];
+            return [.. clients];
+        }
+
+        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
+        {
+            foreach (var child in inputClient.Children)
+            {
+                BuildClient(child, clients);
+            }
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            if (client == null)
+            {
+                return;
+            }
+            clients.Add(client);
+            clients.Add(client.RestClient);
+            var clientOptions = client.ClientOptions.Value;
+            if (clientOptions != null)
+            {
+                clients.Add(clientOptions);
+            }
+
+            foreach (var method in client.Methods)
+            {
+                if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
+                {
+                    clients.Add(scmMethod.CollectionDefinition);
+                    ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
+                }
+            }
         }
 
         protected override TypeProvider[] BuildTypeProviders()

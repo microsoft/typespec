@@ -207,6 +207,7 @@ export async function activate(context: ExtensionContext) {
         await telemetryClient.doOperationWithTelemetry(
           TelemetryEventName.StartExtension,
           async (tel: OperationTelemetryEvent) => {
+            tel.lastStep = "Create LSP client";
             return await recreateLSPClient(context, tel.activityId);
           },
         );

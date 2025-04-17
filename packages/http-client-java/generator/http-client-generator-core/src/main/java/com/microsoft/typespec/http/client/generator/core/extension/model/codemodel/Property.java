@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -163,50 +159,5 @@ public class Property extends Value {
     @Override
     public void setSummary(String summary) {
         this.summary = summary;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeBooleanField("readOnly", readOnly)
-            .writeStringField("serializedName", serializedName)
-            .writeBooleanField("isDiscriminator", isDiscriminator)
-            .writeArrayField("flattenedNames", flattenedNames, JsonWriter::writeString)
-            .writeArrayField("originalParameter", originalParameter, JsonWriter::writeJson)
-            .writeStringField("clientDefaultValue", clientDefaultValue)
-            .writeStringField("summary", summary)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Property instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Property instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Property fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Property::new, (property, fieldName, reader) -> {
-            if (property.tryConsumeParentProperties(property, fieldName, reader)) {
-                return;
-            }
-
-            if ("readOnly".equals(fieldName)) {
-                property.readOnly = reader.getBoolean();
-            } else if ("serializedName".equals(fieldName)) {
-                property.serializedName = reader.getString();
-            } else if ("isDiscriminator".equals(fieldName)) {
-                property.isDiscriminator = reader.getBoolean();
-            } else if ("flattenedNames".equals(fieldName)) {
-                property.flattenedNames = reader.readArray(JsonReader::getString);
-            } else if ("originalParameter".equals(fieldName)) {
-                property.originalParameter = reader.readArray(Parameter::fromJson);
-            } else if ("clientDefaultValue".equals(fieldName)) {
-                property.clientDefaultValue = reader.getString();
-            } else if ("summary".equals(fieldName)) {
-                property.summary = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

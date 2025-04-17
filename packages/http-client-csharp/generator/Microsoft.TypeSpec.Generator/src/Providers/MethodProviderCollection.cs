@@ -8,17 +8,17 @@ using Microsoft.TypeSpec.Generator.Input;
 namespace Microsoft.TypeSpec.Generator.Providers
 {
     /// <summary>
-    /// Represents an immutable collection of methods that are associated with an operation <see cref="InputOperation"/>.
+    /// Represents an immutable collection of methods that are associated with a service method <see cref="InputServiceMethod"/>.
     /// </summary>
     public class MethodProviderCollection : IReadOnlyList<MethodProvider>
     {
         private IReadOnlyList<MethodProvider>? _cSharpMethods;
-        protected InputOperation Operation { get; private init; }
+        protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; private init; }
 
-        public MethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
+        public MethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {
-            Operation = operation;
+            ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
         }
 

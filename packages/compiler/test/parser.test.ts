@@ -1,7 +1,8 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { CharCode } from "../src/core/charcode.js";
-import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
@@ -31,6 +32,7 @@ describe("compiler: parser", () => {
 
     // Allowed in decorator calls
     parseEach(reserved.map((x) => `@${x} model Foo {}`));
+    parseEach(reserved.map((x) => `@@${x}(Foo);`));
 
     // Allowed in member reference
     parseEach(reserved.map((x) => `alias T = Base.${x};`));

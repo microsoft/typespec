@@ -19,16 +19,16 @@ namespace _Type.Union
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<GetResponse8> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<GetResponse1> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<GetResponse8>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<GetResponse1>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Send(GetResponseProp3 prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Send(GetResponseProp1 prop, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(GetResponseProp3 prop, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SendAsync(GetResponseProp1 prop, CancellationToken cancellationToken = default) => throw null;
     }
 }

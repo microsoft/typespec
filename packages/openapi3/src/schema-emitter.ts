@@ -36,7 +36,6 @@ import {
   getDiscriminatedUnionFromInheritance,
   getDiscriminator,
   getDoc,
-  getEncode,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -79,7 +78,6 @@ import {
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
   includeDerivedModel,
-  isBytesKeptRaw,
   isStdType,
 } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
@@ -288,6 +286,14 @@ export class OpenAPI3SchemaEmitterBase<
     return this.modelDeclaration(model, name);
   }
 
+  unionInstantiation(union: Union, name: string): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.unionLiteral(union);
+    }
+
+    return this.unionDeclaration(union, name);
+  }
+
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       type: "array",
@@ -397,27 +403,9 @@ export class OpenAPI3SchemaEmitterBase<
 
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    const isMultipart = this.getContentType().startsWith("multipart/");
-    if (isMultipart) {
-      if (isBytesKeptRaw(program, prop.type) && getEncode(program, prop) === undefined) {
-        return this.getRawBinarySchema();
-      }
-      if (
-        prop.type.kind === "Model" &&
-        isArrayModelType(program, prop.type) &&
-        isBytesKeptRaw(program, prop.type.indexer.value)
-      ) {
-        return { type: "array", items: this.getRawBinarySchema() };
-      }
-    }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
-      referenceContext:
-        isMultipart &&
-        (prop.type.kind !== "Union" ||
-          ![...prop.type.variants.values()].some((x) => isBytesKeptRaw(program, x.type)))
-          ? { contentType: "application/json" }
-          : {},
+      referenceContext: {},
     });
 
     if (refSchema.kind !== "code") {

@@ -9,7 +9,13 @@ import {
   Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { parseCase } from "../../util/case.js";
+import { JsContext, Module } from "../../ctx.js";
+import { isUnspeakable, parseCase } from "../../util/case.js";
+
+import { KEYWORDS } from "../../util/keywords.js";
+import { getFullyQualifiedTypeName } from "../../util/name.js";
+
+import { module as dateTimeHelper } from "../../../generated-defs/helpers/datetime.js";
 
 /**
  * Generates a mock value for a TypeSpec Model.
@@ -19,13 +25,13 @@ import { parseCase } from "../../util/case.js";
  * @returns A JavaScript string representation of the mock data
  * @throws Error if a property cannot be mocked
  */
-function mockModel(type: Model): string {
+function mockModel(ctx: JsContext, module: Module, type: Model): string {
   if ($.array.is(type)) {
-    return mockArray(type);
+    return mockArray(ctx, module, type);
   }
 
   if ($.record.is(type)) {
-    return mockRecord(type);
+    return mockRecord(ctx, module, type);
   }
 
   const mock: string[][] = [];
@@ -37,18 +43,18 @@ function mockModel(type: Model): string {
   }
 
   for (const [name, prop] of properties) {
-    if (prop.optional) {
+    if (prop.optional || isUnspeakable(prop.name)) {
       continue;
     }
 
-    const propMock = mockType(prop.type);
+    const propMock = mockType(ctx, module, prop.type);
 
     if (!propMock) {
       throw new Error(`Could not mock property ${name} of type ${prop.type.kind}`);
     }
 
     const propName = parseCase(name).camelCase;
-    mock.push([propName, propMock]);
+    mock.push([KEYWORDS.has(propName) ? `_${propName}` : propName, propMock]);
   }
 
   // If all properties were optional, return an empty object
@@ -67,9 +73,9 @@ function mockModel(type: Model): string {
  * @param type - The TypeSpec array Model to mock
  * @returns A JavaScript string representation of the mock array
  */
-function mockArray(type: Model): string {
+function mockArray(ctx: JsContext, module: Module, type: Model): string {
   const elementType = $.array.getElementType(type);
-  const mockedType = mockType(elementType);
+  const mockedType = mockType(ctx, module, elementType);
 
   // If we can't mock the element type, return an empty array
   if (mockedType === undefined) {
@@ -85,9 +91,9 @@ function mockArray(type: Model): string {
  * @param type - The TypeSpec record Model to mock
  * @returns A JavaScript string representation of the mock record
  */
-function mockRecord(type: Model): string {
+function mockRecord(ctx: JsContext, module: Module, type: Model): string {
   const elementType = $.record.getElementType(type);
-  const mockedType = mockType(elementType);
+  const mockedType = mockType(ctx, module, elementType);
 
   if (mockedType === undefined) {
     return "{}";
@@ -104,8 +110,12 @@ function mockRecord(type: Model): string {
  * @param prop - The TypeSpec model property to mock
  * @returns A JavaScript string representation of the mocked property or undefined if it cannot be mocked
  */
-function mockModelProperty(prop: ModelProperty): string | undefined {
-  return mockType(prop.type);
+function mockModelProperty(
+  ctx: JsContext,
+  module: Module,
+  prop: ModelProperty,
+): string | undefined {
+  return mockType(ctx, module, prop.type);
 }
 
 /**
@@ -125,9 +135,9 @@ function mockLiteral(type: LiteralType): string {
  * @param type - The TypeSpec type to mock
  * @returns A JavaScript string representation of the mock data, or undefined if the type cannot be mocked
  */
-export function mockType(type: Type): string | undefined {
+export function mockType(ctx: JsContext, module: Module, type: Type): string | undefined {
   if ($.model.is(type)) {
-    return mockModel(type);
+    return mockModel(ctx, module, type);
   }
 
   if ($.literal.is(type)) {
@@ -135,15 +145,15 @@ export function mockType(type: Type): string | undefined {
   }
 
   if ($.modelProperty.is(type)) {
-    return mockModelProperty(type);
+    return mockModelProperty(ctx, module, type);
   }
 
   if ($.scalar.is(type)) {
-    return mockScalar(type);
+    return mockScalar(ctx, module, type);
   }
 
   if ($.union.is(type)) {
-    return mockUnion(type);
+    return mockUnion(ctx, module, type);
   }
 
   if (isVoidType(type)) {
@@ -159,12 +169,12 @@ export function mockType(type: Type): string | undefined {
  * @param union - The TypeSpec union to mock
  * @returns A JavaScript string representation of a mock for one variant, or undefined if no suitable variant is found
  */
-function mockUnion(union: Union): string | undefined {
+function mockUnion(ctx: JsContext, module: Module, union: Union): string | undefined {
   for (const variant of union.variants.values()) {
     if (isErrorType(variant.type)) {
       continue;
     }
-    return mockType(variant.type);
+    return mockType(ctx, module, variant.type);
   }
 
   return undefined;
@@ -177,16 +187,75 @@ function mockUnion(union: Union): string | undefined {
  * @param scalar - The TypeSpec scalar to mock
  * @returns A JavaScript string representation of a suitable mock value for the scalar type
  */
-function mockScalar(scalar: Scalar): string | undefined {
+function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | undefined {
+  const dateTimeMode = ctx.options.datetime ?? "temporal-polyfill";
+
   if ($.scalar.isBoolean(scalar) || $.scalar.extendsBoolean(scalar)) {
     return JSON.stringify(true);
   }
   if ($.scalar.isNumeric(scalar) || $.scalar.extendsNumeric(scalar)) {
-    return JSON.stringify(42);
+    if (
+      $.scalar.extendsSafeint(scalar) ||
+      $.scalar.extendsInt32(scalar) ||
+      $.scalar.extendsUint32(scalar) ||
+      $.scalar.extendsFloat64(scalar)
+    ) {
+      return "42";
+    } else if ($.scalar.extendsInteger(scalar)) {
+      return "42n";
+    } else {
+      module.imports.push({ from: "decimal.js", binder: ["Decimal"] });
+      return "new Decimal(42)";
+    }
   }
 
-  if ($.scalar.isUtcDateTime(scalar) || $.scalar.extendsUtcDateTime(scalar)) {
-    return "new Date()";
+  if ($.scalar.isUtcDateTime(scalar)) {
+    if (dateTimeMode === "date-duration") {
+      return "new Date()";
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      // Current instant
+      return "Temporal.Now.instant()";
+    }
+  }
+
+  if (
+    $.scalar.isOffsetDateTime(scalar) ||
+    $.scalar.isPlainDate(scalar) ||
+    $.scalar.isPlainTime(scalar)
+  ) {
+    if (dateTimeMode === "date-duration") {
+      return "new Date()";
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      // Current instant
+      switch ((scalar as Scalar).name) {
+        case "offsetDateTime":
+          return "Temporal.Now.zonedDateTimeISO()";
+        case "plainDate":
+          return "Temporal.Now.zonedDateTimeISO().toPlainDate()";
+        case "plainTime":
+          return "Temporal.Now.zonedDateTimeISO().toPlainTime()";
+        default:
+          throw new Error("Unexpected scalar type: " + (scalar as Scalar).name);
+      }
+    }
+  }
+
+  if (getFullyQualifiedTypeName(scalar) === "TypeSpec.unixTimestamp32") {
+    return "Math.floor(new Date().getTime() / 1000)";
   }
 
   if ($.scalar.isBytes(scalar) || $.scalar.extendsBytes(scalar)) {
@@ -194,7 +263,23 @@ function mockScalar(scalar: Scalar): string | undefined {
   }
 
   if ($.scalar.isDuration(scalar) || $.scalar.extendsDuration(scalar)) {
-    return JSON.stringify("P1Y2M3DT4H5M6S");
+    if (dateTimeMode === "date-duration") {
+      module.imports.push({
+        from: dateTimeHelper,
+        binder: ["Duration"],
+      });
+
+      return 'Duration.parseISO8601("P1Y2M3DT4H5M6S")';
+    } else {
+      if (dateTimeMode === "temporal-polyfill") {
+        module.imports.push({
+          from: "temporal-polyfill",
+          binder: ["Temporal"],
+        });
+      }
+
+      return `Temporal.Duration.from({ years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6 })`;
+    }
   }
 
   if ($.scalar.isOffsetDateTime(scalar) || $.scalar.extendsOffsetDateTime(scalar)) {

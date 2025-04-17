@@ -12,7 +12,6 @@ export interface CSharpEmitterOptions {
   "api-version"?: string;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
@@ -24,6 +23,13 @@ export interface CSharpEmitterOptions {
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
   "package-name"?: string;
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
 }
 
 /**
@@ -55,12 +61,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Set to `true` to overwrite the csproj if it already exists. The default value is `false`.",
-    },
-    "clear-output-folder": {
-      type: "boolean",
-      nullable: true,
-      description:
-        "Indicates if you want to clear the output folder before generating. The default value is `true`.",
     },
     "save-inputs": {
       type: "boolean",
@@ -141,7 +141,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
 export const defaultOptions = {
   "api-version": "latest",
   "new-project": false,
-  "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
@@ -149,7 +148,6 @@ export const defaultOptions = {
   debug: undefined,
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
-  "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
   "sdk-context-options": undefined,
 };

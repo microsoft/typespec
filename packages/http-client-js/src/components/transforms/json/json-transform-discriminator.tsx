@@ -78,9 +78,9 @@ export function JsonTransformDiscriminatorDeclaration(
   const inputType = props.target === "transport" ? typeRef : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
-    input_: { type: inputType, refkey: inputRef, optional: true },
-  };
+  const parameters: ts.ParameterDescriptor[] = [
+    { name: "input_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   return (
     <ts.FunctionDeclaration

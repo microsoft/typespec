@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.67.2",
+  "version": "1.0.0-rc.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -52,6 +52,9 @@
     "./internals": {
       "types": "./dist/src/internals/index.d.ts",
       "import": "./dist/src/internals/index.js"
+    },
+    "./internals/prettier-formatter": {
+      "import": "./dist/src/internals/prettier-formatter.js"
     }
   },
   "browser": {
@@ -75,7 +78,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
-    "build": "npm run gen-manifest && npm run build:init-templates-index && npm run compile && npm run generate-tmlanguage",
+    "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
@@ -107,7 +110,7 @@
     "prettier": "~3.5.3",
     "semver": "^7.7.1",
     "tar": "^7.4.3",
-    "temporal-polyfill": "^0.2.5",
+    "temporal-polyfill": "^0.3.0",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
     "yaml": "~2.7.0",

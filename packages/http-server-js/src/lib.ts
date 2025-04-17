@@ -4,23 +4,57 @@
 import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface JsEmitterOptions {
+  /** If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.
+
+If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router. */
   express?: boolean;
+
+  /** By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set
+to `true`, the emitter will only emit those types that are reachable from an HTTP operation. */
   "omit-unreachable-types": boolean;
+  /** If set to `true`, the emitter will not format the generated code using Prettier. */
   "no-format": boolean;
+
+  /**
+   * The type of datetime models to use for TypeSpecs DateTime and Duration types.
+   *
+   * Options:
+   * - `temporal-polyfill`: (Default) Uses the Temporal API from the `temporal-polyfill` package.
+   * - `temporal`: Uses the native Temporal API, requires that your target environment supports it. This will become the default setting in the future.
+   * - `date-duration`: Uses the built-in `Date` and a custom `Duration` type. Not recommended.
+   */
+  datetime?: "temporal-polyfill" | "temporal" | "date-duration";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    express: { type: "boolean", nullable: true, default: false },
+    express: {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description:
+        "If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.\n\nIf this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.",
+    },
+    datetime: {
+      type: "string",
+      enum: ["temporal-polyfill", "temporal", "date-duration"],
+      default: "temporal-polyfill",
+      nullable: true,
+      description: "The type of datetime models to use for TypeSpecs DateTime and Duration types.",
+    },
     "omit-unreachable-types": {
       type: "boolean",
       default: false,
+      description:
+        "By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set to `true`, the emitter will only emit those types that are reachable from an HTTP operation.",
     },
     "no-format": {
       type: "boolean",
       default: false,
+      description:
+        "If set to `true`, the emitter will not format the generated code using Prettier.",
     },
   },
   required: [],
@@ -129,6 +163,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
+      },
+    },
+    "unrecognized-media-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`unrecognized media (MIME) type '${"mediaType"}' for type '${"type"}'.`,
       },
     },
   },

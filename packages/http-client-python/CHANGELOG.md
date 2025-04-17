@@ -1,5 +1,41 @@
 # Change Log - @typespec/http-client-python
 
+## 0.10.0
+
+### Features
+
+- [#5925](https://github.com/microsoft/typespec/pull/5925) Improve user experience in multi clouds scenario
+
+### Bug Fixes
+
+- [#7005](https://github.com/microsoft/typespec/pull/7005) Fix docstring type for multi namespaces
+- [#7007](https://github.com/microsoft/typespec/pull/7007) Fix for setup.py
+- [#6977](https://github.com/microsoft/typespec/pull/6977) add more hooks into setup.py template for users with custom templates
+
+
+## 0.9.2
+
+### Bug Fixes
+
+- [#6974](https://github.com/microsoft/typespec/pull/6974) Allow `_` in namespaces
+
+### Other Changes
+
+- Drop support for python3.8
+
+## 0.9.1
+
+### Bug Fixes
+
+- [6846](https://github.com/microsoft/typespec/pull/6846) fix license header for legacy SDK
+
+## 0.9.0
+
+### Features
+
+- [#6549](https://github.com/microsoft/typespec/pull/6549) Pass authentication flows info into credential policy for unbranded
+
+
 ## 0.8.2
 
 ### Bug Fixes

@@ -64,12 +64,12 @@ $generateScript = {
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
-    # also don't generate with stream-style-serialization as azure-core-management hasn't migrated to azure-json yet
-    $tspOptions += " --option ""@typespec/http-client-java.stream-style-serialization=false"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+    # enable sync-stack
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
@@ -114,10 +114,7 @@ $generateScript = {
   }
 }
 
-# hack to allow additionalProperties in this test
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: false,", "additionalProperties: true," | Set-Content -Path "../../emitter/src/options.ts"
 ./Setup.ps1
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: true,", "additionalProperties: false," | Set-Content -Path "../../emitter/src/options.ts"
 
 New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 

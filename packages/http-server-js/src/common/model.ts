@@ -131,9 +131,9 @@ export function emitWellKnownModel(
   switch (type.name) {
     case "Record": {
       const arg = type.indexer!.value;
-      return `{ [k: string]: ${emitTypeReference(ctx, arg, type, module, {
+      return `Record<string, ${emitTypeReference(ctx, arg, type, module, {
         altName: preferredAlternativeName && getRecordValueName(preferredAlternativeName),
-      })} }`;
+      })}>`;
     }
     case "Array": {
       const arg = type.indexer!.value;

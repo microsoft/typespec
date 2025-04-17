@@ -4,9 +4,11 @@ import {
   Model,
   ModelProperty,
   Program,
+  Scalar,
   StringTemplate,
   Tuple,
   Type,
+  Union,
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
@@ -15,6 +17,7 @@ import {
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
@@ -24,13 +27,20 @@ import {
   HttpProperty,
   resolvePayloadProperties,
 } from "./http-property.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
-import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
+import {
+  HttpOperationFileBody,
+  HttpOperationModelPart,
+  HttpOperationMultipartBody,
+  HttpOperationPartCommon,
+  HttpOperationTuplePart,
+  HttpPayloadBody,
+} from "./types.js";
 
 export interface HttpPayload {
-  readonly body?: HttpOperationBody | HttpOperationMultipartBody;
+  readonly body?: HttpPayloadBody;
   readonly metadata: HttpProperty[];
 }
 
@@ -70,22 +80,13 @@ export function resolveHttpPayload(
   const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
 
   if (body) {
-    if (body.contentTypes.some((x) => x.startsWith("multipart/")) && body.bodyKind === "single") {
-      diagnostics.add({
-        severity: "warning",
-        code: "deprecated",
-        message: `Deprecated: Implicit multipart is deprecated, use @multipartBody instead with HttpPart`,
-        target: body.property ?? type,
-      });
-    }
     if (
-      body.contentTypes.includes("multipart/form-data") &&
-      body.bodyKind === "single" &&
-      body.type.kind !== "Model"
+      body.contentTypes.some((x) => x.startsWith("multipart/")) &&
+      body.bodyKind !== "multipart"
     ) {
       diagnostics.add(
         createDiagnostic({
-          code: "multipart-model",
+          code: "no-implicit-multipart",
           target: body.property ?? type,
         }),
       );
@@ -102,21 +103,32 @@ function resolveBody(
   metadata: HttpProperty[],
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
 
   const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
 
-  const file = getHttpFileModel(program, requestOrResponseType);
+  const file = getHttpFileModel(
+    program,
+    requestOrResponseType,
+    createHttpFileModelFilter(metadata),
+  );
   if (file !== undefined) {
-    return diagnostics.wrap({
-      bodyKind: "single",
-      contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
-      contentTypeProperty: file.contentType,
-      type: file.contents.type,
-      isExplicit: false,
-      containsMetadataAnnotations: false,
-    });
+    if (!contentTypeProperty) {
+      // If no content-type property was specified, then this is a _literal_ file.
+      return diagnostics.join(getFileBody(file));
+    } else {
+      const contentTypes =
+        contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      reportDiagnostic(program, {
+        code: "http-file-structured",
+        format: {
+          contentTypes: contentTypes!.join(", "),
+        },
+        target: contentTypeProperty.property,
+      });
+    }
   }
 
   // non-model or intrinsic/array model -> response body is response type
@@ -133,7 +145,7 @@ function resolveBody(
   }
 
   // look for explicit body
-  const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
+  const resolvedBody: HttpPayloadBody | undefined = diagnostics.pipe(
     resolveExplicitBodyProperty(program, metadata, contentTypeProperty, visibility, disposition),
   );
 
@@ -216,9 +228,9 @@ function resolveExplicitBodyProperty(
   contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
+  let resolvedBody: HttpPayloadBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   for (const item of metadata) {
@@ -234,18 +246,49 @@ function resolveExplicitBodyProperty(
           const valid = diagnostics.pipe(validateBodyProperty(program, item.property, disposition));
           containsMetadataAnnotations = !valid;
         }
-        if (resolvedBody === undefined) {
-          resolvedBody = {
-            bodyKind: "single",
-            ...diagnostics.pipe(
-              resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
-            ),
-            type: item.property.type,
-            isExplicit: item.kind === "body",
-            containsMetadataAnnotations,
-            property: item.property,
-          };
+
+        const file = getHttpFileModel(
+          program,
+          item.property.type,
+          createHttpFileModelFilter(metadata),
+        );
+
+        const isFile = file !== undefined && !contentTypeProperty;
+
+        if (file && contentTypeProperty) {
+          const contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            format: {
+              contentTypes: contentTypes!.join(", "),
+            },
+            target: contentTypeProperty.property,
+          });
         }
+
+        if (item.property.type.kind === "Union" && unionContainsFile(program, item.property.type)) {
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            messageId: "union",
+            target:
+              item.property.node.kind === SyntaxKind.ModelProperty
+                ? item.property.node.value
+                : item.property.node,
+          });
+        }
+
+        resolvedBody ??= isFile
+          ? diagnostics.pipe(getFileBody(file, item.property))
+          : {
+              bodyKind: "single",
+              ...diagnostics.pipe(
+                resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
+              ),
+              type: item.property.type,
+              isExplicit: item.kind === "body",
+              containsMetadataAnnotations,
+              property: item.property,
+            };
         break;
       case "multipartBody":
         resolvedBody = diagnostics.pipe(
@@ -266,6 +309,27 @@ function resolveExplicitBodyProperty(
   }
 
   return diagnostics.wrap(resolvedBody);
+}
+
+function unionContainsFile(program: Program, u: Union): boolean {
+  return unionContainsFileWorker(u);
+
+  function unionContainsFileWorker(u: Union, visited = new Set()): boolean {
+    if (visited.has(u)) return false;
+
+    visited.add(u);
+
+    for (const { type } of u.variants.values()) {
+      if (
+        !!getHttpFileModel(program, type) ||
+        (type.kind === "Union" && unionContainsFileWorker(type, visited))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 /** Validate a property marked with `@body` */
@@ -359,11 +423,17 @@ function resolveMultiPartBodyFromModel(
   visibility: Visibility,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationModelPart[] = [];
   for (const item of type.properties.values()) {
-    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
+    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility, item));
     if (part) {
-      parts.push({ ...part, name: part.name ?? item.name, optional: item.optional });
+      parts.push({
+        partKind: "model",
+        ...part,
+        name: part.name ?? item.name,
+        optional: item.optional,
+        property: item,
+      });
     }
   }
 
@@ -378,6 +448,7 @@ function resolveMultiPartBodyFromModel(
 
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "model",
     ...resolvedContentTypes,
     parts,
     property,
@@ -399,7 +470,7 @@ function resolveMultiPartBodyFromTuple(
   visibility: Visibility,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationTuplePart[] = [];
 
   const contentTypes =
     contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty?.property));
@@ -415,7 +486,7 @@ function resolveMultiPartBodyFromTuple(
       );
     }
     if (part) {
-      parts.push(part);
+      parts.push({ partKind: "tuple", ...part, optional: false });
     }
   }
 
@@ -430,6 +501,7 @@ function resolveMultiPartBodyFromTuple(
 
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "tuple",
     ...resolvedContentTypes,
     parts,
     property,
@@ -441,15 +513,16 @@ function resolvePartOrParts(
   program: Program,
   type: Type,
   visibility: Visibility,
-): DiagnosticResult<HttpOperationPart | undefined> {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
-    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility);
+    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility, property);
     if (part) {
       return [{ ...part, multi: true }, diagnostics];
     }
     return [part, diagnostics];
   } else {
-    return resolvePart(program, type, visibility);
+    return resolvePart(program, type, visibility, property);
   }
 }
 
@@ -457,14 +530,11 @@ function resolvePart(
   program: Program,
   type: Type,
   visibility: Visibility,
-): DiagnosticResult<HttpOperationPart | undefined> {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
   const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
   if (part) {
-    const file = getHttpFileModel(program, part.type);
-    if (file !== undefined) {
-      return getFilePart(part.options.name, file);
-    }
     let { body, metadata } = diagnostics.pipe(
       resolveHttpPayload(program, part.type, visibility, HttpPayloadDisposition.Multipart),
     );
@@ -489,10 +559,12 @@ function resolvePart(
 
     return diagnostics.wrap({
       multi: false,
+      property,
       name: part.options.name,
       body,
       optional: false,
       headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
+      filename: body.bodyKind === "file" ? body.filename : undefined,
     });
   }
 
@@ -501,29 +573,67 @@ function resolvePart(
   return diagnostics.wrap(undefined);
 }
 
-function getFilePart(
-  name: string | undefined,
+/**
+ * Creates a filter function to determine if a property is applicable metadata for the purposes
+ * of effective File model calculation.
+ */
+function createHttpFileModelFilter(metadata: HttpProperty[]): (property: ModelProperty) => boolean {
+  const metadataPropToMetadata = new Map<ModelProperty, HttpProperty>(
+    metadata.map((x) => [x.property, x]),
+  );
+
+  return function isApplicableMetadata(property) {
+    const httpProperty = metadataPropToMetadata.get(property);
+    if (["filename"].includes(property.name)) return true;
+    if (!httpProperty) return true;
+    if (httpProperty.kind !== "bodyProperty") return false;
+
+    return true;
+  };
+}
+
+/**
+ * Gets a file body from an HttpFileModel.
+ *
+ * @param file - the resolved file model
+ * @param property - the property that references the file model, if any
+ */
+function getFileBody(
   file: HttpFileModel,
-): DiagnosticResult<HttpOperationPart | undefined> {
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+
+  const isText = isOrExtendsString(file.contents.type);
+
   return [
     {
-      multi: false,
-      name,
-      body: {
-        bodyKind: "single",
-        contentTypeProperty: file.contentType,
-        contentTypes: contentTypes,
-        type: file.contents.type,
-        isExplicit: false,
-        containsMetadataAnnotations: false,
-      },
+      bodyKind: "file",
+      type: file.type,
+      contents: file.contents,
       filename: file.filename,
-      optional: false,
-      headers: [],
+      isText,
+      contentTypeProperty: file.contentType,
+      contentTypes,
+      property,
     },
     diagnostics,
   ];
+
+  function isOrExtendsString(type: Scalar): boolean {
+    return isString(type) || (!!type.baseScalar && isOrExtendsString(type.baseScalar));
+
+    function isString(type: Scalar): boolean {
+      return (
+        type.name === "string" &&
+        !!type.namespace &&
+        type.namespace.name === "TypeSpec" &&
+        !!type.namespace.namespace &&
+        type.namespace.namespace.name === "" &&
+        !type.namespace.namespace.namespace
+      );
+    }
+  }
 }
 
 function getDefaultContentTypeForKind(type: Type): string {

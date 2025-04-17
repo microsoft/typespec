@@ -833,5 +833,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(initializer!.IsBase);
             Assert.AreEqual("baseOnlyProp", initializer.Arguments[0].ToDisplayString());
         }
+
+        [Test]
+        public void TestBuildModelWithNonBodyPropertyKinds()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model(
+               "ModelWithNonBodyPropertyKinds",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
+                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
+                    InputFactory.Property("snake", InputFactory.Enum("snake", InputPrimitiveType.String, isExtensible: true), isRequired: true, isReadOnly: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+               ]);
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+
+            var primaryCtor = modelProvider!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(primaryCtor);
+            Assert.AreEqual(4, primaryCtor!.Signature.Parameters.Count);
+
+            var properties = modelProvider.Properties;
+            Assert.IsNotNull(properties);
+            Assert.AreEqual(5, properties.Count);
+
+            // validate snake
+            var snake = properties.FirstOrDefault(p => p.Name.Equals("Snake"));
+            Assert.IsNotNull(snake);
+            var snakeBody = snake!.Body;
+            Assert.IsNotNull(snakeBody);
+            Assert.IsFalse(snakeBody!.HasSetter);
+        }
     }
 }

@@ -240,7 +240,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                 for (ClientMethodParameter property : methodParameters) {
                     comment.param(property.getName(), MethodUtil.methodParameterDescriptionOrDefault(property));
                 }
-                comment.methodReturns("an instance of " + subClientClassName + "class");
+                comment.methodReturns("an instance of " + subClientClassName + " class");
             });
             classBlock.publicMethod(clientAccessorMethod.getAsyncSyncClientDeclaration(isAsync), method -> {
                 method.methodReturn("new " + subClientClassName + "(" + serviceClientMethodCall + ")");

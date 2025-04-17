@@ -1,16 +1,11 @@
 ---
 import { AsyncPlayground } from "../components/react-pages/playground";
-import packageJson from "../../../packages/compiler/package.json";
+import versions from "@site/playground-versions.json";
+
 import { LoadingSpinner } from "../components/playground-component/loading-spinner";
 import BaseLayout from "../layouts/base-layout.astro";
 
-function getMajorMinorVersion(): string {
-  const version = packageJson.version;
-  const [major, minor] = version.split(".");
-  return `${major}.${minor}.x`;
-}
-
-const latestVersion = getMajorMinorVersion();
+const latestVersion = versions[0];
 ---
 
 <script>
