@@ -67,12 +67,9 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// Update the instance with given parameters.
         /// </summary>
         /// <param name="kind">The kind of the <see cref="InputParameter"/></param>
-        public void Update(InputParameterKind? kind)
+        public void Update(InputParameterKind kind)
         {
-            if (kind is not null)
-            {
-                Kind = kind.GetValueOrDefault();
-            }
+            Kind = kind;
         }
     }
 }
