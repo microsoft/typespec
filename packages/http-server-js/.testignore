@@ -1,10 +1,4 @@
-encode/bytes
-encode/datetime
-encode/duration
-payload/content-negotiation
-payload/media-type
 payload/multipart
 payload/xml
 response/status-code-range
 streaming/jsonl
-type/enum/fixed

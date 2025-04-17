@@ -55,12 +55,6 @@ Defines the strategy on how to handle unreferenced types. The default value is `
 
 Set to `true` to overwrite the csproj if it already exists. The default value is `false`.
 
-### `clear-output-folder`
-
-**Type:** `boolean`
-
-Indicates if you want to clear the output folder before generating. The default value is `true`.
-
 ### `save-inputs`
 
 **Type:** `boolean`

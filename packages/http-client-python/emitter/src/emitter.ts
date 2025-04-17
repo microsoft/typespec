@@ -37,10 +37,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     // if they pass in a flavor other than azure, we want to ignore the value
     (options as any).flavor = undefined;
   }
-  if (
-    (options as any).flavor === undefined &&
-    sdkContext.emitContext.emitterOutputDir.includes("azure")
-  ) {
+  if (getRootNamespace(sdkContext).toLowerCase().includes("azure")) {
     (options as any).flavor = "azure";
   }
 

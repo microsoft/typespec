@@ -1,5 +1,15 @@
 # Change Log - @typespec/http-client-python
 
+## 0.9.2
+
+### Bug Fixes
+
+- [#6974](https://github.com/microsoft/typespec/pull/6974) Allow `_` in namespaces
+
+### Other Changes
+
+- Drop support for python3.8
+
 ## 0.9.1
 
 ### Bug Fixes
