@@ -9,7 +9,8 @@ export interface OutputProps extends ay.OutputProps {
   program: Program;
 }
 
-export function Output({ program, ...rest }: OutputProps) {
+export function Output(props: OutputProps) {
+  const [{ program }, rest] = ay.splitProps(props, ["program"]);
   return (
     <TspContext.Provider value={{ program }}>
       <ay.Output {...rest} />
