@@ -139,7 +139,22 @@ export function createConfiguration(
   namespace: string,
   sdkContext: SdkContext,
 ): Configuration {
+  const skipKeys = [
+    "new-project",
+    "update-code-model",
+    "sdk-context-options",
+    "save-inputs",
+    "generator-name",
+    "debug",
+    "logLevel",
+    "generator-name"
+  ];
+  const derivedOptions = Object.fromEntries(
+    Object.entries(options).filter(([key]) => !skipKeys.includes(key))
+  );
   return {
+    // spread custom options first so that the predefined options below can override them
+    ...derivedOptions,
     "output-folder": ".",
     "package-name": options["package-name"] ?? namespace,
     "unreferenced-types-handling": options["unreferenced-types-handling"],

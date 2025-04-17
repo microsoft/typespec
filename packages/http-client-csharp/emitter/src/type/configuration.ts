@@ -13,4 +13,6 @@ export interface Configuration {
     link?: string;
     description?: string;
   };
+  // addiitional properties
+  [key: string]: unknown;
 }
