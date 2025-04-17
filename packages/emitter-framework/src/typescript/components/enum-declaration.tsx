@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
-import { useTsp } from "../../core/index.js";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {

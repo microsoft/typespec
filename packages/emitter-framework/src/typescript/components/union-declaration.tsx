@@ -1,7 +1,7 @@
 import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
-import { useTsp } from "../../core/index.js";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { UnionExpression } from "./union-expression.js";
 

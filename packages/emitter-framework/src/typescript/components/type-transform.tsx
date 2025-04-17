@@ -11,7 +11,7 @@ import {
 } from "@typespec/compiler";
 import { Typekit } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
-import { useTsp } from "../../core/index.js";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import {

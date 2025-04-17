@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
-import { useTsp } from "../../core/index.js";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface UnionExpressionProps {
