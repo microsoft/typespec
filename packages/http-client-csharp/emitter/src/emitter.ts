@@ -147,10 +147,10 @@ export function createConfiguration(
     "generator-name",
     "debug",
     "logLevel",
-    "generator-name"
+    "generator-name",
   ];
   const derivedOptions = Object.fromEntries(
-    Object.entries(options).filter(([key]) => !skipKeys.includes(key))
+    Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
   );
   return {
     // spread custom options first so that the predefined options below can override them
