@@ -42,7 +42,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  const extendsType = props.extends ?? ExtendsType(props.type);
+  const extendsType = props.extends ?? <ExtendsType type={props.type} />;
 
   return (
     <ts.InterfaceDeclaration
@@ -76,8 +76,13 @@ export function InterfaceExpression(props: InterfaceExpressionProps) {
   );
 }
 
-function ExtendsType(type: Model | Interface): Children | undefined {
+type ExtendsTypeProps = {
+  type: Model | Interface;
+};
+
+function ExtendsType(props: ExtendsTypeProps): Children | undefined {
   const { $ } = useTsp();
+  const type = props.type;
 
   if (!$.model.is(type)) {
     return undefined;
