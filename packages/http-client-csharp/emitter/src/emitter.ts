@@ -148,6 +148,9 @@ export function createConfiguration(
     "debug",
     "logLevel",
     "generator-name",
+    "api-version",
+    "generate-protocol-methods",
+    "generate-convenience-methods",
   ];
   const derivedOptions = Object.fromEntries(
     Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
@@ -155,7 +158,6 @@ export function createConfiguration(
   return {
     // spread custom options first so that the predefined options below can override them
     ...derivedOptions,
-    "output-folder": ".",
     "package-name": options["package-name"] ?? namespace,
     "unreferenced-types-handling": options["unreferenced-types-handling"],
     "disable-xml-docs":

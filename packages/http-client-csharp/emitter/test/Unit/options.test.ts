@@ -158,5 +158,8 @@ describe("Configuration tests", async () => {
     expect(config["debug"]).toBeUndefined();
     expect(config["logLevel"]).toBeUndefined();
     expect(config["generator-name"]).toBeUndefined();
+    expect(config["api-version"]).toBeUndefined();
+    expect(config["generate-protocol-methods"]).toBeUndefined();
+    expect(config["generate-convenience-methods"]).toBeUndefined();
   });
 });
