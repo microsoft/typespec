@@ -13,6 +13,6 @@ export interface Configuration {
     link?: string;
     description?: string;
   };
-  // addiitional properties
+  // Any additional properties coming from custom emitter options
   [key: string]: unknown;
 }
