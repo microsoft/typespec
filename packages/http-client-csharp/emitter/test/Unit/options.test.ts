@@ -163,16 +163,3 @@ describe("Configuration tests", async () => {
     expect(config["generate-convenience-methods"]).toBeUndefined();
   });
 });
-
-describe("Emitter output directory tests", async () => {
-  let program: Program;
-
-  beforeEach(async () => {
-    const runner = await createEmitterTestHost();
-    program = await typeSpecCompile(
-      `
-        `,
-      runner,
-    );
-  });
-});
