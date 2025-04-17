@@ -107,7 +107,6 @@ THE SOFTWARE.`,
 
 describe("Configuration tests", async () => {
   let program: Program;
-  const fs = require("fs").promises;
 
   beforeEach(async () => {
     const runner = await createEmitterTestHost();
@@ -122,7 +121,7 @@ describe("Configuration tests", async () => {
     interface TestEmitterOptions extends CSharpEmitterOptions {
       namespace?: string;
     }
-    var customOptions: TestEmitterOptions = {
+    const customOptions: TestEmitterOptions = {
       "package-name": "custom-package",
       "unreferenced-types-handling": "removeOrInternalize",
       "disable-xml-docs": true,
@@ -137,7 +136,7 @@ describe("Configuration tests", async () => {
     };
     const context = createEmitterContext(program, customOptions);
     const sdkContext = await createCSharpSdkContext(context);
-    var config = createConfiguration(customOptions, "rootNamespace", sdkContext);
+    const config = createConfiguration(customOptions, "rootNamespace", sdkContext);
 
     expect(config["package-name"]).toBe("custom-package");
     expect(config["unreferenced-types-handling"]).toBe("removeOrInternalize");
