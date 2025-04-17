@@ -15,7 +15,7 @@ describe("interface methods with a `type` prop", () => {
     runner = await createEmitterFrameworkTestRunner();
   });
 
-  it("creates a interface member", async () => {
+  it("creates a interface method", async () => {
     const { getName } = (await runner.compile(`
       @test op getName(id: string): string;
     `)) as { getName: Operation };
