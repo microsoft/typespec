@@ -250,3 +250,48 @@ namespace ServerDrivenPagination {
     };
   }
 }
+
+
+
+/* cases to discuss whether we need support */
+@route("/server-driven-pagination-discussion")
+namespace ServerDrivenPaginationDiscussion {
+  @route("/link-nested")
+  @list
+  op linkNested(): {
+    @pageItems
+    pets: string[];
+
+    next?: {@nextLink next?: url;}
+  };
+  
+  // @pageitems can't be in nested otherwise tsp compiler will report error
+  // @route("/pageitems-nested")
+  // @list
+  // op pageitemsNested(): {
+  //   items: {@pageItems pets: string[]};
+
+  //   @nextLink next?: url;
+  // };
+
+  @route("/continuationtoken")
+  namespace ContinuationToken {
+    @route("/request-query-response-body-nested")
+    @list
+    op requestQueryResponseBody(@continuationToken @query token?: string, ...HeaderAndQuery): {
+      @pageItems
+      pets: string[];
+
+      next?: { @continuationToken nextToken?: string};
+    };
+
+    @route("/request-header-response-body-nested")
+    @list
+    op requestHeaderResponseBody(@continuationToken @header token?: string, ...HeaderAndQuery): {
+      @pageItems
+      pets: string[];
+
+      next?: { @continuationToken nextToken?: string};
+    };
+  }
+}
