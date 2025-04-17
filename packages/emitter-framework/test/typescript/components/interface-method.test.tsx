@@ -65,5 +65,32 @@ describe("interface methods with a `type` prop", () => {
     );
   });
 
-  it.todo("can append extra parameters with raw params provided", async () => {});
+  it("can append extra parameters with raw params provided", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod
+              type={getName}
+              parametersMode="append"
+              parameters={[{ name: "foo", type: "string" }]}
+            />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getName(id: string, foo: string): string
+        }
+      `,
+    );
+  });
 });

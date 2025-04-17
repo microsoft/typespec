@@ -41,10 +41,10 @@ export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
   return (
     <ts.InterfaceMethod
       {...forwardProps}
+      {...updateProps}
       name={name}
       returnType={returnType}
       parameters={allParameters}
-      {...updateProps}
     />
   );
 }
