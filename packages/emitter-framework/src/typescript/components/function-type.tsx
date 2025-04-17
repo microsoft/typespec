@@ -13,7 +13,7 @@ export interface FunctionTypeProps extends ts.FunctionTypeProps {
  * by converting from a TypeSpec Operation. Any other props provided will take
  * precedence.
  */
-export function FunctionType(props: FunctionTypeProps) {
+export function FunctionType(props: Readonly<FunctionTypeProps>) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
     ["type"],
