@@ -29,9 +29,7 @@ export function InterfaceMethod(props: Readonly<InterfaceMethodProps>) {
     ["returnType", "parameters"],
   );
 
-  const name = props.name
-    ? props.name
-    : ts.useTSNamePolicy().getName(efProps.type.name, "function");
+  const name = props.name ?? ts.useTSNamePolicy().getName(efProps.type.name, "function");
   const returnType = props.returnType ?? <TypeExpression type={getReturnType(efProps.type)} />;
   const allParameters = buildParameterDescriptors(efProps.type.parameters, {
     params: props.parameters,
