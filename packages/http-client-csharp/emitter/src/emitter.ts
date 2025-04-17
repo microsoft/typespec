@@ -98,7 +98,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       );
       logger.info(`Checking if ${csProjFile} exists`);
 
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
       const generatorPath = resolvePath(
         projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
       );

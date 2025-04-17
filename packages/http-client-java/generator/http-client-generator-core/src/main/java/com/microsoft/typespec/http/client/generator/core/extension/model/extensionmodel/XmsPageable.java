@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import java.io.IOException;
 
 /**
  * Represents the pageable settings of a model.
  */
-public class XmsPageable implements JsonSerializable<XmsPageable> {
+public class XmsPageable {
     private String itemName = "value";
     private String nextLinkName;
     private String operationName;
@@ -106,41 +101,5 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
      */
     public void setNextOperation(Operation nextOperation) {
         this.nextOperation = nextOperation;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("itemName", itemName)
-            .writeStringField("nextLinkName", nextLinkName)
-            .writeStringField("operationName", operationName)
-            .writeJsonField("continuationToken", continuationToken)
-            .writeJsonField("nextOperation", nextOperation)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an XmsPageable instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An XmsPageable instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XmsPageable fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, XmsPageable::new, (pageable, fieldName, reader) -> {
-            if ("itemName".equals(fieldName)) {
-                pageable.itemName = reader.getString();
-            } else if ("nextLinkName".equals(fieldName)) {
-                pageable.nextLinkName = reader.getString();
-            } else if ("operationName".equals(fieldName)) {
-                pageable.operationName = reader.getString();
-            } else if ("continuationToken".equals(fieldName)) {
-                pageable.continuationToken = PageableContinuationToken.fromJson(reader);
-            } else if ("nextOperation".equals(fieldName)) {
-                pageable.nextOperation = Operation.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

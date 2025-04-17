@@ -1850,6 +1850,7 @@
         "serializedName": "requiredNullablePrimitive",
         "doc": "required nullable primitive type",
         "type": {
+<<<<<<< HEAD
          "$id": "244",
          "kind": "nullable",
          "type": {
@@ -1857,10 +1858,146 @@
           "kind": "int32",
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
+=======
+         "$id": "110",
+         "kind": "array",
+         "name": "ArrayThing",
+         "valueType": {
+          "$ref": "29"
+         },
+         "crossLanguageDefinitionId": "TypeSpec.Array",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "ListWithContinuationToken.Response.anonymous.things",
+        "serializationOptions": {
+         "$id": "111",
+         "json": {
+          "$id": "112",
+          "name": "things"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "clients": [
+     {
+      "$id": "113",
+      "kind": "client",
+      "name": "SampleTypeSpecClient",
+      "namespace": "SampleTypeSpec",
+      "doc": "This is a sample typespec project.",
+      "methods": [
+       {
+        "$id": "114",
+        "kind": "paging",
+        "name": "ListWithNextLink",
+        "accessibility": "public",
+        "apiVersions": [
+         "2024-07-16-preview",
+         "2024-08-16-preview"
+        ],
+        "doc": "List things with nextlink",
+        "operation": {
+         "$id": "115",
+         "name": "ListWithNextLink",
+         "resourceName": "SampleTypeSpec",
+         "doc": "List things with nextlink",
+         "accessibility": "public",
+         "parameters": [
+          {
+           "$id": "116",
+           "name": "accept",
+           "nameInRequest": "Accept",
+           "type": {
+            "$id": "117",
+            "kind": "constant",
+            "valueType": {
+             "$id": "118",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           },
+           "location": "Header",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isEndpoint": false,
+           "explode": false,
+           "isRequired": true,
+           "kind": "Constant",
+           "decorators": [],
+           "skipUrlEncoding": false
+          }
+         ],
+         "responses": [
+          {
+           "$id": "119",
+           "statusCodes": [
+            200
+           ],
+           "bodyType": {
+            "$ref": "26"
+           },
+           "headers": [],
+           "isErrorResponse": false,
+           "contentTypes": [
+            "application/json"
+           ]
+          }
+         ],
+         "httpMethod": "GET",
+         "uri": "{sampleTypeSpecUrl}",
+         "path": "/link",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
+         "decorators": []
+        },
+        "parameters": [
+         {
+          "$id": "120",
+          "name": "accept",
+          "nameInRequest": "accept",
+          "type": {
+           "$ref": "117"
+          },
+          "location": "Header",
+          "isApiVersion": false,
+          "isContentType": false,
+          "isEndpoint": false,
+          "explode": false,
+          "isRequired": true,
+          "kind": "Constant",
+          "decorators": [],
+          "skipUrlEncoding": false
+         }
+        ],
+        "response": {
+         "$id": "121",
+         "type": {
+          "$id": "122",
+          "kind": "array",
+          "name": "ArrayThing",
+          "valueType": {
+           "$ref": "29"
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+>>>>>>> origin/main
           "decorators": []
          },
          "namespace": ""
         },
+<<<<<<< HEAD
         "optional": false,
         "readOnly": false,
         "discriminator": false,
@@ -1872,10 +2009,28 @@
          "json": {
           "$id": "247",
           "name": "requiredNullablePrimitive"
+=======
+        "isOverride": false,
+        "generateConvenient": true,
+        "generateProtocol": true,
+        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
+        "pagingMetadata": {
+         "$id": "123",
+         "itemPropertySegments": [
+          "things"
+         ],
+         "nextLink": {
+          "$id": "124",
+          "responseSegments": [
+           "next"
+          ],
+          "responseLocation": "Body"
+>>>>>>> origin/main
          }
         }
        },
        {
+<<<<<<< HEAD
         "$id": "248",
         "kind": "property",
         "name": "requiredExtensibleEnum",
@@ -2789,6 +2944,109 @@
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
+=======
+        "$id": "125",
+        "kind": "paging",
+        "name": "ListWithContinuationToken",
+        "accessibility": "public",
+        "apiVersions": [
+         "2024-07-16-preview",
+         "2024-08-16-preview"
+        ],
+        "doc": "List things with continuation token",
+        "operation": {
+         "$id": "126",
+         "name": "ListWithContinuationToken",
+         "resourceName": "SampleTypeSpec",
+         "doc": "List things with continuation token",
+         "accessibility": "public",
+         "parameters": [
+          {
+           "$id": "127",
+           "name": "token",
+           "nameInRequest": "token",
+           "type": {
+            "$id": "128",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+           },
+           "location": "Query",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isEndpoint": false,
+           "explode": false,
+           "isRequired": false,
+           "kind": "Method",
+           "decorators": [],
+           "skipUrlEncoding": false
+          },
+          {
+           "$id": "129",
+           "name": "accept",
+           "nameInRequest": "Accept",
+           "type": {
+            "$id": "130",
+            "kind": "constant",
+            "valueType": {
+             "$id": "131",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           },
+           "location": "Header",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isEndpoint": false,
+           "explode": false,
+           "isRequired": true,
+           "kind": "Constant",
+           "decorators": [],
+           "skipUrlEncoding": false
+          }
+         ],
+         "responses": [
+          {
+           "$id": "132",
+           "statusCodes": [
+            200
+           ],
+           "bodyType": {
+            "$ref": "108"
+           },
+           "headers": [
+            {
+             "$id": "133",
+             "name": "nextToken",
+             "nameInResponse": "nextToken",
+             "type": {
+              "$id": "134",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             }
+            }
+           ],
+           "isErrorResponse": false,
+           "contentTypes": [
+            "application/json"
+           ]
+          }
+         ],
+         "httpMethod": "GET",
+         "uri": "{sampleTypeSpecUrl}",
+         "path": "/continuation",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
+>>>>>>> origin/main
          "decorators": []
         },
         "location": "Header",
@@ -6126,15 +6384,24 @@
         },
         "headers": [
          {
+<<<<<<< HEAD
           "$id": "602",
           "name": "nextToken",
           "nameInResponse": "next-token",
           "type": {
            "$id": "603",
+=======
+          "$id": "135",
+          "name": "token",
+          "nameInRequest": "token",
+          "type": {
+           "$id": "136",
+>>>>>>> origin/main
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
+<<<<<<< HEAD
           }
          }
         ],
@@ -6142,6 +6409,73 @@
         "contentTypes": [
          "application/json"
         ]
+=======
+          },
+          "location": "Query",
+          "isApiVersion": false,
+          "isContentType": false,
+          "isEndpoint": false,
+          "explode": false,
+          "isRequired": false,
+          "kind": "Method",
+          "decorators": [],
+          "skipUrlEncoding": false
+         },
+         {
+          "$id": "137",
+          "name": "accept",
+          "nameInRequest": "accept",
+          "type": {
+           "$ref": "130"
+          },
+          "location": "Header",
+          "isApiVersion": false,
+          "isContentType": false,
+          "isEndpoint": false,
+          "explode": false,
+          "isRequired": true,
+          "kind": "Constant",
+          "decorators": [],
+          "skipUrlEncoding": false
+         }
+        ],
+        "response": {
+         "$id": "138",
+         "type": {
+          "$id": "139",
+          "kind": "array",
+          "name": "ArrayThing",
+          "valueType": {
+           "$ref": "29"
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "resultSegments": [
+          "things"
+         ]
+        },
+        "isOverride": false,
+        "generateConvenient": true,
+        "generateProtocol": true,
+        "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
+        "pagingMetadata": {
+         "$id": "140",
+         "itemPropertySegments": [
+          "things"
+         ],
+         "continuationToken": {
+          "$id": "141",
+          "parameter": {
+           "$ref": "127"
+          },
+          "responseSegments": [
+           "nextToken"
+          ],
+          "responseLocation": "Header"
+         }
+        }
+>>>>>>> origin/main
        }
       ],
       "httpMethod": "GET",
@@ -6248,11 +6582,22 @@
       "accessibility": "public",
       "parameters": [
        {
+<<<<<<< HEAD
         "$id": "613",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
          "$ref": "354"
+=======
+        "$id": "142",
+        "name": "sampleTypeSpecUrl",
+        "nameInRequest": "sampleTypeSpecUrl",
+        "type": {
+         "$id": "143",
+         "kind": "url",
+         "name": "url",
+         "crossLanguageDefinitionId": "TypeSpec.url"
+>>>>>>> origin/main
         },
         "location": "Header",
         "isApiVersion": false,
@@ -6330,6 +6675,7 @@
       "resultSegments": [
        "items"
       ]
+<<<<<<< HEAD
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -6543,6 +6889,17 @@
      "generateConvenient": true,
      "generateProtocol": true,
      "crossLanguageDefinitionId": "SampleTypeSpec.EmbeddedParameters"
+=======
+     }
+    ],
+    "auth": {
+     "$id": "144",
+     "apiKey": {
+      "$id": "145",
+      "name": "my-api-key",
+      "in": "header"
+     }
+>>>>>>> origin/main
     }
    ],
    "parameters": [
