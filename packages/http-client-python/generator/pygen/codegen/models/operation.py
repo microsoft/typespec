@@ -443,13 +443,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             )
             body_param = self.parameters.body_parameter if self.parameters.has_body else None
             if body_param and not isinstance(body_param.type, BinaryType):
-                if self.has_form_data_body:
-                    file_import.add_submodule_import(
-                        self.code_model.get_relative_import_path(serialize_namespace),
-                        "_utils.model_base",
-                        ImportType.LOCAL,
-                    )
-                elif xml_serializable(self.parameters.body_parameter.default_content_type):
+                if xml_serializable(self.parameters.body_parameter.default_content_type):
                     file_import.add_submodule_import(
                         relative_path,
                         "_get_element",
