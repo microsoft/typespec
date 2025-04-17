@@ -94,6 +94,7 @@ function mockArray(ctx: JsContext, module: Module, type: Model): string {
  * @returns A JavaScript string representation of the mock record
  */
 function mockRecord(ctx: JsContext, module: Module, type: Model): string {
+  const tk = $(ctx.program);
   const elementType = tk.record.getElementType(type);
   const mockedType = mockType(ctx, module, elementType);
 
