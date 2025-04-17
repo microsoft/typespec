@@ -1,5 +1,5 @@
 ---
-changeKind: breaking
+changeKind: minor
 packages:
   - "@typespec/compiler"
 ---
