@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ScmMethodProviderCollection : MethodProviderCollection
     {
-        private string _cleanOperationName;
+        private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
@@ -29,8 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private readonly bool _isPageable;
-        private readonly InputOperationPaging? _paging;
+        private readonly InputPagingServiceMethod? _pagingServiceMethod;
 
         private ClientProvider Client { get; }
 
@@ -40,10 +39,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
-            _isPageable = serviceMethod.Operation.Paging != null;
-            if (_isPageable)
+
+            if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
-                _paging = serviceMethod.Operation.Paging;
+                _pagingServiceMethod = pagingServiceMethod;
             }
         }
 
@@ -78,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
+            if (isAsync && _pagingServiceMethod == null)
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
@@ -93,9 +92,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, ServiceMethod.Operation, responseBodyType, isAsync);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
                 methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
             }
             else if (responseBodyType is null)
@@ -464,7 +463,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
+            if (isAsync && _pagingServiceMethod == null)
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
@@ -513,9 +512,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, ServiceMethod.Operation, null, isAsync);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
                 methodBody = GetPagingMethodBody(collection, parameters, false);
             }
             else
@@ -554,7 +553,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
-            return (_paging!.NextLink, isConvenience) switch
+            return (_pagingServiceMethod!.PagingMetadata.NextLink, isConvenience) switch
             {
                 (not null, true) =>
                 [
@@ -608,7 +607,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
             }
 
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 return isAsync
                     ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType
@@ -623,10 +622,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
-                    p.SerializedName == ServiceMethod.Operation.Paging!.ItemPropertySegments[0]);
+                    p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
                 responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
 

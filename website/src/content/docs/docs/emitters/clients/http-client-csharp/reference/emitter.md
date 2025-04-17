@@ -91,6 +91,12 @@ Set to `true` to disable XML documentation generation. The default value is `fal
 
 The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.
 
+### `emitter-extension-path`
+
+**Type:** `string`
+
+Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
+
 ### `update-code-model`
 
 **Type:** `object`

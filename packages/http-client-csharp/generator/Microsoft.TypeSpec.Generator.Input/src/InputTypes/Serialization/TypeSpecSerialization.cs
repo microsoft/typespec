@@ -40,8 +40,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputContinuationTokenConverter(referenceHandler),
                     new TypeSpecInputParameterConverter(referenceHandler),
                     new TypeSpecInputPrimitiveTypeConverter(referenceHandler),
-                    new TypeSpecOperationLongRunningConverter(referenceHandler),
-                    new TypeSpecInputOperationPagingConverter(referenceHandler),
                     new TypeSpecInputOperationResponseConverter(referenceHandler),
                     new TypeSpecInputOperationResponseHeaderConverter(referenceHandler),
                     new TypeSpecInputDateTimeTypeConverter(referenceHandler),
@@ -55,6 +53,12 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputXmlSerializationOptionsConverter(referenceHandler),
                     new TypeSpecInputXmlNamespaceOptionsConverter(referenceHandler),
                     new TypeSpecInputServiceMethodConverter(referenceHandler),
+                    new TypeSpecInputBasicServiceMethodConverter(referenceHandler),
+                    new TypeSpecInputPagingServiceMethodConverter(referenceHandler),
+                    new TypeSpecInputPagingServiceMetadataConverter(referenceHandler),
+                    new TypeSpecInputLongRunningServiceMethodConverter(referenceHandler),
+                    new TypeSpecInputLongRunningServiceMetadataConverter(referenceHandler),
+                    new TypeSpecInputLongRunningPagingServiceMethodConverter(referenceHandler),
                     new TypeSpecInputServiceMethodResponseConverter(referenceHandler),
                 }
             };
