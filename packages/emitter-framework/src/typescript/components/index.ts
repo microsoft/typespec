@@ -1,6 +1,9 @@
+export * from "./array-expression.jsx";
+export * from "./arrow-function.jsx";
 export * from "./class-method.js";
 export * from "./function-declaration.js";
 export * from "./function-expression.js";
+export * from "./function-type.js";
 export * from "./interface-declaration.js";
 export * from "./interface-member.js";
 export * from "./static-serializers.js";
@@ -9,3 +12,4 @@ export * from "./type-expression.js";
 export * from "./type-transform.js";
 export * from "./union-declaration.js";
 export * from "./union-expression.js";
+export * from "./value-expression.js";

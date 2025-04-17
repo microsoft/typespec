@@ -4,21 +4,16 @@ import { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
 
-export interface ArrowFunctionProps extends ts.ArrowFunctionProps {
+export interface FunctionTypeProps extends ts.FunctionTypeProps {
   type?: Operation;
-  /**
-   * Where the parameters from passed to the `parameters` prop should be placed
-   * relative the ones created from the T`ypeSpec operation.
-   */
   parametersMode?: "prepend" | "append" | "replace";
 }
-
 /**
- * A TypeScript arrow function. Pass the `type` prop to create the arrow
- * function by converting from a TypeSpec Operation. Any other props provided
- * will take precedence.
+ * A TypeScript function type. Pass the `type` prop to create the function type
+ * by converting from a TypeSpec Operation. Any other props provided will take
+ * precedence.
  */
-export function ArrowFunction(props: ArrowFunctionProps) {
+export function FunctionType(props: FunctionTypeProps) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
     ["type"],
@@ -26,7 +21,7 @@ export function ArrowFunction(props: ArrowFunctionProps) {
   );
 
   if (!efProps.type) {
-    return <ts.ArrowFunction {...forwardProps} {...updateProps} />;
+    return <ts.FunctionType {...forwardProps} {...updateProps} />;
   }
 
   const returnType = props.returnType ?? <TypeExpression type={getReturnType(efProps.type)} />;
@@ -35,5 +30,5 @@ export function ArrowFunction(props: ArrowFunctionProps) {
     mode: props.parametersMode,
   });
 
-  return <ts.ArrowFunction {...forwardProps} returnType={returnType} parameters={allParameters} />;
+  return <ts.FunctionType {...forwardProps} returnType={returnType} parameters={allParameters} />;
 }

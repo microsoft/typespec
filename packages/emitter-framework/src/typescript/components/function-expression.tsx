@@ -13,6 +13,11 @@ export interface FunctionExpressionProps extends ts.FunctionExpressionProps {
   parametersMode?: "prepend" | "append" | "replace";
 }
 
+/**
+ * A TypeScript function expression. Pass the `type` prop to create the
+ * function expression by converting from a TypeSpec Operation. Any other props
+ * provided will take precedence.
+ */
 export function FunctionExpression(props: FunctionExpressionProps) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
