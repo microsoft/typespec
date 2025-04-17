@@ -228,7 +228,7 @@ class DpgModelSerializer(_ModelSerializer):
         file_import = FileImport(self.code_model)
         if any(not m.parents for m in self.models):
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_vendor.model_base"),
+                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_utils.model_base"),
                 "Model",
                 ImportType.LOCAL,
                 TypingSection.REGULAR,

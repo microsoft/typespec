@@ -107,33 +107,33 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def need_vendor_utils_file(self) -> str:
-        template = self.env.get_template("vendor_utils.py.jinja2")
+    def need_utils_utils_file(self) -> str:
+        template = self.env.get_template("utils.py.jinja2")
         clients = self.code_model.get_clients(self.client_namespace)
 
         # configure imports
         file_import = FileImport(self.code_model)
-        if self.code_model.need_vendored_mixin:
+        if self.code_model.need_utils_mixin:
             file_import.add_submodule_import(
                 "abc",
                 "ABC",
                 ImportType.STDLIB,
             )
             file_import.add_msrest_import(
-                serialize_namespace=f"{self.serialize_namespace}._vendor",
+                serialize_namespace=f"{self.serialize_namespace}._utils",
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )
             file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Generic", ImportType.STDLIB)
-        if self.code_model.need_vendored_etag(self.client_namespace):
+        if self.code_model.need_utils_etag(self.client_namespace):
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import(
                 "",
                 "MatchConditions",
                 ImportType.SDKCORE,
             )
-        if self.code_model.need_vendored_form_data(self.async_mode, self.client_namespace):
+        if self.code_model.need_utils_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
@@ -143,12 +143,12 @@ class GeneralSerializer(BaseSerializer):
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
             file_import.add_submodule_import(
-                ".._vendor.model_base",
+                ".._utils.model_base",
                 "SdkJSONEncoder",
                 ImportType.LOCAL,
             )
             file_import.add_submodule_import(
-                ".._vendor.model_base",
+                ".._utils.model_base",
                 "Model",
                 ImportType.LOCAL,
             )

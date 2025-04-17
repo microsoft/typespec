@@ -30,11 +30,11 @@ class TypingSection(str, Enum):
 
 
 class MsrestImportType(Enum):
-    Module = auto()  # import _vendor/serialization.py or msrest.serialization as Module
-    Serializer = auto()  # from _vendor/serialization.py or msrest.serialization import Serializer
+    Module = auto()  # import _utils/serialization.py or msrest.serialization as Module
+    Serializer = auto()  # from _utils/serialization.py or msrest.serialization import Serializer
     SerializerDeserializer = (
         auto()
-    )  # from _vendor/serialization.py or msrest.serialization import Serializer and Deserializer
+    )  # from _utils/serialization.py or msrest.serialization import Serializer and Deserializer
 
 
 class ImportModel:
@@ -263,11 +263,11 @@ class FileImport:
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import("msrest", "Deserializer", ImportType.THIRDPARTY, typing_section)
         else:
-            # _vendor/serialization.py is always in root namespace
-            imported_namespace = f"{self.code_model.namespace}._vendor"
+            # _utils/serialization.py is always in root namespace
+            imported_namespace = f"{self.code_model.namespace}._utils"
             if self.code_model.options["multiapi"]:
                 # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX
-                # while _vendor/serialization.py is in azure.mgmt.xxx
+                # while _utils/serialization.py is in azure.mgmt.xxx
                 imported_namespace = get_parent_namespace(imported_namespace)
             if msrest_import_type == MsrestImportType.Module:
                 self.add_submodule_import(

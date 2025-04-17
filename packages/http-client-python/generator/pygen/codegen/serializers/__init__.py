@@ -153,7 +153,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _vendor/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
@@ -404,41 +404,41 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_config_file(clients),
                 )
 
-                # sometimes we need define additional Mixin class for client in _vendor.py
-                self._serialize_and_write_vendor_folder(env, namespace)
+                # sometimes we need define additional Mixin class for client in _utils.py
+                self._serialize_and_write_utils_folder(env, namespace)
 
-    def _serialize_and_write_vendor_folder(self, env: Environment, namespace: str) -> None:
+    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        vendor_folder_path = exec_path / Path("_vendor")
-        if self.code_model.need_vendor_folder(async_mode=False, client_namespace=namespace):
+        utils_folder_path = exec_path / Path("_utils")
+        if self.code_model.need_utils_folder(async_mode=False, client_namespace=namespace):
             self.write_file(
-                vendor_folder_path / Path("__init__.py"),
+                utils_folder_path / Path("__init__.py"),
                 self.code_model.license_header,
             )
-        if self.code_model.need_vendor_utils(async_mode=False, client_namespace=namespace):
+        if self.code_model.need_utils_utils(async_mode=False, client_namespace=namespace):
             self.write_file(
-                vendor_folder_path / Path("utils.py"),
-                general_serializer.need_vendor_utils_file(),
+                utils_folder_path / Path("utils.py"),
+                general_serializer.need_utils_utils_file(),
             )
-        # write _vendor/serialization.py
+        # write _utils/serialization.py
         if not (self.code_model.options["client_side_validation"] or self.code_model.options["multiapi"]):
             self.write_file(
-                vendor_folder_path / Path("serialization.py"),
+                utils_folder_path / Path("serialization.py"),
                 general_serializer.serialize_serialization_file(),
             )
 
         # write _model_base.py
         if self.code_model.options["models_mode"] == "dpg":
             self.write_file(
-                vendor_folder_path / Path("model_base.py"),
+                utils_folder_path / Path("model_base.py"),
                 general_serializer.serialize_model_base_file(),
             )
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
-        # write _vendor folder
-        self._serialize_and_write_vendor_folder(env, namespace)
+        # write _utils folder
+        self._serialize_and_write_utils_folder(env, namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 

@@ -242,26 +242,26 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         return client_namespace == self.namespace
 
-    def need_vendor_folder(self, async_mode: bool, client_namespace: str) -> bool:
+    def need_utils_folder(self, async_mode: bool, client_namespace: str) -> bool:
         return (
-            self.need_vendor_utils(async_mode, client_namespace)
-            or self.need_vendored_serialization
+            self.need_utils_utils(async_mode, client_namespace)
+            or self.need_utils_serialization
             or self.options["models_mode"] == "dpg"
         )
 
     @property
-    def need_vendored_serialization(self) -> bool:
+    def need_utils_serialization(self) -> bool:
         return not (self.options["client_side_validation"] or self.options["multiapi"])
 
-    def need_vendor_utils(self, async_mode: bool, client_namespace: str) -> bool:
+    def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (
-            self.need_vendored_form_data(async_mode, client_namespace)
-            or self.need_vendored_etag(client_namespace)
-            or self.need_vendored_abstract(client_namespace)
-            or self.need_vendored_mixin
+            self.need_utils_form_data(async_mode, client_namespace)
+            or self.need_utils_etag(client_namespace)
+            or self.need_utils_abstract(client_namespace)
+            or self.need_utils_mixin
         )
 
-    def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
+    def need_utils_form_data(self, async_mode: bool, client_namespace: str) -> bool:
         return (
             (not async_mode)
             and self.is_top_namespace(client_namespace)
@@ -269,14 +269,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             and self.options["models_mode"] == "dpg"
         )
 
-    def need_vendored_etag(self, client_namespace: str) -> bool:
+    def need_utils_etag(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_etag
 
-    def need_vendored_abstract(self, client_namespace: str) -> bool:
+    def need_utils_abstract(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
 
     @property
-    def need_vendored_mixin(self) -> bool:
+    def need_utils_mixin(self) -> bool:
         return any(c_n for c_n in self.client_namespace_types if self.has_mixin(c_n))
 
     def has_mixin(self, client_namespace: str) -> bool:
