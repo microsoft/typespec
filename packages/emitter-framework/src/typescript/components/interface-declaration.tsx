@@ -9,6 +9,7 @@ import {
   Operation,
   RekeyableMap,
 } from "@typespec/compiler";
+import { Typekit } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -42,7 +43,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  const extendsType = props.extends ?? <ExtendsType type={props.type} />;
+  const extendsType = props.extends ?? getExtendsType($, props.type);
 
   return (
     <ts.InterfaceDeclaration
@@ -76,14 +77,7 @@ export function InterfaceExpression(props: InterfaceExpressionProps) {
   );
 }
 
-type ExtendsTypeProps = {
-  type: Model | Interface;
-};
-
-function ExtendsType(props: ExtendsTypeProps): Children | undefined {
-  const { $ } = useTsp();
-  const type = props.type;
-
+function getExtendsType($: Typekit, type: Model | Interface): Children | undefined {
   if (!$.model.is(type)) {
     return undefined;
   }
