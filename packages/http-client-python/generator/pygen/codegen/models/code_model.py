@@ -243,7 +243,11 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return client_namespace == self.namespace
 
     def need_vendor_folder(self, async_mode: bool, client_namespace: str) -> bool:
-        return self.need_vendor_utils(async_mode, client_namespace)
+        return self.need_vendor_utils(async_mode, client_namespace) or self.need_vendored_serialization or self.options["models_mode"] == "dpg"
+    
+    @property
+    def need_vendored_serialization(self) -> bool:
+      return not (self.options["client_side_validation"] or self.options["multiapi"])
 
     def need_vendor_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (

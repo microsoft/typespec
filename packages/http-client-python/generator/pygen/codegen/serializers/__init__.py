@@ -153,7 +153,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _model_base.py/_serialization.py/_vendor/py.typed/_types.py/_validation.py
+            # _vendor/py.typed/_types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
@@ -428,6 +428,13 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_serialization_file(),
             )
 
+        # write _model_base.py
+        if self.code_model.options["models_mode"] == "dpg":
+            self.write_file(
+                vendor_folder_path / Path("model_base.py"),
+                general_serializer.serialize_model_base_file(),
+            )
+
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
         # write _vendor folder
@@ -440,13 +447,6 @@ class JinjaSerializer(ReaderAndWriter):
 
         # write the empty py.typed file
         self.write_file(exec_path / Path("py.typed"), "# Marker file for PEP 561.")
-
-        # write _model_base.py
-        if self.code_model.options["models_mode"] == "dpg":
-            self.write_file(
-                exec_path / Path("_model_base.py"),
-                general_serializer.serialize_model_base_file(),
-            )
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
