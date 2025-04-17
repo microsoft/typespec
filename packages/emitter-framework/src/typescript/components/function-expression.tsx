@@ -18,7 +18,7 @@ export interface FunctionExpressionProps extends ts.FunctionExpressionProps {
  * function expression by converting from a TypeSpec Operation. Any other props
  * provided will take precedence.
  */
-export function FunctionExpression(props: FunctionExpressionProps) {
+export function FunctionExpression(props: Readonly<FunctionExpressionProps>) {
   const [efProps, updateProps, forwardProps] = splitProps(
     props,
     ["type"],
