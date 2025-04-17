@@ -204,15 +204,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCases =>
         [
-            new TestCaseData(InputPrimitiveType.String),
-            new TestCaseData(InputPrimitiveType.Int32),
+            new TestCaseData(InputFactory.StringEnum("EnumType", [("value", "value")], isExtensible: true)),
+            new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCases))]
-        public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
+        public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
+                    InputFactory.Property("Prop1", enumType)
                     ],
                 usage: InputModelTypeUsage.Json);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -391,11 +391,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
         {
             var inputModel = InputFactory.Model("Model", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                         "MyEnum",
-                        InputPrimitiveType.String,
-                        usage: InputModelTypeUsage.Input,
-                        values: [InputFactory.EnumMember.String("foo", "bar")])))
+                        [("foo", "bar")],
+                        usage: InputModelTypeUsage.Input)))
                     ]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
