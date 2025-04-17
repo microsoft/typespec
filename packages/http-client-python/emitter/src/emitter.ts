@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
-import { exec, execSync } from "child_process";
+import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import process from "process";
@@ -239,8 +239,12 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command, { stdio: [process.stdin, process.stdout] });
+      const excludeDirs = ["__pycache__/*", "node_modules/*", "venv/*", "env/*"];
+      const excludeArg = `--exclude "${excludeDirs.join("|")}"`;
+      execSync(`${venvPath} -m black --line-length=120 --fast ${outputDir} ${excludeArg}`, {
+        stdio: [process.stdin, process.stdout],
+      });
       checkForPylintIssues(outputDir);
-      await runBlack(venvPath, outputDir);
     }
   }
 }
@@ -283,19 +287,6 @@ async function setupPyodideCall(root: string) {
     }
   }
   return pyodide;
-}
-
-async function runBlack(venvPath: string, outputDir: string): Promise<void> {
-  const blackCommand = `${venvPath} -m black --line-length=120 --fast ${outputDir}`;
-  await new Promise((resolve, reject) => {
-    exec(blackCommand, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(stdout);
-    });
-  });
 }
 
 function checkForPylintIssues(outputDir: string) {
