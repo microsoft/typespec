@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import tsptest.flatten.implementation.FlattenClientImpl;
 import tsptest.flatten.implementation.JsonMergePatchHelper;
 import tsptest.flatten.implementation.models.SendLongRequest;
+import tsptest.flatten.implementation.models.SendOptionalBodyRequest;
 import tsptest.flatten.implementation.models.SendProjectedNameRequest;
 import tsptest.flatten.implementation.models.SendRequest;
 import tsptest.flatten.models.SendLongOptions;
@@ -402,6 +403,7 @@ public final class FlattenAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest().setName(name);
         BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
+        requestOptions.setBody(sendOptionalBodyRequest);
         return sendOptionalBodyWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 
@@ -420,8 +422,6 @@ public final class FlattenAsyncClient {
     public Mono<Void> sendOptionalBody() {
         // Generated convenience method for sendOptionalBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest();
-        BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
         return sendOptionalBodyWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import tsptest.flatten.implementation.FlattenClientImpl;
 import tsptest.flatten.implementation.JsonMergePatchHelper;
 import tsptest.flatten.implementation.models.SendLongRequest;
+import tsptest.flatten.implementation.models.SendOptionalBodyRequest;
 import tsptest.flatten.implementation.models.SendProjectedNameRequest;
 import tsptest.flatten.implementation.models.SendRequest;
 import tsptest.flatten.models.SendLongOptions;
@@ -392,6 +393,7 @@ public final class FlattenClient {
         RequestOptions requestOptions = new RequestOptions();
         SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest().setName(name);
         BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
+        requestOptions.setBody(sendOptionalBodyRequest);
         sendOptionalBodyWithResponse(requestOptions).getValue();
     }
 
@@ -409,8 +411,6 @@ public final class FlattenClient {
     public void sendOptionalBody() {
         // Generated convenience method for sendOptionalBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest();
-        BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
         sendOptionalBodyWithResponse(requestOptions).getValue();
     }
 }
