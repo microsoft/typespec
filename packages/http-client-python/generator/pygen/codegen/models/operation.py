@@ -448,7 +448,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         relative_path,
                         "Model",
                         ImportType.LOCAL,
-                        "_Model",
+                        alias="_Model",
                     )
                 elif xml_serializable(self.parameters.body_parameter.default_content_type):
                     file_import.add_submodule_import(
