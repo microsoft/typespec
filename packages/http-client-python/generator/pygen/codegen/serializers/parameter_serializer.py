@@ -109,6 +109,7 @@ class ParameterSerializer:
             return f"[{serialize_line} if q is not None else '' for q in {origin_name}]"
         return serialize_line
 
+    # pylint: disable=line-too-long
     def serialize_path(
         self,
         parameters: Union[
@@ -124,7 +125,11 @@ class ParameterSerializer:
             [
                 '    "{}": {},'.format(
                     path_parameter.wire_name,
-                    self.serialize_parameter(path_parameter, serializer_name),
+                    (
+                        f'"" if {path_parameter.full_client_name} is None else "/" + {self.serialize_parameter(path_parameter, serializer_name)}'
+                        if path_parameter.optional and isinstance(path_parameter, RequestBuilderParameter)
+                        else self.serialize_parameter(path_parameter, serializer_name)
+                    ),
                 )
                 for path_parameter in parameters
             ]
