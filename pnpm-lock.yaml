@@ -720,8 +720,8 @@ importers:
         version: 3.5.3
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.10.1
-        version: 0.10.1
+        specifier: ^0.11.0
+        version: 0.11.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.26.10)(@types/babel__core@7.20.5)(rollup@4.36.0)
@@ -2667,11 +2667,6 @@ packages:
 
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
-
-  '@alloy-js/cli@0.10.1':
-    resolution: {integrity: sha512-VQ/6uViE7qj0YDjE/IgpaF36IMMmN7JkZ+gAVY0uuMk01sOaoCC6crsdHdaIqJDDj6Vuy8ycv2MO+NseSU4Hhg==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   '@alloy-js/cli@0.11.0':
     resolution: {integrity: sha512-8v6o23auuiGYGjLXO747XkgxS3A33zlc/XNToPtAyubvrrLg0/1FrT1iRwfMQsJddXlr8B0+MHaRwam/hmBosw==}
@@ -10485,9 +10480,6 @@ packages:
     resolution: {integrity: sha512-Vj7sf++t5pBD637NSfkxpHSMfWaeig5+DKWLhcqIYx6mWQz5hdJTGDVMQiJcw1ZYkhs7AazKDGpRVji1LJCZUQ==}
     engines: {node: '>=18'}
 
-  pathe@1.1.2:
-    resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
-
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
@@ -13063,16 +13055,6 @@ snapshots:
       '@alloy-js/babel-plugin-jsx-dom-expressions': 0.39.0(@babel/core@7.26.10)
     transitivePeerDependencies:
       - '@babel/core'
-      - supports-color
-
-  '@alloy-js/cli@0.10.1':
-    dependencies:
-      '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.10)
-      '@babel/core': 7.26.10
-      '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
-      pathe: 1.1.2
-      picocolors: 1.1.1
-    transitivePeerDependencies:
       - supports-color
 
   '@alloy-js/cli@0.11.0':
@@ -23625,8 +23607,6 @@ snapshots:
   path-type@4.0.0: {}
 
   path-type@6.0.0: {}
-
-  pathe@1.1.2: {}
 
   pathe@2.0.3: {}
 
