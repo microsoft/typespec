@@ -15,7 +15,7 @@ describe("interface methods with a `type` prop", () => {
     runner = await createEmitterFrameworkTestRunner();
   });
 
-  it("creates a interface member", async () => {
+  it("creates a interface method", async () => {
     const { getName } = (await runner.compile(`
       @test op getName(id: string): string;
     `)) as { getName: Operation };
@@ -65,5 +65,170 @@ describe("interface methods with a `type` prop", () => {
     );
   });
 
-  it.todo("can append extra parameters with raw params provided", async () => {});
+  it("can append extra parameters with raw params provided", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod
+              type={getName}
+              parametersMode="append"
+              parameters={[{ name: "foo", type: "string" }]}
+            />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getName(id: string, foo: string): string
+        }
+      `,
+    );
+  });
+
+  it("can prepend extra parameters with raw params provided", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod
+              type={getName}
+              parametersMode="prepend"
+              parameters={[{ name: "foo", type: "string" }]}
+            />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getName(foo: string, id: string): string
+        }
+      `,
+    );
+  });
+
+  it("can replace parameters with raw params provided", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod
+              type={getName}
+              parametersMode="replace"
+              parameters={[
+                { name: "foo", type: "string" },
+                { name: "bar", type: "number" },
+              ]}
+            />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getName(foo: string, bar: number): string
+        }
+      `,
+    );
+  });
+
+  it("can override return type", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod type={getName} returnType="Promise<Record<string, unknown>>" />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getName(id: string): Promise<Record<string, unknown>>
+        }
+      `,
+    );
+  });
+
+  it("can override method name", async () => {
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod type={getName} name="getNameCustom" />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          getNameCustom(id: string): string
+        }
+      `,
+    );
+  });
+});
+
+describe("interface methods without a `type` prop", () => {
+  it("renders a plain interface method", async () => {
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <InterfaceDeclaration name="basicInterface">
+            <InterfaceMethod
+              name="plainMethod"
+              parameters={[{ name: "param1", type: "string" }]}
+              returnType="number"
+            />
+          </InterfaceDeclaration>
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(
+      res,
+      d`
+        interface basicInterface {
+          plainMethod(param1: string): number
+        }
+      `,
+    );
+  });
 });
