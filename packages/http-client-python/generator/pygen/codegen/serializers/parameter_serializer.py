@@ -109,6 +109,7 @@ class ParameterSerializer:
             return f"[{serialize_line} if q is not None else '' for q in {origin_name}]"
         return serialize_line
 
+    # pylint: disable=line-too-long
     def serialize_path(
         self,
         parameters: Union[
