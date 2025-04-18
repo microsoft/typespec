@@ -18,7 +18,7 @@ public final class PathTests {
     @Disabled
     @Test
     public void testOptional() {
-        //client.optional();
+        // client.optional();
         client.optional("foo");
     }
 }
