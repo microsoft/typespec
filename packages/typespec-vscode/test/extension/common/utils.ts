@@ -137,7 +137,7 @@ class Screenshot {
     if (this.fileList.length === 0 || !this.isLocalSave) {
       return
     }
-    // date小的在前面,让文件有序
+    // Smaller dates are placed first to keep the files in order
     this.fileList.sort((a, b) => a.date - b.date)
     for (let i = 0; i < this.fileList.length; i++) {
       const fullPathItem = this.fileList[i].fullPath.split("\\")
