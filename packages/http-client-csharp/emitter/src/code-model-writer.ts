@@ -15,7 +15,7 @@ import { Configuration } from "./type/configuration.js";
  * @param codeModel - The code model to write
  * @param outputFolder - The output folder to write the code model to
  * @beta
-*/
+ */
 export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
