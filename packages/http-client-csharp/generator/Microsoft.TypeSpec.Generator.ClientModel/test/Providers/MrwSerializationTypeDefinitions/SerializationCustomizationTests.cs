@@ -217,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 usage: InputModelTypeUsage.Json);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.Name));
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.ValueType.Name));
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -226,7 +226,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.Name), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.ValueType.Name), file.Content);
         }
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCasesFromLiteral =>

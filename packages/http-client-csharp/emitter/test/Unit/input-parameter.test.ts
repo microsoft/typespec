@@ -714,7 +714,7 @@ describe("Test Spread Parameters", () => {
     strictEqual(testParam.kind, InputParameterKind.Spread);
   });
 
-  it("Parameters that are constants are converted to enums", async () => {
+  it("Parameters that are constants", async () => {
     const program = await typeSpecCompile(
       `
         model Animal {
@@ -739,7 +739,7 @@ describe("Test Spread Parameters", () => {
     ok(kindParam);
     strictEqual(kindParam.location, RequestLocation.Body);
     strictEqual(kindParam.type.kind, "constant");
-    strictEqual(kindParam.type.valueType.kind, "enum");
+    strictEqual(kindParam.type.valueType.kind, "string");
 
     const nameParam = serviceMethod.parameters.find((p) => p.name === "name");
     ok(nameParam);
