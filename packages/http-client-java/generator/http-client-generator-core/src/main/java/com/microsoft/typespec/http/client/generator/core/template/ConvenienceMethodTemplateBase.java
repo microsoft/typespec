@@ -258,6 +258,11 @@ abstract class ConvenienceMethodTemplateBase {
 
         if (transformation.isGroupBy()) {
             // parameter grouping
+            /*
+             * sample code:
+             * String id = options.getId();
+             * String header = options.getHeader();
+             */
             final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
 
             boolean sourceParameterInMethod = false;
@@ -300,7 +305,13 @@ abstract class ConvenienceMethodTemplateBase {
             }
         } else {
             // request body flatten (possible with parameter grouping, handled in "mapping.getInParameterProperty()")
+            /*
+             * sample code:
+             * Body bodyObj = new Body(name).setProperty(options.getProperty());
+             * BinaryData body = BinaryData.fromObject(bodyObj);
+             */
             ClientMethodParameter targetParameter = transformation.getOutParameter();
+
             // if the request body is optional, when this client method overload contains only required parameters,
             // body expression is not needed (as there is no property in this overload for the request body)
             final boolean noBodyPropertyForOptionalBody
