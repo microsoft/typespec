@@ -54,7 +54,6 @@ public final class PathClient {
     /**
      * The optional operation.
      * 
-     * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -64,8 +63,8 @@ public final class PathClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> optionalWithResponse(String name, RequestOptions requestOptions) {
-        return this.serviceClient.optionalWithResponse(name, requestOptions);
+    public Response<Void> optionalWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.optionalWithResponse(requestOptions);
     }
 
     /**
@@ -103,6 +102,23 @@ public final class PathClient {
     public void optional(String name) {
         // Generated convenience method for optionalWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        optionalWithResponse(name, requestOptions).getValue();
+        optionalWithResponse(requestOptions).getValue();
+    }
+
+    /**
+     * The optional operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optional() {
+        // Generated convenience method for optionalWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        optionalWithResponse(requestOptions).getValue();
     }
 }

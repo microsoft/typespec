@@ -18,7 +18,7 @@ public final class PathTests {
     @Disabled("optional path parameter is not supported")
     @Test
     public void testOptional() {
-        // client.optional();
+        client.optional();
         client.optional("foo");
     }
 }

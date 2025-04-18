@@ -145,8 +145,8 @@ public final class PathClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> optional(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            RequestOptions requestOptions, Context context);
+        Mono<Response<Void>> optional(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
 
         @Get("/parameters/path/optional{name}")
         @ExpectedResponses({ 204 })
@@ -154,8 +154,8 @@ public final class PathClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> optionalSync(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            RequestOptions requestOptions, Context context);
+        Response<Void> optionalSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+            Context context);
     }
 
     /**
@@ -193,7 +193,6 @@ public final class PathClientImpl {
     /**
      * The optional operation.
      * 
-     * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -202,14 +201,13 @@ public final class PathClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> optionalWithResponseAsync(String name, RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.optional(this.getEndpoint(), name, requestOptions, context));
+    public Mono<Response<Void>> optionalWithResponseAsync(RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.optional(this.getEndpoint(), requestOptions, context));
     }
 
     /**
      * The optional operation.
      * 
-     * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -218,7 +216,7 @@ public final class PathClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> optionalWithResponse(String name, RequestOptions requestOptions) {
-        return service.optionalSync(this.getEndpoint(), name, requestOptions, Context.NONE);
+    public Response<Void> optionalWithResponse(RequestOptions requestOptions) {
+        return service.optionalSync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 }
