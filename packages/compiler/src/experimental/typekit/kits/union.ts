@@ -4,10 +4,10 @@ import {
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
 import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
+import { $doc, getDoc } from "../../../lib/decorators.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
-import { copyDoc } from "../utils/decorators.js";
 
 /**
  * A descriptor for a union type.
@@ -144,27 +144,22 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     createFromEnum(type) {
-      const union = this.union.create({
+      const enumDoc = getDoc(this.program, type);
+
+      return this.union.create({
         name: type.name,
+        decorators: enumDoc ? [$doc, () => this.literal.create(enumDoc)] : undefined,
+        variants: Array.from(type.members.values()).map((member) => {
+          const memberDoc = getDoc(this.program, member);
+          const value = member.value ?? member.name;
+
+          return this.unionVariant.create({
+            name: member.name,
+            type: this.literal.create(value),
+            decorators: memberDoc ? [$doc, () => this.literal.create(memberDoc)] : undefined,
+          });
+        }),
       });
-
-      copyDoc(type, union, this);
-
-      for (const member of type.members.values()) {
-        const variant: UnionVariant = this.unionVariant.create({
-          name: member.name,
-          type: this.literal.create(member.value ?? member.name),
-        });
-
-        copyDoc(member, variant, this);
-
-        union.variants.set(variant.name, variant);
-        variant.union = union;
-      }
-
-      this.program.checker.finishType(union);
-
-      return union;
     },
 
     is(type) {

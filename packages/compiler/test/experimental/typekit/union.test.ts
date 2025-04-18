@@ -1,13 +1,7 @@
-import { beforeAll, expect, it } from "vitest";
-import { $, Typekit } from "../../../src/experimental/typekit/index.js";
-import { Enum, getDoc, Program, StringLiteral, Union } from "../../../src/index.js";
+import { expect, it } from "vitest";
+import { $ } from "../../../src/experimental/typekit/index.js";
+import { Enum, getDoc, StringLiteral, Union } from "../../../src/index.js";
 import { createContextMock, getTypes } from "./utils.js";
-
-let program: Program;
-let tk: Typekit;
-beforeAll(async () => {
-  // need the side effect of creating the program.
-});
 
 it("can create a union", async () => {
   const {
