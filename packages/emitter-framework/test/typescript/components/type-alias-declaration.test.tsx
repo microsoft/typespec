@@ -1,11 +1,12 @@
 import { render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
-import { Namespace } from "@typespec/compiler";
+import { Namespace, Operation } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
-import { getProgram } from "../test-host.js";
+import { assertFileContents } from "../../utils.js";
+import { createEmitterFrameworkTestRunner, getProgram } from "../test-host.js";
 
 describe("Typescript Type Alias Declaration", () => {
   describe("Type Alias bound to Typespec Scalar", () => {
@@ -117,5 +118,22 @@ describe("Typescript Type Alias Declaration", () => {
         expect(actualContent).toBe(expectedContent);
       });
     });
+  });
+
+  it("creates a type alias of a function", async () => {
+    const runner = await createEmitterFrameworkTestRunner();
+    const { getName } = (await runner.compile(`
+      @test op getName(id: string): string;
+    `)) as { getName: Operation };
+
+    const res = render(
+      <Output>
+        <SourceFile path="test.ts">
+          <TypeAliasDeclaration type={getName} />
+        </SourceFile>
+      </Output>,
+    );
+
+    assertFileContents(res, "type getName = (id: string) => string;");
   });
 });
