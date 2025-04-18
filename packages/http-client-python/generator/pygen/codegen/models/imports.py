@@ -279,7 +279,7 @@ class FileImport:
                 )
             else:
                 relative_path = self.code_model.get_relative_import_path(
-                    serialize_namespace, imported_namespace, module_name="serialization"
+                    serialize_namespace, f"{self.code_model.namespace}._utils.serialization"
                 )
                 self.add_submodule_import(relative_path, "Serializer", ImportType.LOCAL, typing_section)
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
