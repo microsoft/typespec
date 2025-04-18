@@ -6,8 +6,8 @@ import {
 import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
-import { $ } from "../index.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import { copyDoc } from "../utils/decorators.js";
 
 /**
  * A descriptor for a union type.
@@ -52,6 +52,8 @@ export interface UnionKit {
   /**
    * Creates a union type from an enum.
    * For member without an explicit value, the member name is used as the value.
+   * Note that only documentation is copied from the enum to the union - both doc-comments and `@doc` decorators.
+   *
    * @param type The enum to create a union from.
    */
   createFromEnum(type: Enum): Union;
@@ -142,13 +144,20 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     createFromEnum(type) {
-      const union = this.union.create({ name: type.name });
+      const union = this.union.create({
+        name: type.name,
+      });
+
+      copyDoc(type, union, this);
 
       for (const member of type.members.values()) {
         const variant: UnionVariant = this.unionVariant.create({
           name: member.name,
-          type: $.literal.create(member.value ?? member.name),
+          type: this.literal.create(member.value ?? member.name),
         });
+
+        copyDoc(member, variant, this);
+
         union.variants.set(variant.name, variant);
         variant.union = union;
       }

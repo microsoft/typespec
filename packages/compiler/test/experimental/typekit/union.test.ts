@@ -1,6 +1,6 @@
 import { beforeAll, expect, it } from "vitest";
 import { $, Typekit } from "../../../src/experimental/typekit/index.js";
-import { Program, StringLiteral, Union } from "../../../src/index.js";
+import { Enum, getDoc, Program, StringLiteral, Union } from "../../../src/index.js";
 import { createContextMock, getTypes } from "./utils.js";
 
 let program: Program;
@@ -93,4 +93,24 @@ it("can build unions from enums with custom values", async () => {
   expect((union.variants.get("a")?.type as StringLiteral).value).toBe(1);
   expect((union.variants.get("b")?.type as StringLiteral).value).toBe("2");
   expect((union.variants.get("c")?.type as StringLiteral).value).toBe(3);
+});
+
+it("preserves only @doc decorators", async () => {
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
+    `
+    @doc("enum named foo")
+    enum Foo {
+      /**
+       * doc-comment
+       */
+      a: 1;
+    }`,
+    ["Foo"],
+  );
+
+  expect(getDoc(program, Foo)).toBe("enum named foo");
+  expect(getDoc(program, (Foo as Enum).members.get("a")!)).toBe("doc-comment");
 });
