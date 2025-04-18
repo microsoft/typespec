@@ -51,6 +51,7 @@ export interface UnionKit {
 
   /**
    * Creates a union type from an enum.
+   * For member without an explicit value, the member name is used as the value.
    * @param type The enum to create a union from.
    */
   createFromEnum(type: Enum): Union;
