@@ -4,14 +4,16 @@ import { StringLiteral, Union } from "../../../src/index.js";
 import { getTypes } from "./utils.js";
 
 it("can create a union", async () => {
-  await getTypes(
+  const {
+    context: { program },
+  } = await getTypes(
     `
     model Foo {}
     `,
     ["Foo"],
   );
 
-  const union = $.union.create({
+  const union = $(program).union.create({
     name: "Foo",
     variants: { hi: "Hello", bye: "Goodbye" },
   });
@@ -22,7 +24,11 @@ it("can create a union", async () => {
 });
 
 it("can check if the union is extensible", async () => {
-  const { Foo, Bar } = await getTypes(
+  const {
+    Foo,
+    Bar,
+    context: { program },
+  } = await getTypes(
     `
     union Foo {
       string;
@@ -38,6 +44,6 @@ it("can check if the union is extensible", async () => {
     ["Foo", "Bar"],
   );
 
-  expect($.union.isExtensible(Foo as Union)).toBe(true);
-  expect($.union.isExtensible(Bar as Union)).toBe(false);
+  expect($(program).union.isExtensible(Foo as Union)).toBe(true);
+  expect($(program).union.isExtensible(Bar as Union)).toBe(false);
 });

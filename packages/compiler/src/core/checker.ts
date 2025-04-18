@@ -6251,7 +6251,7 @@ export function filterModelProperties(
   }
 
   const realm = Realm.realmForType.get(model);
-  const typekit = realm ? $(realm) : $;
+  const typekit = realm ? $(realm) : $(program);
   const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,

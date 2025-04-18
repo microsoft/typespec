@@ -1,13 +1,14 @@
 import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
 
 export function getReturnType(
   type: Operation,
   options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false },
 ): Type {
+  const { $ } = useTsp();
   let returnType = type.returnType;
 
   if (!options.skipErrorFiltering && type.returnType.kind === "Union") {
@@ -26,6 +27,7 @@ export function buildParameterDescriptors(
   type: Model,
   options: BuildParameterDescriptorsOptions = {},
 ): ts.ParameterDescriptor[] | undefined {
+  const { $ } = useTsp();
   const optionsParams = normalizeParameters(options.params);
 
   if (options.mode === "replace") {

@@ -22,6 +22,7 @@
     "@alloy-js/core": "^0.11.0",
     "@alloy-js/typescript": "^0.11.0",
     "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "@alloy-js/typescript": "^0.11.0",
     "@types/node": "~22.13.11",
     "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "eslint": "^9.23.0",
     "prettier": "~3.5.3",

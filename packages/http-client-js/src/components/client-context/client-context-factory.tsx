@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, type OAuth2Flow } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -20,6 +20,7 @@ export function getClientContextFactoryRef(client: cl.Client) {
 }
 
 export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps) {
+  const { $ } = useTsp();
   const ref = getClientContextFactoryRef(props.client);
   const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
   const namePolicy = ts.useTSNamePolicy();
@@ -99,6 +100,7 @@ interface AuthSchemeProps {
 }
 
 function AuthScheme(props: AuthSchemeProps) {
+  const { $ } = useTsp();
   switch (props.scheme.type) {
     case "http":
       return (
@@ -161,6 +163,7 @@ function OAuth2Flow(props: OAuth2FlowProps) {
 }
 
 function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
+  const { $ } = useTsp();
   const clientCredential = $.client.getAuth(props.client);
 
   if (clientCredential.schemes.length === 0) {
