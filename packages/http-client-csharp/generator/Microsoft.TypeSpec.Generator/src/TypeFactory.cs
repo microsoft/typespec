@@ -80,8 +80,9 @@ namespace Microsoft.TypeSpec.Generator
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
                 case InputEnumTypeValue enumValueType:
-                    // for enum value, we redirect to its corresponding enum type instead
-                    type = CreateCSharpType(enumValueType.EnumType);
+                    // for enum value, we redirect to its corresponding enum type as a literal
+                    var enumValue = CreateCSharpType(enumValueType.EnumType);
+                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
