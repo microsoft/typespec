@@ -22,7 +22,7 @@
   "messages": {
     "compilerMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     },
     "extractorMessageReporting": {
@@ -32,7 +32,7 @@
     },
     "tsdocMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     }
   }
