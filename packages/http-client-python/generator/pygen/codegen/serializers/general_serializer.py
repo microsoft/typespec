@@ -233,14 +233,14 @@ class GeneralSerializer(BaseSerializer):
                     cross_langauge_def_dict.update(
                         {
                             f"{self.code_model.namespace}.{client.name}."
-                            + ("" if operation_group.is_mixin else f"{operation_group.class_name}.")
+                            + ("" if operation_group.is_mixin else f"operations.{operation_group.class_name}.")
                             + f"{operation.name}": operation.cross_language_definition_id
                         }
                     )
                     cross_langauge_def_dict.update(
                         {
                             f"{self.code_model.namespace}.aio.{client.name}"
-                            + ("" if operation_group.is_mixin else f"{operation_group.class_name}.")
+                            + ("" if operation_group.is_mixin else f"operations.{operation_group.class_name}.")
                             + f"{operation.name}": operation.cross_language_definition_id
                         }
                     )
