@@ -145,10 +145,9 @@ export const UnionKit = defineKit<TypekitExtension>({
 
     createFromEnum(type) {
       const enumDoc = getDoc(this.program, type);
-
       return this.union.create({
         name: type.name,
-        decorators: enumDoc ? [$doc, () => this.literal.create(enumDoc)] : undefined,
+        decorators: enumDoc ? [[$doc, enumDoc]] : undefined,
         variants: Array.from(type.members.values()).map((member) => {
           const memberDoc = getDoc(this.program, member);
           const value = member.value ?? member.name;
@@ -156,7 +155,7 @@ export const UnionKit = defineKit<TypekitExtension>({
           return this.unionVariant.create({
             name: member.name,
             type: this.literal.create(value),
-            decorators: memberDoc ? [$doc, () => this.literal.create(memberDoc)] : undefined,
+            decorators: memberDoc ? [[$doc, memberDoc]] : undefined,
           });
         }),
       });

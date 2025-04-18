@@ -89,7 +89,7 @@ it("can build unions from enums with custom values", async () => {
   expect((union.variants.get("c")?.type as StringLiteral).value).toBe(3);
 });
 
-it("preserves only @doc decorators", async () => {
+it("preserves documentation when copying", async () => {
   const {
     Foo,
     context: { program },
@@ -105,6 +105,8 @@ it("preserves only @doc decorators", async () => {
     ["Foo"],
   );
 
-  expect(getDoc(program, Foo)).toBe("enum named foo");
-  expect(getDoc(program, (Foo as Enum).members.get("a")!)).toBe("doc-comment");
+  const union = $(program).union.createFromEnum(Foo as Enum);
+
+  expect(getDoc(program, union)).toBe("enum named foo");
+  expect(getDoc(program, (union as Union).variants.get("a")!)).toBe("doc-comment");
 });
