@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EnvDTE;
+using Microsoft.Internal.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
@@ -66,6 +67,7 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         private readonly IVsFolderWorkspaceService _workspaceService;
         private readonly SVsServiceProvider _serviceProvider;
+        private readonly IVsTelemetryService? _telemetryService;
         private string? _workspaceFolder;
         private string? _configuredTypeSpecServerPath;
 
@@ -75,6 +77,7 @@ namespace Microsoft.TypeSpec.VisualStudio
         {
             _workspaceService = workspaceService;
             _serviceProvider = serviceProvider;
+            _telemetryService = serviceProvider.GetService(typeof(SVsTelemetryService)) as IVsTelemetryService;
         }
 
         public async Task<Connection?> ActivateAsync(CancellationToken token)
@@ -144,7 +147,39 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         public Task OnServerInitializedAsync()
         {
+            string typespecCompilerVersion = GetTypespecVersion();
+            if (_telemetryService != null && !string.IsNullOrWhiteSpace(typespecCompilerVersion))
+            {
+                IVsTelemetryEvent telemetryEvent = _telemetryService.CreateEvent("vs/typespec/vs-extension/start-extension");
+                telemetryEvent.SetStringProperty("vs.typespec.compiler.version", typespecCompilerVersion);
+                _telemetryService.GetDefaultSession().PostEvent(telemetryEvent);
+            }
             return Task.CompletedTask;
+        }
+
+        private string GetTypespecVersion()
+        {
+            try
+            {
+                ProcessStartInfo processStartInfo = new()
+                {
+                    FileName = "cmd.exe",
+                    Arguments = "/c tsp --version",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+
+                using Process process = Process.Start(processStartInfo);
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                return output.Trim();
+            }
+            catch (Exception ex)
+            {
+                Debugger.Log(0, null, "tsp-server version exception: " + ex.Message);
+                return "";
+            }
         }
 
         private void LogStderrMessage(string? message)
