@@ -109,12 +109,7 @@ Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
 
-    # Fail if anything written to stderr during build
-    & { npm run build 2>&1 } | Tee-Object -Variable stdErr
-    if ($stderr) {
-        Write-Error "An error or warning was detected during build. Failing CI."
-        exit 1
-    }
+    Invoke-LoggedCommand "npm run build" -GroupOutput
 
     Copy-Item "$packageRoot/emitter/temp/*.api.json" -Destination "$outputPath/packages"
 

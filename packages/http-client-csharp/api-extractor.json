@@ -27,7 +27,7 @@
     },
     "extractorMessageReporting": {
       "default": {
-        "logLevel": "warning"
+        "logLevel": "error"
       }
     },
     "tsdocMessageReporting": {
