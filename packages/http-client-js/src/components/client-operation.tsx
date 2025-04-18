@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -47,6 +47,7 @@ export interface ClientOperationProps {
 }
 
 export function ClientOperation(props: ClientOperationProps) {
+  const { $ } = useTsp();
   const clientLibrary = cl.useClientLibrary();
   const client = clientLibrary.getClientForOperation(props.httpOperation);
 

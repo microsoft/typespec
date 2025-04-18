@@ -1,12 +1,13 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { InterfaceDeclaration, SourceFile } from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceMethod } from "../../../src/typescript/components/interface-method.jsx";
 import { assertFileContents } from "../../utils.js";
-import { createEmitterFrameworkTestRunner } from "../test-host.js";
+import { createEmitterFrameworkTestRunner, getProgram } from "../test-host.js";
 
 describe("interface methods with a `type` prop", () => {
   let runner: BasicTestRunner;
@@ -21,7 +22,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod type={getName} name={getName.name} />
@@ -46,7 +47,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod async type={getName} />
@@ -71,7 +72,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod
@@ -100,7 +101,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod
@@ -129,7 +130,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod
@@ -161,7 +162,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod type={getName} returnType="Promise<Record<string, unknown>>" />
@@ -186,7 +187,7 @@ describe("interface methods with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod type={getName} name="getNameCustom" />
@@ -208,8 +209,9 @@ describe("interface methods with a `type` prop", () => {
 
 describe("interface methods without a `type` prop", () => {
   it("renders a plain interface method", async () => {
+    const program = await getProgram("");
     const res = render(
-      <Output>
+      <Output program={program}>
         <SourceFile path="test.ts">
           <InterfaceDeclaration name="basicInterface">
             <InterfaceMethod

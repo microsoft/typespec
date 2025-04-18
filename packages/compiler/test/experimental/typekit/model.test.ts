@@ -1,41 +1,52 @@
 import { expect, it } from "vitest";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { Operation } from "../../../src/index.js";
-import { getTypes } from "./utils.js";
+import { createContextMock, getTypes } from "./utils.js";
 
 it("can check if a type is a Model", async () => {
-  const { Foo } = await getTypes(
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
     `
     model Foo {};
     `,
     ["Foo"],
   );
 
-  expect($.model.is(Foo)).toBe(true);
+  expect($(program).model.is(Foo)).toBe(true);
 });
 
 it("returns false whe the type is not a model", async () => {
-  const { Foo } = await getTypes(
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
     `
     interface Foo {};
     `,
     ["Foo"],
   );
 
-  expect($.model.is(Foo)).toBe(false);
+  expect($(program).model.is(Foo)).toBe(false);
 });
 
 it("creates a new Model", async () => {
-  const foo = $.model.create({
+  const { program } = await createContextMock();
+  const foo = $(program).model.create({
     name: "Foo",
     properties: {},
   });
 
-  expect($.model.is(foo)).toBe(true);
+  expect($(program).model.is(foo)).toBe(true);
 });
 
 it("can get the effective model type", async () => {
-  const { Foo, create } = await getTypes(
+  const {
+    Foo,
+    create,
+    context: { program },
+  } = await getTypes(
     `
     model Foo {
       id: string;
@@ -47,7 +58,7 @@ it("can get the effective model type", async () => {
   );
 
   const createParameters = (create as Operation).parameters;
-  const model = $.model.getEffectiveModel(createParameters);
+  const model = $(program).model.getEffectiveModel(createParameters);
 
   // Since Foo is spread they are not the same model
   expect(createParameters).not.toBe(Foo);

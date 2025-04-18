@@ -165,16 +165,16 @@ function visitClient(
 
   $.client
     .getConstructor(currentClient)
-    .parameters.properties.forEach((p) => collectDataTypes(p.type, dataTypes));
+    .parameters.properties.forEach((p) => collectDataTypes($, p.type, dataTypes));
 
   // Collect data types
   for (const clientOperation of currentClient.operations) {
     // Collect operation parameters
-    collectDataTypes(clientOperation.httpOperation.operation.parameters, dataTypes);
+    collectDataTypes($, clientOperation.httpOperation.operation.parameters, dataTypes);
 
     // Collect http operation return type
     const responseType = $.httpOperation.getReturnType(clientOperation.httpOperation);
-    collectDataTypes(responseType, dataTypes);
+    collectDataTypes($, responseType, dataTypes);
   }
 
   return currentClient;
