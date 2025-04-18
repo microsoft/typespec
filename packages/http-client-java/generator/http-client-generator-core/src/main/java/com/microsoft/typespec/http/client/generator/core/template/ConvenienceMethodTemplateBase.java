@@ -114,9 +114,14 @@ abstract class ConvenienceMethodTemplateBase {
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
         if (!transformations.isEmpty()) {
-            transformations.asStream()
-                .forEach(d -> writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock,
-                    parametersMap));
+            transformations.asStream().forEach(d -> {
+                ClientMethodParameter requestBodyClientParameter
+                    = writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock, parametersMap);
+                if (requestBodyClientParameter != null && !requestBodyClientParameter.isRequired()) {
+                    // protocol method parameter does not exist, set the parameter via RequestOptions
+                    methodBlock.line("requestOptions.setBody(" + requestBodyClientParameter.getName() + ");");
+                }
+            });
         }
 
         writeValidationForVersioning(convenienceMethod, parametersMap.keySet(), methodBlock);
@@ -139,7 +144,7 @@ abstract class ConvenienceMethodTemplateBase {
                     protocolMethod.getProxyMethod().getRequestContentType());
                 parameterExpressionsMap.put(protocolParameter.getName(), expression);
             } else if (parameter.getProxyMethodParameter() != null) {
-                // protocol method parameter not exist, set the parameter via RequestOptions
+                // protocol method parameter does not exist, set the parameter via RequestOptions
                 switch (parameter.getProxyMethodParameter().getRequestParameterLocation()) {
                     case HEADER:
                         writeHeader(parameter, methodBlock);
@@ -234,11 +239,25 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-    private static void writeParameterTransformation(ParameterTransformation transformation,
+    /**
+     * Writes the code for parameter transformation.
+     * Return the client parameter of the request body, if the BinaryData of the object is written.
+     *
+     * @param transformation the parameter transformation
+     * @param convenienceMethod the convenience method
+     * @param protocolMethod the protocol method
+     * @param methodBlock the block to write code
+     * @param parametersMap the map of matched parameters from convenience method to protocol method
+     * @return the client parameter of request body, if the BinaryData of the object is written.
+     */
+    private static ClientMethodParameter writeParameterTransformation(ParameterTransformation transformation,
         ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
         Map<MethodParameter, MethodParameter> parametersMap) {
+
+        ClientMethodParameter requestBodyClientParameter = null;
+
         if (transformation.isGroupBy()) {
-            // grouping
+            // parameter grouping
             final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
 
             boolean sourceParameterInMethod = false;
@@ -280,9 +299,13 @@ abstract class ConvenienceMethodTemplateBase {
                 }
             }
         } else {
-            // flatten (possible with grouping)
+            // request body flatten (possible with parameter grouping, handled in "mapping.getInParameterProperty()")
             ClientMethodParameter targetParameter = transformation.getOutParameter();
-            if (targetParameter.getWireType() == ClassType.BINARY_DATA) {
+            // if the request body is optional, when this client method overload contains only required parameters,
+            // body expression is not needed (as there is no property in this overload for the request body)
+            final boolean noBodyPropertyForOptionalBody
+                = !targetParameter.isRequired() && convenienceMethod.getOnlyRequiredParameters();
+            if (!noBodyPropertyForOptionalBody && targetParameter.getWireType() == ClassType.BINARY_DATA) {
                 IType targetType = targetParameter.getRawType();
 
                 StringBuilder ctorExpression = new StringBuilder();
@@ -338,8 +361,11 @@ abstract class ConvenienceMethodTemplateBase {
                         protocolMethod.getProxyMethod().getRequestContentType());
                 }
                 methodBlock.line(String.format("BinaryData %1$s = %2$s;", targetParameterName, expression));
+
+                requestBodyClientParameter = targetParameter;
             }
         }
+        return requestBodyClientParameter;
     }
 
     protected void addImports(Set<String> imports, List<ConvenienceMethod> convenienceMethods) {
