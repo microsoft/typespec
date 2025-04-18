@@ -322,7 +322,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                 for (ClientMethodParameter parameter : methodParameters) {
                     comment.param(parameter.getName(), MethodUtil.methodParameterDescriptionOrDefault(parameter));
                 }
-                comment.methodReturns("an instance of " + subClientName + "class");
+                comment.methodReturns("an instance of " + subClientName + " class");
             });
             classBlock.publicMethod(clientAccessorMethod.getDeclaration(), method -> {
                 for (ClientMethodParameter parameter : methodParameters) {

@@ -244,7 +244,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
            string access = "public",
            IReadOnlyList<InputParameter>? parameters = null,
            InputServiceMethodResponse? response = null,
-           InputServiceMethodResponse? exception = null)
+           InputServiceMethodResponse? exception = null,
+           InputPagingServiceMetadata? pagingMetadata = null)
         {
             return new InputPagingServiceMethod(
                 name,
@@ -259,7 +260,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 true,
-                string.Empty);
+                string.Empty,
+                pagingMetadata ?? PagingMetadata([], null, null));
+        }
+
+        public static InputPagingServiceMetadata PagingMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken)
+        {
+            return new InputPagingServiceMetadata(itemPropertySegments, nextLink, continuationToken);
         }
 
         public static InputOperation Operation(
@@ -270,8 +277,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET",
-            InputOperationPaging? paging = null)
+            string httpMethod = "GET")
         {
             return new InputOperation(
                 name,
@@ -288,24 +294,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
-                null,
-                paging,
                 true,
                 true,
                 name);
         }
 
-        public static InputOperationPaging NextLinkOperationPaging(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
         {
-            return new InputOperationPaging(
+            return PagingMetadata(
                 [itemPropertyName],
                 new InputNextLink(null, [nextLinkName], nextLinkLocation),
                 null);
         }
 
-        public static InputOperationPaging ContinuationTokenOperationPaging(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
         {
-            return new InputOperationPaging(
+            return new InputPagingServiceMetadata(
                 [itemPropertyName],
                 null,
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));

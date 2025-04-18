@@ -29,6 +29,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `api-version`
 
 **Type:** `string`
@@ -90,6 +97,12 @@ Set to `true` to disable XML documentation generation. The default value is `fal
 **Type:** `string`
 
 The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.
+
+### `emitter-extension-path`
+
+**Type:** `string`
+
+Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
 
 ### `update-code-model`
 

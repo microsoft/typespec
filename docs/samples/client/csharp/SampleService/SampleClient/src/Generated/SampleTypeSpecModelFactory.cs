@@ -158,11 +158,21 @@ namespace SampleTypeSpec
 
         /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
         /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
         /// <returns> A new <see cref="SampleTypeSpec.ModelWithEmbeddedNonBodyParameters"/> instance for mocking. </returns>
-        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default)
+        public static ModelWithEmbeddedNonBodyParameters ModelWithEmbeddedNonBodyParameters(string name = default, string requiredHeader = default, string optionalHeader = default, string requiredQuery = default, string optionalQuery = default)
         {
 
-            return new ModelWithEmbeddedNonBodyParameters(name, additionalBinaryDataProperties: null);
+            return new ModelWithEmbeddedNonBodyParameters(
+                name,
+                requiredHeader,
+                optionalHeader,
+                requiredQuery,
+                optionalQuery,
+                additionalBinaryDataProperties: null);
         }
     }
 }

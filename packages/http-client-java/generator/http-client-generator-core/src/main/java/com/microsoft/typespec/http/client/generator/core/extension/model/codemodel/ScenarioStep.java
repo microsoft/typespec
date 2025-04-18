@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Map;
 
 /**
  * Represents a step in a scenario.
  */
-public class ScenarioStep implements JsonSerializable<ScenarioStep> {
+public class ScenarioStep {
     private TestScenarioStepType type;
     private String operationId;
     private String exampleFile;
@@ -133,44 +128,5 @@ public class ScenarioStep implements JsonSerializable<ScenarioStep> {
      */
     public void setRequestParameters(Map<String, Object> requestParameters) {
         this.requestParameters = requestParameters;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("type", type == null ? null : type.toString())
-            .writeStringField("operationId", operationId)
-            .writeStringField("exampleFile", exampleFile)
-            .writeStringField("exampleName", exampleName)
-            .writeMapField("requestParameters", requestParameters, JsonWriter::writeUntyped)
-            .writeStringField("description", description)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a ScenarioStep instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A ScenarioStep instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static ScenarioStep fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, ScenarioStep::new, (step, fieldName, reader) -> {
-            if ("type".equals(fieldName)) {
-                step.type = TestScenarioStepType.fromValue(reader.getString());
-            } else if ("operationId".equals(fieldName)) {
-                step.operationId = reader.getString();
-            } else if ("exampleFile".equals(fieldName)) {
-                step.exampleFile = reader.getString();
-            } else if ("exampleName".equals(fieldName)) {
-                step.exampleName = reader.getString();
-            } else if ("requestParameters".equals(fieldName)) {
-                step.requestParameters = reader.readMap(JsonReader::readUntyped);
-            } else if ("description".equals(fieldName)) {
-                step.description = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }
