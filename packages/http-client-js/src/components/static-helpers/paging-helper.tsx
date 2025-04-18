@@ -1,22 +1,46 @@
+/**
+ * This file provides helper functions and type declarations for working with paged async iterators in a generic way.
+ * It defines interfaces and functions for building paged async iterators that can iterate either item-by-item or page-by-page.
+ */
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
+/**
+ * Returns a reference key for the PagedAsyncIterableIterator interface.
+ * The refkey uniquely identifies this interface declaration.
+ */
 export function getPagedAsyncIterableIteratorRefkey() {
   return ay.refkey("PagedAsyncIterableIterator", "interface");
 }
 
+/**
+ * Returns a reference key for the buildPagedAsyncIterator function.
+ * The refkey uniquely identifies this function declaration.
+ */
 export function getBuildPagedAsyncIteratorRefkey() {
   return ay.refkey("buildPagedAsyncIterator", "function");
 }
 
+/**
+ * Returns a reference key for the PagedResult interface.
+ * This key is used internally when defining interfaces and functions.
+ */
 function getPagedResultRefkey() {
   return ay.refkey("PagedResult", "interface");
 }
 
+/**
+ * Returns a reference key for the BuildPagedAsyncIteratorOptions interface.
+ * The refkey uniquely identifies this interface declaration.
+ */
 function getBuildPagedAsyncIteratorOptionsRefkey() {
   return ay.refkey("BuildPagedAsyncIteratorOptions", "interface");
 }
 
+/**
+ * Declaration for the PagedAsyncIterableIterator interface.
+ * This interface allows async iteration on individual items as well as by page.
+ */
 function PagedAsyncIterableIteratorInterfaceDeclaration() {
   return (
     <ay.Declaration
@@ -55,6 +79,10 @@ export interface PagedAsyncIterableIterator<
   );
 }
 
+/**
+ * Declaration for the PagedResult interface.
+ * This interface abstracts how to get paginated results and elements from a service response.
+ */
 function PagedResultInterfaceDeclaration() {
   return (
     <ay.Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
@@ -91,6 +119,10 @@ interface PagedResult<
   );
 }
 
+/**
+ * Declaration for the BuildPagedAsyncIteratorOptions interface.
+ * This interface defines options required to build a paged async iterator.
+ */
 function BuildPagedAsyncIteratorOptionsInterfaceDeclaration() {
   return (
     <ay.Declaration
@@ -113,6 +145,10 @@ export interface BuildPagedAsyncIteratorOptions<
   );
 }
 
+/**
+ * Declaration for the buildPagedAsyncIterator function.
+ * This helper constructs a PagedAsyncIterableIterator using the provided options.
+ */
 function BuildPagedAsyncIteratorInterfaceDeclaration() {
   return (
     <ay.Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
@@ -183,6 +219,10 @@ async function* getPageAsyncIterator<TElement, TPageResponse, TPageSettings>(
   );
 }
 
+/**
+ * Main export that wraps all paging helper declarations in a single source file.
+ * This facilitates easy integration of all related paging functionalities.
+ */
 export function PagingHelpers() {
   return (
     <ts.SourceFile path="pagingHelpers.ts">
