@@ -17,7 +17,7 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "test:e2e": "pnpm emit:e2e && node eng/scripts/run-e2e-tests.js",
+    "test:e2e": "pnpm emit:e2e && pnpm build:test && node eng/scripts/run-e2e-tests.js",
     "format": "prettier . --write",
     "build:test": "tsc -p tsconfig.test.json",
     "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",
@@ -53,8 +53,8 @@
     "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.10.0",
-    "@alloy-js/typescript": "^0.10.0",
+    "@alloy-js/core": "^0.11.0",
+    "@alloy-js/typescript": "^0.11.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
     "prettier": "~3.5.3"

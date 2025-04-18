@@ -22,7 +22,7 @@ export function MultipartTransform(props: MultipartTransformProps) {
 
   const partTransform = (
     <ay.For each={httpParts} comma line>
-      {(part) => <HttpPartTransform part={part} itemRef={itemRef} />}
+      {(part, _) => <HttpPartTransform part={part} itemRef={itemRef} />}
     </ay.For>
   );
 
