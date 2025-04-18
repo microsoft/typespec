@@ -3,17 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -98,9 +95,7 @@ public class SchemaUtil {
      * For vanilla/mgmt, returns InputStream
      */
     public static IType getOperationResponseType(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-
+        final Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
         return getOperationResponseType(responseBodySchema, operation, settings);
     }
 
@@ -118,24 +113,22 @@ public class SchemaUtil {
      */
     public static IType getOperationResponseType(Schema responseBodySchema, Operation operation,
         JavaSettings settings) {
-        IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
-
-        if (responseBodyType == null) {
-            if (operationIsHeadAsBoolean(operation)) {
-                // Azure core would internally convert the response status code to boolean.
-                responseBodyType = PrimitiveType.BOOLEAN;
-            } else if (containsBinaryResponse(operation)) {
-                if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
-                    responseBodyType = ClassType.BINARY_DATA;
-                } else {
-                    responseBodyType = ClassType.INPUT_STREAM;
-                }
+        final IType responseBodyType = Mappers.getSchemaMapper().map(responseBodySchema);
+        if (responseBodyType != null) {
+            return responseBodyType;
+        }
+        if (operation.checksResourceExistenceWithHead()) {
+            // Azure core would internally convert the response status code of HEAD to boolean.
+            return PrimitiveType.BOOLEAN;
+        }
+        if (operation.hasBinaryResponse()) {
+            if (settings.isDataPlaneClient() || !settings.isInputStreamForBinary()) {
+                return ClassType.BINARY_DATA;
             } else {
-                responseBodyType = PrimitiveType.VOID;
+                return ClassType.INPUT_STREAM;
             }
         }
-
-        return responseBodyType;
+        return PrimitiveType.VOID;
     }
 
     public static Property getDiscriminatorProperty(ObjectSchema compositeType) {
@@ -179,23 +172,18 @@ public class SchemaUtil {
 
     /**
      * Whether response contains header schemas.
-     * <p>
-     * Response headers will be omitted, as polling method has return type as SyncPoller or PollerFlux, not Response.
      *
      * @param operation the operation
      * @param settings the JavaSetting object
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        return operation.getResponses()
-            .stream()
-            .filter(r -> r.getProtocol() != null
-                && r.getProtocol().getHttp() != null
-                && r.getProtocol().getHttp().getHeaders() != null)
-            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
-            .anyMatch(Objects::nonNull)
-            && operationIsNotFluentLRO(operation, settings)
-            && operationIsNotDataPlaneLRO(operation, settings);
+        if (operation.isLro() && (settings.isFluent() || settings.isDataPlaneClient())) {
+            // Response headers will be omitted, as LRO method has return type as SyncPoller or PollerFlux, not
+            // Response.
+            return false;
+        }
+        return operation.hasHeaderSchemaResponse();
     }
 
     /**
@@ -245,19 +233,10 @@ public class SchemaUtil {
         if (type.asNullable() == ClassType.VOID) {
             return type;
         }
-        if (operationIsHeadAsBoolean(operation)) {
+        if (operation.checksResourceExistenceWithHead()) {
             return type;
         }
         return ClassType.BINARY_DATA;
-    }
-
-    private static boolean operationIsHeadAsBoolean(Operation operation) {
-        return operation.getRequests()
-            .stream()
-            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
-            && operation.getResponses()
-                .stream()
-                .anyMatch(r -> r.getProtocol().getHttp().getStatusCodes().contains("404"));
     }
 
     /**
@@ -323,23 +302,6 @@ public class SchemaUtil {
             return Collections.emptySet();
         }
         return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
-    }
-
-    private static boolean containsBinaryResponse(Operation operation) {
-        return operation.getResponses().stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
-    }
-
-    // SyncPoller or PollerFlux does not contain full Response and hence does not have headers
-    private static boolean operationIsNotFluentLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isFluent()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
-    }
-
-    private static boolean operationIsNotDataPlaneLRO(Operation operation, JavaSettings settings) {
-        return !(settings.isDataPlaneClient()
-            && operation.getExtensions() != null
-            && operation.getExtensions().isXmsLongRunningOperation());
     }
 
     public static String getDefaultName(Metadata m) {

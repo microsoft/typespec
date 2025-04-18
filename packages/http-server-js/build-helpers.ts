@@ -104,12 +104,10 @@ async function main() {
     const contents = await fs.readFile(file, "utf-8");
 
     let childModuleLines =
-      childModules
-        ?.filter((m) => path.basename(m, ".ts") !== "index")
-        .map((child) => {
-          const childBase = path.basename(child, ".ts");
-          return `  await import("./${childBase}.js").then((m) => m.createModule(module));`;
-        }) ?? [];
+      childModules?.map((child) => {
+        const childBase = path.basename(child, ".ts");
+        return `  await import("./${childBase}.js").then((m) => m.createModule(module));`;
+      }) ?? [];
 
     if (childModuleLines.length > 0) {
       childModuleLines = ["      // Child modules", ...childModuleLines, ""];
@@ -160,9 +158,24 @@ async function main() {
 
     const targetPath = path.resolve(HELPER_DECLARATION_PATH, relativePath, "index.ts");
 
-    const children = files.map((file) => {
-      return `  await import("./${path.basename(file, ".ts")}.js").then((m) => m.createModule(module));`;
-    });
+    const childIndices = new Set(
+      allFiles
+        .filter((f) => f.startsWith(dir))
+        // Remove the directory prefix and then check if it's a nested directory lower.
+        .map((f) => /^[/\\]([a-zA-Z_-]+)[/\\]/.exec(f.replace(dir, "")))
+        .filter((match) => !!match)
+        .map((match) => match[1]),
+    );
+
+    const children = [
+      ...[...childIndices].map((dir) => {
+        return `  await import("./${dir}/index.js").then((m) => m.createModule(module));`;
+      }),
+
+      ...files.map((file) => {
+        return `  await import("./${path.basename(file, ".ts")}.js").then((m) => m.createModule(module));`;
+      }),
+    ];
 
     const transformed = [
       "// Copyright (c) Microsoft Corporation",

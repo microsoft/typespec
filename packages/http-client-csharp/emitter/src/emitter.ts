@@ -24,7 +24,6 @@ import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -67,7 +66,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        options["sdk-context-options"] ?? defaultSDKContextOptions,
+        options["sdk-context-options"],
       ),
       logger,
     );
@@ -99,7 +98,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       );
       logger.info(`Checking if ${csProjFile} exists`);
 
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
       const generatorPath = resolvePath(
         projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
       );
