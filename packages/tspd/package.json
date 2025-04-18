@@ -40,8 +40,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "alloy build",
+    "watch": "alloy build --watch",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
@@ -55,6 +55,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@alloy-js/core": "^0.11.0",
+    "@alloy-js/typescript": "^0.11.0",
     "@typespec/compiler": "workspace:^",
     "picocolors": "~1.1.1",
     "prettier": "~3.5.3",
@@ -62,6 +64,8 @@
     "yargs": "~17.7.2"
   },
   "devDependencies": {
+    "@alloy-js/cli": "^0.11.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "~22.13.11",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
