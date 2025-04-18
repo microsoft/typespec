@@ -11,6 +11,7 @@ import {
   isUnknownType,
 } from "@typespec/compiler";
 import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { renderDecoratorSignature } from "./components/decorator-signature-type.js";
 import { Doc, renderDoc } from "./doc-builder.js";
 import { DecoratorSignature } from "./types.js";
 
@@ -96,22 +97,24 @@ export function generateSignatures(
     return type.name;
   }
 
-  function getTSSignatureForDecorator({ typeName, decorator }: DecoratorSignature): string {
-    const args =
-      decorator.parameters.length > 0
-        ? `,${decorator.parameters.map((x) => getTSParameter(x)).join(",")}`
-        : "";
+  function getTSSignatureForDecorator(sig: DecoratorSignature): string {
+    // const args =
+    //   decorator.parameters.length > 0
+    //     ? `,${decorator.parameters.map((x) => getTSParameter(x)).join(",")}`
+    //     : "";
 
-    return [
-      getDocComment(decorator),
-      "export type ",
-      typeName,
-      " = ",
-      `(context: ${useCompilerType("DecoratorContext")}, ${getTSParameter(
-        decorator.target,
-        true,
-      )}${args}) => void;`,
-    ].join("");
+    // return [
+    //   getDocComment(decorator),
+    //   "export type ",
+    //   typeName,
+    //   " = ",
+    //   `(context: ${useCompilerType("DecoratorContext")}, ${getTSParameter(
+    //     decorator.target,
+    //     true,
+    //   )}${args}) => void;`,
+    // ].join("");
+
+    return renderDecoratorSignature(sig);
   }
 
   function getTSParameter(param: MixedFunctionParameter, isTarget?: boolean): string {

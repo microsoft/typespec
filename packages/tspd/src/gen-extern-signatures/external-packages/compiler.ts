@@ -5,7 +5,21 @@ export const typespecCompiler = createPackage({
   version: "^1.0.0",
   descriptor: {
     ".": {
-      named: ["DecoratorContext"],
+      named: [
+        "DecoratorContext",
+        "Type",
+        "Namespace",
+        "Model",
+        "ModelProperty",
+        "Enum",
+        "EnumMember",
+        "Operation",
+        "Interface",
+        "Union",
+        "UnionVariant",
+        "Scalar",
+        "EnumValue",
+      ],
     },
   },
 });
