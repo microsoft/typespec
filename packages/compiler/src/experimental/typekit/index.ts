@@ -2,6 +2,7 @@ import type { Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
 import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
 
+export * from "./create-diagnosable.js";
 export * from "./define-kit.js";
 export * from "./kits/index.js";
 
