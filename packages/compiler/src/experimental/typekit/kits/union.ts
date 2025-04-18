@@ -51,10 +51,15 @@ export interface UnionKit {
 
   /**
    * Creates a union type from an enum.
-   * For member without an explicit value, the member name is used as the value.
-   * Note that only documentation is copied from the enum to the union - both doc-comments and `@doc` decorators.
+   *
+   * @remarks
    *
    * @param type The enum to create a union from.
+   *
+   * For member without an explicit value, the member name is used as the value.
+   *
+   * Any API documentation will be rendered and preserved in the resulting union.
+   * - No other decorators are copied from the enum to the union.
    */
   createFromEnum(type: Enum): Union;
 

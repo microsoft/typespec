@@ -1,7 +1,7 @@
 import { beforeAll, expect, it } from "vitest";
 import { $ } from "../../../src/experimental/typekit/index.js";
-import { Program } from "../../../src/index.js";
-import { createContextMock } from "./utils.js";
+import { getDoc, Program, Union } from "../../../src/index.js";
+import { createContextMock, getTypes } from "./utils.js";
 
 let program: Program;
 beforeAll(async () => {
@@ -25,4 +25,25 @@ it("can build enums from unions", () => {
 
   expect(en.members.size).toBe(3);
   expect(en.members.get("a")!.value).toBe(1);
+});
+
+it("preserves documentation when copying", async () => {
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
+    `
+      @doc("union named foo")
+      union Foo {
+        /** doc-comment for one */
+        One: "one",
+        Two: "two",
+      }`,
+    ["Foo"],
+  );
+
+  const newEnum = $(program).enum.createFromUnion(Foo as Union);
+  expect(getDoc(program, newEnum)).toBe("union named foo");
+  expect(getDoc(program, newEnum.members.get("One")!)).toBe("doc-comment for one");
+  expect(getDoc(program, newEnum.members.get("Two")!)).toBeUndefined();
 });
