@@ -26,7 +26,7 @@ import isodate
 import sys
 from enum import Enum
 
-from specialwords._model_base import (
+from specialwords._utils.model_base import (
     SdkJSONEncoder,
     Model,
     rest_field,

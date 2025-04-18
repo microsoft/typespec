@@ -97,6 +97,7 @@ async def test_header(client: BytesClient):
         ],
     )
 
+
 @pytest.mark.asyncio
 async def test_request_body(client: BytesClient, png_data: bytes):
     await client.request_body.default(

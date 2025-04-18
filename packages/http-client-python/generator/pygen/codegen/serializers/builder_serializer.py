@@ -672,7 +672,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 [
                     "_body = (",
                     f"    {body_param.client_name}.as_dict()",
-                    f"    if isinstance({body_param.client_name}, _model_base.Model) else",
+                    f"    if isinstance({body_param.client_name}, _Model) else",
                     f"    {body_param.client_name}",
                     ")",
                     f"_file_fields: List[str] = {file_fields}",

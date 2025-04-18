@@ -10,7 +10,7 @@ from typing import (
     Dict,
 )
 
-from specialwords._model_base import (
+from specialwords._utils.model_base import (
     _get_element,
     Model,
     rest_field,
