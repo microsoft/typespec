@@ -1134,6 +1134,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: readonly TemplateArgumentNode[],
     decls: readonly TemplateParameterDeclarationNode[],
     mapper: TypeMapper | undefined,
+    parentMapper?: TypeMapper,
   ): Map<TemplateParameter, Type | Value | IndeterminateEntity> {
     const params = new Map<string, TemplateParameter>();
     const positional: TemplateParameter[] = [];
@@ -1243,7 +1244,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (init === null) {
-        const argumentMapper = createTypeMapper(mapperParams, mapperArgs, { node, mapper });
+        const argumentMapper = createTypeMapper(
+          mapperParams,
+          mapperArgs,
+          { node, mapper },
+          parentMapper,
+        );
         const defaultValue = getResolvedTypeParameterDefault(param, decl, argumentMapper);
         if (defaultValue) {
           commit(param, defaultValue);
@@ -1425,6 +1431,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           argumentNodes,
           templateParameters,
           mapper,
+          declaredType.templateMapper,
         );
 
         baseType = getOrInstantiateTemplate(
@@ -4316,9 +4323,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound,
         );
-        if (isTemplateInstance(type) && type.name === "Foo") {
-          getSymbolLinks(type.symbol);
-        }
         mutate(type.symbol).type = type;
         break;
       case "Union":
