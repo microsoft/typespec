@@ -22,7 +22,7 @@ if (-not $LaunchOnly) {
         $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
         Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
-        
+       
         Invoke "npm install" $sampleDir
 
         Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
