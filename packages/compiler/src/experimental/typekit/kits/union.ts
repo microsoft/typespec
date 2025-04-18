@@ -3,9 +3,10 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
-import type { Type, Union, UnionVariant } from "../../../core/types.js";
+import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
+import { $ } from "../index.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /**
@@ -47,6 +48,12 @@ export interface UnionKit {
    * @param desc The descriptor of the union.
    */
   create(desc: UnionDescriptor): Union;
+
+  /**
+   * Creates a union type from an enum.
+   * @param type The enum to create a union from.
+   */
+  createFromEnum(type: Enum): Union;
 
   /**
    * Check if the given `type` is a union.
@@ -130,6 +137,23 @@ export const UnionKit = defineKit<TypekitExtension>({
       }
 
       this.program.checker.finishType(union);
+      return union;
+    },
+
+    createFromEnum(type) {
+      const union = this.union.create({ name: type.name });
+
+      for (const member of type.members.values()) {
+        const variant: UnionVariant = this.unionVariant.create({
+          name: member.name,
+          type: $.literal.create(member.value ?? member.name),
+        });
+        union.variants.set(variant.name, variant);
+        variant.union = union;
+      }
+
+      this.program.checker.finishType(union);
+
       return union;
     },
 

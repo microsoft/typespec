@@ -1,7 +1,13 @@
-import { expect, it } from "vitest";
-import { $ } from "../../../src/experimental/typekit/index.js";
-import { StringLiteral, Union } from "../../../src/index.js";
-import { getTypes } from "./utils.js";
+import { beforeAll, expect, it } from "vitest";
+import { $, Typekit } from "../../../src/experimental/typekit/index.js";
+import { Program, StringLiteral, Union } from "../../../src/index.js";
+import { createContextMock, getTypes } from "./utils.js";
+
+let program: Program;
+let tk: Typekit;
+beforeAll(async () => {
+  // need the side effect of creating the program.
+});
 
 it("can create a union", async () => {
   const {
@@ -46,4 +52,45 @@ it("can check if the union is extensible", async () => {
 
   expect($(program).union.isExtensible(Foo as Union)).toBe(true);
   expect($(program).union.isExtensible(Bar as Union)).toBe(false);
+});
+
+it("can build unions from enums", async () => {
+  const { program } = await createContextMock();
+  const tk = $(program);
+
+  const srcEnum = $(program).enum.create({
+    name: "foo",
+    members: [tk.enumMember.create({ name: "a" }), tk.enumMember.create({ name: "b" })],
+  });
+
+  const union = tk.union.createFromEnum(srcEnum);
+  expect(union).toBeDefined();
+  expect(union.variants.size).toBe(2);
+
+  expect(union.name).toBe("foo");
+  expect((union.variants.get("a")?.type as StringLiteral).value).toBe("a");
+  expect((union.variants.get("b")?.type as StringLiteral).value).toBe("b");
+});
+
+it("can build unions from enums with custom values", async () => {
+  const { program } = await createContextMock();
+  const tk = $(program);
+
+  const srcEnum = tk.enum.create({
+    name: "Foo",
+    members: {
+      a: 1,
+      b: "2",
+      c: 3,
+    },
+  });
+
+  const union = tk.union.createFromEnum(srcEnum);
+  expect(union).toBeDefined();
+  expect(union.variants.size).toBe(3);
+
+  expect(union.name).toBe("Foo");
+  expect((union.variants.get("a")?.type as StringLiteral).value).toBe(1);
+  expect((union.variants.get("b")?.type as StringLiteral).value).toBe("2");
+  expect((union.variants.get("c")?.type as StringLiteral).value).toBe(3);
 });
