@@ -127,7 +127,7 @@ describe("Typescript Type Alias Declaration", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <TypeAliasDeclaration type={getName} />
         </SourceFile>
