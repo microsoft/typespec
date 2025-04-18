@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { InputAuth } from "./input-auth.js";
-import { InputClient, InputEnumType, InputModelType } from "./input-type.js";
+import { InputClient, InputEnumType, InputLiteralType, InputModelType } from "./input-type.js";
 
 /**
  * The code model for the CSharp emitter.
@@ -12,6 +12,7 @@ export interface CodeModel {
   name: string;
   apiVersions: string[];
   enums: InputEnumType[];
+  constants: InputLiteralType[];
   models: InputModelType[];
   clients: InputClient[];
   auth?: InputAuth;

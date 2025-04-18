@@ -3,9 +3,109 @@
  "name": "Type.Model.Visibility",
  "apiVersions": [],
  "enums": [],
- "models": [
+ "constants": [
   {
    "$id": "2",
+   "kind": "constant",
+   "name": "getModelContentType",
+   "valueType": {
+    "$id": "3",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "4",
+   "kind": "constant",
+   "name": "headModelContentType",
+   "valueType": {
+    "$id": "5",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "6",
+   "kind": "constant",
+   "name": "putModelContentType",
+   "valueType": {
+    "$id": "7",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "8",
+   "kind": "constant",
+   "name": "patchModelContentType",
+   "valueType": {
+    "$id": "9",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "10",
+   "kind": "constant",
+   "name": "postModelContentType",
+   "valueType": {
+    "$id": "11",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "12",
+   "kind": "constant",
+   "name": "deleteModelContentType",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "14",
+   "kind": "constant",
+   "name": "putReadOnlyModelContentType",
+   "valueType": {
+    "$id": "15",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "16",
    "kind": "model",
    "name": "VisibilityModel",
    "namespace": "Type.Model.Visibility",
@@ -15,13 +115,13 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "3",
+     "$id": "17",
      "kind": "property",
      "name": "readProp",
      "serializedName": "readProp",
      "doc": "Required string, illustrating a readonly property.",
      "type": {
-      "$id": "4",
+      "$id": "18",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -34,21 +134,21 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel.readProp",
      "serializationOptions": {
-      "$id": "5",
+      "$id": "19",
       "json": {
-       "$id": "6",
+       "$id": "20",
        "name": "readProp"
       }
      }
     },
     {
-     "$id": "7",
+     "$id": "21",
      "kind": "query",
      "name": "queryProp",
      "serializedName": "queryProp",
      "doc": "Required int32, illustrating a query property.",
      "type": {
-      "$id": "8",
+      "$id": "22",
       "kind": "int32",
       "name": "int32",
       "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -62,17 +162,17 @@
      "flatten": false
     },
     {
-     "$id": "9",
+     "$id": "23",
      "kind": "property",
      "name": "createProp",
      "serializedName": "createProp",
      "doc": "Required string[], illustrating a create property.",
      "type": {
-      "$id": "10",
+      "$id": "24",
       "kind": "array",
       "name": "Array",
       "valueType": {
-       "$id": "11",
+       "$id": "25",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string",
@@ -88,25 +188,25 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel.createProp",
      "serializationOptions": {
-      "$id": "12",
+      "$id": "26",
       "json": {
-       "$id": "13",
+       "$id": "27",
        "name": "createProp"
       }
      }
     },
     {
-     "$id": "14",
+     "$id": "28",
      "kind": "property",
      "name": "updateProp",
      "serializedName": "updateProp",
      "doc": "Required int32[], illustrating a update property.",
      "type": {
-      "$id": "15",
+      "$id": "29",
       "kind": "array",
       "name": "Array1",
       "valueType": {
-       "$id": "16",
+       "$id": "30",
        "kind": "int32",
        "name": "int32",
        "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -122,21 +222,21 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel.updateProp",
      "serializationOptions": {
-      "$id": "17",
+      "$id": "31",
       "json": {
-       "$id": "18",
+       "$id": "32",
        "name": "updateProp"
       }
      }
     },
     {
-     "$id": "19",
+     "$id": "33",
      "kind": "property",
      "name": "deleteProp",
      "serializedName": "deleteProp",
      "doc": "Required bool, illustrating a delete property.",
      "type": {
-      "$id": "20",
+      "$id": "34",
       "kind": "boolean",
       "name": "boolean",
       "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -149,9 +249,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel.deleteProp",
      "serializationOptions": {
-      "$id": "21",
+      "$id": "35",
       "json": {
-       "$id": "22",
+       "$id": "36",
        "name": "deleteProp"
       }
      }
@@ -159,7 +259,7 @@
    ]
   },
   {
-   "$id": "23",
+   "$id": "37",
    "kind": "model",
    "name": "ReadOnlyModel",
    "namespace": "Type.Model.Visibility",
@@ -169,20 +269,20 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "24",
+     "$id": "38",
      "kind": "property",
      "name": "optionalNullableIntList",
      "serializedName": "optionalNullableIntList",
      "doc": "Optional readonly nullable int list.",
      "type": {
-      "$id": "25",
+      "$id": "39",
       "kind": "nullable",
       "type": {
-       "$id": "26",
+       "$id": "40",
        "kind": "array",
        "name": "Array1",
        "valueType": {
-        "$id": "27",
+        "$id": "41",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -200,31 +300,31 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.ReadOnlyModel.optionalNullableIntList",
      "serializationOptions": {
-      "$id": "28",
+      "$id": "42",
       "json": {
-       "$id": "29",
+       "$id": "43",
        "name": "optionalNullableIntList"
       }
      }
     },
     {
-     "$id": "30",
+     "$id": "44",
      "kind": "property",
      "name": "optionalStringRecord",
      "serializedName": "optionalStringRecord",
      "doc": "Optional readonly string dictionary.",
      "type": {
-      "$id": "31",
+      "$id": "45",
       "kind": "dict",
       "keyType": {
-       "$id": "32",
+       "$id": "46",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string",
        "decorators": []
       },
       "valueType": {
-       "$id": "33",
+       "$id": "47",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string",
@@ -239,9 +339,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Model.Visibility.ReadOnlyModel.optionalStringRecord",
      "serializationOptions": {
-      "$id": "34",
+      "$id": "48",
       "json": {
-       "$id": "35",
+       "$id": "49",
        "name": "optionalStringRecord"
       }
      }
@@ -251,31 +351,31 @@
  ],
  "clients": [
   {
-   "$id": "36",
+   "$id": "50",
    "kind": "client",
    "name": "VisibilityClient",
    "namespace": "Type.Model.Visibility",
    "doc": "Illustrates models with visibility properties.",
    "methods": [
     {
-     "$id": "37",
+     "$id": "51",
      "kind": "basic",
      "name": "getModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "38",
+      "$id": "52",
       "name": "getModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "39",
+        "$id": "53",
         "name": "queryProp",
         "nameInRequest": "queryProp",
         "doc": "Required int32, illustrating a query property.",
         "type": {
-         "$id": "40",
+         "$id": "54",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -292,22 +392,12 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "41",
+        "$id": "55",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "42",
-         "kind": "constant",
-         "valueType": {
-          "$id": "43",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "2"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -320,21 +410,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "44",
+        "$id": "56",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "45",
-         "kind": "constant",
-         "valueType": {
-          "$id": "46",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "2"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -347,11 +427,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "47",
+        "$id": "57",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -366,12 +446,12 @@
       ],
       "responses": [
        {
-        "$id": "48",
+        "$id": "58",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -394,11 +474,11 @@
      },
      "parameters": [
       {
-       "$id": "49",
+       "$id": "59",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -411,12 +491,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "50",
+       "$id": "60",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "42"
+        "$ref": "2"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -429,11 +509,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "51",
+       "$id": "61",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "45"
+        "$ref": "2"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -447,9 +527,9 @@
       }
      ],
      "response": {
-      "$id": "52",
+      "$id": "62",
       "type": {
-       "$ref": "2"
+       "$ref": "16"
       }
      },
      "isOverride": false,
@@ -458,24 +538,24 @@
      "crossLanguageDefinitionId": "Type.Model.Visibility.getModel"
     },
     {
-     "$id": "53",
+     "$id": "63",
      "kind": "basic",
      "name": "headModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "54",
+      "$id": "64",
       "name": "headModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "55",
+        "$id": "65",
         "name": "queryProp",
         "nameInRequest": "queryProp",
         "doc": "Required int32, illustrating a query property.",
         "type": {
-         "$id": "56",
+         "$id": "66",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -492,22 +572,12 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "57",
+        "$id": "67",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "58",
-         "kind": "constant",
-         "valueType": {
-          "$id": "59",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "4"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -520,11 +590,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "60",
+        "$id": "68",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -539,7 +609,7 @@
       ],
       "responses": [
        {
-        "$id": "61",
+        "$id": "69",
         "statusCodes": [
          200
         ],
@@ -561,11 +631,11 @@
      },
      "parameters": [
       {
-       "$id": "62",
+       "$id": "70",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -578,12 +648,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "63",
+       "$id": "71",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "58"
+        "$ref": "4"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -597,7 +667,7 @@
       }
      ],
      "response": {
-      "$id": "64"
+      "$id": "72"
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -605,34 +675,24 @@
      "crossLanguageDefinitionId": "Type.Model.Visibility.headModel"
     },
     {
-     "$id": "65",
+     "$id": "73",
      "kind": "basic",
      "name": "putModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "66",
+      "$id": "74",
       "name": "putModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "67",
+        "$id": "75",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "68",
-         "kind": "constant",
-         "valueType": {
-          "$id": "69",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "6"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -645,11 +705,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "70",
+        "$id": "76",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -664,7 +724,7 @@
       ],
       "responses": [
        {
-        "$id": "71",
+        "$id": "77",
         "statusCodes": [
          204
         ],
@@ -686,11 +746,11 @@
      },
      "parameters": [
       {
-       "$id": "72",
+       "$id": "78",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -703,12 +763,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "73",
+       "$id": "79",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "68"
+        "$ref": "6"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -722,7 +782,7 @@
       }
      ],
      "response": {
-      "$id": "74"
+      "$id": "80"
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -730,34 +790,24 @@
      "crossLanguageDefinitionId": "Type.Model.Visibility.putModel"
     },
     {
-     "$id": "75",
+     "$id": "81",
      "kind": "basic",
      "name": "patchModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "76",
+      "$id": "82",
       "name": "patchModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "77",
+        "$id": "83",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "78",
-         "kind": "constant",
-         "valueType": {
-          "$id": "79",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "8"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -770,11 +820,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "80",
+        "$id": "84",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -789,7 +839,7 @@
       ],
       "responses": [
        {
-        "$id": "81",
+        "$id": "85",
         "statusCodes": [
          204
         ],
@@ -811,11 +861,11 @@
      },
      "parameters": [
       {
-       "$id": "82",
+       "$id": "86",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -828,12 +878,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "83",
+       "$id": "87",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "78"
+        "$ref": "8"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -847,7 +897,7 @@
       }
      ],
      "response": {
-      "$id": "84"
+      "$id": "88"
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -855,34 +905,24 @@
      "crossLanguageDefinitionId": "Type.Model.Visibility.patchModel"
     },
     {
-     "$id": "85",
+     "$id": "89",
      "kind": "basic",
      "name": "postModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "86",
+      "$id": "90",
       "name": "postModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "87",
+        "$id": "91",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "88",
-         "kind": "constant",
-         "valueType": {
-          "$id": "89",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "10"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -895,11 +935,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "90",
+        "$id": "92",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -914,7 +954,7 @@
       ],
       "responses": [
        {
-        "$id": "91",
+        "$id": "93",
         "statusCodes": [
          204
         ],
@@ -936,11 +976,11 @@
      },
      "parameters": [
       {
-       "$id": "92",
+       "$id": "94",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -953,12 +993,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "93",
+       "$id": "95",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "88"
+        "$ref": "10"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -972,7 +1012,7 @@
       }
      ],
      "response": {
-      "$id": "94"
+      "$id": "96"
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -980,34 +1020,24 @@
      "crossLanguageDefinitionId": "Type.Model.Visibility.postModel"
     },
     {
-     "$id": "95",
+     "$id": "97",
      "kind": "basic",
      "name": "deleteModel",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "96",
+      "$id": "98",
       "name": "deleteModel",
       "resourceName": "Visibility",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "97",
+        "$id": "99",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "98",
-         "kind": "constant",
-         "valueType": {
-          "$id": "99",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "12"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -1024,7 +1054,7 @@
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "2"
+         "$ref": "16"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -1065,7 +1095,7 @@
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "2"
+        "$ref": "16"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -1083,7 +1113,7 @@
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "98"
+        "$ref": "12"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -1122,17 +1152,7 @@
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "108",
-         "kind": "constant",
-         "valueType": {
-          "$id": "109",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "14"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -1145,21 +1165,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "110",
+        "$id": "108",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "111",
-         "kind": "constant",
-         "valueType": {
-          "$id": "112",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "14"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -1172,11 +1182,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "113",
+        "$id": "109",
         "name": "input",
         "nameInRequest": "input",
         "type": {
-         "$ref": "23"
+         "$ref": "37"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -1191,12 +1201,12 @@
       ],
       "responses": [
        {
-        "$id": "114",
+        "$id": "110",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$ref": "23"
+         "$ref": "37"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -1219,11 +1229,11 @@
      },
      "parameters": [
       {
-       "$id": "115",
+       "$id": "111",
        "name": "input",
        "nameInRequest": "input",
        "type": {
-        "$ref": "23"
+        "$ref": "37"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -1236,12 +1246,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "116",
+       "$id": "112",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "108"
+        "$ref": "14"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -1254,11 +1264,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "117",
+       "$id": "113",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "111"
+        "$ref": "14"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -1272,9 +1282,9 @@
       }
      ],
      "response": {
-      "$id": "118",
+      "$id": "114",
       "type": {
-       "$ref": "23"
+       "$ref": "37"
       }
      },
      "isOverride": false,
@@ -1285,12 +1295,12 @@
    ],
    "parameters": [
     {
-     "$id": "119",
+     "$id": "115",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Service host",
      "type": {
-      "$id": "120",
+      "$id": "116",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1304,9 +1314,9 @@
      "explode": false,
      "kind": "Client",
      "defaultValue": {
-      "$id": "121",
+      "$id": "117",
       "type": {
-       "$id": "122",
+       "$id": "118",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

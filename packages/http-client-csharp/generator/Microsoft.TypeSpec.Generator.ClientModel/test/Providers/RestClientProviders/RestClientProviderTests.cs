@@ -171,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 [
                     InputFactory.Parameter(
                         "header",
-                        isValueType ? InputFactory.Enum("header", InputPrimitiveType.String) : InputPrimitiveType.String,
+                        isValueType ? InputFactory.StringEnum("header", [("value", "value")]) : InputPrimitiveType.String,
                         location: InputRequestLocation.Header,
                         isRequired: isRequired),
                     InputFactory.Parameter(
@@ -734,16 +734,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             InputParameter enumApiVersionParameter = InputFactory.Parameter(
                 "apiVersion",
-                InputFactory.Enum(
+                InputFactory.StringEnum(
                     "InputEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    isExtensible: true,
-                    values:
                     [
-                        InputFactory.EnumMember.String("value1", "value1"),
-                        InputFactory.EnumMember.String("value2", "value2")
-                    ]),
+                        ("value1", "value1"),
+                        ("value2", "value2")
+                    ],
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true),
                 location: InputRequestLocation.Uri,
                 isRequired: true,
                 kind: InputParameterKind.Client,

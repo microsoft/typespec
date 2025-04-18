@@ -16,6 +16,7 @@ import { InputParameter } from "./type/input-parameter.js";
 import {
   InputClient,
   InputEnumType,
+  InputLiteralType,
   InputModelProperty,
   InputModelType,
   InputType,
@@ -55,6 +56,7 @@ class SdkTypeCache {
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;
+  constants: Map<string, InputLiteralType>;
   crossLanguageDefinitionIds: Map<string, Type | undefined>;
 
   constructor() {
@@ -64,6 +66,7 @@ class SdkTypeCache {
     this.types = new Map<SdkType, InputType>();
     this.models = new Map<string, InputModelType>();
     this.enums = new Map<string, InputEnumType>();
+    this.constants = new Map<string, InputLiteralType>();
     this.crossLanguageDefinitionIds = new Map<string, Type | undefined>();
   }
 
@@ -97,6 +100,8 @@ class SdkTypeCache {
       this.models.set(typeName, type);
     } else if (type.kind === "enum") {
       this.enums.set(typeName, type);
+    } else if (type.kind === "constant") {
+      this.constants.set(typeName, type);
     }
   }
 }

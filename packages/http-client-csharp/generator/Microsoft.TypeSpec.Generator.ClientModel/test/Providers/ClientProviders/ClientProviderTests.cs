@@ -749,8 +749,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void TestApiVersionOfClient()
         {
             List<string> apiVersions = ["1.0", "2.0"];
-            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion", enumValues, usage: InputModelTypeUsage.ApiVersionEnum);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
@@ -791,8 +792,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void TestApiVersionPathParameterOfClient(InputClient inputClient)
         {
             List<string> apiVersions = ["value1", "value2"];
-            var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum("ServiceVersion", enumValues, usage: InputModelTypeUsage.ApiVersionEnum);
+
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
@@ -855,11 +857,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         private static InputClient GetEnumQueryParamClient()
-            => InputFactory.Client(
-                TestClientName,
-                methods:
-                [
-                    InputFactory.BasicServiceMethod(
+        {
+            return InputFactory.Client(
+                        TestClientName,
+                        methods:
+                        [
+                            InputFactory.BasicServiceMethod(
                         "test",
                         InputFactory.Operation(
                             "Operation",
@@ -867,16 +870,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                             [
                                 InputFactory.Parameter(
                                     "queryParam",
-                                    InputFactory.Enum(
+                                    InputFactory.StringEnum(
                                         "InputEnum",
-                                        InputPrimitiveType.String,
-                                        usage: InputModelTypeUsage.Input,
-                                        isExtensible: true,
-                                        values:
                                         [
-                                            InputFactory.EnumMember.String("value1", "value1"),
-                                            InputFactory.EnumMember.String("value2", "value2")
-                                        ]),
+                                            ("value1", "value1"),
+                                            ("value2", "value2")
+                                        ],
+                                        usage: InputModelTypeUsage.Input,
+                                        isExtensible: true),
                                     isRequired: true,
                                     location: InputRequestLocation.Query)
                             ]),
@@ -884,20 +885,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     [
                         InputFactory.Parameter(
                             "queryParam",
-                            InputFactory.Enum(
+                            InputFactory.StringEnum(
                                 "InputEnum",
-                                InputPrimitiveType.String,
-                                usage: InputModelTypeUsage.Input,
-                                isExtensible: true,
-                                values:
                                 [
-                                    InputFactory.EnumMember.String("value1", "value1"),
-                                    InputFactory.EnumMember.String("value2", "value2")
-                                ]),
+                                    ("value1", "value1"),
+                                    ("value2", "value2")
+                                ],
+                                usage: InputModelTypeUsage.Input,
+                                isExtensible: true),
                             isRequired: true,
                             location: InputRequestLocation.Query)
                     ])
-                ]);
+                        ]);
+        }
 
         private class ValidateQueryParamDiffClientProvider : ClientProvider
         {
@@ -1582,16 +1582,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
                 InputParameter enumApiVersionParameter = InputFactory.Parameter(
                     "apiVersion",
-                    InputFactory.Enum(
+                    InputFactory.StringEnum(
                         "InputEnum",
-                        InputPrimitiveType.String,
-                        usage: InputModelTypeUsage.Input,
-                        isExtensible: true,
-                        values:
                         [
-                            InputFactory.EnumMember.String("value1", "value1"),
-                        InputFactory.EnumMember.String("value2", "value2")
-                        ]),
+                            ("value1", "value1"),
+                            ("value2", "value2")
+                        ],
+                        usage: InputModelTypeUsage.Input,
+                        isExtensible: true),
                     location: InputRequestLocation.Uri,
                     isRequired: true,
                     kind: InputParameterKind.Client,

@@ -46,6 +46,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
+    constants: Array.from(sdkContext.__typeCache.constants.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),
     clients: inputClients,
     auth: processServiceAuthentication(sdkContext, sdkPackage),

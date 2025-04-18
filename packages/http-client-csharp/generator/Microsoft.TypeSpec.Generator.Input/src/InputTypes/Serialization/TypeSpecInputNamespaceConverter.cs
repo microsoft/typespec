@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;
+            IReadOnlyList<InputLiteralType>? constants = null;
             IReadOnlyList<InputEnumType>? enums = null;
             IReadOnlyList<InputModelType>? models = null;
             IReadOnlyList<InputClient>? clients = null;
@@ -41,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
                     || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
+                    || reader.TryReadComplexType("constants", options, ref constants)
                     || reader.TryReadComplexType("enums", options, ref enums)
                     || reader.TryReadComplexType("models", options, ref models)
                     || reader.TryReadComplexType("clients", options, ref clients)
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             apiVersions ??= [];
+            constants ??= [];
             enums ??= [];
             models ??= [];
             clients ??= [];
@@ -60,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             return new InputNamespace(
                 name ?? throw new JsonException(),
                 apiVersions,
+                constants,
                 enums,
                 models,
                 clients,

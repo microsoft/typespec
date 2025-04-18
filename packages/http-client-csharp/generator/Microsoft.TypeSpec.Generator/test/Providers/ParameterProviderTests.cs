@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             yield return InputPrimitiveType.Int32;
             yield return InputPrimitiveType.Float32;
-            yield return InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true, values: [InputFactory.EnumMember.Int32("foo", 1)]);
+            yield return InputFactory.Int32Enum("inputEnum", [("foo", 1)], isExtensible: true);
         }
 
         private static IEnumerable<TestCaseData> NotEqualsTestCases()

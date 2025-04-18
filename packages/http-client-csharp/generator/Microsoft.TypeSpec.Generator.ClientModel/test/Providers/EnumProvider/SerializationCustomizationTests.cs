@@ -15,13 +15,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [Test]
         public async Task CanChangeEnumMemberName()
         {
-            var enumValues = new[]
-            {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [
+                    ("Red", 1),
+                    ("Green", 2),
+                    ("Blue", 3)
+                ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -41,13 +41,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [Test]
         public async Task CanReplaceMethod()
         {
-            var enumValues = new[]
-            {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [
+                    ("Red", 1),
+                    ("Green", 2),
+                    ("Blue", 3)
+                ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
