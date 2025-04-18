@@ -1,5 +1,5 @@
 import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
+import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
@@ -165,14 +165,4 @@ export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
   return {
     ...resolvedOptions,
   };
-}
-
-/**
- * Resolves the output folder for the CSharp emitter.
- * @param context - The emit context.
- * @returns The resolved output folder path.
- * @internal
- */
-export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
-  return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }
