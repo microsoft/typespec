@@ -6,6 +6,16 @@ param(
     [string] $Filter = "."
 )
 
+function BuildPackage {
+    # Fail if anything written to stderr during build
+    & { npm run build 2>&1 } | Tee-Object -Variable stdErr
+    
+    if ($stderr) {
+        Write-Error "An error or warning was detected during build. Failing CI."
+        exit 1
+    }
+}
+
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
@@ -17,8 +27,10 @@ try {
     if ($UnitTests) {
         Push-Location "$packageRoot"
         try {
+            # Build the package
+            BuildPackage
+
             # test the emitter
-            Invoke-LoggedCommand "npm run build" -GroupOutput
             Invoke-LoggedCommand "npm run test:emitter" -GroupOutput
 
             # test the generator
@@ -32,7 +44,10 @@ try {
     }
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
-        Invoke-LoggedCommand "npm run build" -GroupOutput
+
+        # Build the package
+        BuildPackage
+
         # run E2E Test for TypeSpec emitter
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
