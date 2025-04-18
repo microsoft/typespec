@@ -110,6 +110,10 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   },
 };
 
+/**
+ * The TypeSpec library for the C# HTTP client generator.
+ * @beta
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
   diagnostics: diags,
