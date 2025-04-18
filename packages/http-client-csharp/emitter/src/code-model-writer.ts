@@ -9,6 +9,13 @@ import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
+/**
+ * Writes the code model to the output folder. Should only be used by autorest.csharp.
+ * @param context - The CSharp emitter context
+ * @param codeModel - The code model to write
+ * @param outputFolder - The output folder to write the code model to
+ * @beta
+*/
 export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
