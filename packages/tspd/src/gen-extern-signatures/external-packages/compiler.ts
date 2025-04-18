@@ -19,6 +19,7 @@ export const typespecCompiler = createPackage({
         "UnionVariant",
         "Scalar",
         "EnumValue",
+        "Numeric",
       ],
     },
   },

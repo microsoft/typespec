@@ -1,9 +1,19 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, type Type, getSourceLocation, isUnknownType } from "@typespec/compiler";
+import {
+  IntrinsicScalarName,
+  MixedParameterConstraint,
+  Model,
+  Scalar,
+  type Type,
+  getSourceLocation,
+  isArrayModelType,
+  isUnknownType,
+} from "@typespec/compiler";
 import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import { DecoratorSignature } from "../types.js";
+import { useTsp } from "./tsp-context.js";
 
 export interface DecoratorSignatureProps {
   signature: DecoratorSignature;
@@ -21,6 +31,11 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name: "target",
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
+    ...decorator.parameters.map((param) => ({
+      name: param.name,
+      type: <ParameterTsType constraint={param.type} />,
+      optional: param.optional,
+    })),
   ];
   return (
     <ts.TypeDeclaration
@@ -33,21 +48,25 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
   );
 }
 
-// export interface ParameterTsTypeProps {
-//   constraint: MixedParameterConstraint;
-// }
-// export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
-//   if (constraint.type && constraint.valueType) {
-//     return `${getTypeConstraintTSType(constraint.type)} | ${getValueTSType(constraint.valueType)}`;
-//   }
-//   if (constraint.valueType) {
-//     return getValueTSType(constraint.valueType);
-//   } else if (constraint.type) {
-//     return getTypeConstraintTSType(constraint.type);
-//   }
+export interface ParameterTsTypeProps {
+  constraint: MixedParameterConstraint;
+}
+export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
+  if (constraint.type && constraint.valueType) {
+    return (
+      <>
+        {getTypeConstraintTSType(constraint.type)} | <ValueTsType type={constraint.valueType} />
+      </>
+    );
+  }
+  if (constraint.valueType) {
+    return <ValueTsType type={constraint.valueType} />;
+  } else if (constraint.type) {
+    return getTypeConstraintTSType(constraint.type);
+  }
 
-//   return typespecCompiler.Type;
-// }
+  return typespecCompiler.Type;
+}
 
 function TargetParameterTsType(props: { type: Type | undefined }) {
   const type = props.type;
@@ -87,48 +106,104 @@ function useCompilerType(name: string) {
   return (typespecCompiler as any)[name];
 }
 
-// function getValueTSType(type: Type) {
-//   switch (type.kind) {
-//     case "Boolean":
-//       return `${type.value}`;
-//     case "String":
-//       return `"${type.value}"`;
-//     case "Number":
-//       return `${type.value}`;
-//     case "Scalar":
-//       return getScalarTSType(type);
-//     case "Union":
-//       return [...type.variants.values()].map((x) => getValueTSType(x.type)).join(" | ");
-//     case "Model":
-//       if (isArrayModelType(program, type)) {
-//         return `readonly (${getValueTSType(type.indexer.value)})` + "[]";
-//       } else if (isReflectionType(type)) {
-//         return getValueOfReflectionType(type);
-//       } else {
-//         // If its exactly the record type use Record<string, T> instead of the model name.
-//         if (type.indexer && type.name === "Record" && type.namespace?.name === "TypeSpec") {
-//           return `Record<string, ${getValueTSType(type.indexer.value)}>`;
-//         }
-//         if (type.name) {
-//           return useLocalType(type);
-//         } else {
-//           return writeTypeExpressionForModel(type);
-//         }
-//       }
-//   }
-//   return "unknown";
-// }
+function ValueTsType({ type }: { type: Type }) {
+  const { program } = useTsp();
+  switch (type.kind) {
+    case "Boolean":
+      return `${type.value}`;
+    case "String":
+      return `"${type.value}"`;
+    case "Number":
+      return `${type.value}`;
+    case "Scalar":
+      return <ScalarTsType scalar={type} />;
+    case "Union":
+      return ay.join(
+        [...type.variants.values()].map((x) => <ValueTsType type={x.type} />),
+        { joiner: " | " },
+      );
+    case "Model":
+      if (isArrayModelType(program, type)) {
+        return (
+          <>
+            readonly (<ValueTsType type={type.indexer.value} />
+            )[]
+          </>
+        );
+      } else if (isReflectionType(type)) {
+        return getValueOfReflectionType(type);
+      } else {
+        // If its exactly the record type use Record<string, T> instead of the model name.
+        if (type.indexer && type.name === "Record" && type.namespace?.name === "TypeSpec") {
+          return (
+            <>
+              Record{"<"}
+              <ValueTsType type={type.indexer.value} />
+              {">"}
+            </>
+          );
+        }
+        if (type.name) {
+          // return useLocalType(type);
+          return "TODO";
+        } else {
+          return "TODO";
+          // return writeTypeExpressionForModel(type);
+        }
+      }
+  }
+  return "unknown";
+}
 
-// function getScalarTSType(scalar: Scalar): string {
-//   const isStd = program.checker.isStdType(scalar);
-//   if (isStd) {
-//     return getStdScalarTSType(scalar);
-//   } else if (scalar.baseScalar) {
-//     return getScalarTSType(scalar.baseScalar);
-//   } else {
-//     return "unknown";
-//   }
-// }
+function ScalarTsType({ scalar }: { scalar: Scalar }) {
+  const { program } = useTsp();
+  const isStd = program.checker.isStdType(scalar);
+  if (isStd) {
+    return getStdScalarTSType(scalar);
+  } else if (scalar.baseScalar) {
+    return <ScalarTsType scalar={scalar.baseScalar} />;
+  } else {
+    return "unknown";
+  }
+}
+
+function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }) {
+  switch (scalar.name) {
+    case "numeric":
+    case "decimal":
+    case "decimal128":
+    case "float":
+    case "integer":
+    case "int64":
+    case "uint64":
+      return typespecCompiler.Numeric;
+    case "int8":
+    case "int16":
+    case "int32":
+    case "safeint":
+    case "uint8":
+    case "uint16":
+    case "uint32":
+    case "float64":
+    case "float32":
+      return "number";
+    case "string":
+    case "url":
+      return "string";
+    case "boolean":
+      return "boolean";
+    case "plainDate":
+    case "utcDateTime":
+    case "offsetDateTime":
+    case "plainTime":
+    case "duration":
+    case "bytes":
+      return "unknown";
+    default:
+      const _assertNever: never = scalar.name;
+      return "unknown";
+  }
+}
 
 function isReflectionType(type: Type): type is Model & { namespace: { name: "Reflection" } } {
   return (
@@ -219,15 +294,4 @@ function checkIfTagHasDocOnSameLine(tag: DocTag): boolean {
     }
   }
   return hasFirstLine;
-}
-
-export function renderDecoratorSignature(signature: DecoratorSignature): string {
-  const comp = <DecoratorSignatureType signature={signature} />;
-  return ay.printTree(
-    ay.renderTree(
-      <ay.Output externals={[typespecCompiler]}>
-        <ts.SourceFile path="foo.tsx">{comp}</ts.SourceFile>
-      </ay.Output>,
-    ),
-  );
 }
