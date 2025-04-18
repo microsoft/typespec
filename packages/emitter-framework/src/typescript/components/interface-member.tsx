@@ -1,9 +1,8 @@
-import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { getHttpPart } from "@typespec/http";
-import { FunctionDeclaration } from "./function-declaration.js";
+import { useTsp } from "../../core/context/tsp-context.js";
+import { InterfaceMethod } from "./interface-method.jsx";
 import { TypeExpression } from "./type-expression.js";
 
 export interface InterfaceMemberProps {
@@ -12,6 +11,7 @@ export interface InterfaceMemberProps {
 }
 
 export function InterfaceMember(props: InterfaceMemberProps) {
+  const { $ } = useTsp();
   const namer = ts.useTSNamePolicy();
   const name = namer.getName(props.type.name, "object-member-getter");
 
@@ -36,22 +36,6 @@ export function InterfaceMember(props: InterfaceMemberProps) {
   }
 
   if ($.operation.is(props.type)) {
-    const returnType = <TypeExpression type={props.type.returnType} />;
-    const params = (
-      <ay.Scope>
-        <FunctionDeclaration.Parameters type={props.type.parameters} />
-      </ay.Scope>
-    );
-
-    return (
-      <ts.InterfaceMember
-        name={name}
-        type={
-          <>
-            ({params}) =&gt {returnType}
-          </>
-        }
-      />
-    );
+    return <InterfaceMethod type={props.type} />;
   }
 }
