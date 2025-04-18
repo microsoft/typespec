@@ -75,8 +75,8 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 | -------------- | -------- | ---------------------------------- |
 | EventName      | string   | "start-extension" for example      |
 | ActivityId     | string   |                                    |
-| StartTime      | datatime |                                    |
-| EndTime        | datatime |                                    |
+| StartTime      | datetime |                                    |
+| EndTime        | datetime |                                    |
 | Result         | string   | "success","fail","cancelled", etc. |
 | LastStep       | string   |                                    |
 
