@@ -464,7 +464,7 @@ public class ProxyMethod {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 
-            for (ProxyMethodParameter parameter : parameters) {
+            for (ProxyMethodParameter parameter : allParameters) {
                 parameter.addImportsTo(imports, includeImplementationImports, settings);
             }
         }
