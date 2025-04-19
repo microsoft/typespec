@@ -51,7 +51,7 @@ export async function initTypeSpecProjectWorker(
 
   // Download template configuration and prompt user to select a template
   // No validation is done until one has been selected
-  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(host);
+  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates();
   const result =
     options.templatesUrl === undefined
       ? (typeSpecCoreTemplates as LoadedTemplate)
