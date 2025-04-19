@@ -1,6 +1,6 @@
 import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
-import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpCollectionType, CSharpType, LibrarySourceFile } from "./interfaces.js";
 import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
@@ -15,7 +15,7 @@ export interface BusinessLogicMethod {
   methodName: string;
   methodParams: string;
   returnTypeName: string;
-  returnType: CSharpType;
+  returnType: CSharpType | CSharpCollectionType;
   instantiatedReturnType?: string;
 }
 
@@ -94,16 +94,21 @@ export function getBusinessLogicImplementations(
   return sourceFiles;
 }
 
-function getReturnStatement(returnType: CSharpType): string {
+function getReturnStatement(returnType: CSharpType | CSharpCollectionType): string {
   if (returnType.isValueType && returnType.isNullable) {
     return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
   }
   if (returnType.isValueType) {
     return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
   }
+
   if (returnType.isCollection) {
+    if (returnType instanceof CSharpCollectionType) {
+      return `return Task.FromResult<${returnType.getTypeReference()}>(${returnType.getImplementationType()});`;
+    }
     return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
   }
+
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
   } else if (returnType.isClass) {
@@ -431,6 +436,19 @@ namespace TypeSpec.Helpers
                 var element = type.GetElementType();
                 if (element == null) return null;
                 return CacheAndReturn(type, Array.CreateInstance(element, 0));
+            }
+            if (type.IsGenericType)
+            {
+                var elementType = type.GetGenericArguments()[0];
+                if (elementType == null) return null;
+                
+                if (type.GetGenericTypeDefinition() == typeof(IEnumerable<>)){
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)));
+                }
+                if (type.GetGenericTypeDefinition() == typeof(ISet<>))
+                {
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType)));
+                }
             }
             if (type.IsClass)
             {

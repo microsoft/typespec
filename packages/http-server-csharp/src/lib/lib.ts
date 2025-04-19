@@ -1,4 +1,5 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import { CollectionType, resolveCollectionType } from "./interfaces.js";
 
 export interface CSharpServiceEmitterOptions {
   /**Skip formatting of output. Default is false (generated c-sharp files are formatted) */
@@ -19,6 +20,8 @@ export interface CSharpServiceEmitterOptions {
   "http-port"?: number;
   /** The https port number to use when hosting the service locally */
   "https-port"?: number;
+  /** Specifies the collection type to use: 'array' or 'enumerable'. The default is 'enumerable'." */
+  "collection-type"?: "array" | "enumerable";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -82,6 +85,14 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       type: "number",
       nullable: true,
       description: "The service https port when hosting the project locally.",
+    },
+    "collection-type": {
+      type: "string",
+      enum: ["array", "enumerable"],
+      nullable: true,
+      default: "array",
+      description:
+        "Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.",
     },
   },
   required: [],
@@ -150,3 +161,23 @@ export const $lib = createTypeSpecLibrary({
 export const { reportDiagnostic, createStateSymbol, getTracer } = $lib;
 
 export type CSharpServiceLibrary = typeof $lib;
+
+export class CSharpServiceOptions {
+  private static instance: CSharpServiceOptions;
+  public collectionType: CollectionType;
+
+  private constructor() {
+    this.collectionType = CollectionType.Array;
+  }
+
+  public static getInstance(): CSharpServiceOptions {
+    if (!CSharpServiceOptions.instance) {
+      CSharpServiceOptions.instance = new CSharpServiceOptions();
+    }
+    return CSharpServiceOptions.instance;
+  }
+
+  public initialize(options: { "collection-type"?: string }) {
+    this.collectionType = resolveCollectionType(options["collection-type"]);
+  }
+}
