@@ -88,6 +88,17 @@ export class TspLanguageClient {
     }
   }
 
+  public async compileProject(): Promise<boolean> {
+    const compileProjectRequestName: CustomRequestName = "typespec/compileProject";
+    try {
+      const result = await this.client.sendRequest(compileProjectRequestName);
+      return result === true;
+    } catch (e) {
+      logger.error("Unexpected error when compiling project", [e]);
+      return false;
+    }
+  }
+
   async runCliCommand(args: string[], cwd: string): Promise<ExecOutput | undefined> {
     if (isWhitespaceStringOrUndefined(this.initializeResult?.compilerCliJsPath)) {
       logger.warning(
