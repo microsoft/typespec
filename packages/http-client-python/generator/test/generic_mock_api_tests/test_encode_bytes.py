@@ -94,6 +94,7 @@ def test_header(client: BytesClient):
         ],
     )
 
+
 def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.default(
         value=png_data,
