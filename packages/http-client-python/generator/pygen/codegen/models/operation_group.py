@@ -100,8 +100,12 @@ class OperationGroup(BaseModel):
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        utils_path = self.code_model.get_relative_import_path(
+            serialize_namespace,
+            f"{self.code_model.namespace}._utils.utils",
+        )
+
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
         if not self.code_model.options["combine_operation_files"]:
@@ -158,10 +162,7 @@ class OperationGroup(BaseModel):
         if self.is_mixin:
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _utils of client namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    f"{self.code_model.namespace}._utils.utils",
-                ),
+                utils_path,
                 "ClientMixinABC",
                 ImportType.LOCAL,
             )
@@ -179,11 +180,7 @@ class OperationGroup(BaseModel):
         if self.has_abstract_operations:
             file_import.add_submodule_import(
                 # raise_if_not_implemented is always defined in _utils of top namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
-                    module_name="_utils.utils",
-                ),
+                utils_path,
                 "raise_if_not_implemented",
                 ImportType.LOCAL,
             )
