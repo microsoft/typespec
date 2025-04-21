@@ -33,7 +33,7 @@ export interface TypeTypekit {
    */
   finishType(type: Type): void;
   /**
-   * Checks if a type is decorated with \@error
+   * Checks if a type is decorated with `@error`
    * @param type The type to check.
    */
   isError(type: Type): boolean;
