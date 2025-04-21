@@ -11,7 +11,7 @@ beforeEach(async () => {
   runner = createTestWrapper(await createTestHost());
 });
 
-it("resolveTypeReference resolves existing types", async () => {
+it("resolve resolves existing types", async () => {
   await runner.compile("");
   const tk = $(runner.program);
   const stringType = tk.resolve("TypeSpec.string");
@@ -24,7 +24,7 @@ it("resolveTypeReference resolves existing types", async () => {
   expect(diagnostics).toHaveLength(0);
 });
 
-it("resolveTypeReference returns undefined and diagnostics for invalid references", async () => {
+it("resolve returns undefined and diagnostics for invalid references", async () => {
   await runner.compile("");
   const unknownType = $(runner.program).resolve("UnknownModel");
   expect(unknownType).toBeUndefined();
