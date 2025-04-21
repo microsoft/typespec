@@ -31,11 +31,6 @@ export interface OperationTelemetryEvent extends TelemetryEventBase {
   lastStep?: string;
 }
 
-export interface OperationDetailTelemetryEvent
-  extends Partial<Record<keyof typeof OperationDetailPropertyName, string>> {
-  activityId: string;
-}
-
 export enum OperationDetailPropertyName {
   error,
   emitterName,

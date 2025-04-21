@@ -10,7 +10,6 @@ import {
   emptyActivityId,
   generateActivityId,
   OperationDetailPropertyName,
-  OperationDetailTelemetryEvent,
   OperationTelemetryEvent,
   RawTelemetryEvent,
   TelemetryEventName,
@@ -166,16 +165,20 @@ export class TelemetryClient {
     ) => Promise<T>,
     activityId: string,
     detail: Partial<Record<keyof typeof OperationDetailPropertyName, string>>,
-    endTimePropertyName: string,
+    endTimePropertyName?: string,
   ) {
-    const operationDetailEvent = this.createOperationDetailEvent(activityId, detail);
     let eventSent = false;
     const sendTelemetryEvent = (delay: boolean = false) => {
       if (!eventSent) {
         eventSent = true;
-        operationDetailEvent[endTimePropertyName as keyof OperationDetailTelemetryEvent] =
-          new Date().toISOString(); // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
-        this.logOperationDetailTelemetry(activityId, operationDetailEvent, delay);
+        const data: Partial<Record<keyof typeof OperationDetailPropertyName, string>> = {
+          ...detail,
+        };
+        if (endTimePropertyName) {
+          data[endTimePropertyName as keyof typeof OperationDetailPropertyName] =
+            new Date().toISOString(); // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        }
+        this.logOperationDetailTelemetry(activityId, data, delay);
       }
     };
     try {
@@ -267,16 +270,6 @@ export class TelemetryClient {
       endTime: undefined,
       result: undefined,
       lastStep: undefined,
-    };
-  }
-
-  private createOperationDetailEvent(
-    activityId: string,
-    detail: Partial<Record<keyof typeof OperationDetailPropertyName, string>>,
-  ): OperationDetailTelemetryEvent {
-    return {
-      activityId: activityId,
-      ...detail,
     };
   }
 
