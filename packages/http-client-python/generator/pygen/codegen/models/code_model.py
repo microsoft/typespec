@@ -251,7 +251,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def need_utils_serialization(self) -> bool:
-        return not (self.options["client_side_validation"] or self.options["multiapi"])
+        return not self.options["client_side_validation"]
 
     def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (
