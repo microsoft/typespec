@@ -401,16 +401,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             getContextParameter(isProtocolMethod));
                     }
 
-                    final ClientMethod lroBaseMethod = baseMethod.newBuilder()
-                        .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsyncRestResponse))
-                        .name(proxyMethod.getSimpleAsyncRestResponseMethodName())
-                        .onlyRequiredParameters(false)
-                        .type(ClientMethodType.SimpleAsyncRestResponse)
-                        .groupedParameterRequired(false)
-                        .proxyMethod(proxyMethod)
-                        .methodVisibility(simpleAsyncMethodVisibility)
-                        .build();
-
                     JavaSettings.PollingDetails pollingDetails
                         = settings.getPollingConfig(proxyMethod.getOperationId());
 
@@ -458,6 +448,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                 resultType, dpgMethodPollingDetailsWithModel.getPollIntervalInSeconds());
                     }
 
+                    final ClientMethod lroBaseMethod = baseMethod.newBuilder()
+                        .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsyncRestResponse))
+                        .name(proxyMethod.getSimpleAsyncRestResponseMethodName())
+                        .onlyRequiredParameters(false)
+                        .type(ClientMethodType.SimpleAsyncRestResponse)
+                        .groupedParameterRequired(false)
+                        .proxyMethod(proxyMethod)
+                        .methodVisibility(simpleAsyncMethodVisibility)
+                        .methodPollingDetails(methodPollingDetails)
+                        .build();
+
                     MethodNamer methodNamer
                         = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
 
@@ -474,7 +475,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                 ? lroBaseMethod.getImplementationDetails().newBuilder()
                                 : new ImplementationDetails.Builder();
                         final Builder lroWithIntermediateFinalTypeBuilder = lroBaseMethod.newBuilder()
-                            .implementationDetails(implDetailsBuilder.implementationOnly(true).build());
+                            .implementationDetails(implDetailsBuilder.implementationOnly(true).build())
+                            .methodPollingDetails(dpgMethodPollingDetailsWithModel);
 
                         createLroMethods(lroWithIntermediateFinalTypeBuilder.build(), methods,
                             methodNamer.getLroModelBeginAsyncMethodName(), methodNamer.getLroModelBeginMethodName(),
