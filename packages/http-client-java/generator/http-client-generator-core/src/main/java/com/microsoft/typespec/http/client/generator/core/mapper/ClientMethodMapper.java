@@ -875,7 +875,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         final Builder builder = lroBaseMethod.newBuilder().methodPollingDetails(methodPollingDetails);
         if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
-            // begin method async
+            // long-running 'begin[Operation]' async methods
+            //
             final ClientMethod beginAsyncMethod = builder
                 .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginAsync,
                     methodPollingDetails))
@@ -910,7 +911,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (!proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)
             && (JavaSettings.getInstance().isGenerateSyncMethods()
                 || JavaSettings.getInstance().isSyncStackEnabled())) {
-            // begin method sync
+            // long-running 'begin[Operation]' sync methods
+            //
             final ClientMethod beginSyncMethod = builder
                 .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginSync,
                     methodPollingDetails))

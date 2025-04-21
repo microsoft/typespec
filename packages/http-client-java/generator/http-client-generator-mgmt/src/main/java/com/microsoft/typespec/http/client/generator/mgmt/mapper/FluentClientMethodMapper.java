@@ -29,35 +29,45 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
-        // fluent provides the simple wrapper API for LRO
-        // the difference is that it does not have a RestResponse overload, as Response data is not included in an LRO
-        // API
-        final ClientMethod.Builder builder = lroBaseMethod.newBuilder();
+        // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
+        // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
+        // as Response data is not included in an LRO API.
 
         // async
-        methods.add(builder.returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningAsync))
+        //
+        final ClientMethod longRunningFinalResultAsyncMethod = lroBaseMethod.newBuilder()
+            .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningAsync))
             .name(proxyMethod.getSimpleAsyncMethodName())
             .onlyRequiredParameters(false)
             .type(ClientMethodType.LongRunningAsync)
             .groupedParameterRequired(false)
             .methodVisibility(
                 methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, false, isProtocolMethod))
-            .build());
+            .build();
+
+        methods.add(longRunningFinalResultAsyncMethod);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
-            methods.add(builder.onlyRequiredParameters(true)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
-                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                .build());
+            final ClientMethod longRunningFinalResultAsyncMethodWithRequiredParameters
+                = longRunningFinalResultAsyncMethod.newBuilder()
+                    .onlyRequiredParameters(true)
+                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
+                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                    .build();
+            methods.add(longRunningFinalResultAsyncMethodWithRequiredParameters);
         }
 
-        addClientMethodWithContext(methods,
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod)),
-            parameters, getContextParameter(isProtocolMethod));
+        final ClientMethod.Builder longRunningFinalResultAsyncWithContextBuilder
+            = longRunningFinalResultAsyncMethod.newBuilder()
+                .methodVisibility(
+                    methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod));
+        addClientMethodWithContext(methods, longRunningFinalResultAsyncWithContextBuilder, parameters,
+            getContextParameter(isProtocolMethod));
 
         // sync
-        methods.add(builder.returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningSync))
+        //
+        final ClientMethod longRunningFinalResultSyncMethod = lroBaseMethod.newBuilder()
+            .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningSync))
             .name(proxyMethod.getName())
             .onlyRequiredParameters(false)
             .type(ClientMethodType.LongRunningSync)
@@ -65,19 +75,27 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             .onlyRequiredParameters(true)
             .methodVisibility(
                 methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, false, isProtocolMethod))
-            .build());
+            .build();
+
+        methods.add(longRunningFinalResultSyncMethod);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
-            methods.add(builder.onlyRequiredParameters(true)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,
-                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                .build());
+            final ClientMethod longRunningFinalResultSyncMethodWithRequiredParameters
+                = longRunningFinalResultSyncMethod.newBuilder()
+                    .onlyRequiredParameters(true)
+                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,
+                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                    .build();
+            methods.add(longRunningFinalResultSyncMethodWithRequiredParameters);
         }
 
-        addClientMethodWithContext(methods,
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod)),
-            parameters, getContextParameter(isProtocolMethod));
+        final ClientMethod.Builder longRunningFinalResultSyncWithContextBuilder
+            = longRunningFinalResultSyncMethod.newBuilder()
+                .methodVisibility(
+                    methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod));
+
+        addClientMethodWithContext(methods, longRunningFinalResultSyncWithContextBuilder, parameters,
+            getContextParameter(isProtocolMethod));
     }
 
     @Override
