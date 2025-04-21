@@ -3,7 +3,8 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
-import type { Type, Union, UnionVariant } from "../../../core/types.js";
+import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
+import { $doc, getDoc } from "../../../lib/decorators.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
@@ -47,6 +48,20 @@ export interface UnionKit {
    * @param desc The descriptor of the union.
    */
   create(desc: UnionDescriptor): Union;
+
+  /**
+   * Creates a union type from an enum.
+   *
+   * @remarks
+   *
+   * @param type The enum to create a union from.
+   *
+   * For member without an explicit value, the member name is used as the value.
+   *
+   * Any API documentation will be rendered and preserved in the resulting union.
+   * - No other decorators are copied from the enum to the union.
+   */
+  createFromEnum(type: Enum): Union;
 
   /**
    * Check if the given `type` is a union.
@@ -131,6 +146,24 @@ export const UnionKit = defineKit<TypekitExtension>({
 
       this.program.checker.finishType(union);
       return union;
+    },
+
+    createFromEnum(type) {
+      const enumDoc = getDoc(this.program, type);
+      return this.union.create({
+        name: type.name,
+        decorators: enumDoc ? [[$doc, enumDoc]] : undefined,
+        variants: Array.from(type.members.values()).map((member) => {
+          const memberDoc = getDoc(this.program, member);
+          const value = member.value ?? member.name;
+
+          return this.unionVariant.create({
+            name: member.name,
+            type: this.literal.create(value),
+            decorators: memberDoc ? [[$doc, memberDoc]] : undefined,
+          });
+        }),
+      });
     },
 
     is(type) {
