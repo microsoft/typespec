@@ -193,9 +193,9 @@ export interface PagingProperty {
    * 
    * You can use this to generate the path to the property in the model with following code:
    * @example
-   ```ts
-   const path = paing.output.pageItems.path.map((prop) => prop.name).join(".");
-   ```
+   * ```ts
+   * const path = paing.output.pageItems.path.map((prop) => prop.name).join(".");
+   * ```
    */
   readonly path: ModelProperty[];
 }
