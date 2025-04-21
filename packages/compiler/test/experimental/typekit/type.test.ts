@@ -261,3 +261,23 @@ describe("minValueExclusive and maxValueExclusive", () => {
     expect(min).toBe(15);
   });
 });
+
+it("isError can check if a type is an error model", async () => {
+  const {
+    Foo,
+    Error,
+    context: { program },
+  } = await getTypes(
+    `
+      @error
+      model Error {
+        props: string;
+      }
+      model Foo {}
+      `,
+    ["Foo", "Error"],
+  );
+
+  expect($(program).type.isError(Error)).toBe(true);
+  expect($(program).type.isError(Foo)).toBe(false);
+});
