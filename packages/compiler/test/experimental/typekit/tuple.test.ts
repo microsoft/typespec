@@ -34,13 +34,11 @@ it("can create a tuple with values", async () => {
 it("can create a tuple with a descriptor", async () => {
   const { program } = await createContextMock();
 
-  const tuple = $(program).tuple.create({
-    values: [
-      $(program).value.createBoolean(true).type,
-      $(program).value.createString("foo").type,
-      $(program).value.createNumeric(42).type,
-    ],
-  });
+  const tuple = $(program).tuple.create([
+    $(program).value.createBoolean(true).type,
+    $(program).value.createString("foo").type,
+    $(program).value.createNumeric(42).type,
+  ]);
   expect(tuple).toBeDefined();
   expect(tuple.values.length).toBe(3);
   const [first, second, third] = tuple.values;

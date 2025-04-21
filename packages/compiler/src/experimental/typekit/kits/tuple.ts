@@ -1,13 +1,6 @@
 import { Tuple, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
-export interface TupleDescriptor {
-  /**
-   * The values for the tuple.
-   */
-  values?: Type[];
-}
-
 /**
  * @experimental
  */
@@ -17,17 +10,11 @@ export interface TupleKit {
    */
   is(type: Type): type is Tuple;
   /**
-   * Creates a tuple from a descriptor.
+   * Creates a tuple type.
    *
-   * @param desc The descriptor of the tuple. Passing no descriptor creates an empty tuple.
-   * @returns The tuple type.
+   * @param values The tuple values, if any.
    */
-  create(desc?: TupleDescriptor): Tuple;
-  /**
-   * Creates a tuple from a list of {@link Type} values.
-   * @param values The values for the tuple.
-   */
-  create(values: Type[]): Tuple;
+  create(values?: Type[]): Tuple;
 }
 
 interface TypekitExtension {
@@ -44,10 +31,7 @@ defineKit<TypekitExtension>({
     is(type) {
       return type.kind === "Tuple";
     },
-    create(descriptorOrValues: TupleDescriptor | Type[] = {}): Tuple {
-      const values = Array.isArray(descriptorOrValues)
-        ? descriptorOrValues
-        : (descriptorOrValues.values ?? []);
+    create(values: Type[] = []): Tuple {
       const tuple: Tuple = this.program.checker.createType({
         kind: "Tuple",
         name: "Tuple",
