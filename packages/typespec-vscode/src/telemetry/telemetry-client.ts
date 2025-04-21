@@ -158,43 +158,6 @@ export class TelemetryClient {
     }
   }
 
-  public async doOperationWithOperationDetailTelemetry<T>(
-    operation: (
-      /** Call this function to send the telemetry event if you don't want to wait until the end of the operation for some reason*/
-      sendTelemetryEvent: (delay: boolean) => void,
-    ) => Promise<T>,
-    activityId: string,
-    detail: Partial<Record<keyof typeof OperationDetailPropertyName, string>>,
-    endTimePropertyName?: string,
-  ) {
-    let eventSent = false;
-    const sendTelemetryEvent = (delay: boolean = false) => {
-      if (!eventSent) {
-        eventSent = true;
-        const data: Partial<Record<keyof typeof OperationDetailPropertyName, string>> = {
-          ...detail,
-        };
-        if (endTimePropertyName) {
-          data[endTimePropertyName as keyof typeof OperationDetailPropertyName] =
-            new Date().toISOString(); // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
-        }
-        this.logOperationDetailTelemetry(activityId, data, delay);
-      }
-    };
-    try {
-      const result = await operation((delay) => sendTelemetryEvent(delay));
-      return result;
-    } catch (e) {
-      // just report the issue and re-throw the error
-      logger.info("Unhandled exception from operation to doOperationWithOperationDetailTelemetry", [
-        e,
-      ]);
-      throw e;
-    } finally {
-      sendTelemetryEvent();
-    }
-  }
-
   public logOperationTelemetryEvent(event: OperationTelemetryEvent, delay: boolean = false) {
     const raw: RawTelemetryEvent = {
       eventName: event.eventName,

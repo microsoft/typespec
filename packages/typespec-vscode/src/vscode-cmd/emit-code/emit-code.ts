@@ -444,22 +444,16 @@ async function doEmit(
             emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
-        const compileResult = await telemetryClient.doOperationWithOperationDetailTelemetry(
-          async (): Promise<ExecOutput> => {
-            return await compile(
-              cli,
-              mainTspFile,
-              emitters.map((e) => {
-                return { name: e.package, options: {} };
-              }),
-              false,
-            );
-          },
-          tel.activityId,
-          {
-            CompileStartTime: new Date().toISOString(), //ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
-          },
-          "CompileEndTime",
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
+        const compileResult = await compile(
+          cli,
+          mainTspFile,
+          emitters.map((e) => {
+            return { name: e.package, options: {} };
+          }),
+          false,
         );
         if (compileResult.exitCode !== 0) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
@@ -496,6 +490,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );
