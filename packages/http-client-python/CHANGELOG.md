@@ -1,5 +1,18 @@
 # Change Log - @typespec/http-client-python
 
+## 0.11.0
+
+### Features
+
+- [#6968](https://github.com/microsoft/typespec/pull/6968) Support parameter promoting to client level and add tests.
+- [#6955](https://github.com/microsoft/typespec/pull/6955) Support optional path parameter.
+
+### Bug Fixes
+
+- [#6979](https://github.com/microsoft/typespec/pull/6979) Improve emitter performance by updating black plugin implementation.
+- [#7048](https://github.com/microsoft/typespec/pull/7048) Align key in apiview mapping with apiview structure
+
+
 ## 0.10.0
 
 ### Features
