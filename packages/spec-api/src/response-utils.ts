@@ -77,12 +77,15 @@ function expandDyns(value: unknown, config: ResolverConfig): unknown {
   } else if (Array.isArray(value)) {
     return value.map((v) => expandDyns(v, config));
   } else if (typeof value === "object" && value !== null) {
+    const obj = value as Record<string, unknown>;
+    return Object.fromEntries(Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]));
+  } else if (typeof value === "function") {
     if ("isDyn" in value && value.isDyn) {
       const dynValue = value as DynValue<string[]>;
       return dynValue(config as any);
+    } else {
+      throw new Error("Invalid function value");
     }
-    const obj = value as Record<string, unknown>;
-    return Object.fromEntries(Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]));
   }
   return value;
 }
