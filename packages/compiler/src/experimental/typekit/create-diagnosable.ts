@@ -19,12 +19,9 @@ export type DiagnosableFunction<P extends unknown[], R> = (
  * @template R The primary return type of the function.
  */
 export interface Diagnosable<P extends unknown[], R> {
-  /**
-   * This function, when called directly, ignores diagnostics.
-   */
   (...args: P): R;
   /**
-   * Represents a function that can return diagnostics along with its primary result.
+   * Returns a tuple of its primary result and any diagnostics.
    */
   withDiagnostics: DiagnosableFunction<P, R>;
 }
