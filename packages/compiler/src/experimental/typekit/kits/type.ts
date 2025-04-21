@@ -13,7 +13,7 @@ import {
   getMinValue,
   getMinValueExclusive,
 } from "../../../core/intrinsic-type-state.js";
-import { isErrorType, isNeverType } from "../../../core/type-utils.js";
+import { isNeverType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
 import { getDoc, getSummary, isErrorModel } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
@@ -214,7 +214,7 @@ defineKit<TypekitExtension>({
       return clone;
     },
     isError(type) {
-      return isErrorType(type) || isErrorModel(this.program, type);
+      return isErrorModel(this.program, type);
     },
     getEncodedName(type, encoding) {
       return resolveEncodedName(this.program, type, encoding);
