@@ -489,7 +489,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     if (proxyMethod.isSync()) {
                         // If the ProxyMethod is synchronous perform a complete generation of synchronous simple APIs.
                         //
-                        createSimpleSyncClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
+                        createSimpleClientMethods(true, operation, isProtocolMethod, methods, baseMethod,
                             methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
                     } else {
                         // Otherwise, perform a complete generation of asynchronous simple APIs.
@@ -498,12 +498,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         //
                         if (settings.getSyncMethods() != SyncMethodsGeneration.SYNC_ONLY) {
                             // SyncMethodsGeneration.NONE would still generate these
-                            createSimpleAsyncClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
+                            createSimpleClientMethods(false, operation, isProtocolMethod, methods, baseMethod,
                                 methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
                         }
 
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
-                            createSimpleSyncClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
+                            createSimpleClientMethods(true, operation, isProtocolMethod, methods, baseMethod,
                                 methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
                         }
                     }
@@ -702,67 +702,43 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             detailsWithContext, contextParameter);
     }
 
-    private void createSimpleAsyncClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
+    private void createSimpleClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
         List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
-
-        final ReturnValue responseReturnValue
-            = methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsyncRestResponse);
-        final ReturnValue returnValue = methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsync);
-        final MethodVisibilityFunction visibilityFunction
-            = (restResponse, overloadType, includesContext) -> methodVisibility(
-                restResponse ? ClientMethodType.SimpleAsyncRestResponse : ClientMethodType.SimpleAsync, overloadType,
-                includesContext, isProtocolMethod);
-
-        createSimpleClientMethods(operation, isProtocolMethod, methods, baseMethod, false, responseReturnValue,
-            returnValue, visibilityFunction, getContextParameter(isProtocolMethod),
-            generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
-    }
-
-    private void createSimpleSyncClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
-
-        final ReturnValue responseReturnValue
-            = methodsReturnDescription.getReturnValue(ClientMethodType.SimpleSyncRestResponse);
-        final ReturnValue returnValue = methodsReturnDescription.getReturnValue(ClientMethodType.SimpleSync);
-        final MethodVisibilityFunction visibilityFunction
-            = (restResponse, overloadType, includesContext) -> methodVisibility(
-                restResponse ? ClientMethodType.SimpleSyncRestResponse : ClientMethodType.SimpleSync, overloadType,
-                includesContext, isProtocolMethod);
-
-        createSimpleClientMethods(operation, isProtocolMethod, methods, baseMethod, true, responseReturnValue,
-            returnValue, visibilityFunction, getContextParameter(isProtocolMethod),
-            generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
-    }
-
-    private static void createSimpleClientMethods(Operation operation, boolean isProtocolMethod,
-        List<ClientMethod> methods, ClientMethod baseMethod, boolean isSync, ReturnValue responseReturnValue,
-        ReturnValue returnValue, MethodVisibilityFunction visibilityFunction, ClientMethodParameter contextParameter,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
         final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
         final List<ClientMethodParameter> parameters = baseMethod.getParameters();
-        MethodNamer methodNamer = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final MethodNamer methodNamer
+            = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
 
-        // '[Operation]WithResponse' methods.
+        // '[Operation]WithResponse' sync or async methods.
         //
-        final String withResponseMethodName = isSync
-            ? methodNamer.getSimpleRestResponseMethodName()
-            : methodNamer.getSimpleAsyncRestResponseMethodName();
-        final ClientMethodType withResponseMethodType
-            = isSync ? ClientMethodType.SimpleSyncRestResponse : ClientMethodType.SimpleAsyncRestResponse;
-        final JavaVisibility withContextVisibility
-            = visibilityFunction.methodVisibility(true, defaultOverloadType, true);
+        final String withResponseMethodName;
+        final ClientMethodType withResponseMethodType;
+        if (isSync) {
+            withResponseMethodName = methodNamer.getSimpleRestResponseMethodName();
+            withResponseMethodType = ClientMethodType.SimpleSyncRestResponse;
+        } else {
+            withResponseMethodName = methodNamer.getSimpleAsyncRestResponseMethodName();
+            withResponseMethodType = ClientMethodType.SimpleAsyncRestResponse;
+        }
+        final ReturnValue withResponseMethodReturnValue
+            = methodsReturnDescription.getReturnValue(withResponseMethodType);
+        final JavaVisibility withResponseMethodVisibility
+            = methodVisibility(withResponseMethodType, defaultOverloadType, false, isProtocolMethod);
+        final JavaVisibility withResponseMethodWithContextVisibility
+            = methodVisibility(withResponseMethodType, defaultOverloadType, true, isProtocolMethod);
+        final boolean hasContextOverload = withResponseMethodWithContextVisibility != NOT_GENERATE;
 
         final ClientMethod withResponseMethod = baseMethod.newBuilder()
-            .returnValue(responseReturnValue)
+            .returnValue(withResponseMethodReturnValue)
             .onlyRequiredParameters(false)
             .name(withResponseMethodName)
             .type(withResponseMethodType)
             .groupedParameterRequired(false)
-            .hasWithContextOverload(withContextVisibility != NOT_GENERATE)
-            .methodVisibility(visibilityFunction.methodVisibility(true, defaultOverloadType, false))
+            .hasWithContextOverload(hasContextOverload)
+            .methodVisibility(withResponseMethodVisibility)
             .build();
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
         // proxy method,
@@ -770,24 +746,38 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(withResponseMethod);
 
         final Builder withResponseWithContextBuilder
-            = withResponseMethod.newBuilder().methodVisibility(withContextVisibility);
+            = withResponseMethod.newBuilder().methodVisibility(withResponseMethodWithContextVisibility);
         addClientMethodWithContext(methods, withResponseWithContextBuilder, parameters, contextParameter);
 
-        // Simple '[Operation]' methods.
+        // Simple '[Operation]' sync or async methods.
         //
         if (proxyMethod.isCustomHeaderIgnored()) {
             return;
         }
 
-        final String simpleMethodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
-        final ClientMethodType simpleMethodType = isSync ? ClientMethodType.SimpleSync : ClientMethodType.SimpleAsync;
+        final String simpleMethodName;
+        final ClientMethodType simpleMethodType;
+        if (isSync) {
+            simpleMethodName = methodNamer.getMethodName();
+            simpleMethodType = ClientMethodType.SimpleSync;
+        } else {
+            simpleMethodName = methodNamer.getSimpleAsyncMethodName();
+            simpleMethodType = ClientMethodType.SimpleAsync;
+        }
+        final ReturnValue simpleMethodReturnValue = methodsReturnDescription.getReturnValue(simpleMethodType);
+        final JavaVisibility simpleMethodVisibility
+            = methodVisibility(simpleMethodType, defaultOverloadType, false, isProtocolMethod);
+        final JavaVisibility simpleMethodWithRequiredParametersVisibility
+            = methodVisibility(simpleMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
+        final JavaVisibility simpleMethodWithContextVisibility
+            = methodVisibility(simpleMethodType, defaultOverloadType, true, isProtocolMethod);
 
         final ClientMethod simpleMethod = baseMethod.newBuilder()
-            .returnValue(returnValue)
+            .returnValue(simpleMethodReturnValue)
             .name(simpleMethodName)
             .type(simpleMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false))
+            .methodVisibility(simpleMethodVisibility)
             .build();
         methods.add(simpleMethod);
 
@@ -796,15 +786,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         if (generateClientMethodWithOnlyRequiredParameters) {
             final ClientMethod simpleMethodWithRequiredParameters = simpleMethod.newBuilder()
-                .methodVisibility(
-                    visibilityFunction.methodVisibility(false, MethodOverloadType.OVERLOAD_MINIMUM, false))
+                .methodVisibility(simpleMethodWithRequiredParametersVisibility)
                 .onlyRequiredParameters(true)
                 .build();
             methods.add(simpleMethodWithRequiredParameters);
         }
 
-        final Builder simpleMethodWithContextBuilder = simpleMethod.newBuilder()
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, true));
+        final Builder simpleMethodWithContextBuilder
+            = simpleMethod.newBuilder().methodVisibility(simpleMethodWithContextVisibility);
         addClientMethodWithContext(methods, simpleMethodWithContextBuilder, parameters, contextParameter);
     }
 
