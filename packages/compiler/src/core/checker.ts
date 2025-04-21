@@ -979,7 +979,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let hasError = false;
       if (entity !== null && "kind" in entity && entity.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
-          if (entity.node.symbol === templateParameters[i].symbol) {
+          if (entity.node?.symbol === templateParameters[i].symbol) {
             reportCheckerDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node }),
             );
@@ -1350,7 +1350,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
 
     if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
-      templateParameterUsageMap.set(entity.node, true);
+      templateParameterUsageMap.set(entity.node!, true);
     }
     return entity;
   }

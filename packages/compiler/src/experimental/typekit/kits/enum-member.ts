@@ -65,7 +65,6 @@ defineKit<TypekitExtension>({
         name: desc.name,
         value: desc.value,
         decorators: decoratorApplication(this, desc.decorators),
-        node: undefined as any,
         enum: desc.enum as any, // initialized in enum.build if not provided here
       });
       this.program.checker.finishType(member);

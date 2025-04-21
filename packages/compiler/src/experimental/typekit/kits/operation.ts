@@ -84,7 +84,6 @@ defineKit<TypekitExtension>({
         decorators: [],
         parameters: parametersModel,
         returnType: desc.returnType,
-        node: undefined as any,
       });
       this.program.checker.finishType(operation);
       return operation;

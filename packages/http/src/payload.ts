@@ -271,9 +271,9 @@ function resolveExplicitBodyProperty(
             code: "http-file-structured",
             messageId: "union",
             target:
-              item.property.node.kind === SyntaxKind.ModelProperty
+              item.property.node?.kind === SyntaxKind.ModelProperty
                 ? item.property.node.value
-                : item.property.node,
+                : item.property,
           });
         }
 
