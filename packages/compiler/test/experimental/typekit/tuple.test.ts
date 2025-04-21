@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { $ } from "../../../src/experimental/typekit/index.js";
-import { BooleanLiteral, Model, NumericLiteral, StringLiteral } from "../../../src/index.js";
+import { BooleanLiteral, NumericLiteral, StringLiteral } from "../../../src/index.js";
 import { createContextMock, getTypes } from "./utils.js";
 
 it("can create an empty tuple", async () => {
@@ -39,13 +39,10 @@ it("can check if a type is a tuple", async () => {
     context: { program },
   } = await getTypes(
     `
-      model Foo { values: [string, int32] };
+      alias Foo = [string, int32];
     `,
     ["Foo"],
   );
 
-  const tuple = (Foo as Model).properties.get("values")?.type;
-  expect(tuple).toBeDefined();
-
-  expect($(program).tuple.is(tuple!)).toBe(true);
+  expect($(program).tuple.is(Foo)).toBe(true);
 });
