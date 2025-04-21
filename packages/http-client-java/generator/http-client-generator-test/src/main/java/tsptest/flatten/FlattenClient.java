@@ -210,14 +210,6 @@ public final class FlattenClient {
 
     /**
      * The sendOptionalBody operation.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -228,6 +220,7 @@ public final class FlattenClient {
      * }
      * </pre>
      * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -237,8 +230,9 @@ public final class FlattenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendOptionalBodyWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.sendOptionalBodyWithResponse(requestOptions);
+    public Response<Void> sendOptionalBodyWithResponse(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        return this.serviceClient.sendOptionalBodyWithResponse(sendOptionalBodyRequest, requestOptions);
     }
 
     /**
@@ -393,8 +387,7 @@ public final class FlattenClient {
         RequestOptions requestOptions = new RequestOptions();
         SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest().setName(name);
         BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
-        requestOptions.setBody(sendOptionalBodyRequest);
-        sendOptionalBodyWithResponse(requestOptions).getValue();
+        sendOptionalBodyWithResponse(sendOptionalBodyRequest, requestOptions).getValue();
     }
 
     /**
@@ -411,6 +404,8 @@ public final class FlattenClient {
     public void sendOptionalBody() {
         // Generated convenience method for sendOptionalBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        sendOptionalBodyWithResponse(requestOptions).getValue();
+        SendOptionalBodyRequest sendOptionalBodyRequestObj = new SendOptionalBodyRequest();
+        BinaryData sendOptionalBodyRequest = BinaryData.fromObject(sendOptionalBodyRequestObj);
+        sendOptionalBodyWithResponse(sendOptionalBodyRequest, requestOptions).getValue();
     }
 }
