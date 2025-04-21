@@ -36,7 +36,7 @@ export interface TypeTypekit {
    * Checks if a type is decorated with `@error`
    * @param type The type to check.
    */
-  isError(type: Type): asserts type is Model;
+  isError(type: Type): type is Model;
   /**
    * Get the name of this type in the specified encoding.
    */
