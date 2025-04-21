@@ -49,6 +49,6 @@ public class FlattenTests {
         Assertions.assertEquals("{\"name\":\"my name\"}", payloadCaptor.get().toString());
 
         client.sendOptionalBody().block();
-        Assertions.assertNull(payloadCaptor.get());
+        Assertions.assertEquals("{}", payloadCaptor.get().toString());
     }
 }
