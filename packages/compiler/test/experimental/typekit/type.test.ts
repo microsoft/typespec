@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { Enum, Model, Scalar, Union } from "../../../src/core/types.js";
+import { Enum, ErrorType, Model, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
-import { getTypes } from "./utils.js";
+import { createContextMock, getTypes } from "./utils.js";
 
 it("should clone a model", async () => {
   const {
@@ -259,5 +259,37 @@ describe("minValueExclusive and maxValueExclusive", () => {
 
     expect(max).toBe(55);
     expect(min).toBe(15);
+  });
+});
+
+describe("isError", () => {
+  it("is true for intristic errors", async () => {
+    const error: ErrorType = {
+      kind: "Intrinsic",
+      name: "ErrorType",
+      entityKind: "Type",
+      isFinished: true,
+    };
+
+    const { program } = await createContextMock();
+
+    expect($(program).type.isError(error)).toBe(true);
+  });
+
+  it("is true for @error models", async () => {
+    const {
+      Foo,
+      context: { program },
+    } = await getTypes(
+      `
+      @error
+      model Foo {
+        props: string;
+      }
+      `,
+      ["Foo"],
+    );
+
+    expect($(program).type.isError(Foo)).toBe(true);
   });
 });
