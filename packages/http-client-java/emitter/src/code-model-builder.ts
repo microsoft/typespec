@@ -1428,10 +1428,17 @@ export class CodeModelBuilder {
         }
       }
 
+      let parameterName = param.name;
       const parameterOnClient = param.onClient;
+      if (parameterOnClient) {
+        // use parameter name from client parameter, as the name could be an alias
+        if (param.correspondingMethodParams) {
+          parameterName = param.correspondingMethodParams[0].name;
+        }
+      }
 
       const nullable = param.type.kind === "nullable";
-      const parameter = new Parameter(param.name, param.doc ?? "", schema, {
+      const parameter = new Parameter(parameterName, param.doc ?? "", schema, {
         summary: param.summary,
         implementation: parameterOnClient
           ? ImplementationLocation.Client
