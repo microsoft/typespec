@@ -40,5 +40,37 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static InputPrimitiveType Any { get; } = new(InputPrimitiveTypeKind.Unknown, "unknown", string.Empty);
 
         public bool IsNumber => Kind is InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Int32 or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.Float32 or InputPrimitiveTypeKind.Float64 or InputPrimitiveTypeKind.Decimal or InputPrimitiveTypeKind.Decimal128 or InputPrimitiveTypeKind.Numeric;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null || !(obj is InputPrimitiveType other))
+            {
+                return false;
+            }
+
+            return other.Name == Name && other.Kind == Kind && other.Encode == Encode
+                && other.CrossLanguageDefinitionId == CrossLanguageDefinitionId && BaseTypeEuqals();
+
+            bool BaseTypeEuqals()
+            {
+                if (other.BaseType is null)
+                {
+                    if (BaseType is null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                return other.BaseType.Equals(BaseType);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

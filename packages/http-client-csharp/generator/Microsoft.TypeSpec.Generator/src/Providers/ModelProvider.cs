@@ -350,7 +350,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
         {
             Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
-            foreach (var derivedModel in _inputModel.DerivedModels)
+            var derivedModels = new List<InputModelType>();
+            EnumerateDerivedModels(_inputModel, derivedModels);
+            foreach (var derivedModel in derivedModels)
             {
                 var derivedModelProperties = derivedModel.Properties;
                 if (derivedModelProperties.Count > 0)
@@ -361,12 +363,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return derivedProperties;
         }
 
+        private void EnumerateDerivedModels(InputModelType inputModel, List<InputModelType> derivedModels)
+        {
+            foreach (var derivedModel in inputModel.DerivedModels)
+            {
+                derivedModels.Add(derivedModel);
+                EnumerateDerivedModels(derivedModel, derivedModels);
+            }
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
 
-            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
+            var baseModels = EnumerateBaseModels().ToList();
+            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -417,6 +429,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+        }
+
+        private IEnumerable<InputModelType> EnumerateBaseModels()
+        {
+            var model = _inputModel;
+            while (model.BaseModel != null)
+            {
+                yield return model.BaseModel;
+                model = model.BaseModel;
+            }
         }
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)

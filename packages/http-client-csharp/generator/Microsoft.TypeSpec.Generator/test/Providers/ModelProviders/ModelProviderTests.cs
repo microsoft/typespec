@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -19,6 +20,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void Setup()
         {
             MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
+        {
+            var prop1 = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String));
+            var baseModel = InputFactory.Model("baseModel", properties: [prop1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [prop1], baseModel: derivedModel1);
+            var addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance);
+            addDerivedModelMethod!.Invoke(baseModel, new object[] { derivedModel1 });
+            addDerivedModelMethod!.Invoke(derivedModel1, new object[] { derivedModel2 });
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithNew()
+        {
+            var stringProp1 = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String));
+            var baseModel = InputFactory.Model("baseModel", properties: [stringProp1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var intProp1 = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [intProp1], baseModel: derivedModel1);
+            var addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance);
+            addDerivedModelMethod!.Invoke(baseModel, new object[] { derivedModel1 });
+            addDerivedModelMethod!.Invoke(derivedModel1, new object[] { derivedModel2 });
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.New, derivedModel2Provider.Properties[0].Modifiers);
+            var baseModelProvider = new ModelProvider(baseModel);
+            var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.NotNull(prop1Field);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
         }
 
         // Validates that the property body's setter is correctly set based on the property type
