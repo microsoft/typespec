@@ -36,7 +36,6 @@ defineKit<TypekitExtension>({
         kind: "Tuple",
         name: "Tuple",
         values,
-        node: undefined as any,
       });
 
       this.program.checker.finishType(tuple);
