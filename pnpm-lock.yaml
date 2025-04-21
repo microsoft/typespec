@@ -2183,6 +2183,12 @@ importers:
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
+      typedoc:
+        specifier: ^0.28.1
+        version: 0.28.1(typescript@5.8.2)
+      typedoc-plugin-markdown:
+        specifier: ^4.5.2
+        version: 4.6.0(typedoc@0.28.1(typescript@5.8.2))
       yaml:
         specifier: ~2.7.0
         version: 2.7.0
@@ -2214,12 +2220,6 @@ importers:
       source-map-support:
         specifier: ~0.5.21
         version: 0.5.21
-      typedoc:
-        specifier: ^0.28.1
-        version: 0.28.1(typescript@5.8.2)
-      typedoc-plugin-markdown:
-        specifier: ^4.5.2
-        version: 4.6.0(typedoc@0.28.1(typescript@5.8.2))
       typescript:
         specifier: ~5.8.2
         version: 5.8.2

@@ -2,6 +2,7 @@ import type { Enum, EnumMember, Type, Union } from "../../../core/types.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type UnionKit } from "./union.js";
 
+import { $doc, getDoc } from "../../../lib/decorators.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
@@ -40,9 +41,18 @@ export interface EnumKit {
   create(desc: EnumDescriptor): Enum;
 
   /**
-   * Build an equivalent enum from the given union. Union variants which are
+   * Build an equivalent enum from the given union.
+   *
+   *
+   * @remarks
+   *
+   * Union variants which are
    * not valid enum members are skipped. You can check if a union is a valid
    * enum with {@link UnionKit.union}'s `isEnumValue`.
+   *
+   * Any API documentation will be rendered and preserved in the resulting enum.
+   * - No other decorators are copied from the union to the enum
+   *
    */
   createFromUnion(type: Union): Enum;
 
@@ -106,10 +116,22 @@ defineKit<TypekitExtension>({
         ) {
           continue;
         }
-        enumMembers.push(this.enumMember.create({ name: variant.name, value: variant.type.value }));
+        const variantDoc = getDoc(this.program, variant);
+        enumMembers.push(
+          this.enumMember.create({
+            name: variant.name,
+            value: variant.type.value,
+            decorators: variantDoc ? [[$doc, variantDoc]] : undefined,
+          }),
+        );
       }
 
-      return this.enum.create({ name: type.name, members: enumMembers });
+      const unionDoc = getDoc(this.program, type);
+      return this.enum.create({
+        name: type.name,
+        members: enumMembers,
+        decorators: unionDoc ? [[$doc, unionDoc]] : undefined,
+      });
     },
   },
 });
