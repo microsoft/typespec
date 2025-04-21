@@ -34,7 +34,7 @@ export type ThisDiagnosableFunction<P extends unknown[], R> = (
  */
 export type Diagnosable<F> = F extends (...args: infer P extends unknown[]) => infer R
   ? {
-      (...args: P): R | undefined;
+      (...args: P): R;
       /**
        * Returns a tuple of its primary result and any diagnostics.
        */
