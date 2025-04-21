@@ -21,7 +21,6 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.policy.RetryPolicy;
@@ -238,7 +237,9 @@ public final class FlattenClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> sendOptionalBody(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+        Mono<Response<Void>> sendOptionalBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData sendOptionalBodyRequest, RequestOptions requestOptions,
             Context context);
 
         @Post("/flatten/optional-body")
@@ -247,7 +248,9 @@ public final class FlattenClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> sendOptionalBodySync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions,
+        Response<Void> sendOptionalBodySync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BinaryData sendOptionalBodyRequest, RequestOptions requestOptions,
             Context context);
     }
 
@@ -596,14 +599,6 @@ public final class FlattenClientImpl {
 
     /**
      * The sendOptionalBody operation.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -614,6 +609,7 @@ public final class FlattenClientImpl {
      * }
      * </pre>
      * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -622,27 +618,15 @@ public final class FlattenClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendOptionalBodyWithResponseAsync(RequestOptions requestOptions) {
-        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-        requestOptionsLocal.addRequestCallback(requestLocal -> {
-            if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-            }
-        });
-        return FluxUtil
-            .withContext(context -> service.sendOptionalBody(this.getEndpoint(), requestOptionsLocal, context));
+    public Mono<Response<Void>> sendOptionalBodyWithResponseAsync(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return FluxUtil.withContext(context -> service.sendOptionalBody(this.getEndpoint(), contentType,
+            sendOptionalBodyRequest, requestOptions, context));
     }
 
     /**
      * The sendOptionalBody operation.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -653,6 +637,7 @@ public final class FlattenClientImpl {
      * }
      * </pre>
      * 
+     * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -661,13 +646,10 @@ public final class FlattenClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendOptionalBodyWithResponse(RequestOptions requestOptions) {
-        RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-        requestOptionsLocal.addRequestCallback(requestLocal -> {
-            if (requestLocal.getBody() != null && requestLocal.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                requestLocal.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-            }
-        });
-        return service.sendOptionalBodySync(this.getEndpoint(), requestOptionsLocal, Context.NONE);
+    public Response<Void> sendOptionalBodyWithResponse(BinaryData sendOptionalBodyRequest,
+        RequestOptions requestOptions) {
+        final String contentType = "application/json";
+        return service.sendOptionalBodySync(this.getEndpoint(), contentType, sendOptionalBodyRequest, requestOptions,
+            Context.NONE);
     }
 }

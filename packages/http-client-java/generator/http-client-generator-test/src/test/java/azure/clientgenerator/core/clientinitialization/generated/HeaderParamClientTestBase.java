@@ -80,7 +80,6 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
 
         ParamAliasClientBuilder paramAliasClientbuilder = new ParamAliasClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .blob(Configuration.getGlobalConfiguration().get("BLOB", "blob"))
             .blobName(Configuration.getGlobalConfiguration().get("BLOBNAME", "blobname"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
