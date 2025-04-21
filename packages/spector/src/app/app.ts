@@ -75,12 +75,18 @@ export class MockApiApp {
         endpoint.handler = createHandler(endpoint, this.resolverConfig);
       }
       this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-        processRequest(this.coverageTracker, name, endpoint.uri, req, res, endpoint.handler!).catch(
-          (e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          },
-        );
+        processRequest(
+          this.coverageTracker,
+          name,
+          endpoint.uri,
+          req,
+          res,
+          endpoint.handler!,
+          this.resolverConfig,
+        ).catch((e) => {
+          logger.error("Unexpected request error", e);
+          res.status(500).end();
+        });
       });
     }
   }

@@ -80,19 +80,19 @@ class ServerTestsGenerator {
       }
     } else {
       const responseData = await response.text();
-      if (typeof body.rawContent !== "string") {
-        throw new Error(` bodyContent should be string`);
-      }
-
+      const raw =
+        typeof body.rawContent === "string"
+          ? body.rawContent
+          : body.rawContent?.serialize(this.resolverConfig);
       switch (body.contentType) {
         case "application/xml":
         case "text/plain":
           if (body.rawContent !== responseData) {
-            throw new ValidationError("Response data mismatch", body.rawContent, responseData);
+            throw new ValidationError("Response data mismatch", raw, responseData);
           }
           break;
         case "application/json":
-          const expected = JSON.parse(body.rawContent);
+          const expected = JSON.parse(raw as any);
           const actual = JSON.parse(responseData);
           if (!deepEqual(actual, expected, { strict: true })) {
             throw new ValidationError("Response data mismatch", expected, actual);
