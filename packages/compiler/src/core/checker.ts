@@ -668,7 +668,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // Intercept tuple used as value and report diagnostic with a codefix
   function interceptTupleUsedAsValue(tuple: Tuple): Tuple | null {
-    if (tuple.node.kind !== SyntaxKind.TupleExpression) {
+    if (tuple.node?.kind !== SyntaxKind.TupleExpression) {
       return tuple; // we won't convert dynamic tuples to array values
     }
 
