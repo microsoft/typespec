@@ -24,7 +24,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected void createAdditionalLroMethods(Operation operation, ClientMethod.Builder builder,
+    protected void createAdditionalLroMethods(Operation operation, ClientMethod lroBaseMethod,
         List<ClientMethod> methods, boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
         ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
@@ -32,6 +32,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         // fluent provides the simple wrapper API for LRO
         // the difference is that it does not have a RestResponse overload, as Response data is not included in an LRO
         // API
+        final ClientMethod.Builder builder = lroBaseMethod.newBuilder();
 
         // async
         methods.add(builder.returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningAsync))
