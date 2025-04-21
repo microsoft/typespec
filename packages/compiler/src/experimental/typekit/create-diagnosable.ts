@@ -20,7 +20,7 @@ export type DiagnosableFunction<P extends unknown[], R> = (
  */
 export interface Diagnosable<P extends unknown[], R> {
   /**
-   * * This function, when called directly, ignores diagnostics.
+   * This function, when called directly, ignores diagnostics.
    */
   (...args: P): R;
   /**
