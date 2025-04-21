@@ -1,5 +1,5 @@
 ---
-changeKind: fix
+changeKind: feature
 packages:
   - "@typespec/compiler"
 ---
