@@ -127,7 +127,6 @@ export const UnionKit = defineKit<TypekitExtension>({
           return Array.from(this.variants.values()).map((v) => v.type);
         },
         expression: desc.name === undefined,
-        node: undefined as any,
       });
 
       if (Array.isArray(desc.variants)) {
