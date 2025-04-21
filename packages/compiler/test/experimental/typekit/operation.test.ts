@@ -1,15 +1,9 @@
-import { assert, beforeEach, expect, it } from "vitest";
+import { assert, expect, it } from "vitest";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
 import { createTestHost } from "../../../src/testing/test-host.js";
 import { createTestWrapper } from "../../../src/testing/test-utils.js";
-import { BasicTestRunner } from "../../../src/testing/types.js";
 import { getTypes } from "./utils.js";
-
-let runner: BasicTestRunner;
-beforeEach(async () => {
-  runner = createTestWrapper(await createTestHost());
-});
 
 it("can get paging metadata", async () => {
   const {
