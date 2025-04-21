@@ -70,6 +70,7 @@ namespace Microsoft.TypeSpec.VisualStudio
         private readonly IVsTelemetryService? _telemetryService;
         private string? _workspaceFolder;
         private string? _configuredTypeSpecServerPath;
+        private string? _tspFilePath;
 
         [ImportingConstructor]
         public LanguageClient(
@@ -161,10 +162,16 @@ namespace Microsoft.TypeSpec.VisualStudio
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(_tspFilePath))
+                {
+                    Debugger.Log(0, null, "tsp-server version parsing exception" );
+                    return "";
+                }
+
                 ProcessStartInfo processStartInfo = new()
                 {
-                    FileName = "cmd.exe",
-                    Arguments = "/c tsp --version",
+                    FileName = "node.exe",
+                    Arguments = $"{_tspFilePath} --version",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
@@ -201,7 +208,7 @@ namespace Microsoft.TypeSpec.VisualStudio
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetDevelopmentTypeSpecServerPath()
+        private static (string,string) GetDevelopmentTypeSpecServerPath()
         {
             // Even when debugging, we get deployed to an extension folder outside the
             // source tree, so we stash the source directory in a file in debug builds
@@ -209,7 +216,8 @@ namespace Microsoft.TypeSpec.VisualStudio
             // the source tree.
             var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "entrypoints", "server.js"));
+            return (Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "entrypoints", "server.js")),
+                    Path.GetFullPath(Path.Combine(srcDir,"..", "..",  "compiler", "cmd", "tsp.js")));
         }
 #endif
 
@@ -224,7 +232,7 @@ namespace Microsoft.TypeSpec.VisualStudio
             if (InDevelopmentMode())
             {
                 // NOTE: --no-lazy is not supported as environment variable, so we pass it in command line.
-                var module = GetDevelopmentTypeSpecServerPath();
+                (var module,_tspFilePath) = GetDevelopmentTypeSpecServerPath();
                 return ("node.exe", $"{options} {module} {args}", env);
             }
 #endif
@@ -262,6 +270,7 @@ namespace Microsoft.TypeSpec.VisualStudio
                 }
                 else
                 {
+                    _tspFilePath= Path.Combine(serverPath, "cmd", "tsp.js");
                     serverPath = Path.Combine(serverPath, "cmd", "tsp-server.js");
                 }
             }
