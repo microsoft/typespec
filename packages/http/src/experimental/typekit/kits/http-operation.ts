@@ -1,5 +1,10 @@
-import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
+import { Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
+import {
+  createDiagnosable,
+  defineKit,
+  Diagnosable,
+  Typekit,
+} from "@typespec/compiler/experimental/typekit";
 import { getHttpOperation } from "../../../operations.js";
 import {
   HttpOperation,
@@ -18,7 +23,7 @@ export interface HttpOperationKit {
    *
    * @param op The TypeSpec operation to get the HTTP operation metadata for.
    */
-  get(op: Operation): HttpOperation;
+  get: Diagnosable<(op: Operation) => HttpOperation>;
   /**
    * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
    * @param op operation to extract the HttpResponse from
@@ -68,9 +73,9 @@ declare module "@typespec/compiler/experimental/typekit" {
 
 defineKit<TypekitExtension>({
   httpOperation: {
-    get(op) {
-      return ignoreDiagnostics(getHttpOperation(this.program, op));
-    },
+    get: createDiagnosable(function (op) {
+      return getHttpOperation(this.program, op);
+    }),
     getReturnType(httpOperation, options) {
       let responses = this.httpOperation.flattenResponses(httpOperation);
 

@@ -1,6 +1,9 @@
-import { expect, it } from "vitest";
+import { assert, expect, it } from "vitest";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { Enum, getDoc, StringLiteral, Union } from "../../../src/index.js";
+import { expectDiagnostics } from "../../../src/testing/expect.js";
+import { createTestHost } from "../../../src/testing/test-host.js";
+import { createTestWrapper } from "../../../src/testing/test-utils.js";
 import { createContextMock, getTypes } from "./utils.js";
 
 it("can create a union", async () => {
@@ -109,4 +112,52 @@ it("preserves documentation when copying", async () => {
 
   expect(getDoc(program, union)).toBe("enum named foo");
   expect(getDoc(program, (union as Union).variants.get("a")!)).toBe("doc-comment");
+});
+
+it("can get the discriminated union type", async () => {
+  const {
+    Pet,
+    Cat,
+    Dog,
+    context: { program },
+  } = await getTypes(
+    `
+      @discriminated
+      union Pet{ cat: Cat, dog: Dog }
+
+      model Cat { name: string, meow: boolean }
+      model Dog { name: string, bark: boolean }
+    `,
+    ["Pet", "Cat", "Dog"],
+  );
+
+  assert.ok(Pet.kind === "Union");
+
+  const union = $(program).union.getDiscriminatedUnion(Pet);
+  expect(union?.options).toStrictEqual({
+    discriminatorPropertyName: "kind",
+    envelope: "object",
+    envelopePropertyName: "value",
+  });
+  expect(union?.variants.get("cat")).toBe(Cat);
+  expect(union?.variants.get("dog")).toBe(Dog);
+});
+
+it("can get diagnostics from getDiscriminatedUnion", async () => {
+  const runner = createTestWrapper(await createTestHost());
+  const [{ Pet }] = await runner.compileAndDiagnose(`
+      @test
+      @discriminated
+      union Pet{ Cat, Dog }
+
+      model Cat { name: string, meow: boolean }
+      model Dog { name: string, bark: boolean }
+  `);
+
+  assert.ok(Pet.kind === "Union");
+
+  const [, diagnostics] = $(runner.program).union.getDiscriminatedUnion.withDiagnostics(Pet);
+  expectDiagnostics(diagnostics, {
+    code: "invalid-discriminated-union-variant",
+  });
 });
