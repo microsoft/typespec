@@ -1,10 +1,10 @@
 import { beforeEach, expect, it } from "vitest";
-import { IntrinsicType } from "../../../../src/core/types.js"; // Corrected path
-import { $ } from "../../../../src/experimental/typekit/index.js"; // Corrected path
-import "../../../../src/experimental/typekit/kits/resolve.js"; // Corrected path
-import { createTestHost } from "../../../../src/testing/test-host.js";
-import { createTestWrapper } from "../../../../src/testing/test-utils.js";
-import { BasicTestRunner } from "../../../../src/testing/types.js";
+import { IntrinsicType } from "../../../src/core/types.js"; // Corrected path
+import { $ } from "../../../src/experimental/typekit/index.js"; // Corrected path
+import "../../../src/experimental/typekit/kits/resolve.js"; // Corrected path
+import { createTestHost } from "../../../src/testing/test-host.js";
+import { createTestWrapper } from "../../../src/testing/test-utils.js";
+import { BasicTestRunner } from "../../../src/testing/types.js";
 
 let runner: BasicTestRunner;
 beforeEach(async () => {

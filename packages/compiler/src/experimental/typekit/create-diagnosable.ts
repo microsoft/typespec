@@ -18,13 +18,15 @@ export type DiagnosableFunction<P extends unknown[], R> = (
  * @template P The parameters of the function.
  * @template R The primary return type of the function.
  */
-export interface Diagnosable<P extends unknown[], R> {
-  (...args: P): R;
-  /**
-   * Returns a tuple of its primary result and any diagnostics.
-   */
-  withDiagnostics: DiagnosableFunction<P, R>;
-}
+export type Diagnosable<F> = F extends (...args: infer P extends unknown[]) => infer R
+  ? {
+      (...args: P): R;
+      /**
+       * Returns a tuple of its primary result and any diagnostics.
+       */
+      withDiagnostics: DiagnosableFunction<P, R>;
+    }
+  : never;
 
 /**
  * Creates a diagnosable function wrapper.
@@ -39,7 +41,7 @@ export interface Diagnosable<P extends unknown[], R> {
  */
 export function createDiagnosable<P extends unknown[], R>(
   fn: DiagnosableFunction<P, R>,
-): Diagnosable<P, R> {
+): Diagnosable<(...args: P) => R> {
   function wrapper(this: Typekit, ...args: P): R {
     return ignoreDiagnostics(fn.apply(this, args));
   }
