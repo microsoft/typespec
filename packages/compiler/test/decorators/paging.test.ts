@@ -175,7 +175,7 @@ describe("collect nested paging properties", () => {
   });
 
   it("nested @pageItem", async () => {
-    const { list, items } = (await runner.compile(`
+    const { list } = (await runner.compile(`
         @list @test op list(): {
           @test results : { @pageItems items: string[]; };
         };
