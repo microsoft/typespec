@@ -377,7 +377,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
 
-            var baseModels = EnumerateBaseModels().ToList();
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
