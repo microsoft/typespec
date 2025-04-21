@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
@@ -24,14 +23,16 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected void createAdditionalLroMethods(Operation operation, ClientMethod lroBaseMethod,
-        List<ClientMethod> methods, boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
+    protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
+        boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
         // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
         // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
         // as Response data is not included in an LRO API.
+
+        final ProxyMethod proxyMethod = lroBaseMethod.getProxyMethod();
+        final List<ClientMethodParameter> parameters = lroBaseMethod.getParameters();
 
         // async
         //
