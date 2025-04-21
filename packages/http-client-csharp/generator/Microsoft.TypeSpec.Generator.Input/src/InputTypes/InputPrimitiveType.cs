@@ -49,9 +49,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             return other.Name == Name && other.Kind == Kind && other.Encode == Encode
-                && other.CrossLanguageDefinitionId == CrossLanguageDefinitionId && BaseTypeEuqals();
+                && other.CrossLanguageDefinitionId == CrossLanguageDefinitionId && BaseTypeEquals();
 
-            bool BaseTypeEuqals()
+            bool BaseTypeEquals()
             {
                 if (other.BaseType is null)
                 {
