@@ -1,9 +1,12 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
-import { DecoratorSignatureType } from "./components/decorator-signature-type.jsx";
+import { Model, Program } from "@typespec/compiler";
+import {
+  DecoratorSignatureType,
+  ValueOfModelTsInterfaceBody,
+} from "./components/decorator-signature-type.jsx";
 import { DollarDecoratorsType } from "./components/dollard-decorators-type.jsx";
-import { TspContext } from "./components/tsp-context.js";
+import { createTspdContext, TspdContext } from "./components/tspd-context.js";
 import { Doc, renderDoc } from "./doc-builder.js";
 import { typespecCompiler } from "./external-packages/compiler.js";
 import { DecoratorSignature } from "./types.js";
@@ -47,10 +50,14 @@ export function generateSignatures(
   decorators: DecoratorSignature[],
   namespaceName: string,
 ): string {
+  const context = createTspdContext(program);
   const jsxContent = (
-    <TspContext.Provider value={{ program }}>
+    <TspdContext.Provider value={context}>
       <ay.Output externals={[typespecCompiler]}>
         <ts.SourceFile path="foo.tsx">
+          <LocalTypes localTypes={context.localTypes} />
+          <hbr />
+          <hbr />
           <ay.For each={decorators} joiner={line + line}>
             {(signature) => {
               return <DecoratorSignatureType signature={signature} />;
@@ -61,8 +68,24 @@ export function generateSignatures(
           <DollarDecoratorsType namespaceName={namespaceName} decorators={decorators} />
         </ts.SourceFile>
       </ay.Output>
-    </TspContext.Provider>
+    </TspdContext.Provider>
   );
 
   return ay.printTree(ay.renderTree(jsxContent));
+}
+
+export function LocalTypes(props: { localTypes: Model[] }) {
+  return (
+    <ay.StatementList>
+      <ay.For each={props.localTypes} joiner={line}>
+        {(type) => {
+          return (
+            <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
+              <ValueOfModelTsInterfaceBody model={type} />
+            </ts.InterfaceDeclaration>
+          );
+        }}
+      </ay.For>
+    </ay.StatementList>
+  );
 }

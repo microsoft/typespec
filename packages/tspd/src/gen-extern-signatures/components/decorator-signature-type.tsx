@@ -13,7 +13,7 @@ import {
 import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import { DecoratorSignature } from "../types.js";
-import { useTsp } from "./tsp-context.js";
+import { useTspd } from "./tspd-context.js";
 
 export interface DecoratorSignatureProps {
   signature: DecoratorSignature;
@@ -107,7 +107,7 @@ function useCompilerType(name: string) {
 }
 
 function ValueTsType({ type }: { type: Type }) {
-  const { program } = useTsp();
+  const { program } = useTspd();
   switch (type.kind) {
     case "Boolean":
       return `${type.value}`;
@@ -144,19 +144,45 @@ function ValueTsType({ type }: { type: Type }) {
           );
         }
         if (type.name) {
-          // return useLocalType(type);
-          return "TODO";
+          return <LocalTypeReference type={type} />;
         } else {
-          return "TODO";
-          // return writeTypeExpressionForModel(type);
+          return <ValueOfModelTsType model={type} />;
         }
       }
   }
   return "unknown";
 }
 
+function LocalTypeReference({ type }: { type: Model }) {
+  const { addLocalType } = useTspd();
+  addLocalType(type);
+  return <ts.Reference refkey={ay.refkey(type)} />;
+}
+function ValueOfModelTsType({ model }: { model: Model }) {
+  return (
+    <ts.InterfaceExpression>
+      <ValueOfModelTsInterfaceBody model={model} />
+    </ts.InterfaceExpression>
+  );
+}
+
+export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
+  return (
+    <ay.For each={model.properties.values()}>
+      {(x) => (
+        <ts.InterfaceMember
+          readonly
+          name={x.name}
+          optional={x.optional}
+          type={<ValueTsType type={x.type} />}
+        />
+      )}
+    </ay.For>
+  );
+}
+
 function ScalarTsType({ scalar }: { scalar: Scalar }) {
-  const { program } = useTsp();
+  const { program } = useTspd();
   const isStd = program.checker.isStdType(scalar);
   if (isStd) {
     return getStdScalarTSType(scalar);
