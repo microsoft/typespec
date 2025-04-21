@@ -263,7 +263,7 @@ describe("minValueExclusive and maxValueExclusive", () => {
 });
 
 describe("isError", () => {
-  it("is true for intristic errors", async () => {
+  it("is true for intrinsic errors", async () => {
     const error: ErrorType = {
       kind: "Intrinsic",
       name: "ErrorType",
