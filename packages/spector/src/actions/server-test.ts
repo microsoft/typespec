@@ -1,4 +1,4 @@
-import { MockApiDefinition, MockBody, ValidationError } from "@typespec/spec-api";
+import { MockApiDefinition, MockBody, ResolverConfig, ValidationError } from "@typespec/spec-api";
 import deepEqual from "deep-equal";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
@@ -18,24 +18,31 @@ class ServerTestsGenerator {
   private name: string = "";
   private mockApiDefinition: MockApiDefinition;
   private serverBasePath: string = "";
+  private resolverConfig: ResolverConfig;
 
   constructor(name: string, mockApiDefinition: MockApiDefinition, serverBasePath: string) {
     this.name = name;
     this.mockApiDefinition = mockApiDefinition;
     this.serverBasePath = serverBasePath;
+    this.resolverConfig = {
+      baseUrl: serverBasePath,
+    };
   }
 
   public async executeScenario() {
     log(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
 
-    const response = await makeServiceCall({
-      method: this.mockApiDefinition.method,
-      url: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
-      body: this.mockApiDefinition.request?.body,
-      headers: this.mockApiDefinition.request?.headers,
-      query: this.mockApiDefinition.request?.query,
-      pathParams: this.mockApiDefinition.request?.pathParams,
-    });
+    const response = await makeServiceCall(
+      {
+        method: this.mockApiDefinition.method,
+        url: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
+        body: this.mockApiDefinition.request?.body,
+        headers: this.mockApiDefinition.request?.headers,
+        query: this.mockApiDefinition.request?.query,
+        pathParams: this.mockApiDefinition.request?.pathParams,
+      },
+      this.resolverConfig,
+    );
 
     if (this.mockApiDefinition.response.status !== response.status) {
       throw new ValidationError(

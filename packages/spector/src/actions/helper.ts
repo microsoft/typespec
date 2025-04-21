@@ -1,4 +1,4 @@
-import { HttpMethod, MockBody, MockMultipartBody } from "@typespec/spec-api";
+import { HttpMethod, MockBody, MockMultipartBody, ResolverConfig } from "@typespec/spec-api";
 
 export interface ServiceRequest {
   method: HttpMethod;
@@ -56,7 +56,10 @@ function resolveUrl(request: ServiceRequest) {
   return endpoint;
 }
 
-export async function makeServiceCall(request: ServiceRequest): Promise<Response> {
+export async function makeServiceCall(
+  request: ServiceRequest,
+  config: ResolverConfig,
+): Promise<Response> {
   const url = resolveUrl(request);
   let body;
   let headers = request.headers as Record<string, string>;
@@ -65,7 +68,11 @@ export async function makeServiceCall(request: ServiceRequest): Promise<Response
       const formData = renderMultipartRequest(request.body);
       body = formData;
     } else {
-      body = request.body.rawContent;
+      if (typeof request.body.rawContent === "string" || Buffer.isBuffer(request.body.rawContent)) {
+        body = request.body.rawContent;
+      } else {
+        body = request.body.rawContent?.serialize(config);
+      }
       headers = {
         ...headers,
         ...(request.body?.contentType && {
