@@ -1,7 +1,7 @@
 import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { TypeExpression } from "./type-expression.jsx";
 
@@ -17,6 +17,7 @@ export type TypeAliasDeclarationProps = TypedAliasDeclarationProps | ts.TypeDecl
  * type alias as the provided TypeSpec type.
  */
 export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
+  const { $ } = useTsp();
   if (!isTypedAliasDeclarationProps(props)) {
     return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
   }

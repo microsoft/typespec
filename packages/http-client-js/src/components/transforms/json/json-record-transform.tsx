@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonRecordTransformProps {
@@ -12,6 +12,7 @@ export interface JsonRecordTransformProps {
 }
 
 export function JsonRecordTransform(props: JsonRecordTransformProps) {
+  const { $ } = useTsp();
   if (!$.record.is(props.type)) {
     return null;
   }
@@ -48,6 +49,7 @@ export interface JsonRecordTransformDeclarationProps {
 }
 
 export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclarationProps) {
+  const { $ } = useTsp();
   if (!$.record.is(props.type)) {
     return null;
   }

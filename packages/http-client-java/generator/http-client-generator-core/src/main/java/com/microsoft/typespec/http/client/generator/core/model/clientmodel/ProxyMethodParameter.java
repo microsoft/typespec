@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -249,7 +250,19 @@ public class ProxyMethodParameter extends MethodParameter {
             imports.add("io.clientcore.core.http.models.HttpMethod");
         }
 
-        getWireType().addImportsTo(imports, includeImplementationImports);
+        if (includeImplementationImports) {
+            getWireType().addImportsTo(imports, includeImplementationImports);
+            if (getRawType() != null) {
+                getRawType().addImportsTo(imports, includeImplementationImports);
+            }
+
+            if (getExplode()) {
+                imports.add("java.util.Optional");
+                imports.add("java.util.stream.Stream");
+                imports.add(ArrayList.class.getName());
+                imports.add("java.util.Collection");
+            }
+        }
     }
 
     /**

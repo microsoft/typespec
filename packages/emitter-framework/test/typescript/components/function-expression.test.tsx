@@ -1,9 +1,10 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionExpression } from "../../../src/typescript/components/function-expression.jsx";
 import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
@@ -21,7 +22,7 @@ describe("function expressions with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression type={getName}>console.log("Hello!");</FunctionExpression>
         </SourceFile>
@@ -44,7 +45,7 @@ describe("function expressions with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression async type={getName} />
         </SourceFile>
@@ -65,7 +66,7 @@ describe("function expressions with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionExpression
             type={getName}

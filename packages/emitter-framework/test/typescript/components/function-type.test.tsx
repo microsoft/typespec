@@ -1,9 +1,10 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionType } from "../../../src/typescript/index.js";
 import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
@@ -21,7 +22,7 @@ describe("function types with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionType type={getName} />
         </SourceFile>
@@ -42,7 +43,7 @@ describe("function types with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionType async type={getName} />
         </SourceFile>
@@ -63,7 +64,7 @@ describe("function types with a `type` prop", () => {
     `)) as { getName: Operation };
 
     const res = render(
-      <Output>
+      <Output program={runner.program}>
         <SourceFile path="test.ts">
           <FunctionType type={getName} parameters={[{ name: "additionalParam", type: "number" }]} />
         </SourceFile>

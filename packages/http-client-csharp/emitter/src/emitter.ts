@@ -152,6 +152,7 @@ export function createConfiguration(
     "api-version",
     "generate-protocol-methods",
     "generate-convenience-methods",
+    "emitter-extension-path",
   ];
   const derivedOptions = Object.fromEntries(
     Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
