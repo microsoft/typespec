@@ -11,7 +11,27 @@ it("can create an empty tuple", async () => {
   expect(tuple.values.length).toBe(0);
 });
 
-it("can create a tuple with items", async () => {
+it("can create a tuple with values", async () => {
+  const { program } = await createContextMock();
+
+  const tuple = $(program).tuple.create([
+    $(program).value.createBoolean(true).type,
+    $(program).value.createString("foo").type,
+    $(program).value.createNumeric(42).type,
+  ]);
+  expect(tuple).toBeDefined();
+  expect(tuple.values.length).toBe(3);
+  const [first, second, third] = tuple.values;
+  expect(first.kind).toBe("Boolean");
+  expect((first as BooleanLiteral).value).toBe(true);
+
+  expect(second.kind).toBe("String");
+  expect((second as StringLiteral).value).toBe("foo");
+  expect(third.kind).toBe("Number");
+  expect((third as NumericLiteral).value).toBe(42);
+});
+
+it("can create a tuple with a descriptor", async () => {
   const { program } = await createContextMock();
 
   const tuple = $(program).tuple.create({

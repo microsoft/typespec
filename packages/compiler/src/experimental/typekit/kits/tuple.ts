@@ -23,6 +23,11 @@ export interface TupleKit {
    * @returns The tuple type.
    */
   create(desc?: TupleDescriptor): Tuple;
+  /**
+   * Creates a tuple from a list of {@link Type} values.
+   * @param values The values for the tuple.
+   */
+  create(values: Type[]): Tuple;
 }
 
 interface TypekitExtension {
@@ -39,11 +44,14 @@ defineKit<TypekitExtension>({
     is(type) {
       return type.kind === "Tuple";
     },
-    create(desc) {
+    create(descriptorOrValues: TupleDescriptor | Type[] = {}): Tuple {
+      const values = Array.isArray(descriptorOrValues)
+        ? descriptorOrValues
+        : (descriptorOrValues.values ?? []);
       const tuple: Tuple = this.program.checker.createType({
         kind: "Tuple",
         name: "Tuple",
-        values: desc?.values ?? [], // TODO: should this take type descriptors or types?
+        values,
         node: undefined as any, // TODO: what should node be?
       });
 
