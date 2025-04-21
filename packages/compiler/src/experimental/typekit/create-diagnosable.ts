@@ -11,20 +11,6 @@ export type DiagnosableFunction<P extends unknown[], R> = (
   ...args: P
 ) => [R, readonly Diagnostic[]];
 
-// We need both DiagnosableFunction and ThisDiagnosableFunction so that `this` is
-// correctly defined on the function passed into `createDiagnosable`.
-// Due to our use of proxies to pass `this` around, we can't use it for the
-// definition of `withDiagnostics` - that causes TypeScript to complain about `this`.
-/**
- * Represents a function that can return diagnostics along with its primary result.
- * @template P The parameters of the function.
- * @template R The primary return type of the function.
- */
-export type ThisDiagnosableFunction<P extends unknown[], R> = (
-  this: Typekit,
-  ...args: P
-) => [R, readonly Diagnostic[]];
-
 /**
  * Represents the enhanced function returned by `createDiagnosable`.
  * This function, when called directly, ignores diagnostics.
@@ -54,7 +40,7 @@ export type Diagnosable<F> = F extends (...args: infer P extends unknown[]) => i
  * @experimental
  */
 export function createDiagnosable<P extends unknown[], R>(
-  fn: ThisDiagnosableFunction<P, R>,
+  fn: (this: Typekit, ...args: P) => [R, readonly Diagnostic[]],
 ): Diagnosable<(...args: P) => R> {
   function wrapper(this: Typekit, ...args: P): R {
     return ignoreDiagnostics(fn.apply(this, args));
