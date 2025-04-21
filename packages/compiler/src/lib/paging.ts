@@ -187,6 +187,7 @@ type PagingPropertyKind =
 
 export interface PagingProperty {
   readonly property: ModelProperty;
+  readonly path: ModelProperty[];
 }
 export interface PagingOperation {
   readonly input: {
@@ -226,14 +227,14 @@ function findPagingProperties<K extends "input" | "output">(
   const acceptableProps = source === "input" ? inputProps : outputProps;
   const duplicateTracker = new DuplicateTracker<string, ModelProperty>();
   const data: Record<string, PagingProperty> = {};
-  navigateProperties(base, (property) => {
+  navigateProperties(base, (property, path) => {
     const kind = diags.pipe(getPagingProperty(program, property));
     if (kind === undefined) {
       return;
     }
     duplicateTracker.track(kind, property);
     if (acceptableProps.has(kind)) {
-      data[kind] = { property };
+      data[kind] = { property, path };
     } else {
       diags.add(
         createDiagnostic({
@@ -283,20 +284,25 @@ export function getPagingOperation(
   return diags.wrap(result);
 }
 
-function navigateProperties(type: Type, callback: (prop: ModelProperty) => void) {
+function navigateProperties(
+  type: Type,
+  callback: (prop: ModelProperty, path: ModelProperty[]) => void,
+  path: ModelProperty[] = [],
+): void {
   switch (type.kind) {
     case "Model":
       for (const prop of type.properties.values()) {
-        callback(prop);
+        callback(prop, [...path, prop]);
+        navigateProperties(prop.type, callback, [...path, prop]);
       }
       break;
     case "Union":
       for (const member of type.variants.values()) {
-        navigateProperties(member, callback);
+        navigateProperties(member, callback, path);
       }
       break;
     case "UnionVariant":
-      navigateProperties(type.type, callback);
+      navigateProperties(type.type, callback, path);
       break;
   }
 }
