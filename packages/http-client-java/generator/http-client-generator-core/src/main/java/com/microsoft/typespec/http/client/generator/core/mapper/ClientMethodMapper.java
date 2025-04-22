@@ -135,24 +135,21 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         JavaSettings settings = JavaSettings.getInstance();
 
         // With the introduction of "enable-sync-stack" data plane clients now have two distinct ways of creating
-        // synchronous implementation client methods.
+        // synchronous implementation client methods -
         //
-        // 1. Configure "enable-sync-stack" which will create synchronous proxy methods that will use a fully
-        // synchronous code path.
-        // 2. Configure "sync-methods" which will create synchronous implementation client methods that will block
-        // on the asynchronous proxy method.
+        // 1. If "enable-sync-stack" option is configured then generator will create synchronous proxy methods that will
+        // use a fully synchronous code path.
+        // 2. If "sync-methods" option is configured then generator will create synchronous implementation client
+        // methods that will block on the asynchronous proxy method.
         //
-        // If both are support "enable-sync-stack" take precedent. This required substantial changes to the follow code
-        // as before asynchronous proxy methods would generate synchronous implementation client methods which
-        // shouldn't eagerly be done anymore as it would have resulted in erroneous synchronous implementation client
-        // methods.
+        // If both options are set then "enable-sync-stack" take precedent.
 
         Map<Request, List<ProxyMethod>> proxyMethodsMap = Mappers.getProxyMethodMapper().map(operation);
 
         List<ClientMethod> methods = new ArrayList<>();
 
         // If this operation is part of a group it'll need to be referenced with a more specific target.
-        ClientMethod.Builder builder = new ClientMethod.Builder()
+        final ClientMethod.Builder builder = new ClientMethod.Builder()
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
             .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
@@ -231,7 +228,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     // method param to use proxy method parameter type.
                     if (proxyMethodUsesBinaryData
                         && clientMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER) {
-                        clientMethodParameter = updateClientMethodParameter(clientMethodParameter);
+                        clientMethodParameter = toBinaryDataClientMethodParameter(clientMethodParameter);
                     }
 
                     if (request.getSignatureParameters().contains(parameter)) {
@@ -298,20 +295,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                     // If the ProxyMethod is synchronous perform a complete generation of synchronous pageable APIs.
                     if (proxyMethod.isSync()) {
-                        createSyncPageableClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
-                            methodsReturnDescription, proxyMethod, parameters, itemPropertyReference,
-                            generateOnlyRequiredParameters, defaultOverloadType);
+                        createPageableClientMethods(true, operation, isProtocolMethod, settings, methods, baseMethod,
+                            itemPropertyReference, methodsReturnDescription, generateOnlyRequiredParameters,
+                            defaultOverloadType);
                     } else {
                         // Otherwise, perform a complete generation of asynchronous pageable APIs.
                         // Then if SyncMethodsGeneration is enabled and Sync Stack is not perform synchronous pageable
                         // API generation based on SyncMethodsGeneration configuration.
-                        createAsyncPageableClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
-                            methodsReturnDescription, proxyMethod, parameters, itemPropertyReference,
-                            generateOnlyRequiredParameters, defaultOverloadType);
+                        createPageableClientMethods(false, operation, isProtocolMethod, settings, methods, baseMethod,
+                            itemPropertyReference, methodsReturnDescription, generateOnlyRequiredParameters,
+                            defaultOverloadType);
 
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
-                            createSyncPageableClientMethods(operation, isProtocolMethod, settings, methods, baseMethod,
-                                methodsReturnDescription, proxyMethod, parameters, itemPropertyReference,
+                            createPageableClientMethods(true, operation, isProtocolMethod, settings, methods,
+                                baseMethod, itemPropertyReference, methodsReturnDescription,
                                 generateOnlyRequiredParameters, defaultOverloadType);
                         }
                     }
@@ -349,7 +346,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             ClientMethodType.SimpleSyncRestResponse, defaultOverloadType, true, isProtocolMethod);
                     }
 
-                    // WithResponseAsync, with required and optional parameters
+                    // '[Operation]WithResponseAsync', with required and optional parameters.
                     final boolean hasContextOverload = simpleAsyncMethodWithContextVisibility != NOT_GENERATE;
                     final ClientMethod withResponseAsyncMethod = baseMethod.newBuilder()
                         .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsyncRestResponse))
@@ -366,7 +363,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                     if (JavaSettings.getInstance().isSyncStackEnabled()
                         && !proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
-                        // WithResponseSync, with required and optional parameters
+                        // '[Operation]WithResponse' sync method, with required and optional parameters.
                         final Builder withResponseSyncBuilder = baseMethod.newBuilder()
                             .name(proxyMethod.getSimpleRestResponseMethodName())
                             .onlyRequiredParameters(false)
@@ -377,7 +374,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                         if (settings.isFluent()) {
                             // fluent + sync stack needs simple rest response for implementation only
-                            // todo: anu - see if we can move this to FluentClientMethodMapper.
+                            // todo: anu - discuss with Weidong, Xiaofei to see if we can move this to FluentClientMethodMapper.
                             final IType baseType = ClassType.BINARY_DATA;
                             final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType,
                                 isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored());
@@ -558,47 +555,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
     }
 
-    private void createAsyncPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        ProxyMethod proxyMethod, List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference,
+    private void createPageableClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
+        JavaSettings settings, List<ClientMethod> methods, ClientMethod baseMethod,
+        ModelPropertySegment itemPropertyReference, ClientMethodsReturnDescription methodsReturnDescription,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
-        ReturnValue singlePageReturnValue
-            = methodsReturnDescription.getReturnValue(ClientMethodType.PagingAsyncSinglePage);
-        ReturnValue nextPageReturnValue = methodsReturnDescription.getReturnValue(ClientMethodType.PagingAsync);
-        MethodVisibilityFunction visibilityFunction = (firstPage, overloadType, includesContext) -> methodVisibility(
-            firstPage ? ClientMethodType.PagingAsyncSinglePage : ClientMethodType.PagingAsync, overloadType,
-            includesContext, isProtocolMethod);
-
-        createPageableClientMethods(operation, isProtocolMethod, settings, methods, baseMethod.newBuilder(),
-            proxyMethod, parameters, itemPropertyReference, false, methodsReturnDescription, visibilityFunction,
-            getContextParameter(isProtocolMethod), generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
-    }
-
-    private void createSyncPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        ProxyMethod proxyMethod, List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
-
-        ReturnValue singlePageReturnValue
-            = methodsReturnDescription.getReturnValue(ClientMethodType.PagingSyncSinglePage);
-        ReturnValue nextPageReturnValue = methodsReturnDescription.getReturnValue(ClientMethodType.PagingSync);
-        MethodVisibilityFunction visibilityFunction = (firstPage, overloadType, includesContext) -> methodVisibility(
-            firstPage ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingSync, overloadType,
-            includesContext, isProtocolMethod);
-
-        createPageableClientMethods(operation, isProtocolMethod, settings, methods, baseMethod.newBuilder(),
-            proxyMethod, parameters, itemPropertyReference, true, methodsReturnDescription, visibilityFunction,
-            getContextParameter(isProtocolMethod), generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
-    }
-
-    private void createPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
-        List<ClientMethod> methods, Builder builder, ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
-        ModelPropertySegment itemPropertyReference, boolean isSync,
-        ClientMethodsReturnDescription methodsReturnDescription, MethodVisibilityFunction visibilityFunction,
-        ClientMethodParameter contextParameter, boolean generateClientMethodWithOnlyRequiredParameters,
-        MethodOverloadType defaultOverloadType) {
-
+        final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
+        final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
         final MethodNamer methodNamer
             = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
         final Operation nextOperation = operation.getExtensions().getXmsPageable().getNextOperation();
@@ -628,8 +591,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             nextMethod, lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
                 operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
 
-        builder.methodPageDetails(details);
-        final ClientMethod pageBaseMethod = builder.build();
+        final ClientMethod pageBaseMethod = baseMethod.newBuilder().methodPageDetails(details).build();
 
         final String singlePageMethodName;
         final ClientMethodType singlePageMethodType;
@@ -699,7 +661,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             // generate the overload, if "sync-methods != NONE"
             methods.add(pagingMethod);
             // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, pagingMethod.newBuilder(), parameters);
+            createOverloadForVersioning(isProtocolMethod, methods, pagingMethod.newBuilder(),
+                baseMethod.getParameters());
         }
 
         if (generateClientMethodWithOnlyRequiredParameters) {
@@ -875,7 +838,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         return signatures;
     }
 
-    private static ClientMethodParameter updateClientMethodParameter(ClientMethodParameter clientMethodParameter) {
+    private static ClientMethodParameter
+        toBinaryDataClientMethodParameter(ClientMethodParameter clientMethodParameter) {
         return clientMethodParameter.newBuilder()
             .rawType(ClassType.BINARY_DATA)
             .wireType(ClassType.BINARY_DATA)
@@ -1062,34 +1026,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
             return VISIBLE;
         }
-    }
-
-    @FunctionalInterface
-    private interface MethodVisibilityFunction {
-        JavaVisibility methodVisibility(boolean isRestResponseOrIsFirstPage, MethodOverloadType methodOverloadType,
-            boolean hasContextParameter);
-    }
-
-    private static void addClientMethodWithContext(List<ClientMethod> methods, Builder builder,
-        List<ClientMethodParameter> parameters, ClientMethodType clientMethodType, String proxyMethodName,
-        ReturnValue returnValue, MethodPageDetails details, ClientMethodParameter contextParameter) {
-        // todo: anu reuse the immutable addClientMethodWithContext method once paging is also immutable.
-        List<ClientMethodParameter> updatedParams = new ArrayList<>(parameters);
-        if (JavaSettings.getInstance().isBranded()
-            || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
-            updatedParams.add(contextParameter);
-        }
-
-        methods.add(builder.parameters(updatedParams) // update builder parameters to include context
-            .returnValue(returnValue)
-            .name(proxyMethodName)
-            .onlyRequiredParameters(false)
-            .type(clientMethodType)
-            .groupedParameterRequired(false)
-            .methodPageDetails(details)
-            .build());
-        // reset the parameters to original params
-        builder.parameters(parameters);
     }
 
     /**
