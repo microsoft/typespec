@@ -1,5 +1,19 @@
 # Change Log - @typespec/http
 
+## 1.0.0-rc.1
+
+### Features
+
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Updates `$.httpOperation.get` to be a diagnosable - use `$.httpOperation.get.withDiagnostics` to get diagnostics
+- [#6949](https://github.com/microsoft/typespec/pull/6949) Improved types for HTTP multipart payloads for more precise guarantees and additional information about the resolution of individual parts.
+
+### Bug Fixes
+
+- [#6962](https://github.com/microsoft/typespec/pull/6962) Fixes issue where each variant of a `@discriminated` union was treated as a separate response instead of the whole union being treated as a single response.
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Handle tuples without nodes
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes
