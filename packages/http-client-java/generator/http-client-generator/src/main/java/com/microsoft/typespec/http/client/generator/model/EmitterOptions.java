@@ -33,6 +33,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean useObjectForUnknown = false;
     private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
     private String modelsSubpackage;
+    private String apiVersion;
     private DevOptions devOptions;
 
     // internal
@@ -138,6 +139,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return licenseHeader;
     }
 
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -188,6 +193,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.licenseHeader = emptyToNull(reader.getString());
             } else if ("dev-options".equals(fieldName)) {
                 options.devOptions = DevOptions.fromJson(reader);
+            } else if ("api-version".equals(fieldName)) {
+                options.apiVersion = emptyToNull(reader.getString());
             } else {
                 reader.skipChildren();
             }

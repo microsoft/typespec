@@ -25,7 +25,7 @@ public class FluentProject extends Project {
 
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), FluentProject.class);
 
-    protected final ServiceDescription serviceDescription = new ServiceDescription();
+    private final ServiceDescription serviceDescription = new ServiceDescription();
 
     private Changelog changelog;
     private final List<CodeSample> codeSamples = new ArrayList<>();
