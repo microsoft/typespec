@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputType Type { get; }
         public InputRequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
-        public InputParameterKind Kind { get; }
+        public InputParameterKind Kind { get; private set; }
         public bool IsRequired { get; }
         public bool IsApiVersion => _isApiVersion || Type is InputEnumType enumType && enumType.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
         public bool IsContentType { get; }
@@ -62,5 +62,14 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ArraySerializationDelimiter { get; }
         public string? HeaderCollectionPrefix { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+
+        /// <summary>
+        /// Update the instance with given parameters.
+        /// </summary>
+        /// <param name="kind">The kind of the <see cref="InputParameter"/></param>
+        public void Update(InputParameterKind kind)
+        {
+            Kind = kind;
+        }
     }
 }

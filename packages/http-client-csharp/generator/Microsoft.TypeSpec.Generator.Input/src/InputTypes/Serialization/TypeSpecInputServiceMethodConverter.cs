@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -34,20 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? id = null;
             string? kind = null;
             string? name = null;
-            string? accessibility = null;
-            string[]? apiVersions = null;
-            string? doc = null;
-            string? summary = null;
-            InputOperation? operation = null;
-            IReadOnlyList<InputParameter>? parameters = null;
-            InputServiceMethodResponse? response = null;
-            InputServiceMethodResponse? exception = null;
-            bool isOverride = false;
-            bool generateConvenient = false;
-            bool generateProtocol = false;
-            string? crossLanguageDefinitionId = null;
-
-            InputServiceMethod? method;
+            InputServiceMethod? method = null;
             var isFirstProperty = true;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -57,61 +43,20 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     continue;
                 }
-                var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadString("accessibility", ref accessibility)
-                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
-                    || reader.TryReadString("summary", ref summary)
-                    || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadComplexType("operation", options, ref operation)
-                    || reader.TryReadComplexType("parameters", options, ref parameters)
-                    || reader.TryReadComplexType("response", options, ref response)
-                    || reader.TryReadComplexType("exception", options, ref exception)
-                    || reader.TryReadBoolean("isOverride", ref isOverride)
-                    || reader.TryReadBoolean("generateConvenient", ref generateConvenient)
-                    || reader.TryReadBoolean("generateProtocol", ref generateProtocol)
-                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId);
-
-                if (!isKnownProperty)
-                {
-                    reader.SkipProperty();
-                }
+                method = CreateDerivedType(ref reader, id, kind, name, options);
             }
 
-            if (id == null)
-            {
-                throw new JsonException();
-            }
-            if (kind == null)
-            {
-                throw new JsonException($"InputServiceMethod (id: '{id}', must have a 'kind' property");
-            }
-
-            method = kind switch
-            {
-                BasicKind => new InputBasicServiceMethod(),
-                PagingKind => new InputPagingServiceMethod(),
-                LongRunningKind => new InputLongRunningServiceMethod(),
-                LongRunningPagingKind => new InputLongRunningPagingServiceMethod(),
-                _ => new InputBasicServiceMethod(),
-            };
-
-            method.Name = name ?? throw new JsonException("InputServiceMethod must have name");
-            method.Accessibility = accessibility;
-            method.ApiVersions = apiVersions ?? [];
-            method.Documentation = doc;
-            method.Summary = summary;
-            method.Operation = operation ?? throw new JsonException("InputServiceMethod must have an operation");
-            method.Parameters = parameters ?? [];
-            method.Response = response ?? throw new JsonException("InputServiceMethod must have a response");
-            method.Exception = exception;
-            method.IsOverride = isOverride;
-            method.GenerateConvenient = generateConvenient;
-            method.GenerateProtocol = generateProtocol;
-            method.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? throw new JsonException("InputServiceMethod must have crossLanguageDefinitionId");
-
-            resolver.AddReference(id, method);
-
-            return method;
+            return method ?? CreateDerivedType(ref reader, id, kind, name, options);
         }
+
+        private InputServiceMethod CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options) => kind switch
+        {
+            null => throw new JsonException($"InputType (id: '{id}', name: '{name}') must have a 'Kind' property"),
+            BasicKind => TypeSpecInputBasicServiceMethodConverter.CreateInputBasicServiceMethod(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            PagingKind => TypeSpecInputPagingServiceMethodConverter.CreateInputPagingServiceMethod(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            LongRunningKind => TypeSpecInputLongRunningServiceMethodConverter.CreateInputLongRunningServiceMethod(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            LongRunningPagingKind => TypeSpecInputLongRunningPagingServiceMethodConverter.CreateInputLongRunningPagingServiceMethod(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            _ => TypeSpecInputBasicServiceMethodConverter.CreateInputBasicServiceMethod(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+        };
     }
 }

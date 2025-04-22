@@ -40,7 +40,10 @@ import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";
-import { requiresJsonSerialization } from "../../common/serialization/json.js";
+import {
+  requiresJsonSerialization,
+  transposeExpressionFromJson,
+} from "../../common/serialization/json.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
@@ -199,7 +202,7 @@ function* emitRawServerOperation(
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.property?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation,
       module,
       { altName: defaultBodyTypeName },
     );
@@ -274,6 +277,8 @@ function* emitRawServerOperation(
             yield `          return reject();`;
             yield `        }`;
             value = `Object.fromEntries(Object.entries(__recordBody).map(([key, value]) => [key, ${innerTypeName}.fromJsonObject(value)]))`;
+          } else if (body.type.kind === "Scalar") {
+            value = transposeExpressionFromJson(ctx, body.type, `JSON.parse(body)`, module);
           } else {
             value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
           }

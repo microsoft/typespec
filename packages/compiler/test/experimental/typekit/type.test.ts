@@ -5,7 +5,10 @@ import { isTemplateInstance } from "../../../src/index.js";
 import { getTypes } from "./utils.js";
 
 it("should clone a model", async () => {
-  const { Foo } = await getTypes(
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
     `
       model Foo {
         props: string;
@@ -14,13 +17,19 @@ it("should clone a model", async () => {
     ["Foo"],
   );
 
-  const clone = $.type.clone(Foo) as Model;
+  const clone = $(program).type.clone(Foo) as Model;
   clone.properties.get("props")!.name = "props";
 });
 
 describe("getPlausibleName", () => {
   it("returns the original name if exists", async () => {
-    const { Foo, Bar, Baz, Qux } = await getTypes(
+    const {
+      Foo,
+      Bar,
+      Baz,
+      Qux,
+      context: { program },
+    } = await getTypes(
       `
       model Foo {
         props: string;
@@ -40,14 +49,18 @@ describe("getPlausibleName", () => {
       ["Foo", "Bar", "Baz", "Qux"],
     );
 
-    expect($.type.getPlausibleName(Foo as Model)).toBe("Foo");
-    expect($.type.getPlausibleName(Bar as Union)).toBe("Bar");
-    expect($.type.getPlausibleName(Baz as Enum)).toBe("Baz");
-    expect($.type.getPlausibleName(Qux as Scalar)).toBe("Qux");
+    expect($(program).type.getPlausibleName(Foo as Model)).toBe("Foo");
+    expect($(program).type.getPlausibleName(Bar as Union)).toBe("Bar");
+    expect($(program).type.getPlausibleName(Baz as Enum)).toBe("Baz");
+    expect($(program).type.getPlausibleName(Qux as Scalar)).toBe("Qux");
   });
 
   it("returns a generated name for anonymous model", async () => {
-    const { Bar, Test } = await getTypes(
+    const {
+      Bar,
+      Test,
+      context: { program },
+    } = await getTypes(
       `
      model Foo<T, K> {t: T, k: K};
 
@@ -67,15 +80,18 @@ describe("getPlausibleName", () => {
     const Foo2 = (Test as Model).properties.get("foo")!.type as Model;
 
     expect(isTemplateInstance(Foo)).toBe(true);
-    expect($.type.getPlausibleName(Foo)).toBe("Baz_QuxFoo");
+    expect($(program).type.getPlausibleName(Foo)).toBe("Baz_QuxFoo");
     expect(isTemplateInstance(Foo2)).toBe(true);
-    expect($.type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
+    expect($(program).type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
   });
 });
 
 describe("minValue and maxValue", () => {
   it("can get the min and max values from number", async () => {
-    const { myNumber } = await getTypes(
+    const {
+      myNumber,
+      context: { program },
+    } = await getTypes(
       `
     @minValue(1)
     @maxValue(10)
@@ -84,15 +100,18 @@ describe("minValue and maxValue", () => {
       ["myNumber"],
     );
 
-    const max = $.type.maxValue(myNumber);
-    const min = $.type.minValue(myNumber);
+    const max = $(program).type.maxValue(myNumber);
+    const min = $(program).type.minValue(myNumber);
 
     expect(max).toBe(10);
     expect(min).toBe(1);
   });
 
   it("can get the min and max values from modelProperty", async () => {
-    const { A } = await getTypes(
+    const {
+      A,
+      context: { program },
+    } = await getTypes(
       `
     model A {
       @minValue(15)
@@ -103,8 +122,8 @@ describe("minValue and maxValue", () => {
       ["A"],
     );
 
-    const max = $.type.maxValue((A as Model).properties.get("foo")!);
-    const min = $.type.minValue((A as Model).properties.get("foo")!);
+    const max = $(program).type.maxValue((A as Model).properties.get("foo")!);
+    const min = $(program).type.minValue((A as Model).properties.get("foo")!);
 
     expect(max).toBe(55);
     expect(min).toBe(15);
@@ -113,7 +132,10 @@ describe("minValue and maxValue", () => {
 
 describe("minLength and maxLength", () => {
   it("can get the min and max length from string", async () => {
-    const { myString } = await getTypes(
+    const {
+      myString,
+      context: { program },
+    } = await getTypes(
       `
     @minLength(1)
     @maxLength(10)
@@ -122,15 +144,18 @@ describe("minLength and maxLength", () => {
       ["myString"],
     );
 
-    const max = $.type.maxLength(myString);
-    const min = $.type.minLength(myString);
+    const max = $(program).type.maxLength(myString);
+    const min = $(program).type.minLength(myString);
 
     expect(max).toBe(10);
     expect(min).toBe(1);
   });
 
   it("can get the min and max length from modelProperty", async () => {
-    const { A } = await getTypes(
+    const {
+      A,
+      context: { program },
+    } = await getTypes(
       `
     model A {
       @minLength(15)
@@ -141,8 +166,8 @@ describe("minLength and maxLength", () => {
       ["A"],
     );
 
-    const max = $.type.maxLength((A as Model).properties.get("foo")!);
-    const min = $.type.minLength((A as Model).properties.get("foo")!);
+    const max = $(program).type.maxLength((A as Model).properties.get("foo")!);
+    const min = $(program).type.minLength((A as Model).properties.get("foo")!);
 
     expect(max).toBe(55);
     expect(min).toBe(15);
@@ -151,7 +176,10 @@ describe("minLength and maxLength", () => {
 
 describe("minItems and maxItems", () => {
   it("can get the min and max items from array", async () => {
-    const { myArray } = await getTypes(
+    const {
+      myArray,
+      context: { program },
+    } = await getTypes(
       `
     @minItems(1)
     @maxItems(10)
@@ -160,15 +188,18 @@ describe("minItems and maxItems", () => {
       ["myArray"],
     );
 
-    const max = $.type.maxItems(myArray);
-    const min = $.type.minItems(myArray);
+    const max = $(program).type.maxItems(myArray);
+    const min = $(program).type.minItems(myArray);
 
     expect(max).toBe(10);
     expect(min).toBe(1);
   });
 
   it("can get the min and max items from modelProperty", async () => {
-    const { A } = await getTypes(
+    const {
+      A,
+      context: { program },
+    } = await getTypes(
       `
     model A {
       @minItems(15)
@@ -179,8 +210,8 @@ describe("minItems and maxItems", () => {
       ["A"],
     );
 
-    const max = $.type.maxItems((A as Model).properties.get("foo")!);
-    const min = $.type.minItems((A as Model).properties.get("foo")!);
+    const max = $(program).type.maxItems((A as Model).properties.get("foo")!);
+    const min = $(program).type.minItems((A as Model).properties.get("foo")!);
 
     expect(max).toBe(55);
     expect(min).toBe(15);
@@ -189,7 +220,10 @@ describe("minItems and maxItems", () => {
 
 describe("minValueExclusive and maxValueExclusive", () => {
   it("can get the min and max values from number", async () => {
-    const { myNumber } = await getTypes(
+    const {
+      myNumber,
+      context: { program },
+    } = await getTypes(
       `
     @minValueExclusive(1)
     @maxValueExclusive(10)
@@ -198,15 +232,18 @@ describe("minValueExclusive and maxValueExclusive", () => {
       ["myNumber"],
     );
 
-    const max = $.type.maxValueExclusive(myNumber);
-    const min = $.type.minValueExclusive(myNumber);
+    const max = $(program).type.maxValueExclusive(myNumber);
+    const min = $(program).type.minValueExclusive(myNumber);
 
     expect(max).toBe(10);
     expect(min).toBe(1);
   });
 
   it("can get the min and max values from modelProperty", async () => {
-    const { A } = await getTypes(
+    const {
+      A,
+      context: { program },
+    } = await getTypes(
       `
     model A {
       @minValueExclusive(15)
@@ -217,10 +254,30 @@ describe("minValueExclusive and maxValueExclusive", () => {
       ["A"],
     );
 
-    const max = $.type.maxValueExclusive((A as Model).properties.get("foo")!);
-    const min = $.type.minValueExclusive((A as Model).properties.get("foo")!);
+    const max = $(program).type.maxValueExclusive((A as Model).properties.get("foo")!);
+    const min = $(program).type.minValueExclusive((A as Model).properties.get("foo")!);
 
     expect(max).toBe(55);
     expect(min).toBe(15);
   });
+});
+
+it("isError can check if a type is an error model", async () => {
+  const {
+    Foo,
+    Error,
+    context: { program },
+  } = await getTypes(
+    `
+      @error
+      model Error {
+        props: string;
+      }
+      model Foo {}
+      `,
+    ["Foo", "Error"],
+  );
+
+  expect($(program).type.isError(Error)).toBe(true);
+  expect($(program).type.isError(Foo)).toBe(false);
 });

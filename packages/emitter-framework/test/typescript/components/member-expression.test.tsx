@@ -2,6 +2,7 @@ import * as ay from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { Enum, Model, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
+import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
 import { InterfaceDeclaration, UnionDeclaration } from "../../../src/typescript/index.js";
 import { getEmitOutput } from "../../utils.js";
@@ -22,10 +23,12 @@ describe("Typescript Enum Member Expression", () => {
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
-        <ay.List hardline>
-          <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
-          <InterfaceDeclaration type={Bar} />
-        </ay.List>
+        <TspContext.Provider value={{ program }}>
+          <ay.List hardline>
+            <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
+            <InterfaceDeclaration type={Bar} />
+          </ay.List>
+        </TspContext.Provider>
       );
     });
 
@@ -56,10 +59,12 @@ describe("Typescript Enum Member Expression", () => {
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
-        <ay.List hardline>
-          <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
-          <InterfaceDeclaration type={Bar} />
-        </ay.List>
+        <TspContext.Provider value={{ program }}>
+          <ay.List hardline>
+            <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
+            <InterfaceDeclaration type={Bar} />
+          </ay.List>
+        </TspContext.Provider>
       );
     });
 
@@ -92,10 +97,12 @@ describe("Typescript Union Member Expression", () => {
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
-        <ay.List hardline>
-          <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
-          <InterfaceDeclaration type={Bar} />
-        </ay.List>
+        <TspContext.Provider value={{ program }}>
+          <ay.List hardline>
+            <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
+            <InterfaceDeclaration type={Bar} />
+          </ay.List>
+        </TspContext.Provider>
       );
     });
 
@@ -122,10 +129,12 @@ describe("Typescript Union Member Expression", () => {
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
       return (
-        <ay.List hardline>
-          <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
-          <InterfaceDeclaration type={Bar} />
-        </ay.List>
+        <TspContext.Provider value={{ program }}>
+          <ay.List hardline>
+            <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
+            <InterfaceDeclaration type={Bar} />
+          </ay.List>
+        </TspContext.Provider>
       );
     });
 
