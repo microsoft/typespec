@@ -374,7 +374,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                         if (settings.isFluent()) {
                             // fluent + sync stack needs simple rest response for implementation only
-                            // todo: anu - discuss with Weidong, Xiaofei to see if we can move this to FluentClientMethodMapper.
+                            // todo: anu - discuss with Weidong, Xiaofei to see if we can move this to
+                            // FluentClientMethodMapper.
                             final IType baseType = ClassType.BINARY_DATA;
                             final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType,
                                 isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored());
@@ -661,8 +662,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             // generate the overload, if "sync-methods != NONE"
             methods.add(pagingMethod);
             // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, pagingMethod.newBuilder(),
-                baseMethod.getParameters());
+            createOverloadForVersioning(isProtocolMethod, methods, pagingMethod);
         }
 
         if (generateClientMethodWithOnlyRequiredParameters) {
@@ -704,7 +704,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
         final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
-        final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         final MethodNamer methodNamer
             = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
 
@@ -775,7 +774,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(simpleMethod);
 
         // overload for versioning
-        createOverloadForVersioning(isProtocolMethod, methods, simpleMethod.newBuilder(), parameters);
+        createOverloadForVersioning(isProtocolMethod, methods, simpleMethod);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
             final ClientMethod simpleMethodWithRequiredParameters = simpleMethod.newBuilder()
@@ -788,18 +787,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private static void createOverloadForVersioning(boolean isProtocolMethod, List<ClientMethod> methods,
-        ClientMethod.Builder builder, List<ClientMethodParameter> parameters) {
-
+        ClientMethod baseMethod) {
+        final List<ClientMethodParameter> parameters2 = baseMethod.getParameters();
         if (!isProtocolMethod && JavaSettings.getInstance().isDataPlaneClient()) {
-            if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
-                List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
+            if (parameters2.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
+                final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters2);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
-                    builder.parameters(overloadedParameters);
-                    methods.add(builder.build());
+                    final ClientMethod overloadedMethod
+                        = baseMethod.newBuilder().parameters(overloadedParameters).build();
+                    methods.add(overloadedMethod);
                 }
             }
-
-            builder.parameters(parameters); // todo: anu, remove this once paging is also immutable.
         }
     }
 
@@ -879,7 +877,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methods.add(beginLroAsyncMethod);
 
             // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, beginLroAsyncMethod.newBuilder(), parameters);
+            createOverloadForVersioning(isProtocolMethod, methods, beginLroAsyncMethod);
 
             if (generateClientMethodWithOnlyRequiredParameters) {
                 final ClientMethod beginAsyncMethodWithRequiredParameters = beginLroAsyncMethod.newBuilder()
@@ -914,7 +912,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methods.add(beginLroSyncMethod);
 
             // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, beginLroSyncMethod.newBuilder(), parameters);
+            createOverloadForVersioning(isProtocolMethod, methods, beginLroSyncMethod);
 
             if (generateClientMethodWithOnlyRequiredParameters) {
                 final ClientMethod beginSyncMethodWithRequiredParameters = beginLroSyncMethod.newBuilder()
