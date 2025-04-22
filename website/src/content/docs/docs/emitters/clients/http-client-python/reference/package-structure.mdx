@@ -66,6 +66,8 @@ azure-keyvault-certificates/
 
 When migrating existing SDKs or working with brownfield services, you might need to place generated code in a specific subdirectory, like `_generated`. For these scenarios, you can use the [`namespace` configuration option](https://azure.github.io/typespec-azure/docs/libraries/typespec-client-generator-core/reference/emitter/#namespace) in your `tspconfig.yaml` file.
 
+If you want the published SDK to follow closely with the package structure and namespaces in your TypeSpec file, you should also pass in the `package-name` flag with the desired value.
+
 ### Using the `namespace` Flag
 
 The `namespace` option allows you to specify where the generated code should be placed within your package structure. This is particularly useful for cases where you want to:
@@ -76,7 +78,7 @@ The `namespace` option allows you to specify where the generated code should be 
 
 #### Example Configuration
 
-To emit code into a specific subdirectory (like `_generated`), add the following to your `tspconfig.yaml`:
+In this example, we will take you through emitting generated code into a specific subdirectory (like `_generated`), with the idea that you will be fully-wrapping the generated code. Add the following to your `tspconfig.yaml`:
 
 <Tabs>
 <TabItem label="tspconfig.yaml" default>
@@ -85,6 +87,7 @@ To emit code into a specific subdirectory (like `_generated`), add the following
 emitters:
   "@typespec/http-client-python":
     namespace: "azure.keyvault.certificates._generated"
+    package-name: "azure-keyvault-certificates"
 ```
 
 </TabItem>
