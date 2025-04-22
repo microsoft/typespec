@@ -165,7 +165,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
-        private static Dictionary<InputModelType, IList<InputModelType>> _derivedModelsCache = new();
         public static InputModelType Model(
             string name,
             string @namespace = "Sample.Models",
@@ -181,7 +180,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
-            var derived = new List<InputModelType>();
             var model = new InputModelType(
                 name,
                 @namespace,
@@ -193,18 +191,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 usage,
                 [.. propertiesList],
                 baseModel,
-                derivedModels is null ? derived : [.. derivedModels],
+                derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
                 propertiesList.FirstOrDefault(p => p.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
                 new());
-            _derivedModelsCache[model] = derived;
-            if (baseModel is not null && _derivedModelsCache.ContainsKey(baseModel))
-            {
-                _derivedModelsCache[baseModel].Add(model);
-            }
             return model;
         }
 
