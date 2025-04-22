@@ -15,7 +15,8 @@ export function DecoratorSignatureTests({
   return (
     <>
       <ts.JSDoc>
-        An error here would mean that the decorator is not exported or doesn't have the right name.
+        An error in the imports would mean that the decorator is not exported or doesn't have the
+        right name.
       </ts.JSDoc>
       <hbr />
       <hbr />
@@ -24,10 +25,8 @@ export function DecoratorSignatureTests({
         type={dollarDecoratorsTypeRefKey}
         doc="An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ..."
       >
-        <ts.MemberChainExpression>
-          <>{dollarDecoratorRefKey}</>
-          <>{namespaceName}</>
-        </ts.MemberChainExpression>
+        {dollarDecoratorRefKey}
+        {`["${namespaceName}"]`}
       </ts.VarDeclaration>
     </>
   );

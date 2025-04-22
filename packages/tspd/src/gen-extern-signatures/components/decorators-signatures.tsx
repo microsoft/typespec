@@ -11,8 +11,6 @@ import {
 import { DollarDecoratorsType } from "./dollard-decorators-type.jsx";
 import { createTspdContext, TspdContext, useTspd } from "./tspd-context.js";
 
-const line = "\n";
-
 export interface DecoratorSignaturesProps {
   decorators: DecoratorSignature[];
   namespaceName: string;
@@ -29,7 +27,7 @@ export function DecoratorSignatures({
       <LocalTypes />
       <hbr />
       <hbr />
-      <ay.For each={decorators} joiner={line + line}>
+      <ay.For each={decorators} joiner={"\n\n"}>
         {(signature) => {
           return <DecoratorSignatureType signature={signature} />;
         }}
@@ -49,7 +47,7 @@ export function LocalTypes() {
   const { localTypes } = useTspd();
   return (
     <ay.StatementList>
-      <ay.For each={localTypes} joiner={line}>
+      <ay.For each={localTypes} joiner={"\n"}>
         {(type) => {
           return (
             <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
@@ -65,13 +63,14 @@ export function LocalTypes() {
 export function generateSignatures(
   program: Program,
   decorators: DecoratorSignature[],
+  libraryName: string,
   namespaceName: string,
 ): ay.OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
   const $decoratorsRef = ay.refkey();
   const userLib = ts.createPackage({
-    name: "@typespec/xml",
+    name: libraryName,
     version: "0.0.0",
     descriptor: {
       ".": {
