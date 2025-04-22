@@ -288,11 +288,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     .build();
 
                 if (operation.isPageable()) {
-                    IType responseType = proxyMethod.getRawResponseBodyType() != null
-                        ? proxyMethod.getRawResponseBodyType()
-                        : proxyMethod.getResponseBodyType();
+
                     ModelPropertySegment itemPropertyReference
-                        = getPageableItem(operation.getExtensions().getXmsPageable(), responseType);
+                        = getPageableItem(operation.getExtensions().getXmsPageable(), proxyMethod);
                     if (itemPropertyReference == null) {
                         // There is no pageable item name for this operation, skip it.
                         continue;
@@ -596,67 +594,71 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             defaultOverloadType);
     }
 
-    private static void createPageableClientMethods(Operation operation, boolean isProtocolMethod,
-        JavaSettings settings, List<ClientMethod> methods, Builder builder, ProxyMethod proxyMethod,
-        List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference, boolean isSync,
-        ReturnValue singlePageReturnValue, ReturnValue nextPageReturnValue, MethodVisibilityFunction visibilityFunction,
+    private void createPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
+        List<ClientMethod> methods, Builder builder, ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
+        ModelPropertySegment itemPropertyReference, boolean isSync, ReturnValue singlePageReturnValue,
+        ReturnValue nextPageReturnValue, MethodVisibilityFunction visibilityFunction,
         ClientMethodParameter contextParameter, boolean generateClientMethodWithOnlyRequiredParameters,
         MethodOverloadType defaultOverloadType) {
 
-        MethodNamer methodNamer = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final MethodNamer methodNamer
+            = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final Operation nextOperation = operation.getExtensions().getXmsPageable().getNextOperation();
+        final boolean isNextMethod = (nextOperation == operation);
 
-        Operation nextOperation = operation.getExtensions().getXmsPageable().getNextOperation();
-        ClientMethodType nextMethodType
-            = isSync ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingAsyncSinglePage;
-
-        boolean isNextMethod = (nextOperation == operation);
-
-        IType lroIntermediateType = null;
+        final IType lroIntermediateType;
         if (operation.isLro() && !isNextMethod) {
             lroIntermediateType = SchemaUtil.getOperationResponseType(operation, settings);
+        } else {
+            lroIntermediateType = null;
         }
+        final ClientMethodType nextMethodType
+            = isSync ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingAsyncSinglePage;
 
-        List<ClientMethod> nextMethods
+        final List<ClientMethod> nextMethods
             = (isNextMethod || nextOperation == null) ? null : Mappers.getClientMethodMapper().map(nextOperation);
-
-        ClientMethod nextMethod = (nextMethods == null)
+        final ClientMethod nextMethod = (nextMethods == null)
             ? null
             : nextMethods.stream().filter(m -> m.getType() == nextMethodType).findFirst().orElse(null);
 
-        IType responseType = proxyMethod.getRawResponseBodyType() != null
+        final IType responseType = proxyMethod.getRawResponseBodyType() != null
             ? proxyMethod.getRawResponseBodyType()
             : proxyMethod.getResponseBodyType();
-        ModelPropertySegment nextLinkPropertyReference
+        final ModelPropertySegment nextLinkPropertyReference
             = getPageableNextLink(operation.getExtensions().getXmsPageable(), responseType);
-
-        MethodPageDetails details = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
-            lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
+        final MethodPageDetails details = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference,
+            nextMethod, lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
                 operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
-        builder.methodPageDetails(details);
 
-        String pageMethodName
+        builder.methodPageDetails(details);
+        final ClientMethod basePageMethod = builder.build();
+
+        final String singlePageMethodName
             = isSync ? methodNamer.getPagingSinglePageMethodName() : methodNamer.getPagingAsyncSinglePageMethodName();
-        ClientMethodType pageMethodType
+        final ClientMethodType singlePageMethodType
             = isSync ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingAsyncSinglePage;
 
         // Only generate maximum overload of Paging###SinglePage API, and it should not be exposed to user.
 
-        JavaVisibility methodVisibility = visibilityFunction.methodVisibility(true, defaultOverloadType, false);
-        builder.returnValue(singlePageReturnValue)
+        final JavaVisibility singlePageMethodVisibility
+            = visibilityFunction.methodVisibility(true, defaultOverloadType, false);
+        final ClientMethod singlePageMethod = basePageMethod.newBuilder()
+            .returnValue(singlePageReturnValue)
             .onlyRequiredParameters(false)
-            .name(pageMethodName)
-            .type(pageMethodType)
+            .name(singlePageMethodName)
+            .type(singlePageMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(methodVisibility);
+            .methodVisibility(singlePageMethodVisibility)
+            .build();
 
         if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
-            methods.add(builder.build());
+            methods.add(singlePageMethod);
         }
 
         // Generate an overload with all parameters, optionally include context.
-        builder.methodVisibility(visibilityFunction.methodVisibility(true, defaultOverloadType, true));
-        addClientMethodWithContext(methods, builder, parameters, pageMethodType, pageMethodName, singlePageReturnValue,
-            details, contextParameter);
+        final JavaVisibility singlePageMethodWithContextVisibility
+            = visibilityFunction.methodVisibility(true, defaultOverloadType, true);
+        addClientMethodWithContext(methods, singlePageMethod, singlePageMethodWithContextVisibility, isProtocolMethod);
 
         // If this was the next method there is no further work to be done.
         if (isNextMethod) {
@@ -664,51 +666,62 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
 
         // Otherwise repeat what we just did but for next page client methods.
-        pageMethodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
-        pageMethodType = isSync ? ClientMethodType.PagingSync : ClientMethodType.PagingAsync;
+        final String pageMethodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
+        final ClientMethodType pageMethodType = isSync ? ClientMethodType.PagingSync : ClientMethodType.PagingAsync;
 
-        builder.returnValue(nextPageReturnValue)
+        final JavaVisibility pageMethodVisibility
+            = visibilityFunction.methodVisibility(false, defaultOverloadType, false);
+        final ClientMethod pagingMethod = basePageMethod.newBuilder()
+            .returnValue(nextPageReturnValue)
+            .onlyRequiredParameters(false)
             .name(pageMethodName)
             .type(pageMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
+            .methodVisibility(pageMethodVisibility)
+            .build();
 
         if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
             // generate the overload, if "sync-methods != NONE"
-
-            methods.add(builder.build());
-
+            methods.add(pagingMethod);
             // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
+            createOverloadForVersioning(isProtocolMethod, methods, pagingMethod.newBuilder(), parameters);
         }
 
         if (generateClientMethodWithOnlyRequiredParameters) {
-            methods.add(builder.onlyRequiredParameters(true)
-                .methodVisibility(
-                    visibilityFunction.methodVisibility(false, MethodOverloadType.OVERLOAD_MINIMUM, false))
-                .build());
+            final JavaVisibility pagingMethodWithOnlyRequiredParametersVisibility
+                = visibilityFunction.methodVisibility(false, MethodOverloadType.OVERLOAD_MINIMUM, false);
+            final ClientMethod pagingMethodWithOnlyRequiredParameters = pagingMethod.newBuilder()
+                .onlyRequiredParameters(true)
+                .methodVisibility(pagingMethodWithOnlyRequiredParametersVisibility)
+                .build();
+            methods.add(pagingMethodWithOnlyRequiredParameters);
         }
 
-        MethodPageDetails detailsWithContext = details;
+        final MethodPageDetails detailsWithContext;
         if (nextMethods != null) {
             // Match to the nextMethod with Context
-            IType contextWireType = contextParameter.getWireType();
-            nextMethod = nextMethods.stream()
+            final IType contextWireType = contextParameter.getWireType();
+            final ClientMethod nextMethodWithContext = nextMethods.stream()
                 .filter(m -> m.getType() == nextMethodType)
                 .filter(m -> m.getMethodParameters().stream().anyMatch(p -> contextWireType.equals(p.getClientType())))
                 .findFirst()
                 .orElse(null);
-
-            if (nextMethod != null) {
-                detailsWithContext = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
-                    lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
-                        operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
+            if (nextMethodWithContext != null) {
+                detailsWithContext
+                    = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
+                        lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
+                            operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
+            } else {
+                detailsWithContext = null;
             }
+        } else {
+            detailsWithContext = details;
         }
 
-        builder.methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, true));
-        addClientMethodWithContext(methods, builder, parameters, pageMethodType, pageMethodName, nextPageReturnValue,
-            detailsWithContext, contextParameter);
+        final JavaVisibility pagingMethodWithContextVisibility
+            = visibilityFunction.methodVisibility(false, defaultOverloadType, true);
+        addClientMethodWithContext(methods, pagingMethod.newBuilder().methodPageDetails(detailsWithContext).build(),
+            pagingMethodWithContextVisibility, isProtocolMethod);
     }
 
     private void createSimpleClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
@@ -1105,19 +1118,23 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
         if (JavaSettings.getInstance().isBranded()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
+            // update parameters to include Context.
             parameters.add(contextParameter);
         }
         final ClientMethod withContextMethod = baseMethod.newBuilder()
             .methodVisibility(visibility)
-            .parameters(parameters)        // update builder parameters to include context
+            .parameters(parameters)
             .onlyRequiredParameters(false)
             .hasWithContextOverload(false) // WithContext overload doesn't have a withContext overload
             .build();
         methods.add(withContextMethod);
     }
 
-    private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseBodyType) {
-        return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getItemName());
+    private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, ProxyMethod proxyMethod) {
+        final IType responseType = proxyMethod.getRawResponseBodyType() != null
+            ? proxyMethod.getRawResponseBodyType()
+            : proxyMethod.getResponseBodyType();
+        return ClientModelUtil.getModelPropertySegment(responseType, xmsPageable.getItemName());
     }
 
     private static ModelPropertySegment getPageableNextLink(XmsPageable xmsPageable, IType responseBodyType) {
