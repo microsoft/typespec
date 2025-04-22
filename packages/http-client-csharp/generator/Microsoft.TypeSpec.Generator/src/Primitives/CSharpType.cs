@@ -430,6 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsStruct == other.IsStruct &&
                 IsPublic == other.IsPublic &&
                 _underlyingType == other._underlyingType &&
+                Equals(DeclaringType, other.DeclaringType) &&
                 (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
