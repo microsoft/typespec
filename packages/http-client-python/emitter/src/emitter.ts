@@ -26,11 +26,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
-    reportDiagnostic(sdkContext.program, {
-      code: "no-package-name",
-      target: NoTarget,
-      format: { namespace, packageName },
-    });
     options["package-name"] = packageName;
   }
   if ((options as any).flavor !== "azure") {

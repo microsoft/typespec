@@ -686,7 +686,7 @@ const LEGACY_DATETIME_ENCODER: ScalarInfo["encodings"] = {
  * @returns a string that declares an alias to the scalar type in TypeScript.
  */
 export function* emitScalar(ctx: JsContext, scalar: Scalar, module: Module): Iterable<string> {
-  const jsScalar = getJsScalar(ctx, module, scalar, scalar.node.id);
+  const jsScalar = getJsScalar(ctx, module, scalar, scalar);
 
   const name = parseCase(scalar.name).pascalCase;
 

@@ -81,7 +81,6 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
-        node: undefined as any,
       });
 
       if (Array.isArray(desc.members)) {

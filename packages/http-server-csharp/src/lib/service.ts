@@ -1309,7 +1309,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           }
         }
         const iface: Interface = program.checker.createAndFinishType({
-          node: undefined as any,
           sourceInterfaces: [],
           decorators: [],
           operations: createRekeyableMap(nsOps),
