@@ -42,6 +42,7 @@ import {
   ProtoScalar,
   ProtoTopLevelDeclaration,
   ProtoType,
+  ProtoTypeInfo,
   ref,
   scalar,
   ScalarIntegralName,
@@ -53,7 +54,7 @@ import { $field, isMap, Reservation } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
-const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
+const _protoTypeInfoMap = new WeakMap<Program, Map<Type, ProtoTypeInfo>>();
 const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
 
 /**
@@ -202,8 +203,8 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return {
       package: (
         (details?.properties.get("name") as ModelProperty | undefined)?.type as
-          | StringLiteral
-          | undefined
+        | StringLiteral
+        | undefined
       )?.value,
 
       options: Object.fromEntries(packageOptions),
@@ -289,11 +290,11 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     const input = isEmptyParams
       ? getCachedExternType(program, operation, "TypeSpec.Protobuf.WellKnown.Empty")
       : addImportSourceForProtoIfNeeded(
-          program,
-          addInputParams(operation.parameters, operation),
-          operation,
-          getEffectiveModelType(program, operation.parameters),
-        );
+        program,
+        addInputParams(operation.parameters, operation),
+        operation,
+        getEffectiveModelType(program, operation.parameters),
+      );
 
     return {
       kind: "method",
@@ -519,7 +520,11 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         visitEnum(t);
         return ref(t.name);
       case "Scalar":
-        return scalarToProto(t);
+        const protoTypeInfo = scalarToProtoTypeInfo(t);
+        if (protoTypeInfo.source) {
+          typeWantsImport(program, relativeSource, protoTypeInfo.source);
+        }
+        return protoTypeInfo.protoType;
       case "Intrinsic":
         return addIntrinsicType(t, relativeSource);
       default:
@@ -581,30 +586,34 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return addType(valueType, relativeSource);
   }
 
-  function getProtoScalarsMap(program: Program): Map<Type, ProtoScalar> {
+  function getProtoTypeInfoMap(program: Program): Map<Type, ProtoTypeInfo> {
     // The type references are different object identities in different programs, so we need to cache the map per program.
     // This really only affects tests in our current use case, but someone could be using the compiler API to compile
     // multiple programs and it also affects that.
-    let scalarMap;
-    if (_protoScalarsMap.has(program)) {
-      scalarMap = _protoScalarsMap.get(program)!;
+    let typeInfoMap;
+    if (_protoTypeInfoMap.has(program)) {
+      typeInfoMap = _protoTypeInfoMap.get(program)!;
     } else {
       const entries = [
-        [program.resolveTypeReference("TypeSpec.bytes"), scalar("bytes")],
-        [program.resolveTypeReference("TypeSpec.boolean"), scalar("bool")],
-        [program.resolveTypeReference("TypeSpec.string"), scalar("string")],
-        [program.resolveTypeReference("TypeSpec.int32"), scalar("int32")],
-        [program.resolveTypeReference("TypeSpec.int64"), scalar("int64")],
-        [program.resolveTypeReference("TypeSpec.uint32"), scalar("uint32")],
-        [program.resolveTypeReference("TypeSpec.uint64"), scalar("uint64")],
-        [program.resolveTypeReference("TypeSpec.float32"), scalar("float")],
-        [program.resolveTypeReference("TypeSpec.float64"), scalar("double")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), scalar("sfixed32")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), scalar("sfixed64")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), scalar("sint32")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), scalar("sint64")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), scalar("fixed32")],
-        [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), scalar("fixed64")],
+        [program.resolveTypeReference("TypeSpec.bytes"), { protoType: scalar("bytes") }],
+        [program.resolveTypeReference("TypeSpec.boolean"), { protoType: scalar("bool") }],
+        [program.resolveTypeReference("TypeSpec.string"), { protoType: scalar("string") }],
+        [program.resolveTypeReference("TypeSpec.int32"), { protoType: scalar("int32") }],
+        [program.resolveTypeReference("TypeSpec.int64"), { protoType: scalar("int64") }],
+        [program.resolveTypeReference("TypeSpec.uint32"), { protoType: scalar("uint32") }],
+        [program.resolveTypeReference("TypeSpec.uint64"), { protoType: scalar("uint64") }],
+        [program.resolveTypeReference("TypeSpec.float32"), { protoType: scalar("float") }],
+        [program.resolveTypeReference("TypeSpec.float64"), { protoType: scalar("double") }],
+        [program.resolveTypeReference("TypeSpec.utcDateTime"), {
+          protoType: ref("google.prototype.Timestamp"),
+          source: "google/protobuf/timestamp.proto",
+        }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed32"), { protoType: scalar("sfixed32") }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sfixed64"), { protoType: scalar("sfixed64") }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sint32"), { protoType: scalar("sint32") }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.sint64"), { protoType: scalar("sint64") }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.fixed32"), { protoType: scalar("fixed32") }],
+        [program.resolveTypeReference("TypeSpec.Protobuf.fixed64"), { protoType: scalar("fixed64") }],
       ] as const;
 
       for (const [[type, diagnostics]] of entries) {
@@ -616,23 +625,25 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         }
       }
 
-      scalarMap = new Map<Type, ProtoScalar>(entries.map(([[type], scalar]) => [type!, scalar]));
+      typeInfoMap = new Map<Type, ProtoTypeInfo>(
+        entries.map(([[type], typeInfo]) => [type!, typeInfo])
+      );
 
-      _protoScalarsMap.set(program, scalarMap);
+      _protoTypeInfoMap.set(program, typeInfoMap);
     }
     // Lazy initialize this map of known proto scalars.
 
-    return scalarMap;
+    return typeInfoMap;
   }
 
-  function scalarToProto(t: Scalar): ProtoType {
+  function scalarToProtoTypeInfo(t: Scalar): ProtoTypeInfo {
     const fullName = getTypeName(t);
 
-    const protoType = getProtoScalarsMap(program).get(t);
+    const protoTypeInfo = getProtoTypeInfoMap(program).get(t);
 
-    if (!protoType) {
+    if (!protoTypeInfo) {
       if (t.baseScalar) {
-        return scalarToProto(t.baseScalar);
+        return scalarToProtoTypeInfo(t.baseScalar);
       } else {
         reportDiagnostic(program, {
           code: "unsupported-field-type",
@@ -646,7 +657,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       }
     }
 
-    return protoType;
+    return protoTypeInfo;
   }
 
   function computeEffectiveModel(model: Model, anonymousModelName: string): Model | undefined {
@@ -950,12 +961,12 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
           const mapInfo = mapImportSourceInformation.get(pt as ProtoMap);
           return mapInfo !== undefined
             ? (map(
-                k,
-                addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
-                  | ProtoRef
-                  | ProtoScalar,
-                // Anything else is unreachable by construction.
-              ) as T)
+              k,
+              addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
+              | ProtoRef
+              | ProtoScalar,
+              // Anything else is unreachable by construction.
+            ) as T)
             : pt;
         },
         scalar() {
