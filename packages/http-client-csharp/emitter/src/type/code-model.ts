@@ -4,6 +4,10 @@
 import { InputAuth } from "./input-auth.js";
 import { InputClient, InputEnumType, InputLiteralType, InputModelType } from "./input-type.js";
 
+/**
+ * The code model for the CSharp emitter.
+ * @beta
+ */
 export interface CodeModel {
   name: string;
   apiVersions: string[];

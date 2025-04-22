@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: fix
 packages:
-  - "@typespec/http-client-python"
+  - "@typespec/compiler"
 ---
 
-Improve emitter performance by updating black plugin implementation.
+Mark `node` property on all typespec types as optional 

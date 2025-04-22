@@ -55,19 +55,6 @@ public final class ParamAliasClientImpl {
 
     /**
      */
-    private final String blob;
-
-    /**
-     * Gets.
-     * 
-     * @return the blob value.
-     */
-    public String getBlob() {
-        return this.blob;
-    }
-
-    /**
-     */
     private final String blobName;
 
     /**
@@ -111,12 +98,11 @@ public final class ParamAliasClientImpl {
      * Initializes an instance of ParamAliasClient client.
      * 
      * @param endpoint Service host.
-     * @param blob
      * @param blobName
      */
-    public ParamAliasClientImpl(String endpoint, String blob, String blobName) {
+    public ParamAliasClientImpl(String endpoint, String blobName) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blob, blobName);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
     }
 
     /**
@@ -124,11 +110,10 @@ public final class ParamAliasClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param blob
      * @param blobName
      */
-    public ParamAliasClientImpl(HttpPipeline httpPipeline, String endpoint, String blob, String blobName) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blob, blobName);
+    public ParamAliasClientImpl(HttpPipeline httpPipeline, String endpoint, String blobName) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
     }
 
     /**
@@ -137,15 +122,13 @@ public final class ParamAliasClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param blob
      * @param blobName
      */
     public ParamAliasClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String blob, String blobName) {
+        String blobName) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.blob = blob;
         this.blobName = blobName;
         this.service = RestProxy.create(ParamAliasClientService.class, this.httpPipeline, this.getSerializerAdapter());
     }
@@ -163,7 +146,7 @@ public final class ParamAliasClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> withAliasedName(@HostParam("endpoint") String endpoint, @PathParam("blob") String blob,
+        Mono<Response<Void>> withAliasedName(@HostParam("endpoint") String endpoint, @PathParam("blob") String blobName,
             RequestOptions requestOptions, Context context);
 
         @Get("/azure/client-generator-core/client-initialization/param-alias/{blob}/with-aliased-name")
@@ -172,7 +155,7 @@ public final class ParamAliasClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> withAliasedNameSync(@HostParam("endpoint") String endpoint, @PathParam("blob") String blob,
+        Response<Void> withAliasedNameSync(@HostParam("endpoint") String endpoint, @PathParam("blob") String blobName,
             RequestOptions requestOptions, Context context);
 
         @Get("/azure/client-generator-core/client-initialization/param-alias/{blobName}/with-original-name")
@@ -207,7 +190,7 @@ public final class ParamAliasClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> withAliasedNameWithResponseAsync(RequestOptions requestOptions) {
         return FluxUtil.withContext(
-            context -> service.withAliasedName(this.getEndpoint(), this.getBlob(), requestOptions, context));
+            context -> service.withAliasedName(this.getEndpoint(), this.getBlobName(), requestOptions, context));
     }
 
     /**
@@ -222,7 +205,7 @@ public final class ParamAliasClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAliasedNameWithResponse(RequestOptions requestOptions) {
-        return service.withAliasedNameSync(this.getEndpoint(), this.getBlob(), requestOptions, Context.NONE);
+        return service.withAliasedNameSync(this.getEndpoint(), this.getBlobName(), requestOptions, Context.NONE);
     }
 
     /**

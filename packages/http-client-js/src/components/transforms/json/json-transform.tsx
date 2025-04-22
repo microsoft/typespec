@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import {
   getJsonArrayTransformRefkey,
@@ -31,6 +31,7 @@ export interface JsonTransformProps {
 }
 
 export function JsonTransform(props: JsonTransformProps) {
+  const { $ } = useTsp();
   const type = $.httpPart.unpack(props.type) ?? props.type;
   const declaredTransform = getTransformReference(type, props.target);
 
@@ -71,6 +72,7 @@ export interface JsonTransformDeclarationProps {
 }
 
 export function JsonTransformDeclaration(props: JsonTransformDeclarationProps) {
+  const { $ } = useTsp();
   if (!$.model.is(props.type) && !$.union.is(props.type)) {
     return null;
   }
@@ -96,6 +98,7 @@ function getTransformReference(
   type: Type,
   target: "transport" | "application",
 ): ay.Refkey | undefined {
+  const { $ } = useTsp();
   if (type.kind === "Model" && Boolean(type.name)) {
     if ($.array.is(type)) {
       return getJsonArrayTransformRefkey(type, target);
