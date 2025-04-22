@@ -89,8 +89,6 @@ public class FluentGen extends Javagen {
         this.clear();
 
         try {
-            JavaSettings settings = JavaSettings.getInstance();
-
             logger.info("Read YAML");
             // Parse yaml to code model
             CodeModel codeModel = new FluentNamer(this, connection, pluginName, sessionId).processCodeModel();
@@ -102,7 +100,7 @@ public class FluentGen extends Javagen {
             FluentJavaPackage javaPackage = this.handleTemplate(client);
 
             // Fluent Lite
-            this.handleFluentLite(codeModel, client, javaPackage);
+            this.handleFluentLite(codeModel, client, javaPackage, null);
 
             // Print to files
             logger.info("Write Java");
@@ -291,7 +289,8 @@ public class FluentGen extends Javagen {
         }
     }
 
-    protected FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage) {
+    protected FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage,
+        String apiVersionInTypeSpec) {
         FluentJavaSettings fluentJavaSettings = this.getFluentJavaSettings();
         JavaSettings javaSettings = JavaSettings.getInstance();
 
@@ -308,7 +307,7 @@ public class FluentGen extends Javagen {
             fluentClient = this.getFluentMapper().map(codeModel, client);
 
             // project
-            FluentProject project = new FluentProject(fluentClient);
+            FluentProject project = new FluentProject(fluentClient, apiVersionInTypeSpec);
             if (isSdkIntegration) {
                 project.integrateWithSdk();
             }
