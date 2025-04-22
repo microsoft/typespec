@@ -214,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
                 {
-                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    if (!DomainEqual(property, derivedProperty))
                     {
                         fields.Add(new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.Protected,
@@ -376,7 +376,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
@@ -395,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                     if (derivedProperty is not null)
                     {
-                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                        if (DomainEqual(property, derivedProperty))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
@@ -403,7 +402,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
-                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
@@ -442,6 +441,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
         {
+            if (baseProperty.Type.Name != derivedProperty.Type.Name)
+                return false;
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
             var baseNullable = baseProperty.Type is InputNullableType;

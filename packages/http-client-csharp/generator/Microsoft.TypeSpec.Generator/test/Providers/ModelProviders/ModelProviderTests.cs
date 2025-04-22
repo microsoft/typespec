@@ -25,13 +25,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
         {
-            var prop1 = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String));
-            var baseModel = InputFactory.Model("baseModel", properties: [prop1]);
+            var baseProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [baseProp1]);
             var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
-            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [prop1], baseModel: derivedModel1);
-            var addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance);
-            addDerivedModelMethod!.Invoke(baseModel, new object[] { derivedModel1 });
-            addDerivedModelMethod!.Invoke(derivedModel1, new object[] { derivedModel2 });
+            var derivedProp1 = InputFactory.Property("prop1", new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "TypeSpec.string"));
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [derivedProp1], baseModel: derivedModel1);
             MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
             var derivedModel2Provider = new ModelProvider(derivedModel2);
             Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
