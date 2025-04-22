@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
@@ -32,11 +31,10 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         // as Response data is not included in an LRO API.
 
         final ProxyMethod proxyMethod = lroBaseMethod.getProxyMethod();
-        final List<ClientMethodParameter> parameters = lroBaseMethod.getParameters();
 
         // async
         //
-        final ClientMethod longRunningFinalResultAsyncMethod = lroBaseMethod.newBuilder()
+        final ClientMethod lroFinalResultAsyncMethod = lroBaseMethod.newBuilder()
             .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningAsync))
             .name(proxyMethod.getSimpleAsyncMethodName())
             .onlyRequiredParameters(false)
@@ -46,28 +44,25 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, false, isProtocolMethod))
             .build();
 
-        methods.add(longRunningFinalResultAsyncMethod);
+        methods.add(lroFinalResultAsyncMethod);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
-            final ClientMethod longRunningFinalResultAsyncMethodWithRequiredParameters
-                = longRunningFinalResultAsyncMethod.newBuilder()
-                    .onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
-                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build();
-            methods.add(longRunningFinalResultAsyncMethodWithRequiredParameters);
+            final ClientMethod lroFinalResultAsyncMethodWithRequiredParameters = lroFinalResultAsyncMethod.newBuilder()
+                .onlyRequiredParameters(true)
+                .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
+                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                .build();
+            methods.add(lroFinalResultAsyncMethodWithRequiredParameters);
         }
 
-        final ClientMethod.Builder longRunningFinalResultAsyncWithContextBuilder
-            = longRunningFinalResultAsyncMethod.newBuilder()
-                .methodVisibility(
-                    methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod));
-        addClientMethodWithContext(methods, longRunningFinalResultAsyncWithContextBuilder, parameters,
-            getContextParameter(isProtocolMethod));
+        final JavaVisibility lroFinalResultAsyncMethodWithContextVisibility
+            = methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod);
+        addClientMethodWithContext(methods, lroFinalResultAsyncMethod, lroFinalResultAsyncMethodWithContextVisibility,
+            isProtocolMethod);
 
         // sync
         //
-        final ClientMethod longRunningFinalResultSyncMethod = lroBaseMethod.newBuilder()
+        final ClientMethod lroFinalResultSyncMethod = lroBaseMethod.newBuilder()
             .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningSync))
             .name(proxyMethod.getName())
             .onlyRequiredParameters(false)
@@ -78,25 +73,21 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, false, isProtocolMethod))
             .build();
 
-        methods.add(longRunningFinalResultSyncMethod);
+        methods.add(lroFinalResultSyncMethod);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
-            final ClientMethod longRunningFinalResultSyncMethodWithRequiredParameters
-                = longRunningFinalResultSyncMethod.newBuilder()
-                    .onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,
-                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build();
-            methods.add(longRunningFinalResultSyncMethodWithRequiredParameters);
+            final ClientMethod lroFinalResultSyncMethodWithRequiredParameters = lroFinalResultSyncMethod.newBuilder()
+                .onlyRequiredParameters(true)
+                .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,
+                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                .build();
+            methods.add(lroFinalResultSyncMethodWithRequiredParameters);
         }
 
-        final ClientMethod.Builder longRunningFinalResultSyncWithContextBuilder
-            = longRunningFinalResultSyncMethod.newBuilder()
-                .methodVisibility(
-                    methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod));
-
-        addClientMethodWithContext(methods, longRunningFinalResultSyncWithContextBuilder, parameters,
-            getContextParameter(isProtocolMethod));
+        final JavaVisibility lroFinalResultSyncMethodWithContextVisibility
+            = methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod);
+        addClientMethodWithContext(methods, lroFinalResultSyncMethod, lroFinalResultSyncMethodWithContextVisibility,
+            isProtocolMethod);
     }
 
     @Override
