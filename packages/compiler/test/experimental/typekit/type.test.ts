@@ -412,6 +412,22 @@ describe("inNamespace", () => {
     expect($(program).type.inNamespace(operation, Root as Namespace)).toBe(true);
   });
 
+  it("checks operations namespace membership", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        op myOp(): void;
+      }
+      `,
+      ["Root"],
+    );
+    const operation = (Root as Namespace).operations.get("myOp")!;
+    expect($(program).type.inNamespace(operation, Root as Namespace)).toBe(true);
+  });
+
   it("returns false for types without namespace", async () => {
     const {
       MyNamespace,

@@ -275,38 +275,36 @@ defineKit<TypekitExtension>({
       return getLocationContext(this.program, type).type === "project";
     },
     inNamespace(type: Type, namespace: Namespace): boolean {
+      // A namespace is always in itself
       if (type === namespace) {
         return true;
       }
 
-      // Handle types that can be sourced from other types
-      if (type.kind === "ModelProperty") {
-        return type.sourceProperty
-          ? this.type.inNamespace(type.sourceProperty, namespace)
-          : type.model
-            ? this.type.inNamespace(type.model, namespace)
-            : false;
+      switch (type.kind) {
+        case "ModelProperty":
+          if (type.sourceProperty) {
+            return this.type.inNamespace(type.sourceProperty, namespace);
+          } else if (type.model) {
+            return this.type.inNamespace(type.model, namespace);
+          }
+          return false;
+        case "EnumMember":
+          return this.type.inNamespace(type.enum, namespace);
+        case "UnionVariant":
+          return this.type.inNamespace(type.union, namespace);
+        case "Operation":
+          if (type.interface) {
+            return this.type.inNamespace(type.interface, namespace);
+          } else if (type.namespace) {
+            return this.type.inNamespace(type.namespace, namespace);
+          }
+          return false;
+        default:
+          if ("namespace" in type && type.namespace) {
+            return this.type.inNamespace(type.namespace, namespace);
+          }
+          return false;
       }
-
-      // Handle members of container types
-      if (type.kind === "EnumMember") {
-        return this.type.inNamespace(type.enum, namespace);
-      }
-      if (type.kind === "UnionVariant") {
-        return this.type.inNamespace(type.union, namespace);
-      }
-
-      // Handle namespace-containing types
-      if (type.kind === "Operation" && type.interface) {
-        return this.type.inNamespace(type.interface, namespace);
-      }
-
-      // Handle any type with a namespace property
-      if ("namespace" in type && type.namespace) {
-        return this.type.inNamespace(type.namespace, namespace);
-      }
-
-      return false;
     },
   },
 });
