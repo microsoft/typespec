@@ -481,7 +481,7 @@ function resolveMultiPartBodyFromTuple(
       diagnostics.add(
         createDiagnostic({
           code: "formdata-no-part-name",
-          target: type.node.values[index],
+          target: type.node?.values[index] ?? type.values[index],
         }),
       );
     }

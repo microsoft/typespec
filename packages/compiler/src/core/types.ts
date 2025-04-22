@@ -609,7 +609,7 @@ export interface StringTemplateSpanValue extends BaseType {
 
 export interface Tuple extends BaseType {
   kind: "Tuple";
-  node: TupleExpressionNode | ArrayLiteralNode;
+  node?: TupleExpressionNode | ArrayLiteralNode;
   values: Type[];
 }
 
