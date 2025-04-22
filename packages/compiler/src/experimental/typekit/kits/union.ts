@@ -3,8 +3,10 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
-import type { Type, Union, UnionVariant } from "../../../core/types.js";
+import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
+import { $doc, getDoc } from "../../../lib/decorators.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
@@ -49,6 +51,20 @@ export interface UnionKit {
   create(desc: UnionDescriptor): Union;
 
   /**
+   * Creates a union type from an enum.
+   *
+   * @remarks
+   *
+   * @param type The enum to create a union from.
+   *
+   * For member without an explicit value, the member name is used as the value.
+   *
+   * Any API documentation will be rendered and preserved in the resulting union.
+   * - No other decorators are copied from the enum to the union.
+   */
+  createFromEnum(type: Enum): Union;
+
+  /**
    * Check if the given `type` is a union.
    *
    * @param type The type to check.
@@ -81,7 +97,7 @@ export interface UnionKit {
    * Resolves a discriminated union for the given union.
    * @param type Union to resolve the discriminated union for.
    */
-  getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
+  getDiscriminatedUnion: Diagnosable<(type: Union) => DiscriminatedUnion | undefined>;
 }
 
 interface TypekitExtension {
@@ -112,7 +128,6 @@ export const UnionKit = defineKit<TypekitExtension>({
           return Array.from(this.variants.values()).map((v) => v.type);
         },
         expression: desc.name === undefined,
-        node: undefined as any,
       });
 
       if (Array.isArray(desc.variants)) {
@@ -131,6 +146,24 @@ export const UnionKit = defineKit<TypekitExtension>({
 
       this.program.checker.finishType(union);
       return union;
+    },
+
+    createFromEnum(type) {
+      const enumDoc = getDoc(this.program, type);
+      return this.union.create({
+        name: type.name,
+        decorators: enumDoc ? [[$doc, enumDoc]] : undefined,
+        variants: Array.from(type.members.values()).map((member) => {
+          const memberDoc = getDoc(this.program, member);
+          const value = member.value ?? member.name;
+
+          return this.unionVariant.create({
+            name: member.name,
+            type: this.literal.create(value),
+            decorators: memberDoc ? [[$doc, memberDoc]] : undefined,
+          });
+        }),
+      });
     },
 
     is(type) {
@@ -181,8 +214,8 @@ export const UnionKit = defineKit<TypekitExtension>({
     isExpression(type) {
       return type.name === undefined || type.name === "";
     },
-    getDiscriminatedUnion(type) {
-      return ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
-    },
+    getDiscriminatedUnion: createDiagnosable(function (type) {
+      return getDiscriminatedUnion(this.program, type);
+    }),
   },
 });

@@ -81,7 +81,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
         FluentJavaPackage javaPackage = handleTemplate(client);
-        handleFluentLite(codeModel, client, javaPackage);
+        handleFluentLite(codeModel, client, javaPackage, emitterOptions.getApiVersion());
         return javaPackage;
     }
 

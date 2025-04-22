@@ -47,8 +47,7 @@ public final class ClientInitializationTests {
 
     @Test
     public void testParamAlias() {
-        // TODO: blob and blobName should be one param
-        ParamAliasClient client = new ParamAliasClientBuilder().blobName(TEST_BLOB).blob(TEST_BLOB).buildClient();
+        ParamAliasClient client = new ParamAliasClientBuilder().blobName(TEST_BLOB).buildClient();
         client.withOriginalName();
         client.withAliasedName();
     }
