@@ -304,19 +304,11 @@ defineKit<TypekitExtension>({
         case "UnionVariant":
           return this.type.inNamespace(type.union, namespace);
         default:
+          if ("namespace" in type && type.namespace) {
+            return this.type.inNamespace(type.namespace, namespace);
+          }
           return false;
       }
-      // if (type === namespace) {
-      //   return true;
-      // }
-      // if ("namespace" in type && type.namespace) {
-      //   return this.type.inNamespace(type.namespace, namespace);
-      // }
-
-      // if (type.kind === "Operation" && type.interface) {
-      //   return this.type.inNamespace(type.interface, namespace);
-      // }
-      // return false;
     },
   },
 });
