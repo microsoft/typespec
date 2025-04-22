@@ -181,6 +181,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport
