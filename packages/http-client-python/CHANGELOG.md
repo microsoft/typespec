@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.11.1
+
+### Bug Fixes
+
+- [#6646](https://github.com/microsoft/typespec/pull/6646) Reorder generated `_vendor` file into a `_utils_` folder
+- [#7062](https://github.com/microsoft/typespec/pull/7062) Remove warnings thrown if no `package-name` is specified, since this is the default behavior we want
+
+
 ## 0.11.0
 
 ### Features
