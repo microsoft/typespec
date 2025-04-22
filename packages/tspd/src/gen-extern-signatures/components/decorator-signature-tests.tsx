@@ -1,0 +1,34 @@
+import * as ay from "@alloy-js/core";
+import * as ts from "@alloy-js/typescript";
+
+export interface DecoratorSignatureTests {
+  namespaceName: string;
+  dollarDecoratorRefKey: ay.Refkey;
+  dollarDecoratorsTypeRefKey: ay.Refkey;
+}
+
+export function DecoratorSignatureTests({
+  namespaceName,
+  dollarDecoratorRefKey,
+  dollarDecoratorsTypeRefKey,
+}: Readonly<DecoratorSignatureTests>) {
+  return (
+    <>
+      <ts.JSDoc>
+        An error here would mean that the decorator is not exported or doesn't have the right name.
+      </ts.JSDoc>
+      <hbr />
+      <hbr />
+      <ts.VarDeclaration
+        name="_"
+        type={dollarDecoratorsTypeRefKey}
+        doc="An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ..."
+      >
+        <ts.MemberChainExpression>
+          <>{dollarDecoratorRefKey}</>
+          <>{namespaceName}</>
+        </ts.MemberChainExpression>
+      </ts.VarDeclaration>
+    </>
+  );
+}
