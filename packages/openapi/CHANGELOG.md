@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi
 
+## 1.0.0-rc.1
+
+### Bug Fixes
+
+- [#6947](https://github.com/microsoft/typespec/pull/6947) Fix crash when using enum values in extension
+
+
 ## 1.0.0-rc.0
 
 ### Bump dependencies
