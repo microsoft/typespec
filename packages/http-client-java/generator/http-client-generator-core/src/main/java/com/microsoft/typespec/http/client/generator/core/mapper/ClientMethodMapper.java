@@ -446,16 +446,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                 resultType, dpgMethodPollingDetailsWithModel.getPollIntervalInSeconds());
                     }
 
-                    final ClientMethod lroBaseMethod = baseMethod.newBuilder()
-                        .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.SimpleAsyncRestResponse))
-                        .name(proxyMethod.getSimpleAsyncRestResponseMethodName())
-                        .onlyRequiredParameters(false)
-                        .type(ClientMethodType.SimpleAsyncRestResponse)
-                        .groupedParameterRequired(false)
-                        .proxyMethod(proxyMethod)
-                        .methodVisibility(simpleAsyncMethodVisibility)
-                        .methodPollingDetails(methodPollingDetails)
-                        .build();
+                    final ClientMethod lroBaseMethod
+                        = baseMethod.newBuilder().methodPollingDetails(methodPollingDetails).build();
 
                     final MethodNamer methodNamer
                         = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
@@ -788,10 +780,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private static void createOverloadForVersioning(boolean isProtocolMethod, List<ClientMethod> methods,
         ClientMethod baseMethod) {
-        final List<ClientMethodParameter> parameters2 = baseMethod.getParameters();
+        final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         if (!isProtocolMethod && JavaSettings.getInstance().isDataPlaneClient()) {
-            if (parameters2.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
-                final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters2);
+            if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
+                final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
                     final ClientMethod overloadedMethod
                         = baseMethod.newBuilder().parameters(overloadedParameters).build();
@@ -857,77 +849,63 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         String syncMethodName, ClientMethodsReturnDescription clientMethodsReturnDescription, boolean isProtocolMethod,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
-        final ProxyMethod proxyMethod = lroBaseMethod.getProxyMethod();
-        final List<ClientMethodParameter> parameters = lroBaseMethod.getParameters();
+        final boolean createSync = !lroBaseMethod.getProxyMethod().hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)
+            && (JavaSettings.getInstance().isGenerateSyncMethods() || JavaSettings.getInstance().isSyncStackEnabled());
+        if (createSync) {
+            createLroBeginMethods(true, lroBaseMethod, methods, syncMethodName, clientMethodsReturnDescription,
+                isProtocolMethod, generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+        }
+
+        final boolean createAsync = JavaSettings.getInstance().isGenerateAsyncMethods();
+        if (createAsync) {
+            createLroBeginMethods(false, lroBaseMethod, methods, asyncMethodName, clientMethodsReturnDescription,
+                isProtocolMethod, generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+        }
+    }
+
+    private void createLroBeginMethods(boolean isSync, ClientMethod lroBaseMethod, List<ClientMethod> methods,
+        String methodName, ClientMethodsReturnDescription clientMethodsReturnDescription, boolean isProtocolMethod,
+        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+        final ClientMethodType clientMethodType;
+        if (isSync) {
+            clientMethodType = ClientMethodType.LongRunningBeginSync;
+        } else {
+            clientMethodType = ClientMethodType.LongRunningBeginAsync;
+        }
         final MethodPollingDetails methodPollingDetails = lroBaseMethod.getMethodPollingDetails();
 
-        if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
-            // long-running 'begin[Operation]' async methods
+        // LRO 'begin[Operation]' sync or async method.
+        //
+        final ClientMethod beginLroMethod = lroBaseMethod.newBuilder()
+            .returnValue(clientMethodsReturnDescription.getReturnValue(clientMethodType, methodPollingDetails))
+            .name(methodName)
+            .onlyRequiredParameters(false)
+            .type(clientMethodType)
+            .groupedParameterRequired(false)
+            .methodVisibility(methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod))
+            .build();
+        methods.add(beginLroMethod);
+
+        // LRO 'begin[Operation]' sync or async method overloads with versioning.
+        //
+        createOverloadForVersioning(isProtocolMethod, methods, beginLroMethod);
+
+        if (generateClientMethodWithOnlyRequiredParameters) {
+            // LRO 'begin[Operation]' sync or async method overload with only required parameters.
             //
-            final ClientMethod beginLroAsyncMethod = lroBaseMethod.newBuilder()
-                .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginAsync,
-                    methodPollingDetails))
-                .name(asyncMethodName)
-                .onlyRequiredParameters(false)
-                .type(ClientMethodType.LongRunningBeginAsync)
-                .groupedParameterRequired(false)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginAsync, defaultOverloadType, false,
-                    isProtocolMethod))
+            final ClientMethod beginLroMethodWithRequiredParameters = beginLroMethod.newBuilder()
+                .onlyRequiredParameters(true)
+                .methodVisibility(
+                    methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
                 .build();
-            methods.add(beginLroAsyncMethod);
-
-            // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, beginLroAsyncMethod);
-
-            if (generateClientMethodWithOnlyRequiredParameters) {
-                final ClientMethod beginAsyncMethodWithRequiredParameters = beginLroAsyncMethod.newBuilder()
-                    .onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginAsync,
-                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build();
-                methods.add(beginAsyncMethodWithRequiredParameters);
-            }
-
-            final JavaVisibility beginLroAsyncMethodWithContextVisibility
-                = methodVisibility(ClientMethodType.LongRunningBeginAsync, defaultOverloadType, true, isProtocolMethod);
-            addClientMethodWithContext(methods, beginLroAsyncMethod, beginLroAsyncMethodWithContextVisibility,
-                isProtocolMethod);
+            methods.add(beginLroMethodWithRequiredParameters);
         }
 
-        if (!proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)
-            && (JavaSettings.getInstance().isGenerateSyncMethods()
-                || JavaSettings.getInstance().isSyncStackEnabled())) {
-            // long-running 'begin[Operation]' sync methods
-            //
-            final ClientMethod beginLroSyncMethod = lroBaseMethod.newBuilder()
-                .returnValue(clientMethodsReturnDescription.getReturnValue(ClientMethodType.LongRunningBeginSync,
-                    methodPollingDetails))
-                .name(syncMethodName)
-                .onlyRequiredParameters(false)
-                .type(ClientMethodType.LongRunningBeginSync)
-                .groupedParameterRequired(false)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, false,
-                    isProtocolMethod))
-                .build();
-            methods.add(beginLroSyncMethod);
-
-            // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, beginLroSyncMethod);
-
-            if (generateClientMethodWithOnlyRequiredParameters) {
-                final ClientMethod beginSyncMethodWithRequiredParameters = beginLroSyncMethod.newBuilder()
-                    .onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginSync,
-                        MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build();
-                methods.add(beginSyncMethodWithRequiredParameters);
-            }
-
-            final JavaVisibility beginLroSyncMethodWithContextVisibility
-                = methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, true, isProtocolMethod);
-            addClientMethodWithContext(methods, beginLroSyncMethod, beginLroSyncMethodWithContextVisibility,
-                isProtocolMethod);
-        }
+        // LRO 'begin[Operation]' sync or async method overload with only required with context parameters.
+        //
+        final JavaVisibility beginLroMethodWithContextVisibility
+            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+        addClientMethodWithContext(methods, beginLroMethod, beginLroMethodWithContextVisibility, isProtocolMethod);
     }
 
     /**
