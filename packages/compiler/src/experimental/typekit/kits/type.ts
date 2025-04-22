@@ -287,7 +287,7 @@ defineKit<TypekitExtension>({
           } else if (type.model) {
             return this.type.inNamespace(type.model, namespace);
           }
-          return false;
+          break;
         case "EnumMember":
           return this.type.inNamespace(type.enum, namespace);
         case "UnionVariant":
@@ -298,13 +298,16 @@ defineKit<TypekitExtension>({
           } else if (type.namespace) {
             return this.type.inNamespace(type.namespace, namespace);
           }
-          return false;
+          break;
         default:
           if ("namespace" in type && type.namespace) {
             return this.type.inNamespace(type.namespace, namespace);
           }
-          return false;
+          break;
       }
+
+      // If we got this far, the type does not belong to the namespace
+      return false;
     },
   },
 });
