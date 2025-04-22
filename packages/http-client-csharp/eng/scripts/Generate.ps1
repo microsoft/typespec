@@ -14,7 +14,7 @@ if (-not $LaunchOnly) {
     Refresh-Build
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
-        
+
         Write-Host "Building logging plugin" -ForegroundColor Cyan
         $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
         Invoke "dotnet build" $pluginDir
@@ -41,7 +41,7 @@ if (-not $LaunchOnly) {
         if ($LASTEXITCODE -ne 0) {
           exit $LASTEXITCODE
         }
-        
+
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
