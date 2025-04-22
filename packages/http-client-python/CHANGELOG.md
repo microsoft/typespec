@@ -2,10 +2,6 @@
 
 ## 0.11.1
 
-No changes, version bump only.
-
-## 0.11.1
-
 ### Bug Fixes
 
 - [#6646](https://github.com/microsoft/typespec/pull/6646) Reorder generated `_vendor` file into a `_utils_` folder
