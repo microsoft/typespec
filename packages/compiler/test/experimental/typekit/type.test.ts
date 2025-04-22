@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Enum, Model, Scalar, Union } from "../../../src/core/types.js";
+import { Enum, Model, Namespace, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
 import { getTypes } from "./utils.js";
@@ -280,4 +280,150 @@ it("isError can check if a type is an error model", async () => {
 
   expect($(program).type.isError(Error)).toBe(true);
   expect($(program).type.isError(Foo)).toBe(false);
+});
+
+describe("inNamespace", () => {
+  it("checks that a namespace belongs to itself", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {}
+      `,
+      ["Root"],
+    );
+    expect($(program).type.inNamespace(Root, Root as Namespace)).toBe(true);
+  });
+
+  it("checks direct namespace membership", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        namespace Child1 {
+          namespace Child2 {}
+        }
+      }
+      `,
+      ["Root"],
+    );
+
+    const child1 = (Root as Namespace).namespaces.get("Child1")!;
+    const child2 = child1.namespaces.get("Child2")!;
+    expect($(program).type.inNamespace(child1, Root as Namespace)).toBe(true);
+    expect($(program).type.inNamespace(child2, Root as Namespace)).toBe(true);
+    expect($(program).type.inNamespace(child1, child2 as Namespace)).toBe(false);
+  });
+
+  it("checks model property namespace membership", async () => {
+    const {
+      Root,
+      Outside,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        model Inside {
+          prop: string;
+        }
+      }
+
+      model Outside extends Root.Inside {
+        prop: string;
+      }
+      `,
+      ["Root", "Inside", "Outside"],
+    );
+
+    const model1 = (Root as Namespace).models.get("Inside")!;
+    expect(model1).toBeDefined();
+    const prop1 = model1.properties.get("prop")!;
+    expect(prop1).toBeDefined();
+
+    const prop2 = (Outside as Model).properties.get("prop")!;
+
+    expect($(program).type.inNamespace(prop1, Root as Namespace)).toBe(true);
+    expect($(program).type.inNamespace(prop2, Root as Namespace)).toBe(false);
+  });
+
+  it("checks enum member namespace membership", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        enum Test {
+          A,
+          B
+        }
+      }
+      `,
+      ["Root"],
+    );
+
+    const enum1 = (Root as Namespace).enums.get("Test")!;
+    const enumMember = enum1.members.get("A")!;
+    expect($(program).type.inNamespace(enumMember, Root as Namespace)).toBe(true);
+  });
+
+  it("checks union variant namespace membership", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        union Test {
+          A: string,
+          B: int32
+        }
+      }
+      `,
+      ["Root"],
+    );
+
+    const union = (Root as Namespace).unions.get("Test")!;
+    const variant = union.variants.get("A")!;
+    expect(variant).toBeDefined();
+    expect($(program).type.inNamespace(variant, Root as Namespace)).toBe(true);
+  });
+
+  it("checks interface operation namespace membership", async () => {
+    const {
+      Root,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        interface Test {
+          op myOp(): void;
+        }
+      }
+      `,
+      ["Root"],
+    );
+
+    const test = (Root as Namespace).interfaces.get("Test")!;
+    const operation = test.operations.get("myOp")!;
+    expect($(program).type.inNamespace(operation, Root as Namespace)).toBe(true);
+  });
+
+  it("returns false for types without namespace", async () => {
+    const {
+      MyNamespace,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace MyNamespace { }
+      `,
+      ["MyNamespace"],
+    );
+
+    const stringLiteral = $(program).literal.create("test");
+    expect($(program).type.inNamespace(stringLiteral, MyNamespace as Namespace)).toBe(false);
+  });
 });
