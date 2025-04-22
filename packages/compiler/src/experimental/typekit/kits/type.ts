@@ -14,7 +14,7 @@ import {
   getMinValueExclusive,
 } from "../../../core/intrinsic-type-state.js";
 import { isNeverType } from "../../../core/type-utils.js";
-import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
+import { Enum, Model, Namespace, Scalar, Union, type Type } from "../../../core/types.js";
 import { getDoc, getSummary, isErrorModel } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
 import { defineKit } from "../define-kit.js";
@@ -121,6 +121,8 @@ export interface TypeTypekit {
    * @returns True if the type is a user defined type, false otherwise.
    */
   isUserDefined(type: Type): boolean;
+
+  inNamespace(type: Type, namespace: Namespace): boolean;
 }
 
 interface TypekitExtension {
@@ -271,6 +273,50 @@ defineKit<TypekitExtension>({
     },
     isUserDefined(type) {
       return getLocationContext(this.program, type).type === "project";
+    },
+    inNamespace(type: Type, namespace: Namespace) {
+      switch (type.kind) {
+        case "Namespace":
+          return type === namespace;
+        case "Operation":
+        case "Interface":
+        case "Model":
+        case "Union":
+        case "Scalar":
+        case "Enum":
+          if (type.namespace) {
+            return this.type.inNamespace(type.namespace, namespace);
+          } else if (type.kind === "Operation" && type.interface) {
+            return this.type.inNamespace(type.interface, namespace);
+          } else {
+            return false; // ??
+          }
+        case "ModelProperty":
+          if (type.sourceProperty) {
+            return this.type.inNamespace(type.sourceProperty, namespace);
+          } else if (type.model) {
+            return this.type.inNamespace(type.model, namespace);
+          } else {
+            return false;
+          }
+        case "EnumMember":
+          return this.type.inNamespace(type.enum, namespace);
+        case "UnionVariant":
+          return this.type.inNamespace(type.union, namespace);
+        default:
+          return false;
+      }
+      // if (type === namespace) {
+      //   return true;
+      // }
+      // if ("namespace" in type && type.namespace) {
+      //   return this.type.inNamespace(type.namespace, namespace);
+      // }
+
+      // if (type.kind === "Operation" && type.interface) {
+      //   return this.type.inNamespace(type.interface, namespace);
+      // }
+      // return false;
     },
   },
 });
