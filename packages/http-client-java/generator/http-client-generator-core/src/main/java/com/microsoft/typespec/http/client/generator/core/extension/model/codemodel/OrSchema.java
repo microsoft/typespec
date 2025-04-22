@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -64,27 +60,5 @@ public class OrSchema extends ComplexSchema {
 
         OrSchema rhs = (OrSchema) other;
         return Objects.equals(anyOf, rhs.anyOf);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject().writeArrayField("anyOf", anyOf, JsonWriter::writeJson).writeEndObject();
-    }
-
-    /**
-     * Deserializes an OrSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An OrSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static OrSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, OrSchema::new, (schema, fieldName, reader) -> {
-            if ("anyOf".equals(fieldName)) {
-                schema.anyOf = reader.readArray(ObjectSchema::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

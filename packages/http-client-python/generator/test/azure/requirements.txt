@@ -1,12 +1,12 @@
 -r ../dev_requirements.txt
 -e ../../
-azure-core==1.30.0
-azure-mgmt-core==1.3.2
+azure-mgmt-core==1.5.0
 
 # only for azure
 -e ./generated/azure-client-generator-core-access
--e ./generated/azure-client-generator-core-usage
+-e ./generated/azure-client-generator-core-client-initialization
 -e ./generated/azure-client-generator-core-flatten-property
+-e ./generated/azure-client-generator-core-usage
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
 -e ./generated/azure-core-lro-rpc
@@ -38,6 +38,7 @@ azure-mgmt-core==1.3.2
 -e ./generated/encode-numeric
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
+-e ./generated/parameters-path
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined

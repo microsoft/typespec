@@ -29,6 +29,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `api-version`
 
 **Type:** `string`
@@ -54,12 +61,6 @@ Defines the strategy on how to handle unreferenced types. The default value is `
 **Type:** `boolean`
 
 Set to `true` to overwrite the csproj if it already exists. The default value is `false`.
-
-### `clear-output-folder`
-
-**Type:** `boolean`
-
-Indicates if you want to clear the output folder before generating. The default value is `true`.
 
 ### `save-inputs`
 

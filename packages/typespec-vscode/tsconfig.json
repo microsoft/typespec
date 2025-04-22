@@ -8,10 +8,11 @@
     "moduleResolution": "NodeNext",
     "sourceMap": false,
     "resolveJsonModule": true,
+    "noEmitOnError": true,
     "outDir": "dist",
     "skipLibCheck": true,
     "types": ["mocha"],
     "rootDir": "."
   },
-  "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]
+  "exclude": ["dist", "templates", "vitest.config.ts"]
 }

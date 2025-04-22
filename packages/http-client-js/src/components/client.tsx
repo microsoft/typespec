@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
@@ -13,6 +13,7 @@ import { getOperationParameters } from "./operation-parameters.jsx";
 export interface ClientProps {}
 
 export function Client(props: ClientProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const { topLevel } = useClientLibrary();
 
@@ -45,6 +46,7 @@ function getClientContextFieldRef(client: cl.Client) {
   return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const clientName = namePolicy.getName($.client.getName(props.client), "class");
   const contextMemberRef = getClientContextFieldRef(props.client);
@@ -69,10 +71,11 @@ export function ClientClass(props: ClientClassProps) {
           {(op) => {
             const parameters = getOperationParameters(op.httpOperation);
             const args = parameters.flatMap((p) => p.refkey);
+            const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
 
             return (
               <ClassMethod
-                async
+                async={!isPaging}
                 type={op.httpOperation.operation}
                 parameters={parameters}
                 returnType={null}
@@ -102,6 +105,7 @@ function getSubClientClassFieldRef(client: cl.Client) {
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
+  const { $ } = useTsp();
   const parent = props.client.parent;
   // If sub client has different parameters than client, don't add it as a subclass field
   // Todo: We need to detect the extra parameters and make this field a factory for the subclient
@@ -121,6 +125,7 @@ interface ClientConstructorProps {
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
+  const { $ } = useTsp();
   const subClients = props.client.subClients.filter((sc) =>
     $.client.haveSameConstructor(sc, props.client),
   );

@@ -96,6 +96,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
     },
   },
+  "unsupported-service-method": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Unsupported method kind: ${"methodKind"}.`,
+    },
+  },
   "unsupported-continuation-location": {
     severity: "error",
     messages: {
@@ -104,6 +110,10 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   },
 };
 
+/**
+ * The TypeSpec library for the C# HTTP client generator.
+ * @beta
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
   diagnostics: diags,

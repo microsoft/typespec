@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
+import com.azure.core.http.HttpMethod;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities
@@ -395,92 +395,74 @@ public class Operation extends Metadata {
     }
 
     /**
+     * Checks if this operation is pageable.
+     *
+     * @return true if this operation is pageable, false otherwise.
+     */
+    public boolean isPageable() {
+        final XmsExtensions extensions = super.getExtensions();
+        return extensions != null && extensions.getXmsPageable() != null;
+    }
+
+    /**
+     * Checks if this operation is a long-running operation (LRO).
+     *
+     * @return true if this operation is a long-running operation, false otherwise.
+     */
+    public boolean isLro() {
+        final XmsExtensions extensions = super.getExtensions();
+        return extensions != null && extensions.isXmsLongRunningOperation();
+    }
+
+    /**
+     * Checks if this operation has response defined with header schema.
+     *
+     * @return true if this operation has a header schema response, false otherwise.
+     */
+    public boolean hasHeaderSchemaResponse() {
+        return responses.stream()
+            .filter(r -> r.getProtocol() != null
+                && r.getProtocol().getHttp() != null
+                && r.getProtocol().getHttp().getHeaders() != null)
+            .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream().map(Header::getSchema))
+            .anyMatch(Objects::nonNull);
+    }
+
+    /**
+     * Gets a stream of schemas defined for this operation responses.
+     *
+     * @return a stream of response schemas.
+     */
+    public Stream<Schema> getResponseSchemas() {
+        return responses.stream().map(Response::getSchema).filter(Objects::nonNull);
+    }
+
+    /**
+     * Checks if this operation has a binary response.
+     *
+     * @return true if this operation has a binary response, false otherwise.
+     */
+    public boolean hasBinaryResponse() {
+        return responses.stream().anyMatch(r -> Boolean.TRUE.equals(r.getBinary()));
+    }
+
+    /**
+     * Inspects if this operation is to check a resource existence with Http HEAD.
+     *
+     * @return true if this operation checks resource existence with Http HEAD, false otherwise.
+     */
+    public boolean checksResourceExistenceWithHead() {
+        return requests.stream()
+            .anyMatch(req -> HttpMethod.HEAD.name().equalsIgnoreCase(req.getProtocol().getHttp().getMethod()))
+            && responses.stream().anyMatch(res -> res.getProtocol().getHttp().getStatusCodes().contains("404"));
+    }
+
+    /**
      * Sets whether this is an internal API.
      *
      * @param internalApi Whether this is an internal API.
      */
     public void setInternalApi(Boolean internalApi) {
         this.internalApi = internalApi;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeStringField("operationId", operationId)
-            .writeArrayField("parameters", parameters, JsonWriter::writeJson)
-            .writeArrayField("signatureParameters", signatureParameters, JsonWriter::writeJson)
-            .writeArrayField("requests", requests, JsonWriter::writeJson)
-            .writeArrayField("responses", responses, JsonWriter::writeJson)
-            .writeArrayField("exceptions", exceptions, JsonWriter::writeJson)
-            .writeJsonField("profile", profile)
-            .writeStringField("$key", $key)
-            .writeStringField("description", description)
-            .writeStringField("uid", uid)
-            .writeStringField("summary", summary)
-            .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
-            .writeJsonField("deprecated", deprecated)
-            .writeJsonField("externalDocs", externalDocs)
-            .writeArrayField("specialHeaders", specialHeaders, JsonWriter::writeString)
-            .writeJsonField("lroMetadata", lroMetadata)
-            .writeJsonField("convenienceApi", convenienceApi)
-            .writeBooleanField("generateProtocolApi", generateProtocolApi)
-            .writeBooleanField("internalApi", internalApi)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an Operation instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An Operation instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Operation fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Operation::new, (operation, fieldName, reader) -> {
-            if (operation.tryConsumeParentProperties(operation, fieldName, reader)) {
-                return;
-            }
-
-            if ("operationId".equals(fieldName)) {
-                operation.operationId = reader.getString();
-            } else if ("parameters".equals(fieldName)) {
-                operation.parameters = reader.readArray(Parameter::fromJson);
-            } else if ("signatureParameters".equals(fieldName)) {
-                operation.signatureParameters = reader.readArray(Parameter::fromJson);
-            } else if ("requests".equals(fieldName)) {
-                operation.requests = reader.readArray(Request::fromJson);
-            } else if ("responses".equals(fieldName)) {
-                operation.responses = reader.readArray(Response::fromJson);
-            } else if ("exceptions".equals(fieldName)) {
-                operation.exceptions = reader.readArray(Response::fromJson);
-            } else if ("profile".equals(fieldName)) {
-                operation.profile = DictionaryApiVersion.fromJson(reader);
-            } else if ("$key".equals(fieldName)) {
-                operation.$key = reader.getString();
-            } else if ("description".equals(fieldName)) {
-                operation.description = reader.getString();
-            } else if ("uid".equals(fieldName)) {
-                operation.uid = reader.getString();
-            } else if ("summary".equals(fieldName)) {
-                operation.summary = reader.getString();
-            } else if ("apiVersions".equals(fieldName)) {
-                operation.apiVersions = reader.readArray(ApiVersion::fromJson);
-            } else if ("deprecated".equals(fieldName)) {
-                operation.deprecated = Deprecation.fromJson(reader);
-            } else if ("externalDocs".equals(fieldName)) {
-                operation.externalDocs = ExternalDocumentation.fromJson(reader);
-            } else if ("specialHeaders".equals(fieldName)) {
-                operation.specialHeaders = reader.readArray(JsonReader::getString);
-            } else if ("lroMetadata".equals(fieldName)) {
-                operation.lroMetadata = LongRunningMetadata.fromJson(reader);
-            } else if ("convenienceApi".equals(fieldName)) {
-                operation.convenienceApi = ConvenienceApi.fromJson(reader);
-            } else if ("generateProtocolApi".equals(fieldName)) {
-                operation.generateProtocolApi = reader.getBoolean();
-            } else if ("internalApi".equals(fieldName)) {
-                operation.internalApi = reader.getBoolean();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

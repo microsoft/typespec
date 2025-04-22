@@ -1,6 +1,5 @@
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import * as ef from "@typespec/emitter-framework";
 import { kebabCase } from "change-case";
 import { reportDiagnostic } from "../../lib.js";
@@ -88,6 +87,7 @@ export function createTransformNamePolicy(namers: TransformNamers = {}): ef.Tran
  * @returns The transformed application name as a string.
  */
 export function defaultApplicationNameGetter(type: WithName): string {
+  const { $ } = ef.useTsp();
   if (!hasStringName(type)) {
     reportDiagnostic($.program, { code: "symbol-name-not-supported", target: type });
     return "";
@@ -110,6 +110,7 @@ export function defaultTransportNameGetter(
   type: WithName,
   encoding: string = "application/json",
 ): string {
+  const { $ } = ef.useTsp();
   if (!hasStringName(type)) {
     reportDiagnostic($.program, { code: "symbol-name-not-supported", target: type });
     return "";
