@@ -1,5 +1,24 @@
 # Change Log - @typespec/compiler
 
+## 1.0.0-rc.1
+
+### Features
+
+- [#7067](https://github.com/microsoft/typespec/pull/7067) Adding support for nested paging properties.
+- [#6862](https://github.com/microsoft/typespec/pull/6862) `--trace` cli option applies to all commands now
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Adds a TypeKit for Tuple types
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Adds a new createDiagnosable typekit helper for APIs that return diagnostics
+- [#7018](https://github.com/microsoft/typespec/pull/7018) Removes the default typekit in favor of always instantiating typekits with either a `program` or `realm`.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Adds typekit support for creating unions from enums
+
+### Bug Fixes
+
+- [#6897](https://github.com/microsoft/typespec/pull/6897) Improve errors when loading libraries with invalid exports/main fields
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Mark `node` property on all typespec types as optional
+- [#7063](https://github.com/microsoft/typespec/pull/7063) Fixes an issue where isError was checking for error types instead of error models.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Preserve API documentation when calling `$.enum.createFromUnion`
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes

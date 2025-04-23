@@ -444,6 +444,9 @@ async function doEmit(
             emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
         const compileResult = await compile(
           cli,
           mainTspFile,
@@ -487,6 +490,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );
