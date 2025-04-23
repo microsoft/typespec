@@ -26,6 +26,38 @@ it("can create a union", async () => {
   expect((union.variants.get("bye")?.type as StringLiteral).value).toBe("Goodbye");
 });
 
+it("can create a union from array of types", async () => {
+  const {
+    Foo,
+    Bar,
+    Qux,
+    FooBar,
+    context: { program },
+  } = await getTypes(
+    `
+    @doc("foo")
+    model Foo {}
+    model Bar {}
+    scalar Qux extends string;
+    alias FooBar = Foo | Bar;
+    `,
+    ["Foo", "Bar", "Qux", "FooBar"],
+  );
+  const union = $(program).union.create([Foo, Bar, Qux, FooBar]);
+  expect(union).toBeDefined();
+
+  expect(union.kind).toBe("Union");
+  expect(union.expression).toBe(true);
+  expect(union.variants.size).toBe(4);
+
+  // Ensure docs are copied
+  // Variants are ordered in order that they appear in source.
+  const firstVariant = union.variants.values().next().value;
+  expect(firstVariant).toBeDefined();
+
+  expect(getDoc(program, firstVariant!)).toBe("foo");
+});
+
 it("can check if the union is extensible", async () => {
   const {
     Foo,

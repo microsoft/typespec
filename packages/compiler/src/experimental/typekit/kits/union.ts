@@ -49,6 +49,10 @@ export interface UnionKit {
    * @param desc The descriptor of the union.
    */
   create(desc: UnionDescriptor): Union;
+  /**
+   * Create a union type from an array of types.
+   */
+  create(children: Type[]): Union;
 
   /**
    * Creates a union type from an enum.
@@ -118,25 +122,43 @@ export const UnionKit = defineKit<TypekitExtension>({
       const variants = Array.from(union.variants.values()).filter(filterFn);
       return this.union.create({ variants });
     },
-    create(desc) {
+    create(descOrChildren: UnionDescriptor | Type[]) {
+      let descriptor: UnionDescriptor;
+      if (Array.isArray(descOrChildren)) {
+        // Build a descriptor from the children
+        descriptor = {
+          decorators: [],
+          variants: descOrChildren.map((child) => {
+            const memberDoc = getDoc(this.program, child);
+            return this.unionVariant.create({
+              type: child,
+              decorators: memberDoc ? [[$doc, memberDoc]] : undefined,
+            });
+          }),
+        };
+      } else {
+        // Already a descriptor
+        descriptor = descOrChildren;
+      }
+
       const union: Union = this.program.checker.createType({
         kind: "Union",
-        name: desc.name,
-        decorators: decoratorApplication(this, desc.decorators),
+        name: descriptor.name,
+        decorators: decoratorApplication(this, descriptor.decorators),
         variants: createRekeyableMap(),
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);
         },
-        expression: desc.name === undefined,
+        expression: descriptor.name === undefined,
       });
 
-      if (Array.isArray(desc.variants)) {
-        for (const variant of desc.variants) {
+      if (Array.isArray(descriptor.variants)) {
+        for (const variant of descriptor.variants) {
           union.variants.set(variant.name, variant);
           variant.union = union;
         }
-      } else if (desc.variants) {
-        for (const [name, value] of Object.entries(desc.variants)) {
+      } else if (descriptor.variants) {
+        for (const [name, value] of Object.entries(descriptor.variants)) {
           union.variants.set(
             name,
             this.unionVariant.create({ name, type: this.literal.create(value) }),
@@ -147,7 +169,6 @@ export const UnionKit = defineKit<TypekitExtension>({
       this.program.checker.finishType(union);
       return union;
     },
-
     createFromEnum(type) {
       const enumDoc = getDoc(this.program, type);
       return this.union.create({
