@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Type that parses and holds pagination metadata of an operation. The metadata is exposed as {@link MethodPageDetails}.
+ * Type that parses and holds pagination metadata of an {@link Operation}, and exposes a view of the metadata as
+ * {@link MethodPageDetails}.
  */
 final class PagingMetadata {
     private final Operation operation;
@@ -35,6 +36,15 @@ final class PagingMetadata {
     private final List<ClientMethod> nextMethods;
     private final MethodPageDetails.ContinuationToken continuationToken;
 
+    /**
+     * Creates paging meta data for an {@link Operation}.
+     *
+     * @param operation the operation to create the paging metadata for.
+     * @param proxyMethod the proxy method representing the paged proxy api.
+     * @param settings the java settings.
+     *
+     * @return the paged metadata, or {@code null} if the {@code operation} is not a pageable operation.
+     */
     static PagingMetadata create(Operation operation, ProxyMethod proxyMethod, JavaSettings settings) {
         if (!operation.isPageable()) {
             return null;
@@ -44,15 +54,16 @@ final class PagingMetadata {
 
         final ModelPropertySegment itemPropertyReference = getPageableItem(xmsPageable, responseType);
         if (itemPropertyReference == null) {
-            // No PagingMetadata to create if operation has no pageable item-name.
+            // No PagingMetadata to create if operation has no pageable-item property.
             return null;
         }
         final ModelPropertySegment nextLinkPropertyReference = getPageableNextLink(xmsPageable, responseType);
         final Operation nextOperation = xmsPageable.getNextOperation();
         final IType lroIntermediateType;
         if (operation.isLro() && nextOperation != operation) {
-            // Proxy method return type is Flux<ByteBuffer> and Client method return type is PagedResponse<>.
-            // the 'lroIntermediateType' is the type of pagination response - the type with values and nextLink.
+            // For a paging Operation, the ProxyMethod return type is Flux<ByteBuffer> and ClientMethod return type is
+            // PagedResponse<>. The 'lroIntermediateType' is the type of pagination response - the type with values and
+            // nextLink.
             lroIntermediateType = SchemaUtil.getOperationResponseType(operation, settings);
         } else {
             lroIntermediateType = null;
@@ -75,6 +86,15 @@ final class PagingMetadata {
         return operation == nextOperation;
     }
 
+    /**
+     * Gets the view of the paging metadata as {@link MethodPageDetails}.
+     * <p>
+     * The resulting {@link MethodPageDetails} is used for pageable {@link ClientMethod} without context parameter.
+     * </p>
+     *
+     * @param isSync {@code true} when metadata is used for synchronous {@link ClientMethod}, {@code false} for async.
+     * @return the page metadata.
+     */
     MethodPageDetails asMethodPageDetails(boolean isSync) {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
@@ -82,13 +102,23 @@ final class PagingMetadata {
             continuationToken);
     }
 
+    /**
+     * Gets the view of the paging metadata as {@link MethodPageDetails} to use for paging apis.
+     * <p>
+     * The resulting {@link MethodPageDetails} is used for pageable {@link ClientMethod} with context parameter.
+     * </p>
+     *
+     * @param isSync {@code true} when metadata is used for synchronous {@link ClientMethod}, {@code false} for async.
+     * @param contextParameter the context parameter.
+     * @return the page metadata.
+     */
     MethodPageDetails asMethodPageDetailsForContext(boolean isSync, final ClientMethodParameter contextParameter) {
         if (nextMethods.isEmpty()) {
             return null;
         }
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final IType contextWireType = contextParameter.getWireType();
-        // Find the nextMethod with Context parameter.
+        // Find the nextMethod with context parameter.
         final ClientMethod nextMethodWithContext
             = enumerateNextMethodsOfType(nextMethodType).filter(cm -> cm.hasMethodParameterOfType(contextWireType))
                 .findFirst()
@@ -145,7 +175,7 @@ final class PagingMetadata {
         }
 
         return new MethodPageDetails.ContinuationToken(requestParameter, responseHeaderSerializedName,
-            responsePropertyReference);
+            CollectionUtil.toImmutableList(responsePropertyReference));
     }
 
     private Stream<ClientMethod> enumerateNextMethodsOfType(ClientMethodType nextMethodType) {

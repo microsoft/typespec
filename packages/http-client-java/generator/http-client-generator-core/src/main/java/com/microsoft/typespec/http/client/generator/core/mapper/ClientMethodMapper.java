@@ -187,22 +187,21 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         for (Request request : requests) {
             List<ProxyMethod> proxyMethods = proxyMethodsMap.get(request);
             for (ProxyMethod proxyMethod : proxyMethods) {
+                builder.proxyMethod(proxyMethod);
+
                 final ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
-                builder.proxyMethod(proxyMethod);
-                List<ClientMethodParameter> parameters = new ArrayList<>();
-                List<String> requiredParameterExpressions = new ArrayList<>();
-                Map<String, String> validateExpressions = new HashMap<>();
-                ParametersTransformationProcessor transformationProcessor
+                final List<ClientMethodParameter> parameters = new ArrayList<>();
+                final List<String> requiredParameterExpressions = new ArrayList<>();
+                final Map<String, String> validateExpressions = new HashMap<>();
+                final ParametersTransformationProcessor transformationProcessor
                     = new ParametersTransformationProcessor(isProtocolMethod);
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
                 if (operation.isPageable()) {
                     // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
-                    // PagedIterable.iterableByPage(int)
-
-                    // also remove continuationToken etc. for unbranded
+                    // PagedIterable.iterableByPage(int), and also remove continuationToken for unbranded.
                     codeModelParameters = codeModelParameters.stream()
                         .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
                             operation.getExtensions().getXmsPageable()))
@@ -210,28 +209,16 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 }
 
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
-                final boolean proxyMethodUsesBinaryData = proxyMethod.hasParameterOfType(ClassType.BINARY_DATA);
+                // If the ProxyMethod uses BinaryData and CodeModel Parameter uses Flux<ByteBuffer> then update the
+                // CodeModel Parameter type to match with ProxyMethod's.
+                final boolean mapFluxByteBufferToBinaryData = proxyMethod.hasParameterOfType(ClassType.BINARY_DATA);
 
                 for (Parameter parameter : codeModelParameters) {
-                    ClientMethodParameter clientMethodParameter
-                        = Mappers.getClientParameterMapper().map(parameter, isProtocolMethod);
-
-                    if (isJsonPatch) {
-                        clientMethodParameter
-                            = CustomClientParameterMapper.getInstance().map(parameter, isProtocolMethod);
-                    }
-
-                    // If the codemodel parameter and proxy method parameter types don't match, update the client
-                    // method param to use proxy method parameter type.
-                    if (proxyMethodUsesBinaryData
-                        && clientMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER) {
-                        clientMethodParameter = toBinaryDataClientMethodParameter(clientMethodParameter);
-                    }
-
+                    final ClientMethodParameter clientMethodParameter = toClientMethodParameter(parameter, isJsonPatch,
+                        mapFluxByteBufferToBinaryData, isProtocolMethod);
                     if (request.getSignatureParameters().contains(parameter)) {
                         parameters.add(clientMethodParameter);
                     }
-
                     transformationProcessor.addParameter(clientMethodParameter, parameter);
 
                     if (!parameter.isConstant() && parameter.getGroupedBy() == null) {
@@ -539,6 +526,25 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }).collect(Collectors.toList());
         } else {
             return request.getParameters().stream().filter(p -> !p.isFlattened()).collect(Collectors.toList());
+        }
+    }
+
+    private static ClientMethodParameter toClientMethodParameter(Parameter parameter, boolean isJsonPatch,
+        boolean mapFluxByteBufferToBinaryData, boolean isProtocolMethod) {
+        final ClientMethodParameter clientMethodParameter;
+        if (isJsonPatch) {
+            clientMethodParameter = CustomClientParameterMapper.getInstance().map(parameter, isProtocolMethod);
+        } else {
+            clientMethodParameter = Mappers.getClientParameterMapper().map(parameter, isProtocolMethod);
+        }
+
+        if (mapFluxByteBufferToBinaryData && clientMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER) {
+            return clientMethodParameter.newBuilder()
+                .rawType(ClassType.BINARY_DATA)
+                .wireType(ClassType.BINARY_DATA)
+                .build();
+        } else {
+            return clientMethodParameter;
         }
     }
 
