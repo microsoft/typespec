@@ -76,16 +76,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && _pagingServiceMethod == null)
-            {
-                methodModifier |= MethodSignatureModifiers.Async;
-            }
-
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifier,
+                protocolMethod.Signature.Modifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
                 [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
@@ -462,10 +456,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
+            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+                MethodSignatureModifiers.Public :
+                MethodSignatureModifiers.Internal;
+
+            methodModifiers |= MethodSignatureModifiers.Virtual;
+
             if (isAsync && _pagingServiceMethod == null)
             {
-                methodModifier |= MethodSignatureModifiers.Async;
+                methodModifiers |= MethodSignatureModifiers.Async;
             }
 
             var requiredParameters = new List<ParameterProvider>();
@@ -505,7 +504,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifier,
+                methodModifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
                 parameters);
