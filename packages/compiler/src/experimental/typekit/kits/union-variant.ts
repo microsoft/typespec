@@ -73,7 +73,6 @@ defineKit<TypekitExtension>({
         name: desc.name ?? Symbol("name"),
         decorators: decoratorApplication(this, desc.decorators),
         type: desc.type,
-        node: undefined as any,
         union: desc.union as any,
       });
       this.program.checker.finishType(variant);

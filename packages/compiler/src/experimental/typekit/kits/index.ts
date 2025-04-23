@@ -8,6 +8,7 @@ export * from "./model.js";
 export * from "./operation.js";
 export * from "./record.js";
 export * from "./scalar.js";
+export * from "./tuple.js";
 export * from "./type.js";
 export * from "./union-variant.js";
 export * from "./union.js";

@@ -18,6 +18,13 @@ public class ClassNameUtilTests {
             // workaround spelling check
             "IotDpsResourceCheckProvisioningServiceNameAvailabilitySamples".substring(0, 53), name);
 
+        name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.recoveryservicessiterecovery",
+            "src/tests/java", "com.azure.resourcemanager.recoveryservicessiterecovery.generated",
+            "InMageRcmUpdateApplianceForReplicationProtectedItemInputTests");
+        Assertions.assertEquals(
+            // workaround spelling check
+            "InMageRcmUpdateApplianceForReplicationProtectedItemInputTests".substring(0, 49), name);
+
         // do nothing as too little remaining length for class name
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad",
             "src/samples/java", "com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad.generated",

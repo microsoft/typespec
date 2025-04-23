@@ -132,3 +132,57 @@ describe("collect paging properties", () => {
     expect(paging?.output[name as keyof PagingOperation["output"]]!.property).toBe(prop);
   });
 });
+
+describe("collect nested paging properties", () => {
+  it.each([
+    ["offset", "int32"],
+    ["pageSize", "int32"],
+    ["pageIndex", "int32"],
+    ["continuationToken", "string"],
+  ])("@%s", async (name, type) => {
+    const { list, prop } = (await runner.compile(`
+      @list @test op list(
+        @${name} @test prop: ${type};
+      ): { @pageItems items: string[] };
+    `)) as { list: Operation; prop: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    expect(paging?.input).toHaveProperty(name);
+    expect(paging?.input[name as keyof PagingOperation["input"]]!.property).toBe(prop);
+  });
+
+  it.each([
+    ["nextLink", "string"],
+    ["prevLink", "string"],
+    ["firstLink", "string"],
+    ["lastLink", "string"],
+    ["continuationToken", "string"],
+  ])("@%s", async (name, type) => {
+    const { list, prop } = (await runner.compile(`
+        @list @test op list(): {
+          @test results : { @pageItems items: string[]; };
+          @test pagination: { @${name} @test prop: ${type} };
+        };
+      `)) as { list: Operation; prop: ModelProperty; items: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    expect(paging?.output).toHaveProperty(name);
+    expect(paging?.output[name as keyof PagingOperation["output"]]!.property).toBe(prop);
+    const pathString = paging?.output[name as keyof PagingOperation["output"]]!.path.map(
+      (p) => p.name,
+    ).join(".");
+    expect(pathString).toBe("pagination.prop");
+  });
+
+  it("nested @pageItem", async () => {
+    const { list } = (await runner.compile(`
+        @list @test op list(): {
+          @test results : { @pageItems items: string[]; };
+        };
+      `)) as { list: Operation; items: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    const pathString = paging?.output["pageItems"]!.path.map((p) => p.name).join(".");
+    expect(pathString).toBe("results.items");
+  });
+});
