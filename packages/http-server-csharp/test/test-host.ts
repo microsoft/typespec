@@ -39,8 +39,8 @@ export async function createCSharpServiceEmitterTestRunner(
 
 export function getStandardService(code: string, ns?: string): string {
   return `
-  @service(#{title: "${ns ? ns : "Microsoft.Contoso"}"})
-    namespace ${ns ? ns : "Microsoft.Contoso"} {
+  @service(#{title: "${ns ?? "Microsoft.Contoso"}"})
+    namespace ${ns ?? "Microsoft.Contoso"} {
       ${code}
     }`;
 }
