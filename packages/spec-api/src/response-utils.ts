@@ -73,7 +73,6 @@ export function dyn<const T extends (keyof ResolverConfig)[]>(
     keys.forEach((key, i) => {
       if (typeof key === "string") {
         result.push(key);
-        return;
       } else {
         dynKeys.push(key.name);
         const value = (dict as any)[key.name];
@@ -90,18 +89,20 @@ export function dyn<const T extends (keyof ResolverConfig)[]>(
   return template;
 }
 
-export function expandDyns(value: unknown, config: ResolverConfig): unknown {
+export function expandDyns<T>(value: T, config: ResolverConfig): T {
   if (typeof value === "string") {
     return value;
   } else if (Array.isArray(value)) {
-    return value.map((v) => expandDyns(v, config));
+    return value.map((v) => expandDyns(v, config)) as any;
   } else if (typeof value === "object" && value !== null) {
     const obj = value as Record<string, unknown>;
-    return Object.fromEntries(Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]));
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]),
+    ) as any;
   } else if (typeof value === "function") {
     if ("isDyn" in value && value.isDyn) {
-      const dynValue = value as DynValue<string[]>;
-      return dynValue(config as any);
+      const dynValue = value as any as DynValue<string[]>;
+      return dynValue(config as any) as any;
     } else {
       throw new Error("Invalid function value");
     }

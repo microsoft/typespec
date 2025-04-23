@@ -1,4 +1,5 @@
 import {
+  expandDyns,
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
@@ -131,7 +132,8 @@ function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig)
 
     // Validate headers if present in the request
     if (apiDefinition.request?.headers) {
-      Object.entries(apiDefinition.request.headers).forEach(([key, value]) => {
+      const headers = expandDyns(apiDefinition.request.headers, config);
+      Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
           if (Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);

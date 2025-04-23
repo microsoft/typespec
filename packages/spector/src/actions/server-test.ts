@@ -1,4 +1,10 @@
-import { MockApiDefinition, MockBody, ResolverConfig, ValidationError } from "@typespec/spec-api";
+import {
+  expandDyns,
+  MockApiDefinition,
+  MockBody,
+  ResolverConfig,
+  ValidationError,
+} from "@typespec/spec-api";
 import deepEqual from "deep-equal";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
@@ -57,14 +63,12 @@ class ServerTestsGenerator {
     }
 
     if (this.mockApiDefinition.response.headers) {
-      for (const key in this.mockApiDefinition.response.headers) {
-        if (
-          this.mockApiDefinition.response.headers[key] !==
-          response.headers.get(key)?.replace(this.serverBasePath, "")
-        ) {
+      const headers = expandDyns(this.mockApiDefinition.response.headers, this.resolverConfig);
+      for (const key in headers) {
+        if (headers[key] !== response.headers.get(key)) {
           throw new ValidationError(
             `Response headers mismatch`,
-            this.mockApiDefinition.response.headers[key],
+            headers[key],
             response.headers.get(key),
           );
         }
