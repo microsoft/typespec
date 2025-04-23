@@ -35,7 +35,7 @@ it("can create a union from array of types", async () => {
     context: { program },
   } = await getTypes(
     `
-    @doc("foo")
+    @doc("docs for foo")
     model Foo {}
     model Bar {}
     scalar Qux extends string;
@@ -50,12 +50,20 @@ it("can create a union from array of types", async () => {
   expect(union.expression).toBe(true);
   expect(union.variants.size).toBe(4);
 
-  // Ensure docs are copied
-  // Variants are ordered in order that they appear in source.
-  const firstVariant = union.variants.values().next().value;
-  expect(firstVariant).toBeDefined();
+  const variants = Array.from(union.variants.values());
+  const fooVariant = variants.find((v) => v.type === Foo);
+  expect(fooVariant).toBeDefined();
+  // Check if the documentation is preserved
+  expect(getDoc(program, fooVariant!)).toBe("docs for foo");
 
-  expect(getDoc(program, firstVariant!)).toBe("foo");
+  const barVariant = variants.find((v) => v.type === Bar);
+  expect(barVariant).toBeDefined();
+
+  const quxVariant = variants.find((v) => v.type === Qux);
+  expect(quxVariant).toBeDefined();
+
+  const fooBarVariant = variants.find((v) => v.type === FooBar);
+  expect(fooBarVariant).toBeDefined();
 });
 
 it("can check if the union is extensible", async () => {

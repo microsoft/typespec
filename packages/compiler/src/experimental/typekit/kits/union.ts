@@ -50,7 +50,13 @@ export interface UnionKit {
    */
   create(desc: UnionDescriptor): Union;
   /**
-   * Create a union type from an array of types.
+   * Create an anonymous union type from an array of types.
+   *
+   * @param children The types to create a union from.
+   *
+   * Any API documentation will be rendered and preserved in the resulting union.
+   *
+   * No other decorators are copied from the enum to the union.
    */
   create(children: Type[]): Union;
 
@@ -64,7 +70,8 @@ export interface UnionKit {
    * For member without an explicit value, the member name is used as the value.
    *
    * Any API documentation will be rendered and preserved in the resulting union.
-   * - No other decorators are copied from the enum to the union.
+   *
+   * No other decorators are copied from the enum to the union.
    */
   createFromEnum(type: Enum): Union;
 
