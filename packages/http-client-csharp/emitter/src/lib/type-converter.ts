@@ -346,7 +346,6 @@ function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
 ): InputLiteralType {
-  const name = constantType.name;
   let literalType = sdkContext.__typeCache.constants.get(constantType);
   if (literalType) {
     return literalType;
