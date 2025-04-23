@@ -214,6 +214,7 @@ export interface Checker {
    * @param target Target type
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    * @returns [related, list of diagnostics]
+   * @internal
    */
   isTypeAssignableTo(
     source: Entity,
