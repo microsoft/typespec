@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Enum, Model, Namespace, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
-import { createContextMock, getTypes } from "./utils.js";
+import { getTypes } from "./utils.js";
 
 it("should clone a model", async () => {
   const {
@@ -438,33 +438,6 @@ describe("inNamespace", () => {
     expect($(program).type.inNamespace(operation!, Root as Namespace)).toBe(true);
   });
 
-  it("checks namespace membership via source property", async () => {
-    const {
-      Root,
-      Derived,
-      context: { program },
-    } = await getTypes(
-      `
-      namespace Root {
-        model Base {
-          propA: string;
-        }
-
-      }
-
-      model Derived is Root.Base {
-        propB: string;
-      }
-      `,
-      ["Root", "Derived"],
-    );
-
-    const inheritedProp = (Derived as Model).properties.get("propA");
-    expect(inheritedProp).toBeDefined();
-
-    expect($(program).type.inNamespace(inheritedProp!, Root as Namespace)).toBe(true);
-  });
-
   it("returns false for types outside the namespace", async () => {
     const {
       Root,
@@ -498,20 +471,5 @@ describe("inNamespace", () => {
 
     const stringLiteral = $(program).literal.create("test");
     expect($(program).type.inNamespace(stringLiteral, MyNamespace as Namespace)).toBe(false);
-  });
-
-  it("throws a useful error if type is undefined", async () => {
-    const { program } = await createContextMock();
-    expect(() => $(program).type.inNamespace(undefined as any, undefined as any)).toThrowError(
-      /parameter 'type'/,
-    );
-  });
-
-  it("throws a useful error if namespace is undefined", async () => {
-    const { program } = await createContextMock();
-    const type = $(program).literal.create("test");
-    expect(() => $(program).type.inNamespace(type, undefined as any)).toThrowError(
-      /parameter 'namespace'/,
-    );
   });
 });

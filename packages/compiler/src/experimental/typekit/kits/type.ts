@@ -1,4 +1,4 @@
-import { compilerAssert, ignoreDiagnostics } from "../../../core/diagnostics.js";
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
 import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
@@ -282,9 +282,6 @@ defineKit<TypekitExtension>({
       return getLocationContext(this.program, type).type === "project";
     },
     inNamespace(type: Type, namespace: Namespace): boolean {
-      compilerAssert(type !== undefined, "parameter 'type' is undefined");
-      compilerAssert(namespace !== undefined, "parameter 'namespace' is undefined");
-
       // A namespace is always in itself
       if (type === namespace) {
         return true;
@@ -293,9 +290,7 @@ defineKit<TypekitExtension>({
       // Handle types with known containers
       switch (type.kind) {
         case "ModelProperty":
-          if (type.sourceProperty) {
-            return this.type.inNamespace(type.sourceProperty, namespace);
-          } else if (type.model) {
+          if (type.model) {
             return this.type.inNamespace(type.model, namespace);
           }
           break;
