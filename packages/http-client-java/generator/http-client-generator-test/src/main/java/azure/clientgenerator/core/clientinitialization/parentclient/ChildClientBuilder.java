@@ -4,7 +4,7 @@
 
 package azure.clientgenerator.core.clientinitialization.parentclient;
 
-import azure.clientgenerator.core.clientinitialization.implementation.ParentClientImpl;
+import azure.clientgenerator.core.clientinitialization.implementation.ChildClientImpl;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ServiceClientBuilder;
 import com.azure.core.client.traits.ConfigurationTrait;
@@ -38,11 +38,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A builder for creating a new instance of the ParentClient type.
+ * A builder for creating a new instance of the ChildClient type.
  */
-@ServiceClientBuilder(serviceClients = { ParentClient.class, ParentAsyncClient.class })
-public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>,
-    ConfigurationTrait<ParentClientBuilder>, EndpointTrait<ParentClientBuilder> {
+@ServiceClientBuilder(serviceClients = { ChildClient.class, ChildAsyncClient.class })
+public final class ChildClientBuilder implements HttpTrait<ChildClientBuilder>, ConfigurationTrait<ChildClientBuilder>,
+    EndpointTrait<ChildClientBuilder> {
     @Generated
     private static final String SDK_NAME = "name";
 
@@ -57,10 +57,10 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
-     * Create an instance of the ParentClientBuilder.
+     * Create an instance of the ChildClientBuilder.
      */
     @Generated
-    public ParentClientBuilder() {
+    public ChildClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
@@ -75,7 +75,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder pipeline(HttpPipeline pipeline) {
+    public ChildClientBuilder pipeline(HttpPipeline pipeline) {
         if (this.pipeline != null && pipeline == null) {
             LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
         }
@@ -94,7 +94,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder httpClient(HttpClient httpClient) {
+    public ChildClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -110,7 +110,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
+    public ChildClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
         this.httpLogOptions = httpLogOptions;
         return this;
     }
@@ -126,7 +126,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder clientOptions(ClientOptions clientOptions) {
+    public ChildClientBuilder clientOptions(ClientOptions clientOptions) {
         this.clientOptions = clientOptions;
         return this;
     }
@@ -142,7 +142,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder retryOptions(RetryOptions retryOptions) {
+    public ChildClientBuilder retryOptions(RetryOptions retryOptions) {
         this.retryOptions = retryOptions;
         return this;
     }
@@ -152,7 +152,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder addPolicy(HttpPipelinePolicy customPolicy) {
+    public ChildClientBuilder addPolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
         pipelinePolicies.add(customPolicy);
         return this;
@@ -169,7 +169,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder configuration(Configuration configuration) {
+    public ChildClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
@@ -185,8 +185,26 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      */
     @Generated
     @Override
-    public ParentClientBuilder endpoint(String endpoint) {
+    public ChildClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
+        return this;
+    }
+
+    /*
+     * 
+     */
+    @Generated
+    private String blobName;
+
+    /**
+     * Sets.
+     * 
+     * @param blobName the blobName value.
+     * @return the ChildClientBuilder.
+     */
+    @Generated
+    public ChildClientBuilder blobName(String blobName) {
+        this.blobName = blobName;
         return this;
     }
 
@@ -200,26 +218,26 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
      * 
      * @param retryPolicy the retryPolicy value.
-     * @return the ParentClientBuilder.
+     * @return the ChildClientBuilder.
      */
     @Generated
-    public ParentClientBuilder retryPolicy(RetryPolicy retryPolicy) {
+    public ChildClientBuilder retryPolicy(RetryPolicy retryPolicy) {
         this.retryPolicy = retryPolicy;
         return this;
     }
 
     /**
-     * Builds an instance of ParentClientImpl with the provided parameters.
+     * Builds an instance of ChildClientImpl with the provided parameters.
      * 
-     * @return an instance of ParentClientImpl.
+     * @return an instance of ChildClientImpl.
      */
     @Generated
-    private ParentClientImpl buildInnerClient() {
+    private ChildClientImpl buildInnerClient() {
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ParentClientImpl client
-            = new ParentClientImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint);
+        ChildClientImpl client = new ChildClientImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(),
+            localEndpoint, this.blobName);
         return client;
     }
 
@@ -227,6 +245,7 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(blobName, "'blobName' cannot be null.");
     }
 
     @Generated
@@ -265,24 +284,24 @@ public final class ParentClientBuilder implements HttpTrait<ParentClientBuilder>
     }
 
     /**
-     * Builds an instance of ParentAsyncClient class.
+     * Builds an instance of ChildAsyncClient class.
      * 
-     * @return an instance of ParentAsyncClient.
+     * @return an instance of ChildAsyncClient.
      */
     @Generated
-    public ParentAsyncClient buildAsyncClient() {
-        return new ParentAsyncClient(buildInnerClient());
+    public ChildAsyncClient buildAsyncClient() {
+        return new ChildAsyncClient(buildInnerClient());
     }
 
     /**
-     * Builds an instance of ParentClient class.
+     * Builds an instance of ChildClient class.
      * 
-     * @return an instance of ParentClient.
+     * @return an instance of ChildClient.
      */
     @Generated
-    public ParentClient buildClient() {
-        return new ParentClient(buildInnerClient());
+    public ChildClient buildClient() {
+        return new ChildClient(buildInnerClient());
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(ParentClientBuilder.class);
+    private static final ClientLogger LOGGER = new ClientLogger(ChildClientBuilder.class);
 }

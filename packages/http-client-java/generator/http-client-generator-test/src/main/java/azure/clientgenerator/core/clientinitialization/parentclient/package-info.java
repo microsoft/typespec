@@ -4,7 +4,7 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the classes for ParentClient.
+ * Package containing the classes for ChildClient.
  * Test for client initialization decorator - moving parameters from method to client level.
  * <!-- end generated doc -->
  */

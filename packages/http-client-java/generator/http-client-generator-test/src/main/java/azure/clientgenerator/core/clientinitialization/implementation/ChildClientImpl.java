@@ -19,46 +19,129 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpPipeline;
+import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.policy.RetryPolicy;
+import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.serializer.JacksonAdapter;
+import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 
 /**
- * An instance of this class provides access to all the operations defined in ChildClients.
+ * Initializes a new instance of the ChildClient type.
  */
-public final class ChildClientsImpl {
+public final class ChildClientImpl {
     /**
      * The proxy service used to perform REST calls.
      */
-    private final ChildClientsService service;
+    private final ChildClientService service;
 
     /**
-     * The service client containing this operation class.
+     * Service host.
      */
-    private final ParentClientImpl client;
+    private final String endpoint;
 
     /**
-     * Initializes an instance of ChildClientsImpl.
+     * Gets Service host.
      * 
-     * @param client the instance of the service client containing this operation class.
+     * @return the endpoint value.
      */
-    ChildClientsImpl(ParentClientImpl client) {
-        this.service
-            = RestProxy.create(ChildClientsService.class, client.getHttpPipeline(), client.getSerializerAdapter());
-        this.client = client;
+    public String getEndpoint() {
+        return this.endpoint;
     }
 
     /**
-     * The interface defining all the services for ParentClientChildClients to be used by the proxy service to perform
-     * REST calls.
+     */
+    private final String blobName;
+
+    /**
+     * Gets.
+     * 
+     * @return the blobName value.
+     */
+    public String getBlobName() {
+        return this.blobName;
+    }
+
+    /**
+     * The HTTP pipeline to send requests through.
+     */
+    private final HttpPipeline httpPipeline;
+
+    /**
+     * Gets The HTTP pipeline to send requests through.
+     * 
+     * @return the httpPipeline value.
+     */
+    public HttpPipeline getHttpPipeline() {
+        return this.httpPipeline;
+    }
+
+    /**
+     * The serializer to serialize an object into a string.
+     */
+    private final SerializerAdapter serializerAdapter;
+
+    /**
+     * Gets The serializer to serialize an object into a string.
+     * 
+     * @return the serializerAdapter value.
+     */
+    public SerializerAdapter getSerializerAdapter() {
+        return this.serializerAdapter;
+    }
+
+    /**
+     * Initializes an instance of ChildClient client.
+     * 
+     * @param endpoint Service host.
+     * @param blobName
+     */
+    public ChildClientImpl(String endpoint, String blobName) {
+        this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
+    }
+
+    /**
+     * Initializes an instance of ChildClient client.
+     * 
+     * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param endpoint Service host.
+     * @param blobName
+     */
+    public ChildClientImpl(HttpPipeline httpPipeline, String endpoint, String blobName) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
+    }
+
+    /**
+     * Initializes an instance of ChildClient client.
+     * 
+     * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param serializerAdapter The serializer to serialize an object into a string.
+     * @param endpoint Service host.
+     * @param blobName
+     */
+    public ChildClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
+        String blobName) {
+        this.httpPipeline = httpPipeline;
+        this.serializerAdapter = serializerAdapter;
+        this.endpoint = endpoint;
+        this.blobName = blobName;
+        this.service = RestProxy.create(ChildClientService.class, this.httpPipeline, this.getSerializerAdapter());
+    }
+
+    /**
+     * The interface defining all the services for ChildClient to be used by the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ParentClientChildCli")
-    public interface ChildClientsService {
+    @ServiceInterface(name = "ChildClient")
+    public interface ChildClientService {
         @Get("/azure/client-generator-core/client-initialization/child-client/{blobName}/with-query")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -135,8 +218,8 @@ public final class ChildClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> withQueryWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.withQuery(this.client.getEndpoint(), this.client.getBlobName(),
-            requestOptions, context));
+        return FluxUtil
+            .withContext(context -> service.withQuery(this.getEndpoint(), this.getBlobName(), requestOptions, context));
     }
 
     /**
@@ -158,8 +241,7 @@ public final class ChildClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryWithResponse(RequestOptions requestOptions) {
-        return service.withQuerySync(this.client.getEndpoint(), this.client.getBlobName(), requestOptions,
-            Context.NONE);
+        return service.withQuerySync(this.getEndpoint(), this.getBlobName(), requestOptions, Context.NONE);
     }
 
     /**
@@ -187,8 +269,8 @@ public final class ChildClientsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getStandaloneWithResponseAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.getStandalone(this.client.getEndpoint(),
-            this.client.getBlobName(), accept, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.getStandalone(this.getEndpoint(), this.getBlobName(), accept, requestOptions, context));
     }
 
     /**
@@ -216,8 +298,7 @@ public final class ChildClientsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getStandaloneWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return service.getStandaloneSync(this.client.getEndpoint(), this.client.getBlobName(), accept, requestOptions,
-            Context.NONE);
+        return service.getStandaloneSync(this.getEndpoint(), this.getBlobName(), accept, requestOptions, Context.NONE);
     }
 
     /**
@@ -232,8 +313,8 @@ public final class ChildClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> deleteStandaloneWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.deleteStandalone(this.client.getEndpoint(),
-            this.client.getBlobName(), requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.deleteStandalone(this.getEndpoint(), this.getBlobName(), requestOptions, context));
     }
 
     /**
@@ -248,7 +329,6 @@ public final class ChildClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteStandaloneWithResponse(RequestOptions requestOptions) {
-        return service.deleteStandaloneSync(this.client.getEndpoint(), this.client.getBlobName(), requestOptions,
-            Context.NONE);
+        return service.deleteStandaloneSync(this.getEndpoint(), this.getBlobName(), requestOptions, Context.NONE);
     }
 }

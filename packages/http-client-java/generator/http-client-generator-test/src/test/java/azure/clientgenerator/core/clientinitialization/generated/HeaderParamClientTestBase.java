@@ -18,6 +18,8 @@ import azure.clientgenerator.core.clientinitialization.ParamAliasClient;
 import azure.clientgenerator.core.clientinitialization.ParamAliasClientBuilder;
 import azure.clientgenerator.core.clientinitialization.PathParamClient;
 import azure.clientgenerator.core.clientinitialization.PathParamClientBuilder;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClient;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClientBuilder;
 import azure.clientgenerator.core.clientinitialization.parentclient.ParentClient;
 import azure.clientgenerator.core.clientinitialization.parentclient.ParentClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
@@ -36,6 +38,8 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
     protected PathParamClient pathParamClient;
 
     protected ParamAliasClient paramAliasClient;
+
+    protected ChildClient childClient;
 
     protected ParentClient parentClient;
 
@@ -92,9 +96,18 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
         }
         paramAliasClient = paramAliasClientbuilder.buildClient();
 
-        ParentClientBuilder parentClientbuilder = new ParentClientBuilder()
+        ChildClientBuilder childClientbuilder = new ChildClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .blobName(Configuration.getGlobalConfiguration().get("BLOBNAME", "blobname"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            childClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        childClient = childClientbuilder.buildClient();
+
+        ParentClientBuilder parentClientbuilder = new ParentClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

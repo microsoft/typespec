@@ -10,6 +10,7 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
+import java.util.Objects;
 
 /**
  * Initializes a new instance of the ParentClient type.
@@ -27,19 +28,6 @@ public final class ParentClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     */
-    private final String blobName;
-
-    /**
-     * Gets.
-     * 
-     * @return the blobName value.
-     */
-    public String getBlobName() {
-        return this.blobName;
     }
 
     /**
@@ -71,28 +59,13 @@ public final class ParentClientImpl {
     }
 
     /**
-     * The ChildClientsImpl object to access its operations.
-     */
-    private final ChildClientsImpl childClients;
-
-    /**
-     * Gets the ChildClientsImpl object to access its operations.
-     * 
-     * @return the ChildClientsImpl object.
-     */
-    public ChildClientsImpl getChildClients() {
-        return this.childClients;
-    }
-
-    /**
      * Initializes an instance of ParentClient client.
      * 
      * @param endpoint Service host.
-     * @param blobName
      */
-    public ParentClientImpl(String endpoint, String blobName) {
+    public ParentClientImpl(String endpoint) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -100,10 +73,9 @@ public final class ParentClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param blobName
      */
-    public ParentClientImpl(HttpPipeline httpPipeline, String endpoint, String blobName) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, blobName);
+    public ParentClientImpl(HttpPipeline httpPipeline, String endpoint) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -112,14 +84,21 @@ public final class ParentClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param blobName
      */
-    public ParentClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String blobName) {
+    public ParentClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.blobName = blobName;
-        this.childClients = new ChildClientsImpl(this);
+    }
+
+    /**
+     * Gets an instance of ChildClientImpl class.
+     * 
+     * @param blobName The blobName parameter.
+     * @return an instance of ChildClientImpl class.
+     */
+    public ChildClientImpl getChildClient(String blobName) {
+        Objects.requireNonNull(blobName, "'blobName' cannot be null.");
+        return new ChildClientImpl(httpPipeline, serializerAdapter, endpoint, blobName);
     }
 }
