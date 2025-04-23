@@ -510,8 +510,8 @@ public class ClientModel {
     private void addImmutableAnnotationImport(Set<String> imports) {
         Annotation.IMMUTABLE.addImportsTo(imports);
         if (!JavaSettings.getInstance().isBranded()) {
-            Annotation.TYPE_CONDITIONS.addImportsTo(imports);
             Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 
@@ -524,6 +524,7 @@ public class ClientModel {
         Annotation.FLUENT.addImportsTo(imports);
         if (!JavaSettings.getInstance().isBranded()) {
             Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 

@@ -4,39 +4,16 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.*;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Constructor;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.*;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -152,7 +129,11 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList()));
         }
+
+        List<ProxyMethodParameter> commonParams = new ArrayList<>(); // extractCommonParams(restAPIMethods);
+
         proxyBuilder.methods(restAPIMethods);
+        proxyBuilder.commonParams(commonParams);
         Proxy proxy = proxyBuilder.build();
         builder.proxy(proxy);
         List<ClientMethod> clientMethods = operations.stream()
@@ -165,8 +146,57 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
         builder.clientMethods(clientMethods);
-
         return proxy;
+    }
+
+    private List<ProxyMethodParameter> extractCommonParams(List<ProxyMethod> allProxyMethods) {
+        List<ProxyMethodParameter> commonParams = new ArrayList<>();
+        List<ProxyMethod> proxyMethods
+            = allProxyMethods.stream().filter(ProxyMethod::isSync).collect(Collectors.toUnmodifiableList());
+
+        if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isAzureCoreV2()) {
+            List<ProxyMethodParameter> allParameters = proxyMethods.get(0).getAllParameters();
+            allParameters.forEach(parameter -> {
+                boolean isCommon = true;
+                for (ProxyMethod proxyMethod : proxyMethods) {
+                    boolean found = false;
+                    for (ProxyMethodParameter param : proxyMethod.getAllParameters()) {
+                        if (param.getName().equals(parameter.getName())
+                            && param.getClientType() == parameter.getClientType()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        isCommon = false;
+                        break;
+                    }
+                }
+                if (isCommon) {
+                    commonParams.add(parameter);
+                }
+            });
+
+            proxyMethods.forEach(proxyMethod -> {
+                List<ProxyMethodParameter> allParams = proxyMethod.getAllParameters();
+                allParams.removeIf(allParam -> commonParams.stream()
+                    .anyMatch(commonParam -> commonParam.getName().equals(allParam.getName())));
+
+                List<ProxyMethodParameter> params = proxyMethod.getParameters();
+                params.removeIf(param -> commonParams.stream()
+                    .anyMatch(commonParam -> commonParam.getName().equals(param.getName())));
+
+                if (proxyMethod.getImplementation() != null) {
+                    commonParams.stream().forEach(commonParam -> {
+                        String updatedImplementation = proxyMethod.getImplementation()
+                            .replace(commonParam.getName() + ",", "")
+                            .replace(", " + commonParam.getName() + ")", ")");
+                        proxyMethod.updateImplementation(updatedImplementation);
+                    });
+                }
+            });
+        }
+        return commonParams;
     }
 
     protected List<ServiceClientProperty> processClientProperties(Client client, String serviceVersionClassName) {
@@ -425,7 +455,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         List<Constructor> serviceClientConstructors = new ArrayList<>();
 
-        if (!settings.isBranded()) {
+        if (!settings.isBranded() || settings.isAzureCoreV2()) {
             serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)

@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Set;
 
 /**
@@ -30,6 +31,22 @@ public class ProxyMethodParameter extends MethodParameter {
         .fromClient(false)
         .parameterReference("requestOptions")
         .origin(ParameterSynthesizedOrigin.REQUEST_OPTIONS)
+        .build();
+
+    public static final ProxyMethodParameter REQUEST_CONTEXT_PARAMETER = new ProxyMethodParameter.Builder()
+        .description("The options to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_CONTEXT)
+        .clientType(ClassType.REQUEST_CONTEXT)
+        .name("requestContext")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .requestParameterName("requestContext")
+        .alreadyEncoded(true)
+        .constant(false)
+        .required(false)
+        .nullable(false)
+        .fromClient(false)
+        .parameterReference("requestContext")
+        .origin(ParameterSynthesizedOrigin.REQUEST_CONTEXT)
         .build();
 
     public static final ProxyMethodParameter CONTEXT_PARAMETER
@@ -230,11 +247,8 @@ public class ProxyMethodParameter extends MethodParameter {
         }
         if (getRequestParameterLocation() != RequestParameterLocation.BODY) {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
-                if (settings.isBranded()) {
-                    imports.add("com.azure.core.util.Base64Util");
-                } else {
-                    imports.add("io.clientcore.core.utils.Base64Util");
-                }
+                ClassType.BASE_64_UTIL.addImportsTo(imports, false);
+                imports.add(Base64.class.getName());
             } else if (getClientType() instanceof ListType && !getExplode()) {
                 imports.add("com.azure.core.util.serializer.CollectionFormat");
                 imports.add("com.azure.core.util.serializer.JacksonAdapter");

@@ -8,6 +8,12 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,7 +186,16 @@ public class JavaSettings {
         // The brand name we use to generate SDK.
         this.flavor = getStringValue(host, "flavor", "azure");
 
-        this.modelsSubpackage = getStringValue(host, "models-subpackage", isBranded(this.flavor) ? "models" : "");
+        if (isAzureCoreV2()) {
+            Mappers.setFactory(new AzureVNextMapperFactory());
+            Templates.setFactory(new AzureVNextTemplateFactory());
+        } else if (!isBranded()) {
+            Mappers.setFactory(new ClientCoreMapperFactory());
+            Templates.setFactory(new ClientCoreTemplateFactory());
+        }
+
+        this.modelsSubpackage
+            = getStringValue(host, "models-subpackage", isBranded(this.flavor) || isAzureCoreV2() ? "models" : "");
 
         // The custom types that will be generated.
         String customTypes = getStringValue(host, "custom-types", "");
@@ -395,6 +410,10 @@ public class JavaSettings {
 
     private static boolean isBranded(String flavor) {
         return "azure".equalsIgnoreCase(flavor);
+    }
+
+    public boolean isAzureCoreV2() {
+        return "azurev2".equalsIgnoreCase(this.flavor);
     }
 
     private final String keyCredentialHeaderName;

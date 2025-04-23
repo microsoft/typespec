@@ -195,6 +195,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         for (Request request : requests) {
             List<ProxyMethod> proxyMethods = proxyMethodsMap.get(request);
             for (ProxyMethod proxyMethod : proxyMethods) {
+                if (proxyMethod.getImplementation() != null) {
+                    continue;
+                }
                 ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
                 builder.proxyMethod(proxyMethod);

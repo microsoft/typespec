@@ -56,7 +56,8 @@ public class Annotation {
         = new Annotation.Builder().knownClass(com.azure.core.annotation.HeaderCollection.class).build();
 
     public static final Annotation METADATA = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "Metadata");
-    public static final Annotation TYPE_CONDITIONS = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "TypeConditions");
+    public static final Annotation METADATA_PROPERTIES
+        = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "MetadataProperties");
 
     public static final Annotation HTTP_REQUEST_INFORMATION
         = new Annotation(CLIENT_CORE_HTTP_ANNOTATIONS_PACKAGE, "HttpRequestInformation");

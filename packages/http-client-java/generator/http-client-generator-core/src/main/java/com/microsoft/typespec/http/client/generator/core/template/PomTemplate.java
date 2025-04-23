@@ -27,7 +27,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         return INSTANCE;
     }
 
-    public final void write(Pom pom, XmlFile xmlFile) {
+    public void write(Pom pom, XmlFile xmlFile) {
         JavaSettings settings = JavaSettings.getInstance();
         boolean branded = settings.isBranded();
 

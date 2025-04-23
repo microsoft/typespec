@@ -6,15 +6,14 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.azure.core.client.traits.AzureKeyCredentialTrait;
 import com.azure.core.client.traits.EndpointTrait;
 import com.azure.core.client.traits.KeyCredentialTrait;
-import com.azure.core.client.traits.TokenCredentialTrait;
 import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.credential.TokenCredential;
 import com.azure.core.util.logging.LogLevel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -76,6 +75,10 @@ public class ClientBuilderTrait {
         this.importPackages = importPackages;
     }
 
+    public void setImportPackages(Set<String> importPackages) {
+        this.importPackages = new ArrayList<>(importPackages);
+    }
+
     /**
      * Returns the list of methods that this trait interface contains.
      * 
@@ -106,29 +109,31 @@ public class ClientBuilderTrait {
         httpTrait.setTraitMethods(httpClientBuilderTraitMethods);
 
         // pipeline
-        String pipelineMethodName = isBranded ? "pipeline" : "httpPipeline";
-        ServiceClientProperty pipelineProperty = new ServiceClientProperty(
-            "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
-            JavaSettings.getInstance().isAzureOrFluent()
-                ? "new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build()"
-                : "createHttpPipeline()");
-        importPackages.add(ClassType.LOG_LEVEL.getFullName());
-        Consumer<JavaBlock> pipelineMethodImpl = function -> {
-            final String pipelineVarName = "pipeline";
-            if (JavaSettings.getInstance().isUseClientLogger()) {
-                function.ifBlock(String.format("this.%1$s != null && %1$s == null", pipelineVarName), ifBlock -> {
-                    function.line(addLogging(LogLevel.INFORMATIONAL,
-                        "HttpPipeline is being set to 'null' when it was previously configured."));
-                });
-            }
-            function.line(String.format("this.%1$s = %2$s;", pipelineVarName, pipelineVarName));
-            function.methodReturn("this");
-        };
-        ClientBuilderTraitMethod pipelineMethod = createTraitMethod(pipelineMethodName, "pipeline",
-            ClassType.HTTP_PIPELINE, pipelineProperty, "{@inheritDoc}", pipelineMethodImpl);
-        importPackages.add(ClassType.HTTP_PIPELINE.getFullName());
+        if (isBranded) {
+            String pipelineMethodName = "pipeline";
+            ServiceClientProperty pipelineProperty = new ServiceClientProperty(
+                "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
+                JavaSettings.getInstance().isAzureOrFluent()
+                    ? "new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build()"
+                    : "createHttpPipeline()");
+            importPackages.add(ClassType.LOG_LEVEL.getFullName());
+            Consumer<JavaBlock> pipelineMethodImpl = function -> {
+                final String pipelineVarName = "pipeline";
+                if (JavaSettings.getInstance().isUseClientLogger()) {
+                    function.ifBlock(String.format("this.%1$s != null && %1$s == null", pipelineVarName), ifBlock -> {
+                        function.line(addLogging(LogLevel.INFORMATIONAL,
+                            "HttpPipeline is being set to 'null' when it was previously configured."));
+                    });
+                }
+                function.line(String.format("this.%1$s = %2$s;", pipelineVarName, pipelineVarName));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod pipelineMethod = createTraitMethod(pipelineMethodName, "pipeline",
+                ClassType.HTTP_PIPELINE, pipelineProperty, "{@inheritDoc}", pipelineMethodImpl);
+            importPackages.add(ClassType.HTTP_PIPELINE.getFullName());
 
-        httpClientBuilderTraitMethods.add(pipelineMethod);
+            httpClientBuilderTraitMethods.add(pipelineMethod);
+        }
 
         // httpClient
         ServiceClientProperty httpClientProperty = new ServiceClientProperty(
@@ -144,20 +149,20 @@ public class ClientBuilderTrait {
         httpClientBuilderTraitMethods.add(httpClientMethod);
 
         // httpLogOptions
-        String httpLogTraitMethodAndParameterName = CodeNamer.toCamelCase(ClassType.HTTP_LOG_OPTIONS.getName());
-        ServiceClientProperty httpLogOptionsProperty
-            = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
-                ClassType.HTTP_LOG_OPTIONS, httpLogTraitMethodAndParameterName, false, null);
-        Consumer<JavaBlock> httpLogOptionsMethodImpl = function -> {
-            function.line(String.format("this.%1$s = %1$s;", httpLogTraitMethodAndParameterName));
-            function.methodReturn("this");
-        };
-        ClientBuilderTraitMethod httpLogOptionsMethod
-            = createTraitMethod(httpLogTraitMethodAndParameterName, httpLogTraitMethodAndParameterName,
+        if (isBranded) {
+            ServiceClientProperty httpLogOptionsProperty
+                = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
+                    ClassType.HTTP_LOG_OPTIONS, "httpLogOptions", false, null);
+            Consumer<JavaBlock> httpLogOptionsMethodImpl = function -> {
+                function.line(String.format("this.%1$s = %2$s;", "httpLogOptions", "httpLogOptions"));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod httpLogOptionsMethod = createTraitMethod("httpLogOptions", "httpLogOptions",
                 ClassType.HTTP_LOG_OPTIONS, httpLogOptionsProperty, "{@inheritDoc}", httpLogOptionsMethodImpl);
-        importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
+            importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
 
-        httpClientBuilderTraitMethods.add(httpLogOptionsMethod);
+            httpClientBuilderTraitMethods.add(httpLogOptionsMethod);
+        }
 
         // clientOptions
         if (isBranded) {
@@ -201,7 +206,7 @@ public class ClientBuilderTrait {
         importPackages.add(ClassType.HTTP_PIPELINE_POLICY.getFullName());
         httpClientBuilderTraitMethods.add(addPolicyMethod);
 
-        if (!isBranded) {
+        if (!isBranded || JavaSettings.getInstance().isAzureCoreV2()) {
             // redirectOptions
             ServiceClientProperty redirectOptionsProperty
                 = new ServiceClientProperty("The redirect options to configure redirect policy",
@@ -214,6 +219,23 @@ public class ClientBuilderTrait {
                 ClassType.REDIRECT_OPTIONS, redirectOptionsProperty, "{@inheritDoc}", redirectOptionsMethodImpl);
             importPackages.add(ClassType.REDIRECT_OPTIONS.getFullName());
             httpClientBuilderTraitMethods.add(redirectOptionsMethod);
+
+            // instrumentation options
+            ServiceClientProperty httpInstrumentationOptionsProperty
+                = new ServiceClientProperty("The instrumentation configuration for HTTP " + "requests and responses.",
+                    ClassType.HTTP_LOG_OPTIONS, "httpInstrumentationOptions", false, null);
+            importPackages.add(ClassType.HTTP_LOGGING_POLICY.getFullName());
+            Consumer<JavaBlock> httpInstrumentationOptionsMethodImpl = function -> {
+                function.line(
+                    String.format("this.%1$s = %2$s;", "httpInstrumentationOptions", "httpInstrumentationOptions"));
+                function.methodReturn("this");
+            };
+            ClientBuilderTraitMethod httpInstrumentationOptionsMethod = createTraitMethod("httpInstrumentationOptions",
+                "httpInstrumentationOptions", ClassType.HTTP_LOG_OPTIONS, httpInstrumentationOptionsProperty,
+                "{@inheritDoc}", httpInstrumentationOptionsMethodImpl);
+            importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
+
+            httpClientBuilderTraitMethods.add(httpInstrumentationOptionsMethod);
         }
 
         return httpTrait;
@@ -350,10 +372,12 @@ public class ClientBuilderTrait {
 
     private static ClientBuilderTrait createTokenCredentialTrait() {
         ClientBuilderTrait tokenCredentialTrait = new ClientBuilderTrait();
-        tokenCredentialTrait.setTraitInterfaceName(TokenCredentialTrait.class.getSimpleName());
-        List<String> importPackages = new ArrayList<>();
+        tokenCredentialTrait.setTraitInterfaceName(ClassType.TOKEN_CREDENTIAL_TRAIT.getName());
+        Set<String> importPackages = new HashSet<>();
+        ClassType.TOKEN_CREDENTIAL_TRAIT.addImportsTo(importPackages, false);
+        ClassType.TOKEN_CREDENTIAL.addImportsTo(importPackages, false);
+        ClassType.OAUTH_TOKEN_REQUEST_CONTEXT.addImportsTo(importPackages, false);
         tokenCredentialTrait.setImportPackages(importPackages);
-        importPackages.add(TokenCredentialTrait.class.getName());
 
         List<ClientBuilderTraitMethod> clientBuilderTraitMethods = new ArrayList<>();
         tokenCredentialTrait.setTraitMethods(clientBuilderTraitMethods);
@@ -368,7 +392,6 @@ public class ClientBuilderTrait {
         };
         ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName,
             ClassType.TOKEN_CREDENTIAL, property, "{@inheritDoc}", methodImpl);
-        importPackages.add(TokenCredential.class.getName());
 
         clientBuilderTraitMethods.add(clientMethod);
         return tokenCredentialTrait;

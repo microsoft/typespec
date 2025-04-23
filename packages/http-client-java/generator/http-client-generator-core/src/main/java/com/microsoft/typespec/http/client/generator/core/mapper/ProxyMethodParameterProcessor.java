@@ -91,20 +91,20 @@ final class ProxyMethodParameterProcessor {
 
         // RequestOptions Parameter.
         //
-        if (settings.isDataPlaneClient()) {
+        if (settings.isAzureCoreV2() || !settings.isBranded()) {
+            final ProxyMethodParameter contextParameter = ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER;
+            allParameters.add(contextParameter);
+            parameters.add(contextParameter);
+        } else if (settings.isDataPlaneClient()) {
             final ProxyMethodParameter requestOptionsParameter = ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER;
             allParameters.add(requestOptionsParameter);
             parameters.add(requestOptionsParameter);
-        }
-
-        // Context Parameter.
-        //
-        if (settings.isBranded()) {
+        } else if (settings.isBranded()) {
+            // Context Parameter.
             final ProxyMethodParameter contextParameter = ProxyMethodParameter.CONTEXT_PARAMETER;
             allParameters.add(contextParameter);
             parameters.add(contextParameter);
         }
-
         return new Result(parameters, allParameters, specialHeaderParameterNames);
     }
 

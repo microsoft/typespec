@@ -87,7 +87,7 @@ public class GenericType implements IType {
         if (JavaSettings.getInstance().isBranded()) {
             return new GenericType("com.azure.core.http.rest", "PagedResponse", bodyType);
         } else {
-            return new GenericType("io.clientcore.core.http.models", "PagedResponse", bodyType);
+            return new GenericType("io.clientcore.core.http.paging", "PagedResponse", bodyType);
         }
     }
 
@@ -99,7 +99,7 @@ public class GenericType implements IType {
         if (JavaSettings.getInstance().isBranded()) {
             return new GenericType("com.azure.core.http.rest", "PagedIterable", bodyType);
         } else {
-            return new GenericType("io.clientcore.core.http.models", "PagedIterable", bodyType);
+            return new GenericType("io.clientcore.core.http.paging", "PagedIterable", bodyType);
         }
     }
 

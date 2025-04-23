@@ -1,0 +1,12 @@
+package com.microsoft.typespec.http.client.generator.core.template.azurevnext;
+
+import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
+
+public class AzureVNextTemplateFactory extends ClientCoreTemplateFactory {
+
+    @Override
+    public PomTemplate getPomTemplate() {
+        return AzureVNextPomTemplate.getInstance();
+    }
+}

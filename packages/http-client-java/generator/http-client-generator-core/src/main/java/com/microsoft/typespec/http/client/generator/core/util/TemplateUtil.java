@@ -280,9 +280,7 @@ public class TemplateUtil {
                 break;
 
             default:
-                if (JavaSettings.getInstance().isBranded()) {
-                    typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
-                }
+                typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
                 break;
         }
     }
@@ -373,5 +371,9 @@ public class TemplateUtil {
 
     public static String getContextNone() {
         return JavaSettings.getInstance().isBranded() ? "Context.NONE" : "Context.none()";
+    }
+
+    public static String getRequestContextNone() {
+        return "RequestContext.none()";
     }
 }

@@ -360,6 +360,19 @@ public class ServiceClient {
         }
     }
 
+    protected void addRestProxyImport(Set<String> imports) {
+        ClassType.REST_PROXY.addImportsTo(imports, false);
+    }
+
+    protected void addHttpPolicyImports(Set<String> imports) {
+        ClassType.RETRY_POLICY.addImportsTo(imports, false);
+        ClassType.USER_AGENT_POLICY.addImportsTo(imports, false);
+    }
+
+    protected void addPipelineBuilderImport(Set<String> imports) {
+        ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
+    }
+
     public static class Builder {
         protected String packageName;
         protected String className;

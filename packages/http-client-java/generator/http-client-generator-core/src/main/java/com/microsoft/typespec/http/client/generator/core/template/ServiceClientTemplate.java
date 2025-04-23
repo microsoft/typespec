@@ -22,6 +22,8 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.ObjectSerializer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -72,6 +74,10 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         } else if (settings.isBranded()) {
             imports.add("com.azure.core.util.serializer.JacksonAdapter");
         }
+
+        imports.add(InvocationTargetException.class.getName());
+        imports.add(ObjectSerializer.class.getName());
+        ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
 
         serviceClient.addImportsTo(imports, true, false, settings);
         additionalMethods.forEach(method -> method.addImportsTo(imports));
@@ -200,7 +206,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
                 classBlock.constructor(visibility,
                     String.format("%1$s(%2$s)", serviceClient.getClassName(), constructorParams), constructorBlock -> {
-                        if (!settings.isBranded()) {
+                        if (!settings.isBranded() || settings.isAzureCoreV2()) {
                             if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter()))) {
                                 writeMaxOverloadedDataPlaneConstructorImplementation(constructorBlock, serviceClient,
@@ -358,7 +364,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         return constructorArgs;
     }
 
-    private void writeMaxOverloadedDataPlaneConstructorImplementation(JavaBlock constructorBlock,
+    protected void writeMaxOverloadedDataPlaneConstructorImplementation(JavaBlock constructorBlock,
         ServiceClient serviceClient, Consumer<JavaBlock> constructorParametersCodes) {
         constructorBlock.line("this.httpPipeline = httpPipeline;");
         if (JavaSettings.getInstance().isBranded()) {

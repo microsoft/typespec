@@ -585,7 +585,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    public final void write(ClientMethod clientMethod, JavaType typeBlock) {
+    @Override
+    public void write(ClientMethod clientMethod, JavaType typeBlock) {
         final boolean writingInterface = typeBlock instanceof JavaInterface;
         if (clientMethod.getMethodVisibility() != JavaVisibility.Public && writingInterface) {
             return;
@@ -912,7 +913,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    private void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -965,7 +966,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    private void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
@@ -1002,12 +1003,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     private static void addServiceMethodAnnotation(JavaType typeBlock, ReturnType returnType) {
-        if (JavaSettings.getInstance().isBranded()) {
-            typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
-        }
+        typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
     }
 
-    private void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
@@ -1018,7 +1017,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    private void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
@@ -1349,7 +1348,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response".
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @return nextLink expression
      */
@@ -1359,7 +1358,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response".
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @param valueExpression the value expression to get the result value of the "Response"
      * @return nextLink expression
@@ -1370,7 +1369,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response", or variable with the specified name.
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @param valueExpression the value expression to get the result value of the "Response"
      * @param result name of the variable if it's not of type "Response"

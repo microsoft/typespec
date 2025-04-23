@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
+import com.azure.autorest.customization.Customization;
+import com.azure.autorest.customization.implementation.Utils;
 import com.azure.json.JsonReader;
-import com.microsoft.typespec.http.client.generator.core.customization.Customization;
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;

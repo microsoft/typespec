@@ -553,7 +553,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         xmlSequenceWrappers.computeIfAbsent(modelTypeName, name -> new XmlSequenceWrapper(name, arraySchema, settings));
     }
 
-    static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
+    public static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return null;
         }
@@ -633,6 +633,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.CORE.getPackageName(), true));
+        if (settings.isAzureCoreV2()) {
+            requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.AZURE_CORE_VNEXT_PACKAGE_NAME, true));
+        }
 
         // export packages that contain Client, ClientBuilder, ServiceVersion
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
@@ -700,7 +703,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         return ret;
     }
 
-    static ClassType getClientResponseClassType(Operation method, List<ClientModel> models, JavaSettings settings) {
+    public static ClassType getClientResponseClassType(Operation method, List<ClientModel> models,
+        JavaSettings settings) {
         String name = CodeNamer.getPlural(method.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(method.getLanguage().getJava().getName()) + "Response";
         String packageName = settings.getPackage(settings.getModelsSubpackage());

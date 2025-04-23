@@ -276,11 +276,11 @@ public class SchemaUtil {
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.POLL_OPERATION_DETAILS.getPackage())) {
                         classType = ClassType.POLL_OPERATION_DETAILS;
-                    } else if (Objects.equals(name, ClassType.REQUEST_CONDITIONS.getName())
+                    } else if (ClassType.REQUEST_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.REQUEST_CONDITIONS;
-                    } else if (Objects.equals(name, ClassType.MATCH_CONDITIONS.getName())
+                    } else if (ClassType.MATCH_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.MATCH_CONDITIONS;
