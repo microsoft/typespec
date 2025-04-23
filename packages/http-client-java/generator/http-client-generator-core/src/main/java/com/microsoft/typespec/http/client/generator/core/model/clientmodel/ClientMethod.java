@@ -297,6 +297,16 @@ public class ClientMethod {
         return methodParameters;
     }
 
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasMethodParameterOfType(IType type) {
+        return methodParameters.stream().anyMatch(p -> type.equals(p.getClientType()));
+    }
+
     public final List<ClientMethodParameter> getMethodRequiredParameters() {
         return methodRequiredParameters;
     }

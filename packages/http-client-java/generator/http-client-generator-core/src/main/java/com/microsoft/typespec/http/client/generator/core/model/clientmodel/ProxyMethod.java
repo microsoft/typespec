@@ -253,6 +253,10 @@ public class ProxyMethod {
         return rawResponseBodyType;
     }
 
+    public IType getResponseType() {
+        return rawResponseBodyType != null ? rawResponseBodyType : responseBodyType;
+    }
+
     public final boolean isResumable() {
         return isResumable;
     }
