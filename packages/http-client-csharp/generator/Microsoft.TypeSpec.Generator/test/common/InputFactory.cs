@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
@@ -165,6 +166,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
+        // Replace reflection with InternalsVisibltTo after fixing https://github.com/microsoft/typespec/issues/7075")]
+        private static MethodInfo _addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         public static InputModelType Model(
             string name,
             string @namespace = "Sample.Models",
@@ -198,6 +201,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 new());
+            if (baseModel is not null)
+            {
+                _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
+            }
             return model;
         }
 

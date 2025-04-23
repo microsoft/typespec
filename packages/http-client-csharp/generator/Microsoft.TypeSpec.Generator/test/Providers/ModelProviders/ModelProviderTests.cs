@@ -36,7 +36,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        [Ignore("Need a way to add derived models for the base model after fixing https://github.com/microsoft/typespec/issues/7075")]
         public void TestBuildProperties_ValidateInheritHierarchyWithNew()
         {
             var stringProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
