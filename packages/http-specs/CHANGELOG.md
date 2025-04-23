@@ -1,5 +1,9 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.20
+
+No changes, version bump only.
+
 ## 0.1.0-alpha.19
 
 No changes, version bump only.
