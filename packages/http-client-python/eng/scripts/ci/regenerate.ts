@@ -47,7 +47,7 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
   "azure/client-generator-core/deserialize-empty-string-as-null": {
-    namespace: "specs.azure.clientgenerator.core.deserializeemptystringasnull",
+    namespace: "specs.azure.clientgenerator.core.emptystring",
   },
   "azure/client-generator-core/flatten-property": {
     namespace: "specs.azure.clientgenerator.core.flattenproperty",
