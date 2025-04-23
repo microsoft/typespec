@@ -138,7 +138,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Adds a type to the list of types to keep as public.
         /// </summary>
-        /// <param name="type">The type provider representing the type.</param>
-        public void AddTypeToKeepPublic(string type) => TypesToKeepPublic.Add(type);
+        /// <param name="typeName">The type provider representing the type.</param>
+        public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
     }
 }
