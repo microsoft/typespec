@@ -166,7 +166,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
-        // Replace reflection with InternalsVisibltTo after fixing https://github.com/microsoft/typespec/issues/7075")]
+        // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
         private static MethodInfo _addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         public static InputModelType Model(
             string name,
