@@ -175,7 +175,7 @@ final class PagingMetadata {
         }
 
         return new MethodPageDetails.ContinuationToken(requestParameter, responseHeaderSerializedName,
-            CollectionUtil.toImmutableList(responsePropertyReference));
+            responsePropertyReference);
     }
 
     private Stream<ClientMethod> enumerateNextMethodsOfType(ClientMethodType nextMethodType) {
