@@ -1,4 +1,10 @@
-import { HttpMethod, MockBody, MockMultipartBody, ResolverConfig } from "@typespec/spec-api";
+import {
+  expandDyns,
+  HttpMethod,
+  MockBody,
+  MockMultipartBody,
+  ResolverConfig,
+} from "@typespec/spec-api";
 
 export interface ServiceRequest {
   method: HttpMethod;
@@ -62,7 +68,7 @@ export async function makeServiceCall(
 ): Promise<Response> {
   const url = resolveUrl(request);
   let body;
-  let headers = request.headers as Record<string, string>;
+  let headers = expandDyns(request.headers, config) as Record<string, string>;
   if (request.body) {
     if ("kind" in request.body) {
       const formData = renderMultipartRequest(request.body);
