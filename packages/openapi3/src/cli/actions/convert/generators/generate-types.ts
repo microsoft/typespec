@@ -79,6 +79,8 @@ export class SchemaToExpressionGenerator {
       type = getEnum(schema.enum);
     } else if (schema.anyOf) {
       type = this.getAnyOfType(schema, callingScope);
+    } else if (schema.allOf) {
+      type = this.getAllOfType(schema, callingScope);
     } else if (schema.type === "array") {
       type = this.generateArrayType(schema, callingScope);
     } else if (schema.type === "boolean") {
@@ -104,6 +106,43 @@ export class SchemaToExpressionGenerator {
     }
 
     return type;
+  }
+
+  private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+    const requiredProps: string[] = schema.required || [];
+    let properties: Record<string, Refable<OpenAPI3Schema>> = {};
+    const baseTypes: string[] = [];
+
+    for (const member of schema.allOf || []) {
+      if ("$ref" in member) {
+        // If it's a $ref, process it as inheritance/extension and add to the list
+        baseTypes.push(this.getRefName(member.$ref, callingScope));
+      } else if (member.properties) {
+        properties = { ...properties, ...member.properties };
+        if (member.required) {
+          requiredProps.push(...member.required);
+        }
+      }
+    }
+
+    const props: string[] = [];
+    for (const name of Object.keys(properties)) {
+      const isOptional = !requiredProps.includes(name) ? "?" : "";
+      props.push(
+        `${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(properties[name], callingScope)}`
+      );
+    }
+
+    if (baseTypes.length > 0 && props.length > 0) {
+      // When there are both inherited types and properties
+      return `${baseTypes.join(" & ")} & {${props.join("; ")}}`;
+    } else if (baseTypes.length > 0) {
+      // When there are only inherited types
+      return baseTypes.join(" & ");
+    } else {
+      // When there are only properties
+      return `{${props.join("; ")}}`;
+    }
   }
 
   private getAnyOfType(schema: OpenAPI3Schema, callingScope: string[]): string {

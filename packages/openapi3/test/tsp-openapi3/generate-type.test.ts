@@ -141,6 +141,87 @@ const testScenarios: TestScenario[] = [
     },
     expected: `Model | boolean | "foo" | "bar"`,
   },
+  // allOf
+  {
+    schema: {
+      allOf: [
+        { $ref: "#/Path/To/BaseModel" },
+        { $ref: "#/Path/To/MixinModel" },
+      ],
+    },
+    expected: "BaseModel & MixinModel",
+  },
+  {
+    schema: {
+      allOf: [
+        { $ref: "#/Path/To/BaseModel" },
+        {
+          type: "object",
+          properties: {
+            foo: { type: "string" },
+            bar: { type: "boolean" },
+          }
+        },
+      ],
+    },
+    expected: "BaseModel & {foo?: string; bar?: boolean}",
+  },
+  {
+    schema: {
+      allOf: [
+        { $ref: "#/Path/To/BaseModel" },
+        {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+            bar: { type: "boolean" },
+          }
+        },
+      ],
+    },
+    expected: "BaseModel & {foo: string; bar?: boolean}",
+  },
+  {
+    schema: {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            prop1: { type: "string" },
+          }
+        },
+        {
+          type: "object",
+          properties: {
+            prop2: { type: "number" },
+          }
+        },
+      ],
+    },
+    expected: "{prop1?: string; prop2?: numeric}",
+  },
+  {
+    schema: {
+      allOf: [
+        {
+          type: "object",
+          required: ["prop1"],
+          properties: {
+            prop1: { type: "string" },
+          }
+        },
+        {
+          type: "object",
+          required: ["prop2"],
+          properties: {
+            prop2: { type: "number" },
+          }
+        },
+      ],
+    },
+    expected: "{prop1: string; prop2: numeric}",
+  },
   // fallthrough
   { schema: {}, expected: "unknown" },
 ];
