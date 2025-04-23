@@ -62,6 +62,21 @@
     "azure.clientgenerator.core.clientinitialization.PathParamClientBuilder": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.PathParam",
     "azure.clientgenerator.core.clientinitialization.models.BlobProperties": "Service.BlobProperties",
     "azure.clientgenerator.core.clientinitialization.models.Input": "Service.Input",
-    "azure.clientgenerator.core.clientinitialization.models.WithBodyRequest": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.withBody.Request.anonymous"
+    "azure.clientgenerator.core.clientinitialization.models.WithBodyRequest": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.withBody.Request.anonymous",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.deleteStandalone": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.deleteStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.deleteStandaloneWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.deleteStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.getStandalone": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.getStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.getStandaloneWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.getStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.withQuery": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.withQuery",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentAsyncClient.withQueryWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.withQuery",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.deleteStandalone": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.deleteStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.deleteStandaloneWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.deleteStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.getStandalone": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.getStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.getStandaloneWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.getStandalone",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.withQuery": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.withQuery",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClient.withQueryWithResponse": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient.ChildClient.withQuery",
+    "azure.clientgenerator.core.clientinitialization.parentclient.ParentClientBuilder": "_Specs_.Azure.ClientGeneratorCore.ClientInitialization.ParentClient"
   }
 }
