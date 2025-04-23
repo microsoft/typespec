@@ -136,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputModel, this)];
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputModel.Name.ToCleanName();
 
