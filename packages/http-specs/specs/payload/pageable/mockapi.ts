@@ -1,5 +1,6 @@
 import {
   dyn,
+  dynItem,
   json,
   MockRequest,
   passOnSuccess,
@@ -103,7 +104,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
       status: 200,
       body: json({
         pets: FirstPage,
-        next: dyn`${"baseUrl"}/payload/pageable/server-driven-pagination/link/nextPage`,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
       }),
     },
     kind: "MockApiDefinition",

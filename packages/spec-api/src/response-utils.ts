@@ -50,39 +50,59 @@ export interface DynValue<T extends string[]> {
   (dict: Record<T[number], string>): string;
 }
 
+export interface DynItem<T extends keyof ResolverConfig> {
+  readonly isDyn: true;
+  readonly name: T;
+}
+
+export function dynItem<const T extends keyof ResolverConfig>(name: T): DynItem<T> {
+  return {
+    isDyn: true,
+    name,
+  };
+}
+
 /** Specify that this value is dynamic and needs to be interpolated with the given keys */
 export function dyn<const T extends (keyof ResolverConfig)[]>(
   strings: readonly string[],
-  ...keys: T
+  ...keys: (DynItem<T[number]> | string)[]
 ): DynValue<T> {
+  const dynKeys: T = [] as any;
   const template = (dict: Record<T[number], string>) => {
     const result = [strings[0]];
     keys.forEach((key, i) => {
-      const value = (dict as any)[key];
-      if (value !== undefined) {
-        result.push(value);
+      if (typeof key === "string") {
+        result.push(key);
+      } else {
+        dynKeys.push(key.name);
+        const value = (dict as any)[key.name];
+        if (value !== undefined) {
+          result.push(value);
+        }
       }
       result.push(strings[i + 1]);
     });
     return result.join("");
   };
-  template.keys = keys;
+  template.keys = dynKeys;
   template.isDyn = true as const;
   return template;
 }
 
-function expandDyns(value: unknown, config: ResolverConfig): unknown {
+export function expandDyns<T>(value: T, config: ResolverConfig): T {
   if (typeof value === "string") {
     return value;
   } else if (Array.isArray(value)) {
-    return value.map((v) => expandDyns(v, config));
+    return value.map((v) => expandDyns(v, config)) as any;
   } else if (typeof value === "object" && value !== null) {
     const obj = value as Record<string, unknown>;
-    return Object.fromEntries(Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]));
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, v]) => [key, expandDyns(v, config)]),
+    ) as any;
   } else if (typeof value === "function") {
     if ("isDyn" in value && value.isDyn) {
-      const dynValue = value as DynValue<string[]>;
-      return dynValue(config as any);
+      const dynValue = value as any as DynValue<string[]>;
+      return dynValue(config as any) as any;
     } else {
       throw new Error("Invalid function value");
     }

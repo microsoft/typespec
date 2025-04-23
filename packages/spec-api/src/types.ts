@@ -83,7 +83,7 @@ export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinit
 export interface MockResponse {
   status: number;
   headers?: {
-    [key: string]: string | null;
+    [key: string]: unknown | null;
   };
 
   body?: MockBody;

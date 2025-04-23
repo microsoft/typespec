@@ -13,7 +13,7 @@ export {
   validateValueFormat,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-export { dyn, json, multipart, xml } from "./response-utils.js";
+export { dyn, dynItem, expandDyns, json, multipart, xml } from "./response-utils.js";
 export {
   WithKeysScenarioExpect,
   passOnCode,

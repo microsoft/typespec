@@ -1,4 +1,5 @@
 import {
+  expandDyns,
   MockRequest,
   MockRequestHandler,
   MockResponse,
@@ -38,7 +39,7 @@ const processResponse = (
   response.status(mockResponse.status);
 
   if (mockResponse.headers) {
-    response.set(mockResponse.headers);
+    response.set(expandDyns(mockResponse.headers, resolverConfig));
   }
 
   if (mockResponse.body) {
