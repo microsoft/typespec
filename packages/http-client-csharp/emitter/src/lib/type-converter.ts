@@ -126,7 +126,7 @@ export function fromSdkModelType(
       decorators: modelType.decorators,
     } as InputModelType;
 
-    sdkContext.__typeCache.updateTypeCache(modelTypeName, inputModelType);
+    sdkContext.__typeCache.updateTypeCache(modelType, inputModelType);
 
     inputModelType.additionalProperties = modelType.additionalProperties
       ? fromSdkType(sdkContext, modelType.additionalProperties)
@@ -258,7 +258,7 @@ export function fromSdkEnumType(
       usage: enumType.usage,
       decorators: enumType.decorators,
     };
-    sdkContext.__typeCache.updateTypeCache(enumName, inputEnumType);
+    sdkContext.__typeCache.updateTypeCache(enumType, inputEnumType);
     for (const v of enumType.values) {
       values.push(fromSdkEnumValueType(sdkContext, v));
     }
@@ -347,7 +347,7 @@ function fromSdkConstantType(
   constantType: SdkConstantType,
 ): InputLiteralType {
   const name = constantType.name;
-  let literalType = sdkContext.__typeCache.constants.get(name);
+  let literalType = sdkContext.__typeCache.constants.get(constantType);
   if (literalType) {
     return literalType;
   }
@@ -360,7 +360,7 @@ function fromSdkConstantType(
     decorators: constantType.decorators,
   };
 
-  sdkContext.__typeCache.updateTypeCache(name, literalType);
+  sdkContext.__typeCache.updateTypeCache(constantType, literalType);
 
   return literalType;
 }
