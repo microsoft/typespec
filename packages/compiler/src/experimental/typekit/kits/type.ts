@@ -122,6 +122,13 @@ export interface TypeTypekit {
    */
   isUserDefined(type: Type): boolean;
 
+  /**
+   * Checks if the given type is in the given namespace (directly or indirectly) by walking up the type's namespace chain.
+   *
+   * @param type The type to check.
+   * @param namespace The namespace to check membership against.
+   * @returns True if the type is in the namespace, false otherwise.
+   */
   inNamespace(type: Type, namespace: Namespace): boolean;
 }
 
