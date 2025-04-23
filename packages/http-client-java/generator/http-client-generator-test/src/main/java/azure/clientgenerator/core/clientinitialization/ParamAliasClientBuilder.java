@@ -194,24 +194,6 @@ public final class ParamAliasClientBuilder implements HttpTrait<ParamAliasClient
      * 
      */
     @Generated
-    private String blob;
-
-    /**
-     * Sets.
-     * 
-     * @param blob the blob value.
-     * @return the ParamAliasClientBuilder.
-     */
-    @Generated
-    public ParamAliasClientBuilder blob(String blob) {
-        this.blob = blob;
-        return this;
-    }
-
-    /*
-     * 
-     */
-    @Generated
     private String blobName;
 
     /**
@@ -255,7 +237,7 @@ public final class ParamAliasClientBuilder implements HttpTrait<ParamAliasClient
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
         ParamAliasClientImpl client = new ParamAliasClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint, this.blob, this.blobName);
+            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint, this.blobName);
         return client;
     }
 
@@ -263,7 +245,6 @@ public final class ParamAliasClientBuilder implements HttpTrait<ParamAliasClient
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-        Objects.requireNonNull(blob, "'blob' cannot be null.");
         Objects.requireNonNull(blobName, "'blobName' cannot be null.");
     }
 

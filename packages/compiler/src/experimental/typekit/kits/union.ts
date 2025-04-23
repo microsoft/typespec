@@ -6,6 +6,7 @@ import {
 import type { Enum, Type, Union, UnionVariant } from "../../../core/types.js";
 import { $doc, getDoc } from "../../../lib/decorators.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
@@ -96,7 +97,7 @@ export interface UnionKit {
    * Resolves a discriminated union for the given union.
    * @param type Union to resolve the discriminated union for.
    */
-  getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
+  getDiscriminatedUnion: Diagnosable<(type: Union) => DiscriminatedUnion | undefined>;
 }
 
 interface TypekitExtension {
@@ -127,7 +128,6 @@ export const UnionKit = defineKit<TypekitExtension>({
           return Array.from(this.variants.values()).map((v) => v.type);
         },
         expression: desc.name === undefined,
-        node: undefined as any,
       });
 
       if (Array.isArray(desc.variants)) {
@@ -214,8 +214,8 @@ export const UnionKit = defineKit<TypekitExtension>({
     isExpression(type) {
       return type.name === undefined || type.name === "";
     },
-    getDiscriminatedUnion(type) {
-      return ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
-    },
+    getDiscriminatedUnion: createDiagnosable(function (type) {
+      return getDiscriminatedUnion(this.program, type);
+    }),
   },
 });
