@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Enum, Model, Namespace, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
-import { getTypes } from "./utils.js";
+import { createContextMock, getTypes } from "./utils.js";
 
 it("should clone a model", async () => {
   const {
@@ -311,11 +311,13 @@ describe("inNamespace", () => {
       ["Root"],
     );
 
-    const child1 = (Root as Namespace).namespaces.get("Child1")!;
-    const child2 = child1.namespaces.get("Child2")!;
-    expect($(program).type.inNamespace(child1, Root as Namespace)).toBe(true);
-    expect($(program).type.inNamespace(child2, Root as Namespace)).toBe(true);
-    expect($(program).type.inNamespace(child1, child2 as Namespace)).toBe(false);
+    const child1 = (Root as Namespace).namespaces.get("Child1");
+    expect(child1).toBeDefined();
+    const child2 = child1?.namespaces.get("Child2");
+    expect(child2).toBeDefined();
+
+    expect($(program).type.inNamespace(child1!, Root as Namespace)).toBe(true);
+    expect($(program).type.inNamespace(child2!, Root as Namespace)).toBe(true);
   });
 
   it("checks model property namespace membership", async () => {
@@ -331,22 +333,23 @@ describe("inNamespace", () => {
         }
       }
 
-      model Outside extends Root.Inside {
+      model Outside {
         prop: string;
       }
       `,
       ["Root", "Inside", "Outside"],
     );
 
-    const model1 = (Root as Namespace).models.get("Inside")!;
+    const model1 = (Root as Namespace).models.get("Inside");
     expect(model1).toBeDefined();
-    const prop1 = model1.properties.get("prop")!;
+    const prop1 = model1?.properties.get("prop");
     expect(prop1).toBeDefined();
 
-    const prop2 = (Outside as Model).properties.get("prop")!;
+    const prop2 = (Outside as Model).properties.get("prop");
+    expect(prop2).toBeDefined();
 
-    expect($(program).type.inNamespace(prop1, Root as Namespace)).toBe(true);
-    expect($(program).type.inNamespace(prop2, Root as Namespace)).toBe(false);
+    expect($(program).type.inNamespace(prop1!, Root as Namespace)).toBe(true);
+    expect($(program).type.inNamespace(prop2!, Root as Namespace)).toBe(false);
   });
 
   it("checks enum member namespace membership", async () => {
@@ -365,9 +368,11 @@ describe("inNamespace", () => {
       ["Root"],
     );
 
-    const enum1 = (Root as Namespace).enums.get("Test")!;
-    const enumMember = enum1.members.get("A")!;
-    expect($(program).type.inNamespace(enumMember, Root as Namespace)).toBe(true);
+    const enum1 = (Root as Namespace).enums.get("Test");
+    const enumMember = enum1?.members.get("A");
+    expect(enumMember).toBeDefined();
+
+    expect($(program).type.inNamespace(enumMember!, Root as Namespace)).toBe(true);
   });
 
   it("checks union variant namespace membership", async () => {
@@ -386,10 +391,11 @@ describe("inNamespace", () => {
       ["Root"],
     );
 
-    const union = (Root as Namespace).unions.get("Test")!;
-    const variant = union.variants.get("A")!;
+    const union = (Root as Namespace).unions.get("Test");
+    const variant = union?.variants.get("A");
     expect(variant).toBeDefined();
-    expect($(program).type.inNamespace(variant, Root as Namespace)).toBe(true);
+
+    expect($(program).type.inNamespace(variant!, Root as Namespace)).toBe(true);
   });
 
   it("checks interface operation namespace membership", async () => {
@@ -407,9 +413,11 @@ describe("inNamespace", () => {
       ["Root"],
     );
 
-    const test = (Root as Namespace).interfaces.get("Test")!;
-    const operation = test.operations.get("myOp")!;
-    expect($(program).type.inNamespace(operation, Root as Namespace)).toBe(true);
+    const test = (Root as Namespace).interfaces.get("Test");
+    const operation = test?.operations.get("myOp");
+    expect(operation).toBeDefined();
+
+    expect($(program).type.inNamespace(operation!, Root as Namespace)).toBe(true);
   });
 
   it("checks operations namespace membership", async () => {
@@ -424,8 +432,57 @@ describe("inNamespace", () => {
       `,
       ["Root"],
     );
-    const operation = (Root as Namespace).operations.get("myOp")!;
-    expect($(program).type.inNamespace(operation, Root as Namespace)).toBe(true);
+    const operation = (Root as Namespace).operations.get("myOp");
+    expect(operation).toBeDefined();
+
+    expect($(program).type.inNamespace(operation!, Root as Namespace)).toBe(true);
+  });
+
+  it("checks namespace membership via source property", async () => {
+    const {
+      Root,
+      Derived,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        model Base {
+          propA: string;
+        }
+
+      }
+
+      model Derived is Root.Base {
+        propB: string;
+      }
+      `,
+      ["Root", "Derived"],
+    );
+
+    const inheritedProp = (Derived as Model).properties.get("propA");
+    expect(inheritedProp).toBeDefined();
+
+    expect($(program).type.inNamespace(inheritedProp!, Root as Namespace)).toBe(true);
+  });
+
+  it("returns false for types outside the namespace", async () => {
+    const {
+      Root,
+      Outside,
+      context: { program },
+    } = await getTypes(
+      `
+      namespace Root {
+        namespace Child1 {}
+      }
+      namespace Outside {}
+      `,
+      ["Root", "Outside"],
+    );
+    const child1 = (Root as Namespace).namespaces.get("Child1");
+    expect(child1).toBeDefined();
+
+    expect($(program).type.inNamespace(child1!, Outside as Namespace)).toBe(false);
   });
 
   it("returns false for types without namespace", async () => {
@@ -441,5 +498,20 @@ describe("inNamespace", () => {
 
     const stringLiteral = $(program).literal.create("test");
     expect($(program).type.inNamespace(stringLiteral, MyNamespace as Namespace)).toBe(false);
+  });
+
+  it("throws a useful error if type is undefined", async () => {
+    const { program } = await createContextMock();
+    expect(() => $(program).type.inNamespace(undefined as any, undefined as any)).toThrowError(
+      /parameter 'type'/,
+    );
+  });
+
+  it("throws a useful error if namespace is undefined", async () => {
+    const { program } = await createContextMock();
+    const type = $(program).literal.create("test");
+    expect(() => $(program).type.inNamespace(type, undefined as any)).toThrowError(
+      /parameter 'namespace'/,
+    );
   });
 });

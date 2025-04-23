@@ -1,4 +1,4 @@
-import { ignoreDiagnostics } from "../../../core/diagnostics.js";
+import { compilerAssert, ignoreDiagnostics } from "../../../core/diagnostics.js";
 import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
 import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
@@ -275,11 +275,15 @@ defineKit<TypekitExtension>({
       return getLocationContext(this.program, type).type === "project";
     },
     inNamespace(type: Type, namespace: Namespace): boolean {
+      compilerAssert(type !== undefined, "parameter 'type' is undefined");
+      compilerAssert(namespace !== undefined, "parameter 'namespace' is undefined");
+
       // A namespace is always in itself
       if (type === namespace) {
         return true;
       }
 
+      // Handle types with known containers
       switch (type.kind) {
         case "ModelProperty":
           if (type.sourceProperty) {
@@ -295,17 +299,15 @@ defineKit<TypekitExtension>({
         case "Operation":
           if (type.interface) {
             return this.type.inNamespace(type.interface, namespace);
-          } else if (type.namespace) {
-            return this.type.inNamespace(type.namespace, namespace);
           }
-          break;
-        default:
-          if ("namespace" in type && type.namespace) {
-            return this.type.inNamespace(type.namespace, namespace);
-          }
+          // Operations that belong to a namespace directly will be handled in the generic case
           break;
       }
 
+      // Generic case handles all other types
+      if ("namespace" in type && type.namespace) {
+        return this.type.inNamespace(type.namespace, namespace);
+      }
       // If we got this far, the type does not belong to the namespace
       return false;
     },
