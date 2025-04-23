@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Enum, Model, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
-import { getTypes } from "./utils.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
+import { getAssignables, getTypes } from "./utils.js";
 
 it("should clone a model", async () => {
   const {
@@ -280,4 +281,69 @@ it("isError can check if a type is an error model", async () => {
 
   expect($(program).type.isError(Error)).toBe(true);
   expect($(program).type.isError(Foo)).toBe(false);
+});
+
+describe("isAssignableTo", () => {
+  it("validates against Type", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    const stringType = tk.builtin.string;
+    expect(tk.type.isAssignableTo(tk.literal.create("foo"), stringType)).toBe(true);
+    expect(tk.type.isAssignableTo(tk.literal.create(123), stringType)).toBe(false);
+  });
+
+  it("validates against Value", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    // Can't actually assign a type to a value.
+    expect(tk.type.isAssignableTo(tk.literal.create("foo"), tk.value.create("foo"))).toBe(false);
+  });
+
+  it("validates against MixedParameterConstraint", async () => {
+    const { targetProp, program } = await getAssignables({ target: "string" });
+    expect(targetProp.entityKind).toBe("MixedParameterConstraint");
+
+    const tk = $(program);
+    expect(tk.type.isAssignableTo(tk.literal.create("foo"), targetProp)).toBe(true);
+    expect(tk.type.isAssignableTo(tk.literal.create(123), targetProp)).toBe(false);
+  });
+
+  it("validates against Indeterminate", async () => {
+    const {
+      program,
+      types: { Instance },
+    } = await getAssignables({
+      code: `
+        model Template<A extends string> { field: A }
+        @test model Instance is Template<"foo">;
+      `,
+    });
+    const indeterminate = (Instance as Model).sourceModels[0].model!.templateMapper!.args[0];
+    expect(indeterminate.entityKind).toBe("Indeterminate");
+
+    const tk = $(program);
+    expect(tk.type.isAssignableTo(tk.literal.create("foo"), indeterminate)).toBe(true);
+    expect(tk.type.isAssignableTo(tk.literal.create(123), indeterminate)).toBe(false);
+  });
+
+  it("withDiagnostics emits diagnostic when assigning incompatible types", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    const invalidTest = tk.type.isAssignableTo.withDiagnostics(
+      tk.literal.create("foo"),
+      tk.builtin.boolean,
+    );
+    expect(invalidTest[0]).toBe(false);
+    expectDiagnostics(invalidTest[1], { code: "unassignable" });
+
+    const validTest = tk.type.isAssignableTo.withDiagnostics(
+      tk.literal.create(true),
+      tk.builtin.boolean,
+    );
+    expect(validTest[0]).toBe(true);
+    expectDiagnosticEmpty(validTest[1]);
+  });
 });
