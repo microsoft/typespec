@@ -129,7 +129,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_nestedLink = passOnSuccess([
         nestedItems: {
           pets: FirstPage,
         },
-        nestedNextLink: {
+        nestedNext: {
           next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/nested-link/nextPage`,
         },
       }),
@@ -176,7 +176,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
           nestedItems: {
             pets: FirstPage,
           },
-          nestedNextLink: {
+          nestedNext: {
             nextToken: "page2",
           },
         }),
@@ -194,7 +194,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
                 nestedItems: {
                   pets: FirstPage,
                 },
-                nestedNextLink: {
+                nestedNext: {
                   nextToken: "page2",
                 },
               }),
@@ -243,7 +243,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
                 nestedItems: {
                   pets: FirstPage,
                 },
-                nestedNextLink: {
+                nestedNext: {
                   nextToken: "page2",
                 },
               }),
@@ -278,8 +278,10 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
       response: {
         status: 200,
         body: json({
-          pets: FirstPage,
-          next: {
+          nestedItems: {
+            pets: FirstPage,
+          },
+          nestedNext: {
             nextToken: "page2",
           },
         }),
@@ -294,8 +296,10 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
             return {
               status: 200,
               body: json({
-                pets: FirstPage,
-                next: {
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
                   nextToken: "page2",
                 },
               }),
@@ -304,7 +308,9 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
             return {
               status: 200,
               body: json({
-                pets: SecondPage,
+                nestedItems: {
+                  pets: SecondPage,
+                },
               }),
             };
           default:
@@ -324,7 +330,9 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
       response: {
         status: 200,
         body: json({
-          pets: SecondPage,
+          nestedItems: {
+            pets: SecondPage,
+          },
         }),
       },
       handler: (req: MockRequest) => {
@@ -337,8 +345,10 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
             return {
               status: 200,
               body: json({
-                pets: FirstPage,
-                next: {
+                nestedItems: {
+                  pets: FirstPage,
+                },
+                nestedNext: {
                   nextToken: "page2",
                 },
               }),
@@ -347,7 +357,9 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeade
             return {
               status: 200,
               body: json({
-                pets: SecondPage,
+                nestedItems: {
+                  pets: SecondPage,
+                },
               }),
             };
           default:

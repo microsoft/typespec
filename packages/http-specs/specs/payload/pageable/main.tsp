@@ -73,7 +73,7 @@ namespace ServerDrivenPagination {
           { "id": "2", "name": "cat" }
         ]
       },
-      "nestedNextLink": {
+      "nestedNext": {
         "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/nested-link/nextPage"
       }
     }
@@ -98,7 +98,7 @@ namespace ServerDrivenPagination {
       @pageItems
       pets: Pet[];
     };
-    nestedNextLink: {
+    nestedNext: {
       @nextLink next?: url;
     };
   };
@@ -314,7 +314,7 @@ namespace ServerDrivenPagination {
           { "id": "2", "name": "cat" }
         ]
         },
-        "nestedNextLink": {
+        "nestedNext": {
           "nextToken": "page2"
         }
       }
@@ -347,7 +347,7 @@ namespace ServerDrivenPagination {
         @pageItems
         pets: Pet[];
       };
-      nestedNextLink?: {
+      nestedNext?: {
         @continuationToken nextToken?: string;
       };
     };
@@ -359,17 +359,19 @@ namespace ServerDrivenPagination {
       Two requests need to be tested.
       
       1. Initial request:
-      Expected route: /payload/pageable/server-driven-pagination-discussion/continuationtoken/request-header-nested-response-body?bar=bar
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
       
       Expected request header:
       foo=foo
       
       Expected response body:
       ```json
-      { "pets": [
-          { "id": "1", "name": "dog" },
-          { "id": "2", "name": "cat" }
-        ],
+      { "nestedItems": {
+          "pets": [
+            { "id": "1", "name": "dog" },
+            { "id": "2", "name": "cat" }
+          ]
+        },
         "next": {
           "nextToken": "page2"
         }
@@ -377,7 +379,7 @@ namespace ServerDrivenPagination {
       ```
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination-discussion/continuationtoken/request-header-nested-response-body?bar=bar
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body?bar=bar
       
       Expected request header:
       token=page2
@@ -385,10 +387,12 @@ namespace ServerDrivenPagination {
       
       Expected response body:
       ```json
-      { "pets": [
-          { "id": "3", "name": "bird" },
-          { "id": "4", "name": "fish" }
-        ]
+      { "nestedItems": {
+          "pets": [
+            { "id": "3", "name": "bird" },
+            { "id": "4", "name": "fish" }
+          ]
+        }
       }
       ```
       """)
@@ -398,10 +402,11 @@ namespace ServerDrivenPagination {
       @continuationToken @header token?: string,
       ...HeaderAndQuery,
     ): {
-      @pageItems
-      pets: Pet[];
-
-      next?: {
+      nestedItems: {
+        @pageItems
+        pets: Pet[];
+      };
+      nestedNext?: {
         @continuationToken nextToken?: string;
       };
     };
