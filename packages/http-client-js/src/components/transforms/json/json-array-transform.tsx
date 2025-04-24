@@ -3,7 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
 
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonArrayTransformProps {
@@ -13,6 +13,7 @@ export interface JsonArrayTransformProps {
 }
 
 export function JsonArrayTransform(props: JsonArrayTransformProps) {
+  const { $ } = useTsp();
   if (!$.array.is(props.type)) {
     return null;
   }
@@ -47,6 +48,7 @@ export interface JsonArrayTransformDeclarationProps {
 }
 
 export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarationProps) {
+  const { $ } = useTsp();
   if (!$.array.is(props.type)) {
     return null;
   }
@@ -66,9 +68,9 @@ export function JsonArrayTransformDeclaration(props: JsonArrayTransformDeclarati
   const inputType = props.target === "transport" ? <>{itemType} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
-    items_: { type: inputType, refkey: inputRef, optional: true },
-  };
+  const parameters: ts.ParameterDescriptor[] = [
+    { name: "items_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
   const declarationRefkey = getJsonArrayTransformRefkey(props.type, props.target);
   return (

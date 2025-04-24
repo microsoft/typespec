@@ -520,8 +520,13 @@ export function printAugmentDecorator(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
+  const node = path.node;
+  const target =
+    node.target.kind === SyntaxKind.Identifier
+      ? printIdentifier(node.target, "allow-reserved")
+      : path.call(print, "target");
   const args = printAugmentDecoratorArgs(path, options, print);
-  return ["@@", path.call(print, "target"), args, ";"];
+  return ["@@", target, args, ";"];
 }
 
 function printAugmentDecoratorArgs(
@@ -1484,7 +1489,7 @@ function printFunctionParameterDeclaration(
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
 
   const type = node.type ? [": ", path.call(print, "type")] : "";
 

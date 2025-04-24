@@ -1,5 +1,69 @@
 # Change Log - @typespec/compiler
 
+## 1.0.0-rc.1
+
+### Features
+
+- [#7067](https://github.com/microsoft/typespec/pull/7067) Adding support for nested paging properties.
+- [#6862](https://github.com/microsoft/typespec/pull/6862) `--trace` cli option applies to all commands now
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Adds a TypeKit for Tuple types
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Adds a new createDiagnosable typekit helper for APIs that return diagnostics
+- [#7018](https://github.com/microsoft/typespec/pull/7018) Removes the default typekit in favor of always instantiating typekits with either a `program` or `realm`.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Adds typekit support for creating unions from enums
+
+### Bug Fixes
+
+- [#6897](https://github.com/microsoft/typespec/pull/6897) Improve errors when loading libraries with invalid exports/main fields
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Mark `node` property on all typespec types as optional
+- [#7063](https://github.com/microsoft/typespec/pull/7063) Fixes an issue where isError was checking for error types instead of error models.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Preserve API documentation when calling `$.enum.createFromUnion`
+
+
+## 1.0.0-rc.0
+
+### Breaking Changes
+
+- [#6678](https://github.com/microsoft/typespec/pull/6678) Moved `TypeSpecPrettierPlugin` type to internal. If wanting to use the prettier pluging programmatically, use it from the `@typespec/prettier-plugin-typespec` package
+- [#6544](https://github.com/microsoft/typespec/pull/6544) Remove deprecated `@typespec/compiler/emitter-framework` export in favor of a new package `@typespec/asset-emitter`
+  
+    ```diff lang=json title=package.json
+    "dependencies": {
+    +   "@typespec/asset-emitter": "^0.68.0"
+    }
+    ```
+  
+    ```diff lang=ts
+    -import { TypeEmitter, ... } from "@typespec/compiler/emitter-framework";
+    +import { TypeEmitter, ... } from "@typespec/asset-emitter";
+    ```
+- [#6754](https://github.com/microsoft/typespec/pull/6754) Reserve additional keywords:
+   - `context`
+   - `sym`
+   - `prop`
+   - `property`
+   - `scenario`
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6197](https://github.com/microsoft/typespec/pull/6197) Show emitter internal error message in tspconfig
+- [#6710](https://github.com/microsoft/typespec/pull/6710) Updates to scaffolding script and scaffold commands for consistency
+- [#6826](https://github.com/microsoft/typespec/pull/6826) Fix new reserved keywords were not allowed in augment decorator expression
+- [#6697](https://github.com/microsoft/typespec/pull/6697) Fix crash that would happen when a type was mutated while using null in a decorator(e.g. when using versioning library with `@example(null)`)
+- [#6711](https://github.com/microsoft/typespec/pull/6711) Fix extra properties not validated in nested entries of the config
+- [#6711](https://github.com/microsoft/typespec/pull/6711) Fix passing nested emitter options with `--option`
+
+
+## 0.67.2
+
+### Bug Fixes
+
+- [#6648](https://github.com/microsoft/typespec/pull/6648) Fix `tsp install` broken in standalone CLI
+
+
 ## 0.67.0
 
 ### Breaking Changes

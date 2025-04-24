@@ -1,9 +1,6 @@
-import {
-  CreateSdkContextOptions,
-  SdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
-import { _defaultGeneratorName, tspOutputFileName } from "./constants.js";
+import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
+import { EmitContext, JSONSchemaType } from "@typespec/compiler";
+import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
 
@@ -11,13 +8,10 @@ import { CodeModel } from "./type/code-model.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
-export interface CSharpEmitterOptions extends SdkEmitterOptions {
+export interface CSharpEmitterOptions {
   "api-version"?: string;
-  outputFile?: string;
-  logFile?: string;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
@@ -26,7 +20,16 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
+  "generate-protocol-methods"?: boolean;
+  "generate-convenience-methods"?: boolean;
   "package-name"?: string;
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
 }
 
 /**
@@ -37,35 +40,76 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
-    "emitter-name": { type: "string", nullable: true },
-    "examples-directory": { type: "string", nullable: true },
-    "examples-dir": { type: "string", nullable: true },
-    "api-version": { type: "string", nullable: true },
-    outputFile: { type: "string", nullable: true },
-    logFile: { type: "string", nullable: true },
+    "api-version": {
+      type: "string",
+      nullable: true,
+      description:
+        "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
+        "set this option to the version that should be used to generate against.",
+    },
+    "generate-protocol-methods": { type: "boolean", nullable: true },
+    "generate-convenience-methods": { type: "boolean", nullable: true },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
       nullable: true,
+      description:
+        "Defines the strategy on how to handle unreferenced types. The default value is `removeOrInternalize`.",
     },
-    "new-project": { type: "boolean", nullable: true },
-    "clear-output-folder": { type: "boolean", nullable: true },
-    "save-inputs": { type: "boolean", nullable: true },
-    "generate-protocol-methods": { type: "boolean", nullable: true },
-    "generate-convenience-methods": { type: "boolean", nullable: true },
-    "flatten-union-as-enum": { type: "boolean", nullable: true },
-    "package-name": { type: "string", nullable: true },
-    debug: { type: "boolean", nullable: true },
+    "new-project": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to overwrite the csproj if it already exists. The default value is `false`.",
+    },
+    "save-inputs": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the generator. The default value is `false`.",
+    },
+    "package-name": {
+      type: "string",
+      nullable: true,
+      description:
+        "Define the package name. If not specified, the first namespace defined in the TypeSpec is used as the package name.",
+    },
+    debug: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to automatically attempt to attach to a debugger when executing the C# generator. The default value is `false`.",
+    },
     logLevel: {
       type: "string",
       enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
+      description: "Set the log level. The default value is `info`.",
     },
-    "disable-xml-docs": { type: "boolean", nullable: true },
-    "generator-name": { type: "string", nullable: true },
-    "emitter-extension-path": { type: "string", nullable: true },
-    "update-code-model": { type: "object", nullable: true },
-    namespace: { type: "string", nullable: true },
+    "disable-xml-docs": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to disable XML documentation generation. The default value is `false`.",
+    },
+    "generator-name": {
+      type: "string",
+      nullable: true,
+      description:
+        "The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.",
+    },
+    "emitter-extension-path": {
+      type: "string",
+      nullable: true,
+      description:
+        "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
+    },
+    "update-code-model": {
+      type: "object",
+      nullable: true,
+      description:
+        "Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.",
+    },
     license: {
       type: "object",
       additionalProperties: false,
@@ -78,8 +122,14 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         header: { type: "string", nullable: true },
         description: { type: "string", nullable: true },
       },
+      description: "License information for the generated client code.",
     },
-    "sdk-context-options": { type: "object", nullable: true },
+    "sdk-context-options": {
+      type: "object",
+      nullable: true,
+      description:
+        "The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.",
+    },
   },
   required: [],
 };
@@ -90,10 +140,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
  */
 export const defaultOptions = {
   "api-version": "latest",
-  outputFile: tspOutputFileName,
-  logFile: "log.json",
   "new-project": false,
-  "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
@@ -101,7 +148,6 @@ export const defaultOptions = {
   debug: undefined,
   logLevel: LoggerLevel.INFO,
   "generator-name": _defaultGeneratorName,
-  "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
   "sdk-context-options": undefined,
 };
@@ -114,23 +160,9 @@ export const defaultOptions = {
  */
 export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
   const emitterOptions = context.options;
-  const emitterOutputDir = context.emitterOutputDir;
   const resolvedOptions = { ...defaultOptions, ...emitterOptions };
 
-  const outputFolder = _resolveOutputFolder(context);
   return {
     ...resolvedOptions,
-    outputFile: resolvePath(outputFolder, resolvedOptions.outputFile),
-    logFile: resolvePath(emitterOutputDir ?? "./tsp-output", resolvedOptions.logFile),
   };
-}
-
-/**
- * Resolves the output folder for the CSharp emitter.
- * @param context - The emit context.
- * @returns The resolved output folder path.
- * @internal
- */
-export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
-  return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }

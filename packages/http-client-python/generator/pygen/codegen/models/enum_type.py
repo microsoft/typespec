@@ -52,7 +52,7 @@ class EnumValue(BaseType):
         """The python type used for RST syntax input and type annotation."""
 
         type_annotation = self.value_type.type_annotation(**kwargs)
-        enum_type_annotation = f"{self.code_model.namespace}.models.{self.name}"
+        enum_type_annotation = f"{self.enum_type.client_namespace}.models.{self.name}"
         return f"{type_annotation} or ~{enum_type_annotation}"
 
     def get_json_template_representation(
@@ -198,7 +198,7 @@ class EnumType(BaseType):
         """The python type used for RST syntax input and type annotation."""
         if self.code_model.options["models_mode"]:
             type_annotation = self.value_type.type_annotation(**kwargs)
-            enum_type_annotation = f"{self.code_model.namespace}.models.{self.name}"
+            enum_type_annotation = f"{self.client_namespace}.models.{self.name}"
             return f"{type_annotation} or ~{enum_type_annotation}"
         return self.value_type.type_annotation(**kwargs)
 

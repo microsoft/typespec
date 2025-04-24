@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.9",
+  "version": "0.1.0-alpha.12",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
-    "build": "npm run gen-extern-signature && tsc -p tsconfig.build.json",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
@@ -46,7 +46,7 @@
     "ajv": "~8.17.1",
     "body-parser": "^1.20.3",
     "deep-equal": "^2.2.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "globby": "~14.1.0",
     "js-yaml": "^4.1.0",
     "micromatch": "^4.0.8",
@@ -62,7 +62,7 @@
     "@types/deep-equal": "^1.0.1",
     "@types/express": "^5.0.1",
     "@types/micromatch": "^4.0.9",
-    "@types/morgan": "^1.9.4",
+    "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.10",
     "@types/node": "~22.13.11",
     "@types/xml2js": "^0.4.11",

@@ -1,7 +1,7 @@
 #nullable disable
 
 using Sample;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace NewNamespace.Models
 {

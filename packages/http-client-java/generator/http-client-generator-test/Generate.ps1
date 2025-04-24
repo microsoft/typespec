@@ -34,9 +34,14 @@ $generateScript = {
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
+  } elseif ($tspFile -match "client[\\/]namespace[\\/]") {
+    # specify the namespace, but @clientNamespace in client.tsp should take precedence
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=client.clientnamespace"""
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
     # override examples-dir
     $tspOptions += " --option ""@typespec/http-client-java.examples-dir={project-root}/specs/azure/example/basic/examples"""
+  } elseif ($tspFile -match "azure[\\/]client-generator-core[\\/]client-initialization[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]old\.tsp") {
     # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
@@ -64,12 +69,12 @@ $generateScript = {
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
-    # also don't generate with stream-style-serialization as azure-core-management hasn't migrated to azure-json yet
-    $tspOptions += " --option ""@typespec/http-client-java.stream-style-serialization=false"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+    # enable sync-stack
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
@@ -114,10 +119,7 @@ $generateScript = {
   }
 }
 
-# hack to allow additionalProperties in this test
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: false,", "additionalProperties: true," | Set-Content -Path "../../emitter/src/options.ts"
 ./Setup.ps1
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: true,", "additionalProperties: false," | Set-Content -Path "../../emitter/src/options.ts"
 
 New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 

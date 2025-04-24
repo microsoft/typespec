@@ -52,7 +52,7 @@ jobs:
         workingDirectory: packages/standalone
         displayName: Build
 
-      - script: pnpm check
+      - script: pnpm check smoke --smoke-only
         workingDirectory: packages/standalone
         displayName: Check executable runs
 

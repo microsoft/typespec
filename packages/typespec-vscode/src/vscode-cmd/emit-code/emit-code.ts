@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
+import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
@@ -152,6 +153,9 @@ async function doEmit(
       [],
       { showOutput: false, showPopup: true },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "no main tsp file found in the project.",
+    });
     tel.lastStep = "Check main tsp file for emitting";
     return ResultCode.Fail;
   }
@@ -300,11 +304,17 @@ async function doEmit(
           try {
             const npmInstallResult = await npmUtil.npmInstallPackages(installPackages, undefined);
             if (npmInstallResult.exitCode !== 0) {
+              telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                error: `npm install failed: ${inspect(npmInstallResult)}`,
+              });
               return false;
             } else {
               return true;
             }
           } catch (err: any) {
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: `npm install failed: ${inspect(err)}`,
+            });
             return false;
           }
         },
@@ -331,6 +341,9 @@ async function doEmit(
         showPopup: true,
       },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Cannot find TypeSpec CLI.",
+    });
     tel.lastStep = "Resolve TypeSpec CLI";
     return ResultCode.Fail;
   }
@@ -425,11 +438,14 @@ async function doEmit(
             return createHash("sha256").update(packageName).digest("hex");
           }
         };
-        emitters.forEach((e) => {
+        emitters.forEach(async (e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             emitterName: generatePackageNameForTelemetry(e.package),
-            emitterVersion: e.version,
+            emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
+        });
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
         });
         const compileResult = await compile(
           cli,
@@ -444,6 +460,9 @@ async function doEmit(
             showOutput: true,
             showPopup: true,
           });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            emitResult: `Emitting code failed: ${inspect(compileResult)}`,
+          });
           return ResultCode.Fail;
         } else {
           logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
@@ -456,8 +475,6 @@ async function doEmit(
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
           const execOutput = err as ExecOutput;
           const details = [];
-          if (execOutput.stdout !== "") details.push(execOutput.stdout);
-          if (execOutput.stderr !== "") details.push(execOutput.stderr);
           if (execOutput.error) details.push(execOutput.error);
           logger.error(`Emitting ${codeInfoStr}...Failed.`, details, {
             showOutput: true,
@@ -469,7 +486,14 @@ async function doEmit(
             showPopup: true,
           });
         }
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          emitResult: `Emitting code failed: ${inspect(err)}`,
+        });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );

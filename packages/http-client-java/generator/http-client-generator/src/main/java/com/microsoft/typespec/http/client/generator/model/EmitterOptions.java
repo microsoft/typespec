@@ -17,13 +17,12 @@ import java.util.Map;
 
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
-    private String outputDir;
     private String flavor = "generic";
     private String serviceName;
     private List<String> serviceVersions;
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
-    private Boolean enableSyncStack = true;
+    private Boolean enableSyncStack;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private String customTypes;
@@ -33,16 +32,31 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
     private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
-    private Boolean arm = false;
     private String modelsSubpackage;
+    private String apiVersion;
     private DevOptions devOptions;
+
+    // internal
+    private String outputDir;
+    private Boolean arm = false;
+    private String licenseHeader;
 
     public String getNamespace() {
         return namespace;
     }
 
+    public EmitterOptions setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
+
     public String getOutputDir() {
         return outputDir;
+    }
+
+    public EmitterOptions setOutputDir(String outputDir) {
+        this.outputDir = outputDir;
+        return this;
     }
 
     public String getServiceName() {
@@ -73,16 +87,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useObjectForUnknown;
     }
 
-    public EmitterOptions setNamespace(String namespace) {
-        this.namespace = namespace;
-        return this;
-    }
-
-    public EmitterOptions setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
-        return this;
-    }
-
     public List<String> getServiceVersions() {
         return serviceVersions;
     }
@@ -111,10 +115,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return polling;
     }
 
-    public void setPolling(Map<String, JavaSettings.PollingDetails> polling) {
-        this.polling = polling;
-    }
-
     public Boolean getArm() {
         return arm;
     }
@@ -129,6 +129,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public String getPackageVersion() {
         return packageVersion;
+    }
+
+    public String getLicenseHeader() {
+        return licenseHeader;
+    }
+
+    public String getApiVersion() {
+        return apiVersion;
     }
 
     @Override
@@ -177,8 +185,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.modelsSubpackage = emptyToNull(reader.getString());
             } else if ("package-version".equals(fieldName)) {
                 options.packageVersion = emptyToNull(reader.getString());
+            } else if ("license-header".equals(fieldName)) {
+                options.licenseHeader = emptyToNull(reader.getString());
             } else if ("dev-options".equals(fieldName)) {
                 options.devOptions = DevOptions.fromJson(reader);
+            } else if ("api-version".equals(fieldName)) {
+                options.apiVersion = emptyToNull(reader.getString());
             } else {
                 reader.skipChildren();
             }
@@ -190,7 +202,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
      * Without description in "EmitterOptions" in $lib of emitter,
      * tsp compiler will not automatically convert "true" option to JSON boolean.
      * We did not expect user to use these undocumented options in unbranded,
-     * but we currently have such test in test cases.
+     * but we currently have such tests in test cases.
      */
     private static boolean getBoolean(JsonReader jsonReader) throws IOException {
         JsonToken currentToken = jsonReader.currentToken();

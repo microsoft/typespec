@@ -1,4 +1,5 @@
 import TelemetryReporter from "@vscode/extension-telemetry";
+import { inspect } from "util";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
 import { ExtensionStateManager } from "../extension-state-manager.js";
@@ -42,12 +43,14 @@ export class TelemetryClient {
       );
       this._client = undefined;
     } else {
-      this._client = new (TelemetryReporter as any)(
-        `${pkgJson.publisher}.${pkgJson.name}`,
-        pkgJson.version,
-        key,
-        true /*first party*/,
-      );
+      try {
+        this._client = new TelemetryReporter.default(key);
+      } catch (err) {
+        this.logErrorWhenLoggingTelemetry(
+          `Failed to initialize telemetry client with key, error: ${inspect(err)}`,
+        );
+        this._client = undefined;
+      }
     }
   }
 
@@ -143,6 +146,13 @@ export class TelemetryClient {
         }
       }
       return result;
+    } catch (e) {
+      this.logOperationDetailTelemetry(opTelemetryEvent.activityId, {
+        error: "Unhandled exception from operation to doOperationWithTelemetry: \n" + inspect(e),
+      });
+      opTelemetryEvent.result = ResultCode.Fail;
+      // just report the issue in telemetry and re-throw the error
+      throw e;
     } finally {
       sendTelemetryEvent();
     }

@@ -39,3 +39,11 @@ export async function getProgram(
   expectDiagnosticEmpty(diagnostics);
   return wrapper.program;
 }
+
+/**
+ * Initializes an empty program in the compiler.
+ * This is useful when you want to initialize the default TypeKits without any code.
+ */
+export async function initEmptyProgram(): Promise<void> {
+  await getProgram("");
+}

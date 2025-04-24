@@ -47,7 +47,10 @@ export function RestError() {
       <ay.List hardline>
         <ts.ClassMethod
           name="constructor"
-          parameters={{ message: "string", response: httpRuntimeTemplateLib.HttpResponse }}
+          parameters={[
+            { name: "message", type: "string" },
+            { name: "response", type: httpRuntimeTemplateLib.HttpResponse },
+          ]}
           returnType={null}
           refkey={constructorRefkey}
         >
@@ -68,7 +71,7 @@ export function RestError() {
         <ts.ClassMethod
           static
           name="fromHttpResponse"
-          parameters={{ response: httpRuntimeTemplateLib.HttpResponse }}
+          parameters={[{ name: "response", type: httpRuntimeTemplateLib.HttpResponse }]}
           returnType={getRestErrorRefkey()}
           refkey={fromHttpResponseRefkey}
         >
@@ -85,7 +88,7 @@ export function RestError() {
     <ts.FunctionDeclaration
       export
       name="createRestError"
-      parameters={{ response: httpRuntimeTemplateLib.HttpResponse }}
+      parameters={[{ name: "response", type: httpRuntimeTemplateLib.HttpResponse }]}
       returnType={getRestErrorRefkey()}
       refkey={getCreateRestErrorRefkey()}
     >

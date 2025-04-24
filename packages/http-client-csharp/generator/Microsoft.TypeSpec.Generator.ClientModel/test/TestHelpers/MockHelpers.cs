@@ -58,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
+            RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
@@ -73,8 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputAuth!,
-                Array.Empty<string>());
+                inputAuth!);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
 
@@ -129,6 +129,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
             }
 
+            if (requestContentApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.RequestContentApi).Returns(requestContentApi);
+            }
+
             if (createInputLibrary is not null)
             {
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
@@ -139,7 +144,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
             clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);
-            mockGeneratorInstance.Object.Configure();
+
+            var configureMethod = typeof(CodeModelGenerator).GetMethod(
+                "Configure",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod
+            );
+            configureMethod!.Invoke(mockGeneratorInstance.Object, null);
+
             return mockGeneratorInstance;
         }
     }

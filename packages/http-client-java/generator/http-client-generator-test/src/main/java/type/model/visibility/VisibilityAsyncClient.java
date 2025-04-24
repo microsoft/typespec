@@ -47,7 +47,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -65,7 +64,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -77,6 +75,7 @@ public final class VisibilityAsyncClient {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -88,8 +87,9 @@ public final class VisibilityAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.getModelWithResponseAsync(input, requestOptions);
+    public Mono<Response<BinaryData>> getModelWithResponse(int queryProp, BinaryData input,
+        RequestOptions requestOptions) {
+        return this.serviceClient.getModelWithResponseAsync(queryProp, input, requestOptions);
     }
 
     /**
@@ -100,7 +100,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -112,6 +111,7 @@ public final class VisibilityAsyncClient {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -122,8 +122,8 @@ public final class VisibilityAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> headModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.headModelWithResponseAsync(input, requestOptions);
+    public Mono<Response<Void>> headModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
+        return this.serviceClient.headModelWithResponseAsync(queryProp, input, requestOptions);
     }
 
     /**
@@ -134,7 +134,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -168,7 +167,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -202,7 +200,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -236,7 +233,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -312,6 +308,7 @@ public final class VisibilityAsyncClient {
     /**
      * The getModel operation.
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -323,16 +320,17 @@ public final class VisibilityAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<VisibilityModel> getModel(VisibilityModel input) {
+    public Mono<VisibilityModel> getModel(int queryProp, VisibilityModel input) {
         // Generated convenience method for getModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getModelWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono)
+        return getModelWithResponse(queryProp, BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(VisibilityModel.class));
     }
 
     /**
      * The headModel operation.
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -344,10 +342,10 @@ public final class VisibilityAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> headModel(VisibilityModel input) {
+    public Mono<Void> headModel(int queryProp, VisibilityModel input) {
         // Generated convenience method for headModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return headModelWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
+        return headModelWithResponse(queryProp, BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

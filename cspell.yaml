@@ -58,6 +58,7 @@ words:
   - Dosgi
   - dotenv
   - Dskip
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -83,8 +84,11 @@ words:
   - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
+  - hresult
   - hscs
+  - hsjs
   - HSTS
+  - httpx
   - imple
   - Infima
   - initcs
@@ -176,6 +180,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport

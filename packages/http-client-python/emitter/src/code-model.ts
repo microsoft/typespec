@@ -178,31 +178,26 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 ): Record<string, any>[] | undefined {
   const operationGroups: Record<string, any>[] = [];
 
-  for (const method of client.methods) {
-    if (method.kind === "clientaccessor") {
-      const operationGroup = method.response;
-      const name = `${prefix}${operationGroup.name}`;
-      let operations: Record<string, any>[] = [];
-      for (const method of operationGroup.methods) {
-        if (method.kind === "clientaccessor") continue;
-        operations = operations.concat(emitMethod(context, rootClient, method, name));
-      }
-      operationGroups.push({
-        name: name,
-        className: name,
-        propertyName: operationGroup.name,
-        operations: operations,
-        operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
-        clientNamespace: getClientNamespace(context, operationGroup.namespace),
-      });
+  for (const operationGroup of client.children ?? []) {
+    const name = `${prefix}${operationGroup.name}`;
+    let operations: Record<string, any>[] = [];
+    for (const method of operationGroup.methods) {
+      operations = operations.concat(emitMethod(context, rootClient, method, name));
     }
+    operationGroups.push({
+      name: name,
+      className: name,
+      propertyName: operationGroup.name,
+      operations: operations,
+      operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
+      clientNamespace: getClientNamespace(context, operationGroup.namespace),
+    });
   }
 
   // root client should deal with mixin operation group
   if (prefix === "") {
     let operations: Record<string, any>[] = [];
     for (const method of client.methods) {
-      if (method.kind === "clientaccessor") continue;
       operations = operations.concat(emitMethod(context, rootClient, method, ""));
     }
     if (operations.length > 0) {
@@ -277,6 +272,9 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     namespace: getRootNamespace(sdkContext),
     clients: [],
   };
+  if (sdkPackage.licenseInfo) {
+    codeModel["licenseInfo"] = sdkPackage.licenseInfo;
+  }
   for (const client of sdkPackage.clients) {
     codeModel["clients"].push(emitClient(sdkContext, client));
   }

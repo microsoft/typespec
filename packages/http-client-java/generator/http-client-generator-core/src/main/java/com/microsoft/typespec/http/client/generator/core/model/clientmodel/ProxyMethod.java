@@ -297,6 +297,16 @@ public class ProxyMethod {
         return customHeaderIgnored;
     }
 
+    /**
+     * Check if this method has a parameter of the given type.
+     *
+     * @param type the type to check.
+     * @return true if this method has a parameter of the given type, false otherwise.
+     */
+    public boolean hasParameterOfType(IType type) {
+        return parameters.stream().anyMatch(p -> p.getClientType() == type);
+    }
+
     public ProxyMethod toSync() {
         if (isSync) {
             return this;
@@ -349,7 +359,9 @@ public class ProxyMethod {
 
     private IType mapToSyncType(IType type) {
         if (type == GenericType.FLUX_BYTE_BUFFER) {
-            return ClassType.BINARY_DATA;
+            return JavaSettings.getInstance().isInputStreamForBinary()
+                ? GenericType.Response(ClassType.INPUT_STREAM)
+                : GenericType.Response(ClassType.BINARY_DATA);
         }
 
         if (type instanceof GenericType) {
@@ -363,6 +375,11 @@ public class ProxyMethod {
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
+                    } else if ((innerGenericType.getName().equals("Response")
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER)) {
+                        return JavaSettings.getInstance().isInputStreamForBinary()
+                            ? GenericType.Response(ClassType.INPUT_STREAM)
+                            : GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
 
@@ -447,7 +464,7 @@ public class ProxyMethod {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 
-            for (ProxyMethodParameter parameter : parameters) {
+            for (ProxyMethodParameter parameter : allParameters) {
                 parameter.addImportsTo(imports, includeImplementationImports, settings);
             }
         }

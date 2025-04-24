@@ -1,5 +1,5 @@
 
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 using System;
 using System.Collections.Generic;
 

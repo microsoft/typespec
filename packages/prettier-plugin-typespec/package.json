@@ -1,10 +1,12 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.67.1",
+  "version": "1.0.0-rc.1",
   "description": "",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
-    "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
+    "build": "pnpm compile && pnpm generate-third-party-notices",
+    "compile": "tsx ./scripts/build.ts",
     "test": "vitest run",
     "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"
@@ -15,13 +17,9 @@
     "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~28.0.3",
-    "@rollup/plugin-json": "~6.1.0",
-    "@rollup/plugin-node-resolve": "~16.0.1",
-    "@rollup/plugin-replace": "~6.0.2",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
-    "rollup": "~4.36.0",
+    "esbuild": "^0.25.1",
     "vitest": "^3.0.9"
   },
   "files": [

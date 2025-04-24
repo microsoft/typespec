@@ -892,6 +892,49 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
+### Parameters_Path_normal
+
+- Endpoint: `get /parameters/path/normal/{name}`
+
+Test case for normal path parameter.
+
+Should generate an operation like below:
+
+```
+normal(name: string)
+```
+
+Expected request path:
+
+```
+/normal/foo
+```
+
+### Parameters_Path_optional
+
+- Endpoint: `get /parameters/path/optional{/name}`
+
+Test case for optional path parameter.
+
+Should generate an operation like below:
+
+```
+optional(name?: string)
+```
+
+Expected two request:
+First request path:
+
+```
+/optional
+```
+
+Second request path:
+
+```
+/optional/foo
+```
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1157,7 +1200,7 @@ Expected input body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -1185,7 +1228,7 @@ Expected response body:
     }
   ],
   "intValue": 1,
-  "floatValue": 1.1,
+  "floatValue": 1.25,
   "innerModel": {
     "name": "InnerMadge",
     "description": "innerDesc"
@@ -4610,13 +4653,7 @@ Expected input body:
 - Endpoint: `get /type/model/visibility`
 
 Generate and receive output model with readonly properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 Expected response body:
 
@@ -4631,13 +4668,7 @@ Expected response body:
 - Endpoint: `head /type/model/visibility`
 
 Generate abd send put model with write/create properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 ### Type_Model_Visibility_patchModel
 
@@ -7547,7 +7578,7 @@ Expected request body:
 
 - Endpoint: `post /versioning/removed/api-version:{version}/v3`
 
-path: "/versioning/removed/api-version[:]v1/v3"
+path: "/versioning/removed/api-version:v1/v3"
 Expected request body:
 
 ```json
@@ -7560,7 +7591,7 @@ Expected response body:
 { "id": "123", "enumProp": "enumMemberV1" }
 ```
 
-path: "/versioning/removed/api-version[:]v2preview/v3"
+path: "/versioning/removed/api-version:v2preview/v3"
 Expected request body:
 
 ```json
@@ -7573,7 +7604,7 @@ Expected response body:
 { "id": "123" }
 ```
 
-path: "/versioning/removed/api-version[:]v2/v3"
+path: "/versioning/removed/api-version:v2/v3"
 Expected request body:
 
 ```json
