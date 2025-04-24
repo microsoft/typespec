@@ -4,14 +4,15 @@ TypeSpec library and emitter for GraphQL
 
 ## Install
 
-TODO: write installation instructions after the package has been published
+Run the following from typespec root `~workspace/typespec/`
+
+`pnpm install`
+`pnpm build`
 
 ## Emitter
 
+Run the following from `typespec/packages/graphql`
+
+`npx tsp compile . --emit=@typespec/graphql`
+
 ### Usage
-
-1. Via the command line
-
-```bash
-tsp compile . --emit=graphql
-```
