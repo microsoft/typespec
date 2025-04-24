@@ -58,6 +58,51 @@ namespace ServerDrivenPagination {
     @nextLink next?: url;
   };
 
+  @scenario
+  @scenarioDoc("""
+    Test case for using link as pagination with nested structure.
+    
+    Two requests need to be tested.
+    1. Initial request:
+    Expected route: /payload/pageable/server-driven-pagination/nested-link
+    Expected response body:
+    ```json
+    { "nestedItems": {
+        "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ]
+      },
+      "nestedNextLink": {
+        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/nested-link/nextPage"
+      }
+    }
+    ```
+    2. Next page request:
+    Expected route: /payload/pageable/server-driven-pagination/nested-link/nextPage
+    Expected response body:
+    ```json
+    { "nestedItems": {
+        "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+    }
+    ```
+    """)
+  @route("/nested-link")
+  @list
+  op nestedLink(): {
+    nestedItems: {
+      @pageItems
+      pets: Pet[];
+    };
+    nestedNextLink: {
+      @nextLink next?: url;
+    };
+  };
+
   @route("/continuationtoken")
   namespace ContinuationToken {
     @scenario
@@ -248,50 +293,117 @@ namespace ServerDrivenPagination {
 
       @continuationToken @header nextToken?: string;
     };
-  }
-}
 
-
-
-/* cases to discuss whether we need support */
-@route("/server-driven-pagination-discussion")
-namespace ServerDrivenPaginationDiscussion {
-  @route("/link-nested")
-  @list
-  op linkNested(): {
-    @pageItems
-    pets: string[];
-
-    next?: {@nextLink next?: url;}
-  };
-  
-  // @pageitems can't be in nested otherwise tsp compiler will report error
-  // @route("/pageitems-nested")
-  // @list
-  // op pageitemsNested(): {
-  //   items: {@pageItems pets: string[]};
-
-  //   @nextLink next?: url;
-  // };
-
-  @route("/continuationtoken")
-  namespace ContinuationToken {
-    @route("/request-query-response-body-nested")
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request query and nested within response body.
+      
+      Two requests need to be tested.
+      
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar
+      
+      Expected request header:
+      foo=foo
+      
+      Expected response body:
+      ```json
+      { "nestedItems": {
+          "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ]
+        },
+        "nestedNextLink": {
+          "nextToken": "page2"
+        }
+      }
+      ```
+      
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body?bar=bar&token=page2
+      
+      Expected request header:
+      foo=foo
+      
+      Expected response body:
+      ```json
+      { "nestedItems": {
+          "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+          ]
+        }
+      }
+      ```
+      """)
+    @route("/request-query-nested-response-body")
     @list
-    op requestQueryResponseBody(@continuationToken @query token?: string, ...HeaderAndQuery): {
-      @pageItems
-      pets: string[];
-
-      next?: { @continuationToken nextToken?: string};
+    op requestQueryNestedResponseBody(
+      @continuationToken @query token?: string,
+      ...HeaderAndQuery,
+    ): {
+      nestedItems: {
+        @pageItems
+        pets: Pet[];
+      };
+      nestedNextLink?: {
+        @continuationToken nextToken?: string;
+      };
     };
 
-    @route("/request-header-response-body-nested")
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination with nested response structure. Continuation token is passed in the request header and nested within response body.
+      
+      Two requests need to be tested.
+      
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination-discussion/continuationtoken/request-header-nested-response-body?bar=bar
+      
+      Expected request header:
+      foo=foo
+      
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ],
+        "next": {
+          "nextToken": "page2"
+        }
+      }
+      ```
+      
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination-discussion/continuationtoken/request-header-nested-response-body?bar=bar
+      
+      Expected request header:
+      token=page2
+      foo=foo
+      
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/request-header-nested-response-body")
     @list
-    op requestHeaderResponseBody(@continuationToken @header token?: string, ...HeaderAndQuery): {
+    op requestHeaderNestedResponseBody(
+      @continuationToken @header token?: string,
+      ...HeaderAndQuery,
+    ): {
       @pageItems
-      pets: string[];
+      pets: Pet[];
 
-      next?: { @continuationToken nextToken?: string};
+      next?: {
+        @continuationToken nextToken?: string;
+      };
     };
   }
 }
