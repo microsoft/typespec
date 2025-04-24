@@ -856,6 +856,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AccessibilityOfMethodMatchesInputOperation(bool isPublic)
+        {
+            MockHelpers.LoadMockGenerator();
+            var access = isPublic ? "public" : "internal";
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            "Foo",
+                            access: access),
+                        access: access)
+                ]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(convenienceMethod);
+
+            var protocolMethod = clientProvider.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(protocolMethod);
+
+            if (isPublic)
+            {
+                Assert.IsTrue(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsTrue(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+            else
+            {
+                Assert.IsFalse(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
         private static InputClient GetEnumQueryParamClient()
         {
             return InputFactory.Client(
