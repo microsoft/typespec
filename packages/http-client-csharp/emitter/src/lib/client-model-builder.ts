@@ -48,8 +48,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     if (count) {
       constantNameMap.set(constant.name, count + 1);
       constant.name = `${constant.name}${count}`;
-    }
-    else {
+    } else {
       constantNameMap.set(constant.name, 1);
     }
   }
