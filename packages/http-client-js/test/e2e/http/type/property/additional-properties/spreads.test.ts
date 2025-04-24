@@ -402,7 +402,7 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const expected: SpreadRecordForNonDiscriminatedUnion2 = {
       name: "abc",
       additionalProperties: {
-        prop1: { kind: "kind1", start: "2021-01-01T00:00:00Z" },
+        prop1: { kind: "kind1", start: "2021-01-01T00:00:00Z" } as any,
         prop2: {
           kind: "kind1",
           start: "2021-01-01T00:00:00Z",
@@ -425,8 +425,8 @@ describe("Missing AdditionalProperties Endpoints", () => {
       name: "abc",
       additionalProperties: {
         prop1: [
-          { kind: "kind1", start: "2021-01-01T00:00:00Z" },
-          { kind: "kind1", start: "2021-01-01T00:00:00Z" },
+          { kind: "kind1", start: "2021-01-01T00:00:00Z" } as any,
+          { kind: "kind1", start: "2021-01-01T00:00:00Z" } as any,
         ],
         prop2: {
           kind: "kind1",
