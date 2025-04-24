@@ -73,19 +73,47 @@
    },
    "value": "application/json",
    "decorators": []
+  },
+  {
+   "$id": "10",
+   "kind": "constant",
+   "name": "TestRequestContentType",
+   "valueType": {
+    "$id": "11",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "12",
+   "kind": "constant",
+   "name": "TestRequestContentType",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
   }
  ],
  "models": [],
  "clients": [
   {
-   "$id": "10",
+   "$id": "14",
    "kind": "client",
    "name": "ReturnTypeChangedFromClient",
    "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "methods": [
     {
-     "$id": "11",
+     "$id": "15",
      "kind": "basic",
      "name": "test",
      "accessibility": "public",
@@ -93,13 +121,13 @@
       "v1"
      ],
      "operation": {
-      "$id": "12",
+      "$id": "16",
       "name": "test",
       "resourceName": "ReturnTypeChangedFrom",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "13",
+        "$id": "17",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "type": {
@@ -116,7 +144,7 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "14",
+        "$id": "18",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
@@ -133,11 +161,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "15",
+        "$id": "19",
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$id": "16",
+         "$id": "20",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -156,12 +184,12 @@
       ],
       "responses": [
        {
-        "$id": "17",
+        "$id": "21",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$id": "18",
+         "$id": "22",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -169,11 +197,11 @@
         },
         "headers": [
          {
-          "$id": "19",
+          "$id": "23",
           "name": "contentType",
           "nameInResponse": "content-type",
           "type": {
-           "$ref": "6"
+           "$ref": "10"
           }
          }
         ],
@@ -197,11 +225,11 @@
      },
      "parameters": [
       {
-       "$id": "20",
+       "$id": "24",
        "name": "contentType",
        "nameInRequest": "content-type",
        "type": {
-        "$ref": "6"
+        "$ref": "12"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -214,11 +242,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "21",
+       "$id": "25",
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$id": "22",
+        "$id": "26",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -235,7 +263,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "23",
+       "$id": "27",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
@@ -253,9 +281,9 @@
       }
      ],
      "response": {
-      "$id": "24",
+      "$id": "28",
       "type": {
-       "$ref": "18"
+       "$ref": "22"
       }
      },
      "isOverride": false,
@@ -266,12 +294,12 @@
    ],
    "parameters": [
     {
-     "$id": "25",
+     "$id": "29",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Need to be set as 'http://localhost:3000' in client.",
      "type": {
-      "$id": "26",
+      "$id": "30",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -286,7 +314,7 @@
      "kind": "Client"
     },
     {
-     "$id": "27",
+     "$id": "31",
      "name": "version",
      "nameInRequest": "version",
      "doc": "Need to be set as 'v1' or 'v2' in client.",

@@ -96,11 +96,25 @@
    },
    "value": "application/json",
    "decorators": []
+  },
+  {
+   "$id": "12",
+   "kind": "constant",
+   "name": "v1ContentType",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
   }
  ],
  "models": [
   {
-   "$id": "12",
+   "$id": "14",
    "kind": "model",
    "name": "ModelV1",
    "namespace": "Versioning.Added",
@@ -109,12 +123,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "13",
+     "$id": "15",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "14",
+      "$id": "16",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -127,15 +141,15 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.Added.ModelV1.prop",
      "serializationOptions": {
-      "$id": "15",
+      "$id": "17",
       "json": {
-       "$id": "16",
+       "$id": "18",
        "name": "prop"
       }
      }
     },
     {
-     "$id": "17",
+     "$id": "19",
      "kind": "property",
      "name": "enumProp",
      "serializedName": "enumProp",
@@ -149,9 +163,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.Added.ModelV1.enumProp",
      "serializationOptions": {
-      "$id": "18",
+      "$id": "20",
       "json": {
-       "$id": "19",
+       "$id": "21",
        "name": "enumProp"
       }
      }
@@ -161,14 +175,14 @@
  ],
  "clients": [
   {
-   "$id": "20",
+   "$id": "22",
    "kind": "client",
    "name": "AddedClient",
    "namespace": "Versioning.Added",
    "doc": "Test for the `@added` decorator.",
    "methods": [
     {
-     "$id": "21",
+     "$id": "23",
      "kind": "basic",
      "name": "v1",
      "accessibility": "public",
@@ -176,13 +190,13 @@
       "v1"
      ],
      "operation": {
-      "$id": "22",
+      "$id": "24",
       "name": "v1",
       "resourceName": "Added",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "23",
+        "$id": "25",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
@@ -200,11 +214,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "24",
+        "$id": "26",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$ref": "10"
+         "$ref": "12"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -217,11 +231,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "25",
+        "$id": "27",
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$ref": "12"
+         "$ref": "14"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -236,12 +250,12 @@
       ],
       "responses": [
        {
-        "$id": "26",
+        "$id": "28",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$ref": "12"
+         "$ref": "14"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -264,11 +278,11 @@
      },
      "parameters": [
       {
-       "$id": "27",
+       "$id": "29",
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$ref": "12"
+        "$ref": "14"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -281,7 +295,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "28",
+       "$id": "30",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
@@ -299,11 +313,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "29",
+       "$id": "31",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "10"
+        "$ref": "12"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -317,9 +331,9 @@
       }
      ],
      "response": {
-      "$id": "30",
+      "$id": "32",
       "type": {
-       "$ref": "12"
+       "$ref": "14"
       }
      },
      "isOverride": false,
@@ -330,12 +344,12 @@
    ],
    "parameters": [
     {
-     "$id": "31",
+     "$id": "33",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Need to be set as 'http://localhost:3000' in client.",
      "type": {
-      "$id": "32",
+      "$id": "34",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -350,7 +364,7 @@
      "kind": "Client"
     },
     {
-     "$id": "33",
+     "$id": "35",
      "name": "version",
      "nameInRequest": "version",
      "doc": "Need to be set as 'v1' or 'v2' in client.",
