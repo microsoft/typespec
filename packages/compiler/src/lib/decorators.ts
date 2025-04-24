@@ -370,12 +370,6 @@ export const $mediaTypeHint: MediaTypeHintDecorator = (
       format: { mimeType: mediaType },
       target: context.getArgumentTarget(0)!,
     });
-  } else if (mimeTypeObj.suffix) {
-    reportDiagnostic(context.program, {
-      code: "no-mime-type-suffix",
-      format: { mimeType: mediaType, suffix: mimeTypeObj.suffix },
-      target: context.getArgumentTarget(0)!,
-    });
   }
 
   setMediaTypeHint(context.program, target, mediaType);
