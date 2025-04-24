@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod.Builder;
@@ -295,7 +296,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
                 } else if (operation.isLro()
-                    && (settings.isFluent() || settings.getPollingConfig("default") != null)
+                    && (settings.isFluent() || settings.getPollingSettings("default") != null)
                     && !methodsReturnDescription.getSyncReturnType().equals(ClassType.INPUT_STREAM)) {
                     // Skip InputStream, no idea how to do this in PollerFlux.
 
@@ -382,27 +383,26 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
 
-                    JavaSettings.PollingDetails pollingDetails
-                        = settings.getPollingConfig(proxyMethod.getOperationId());
+                    PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
 
                     MethodPollingDetails methodPollingDetails = null;
                     MethodPollingDetails dpgMethodPollingDetailsWithModel = null;   // for additional LRO methods
 
-                    if (pollingDetails != null) {
+                    if (pollingSettings != null) {
                         // try lroMetadata
-                        methodPollingDetails = methodPollingDetailsFromMetadata(operation, pollingDetails);
+                        methodPollingDetails = methodPollingDetailsFromMetadata(operation, pollingSettings);
 
                         // result from methodPollingDetails already handled JavaSettings.PollingDetails (as well as
                         // LongRunningMetadata)
                         if (methodPollingDetails == null) {
                             final IType syncReturnType = methodsReturnDescription.getSyncReturnType();
                             methodPollingDetails
-                                = new MethodPollingDetails(pollingDetails.getStrategy(),
-                                    pollingDetails.getSyncStrategy(),
-                                    getPollingIntermediateType(pollingDetails, syncReturnType),
-                                    getPollingFinalType(pollingDetails, syncReturnType,
+                                = new MethodPollingDetails(pollingSettings.getStrategy(),
+                                    pollingSettings.getSyncStrategy(),
+                                    getPollingIntermediateType(pollingSettings, syncReturnType),
+                                    getPollingFinalType(pollingSettings, syncReturnType,
                                         MethodUtil.getHttpMethod(operation)),
-                                    pollingDetails.getPollIntervalInSeconds());
+                                    pollingSettings.getPollIntervalInSeconds());
                         }
                     }
 
@@ -1059,7 +1059,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(withContextMethod);
     }
 
-    private IType getPollingIntermediateType(JavaSettings.PollingDetails details, IType syncReturnType) {
+    private IType getPollingIntermediateType(PollingSettings details, IType syncReturnType) {
         IType pollResponseType = syncReturnType.asNullable();
         if (JavaSettings.getInstance().isFluent()) {
             return pollResponseType;
@@ -1075,8 +1075,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         return pollResponseType;
     }
 
-    private IType getPollingFinalType(JavaSettings.PollingDetails details, IType syncReturnType,
-        HttpMethod httpMethod) {
+    private IType getPollingFinalType(PollingSettings details, IType syncReturnType, HttpMethod httpMethod) {
         IType resultType = syncReturnType.asNullable();
         if (JavaSettings.getInstance().isFluent()) {
             return resultType;
@@ -1101,9 +1100,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private static MethodPollingDetails methodPollingDetailsFromMetadata(Operation operation,
-        JavaSettings.PollingDetails pollingDetails) {
+        PollingSettings pollingSettings) {
 
-        if (pollingDetails == null || operation.getConvenienceApi() == null) {
+        if (pollingSettings == null || operation.getConvenienceApi() == null) {
             return null;
         }
 
@@ -1118,23 +1117,23 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 : objectMapper.map(metadata.getFinalResultType());
 
             // PollingDetails would override LongRunningMetadata
-            if (pollingDetails.getIntermediateType() != null) {
-                intermediateType = createTypeFromModelName(pollingDetails.getIntermediateType());
+            if (pollingSettings.getIntermediateType() != null) {
+                intermediateType = createTypeFromModelName(pollingSettings.getIntermediateType());
             }
-            if (pollingDetails.getFinalType() != null) {
-                finalType = createTypeFromModelName(pollingDetails.getFinalType());
+            if (pollingSettings.getFinalType() != null) {
+                finalType = createTypeFromModelName(pollingSettings.getFinalType());
             }
 
             // PollingStrategy
             JavaSettings settings = JavaSettings.getInstance();
             final String packageName = settings.getPackage(settings.getImplementationSubpackage());
             String pollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingDetails.getStrategy()
-                : String.format(JavaSettings.PollingDetails.DEFAULT_POLLING_STRATEGY_FORMAT,
+                ? pollingSettings.getStrategy()
+                : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
                     packageName + "." + metadata.getPollingStrategy().getLanguage().getJava().getName());
             String syncPollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingDetails.getSyncStrategy()
-                : String.format(JavaSettings.PollingDetails.DEFAULT_POLLING_STRATEGY_FORMAT,
+                ? pollingSettings.getSyncStrategy()
+                : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
                     packageName + ".Sync" + metadata.getPollingStrategy().getLanguage().getJava().getName());
             if (metadata.getPollingStrategy() != null && metadata.getFinalResultPropertySerializedName() != null) {
                 // add "<property-name>" argument to polling strategy constructor
@@ -1150,7 +1149,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
 
             methodPollingDetails = new MethodPollingDetails(pollingStrategy, syncPollingStrategy, intermediateType,
-                finalType, pollingDetails.getPollIntervalInSeconds());
+                finalType, pollingSettings.getPollIntervalInSeconds());
         }
         return methodPollingDetails;
     }
