@@ -22,6 +22,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -254,6 +256,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -266,6 +269,7 @@ words:
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat

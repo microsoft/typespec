@@ -380,14 +380,14 @@ export class CodeModelBuilder {
         switch (scheme.type) {
           case "oauth2":
             {
-                const oauth2Scheme = new OAuth2SecurityScheme({
-                  scopes: [],
-                });
-                scheme.flows.forEach((it) =>
-                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-                );
-                (oauth2Scheme as any).flows = scheme.flows;
-                securitySchemes.push(oauth2Scheme);
+              const oauth2Scheme = new OAuth2SecurityScheme({
+                scopes: [],
+              });
+              scheme.flows.forEach((it) =>
+                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+              );
+              (oauth2Scheme as any).flows = scheme.flows;
+              securitySchemes.push(oauth2Scheme);
             }
             break;
           case "apiKey":
@@ -444,7 +444,10 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
-    return this.options["flavor"]?.toLocaleLowerCase() === "azure" || this.options["flavor"]?.toLocaleLowerCase() === "azurev2";
+    return (
+      this.options["flavor"]?.toLocaleLowerCase() === "azure" ||
+      this.options["flavor"]?.toLocaleLowerCase() === "azurev2"
+    );
   }
 
   private isAzureV1(): boolean {
@@ -519,11 +522,13 @@ export class CodeModelBuilder {
         name &&
         // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
         !(
-          this.isBranded() &&
-          (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-            schema.language.default?.namespace?.startsWith("Azure.") ||
-            schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
-            schema.language.java?.namespace?.startsWith("io.clientcore.core.")) // because azure core v2 uses clientcore types
+          (
+            this.isBranded() &&
+            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+              schema.language.default?.namespace?.startsWith("Azure.") ||
+              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
+              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
+          ) // because azure core v2 uses clientcore types
         )
       ) {
         if (!nameCount.has(name)) {
@@ -580,7 +585,7 @@ export class CodeModelBuilder {
 
   private processClients() {
     // preprocess group-etag-headers
-    
+
     this.options["group-etag-headers"] = this.options["group-etag-headers"] ?? true;
 
     const sdkPackage = this.sdkContext.sdkPackage;
@@ -1783,7 +1788,7 @@ export class CodeModelBuilder {
         // group schema
 
         var coreNamespace = this.namespace;
-        if(this.isAzureV1()) {
+        if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
         } else {
           coreNamespace = "io.clientcore.core.http.models";
