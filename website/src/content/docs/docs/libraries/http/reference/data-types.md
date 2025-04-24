@@ -440,6 +440,40 @@ model TypeSpec.Http.LocationHeader
 | -------- | -------- | --------------------------------------------------------------------------------------------------- |
 | location | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
 
+### `MergePatchCreateOrUpdate` {#TypeSpec.Http.MergePatchCreateOrUpdate}
+
+```typespec
+model TypeSpec.Http.MergePatchCreateOrUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description |
+| ------------ | ----------- |
+| T            |             |
+| NameTemplate |             |
+
+#### Properties
+
+None
+
+### `MergePatchUpdate` {#TypeSpec.Http.MergePatchUpdate}
+
+```typespec
+model TypeSpec.Http.MergePatchUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description |
+| ------------ | ----------- |
+| T            |             |
+| NameTemplate |             |
+
+#### Properties
+
+None
+
 ### `MovedResponse` {#TypeSpec.Http.MovedResponse}
 
 The URL of the requested resource has been changed permanently. The new URL is given in the response.
