@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.14
+
+### Bug Fixes
+
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+
+
 ## 0.58.0-alpha.13
 
 ### Features

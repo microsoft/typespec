@@ -9,8 +9,9 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import {
@@ -33,6 +34,7 @@ export interface UnionTransformProps {
   target: "application" | "transport";
 }
 function UnionTransformExpression(props: UnionTransformProps) {
+  const { $ } = useTsp();
   const discriminator = $.type.getDiscriminator(props.type);
 
   if (!discriminator) {
@@ -56,6 +58,7 @@ interface DiscriminateExpressionProps {
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
+  const { $ } = useTsp();
   const discriminatedUnion = $.model.is(props.type)
     ? $.model.getDiscriminatedUnion(props.type)
     : $.union.getDiscriminatedUnion(props.type);
@@ -89,6 +92,7 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
  * Component that represents a function declaration that transforms a model to a transport or application model.
  */
 export function TypeTransformDeclaration(props: TypeTransformProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
 
   // Record and array have their general serializers
@@ -179,6 +183,7 @@ export interface ModelTransformExpressionProps {
  * Component that represents an object expression that transforms a model to a transport or application model.
  */
 export function ModelTransformExpression(props: ModelTransformExpressionProps) {
+  const { $ } = useTsp();
   if (props.type.baseModel) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-extended-model-transform-nyi",
@@ -233,7 +238,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
             <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} />
           );
 
-          if (property.optional && needsTransform(unpackedType)) {
+          if (property.optional && needsTransform($, unpackedType)) {
             value = (
               <>
                 {itemPath.join(".")} ?{" "}
@@ -260,6 +265,7 @@ interface TransformReferenceProps {
  * Given a type and target, gets the reference to the transform function
  */
 function TransformReference(props: TransformReferenceProps) {
+  const { $ } = useTsp();
   if ($.scalar.is(props.type)) {
     return <TransformScalarReference type={props.type} target={props.target} />;
   }
@@ -290,6 +296,7 @@ interface TransformScalarReferenceProps {
  * Handles scalar transformations
  */
 function TransformScalarReference(props: TransformScalarReferenceProps) {
+  const { $ } = useTsp();
   let reference: Refkey | undefined;
   if ($.scalar.isUtcDateTime(props.type)) {
     // TODO: Handle encoding, likely to need access to parents to avoid passing the modelProperty
@@ -331,7 +338,7 @@ export interface TypeTransformCallProps {
   optionsBagName?: string;
 }
 
-function needsTransform(type: Type): boolean {
+function needsTransform($: Typekit, type: Type): boolean {
   return $.model.is(type) || $.scalar.isUtcDateTime(type);
 }
 
@@ -339,7 +346,8 @@ function needsTransform(type: Type): boolean {
  * This component represents a function call to transform a type
  */
 export function TypeTransformCall(props: TypeTransformCallProps): Children {
-  const collapsedProperty = getCollapsedProperty(props.type, props.collapse ?? false);
+  const { $ } = useTsp();
+  const collapsedProperty = getCollapsedProperty($, props.type, props.collapse ?? false);
   const itemPath = collapsedProperty
     ? [...(props.itemPath ?? []), collapsedProperty.name]
     : (props.itemPath ?? []);
@@ -410,7 +418,11 @@ export function TypeTransformCall(props: TypeTransformCallProps): Children {
   return itemName;
 }
 
-function getCollapsedProperty(model: Type, collapse: boolean): ModelProperty | undefined {
+function getCollapsedProperty(
+  $: Typekit,
+  model: Type,
+  collapse: boolean,
+): ModelProperty | undefined {
   if (!$.model.is(model)) {
     return undefined;
   }

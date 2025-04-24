@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
@@ -165,6 +166,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
+        // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
+        private static MethodInfo _addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         public static InputModelType Model(
             string name,
             string @namespace = "Sample.Models",
@@ -179,7 +182,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelType>? derivedModels = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
-            return new InputModelType(
+
+            var model = new InputModelType(
                 name,
                 @namespace,
                 name,
@@ -197,6 +201,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 new());
+            if (baseModel is not null)
+            {
+                _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
+            }
+            return model;
         }
 
         public static InputType Array(InputType elementType)
@@ -244,7 +253,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
            string access = "public",
            IReadOnlyList<InputParameter>? parameters = null,
            InputServiceMethodResponse? response = null,
-           InputServiceMethodResponse? exception = null)
+           InputServiceMethodResponse? exception = null,
+           InputPagingServiceMetadata? pagingMetadata = null)
         {
             return new InputPagingServiceMethod(
                 name,
@@ -259,7 +269,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 true,
                 true,
-                string.Empty);
+                string.Empty,
+                pagingMetadata ?? PagingMetadata([], null, null));
+        }
+
+        public static InputPagingServiceMetadata PagingMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken)
+        {
+            return new InputPagingServiceMetadata(itemPropertySegments, nextLink, continuationToken);
         }
 
         public static InputOperation Operation(
@@ -270,8 +286,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET",
-            InputOperationPaging? paging = null)
+            string httpMethod = "GET")
         {
             return new InputOperation(
                 name,
@@ -288,24 +303,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
-                null,
-                paging,
                 true,
                 true,
                 name);
         }
 
-        public static InputOperationPaging NextLinkOperationPaging(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
         {
-            return new InputOperationPaging(
+            return PagingMetadata(
                 [itemPropertyName],
                 new InputNextLink(null, [nextLinkName], nextLinkLocation),
                 null);
         }
 
-        public static InputOperationPaging ContinuationTokenOperationPaging(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
         {
-            return new InputOperationPaging(
+            return new InputPagingServiceMetadata(
                 [itemPropertyName],
                 null,
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));

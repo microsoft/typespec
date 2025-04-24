@@ -111,7 +111,6 @@ defineKit<TypekitExtension>({
       return this.program.checker.createType({
         kind: "ModelProperty",
         name: desc.name,
-        node: undefined as any,
         type: desc.type,
         optional: desc.optional ?? false,
         decorators: [],

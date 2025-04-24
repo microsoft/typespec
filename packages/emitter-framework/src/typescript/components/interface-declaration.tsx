@@ -1,9 +1,17 @@
 import * as ay from "@alloy-js/core";
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import {
+  Interface,
+  isNeverType,
+  Model,
+  ModelProperty,
+  Operation,
+  RekeyableMap,
+} from "@typespec/compiler";
+import { Typekit } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -17,6 +25,8 @@ export type InterfaceDeclarationProps =
   | ts.InterfaceDeclarationProps;
 
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
+  const { $ } = useTsp();
+
   if (!isTypedInterfaceDeclarationProps(props)) {
     return <ts.InterfaceDeclaration {...props} />;
   }
@@ -33,17 +43,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  const extendsType = props.extends ?? getExtendsType(props.type);
-
-  const members = props.type ? [membersFromType(props.type)] : [];
-
-  const children = [...members];
-
-  if (Array.isArray(props.children)) {
-    children.push(...props.children);
-  } else if (props.children) {
-    children.push(props.children);
-  }
+  const extendsType = props.extends ?? getExtendsType($, props.type);
 
   return (
     <ts.InterfaceDeclaration
@@ -54,7 +54,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
       refkey={refkey}
       extends={extendsType}
     >
-      {children}
+      <InterfaceBody {...props} />
     </ts.InterfaceDeclaration>
   );
 }
@@ -69,20 +69,15 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
   type: Model | Interface;
 }
 
-export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
-  const members = type ? membersFromType(type) : [];
-
+export function InterfaceExpression(props: InterfaceExpressionProps) {
   return (
-    <>
-      {"{"}
-      {members}
-      {children}
-      {"}"}
-    </>
+    <ay.Block>
+      <InterfaceBody {...props} />
+    </ay.Block>
   );
 }
 
-function getExtendsType(type: Model | Interface): Children | undefined {
+function getExtendsType($: Typekit, type: Model | Interface): Children | undefined {
   if (!$.model.is(type)) {
     return undefined;
   }
@@ -124,11 +119,15 @@ function getExtendsType(type: Model | Interface): Children | undefined {
   );
 }
 
-function membersFromType(type: Model | Interface): Children {
+/**
+ * Renders the members of an interface from its properties, including any additional children.
+ */
+function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
+  const { $ } = useTsp();
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
-  if ($.model.is(type)) {
-    typeMembers = $.model.getProperties(type);
-    const additionalProperties = $.model.getAdditionalPropertiesRecord(type);
+  if ($.model.is(props.type)) {
+    typeMembers = $.model.getProperties(props.type);
+    const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
     if (additionalProperties) {
       typeMembers.set(
         "additionalProperties",
@@ -140,14 +139,26 @@ function membersFromType(type: Model | Interface): Children {
       );
     }
   } else {
-    typeMembers = createRekeyableMap(type.operations);
+    typeMembers = createRekeyableMap(props.type.operations);
   }
 
+  // Ensure that we have members to render, otherwise skip rendering the ender property.
+  const validTypeMembers = Array.from(typeMembers.values()).filter((member) => {
+    if ($.modelProperty.is(member) && isNeverType(member.type)) {
+      return false;
+    }
+    return true;
+  });
+  const enderProp = validTypeMembers.length > 0 ? { ender: ";" } : {};
+
   return (
-    <ay.For each={Array.from(typeMembers.entries())} line>
-      {([_, prop]) => {
-        return <InterfaceMember type={prop} />;
-      }}
-    </ay.For>
+    <>
+      <ay.For each={validTypeMembers} line {...enderProp}>
+        {(typeMember) => {
+          return <InterfaceMember type={typeMember} />;
+        }}
+      </ay.For>
+      {props.children}
+    </>
   );
 }

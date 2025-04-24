@@ -229,7 +229,7 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
   let opName = getIdentifierName(op.name, options);
-  if (op.node.templateParameters.length > 0) {
+  if (op.node && op.node.templateParameters.length > 0) {
     // template
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;

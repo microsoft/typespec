@@ -75,14 +75,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
             var parameter = InputFactory.Parameter("animalKind", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query);
-            var paging = new InputOperationPaging(["cats"], null, null);
+            var pagingMetadata = InputFactory.PagingMetadata(["cats"], null, null);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
-            var operation = InputFactory.Operation("getCats", parameters: [parameter], paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation);
+            var operation = InputFactory.Operation("getCats", parameters: [parameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
