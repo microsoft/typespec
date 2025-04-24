@@ -213,29 +213,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 values,
                 isExtensible);
 
-        //public static InputEnumType Enum(
-        //    string name,
-        //    InputPrimitiveType underlyingType,
-        //    IReadOnlyList<InputEnumTypeValue> values,
-        //    string access = "public",
-        //    InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
-        //    bool isExtensible = false,
-        //    string clientNamespace = "Sample.Models")
-        //{
-        //    return new InputEnumType(
-        //        name,
-        //        clientNamespace,
-        //        name,
-        //        access,
-        //        null,
-        //        "",
-        //        $"{name} description",
-        //        usage,
-        //        underlyingType,
-        //        values,
-        //        isExtensible);
-        //}
-
         public static InputModelProperty Property(
             string name,
             InputType type,
