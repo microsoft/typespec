@@ -175,7 +175,7 @@ class OperationGroup(BaseModel):
             )
             file_import.add_submodule_import(
                 "rest",
-                f"{'Async' if async_mode else ''}HttpRequest",
+                f"{'Async' if async_mode else ''}HttpResponse",
                 ImportType.SDKCORE,
             )
         else:
