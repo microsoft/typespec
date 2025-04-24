@@ -87,7 +87,7 @@ function getDecoratorSignature(type: Decorator) {
 function getInterfaceSignature(type: Interface) {
   const ns = getQualifier(type.namespace);
 
-  const templateParams = type.node.templateParameters
+  const templateParams = type.node?.templateParameters
     ? getTemplateParameters(type.node.templateParameters)
     : "";
   return `interface ${ns}${type.name}${templateParams}`;

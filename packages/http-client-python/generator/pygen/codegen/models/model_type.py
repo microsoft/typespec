@@ -292,7 +292,7 @@ class GeneratedModelType(ModelType):
 
     def docstring_type(self, **kwargs: Any) -> str:
         type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
-        return f"~{self.code_model.namespace}.models.{type_annotation}"
+        return f"~{self.client_namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name
@@ -318,9 +318,10 @@ class GeneratedModelType(ModelType):
             )
             if self.is_form_data:
                 file_import.add_submodule_import(
-                    self.code_model.get_relative_import_path(serialize_namespace),
-                    "_model_base",
+                    self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.model_base"),
+                    "Model",
                     ImportType.LOCAL,
+                    alias="_Model",
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property

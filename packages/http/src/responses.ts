@@ -32,7 +32,8 @@ export function getResponsesForOperation(
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
   const responses = new ResponseIndex();
-  if ($.union.is(responseType) && !$.union.getDiscriminatedUnion(responseType)) {
+  const tk = $(program);
+  if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356

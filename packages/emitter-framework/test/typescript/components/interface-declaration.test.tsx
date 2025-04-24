@@ -1,10 +1,10 @@
-import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
-
-import { For, List, Output, render } from "@alloy-js/core";
+import { For, List, render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
+import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
 import { getProgram } from "../test-host.js";
 
 describe("Typescript Interface", () => {
@@ -24,7 +24,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <List hardline>
                 {models.map((model) => (
@@ -63,7 +63,7 @@ describe("Typescript Interface", () => {
         const models = (namespace as Namespace).models;
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <For each={Array.from(models.values())} hardline>
                 {(model) => <InterfaceDeclaration export type={model} />}
@@ -97,7 +97,7 @@ describe("Typescript Interface", () => {
         const models = (namespace as Namespace).models;
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <For each={Array.from(models.values())} hardline>
                 {(model) => <InterfaceDeclaration export type={model} />}
@@ -135,7 +135,7 @@ describe("Typescript Interface", () => {
         const models = (namespace as Namespace).models;
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <For each={Array.from(models.values())} hardline>
                 {(model) => <InterfaceDeclaration export type={model} />}
@@ -183,7 +183,7 @@ describe("Typescript Interface", () => {
         const models = (namespace as Namespace).models;
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <For each={Array.from(models.values())} hardline>
                 {(model) => <InterfaceDeclaration export type={model} />}
@@ -230,7 +230,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               {models.map((model) => (
                 <InterfaceDeclaration export type={model} />
@@ -277,7 +277,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration type={models[0]} />
             </SourceFile>
@@ -314,7 +314,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration type={models[0]} />
             </SourceFile>
@@ -350,7 +350,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={models[0]} />
             </SourceFile>
@@ -385,7 +385,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyOperations" type={models[0]} />
             </SourceFile>
@@ -423,7 +423,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyOperations" type={models[0]}>
                 customProperty: string; customMethod(): void;
@@ -465,7 +465,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyModel" type={models[0]} />
             </SourceFile>
@@ -508,7 +508,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               {models.map((model) => (
                 <InterfaceDeclaration export type={model} />
@@ -552,7 +552,7 @@ describe("Typescript Interface", () => {
         const interfaces = Array.from((namespace as Namespace).interfaces.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
             </SourceFile>
@@ -564,7 +564,7 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (id: string) => string;
+          getName(id: string): string;
         }`,
           {
             parser: "typescript",
@@ -592,7 +592,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
               <InterfaceDeclaration export type={models[0]} />
@@ -605,8 +605,8 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (foo: Foo) => string;
-          getOtherName: (name: string) => string
+          getName(foo: Foo): string;
+          getOtherName(name: string): string
         }
         export interface Foo {
           name: string;
@@ -639,7 +639,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
               {models.map((model) => (
@@ -654,7 +654,7 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperations {
-          getName: (id: string) => Widget;
+          getName(id: string): Widget;
         }
         export interface Widget {
           id: string;
@@ -692,7 +692,7 @@ describe("Typescript Interface", () => {
         const models = Array.from((namespace as Namespace).models.values());
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[1]} />
               {models.map((model) => (
@@ -707,8 +707,8 @@ describe("Typescript Interface", () => {
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
           `export interface WidgetOperationsExtended {
-          getName: (id: string) => Widget;
-          delete: (id: string) => void;
+          getName(id: string): Widget;
+          delete(id: string): void;
         }
         export interface Widget {
           id: string;

@@ -106,6 +106,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
 
             return new MethodProvider(
                 signature,
@@ -116,10 +117,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    operation.Paging?.NextLink != null ?
+                    pagingServiceMethod?.PagingMetadata.NextLink != null ?
                         uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
                         uri.Reset(ClientProvider.EndpointField).Terminate(),
-                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
+                    .. ConditionallyAppendPathParameters(operation, pagingServiceMethod?.PagingMetadata, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -130,9 +131,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
+            InputOperation operation,
+            InputPagingServiceMetadata? pagingMetadata,
+            ScopedApi uri, Dictionary<string,
+            ParameterProvider> paramMap)
         {
-            if (operation.Paging?.NextLink != null)
+            if (pagingMetadata?.NextLink != null)
             {
                 return
                 [
@@ -598,7 +603,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                if (operation.Paging?.NextLink != null)
+                InputPagingServiceMetadata? inputPagingServiceMetadata = serviceMethod is InputPagingServiceMethod pagingServiceMethod
+                    ? pagingServiceMethod.PagingMetadata
+                    : null;
+
+                if (inputPagingServiceMetadata?.NextLink != null)
                 {
                     // Next link operations will always have an endpoint parameter in the CreateRequest method
                     sortedParams.Add(paging, ScmKnownParameters.NextPage);

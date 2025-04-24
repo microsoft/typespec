@@ -147,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public void ListMethodWithImplicitPaging()
         {
-            var paging = new InputOperationPaging(
+            var pagingMetadata = InputFactory.PagingMetadata(
                 ["items"],
                 null,
                 null);
@@ -161,8 +161,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
-            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient]);

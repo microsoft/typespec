@@ -20,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isOverride,
             bool generateConvenient,
             bool generateProtocol,
-            string crossLanguageDefinitionId) : base(
+            string crossLanguageDefinitionId,
+            InputLongRunningServiceMetadata longRunningServiceMetadata) : base(
                 name,
                 accessibility,
                 apiVersions,
@@ -34,7 +35,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                 generateConvenient,
                 generateProtocol,
                 crossLanguageDefinitionId)
-        { }
+        {
+            LongRunningServiceMetadata = longRunningServiceMetadata;
+        }
 
         internal InputLongRunningServiceMethod() : this(
            string.Empty,
@@ -49,7 +52,10 @@ namespace Microsoft.TypeSpec.Generator.Input
            false,
            false,
            false,
-           string.Empty)
+           string.Empty,
+           new InputLongRunningServiceMetadata())
         { }
+
+        public InputLongRunningServiceMetadata LongRunningServiceMetadata { get; internal set; }
     }
 }
