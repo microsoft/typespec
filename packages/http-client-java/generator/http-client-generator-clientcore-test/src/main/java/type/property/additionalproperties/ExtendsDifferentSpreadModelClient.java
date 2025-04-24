@@ -1,11 +1,13 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.property.additionalproperties.implementation.ExtendsDifferentSpreadModelsImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.property.additionalproperties.implementation.ExtendsDifferentSpreadM
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class ExtendsDifferentSpreadModelClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ExtendsDifferentSpreadModelsImpl serviceClient;
 
     /**
@@ -21,78 +23,53 @@ public final class ExtendsDifferentSpreadModelClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     ExtendsDifferentSpreadModelClient(ExtendsDifferentSpreadModelsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Get call.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     knownProp: String (Required)
-     *      (Optional): {
-     *         String (Required): {
-     *             state: String (Required)
-     *         }
-     *     }
-     *     derivedProp (Required): (recursive schema, see derivedProp above)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
-    public Response<DifferentSpreadModelDerived> getWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWithResponse(requestOptions);
-    }
-
-    /**
-     * Put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     knownProp: String (Required)
-     *      (Optional): {
-     *         String (Required): {
-     *             state: String (Required)
-     *         }
-     *     }
-     *     derivedProp (Required): (recursive schema, see derivedProp above)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body body.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DifferentSpreadModelDerived> getWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getWithResponse(requestContext);
     }
 
     /**
      * Get call.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public DifferentSpreadModelDerived get() {
-        // Generated convenience method for getWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue();
+        return this.serviceClient.get();
+    }
+
+    /**
+     * Put operation.
+     * 
+     * @param body body.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(DifferentSpreadModelDerived body, RequestContext requestContext) {
+        return this.serviceClient.putWithResponse(body, requestContext);
     }
 
     /**
@@ -100,13 +77,12 @@ public final class ExtendsDifferentSpreadModelClient {
      * 
      * @param body body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(DifferentSpreadModelDerived body) {
-        // Generated convenience method for putWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        this.serviceClient.put(body);
     }
 }

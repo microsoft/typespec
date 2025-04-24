@@ -1,19 +1,20 @@
 package versioning.madeoptional.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
+import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
-import versioning.madeoptional.MadeOptionalServiceVersion;
+import java.lang.reflect.InvocationTargetException;
 import versioning.madeoptional.TestModel;
 import versioning.madeoptional.Versions;
 
@@ -55,20 +56,6 @@ public final class MadeOptionalClientImpl {
     }
 
     /**
-     * Service version.
-     */
-    private final MadeOptionalServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public MadeOptionalServiceVersion getServiceVersion() {
-        return this.serviceVersion;
-    }
-
-    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -88,15 +75,12 @@ public final class MadeOptionalClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1' or 'v2' in client.
-     * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
-        MadeOptionalServiceVersion serviceVersion) {
+    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline);
+        this.service = MadeOptionalClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -105,52 +89,71 @@ public final class MadeOptionalClientImpl {
      */
     @ServiceInterface(name = "MadeOptionalClient", host = "{endpoint}/versioning/made-optional/api-version:{version}")
     public interface MadeOptionalClientService {
+        static MadeOptionalClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("versioning.madeoptional.implementation.MadeOptionalClientServiceImpl");
+                return (MadeOptionalClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<TestModel> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+        Response<TestModel> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+            @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") TestModel body,
+            RequestContext requestContext);
     }
 
     /**
      * The test operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>param</td><td>String</td><td>No</td><td>The param parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     *     changedProp: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     *     changedProp: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<TestModel> testWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions);
+        return service.test(this.getEndpoint(), this.getVersion(), param, contentType, accept, body, requestContext);
+    }
+
+    /**
+     * The test operation.
+     * 
+     * @param body The body parameter.
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TestModel test(TestModel body, String param) {
+        return testWithResponse(body, param, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The test operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TestModel test(TestModel body) {
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }

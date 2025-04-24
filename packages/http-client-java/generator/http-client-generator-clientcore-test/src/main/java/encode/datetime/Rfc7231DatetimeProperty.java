@@ -1,7 +1,7 @@
 package encode.datetime;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -14,12 +14,12 @@ import java.util.Objects;
 /**
  * The Rfc7231DatetimeProperty model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Rfc7231DatetimeProperty implements JsonSerializable<Rfc7231DatetimeProperty> {
     /*
      * The value property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final DateTimeRfc1123 value;
 
     /**
@@ -27,7 +27,7 @@ public final class Rfc7231DatetimeProperty implements JsonSerializable<Rfc7231Da
      * 
      * @param value the value value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Rfc7231DatetimeProperty(OffsetDateTime value) {
         if (value == null) {
             this.value = null;
@@ -41,7 +41,7 @@ public final class Rfc7231DatetimeProperty implements JsonSerializable<Rfc7231Da
      * 
      * @return the value value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getValue() {
         if (this.value == null) {
             return null;
@@ -52,7 +52,7 @@ public final class Rfc7231DatetimeProperty implements JsonSerializable<Rfc7231Da
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -69,7 +69,7 @@ public final class Rfc7231DatetimeProperty implements JsonSerializable<Rfc7231Da
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Rfc7231DatetimeProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Rfc7231DatetimeProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             OffsetDateTime value = null;

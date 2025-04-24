@@ -1,7 +1,7 @@
 package type.model.inheritance.enumdiscriminator;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -10,12 +10,12 @@ import java.io.IOException;
 /**
  * Cobra model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Cobra extends Snake {
     /*
      * discriminator property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private SnakeKind kind = SnakeKind.COBRA;
 
     /**
@@ -23,7 +23,7 @@ public final class Cobra extends Snake {
      * 
      * @param length the length value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Cobra(int length) {
         super(length);
     }
@@ -33,7 +33,7 @@ public final class Cobra extends Snake {
      * 
      * @return the kind value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public SnakeKind getKind() {
         return this.kind;
@@ -42,7 +42,7 @@ public final class Cobra extends Snake {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -60,7 +60,7 @@ public final class Cobra extends Snake {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Cobra.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Cobra fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             int length = 0;

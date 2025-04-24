@@ -1,9 +1,12 @@
 package specialwords;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import specialwords.implementation.ParametersImpl;
 
@@ -12,7 +15,7 @@ import specialwords.implementation.ParametersImpl;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ParametersClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ParametersImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class ParametersClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     ParametersClient(ParametersImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -29,442 +32,16 @@ public final class ParametersClient {
      * The withAnd operation.
      * 
      * @param and The and parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> withAndWithResponse(String and, RequestOptions requestOptions) {
-        return this.serviceClient.withAndWithResponse(and, requestOptions);
-    }
-
-    /**
-     * The withAs operation.
-     * 
-     * @param as The as parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAsWithResponse(String as, RequestOptions requestOptions) {
-        return this.serviceClient.withAsWithResponse(as, requestOptions);
-    }
-
-    /**
-     * The withAssert operation.
-     * 
-     * @param assertParameter The assertParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAssertWithResponse(String assertParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withAssertWithResponse(assertParameter, requestOptions);
-    }
-
-    /**
-     * The withAsync operation.
-     * 
-     * @param async The async parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAsyncWithResponse(String async, RequestOptions requestOptions) {
-        return this.serviceClient.withAsyncWithResponse(async, requestOptions);
-    }
-
-    /**
-     * The withAwait operation.
-     * 
-     * @param await The await parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withAwaitWithResponse(String await, RequestOptions requestOptions) {
-        return this.serviceClient.withAwaitWithResponse(await, requestOptions);
-    }
-
-    /**
-     * The withBreak operation.
-     * 
-     * @param breakParameter The breakParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withBreakWithResponse(String breakParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withBreakWithResponse(breakParameter, requestOptions);
-    }
-
-    /**
-     * The withClass operation.
-     * 
-     * @param classParameter The classParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withClassWithResponse(String classParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withClassWithResponse(classParameter, requestOptions);
-    }
-
-    /**
-     * The withConstructor operation.
-     * 
-     * @param constructor The constructor parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withConstructorWithResponse(String constructor, RequestOptions requestOptions) {
-        return this.serviceClient.withConstructorWithResponse(constructor, requestOptions);
-    }
-
-    /**
-     * The withContinue operation.
-     * 
-     * @param continueParameter The continueParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withContinueWithResponse(String continueParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withContinueWithResponse(continueParameter, requestOptions);
-    }
-
-    /**
-     * The withDef operation.
-     * 
-     * @param def The def parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withDefWithResponse(String def, RequestOptions requestOptions) {
-        return this.serviceClient.withDefWithResponse(def, requestOptions);
-    }
-
-    /**
-     * The withDel operation.
-     * 
-     * @param del The del parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withDelWithResponse(String del, RequestOptions requestOptions) {
-        return this.serviceClient.withDelWithResponse(del, requestOptions);
-    }
-
-    /**
-     * The withElif operation.
-     * 
-     * @param elif The elif parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withElifWithResponse(String elif, RequestOptions requestOptions) {
-        return this.serviceClient.withElifWithResponse(elif, requestOptions);
-    }
-
-    /**
-     * The withElse operation.
-     * 
-     * @param elseParameter The elseParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withElseWithResponse(String elseParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withElseWithResponse(elseParameter, requestOptions);
-    }
-
-    /**
-     * The withExcept operation.
-     * 
-     * @param except The except parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withExceptWithResponse(String except, RequestOptions requestOptions) {
-        return this.serviceClient.withExceptWithResponse(except, requestOptions);
-    }
-
-    /**
-     * The withExec operation.
-     * 
-     * @param exec The exec parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withExecWithResponse(String exec, RequestOptions requestOptions) {
-        return this.serviceClient.withExecWithResponse(exec, requestOptions);
-    }
-
-    /**
-     * The withFinally operation.
-     * 
-     * @param finallyParameter The finallyParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withFinallyWithResponse(String finallyParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withFinallyWithResponse(finallyParameter, requestOptions);
-    }
-
-    /**
-     * The withFor operation.
-     * 
-     * @param forParameter The forParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withForWithResponse(String forParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withForWithResponse(forParameter, requestOptions);
-    }
-
-    /**
-     * The withFrom operation.
-     * 
-     * @param from The from parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withFromWithResponse(String from, RequestOptions requestOptions) {
-        return this.serviceClient.withFromWithResponse(from, requestOptions);
-    }
-
-    /**
-     * The withGlobal operation.
-     * 
-     * @param global The global parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withGlobalWithResponse(String global, RequestOptions requestOptions) {
-        return this.serviceClient.withGlobalWithResponse(global, requestOptions);
-    }
-
-    /**
-     * The withIf operation.
-     * 
-     * @param ifParameter The ifParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withIfWithResponse(String ifParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withIfWithResponse(ifParameter, requestOptions);
-    }
-
-    /**
-     * The withImport operation.
-     * 
-     * @param importParameter The importParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withImportWithResponse(String importParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withImportWithResponse(importParameter, requestOptions);
-    }
-
-    /**
-     * The withIn operation.
-     * 
-     * @param in The in parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withInWithResponse(String in, RequestOptions requestOptions) {
-        return this.serviceClient.withInWithResponse(in, requestOptions);
-    }
-
-    /**
-     * The withIs operation.
-     * 
-     * @param is The is parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withIsWithResponse(String is, RequestOptions requestOptions) {
-        return this.serviceClient.withIsWithResponse(is, requestOptions);
-    }
-
-    /**
-     * The withLambda operation.
-     * 
-     * @param lambda The lambda parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withLambdaWithResponse(String lambda, RequestOptions requestOptions) {
-        return this.serviceClient.withLambdaWithResponse(lambda, requestOptions);
-    }
-
-    /**
-     * The withNot operation.
-     * 
-     * @param not The not parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withNotWithResponse(String not, RequestOptions requestOptions) {
-        return this.serviceClient.withNotWithResponse(not, requestOptions);
-    }
-
-    /**
-     * The withOr operation.
-     * 
-     * @param or The or parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withOrWithResponse(String or, RequestOptions requestOptions) {
-        return this.serviceClient.withOrWithResponse(or, requestOptions);
-    }
-
-    /**
-     * The withPass operation.
-     * 
-     * @param pass The pass parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withPassWithResponse(String pass, RequestOptions requestOptions) {
-        return this.serviceClient.withPassWithResponse(pass, requestOptions);
-    }
-
-    /**
-     * The withRaise operation.
-     * 
-     * @param raise The raise parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withRaiseWithResponse(String raise, RequestOptions requestOptions) {
-        return this.serviceClient.withRaiseWithResponse(raise, requestOptions);
-    }
-
-    /**
-     * The withReturn operation.
-     * 
-     * @param returnParameter The returnParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withReturnWithResponse(String returnParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withReturnWithResponse(returnParameter, requestOptions);
-    }
-
-    /**
-     * The withTry operation.
-     * 
-     * @param tryParameter The tryParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withTryWithResponse(String tryParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withTryWithResponse(tryParameter, requestOptions);
-    }
-
-    /**
-     * The withWhile operation.
-     * 
-     * @param whileParameter The whileParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withWhileWithResponse(String whileParameter, RequestOptions requestOptions) {
-        return this.serviceClient.withWhileWithResponse(whileParameter, requestOptions);
-    }
-
-    /**
-     * The withWith operation.
-     * 
-     * @param with The with parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withWithWithResponse(String with, RequestOptions requestOptions) {
-        return this.serviceClient.withWithWithResponse(with, requestOptions);
-    }
-
-    /**
-     * The withYield operation.
-     * 
-     * @param yield The yield parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withYieldWithResponse(String yield, RequestOptions requestOptions) {
-        return this.serviceClient.withYieldWithResponse(yield, requestOptions);
-    }
-
-    /**
-     * The withCancellationToken operation.
-     * 
-     * @param cancellationToken The cancellationToken parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestOptions requestOptions) {
-        return this.serviceClient.withCancellationTokenWithResponse(cancellationToken, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAndWithResponse(String and, RequestContext requestContext) {
+        return this.serviceClient.withAndWithResponse(and, requestContext);
     }
 
     /**
@@ -472,14 +49,29 @@ public final class ParametersClient {
      * 
      * @param and The and parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAnd(String and) {
-        // Generated convenience method for withAndWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAndWithResponse(and, requestOptions).getValue();
+        this.serviceClient.withAnd(and);
+    }
+
+    /**
+     * The withAs operation.
+     * 
+     * @param as The as parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsWithResponse(String as, RequestContext requestContext) {
+        return this.serviceClient.withAsWithResponse(as, requestContext);
     }
 
     /**
@@ -487,14 +79,29 @@ public final class ParametersClient {
      * 
      * @param as The as parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAs(String as) {
-        // Generated convenience method for withAsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAsWithResponse(as, requestOptions).getValue();
+        this.serviceClient.withAs(as);
+    }
+
+    /**
+     * The withAssert operation.
+     * 
+     * @param assertParameter The assertParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAssertWithResponse(String assertParameter, RequestContext requestContext) {
+        return this.serviceClient.withAssertWithResponse(assertParameter, requestContext);
     }
 
     /**
@@ -502,14 +109,29 @@ public final class ParametersClient {
      * 
      * @param assertParameter The assertParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAssert(String assertParameter) {
-        // Generated convenience method for withAssertWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAssertWithResponse(assertParameter, requestOptions).getValue();
+        this.serviceClient.withAssert(assertParameter);
+    }
+
+    /**
+     * The withAsync operation.
+     * 
+     * @param async The async parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsyncWithResponse(String async, RequestContext requestContext) {
+        return this.serviceClient.withAsyncWithResponse(async, requestContext);
     }
 
     /**
@@ -517,14 +139,29 @@ public final class ParametersClient {
      * 
      * @param async The async parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAsync(String async) {
-        // Generated convenience method for withAsyncWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAsyncWithResponse(async, requestOptions).getValue();
+        this.serviceClient.withAsync(async);
+    }
+
+    /**
+     * The withAwait operation.
+     * 
+     * @param await The await parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAwaitWithResponse(String await, RequestContext requestContext) {
+        return this.serviceClient.withAwaitWithResponse(await, requestContext);
     }
 
     /**
@@ -532,14 +169,29 @@ public final class ParametersClient {
      * 
      * @param await The await parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAwait(String await) {
-        // Generated convenience method for withAwaitWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withAwaitWithResponse(await, requestOptions).getValue();
+        this.serviceClient.withAwait(await);
+    }
+
+    /**
+     * The withBreak operation.
+     * 
+     * @param breakParameter The breakParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withBreakWithResponse(String breakParameter, RequestContext requestContext) {
+        return this.serviceClient.withBreakWithResponse(breakParameter, requestContext);
     }
 
     /**
@@ -547,14 +199,29 @@ public final class ParametersClient {
      * 
      * @param breakParameter The breakParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withBreak(String breakParameter) {
-        // Generated convenience method for withBreakWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withBreakWithResponse(breakParameter, requestOptions).getValue();
+        this.serviceClient.withBreak(breakParameter);
+    }
+
+    /**
+     * The withClass operation.
+     * 
+     * @param classParameter The classParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withClassWithResponse(String classParameter, RequestContext requestContext) {
+        return this.serviceClient.withClassWithResponse(classParameter, requestContext);
     }
 
     /**
@@ -562,14 +229,29 @@ public final class ParametersClient {
      * 
      * @param classParameter The classParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withClass(String classParameter) {
-        // Generated convenience method for withClassWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withClassWithResponse(classParameter, requestOptions).getValue();
+        this.serviceClient.withClass(classParameter);
+    }
+
+    /**
+     * The withConstructor operation.
+     * 
+     * @param constructor The constructor parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withConstructorWithResponse(String constructor, RequestContext requestContext) {
+        return this.serviceClient.withConstructorWithResponse(constructor, requestContext);
     }
 
     /**
@@ -577,14 +259,29 @@ public final class ParametersClient {
      * 
      * @param constructor The constructor parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withConstructor(String constructor) {
-        // Generated convenience method for withConstructorWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withConstructorWithResponse(constructor, requestOptions).getValue();
+        this.serviceClient.withConstructor(constructor);
+    }
+
+    /**
+     * The withContinue operation.
+     * 
+     * @param continueParameter The continueParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withContinueWithResponse(String continueParameter, RequestContext requestContext) {
+        return this.serviceClient.withContinueWithResponse(continueParameter, requestContext);
     }
 
     /**
@@ -592,14 +289,29 @@ public final class ParametersClient {
      * 
      * @param continueParameter The continueParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withContinue(String continueParameter) {
-        // Generated convenience method for withContinueWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withContinueWithResponse(continueParameter, requestOptions).getValue();
+        this.serviceClient.withContinue(continueParameter);
+    }
+
+    /**
+     * The withDef operation.
+     * 
+     * @param def The def parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDefWithResponse(String def, RequestContext requestContext) {
+        return this.serviceClient.withDefWithResponse(def, requestContext);
     }
 
     /**
@@ -607,14 +319,29 @@ public final class ParametersClient {
      * 
      * @param def The def parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDef(String def) {
-        // Generated convenience method for withDefWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withDefWithResponse(def, requestOptions).getValue();
+        this.serviceClient.withDef(def);
+    }
+
+    /**
+     * The withDel operation.
+     * 
+     * @param del The del parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDelWithResponse(String del, RequestContext requestContext) {
+        return this.serviceClient.withDelWithResponse(del, requestContext);
     }
 
     /**
@@ -622,14 +349,29 @@ public final class ParametersClient {
      * 
      * @param del The del parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDel(String del) {
-        // Generated convenience method for withDelWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withDelWithResponse(del, requestOptions).getValue();
+        this.serviceClient.withDel(del);
+    }
+
+    /**
+     * The withElif operation.
+     * 
+     * @param elif The elif parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElifWithResponse(String elif, RequestContext requestContext) {
+        return this.serviceClient.withElifWithResponse(elif, requestContext);
     }
 
     /**
@@ -637,14 +379,29 @@ public final class ParametersClient {
      * 
      * @param elif The elif parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElif(String elif) {
-        // Generated convenience method for withElifWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withElifWithResponse(elif, requestOptions).getValue();
+        this.serviceClient.withElif(elif);
+    }
+
+    /**
+     * The withElse operation.
+     * 
+     * @param elseParameter The elseParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElseWithResponse(String elseParameter, RequestContext requestContext) {
+        return this.serviceClient.withElseWithResponse(elseParameter, requestContext);
     }
 
     /**
@@ -652,14 +409,29 @@ public final class ParametersClient {
      * 
      * @param elseParameter The elseParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElse(String elseParameter) {
-        // Generated convenience method for withElseWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withElseWithResponse(elseParameter, requestOptions).getValue();
+        this.serviceClient.withElse(elseParameter);
+    }
+
+    /**
+     * The withExcept operation.
+     * 
+     * @param except The except parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExceptWithResponse(String except, RequestContext requestContext) {
+        return this.serviceClient.withExceptWithResponse(except, requestContext);
     }
 
     /**
@@ -667,14 +439,29 @@ public final class ParametersClient {
      * 
      * @param except The except parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExcept(String except) {
-        // Generated convenience method for withExceptWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withExceptWithResponse(except, requestOptions).getValue();
+        this.serviceClient.withExcept(except);
+    }
+
+    /**
+     * The withExec operation.
+     * 
+     * @param exec The exec parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExecWithResponse(String exec, RequestContext requestContext) {
+        return this.serviceClient.withExecWithResponse(exec, requestContext);
     }
 
     /**
@@ -682,14 +469,29 @@ public final class ParametersClient {
      * 
      * @param exec The exec parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExec(String exec) {
-        // Generated convenience method for withExecWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withExecWithResponse(exec, requestOptions).getValue();
+        this.serviceClient.withExec(exec);
+    }
+
+    /**
+     * The withFinally operation.
+     * 
+     * @param finallyParameter The finallyParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFinallyWithResponse(String finallyParameter, RequestContext requestContext) {
+        return this.serviceClient.withFinallyWithResponse(finallyParameter, requestContext);
     }
 
     /**
@@ -697,14 +499,29 @@ public final class ParametersClient {
      * 
      * @param finallyParameter The finallyParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFinally(String finallyParameter) {
-        // Generated convenience method for withFinallyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withFinallyWithResponse(finallyParameter, requestOptions).getValue();
+        this.serviceClient.withFinally(finallyParameter);
+    }
+
+    /**
+     * The withFor operation.
+     * 
+     * @param forParameter The forParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withForWithResponse(String forParameter, RequestContext requestContext) {
+        return this.serviceClient.withForWithResponse(forParameter, requestContext);
     }
 
     /**
@@ -712,14 +529,29 @@ public final class ParametersClient {
      * 
      * @param forParameter The forParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFor(String forParameter) {
-        // Generated convenience method for withForWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withForWithResponse(forParameter, requestOptions).getValue();
+        this.serviceClient.withFor(forParameter);
+    }
+
+    /**
+     * The withFrom operation.
+     * 
+     * @param from The from parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFromWithResponse(String from, RequestContext requestContext) {
+        return this.serviceClient.withFromWithResponse(from, requestContext);
     }
 
     /**
@@ -727,14 +559,29 @@ public final class ParametersClient {
      * 
      * @param from The from parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFrom(String from) {
-        // Generated convenience method for withFromWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withFromWithResponse(from, requestOptions).getValue();
+        this.serviceClient.withFrom(from);
+    }
+
+    /**
+     * The withGlobal operation.
+     * 
+     * @param global The global parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withGlobalWithResponse(String global, RequestContext requestContext) {
+        return this.serviceClient.withGlobalWithResponse(global, requestContext);
     }
 
     /**
@@ -742,14 +589,29 @@ public final class ParametersClient {
      * 
      * @param global The global parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withGlobal(String global) {
-        // Generated convenience method for withGlobalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withGlobalWithResponse(global, requestOptions).getValue();
+        this.serviceClient.withGlobal(global);
+    }
+
+    /**
+     * The withIf operation.
+     * 
+     * @param ifParameter The ifParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIfWithResponse(String ifParameter, RequestContext requestContext) {
+        return this.serviceClient.withIfWithResponse(ifParameter, requestContext);
     }
 
     /**
@@ -757,14 +619,29 @@ public final class ParametersClient {
      * 
      * @param ifParameter The ifParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIf(String ifParameter) {
-        // Generated convenience method for withIfWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withIfWithResponse(ifParameter, requestOptions).getValue();
+        this.serviceClient.withIf(ifParameter);
+    }
+
+    /**
+     * The withImport operation.
+     * 
+     * @param importParameter The importParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withImportWithResponse(String importParameter, RequestContext requestContext) {
+        return this.serviceClient.withImportWithResponse(importParameter, requestContext);
     }
 
     /**
@@ -772,14 +649,29 @@ public final class ParametersClient {
      * 
      * @param importParameter The importParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withImport(String importParameter) {
-        // Generated convenience method for withImportWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withImportWithResponse(importParameter, requestOptions).getValue();
+        this.serviceClient.withImport(importParameter);
+    }
+
+    /**
+     * The withIn operation.
+     * 
+     * @param in The in parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withInWithResponse(String in, RequestContext requestContext) {
+        return this.serviceClient.withInWithResponse(in, requestContext);
     }
 
     /**
@@ -787,14 +679,29 @@ public final class ParametersClient {
      * 
      * @param in The in parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIn(String in) {
-        // Generated convenience method for withInWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withInWithResponse(in, requestOptions).getValue();
+        this.serviceClient.withIn(in);
+    }
+
+    /**
+     * The withIs operation.
+     * 
+     * @param is The is parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIsWithResponse(String is, RequestContext requestContext) {
+        return this.serviceClient.withIsWithResponse(is, requestContext);
     }
 
     /**
@@ -802,14 +709,29 @@ public final class ParametersClient {
      * 
      * @param is The is parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIs(String is) {
-        // Generated convenience method for withIsWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withIsWithResponse(is, requestOptions).getValue();
+        this.serviceClient.withIs(is);
+    }
+
+    /**
+     * The withLambda operation.
+     * 
+     * @param lambda The lambda parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withLambdaWithResponse(String lambda, RequestContext requestContext) {
+        return this.serviceClient.withLambdaWithResponse(lambda, requestContext);
     }
 
     /**
@@ -817,14 +739,29 @@ public final class ParametersClient {
      * 
      * @param lambda The lambda parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withLambda(String lambda) {
-        // Generated convenience method for withLambdaWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withLambdaWithResponse(lambda, requestOptions).getValue();
+        this.serviceClient.withLambda(lambda);
+    }
+
+    /**
+     * The withNot operation.
+     * 
+     * @param not The not parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withNotWithResponse(String not, RequestContext requestContext) {
+        return this.serviceClient.withNotWithResponse(not, requestContext);
     }
 
     /**
@@ -832,14 +769,29 @@ public final class ParametersClient {
      * 
      * @param not The not parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withNot(String not) {
-        // Generated convenience method for withNotWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withNotWithResponse(not, requestOptions).getValue();
+        this.serviceClient.withNot(not);
+    }
+
+    /**
+     * The withOr operation.
+     * 
+     * @param or The or parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withOrWithResponse(String or, RequestContext requestContext) {
+        return this.serviceClient.withOrWithResponse(or, requestContext);
     }
 
     /**
@@ -847,14 +799,29 @@ public final class ParametersClient {
      * 
      * @param or The or parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withOr(String or) {
-        // Generated convenience method for withOrWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withOrWithResponse(or, requestOptions).getValue();
+        this.serviceClient.withOr(or);
+    }
+
+    /**
+     * The withPass operation.
+     * 
+     * @param pass The pass parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withPassWithResponse(String pass, RequestContext requestContext) {
+        return this.serviceClient.withPassWithResponse(pass, requestContext);
     }
 
     /**
@@ -862,14 +829,29 @@ public final class ParametersClient {
      * 
      * @param pass The pass parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPass(String pass) {
-        // Generated convenience method for withPassWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withPassWithResponse(pass, requestOptions).getValue();
+        this.serviceClient.withPass(pass);
+    }
+
+    /**
+     * The withRaise operation.
+     * 
+     * @param raise The raise parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withRaiseWithResponse(String raise, RequestContext requestContext) {
+        return this.serviceClient.withRaiseWithResponse(raise, requestContext);
     }
 
     /**
@@ -877,14 +859,29 @@ public final class ParametersClient {
      * 
      * @param raise The raise parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withRaise(String raise) {
-        // Generated convenience method for withRaiseWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withRaiseWithResponse(raise, requestOptions).getValue();
+        this.serviceClient.withRaise(raise);
+    }
+
+    /**
+     * The withReturn operation.
+     * 
+     * @param returnParameter The returnParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withReturnWithResponse(String returnParameter, RequestContext requestContext) {
+        return this.serviceClient.withReturnWithResponse(returnParameter, requestContext);
     }
 
     /**
@@ -892,14 +889,29 @@ public final class ParametersClient {
      * 
      * @param returnParameter The returnParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withReturn(String returnParameter) {
-        // Generated convenience method for withReturnWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withReturnWithResponse(returnParameter, requestOptions).getValue();
+        this.serviceClient.withReturn(returnParameter);
+    }
+
+    /**
+     * The withTry operation.
+     * 
+     * @param tryParameter The tryParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withTryWithResponse(String tryParameter, RequestContext requestContext) {
+        return this.serviceClient.withTryWithResponse(tryParameter, requestContext);
     }
 
     /**
@@ -907,14 +919,29 @@ public final class ParametersClient {
      * 
      * @param tryParameter The tryParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withTry(String tryParameter) {
-        // Generated convenience method for withTryWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withTryWithResponse(tryParameter, requestOptions).getValue();
+        this.serviceClient.withTry(tryParameter);
+    }
+
+    /**
+     * The withWhile operation.
+     * 
+     * @param whileParameter The whileParameter parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWhileWithResponse(String whileParameter, RequestContext requestContext) {
+        return this.serviceClient.withWhileWithResponse(whileParameter, requestContext);
     }
 
     /**
@@ -922,14 +949,29 @@ public final class ParametersClient {
      * 
      * @param whileParameter The whileParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWhile(String whileParameter) {
-        // Generated convenience method for withWhileWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withWhileWithResponse(whileParameter, requestOptions).getValue();
+        this.serviceClient.withWhile(whileParameter);
+    }
+
+    /**
+     * The withWith operation.
+     * 
+     * @param with The with parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWithWithResponse(String with, RequestContext requestContext) {
+        return this.serviceClient.withWithWithResponse(with, requestContext);
     }
 
     /**
@@ -937,14 +979,29 @@ public final class ParametersClient {
      * 
      * @param with The with parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWith(String with) {
-        // Generated convenience method for withWithWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withWithWithResponse(with, requestOptions).getValue();
+        this.serviceClient.withWith(with);
+    }
+
+    /**
+     * The withYield operation.
+     * 
+     * @param yield The yield parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withYieldWithResponse(String yield, RequestContext requestContext) {
+        return this.serviceClient.withYieldWithResponse(yield, requestContext);
     }
 
     /**
@@ -952,14 +1009,29 @@ public final class ParametersClient {
      * 
      * @param yield The yield parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withYield(String yield) {
-        // Generated convenience method for withYieldWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withYieldWithResponse(yield, requestOptions).getValue();
+        this.serviceClient.withYield(yield);
+    }
+
+    /**
+     * The withCancellationToken operation.
+     * 
+     * @param cancellationToken The cancellationToken parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestContext requestContext) {
+        return this.serviceClient.withCancellationTokenWithResponse(cancellationToken, requestContext);
     }
 
     /**
@@ -967,13 +1039,12 @@ public final class ParametersClient {
      * 
      * @param cancellationToken The cancellationToken parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withCancellationToken(String cancellationToken) {
-        // Generated convenience method for withCancellationTokenWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withCancellationTokenWithResponse(cancellationToken, requestOptions).getValue();
+        this.serviceClient.withCancellationToken(cancellationToken);
     }
 }

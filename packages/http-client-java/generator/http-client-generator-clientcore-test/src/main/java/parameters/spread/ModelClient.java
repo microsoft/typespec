@@ -1,13 +1,14 @@
 package parameters.spread;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import parameters.spread.implementation.ModelsImpl;
-import parameters.spread.implementation.SpreadCompositeRequestMixRequest;
 import parameters.spread.model.BodyParameter;
 
 /**
@@ -15,7 +16,7 @@ import parameters.spread.model.BodyParameter;
  */
 @ServiceClient(builder = SpreadClientBuilder.class)
 public final class ModelClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsImpl serviceClient;
 
     /**
@@ -23,120 +24,25 @@ public final class ModelClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     ModelClient(ModelsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The spreadAsRequestBody operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param bodyParameter The bodyParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData bodyParameter, RequestOptions requestOptions) {
-        return this.serviceClient.spreadAsRequestBodyWithResponse(bodyParameter, requestOptions);
-    }
-
-    /**
-     * The spreadCompositeRequestOnlyWithBody operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.spreadCompositeRequestOnlyWithBodyWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The spreadCompositeRequestWithoutBody operation.
      * 
      * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
-        RequestOptions requestOptions) {
-        return this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, requestOptions);
-    }
-
-    /**
-     * The spreadCompositeRequest operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BinaryData body,
-        RequestOptions requestOptions) {
-        return this.serviceClient.spreadCompositeRequestWithResponse(name, testHeader, body, requestOptions);
-    }
-
-    /**
-     * The spreadCompositeRequestMix operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @param spreadCompositeRequestMixRequest The spreadCompositeRequestMixRequest parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader,
-        BinaryData spreadCompositeRequestMixRequest, RequestOptions requestOptions) {
-        return this.serviceClient.spreadCompositeRequestMixWithResponse(name, testHeader,
-            spreadCompositeRequestMixRequest, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
+        return this.serviceClient.spreadAsRequestBodyWithResponse(name, requestContext);
     }
 
     /**
@@ -144,16 +50,30 @@ public final class ModelClient {
      * 
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestBody(String name) {
-        // Generated convenience method for spreadAsRequestBodyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        BodyParameter bodyParameterObj = new BodyParameter(name);
-        BinaryData bodyParameter = BinaryData.fromObject(bodyParameterObj);
-        spreadAsRequestBodyWithResponse(bodyParameter, requestOptions).getValue();
+        this.serviceClient.spreadAsRequestBody(name);
+    }
+
+    /**
+     * The spreadCompositeRequestOnlyWithBody operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BodyParameter body,
+        RequestContext requestContext) {
+        return this.serviceClient.spreadCompositeRequestOnlyWithBodyWithResponse(body, requestContext);
     }
 
     /**
@@ -161,14 +81,31 @@ public final class ModelClient {
      * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestOnlyWithBody(BodyParameter body) {
-        // Generated convenience method for spreadCompositeRequestOnlyWithBodyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        spreadCompositeRequestOnlyWithBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        this.serviceClient.spreadCompositeRequestOnlyWithBody(body);
+    }
+
+    /**
+     * The spreadCompositeRequestWithoutBody operation.
+     * 
+     * @param name The name parameter.
+     * @param testHeader The testHeader parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
+        RequestContext requestContext) {
+        return this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, requestContext);
     }
 
     /**
@@ -177,14 +114,32 @@ public final class ModelClient {
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestWithoutBody(String name, String testHeader) {
-        // Generated convenience method for spreadCompositeRequestWithoutBodyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, requestOptions).getValue();
+        this.serviceClient.spreadCompositeRequestWithoutBody(name, testHeader);
+    }
+
+    /**
+     * The spreadCompositeRequest operation.
+     * 
+     * @param name The name parameter.
+     * @param testHeader The testHeader parameter.
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BodyParameter body,
+        RequestContext requestContext) {
+        return this.serviceClient.spreadCompositeRequestWithResponse(name, testHeader, body, requestContext);
     }
 
     /**
@@ -194,14 +149,32 @@ public final class ModelClient {
      * @param testHeader The testHeader parameter.
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequest(String name, String testHeader, BodyParameter body) {
-        // Generated convenience method for spreadCompositeRequestWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        spreadCompositeRequestWithResponse(name, testHeader, BinaryData.fromObject(body), requestOptions).getValue();
+        this.serviceClient.spreadCompositeRequest(name, testHeader, body);
+    }
+
+    /**
+     * The spreadCompositeRequestMix operation.
+     * 
+     * @param name The name parameter.
+     * @param testHeader The testHeader parameter.
+     * @param prop The prop parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader, String prop,
+        RequestContext requestContext) {
+        return this.serviceClient.spreadCompositeRequestMixWithResponse(name, testHeader, prop, requestContext);
     }
 
     /**
@@ -211,17 +184,12 @@ public final class ModelClient {
      * @param testHeader The testHeader parameter.
      * @param prop The prop parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestMix(String name, String testHeader, String prop) {
-        // Generated convenience method for spreadCompositeRequestMixWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequestObj
-            = new SpreadCompositeRequestMixRequest(prop);
-        BinaryData spreadCompositeRequestMixRequest = BinaryData.fromObject(spreadCompositeRequestMixRequestObj);
-        spreadCompositeRequestMixWithResponse(name, testHeader, spreadCompositeRequestMixRequest, requestOptions)
-            .getValue();
+        this.serviceClient.spreadCompositeRequestMix(name, testHeader, prop);
     }
 }

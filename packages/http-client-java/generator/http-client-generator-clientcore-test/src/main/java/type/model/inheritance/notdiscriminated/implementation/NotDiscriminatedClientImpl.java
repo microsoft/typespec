@@ -1,18 +1,19 @@
 package type.model.inheritance.notdiscriminated.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.notdiscriminated.Siamese;
 
 /**
@@ -61,7 +62,7 @@ public final class NotDiscriminatedClientImpl {
     public NotDiscriminatedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotDiscriminatedClientService.class, this.httpPipeline);
+        this.service = NotDiscriminatedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -70,114 +71,130 @@ public final class NotDiscriminatedClientImpl {
      */
     @ServiceInterface(name = "NotDiscriminatedClie", host = "{endpoint}")
     public interface NotDiscriminatedClientService {
+        static NotDiscriminatedClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName(
+                    "type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedClientServiceImpl");
+                return (NotDiscriminatedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/type/model/inheritance/not-discriminated/valid",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> postValidSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> postValid(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Siamese input,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/not-discriminated/valid",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Siamese> getValidSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<Siamese> getValid(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/model/inheritance/not-discriminated/valid",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Siamese> putValidSync(@HostParam("endpoint") String endpoint,
+        Response<Siamese> putValid(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestOptions requestOptions);
+            @BodyParam("application/json") Siamese input, RequestContext requestContext);
     }
 
     /**
      * The postValid operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     age: int (Required)
-     *     smart: boolean (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> postValidWithResponse(BinaryData input, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> postValidWithResponse(Siamese input, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.postValidSync(this.getEndpoint(), contentType, input, requestOptions);
+        return service.postValid(this.getEndpoint(), contentType, input, requestContext);
+    }
+
+    /**
+     * The postValid operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void postValid(Siamese input) {
+        postValidWithResponse(input, RequestContext.none());
     }
 
     /**
      * The getValid operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     age: int (Required)
-     *     smart: boolean (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
      */
-    public Response<Siamese> getValidWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getValidSync(this.getEndpoint(), accept, requestOptions);
+        return service.getValid(this.getEndpoint(), accept, requestContext);
+    }
+
+    /**
+     * The getValid operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the third level model in the normal multiple levels inheritance.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Siamese getValid() {
+        return getValidWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The putValid operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     age: int (Required)
-     *     smart: boolean (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *     age: int (Required)
-     *     smart: boolean (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
      */
-    public Response<Siamese> putValidWithResponse(BinaryData input, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.putValidSync(this.getEndpoint(), contentType, accept, input, requestOptions);
+        return service.putValid(this.getEndpoint(), contentType, accept, input, requestContext);
+    }
+
+    /**
+     * The putValid operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the third level model in the normal multiple levels inheritance.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Siamese putValid(Siamese input) {
+        return putValidWithResponse(input, RequestContext.none()).getValue();
     }
 }

@@ -1,20 +1,21 @@
 package type.property.nullable;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.property.nullable.implementation.CollectionsStringsImpl;
-import type.property.nullable.implementation.JsonMergePatchHelper;
 
 /**
  * Initializes a new instance of the synchronous NullableClient type.
  */
 @ServiceClient(builder = NullableClientBuilder.class)
 public final class CollectionsStringClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final CollectionsStringsImpl serviceClient;
 
     /**
@@ -22,135 +23,81 @@ public final class CollectionsStringClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     CollectionsStringClient(CollectionsStringsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Get models that will return all properties in the model.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProperty: String (Optional, Required on create)
-     *     nullableProperty (Optional, Required on create): [
-     *         String (Optional, Required on create)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
-    public Response<CollectionsStringProperty> getNonNullWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getNonNullWithResponse(requestOptions);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProperty: String (Optional, Required on create)
-     *     nullableProperty (Optional, Required on create): [
-     *         String (Optional, Required on create)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return models that will return the default object.
-     */
-    @Metadata(generated = true)
-    public Response<CollectionsStringProperty> getNullWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getNullWithResponse(requestOptions);
-    }
-
-    /**
-     * Put a body with all properties present.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProperty: String (Optional, Required on create)
-     *     nullableProperty (Optional, Required on create): [
-     *         String (Optional, Required on create)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> patchNonNullWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.patchNonNullWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Put a body with default properties.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProperty: String (Optional, Required on create)
-     *     nullableProperty (Optional, Required on create): [
-     *         String (Optional, Required on create)
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> patchNullWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.patchNullWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CollectionsStringProperty> getNonNullWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getNonNullWithResponse(requestContext);
     }
 
     /**
      * Get models that will return all properties in the model.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsStringProperty getNonNull() {
-        // Generated convenience method for getNonNullWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getNonNullWithResponse(requestOptions).getValue();
+        return this.serviceClient.getNonNull();
     }
 
     /**
      * Get models that will return the default object.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CollectionsStringProperty> getNullWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getNullWithResponse(requestContext);
+    }
+
+    /**
+     * Get models that will return the default object.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return models that will return the default object.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsStringProperty getNull() {
-        // Generated convenience method for getNullWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getNullWithResponse(requestOptions).getValue();
+        return this.serviceClient.getNull();
+    }
+
+    /**
+     * Put a body with all properties present.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> patchNonNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
+        return this.serviceClient.patchNonNullWithResponse(body, requestContext);
     }
 
     /**
@@ -158,19 +105,29 @@ public final class CollectionsStringClient {
      * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNonNull(CollectionsStringProperty body) {
-        // Generated convenience method for patchNonNullWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        JsonMergePatchHelper.getCollectionsStringPropertyAccessor().prepareModelForJsonMergePatch(body, true);
-        BinaryData bodyInBinaryData = BinaryData.fromObject(body);
-        // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
-        bodyInBinaryData.getLength();
-        JsonMergePatchHelper.getCollectionsStringPropertyAccessor().prepareModelForJsonMergePatch(body, false);
-        patchNonNullWithResponse(bodyInBinaryData, requestOptions).getValue();
+        this.serviceClient.patchNonNull(body);
+    }
+
+    /**
+     * Put a body with default properties.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> patchNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
+        return this.serviceClient.patchNullWithResponse(body, requestContext);
     }
 
     /**
@@ -178,18 +135,12 @@ public final class CollectionsStringClient {
      * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNull(CollectionsStringProperty body) {
-        // Generated convenience method for patchNullWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        JsonMergePatchHelper.getCollectionsStringPropertyAccessor().prepareModelForJsonMergePatch(body, true);
-        BinaryData bodyInBinaryData = BinaryData.fromObject(body);
-        // BinaryData.fromObject() will not fire serialization, use getLength() to fire serialization.
-        bodyInBinaryData.getLength();
-        JsonMergePatchHelper.getCollectionsStringPropertyAccessor().prepareModelForJsonMergePatch(body, false);
-        patchNullWithResponse(bodyInBinaryData, requestOptions).getValue();
+        this.serviceClient.patchNull(body);
     }
 }
