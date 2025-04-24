@@ -1,6 +1,6 @@
 {
   "name": "@typespec/sse",
-  "version": "0.67.1",
+  "version": "0.69.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing server sent events bindings",
   "homepage": "https://typespec.io",
@@ -31,7 +31,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",

@@ -30,7 +30,7 @@ public class FluentGenAccessor {
     }
 
     public FluentClient handleFluentLite(CodeModel codeModel, Client client, FluentJavaPackage javaPackage) {
-        return fluentgen.handleFluentLite(codeModel, client, javaPackage);
+        return fluentgen.handleFluentLite(codeModel, client, javaPackage, null);
     }
 
     public FluentMapper getFluentMapper() {

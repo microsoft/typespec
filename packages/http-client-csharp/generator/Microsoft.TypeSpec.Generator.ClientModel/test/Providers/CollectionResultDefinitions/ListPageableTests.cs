@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             CreatePagingOperation();
 
             var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
-                t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
             var writer = new TypeProviderWriter(collectionResultDefinition!);
@@ -75,14 +75,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
             var parameter = InputFactory.Parameter("animalKind", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query);
-            var paging = new InputOperationPaging(["cats"], null, null);
+            var pagingMetadata = InputFactory.PagingMetadata(["cats"], null, null);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
-            var operation = InputFactory.Operation("getCats", parameters: [parameter], paging: paging, responses: [response]);
-            var client = InputFactory.Client("catClient", operations: [operation]);
+            var operation = InputFactory.Operation("getCats", parameters: [parameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
         }

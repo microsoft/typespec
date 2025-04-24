@@ -55,7 +55,7 @@ eng/feeds/
 grammars/
 
 # auto generated code model files
-packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
+**/tspCodeModel.json
 
 # auto generated api view properties files
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
@@ -69,6 +69,9 @@ packages/http-client-js/dist-test
 
 # swagger-ui-dist lib files
 packages/typespec-vscode/swagger-ui/swagger-ui*
+
+# Docs with code
+docs/samples/client/csharp/oauth/readme.md
 
 .gitattributes
 CODEOWNERS

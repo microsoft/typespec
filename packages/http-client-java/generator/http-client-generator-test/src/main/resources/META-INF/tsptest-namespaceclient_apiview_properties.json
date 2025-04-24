@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.namespaceclient.NamespaceAsyncClient": "TspTest.NamespaceClient",
+    "tsptest.namespaceclient.NamespaceAsyncClient.get": "TspTest.NamespaceClient.get",
+    "tsptest.namespaceclient.NamespaceAsyncClient.getWithResponse": "TspTest.NamespaceClient.get",
+    "tsptest.namespaceclient.NamespaceClient": "TspTest.NamespaceClient",
+    "tsptest.namespaceclient.NamespaceClient.get": "TspTest.NamespaceClient.get",
+    "tsptest.namespaceclient.NamespaceClient.getWithResponse": "TspTest.NamespaceClient.get",
+    "tsptest.namespaceclient.NamespaceClientBuilder": "TspTest.NamespaceClient",
+    "tsptest.namespacemodel.models.Model": "TspTest.NamespaceModel.Model"
+  }
+}

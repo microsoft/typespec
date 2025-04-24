@@ -35,12 +35,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
 
         private readonly string _itemsPropertyName;
-        private readonly InputOperationPaging _paging;
+        private readonly InputPagingServiceMetadata _paging;
         private readonly FieldProvider[] _requestFields;
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
         private readonly int? _nextTokenParameterIndex;
 
-        public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
+        public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
             _client = client;
             _clientField = new FieldProvider(
@@ -48,8 +48,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _client.Type,
                 "_client",
                 this);
-            _operation = operation;
-            _paging = _operation.Paging!;
+            _operation = serviceMethod.Operation;
+            _paging = serviceMethod.PagingMetadata;
 
             _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
 
@@ -118,8 +118,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
+        protected override string BuildNamespace() => _client.Type.Namespace;
+
         protected override string BuildName()
-            => $"{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
+            => $"{_client.Type.Name}{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

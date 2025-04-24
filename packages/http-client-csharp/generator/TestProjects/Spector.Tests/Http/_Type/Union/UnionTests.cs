@@ -17,13 +17,13 @@ namespace TestProjects.Spector.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetStringsOnlyClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.AreEqual(GetResponseProp4.B, response.Value.Prop);
+            Assert.AreEqual(GetResponseProp.B, response.Value.Prop);
         });
 
         [SpectorTest]
         public Task SendStringsOnly() => Test(async (host) =>
         {
-            var response = await new UnionClient(host, null).GetStringsOnlyClient().SendAsync(GetResponseProp4.B);
+            var response = await new UnionClient(host, null).GetStringsOnlyClient().SendAsync(GetResponseProp.B);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -32,13 +32,13 @@ namespace TestProjects.Spector.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetStringExtensibleClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.AreEqual(new GetResponseProp3("custom"), response.Value.Prop);
+            Assert.AreEqual(new GetResponseProp1("custom"), response.Value.Prop);
         });
 
         [SpectorTest]
         public Task SendStringExtensibleOnly() => Test(async (host) =>
         {
-            var response = await new UnionClient(host, null).GetStringExtensibleClient().SendAsync(new GetResponseProp3("custom"));
+            var response = await new UnionClient(host, null).GetStringExtensibleClient().SendAsync(new GetResponseProp1("custom"));
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
@@ -77,13 +77,13 @@ namespace TestProjects.Spector.Tests.Http._Type.Union
         {
             var response = await new UnionClient(host, null).GetFloatsOnlyClient().GetAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.AreEqual(GetResponseProp1._22, response.Value.Prop);
+            Assert.AreEqual(GetResponseProp3._22, response.Value.Prop);
         });
 
         [SpectorTest]
         public Task SendFloatsOnly() => Test(async (host) =>
         {
-            var response = await new UnionClient(host, null).GetFloatsOnlyClient().SendAsync(GetResponseProp1._22);
+            var response = await new UnionClient(host, null).GetFloatsOnlyClient().SendAsync(GetResponseProp3._22);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 

@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.ModelsOnliesImpl;
-import type.union.implementation.models.SendRequest4;
-import type.union.models.GetResponse4;
+import type.union.implementation.models.SendRequest5;
+import type.union.models.GetResponse5;
 
 /**
  * Initializes a new instance of the synchronous UnionClient type.
@@ -74,7 +74,7 @@ public final class ModelsOnlyClient {
      * }
      * </pre>
      * 
-     * @param sendRequest4 The sendRequest4 parameter.
+     * @param sendRequest5 The sendRequest5 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -84,8 +84,8 @@ public final class ModelsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest4, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest4, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest5, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest5, requestOptions);
     }
 
     /**
@@ -100,10 +100,10 @@ public final class ModelsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse4 get() {
+    public GetResponse5 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse4.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse5.class);
     }
 
     /**
@@ -122,8 +122,8 @@ public final class ModelsOnlyClient {
     public void send(BinaryData prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest4 sendRequest4Obj = new SendRequest4(prop);
-        BinaryData sendRequest4 = BinaryData.fromObject(sendRequest4Obj);
-        sendWithResponse(sendRequest4, requestOptions).getValue();
+        SendRequest5 sendRequest5Obj = new SendRequest5(prop);
+        BinaryData sendRequest5 = BinaryData.fromObject(sendRequest5Obj);
+        sendWithResponse(sendRequest5, requestOptions).getValue();
     }
 }

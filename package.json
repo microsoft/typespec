@@ -2,7 +2,7 @@
   "name": "@typespec/monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.5.0",
+  "packageManager": "pnpm@10.8.0",
   "type": "module",
   "scripts": {
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
@@ -39,9 +39,9 @@
     "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary"
   },
   "devDependencies": {
-    "@chronus/chronus": "^1.0.0",
-    "@chronus/github": "^1.0.0",
-    "@chronus/github-pr-commenter": "^1.0.0",
+    "@chronus/chronus": "^1.0.1",
+    "@chronus/github": "^1.0.1",
+    "@chronus/github-pr-commenter": "^1.0.1",
     "@eslint/js": "^9.23.0",
     "@microsoft/api-extractor": "^7.52.1",
     "@octokit/core": "^6.1.4",
@@ -82,6 +82,11 @@
       "pnpmOverrides",
       "prod",
       "resolutions"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "tree-sitter"
     ]
   }
 }

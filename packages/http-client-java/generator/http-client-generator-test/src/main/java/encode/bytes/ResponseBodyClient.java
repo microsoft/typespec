@@ -14,6 +14,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.util.Base64Url;
 import com.azure.core.util.BinaryData;
 import encode.bytes.implementation.ResponseBodiesImpl;
 
@@ -133,7 +134,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * Base64Url
      * }
      * </pre>
      * 
@@ -237,6 +238,6 @@ public final class ResponseBodyClient {
     public byte[] base64url() {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64urlWithResponse(requestOptions).getValue().toObject(byte[].class);
+        return base64urlWithResponse(requestOptions).getValue().toObject(Base64Url.class).decodedBytes();
     }
 }

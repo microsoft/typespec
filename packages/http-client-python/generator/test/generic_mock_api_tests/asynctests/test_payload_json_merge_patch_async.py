@@ -28,7 +28,7 @@ async def test_create_resource(client: JsonMergePatchClient):
         map={"key": inner_madge},
         array=[inner_madge],
         int_value=1,
-        float_value=1.1,
+        float_value=1.25,
         inner_model=inner_madge,
         int_array=[1, 2, 3],
     )

@@ -1,5 +1,5 @@
 import assert from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting unions", () => {
@@ -139,6 +139,42 @@ describe("emitting unions", () => {
         description: "other model doc",
         title: "other model summary",
         "x-key-2": "x-value-2",
+      },
+    ]);
+  });
+});
+
+describe("union templates", () => {
+  it("can be referenced from a property", async () => {
+    const schemas = await emitSchema(
+      `
+      union U<T> { "a", T }
+      @jsonSchema model Foo {
+        prop: U<"b">;
+      };
+      `,
+    );
+    expect(schemas["Foo.json"].properties.prop).toEqual({
+      anyOf: [
+        { type: "string", const: "a" },
+        { type: "string", const: "b" },
+      ],
+    });
+  });
+  it("can be referenced in another union", async () => {
+    const schemas = await emitSchema(
+      `
+      union U<T> { "a", T }
+      @jsonSchema union Foo {string, U<"b"> }
+      `,
+    );
+    expect(schemas["Foo.json"].anyOf).toEqual([
+      { type: "string" },
+      {
+        anyOf: [
+          { type: "string", const: "a" },
+          { type: "string", const: "b" },
+        ],
       },
     ]);
   });
