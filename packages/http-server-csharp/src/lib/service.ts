@@ -1001,36 +1001,19 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         );
       }
       const builder: StringBuilder = new StringBuilder();
-      let i = 0;
-      const validResponses = operation.responses.filter(
-        (r) =>
-          !isErrorModel(this.emitter.getProgram(), r.type) &&
-          getCSharpStatusCode(r.statusCodes) !== undefined,
-      );
       for (const response of operation.responses) {
-        const [responseType, resolvedResponse] = this.#resolveOperationResponse(
-          response,
-          operation.operation,
-        );
+        const [responseType, _] = this.#resolveOperationResponse(response, operation.operation);
         if (isValid(this.emitter.getProgram(), response)) {
-          i++;
           builder.push(
-            code`${this.#emitOperationResponseDecorator(response, resolvedResponse, responseType)}`,
+            code`${builder.segments.length > 0 ? "\n" : ""}${this.#emitOperationResponseDecorator(response, responseType)}`,
           );
-          if (i < validResponses.length) {
-            builder.pushLiteralSegment("\n");
-          }
         }
       }
 
       return builder.reduce();
     }
 
-    #emitOperationResponseDecorator(
-      response: HttpOperationResponse,
-      responseType: Type,
-      result: CSharpType,
-    ) {
+    #emitOperationResponseDecorator(response: HttpOperationResponse, result: CSharpType) {
       return this.emitter.result.rawCode(
         code`[ProducesResponseType((int)${getCSharpStatusCode(
           response.statusCodes,
