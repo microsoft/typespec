@@ -420,6 +420,26 @@ describe("compiler: templates", () => {
     strictEqual(MyOp.returnType.name, "string");
   });
 
+  it("can use parent parameters default in default", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        @test interface MyInterface<A, B = string> {
+          op foo<R = B, P = R>(params: P): R;
+        }
+        alias AliasedInterface = MyInterface<string>;
+        @test op MyOp is AliasedInterface.foo;
+      `,
+    );
+    const { MyOp } = (await testHost.compile("main.tsp")) as { MyOp: Operation };
+    const params = MyOp.parameters.properties.get("params");
+    ok(params, "Expected params to be defined");
+    strictEqual(params.type.kind, "Scalar");
+    strictEqual(params.type.name, "string");
+    strictEqual(MyOp.returnType.kind, "Scalar");
+    strictEqual(MyOp.returnType.name, "string");
+  });
+
   it("can override default provided by parent parameters", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
