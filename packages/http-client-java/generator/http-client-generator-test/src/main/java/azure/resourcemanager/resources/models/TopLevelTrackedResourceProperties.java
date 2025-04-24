@@ -5,6 +5,7 @@
 package azure.resourcemanager.resources.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,16 +20,19 @@ public final class TopLevelTrackedResourceProperties implements JsonSerializable
     /*
      * The status of the last operation.
      */
+    @Generated
     private ProvisioningState provisioningState;
 
     /*
      * The description of the resource.
      */
+    @Generated
     private String description;
 
     /**
      * Creates an instance of TopLevelTrackedResourceProperties class.
      */
+    @Generated
     public TopLevelTrackedResourceProperties() {
     }
 
@@ -37,6 +41,7 @@ public final class TopLevelTrackedResourceProperties implements JsonSerializable
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }
@@ -46,6 +51,7 @@ public final class TopLevelTrackedResourceProperties implements JsonSerializable
      * 
      * @return the description value.
      */
+    @Generated
     public String description() {
         return this.description;
     }
@@ -56,6 +62,7 @@ public final class TopLevelTrackedResourceProperties implements JsonSerializable
      * @param description the description value to set.
      * @return the TopLevelTrackedResourceProperties object itself.
      */
+    @Generated
     public TopLevelTrackedResourceProperties withDescription(String description) {
         this.description = description;
         return this;

@@ -99,8 +99,11 @@ final class ProxyMethodParameterProcessor {
             final ProxyMethodParameter requestOptionsParameter = ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER;
             allParameters.add(requestOptionsParameter);
             parameters.add(requestOptionsParameter);
-        } else if (settings.isBranded()) {
-            // Context Parameter.
+        }
+
+        // Context Parameter.
+        //
+        if (settings.isBranded()) {
             final ProxyMethodParameter contextParameter = ProxyMethodParameter.CONTEXT_PARAMETER;
             allParameters.add(contextParameter);
             parameters.add(contextParameter);

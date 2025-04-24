@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
@@ -20,11 +21,13 @@ public final class AggregateFunctionProperties extends FunctionProperties {
     /*
      * Discriminator property for FunctionProperties.
      */
+    @Generated
     private String kind = "aggregate";
 
     /**
      * Creates an instance of AggregateFunctionProperties class.
      */
+    @Generated
     public AggregateFunctionProperties() {
     }
 
@@ -33,6 +36,7 @@ public final class AggregateFunctionProperties extends FunctionProperties {
      * 
      * @return the kind value.
      */
+    @Generated
     @Override
     public String kind() {
         return this.kind;
@@ -43,6 +47,7 @@ public final class AggregateFunctionProperties extends FunctionProperties {
      * 
      * @return the input value.
      */
+    @Generated
     public String input() {
         return this.innerProperties() == null ? null : this.innerProperties().input();
     }
@@ -53,6 +58,7 @@ public final class AggregateFunctionProperties extends FunctionProperties {
      * @param input the input value to set.
      * @return the AggregateFunctionProperties object itself.
      */
+    @Generated
     public AggregateFunctionProperties withInput(String input) {
         if (this.innerProperties() == null) {
             this.withInnerProperties(new FunctionConfiguration());
@@ -66,6 +72,7 @@ public final class AggregateFunctionProperties extends FunctionProperties {
      * 
      * @return the output value.
      */
+    @Generated
     public String output() {
         return this.innerProperties() == null ? null : this.innerProperties().output();
     }
@@ -76,6 +83,7 @@ public final class AggregateFunctionProperties extends FunctionProperties {
      * @param output the output value to set.
      * @return the AggregateFunctionProperties object itself.
      */
+    @Generated
     public AggregateFunctionProperties withOutput(String output) {
         if (this.innerProperties() == null) {
             this.withInnerProperties(new FunctionConfiguration());

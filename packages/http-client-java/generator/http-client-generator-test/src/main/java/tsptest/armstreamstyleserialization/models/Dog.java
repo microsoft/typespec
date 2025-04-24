@@ -4,6 +4,7 @@
 
 package tsptest.armstreamstyleserialization.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -19,21 +20,25 @@ public class Dog implements JsonSerializable<Dog> {
     /*
      * discriminator property
      */
+    @Generated
     private DogKind kind = DogKind.fromString("Dog");
 
     /*
      * Weight of the dog
      */
+    @Generated
     private int weight;
 
     /*
      * dna of the dog
      */
+    @Generated
     private String dna;
 
     /**
      * Creates an instance of Dog class.
      */
+    @Generated
     protected Dog() {
     }
 
@@ -42,6 +47,7 @@ public class Dog implements JsonSerializable<Dog> {
      * 
      * @return the kind value.
      */
+    @Generated
     public DogKind kind() {
         return this.kind;
     }
@@ -51,6 +57,7 @@ public class Dog implements JsonSerializable<Dog> {
      * 
      * @return the weight value.
      */
+    @Generated
     public int weight() {
         return this.weight;
     }
@@ -61,6 +68,7 @@ public class Dog implements JsonSerializable<Dog> {
      * @param weight the weight value to set.
      * @return the Dog object itself.
      */
+    @Generated
     Dog withWeight(int weight) {
         this.weight = weight;
         return this;
@@ -71,6 +79,7 @@ public class Dog implements JsonSerializable<Dog> {
      * 
      * @return the dna value.
      */
+    @Generated
     public String dna() {
         return this.dna;
     }
@@ -81,6 +90,7 @@ public class Dog implements JsonSerializable<Dog> {
      * @param dna the dna value to set.
      * @return the Dog object itself.
      */
+    @Generated
     Dog withDna(String dna) {
         this.dna = dna;
         return this;

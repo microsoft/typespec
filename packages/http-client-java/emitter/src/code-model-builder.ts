@@ -581,7 +581,7 @@ export class CodeModelBuilder {
   private processClients() {
     // preprocess group-etag-headers
     
-    this.options["group-etag-headers"] = this.options["group-etag-headers"] ?? false;
+    this.options["group-etag-headers"] = this.options["group-etag-headers"] ?? true;
 
     const sdkPackage = this.sdkContext.sdkPackage;
     for (const client of sdkPackage.clients) {

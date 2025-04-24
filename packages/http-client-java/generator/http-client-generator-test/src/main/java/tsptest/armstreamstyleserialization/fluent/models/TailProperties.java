@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,21 +21,25 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
     /*
      * The length property.
      */
+    @Generated
     private double length;
 
     /*
      * The patten property.
      */
+    @Generated
     private String patten;
 
     /*
      * The requiredString property.
      */
+    @Generated
     private String requiredString;
 
     /**
      * Creates an instance of TailProperties class.
      */
+    @Generated
     public TailProperties() {
     }
 
@@ -43,6 +48,7 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
      * 
      * @return the length value.
      */
+    @Generated
     public double length() {
         return this.length;
     }
@@ -53,6 +59,7 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
      * @param length the length value to set.
      * @return the TailProperties object itself.
      */
+    @Generated
     public TailProperties withLength(double length) {
         this.length = length;
         return this;
@@ -63,6 +70,7 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
      * 
      * @return the patten value.
      */
+    @Generated
     public String patten() {
         return this.patten;
     }
@@ -72,6 +80,7 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredString() {
         return this.requiredString;
     }
@@ -82,6 +91,7 @@ public final class TailProperties implements JsonSerializable<TailProperties> {
      * @param requiredString the requiredString value to set.
      * @return the TailProperties object itself.
      */
+    @Generated
     public TailProperties withRequiredString(String requiredString) {
         this.requiredString = requiredString;
         return this;

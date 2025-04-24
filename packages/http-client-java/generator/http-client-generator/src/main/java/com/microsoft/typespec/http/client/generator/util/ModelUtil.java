@@ -17,19 +17,14 @@ public final class ModelUtil {
 
     public static boolean isGeneratingModel(ClientModel model) {
         return model.getImplementationDetails() != null
-            && (model.getImplementationDetails().isPublic()
-                || model.getImplementationDetails().isInternal()
-                || model.getImplementationDetails().isException()
-                || model.getImplementationDetails().isInput())
+            && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())
             && !(isExternalModel(model.getImplementationDetails()))
             && !(JavaSettings.getInstance().isBranded() && isPagedModel(model.getImplementationDetails()));
     }
 
     public static boolean isGeneratingModel(EnumType model) {
         return model.getImplementationDetails() != null
-            && (model.getImplementationDetails().isPublic()
-                || model.getImplementationDetails().isInternal()
-                || model.getImplementationDetails().isInput());
+            && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal());
     }
 
     public static boolean isGeneratingModel(ClientResponse response) {

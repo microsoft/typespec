@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -19,11 +20,13 @@ public final class ResultInner implements JsonSerializable<ResultInner> {
     /*
      * The reason property.
      */
+    @Generated
     private String reason;
 
     /**
      * Creates an instance of ResultInner class.
      */
+    @Generated
     private ResultInner() {
     }
 
@@ -32,6 +35,7 @@ public final class ResultInner implements JsonSerializable<ResultInner> {
      * 
      * @return the reason value.
      */
+    @Generated
     public String reason() {
         return this.reason;
     }

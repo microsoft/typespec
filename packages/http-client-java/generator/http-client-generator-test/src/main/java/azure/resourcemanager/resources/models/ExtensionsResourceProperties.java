@@ -5,6 +5,7 @@
 package azure.resourcemanager.resources.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,16 +20,19 @@ public final class ExtensionsResourceProperties implements JsonSerializable<Exte
     /*
      * The description of the resource.
      */
+    @Generated
     private String description;
 
     /*
      * The status of the last operation.
      */
+    @Generated
     private ProvisioningState provisioningState;
 
     /**
      * Creates an instance of ExtensionsResourceProperties class.
      */
+    @Generated
     public ExtensionsResourceProperties() {
     }
 
@@ -37,6 +41,7 @@ public final class ExtensionsResourceProperties implements JsonSerializable<Exte
      * 
      * @return the description value.
      */
+    @Generated
     public String description() {
         return this.description;
     }
@@ -47,6 +52,7 @@ public final class ExtensionsResourceProperties implements JsonSerializable<Exte
      * @param description the description value to set.
      * @return the ExtensionsResourceProperties object itself.
      */
+    @Generated
     public ExtensionsResourceProperties withDescription(String description) {
         this.description = description;
         return this;
@@ -57,6 +63,7 @@ public final class ExtensionsResourceProperties implements JsonSerializable<Exte
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }

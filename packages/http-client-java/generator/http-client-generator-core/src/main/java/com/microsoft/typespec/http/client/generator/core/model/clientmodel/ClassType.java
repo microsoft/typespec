@@ -195,7 +195,7 @@ public class ClassType implements IType {
                 new ClassDetails(TokenCredential.class, "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
                     "com.azure.v2.core.credentials.TokenCredential"));
             put(TokenCredentialTrait.class,
-                new ClassDetails(TokenCredential.class, "io.clientcore.core.traits.OAuthTokenCredentialTrait",
+                new ClassDetails(TokenCredentialTrait.class, "io.clientcore.core.traits.OAuthTokenCredentialTrait",
                     "com.azure.v2.core.traits.TokenCredentialTrait"));
             put(BearerTokenAuthenticationPolicy.class,
                 new ClassDetails(BearerTokenAuthenticationPolicy.class,
