@@ -384,7 +384,7 @@ public class ClientModelUtil {
     public static String getArtifactId() {
         JavaSettings settings = JavaSettings.getInstance();
         String artifactId = settings.getArtifactId();
-        if (settings.isDataPlaneClient() && CoreUtils.isNullOrEmpty(artifactId)) {
+        if ((settings.isDataPlaneClient() || !settings.isBranded()) && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
             artifactId = settings.getPackage().toLowerCase(Locale.ROOT).replace("com.", "").replace(".", "-");
         }

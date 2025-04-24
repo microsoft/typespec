@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "server.path.single.SingleClient": "Server.Path.Single",
+    "server.path.single.SingleClientBuilder": "Server.Path.Single"
+  }
+}
