@@ -1,8 +1,10 @@
 import {
+  expandDyns,
   MockRequest,
   MockRequestHandler,
   MockResponse,
   RequestExt,
+  ResolverConfig,
   ValidationError,
 } from "@typespec/spec-api";
 import { Response } from "express";
@@ -17,6 +19,7 @@ export async function processRequest(
   request: RequestExt,
   response: Response,
   func: MockRequestHandler,
+  resolverConfig: ResolverConfig,
 ): Promise<void> {
   const mockRequest = new MockRequest(request);
   const mockResponse = await callHandler(mockRequest, response, func);
@@ -25,18 +28,27 @@ export async function processRequest(
   }
 
   await coverageTracker.trackEndpointResponse(scenarioName, scenarioUri, mockResponse);
-  processResponse(response, mockResponse);
+  processResponse(response, mockResponse, resolverConfig);
 }
 
-const processResponse = (response: Response, mockResponse: MockResponse) => {
+const processResponse = (
+  response: Response,
+  mockResponse: MockResponse,
+  resolverConfig: ResolverConfig,
+) => {
   response.status(mockResponse.status);
 
   if (mockResponse.headers) {
-    response.set(mockResponse.headers);
+    response.set(expandDyns(mockResponse.headers, resolverConfig));
   }
 
   if (mockResponse.body) {
-    response.contentType(mockResponse.body.contentType).send(mockResponse.body.rawContent);
+    const raw =
+      typeof mockResponse.body.rawContent === "string" ||
+      Buffer.isBuffer(mockResponse.body.rawContent)
+        ? mockResponse.body.rawContent
+        : mockResponse.body.rawContent?.serialize(resolverConfig);
+    response.contentType(mockResponse.body.contentType).send(raw);
   }
 
   response.end();

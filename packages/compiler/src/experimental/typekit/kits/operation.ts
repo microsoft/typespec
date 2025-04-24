@@ -1,6 +1,6 @@
-import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import { ModelProperty, Operation, Type } from "../../../core/types.js";
 import { getPagingOperation, PagingOperation } from "../../../lib/paging.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -44,7 +44,7 @@ export interface OperationKit {
    * Get the paging operation's metadata for an operation.
    * @param operation operation to get the paging operation for
    */
-  getPagingMetadata(operation: Operation): PagingOperation | undefined;
+  getPagingMetadata: Diagnosable<(operation: Operation) => PagingOperation | undefined>;
 }
 
 interface TypekitExtension {
@@ -64,9 +64,9 @@ defineKit<TypekitExtension>({
     is(type: Type) {
       return type.kind === "Operation";
     },
-    getPagingMetadata(operation: Operation) {
-      return ignoreDiagnostics(getPagingOperation(this.program, operation));
-    },
+    getPagingMetadata: createDiagnosable(function (operation) {
+      return getPagingOperation(this.program, operation);
+    }),
     create(desc) {
       const parametersModel = this.model.create({
         name: `${desc.name}Parameters`,
@@ -84,7 +84,6 @@ defineKit<TypekitExtension>({
         decorators: [],
         parameters: parametersModel,
         returnType: desc.returnType,
-        node: undefined as any,
       });
       this.program.checker.finishType(operation);
       return operation;

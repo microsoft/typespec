@@ -271,9 +271,9 @@ function resolveExplicitBodyProperty(
             code: "http-file-structured",
             messageId: "union",
             target:
-              item.property.node.kind === SyntaxKind.ModelProperty
+              item.property.node?.kind === SyntaxKind.ModelProperty
                 ? item.property.node.value
-                : item.property.node,
+                : item.property,
           });
         }
 
@@ -481,7 +481,7 @@ function resolveMultiPartBodyFromTuple(
       diagnostics.add(
         createDiagnostic({
           code: "formdata-no-part-name",
-          target: type.node.values[index],
+          target: type.node?.values[index] ?? type.values[index],
         }),
       );
     }

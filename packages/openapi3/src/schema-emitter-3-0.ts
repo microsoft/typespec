@@ -214,7 +214,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ...additionalProps,
             });
           } else if (type && type.kind === "Scalar") {
-            const stdType = $.scalar.getStdBase(type);
+            const stdType = $(program).scalar.getStdBase(type);
             const outputType: JsonType | undefined = stdType
               ? this.getSchemaForStdScalars(stdType as any).type
               : undefined;

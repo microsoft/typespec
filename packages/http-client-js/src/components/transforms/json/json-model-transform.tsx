@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";
 import { JsonRecordTransformDeclaration } from "./json-record-transform.jsx";
@@ -18,6 +18,7 @@ export interface JsonModelTransformProps {
 }
 
 export function JsonModelTransform(props: JsonModelTransformProps) {
+  const { $ } = useTsp();
   // Need to skip never properties
   const properties = Array.from(
     $.model.getProperties(props.type, { includeExtended: true }).values(),
@@ -69,6 +70,7 @@ export interface JsonModelTransformDeclarationProps {
 export function JsonModelTransformDeclaration(
   props: JsonModelTransformDeclarationProps,
 ): ay.Children {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
     `json_${props.type.name}_to_${props.target}_transform`,

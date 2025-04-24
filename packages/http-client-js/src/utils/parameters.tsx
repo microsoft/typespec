@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -9,6 +9,7 @@ import { getClientContextOptionsRef } from "../components/client-context/client-
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
 
 export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor[] {
+  const { $ } = useTsp();
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
   const params = parameters.flatMap(
@@ -42,6 +43,7 @@ export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor
 function buildClientParameterDescriptor(
   modelProperty: ModelProperty,
 ): ts.ParameterDescriptor | undefined {
+  const { $ } = useTsp();
   const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
 
   if (authSchemes) {
