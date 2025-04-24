@@ -448,7 +448,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private (Dictionary<string, InputModelProperty> BsaeProperties, Dictionary<string, InputModelProperty> BaseSystemProperties) EnumerateBaseModels()
+        private (Dictionary<string, InputModelProperty> BaseProperties, Dictionary<string, InputModelProperty> BaseSystemProperties) EnumerateBaseModels()
         {
             var baseProperties = new Dictionary<string, InputModelProperty>();
             var baseSystemProperties = new Dictionary<string, InputModelProperty>();

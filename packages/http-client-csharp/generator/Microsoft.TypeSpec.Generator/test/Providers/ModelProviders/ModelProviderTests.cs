@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildProperties_ValidateBaseSystemModelOfDifferntType()
+        public void TestBuildProperties_ValidateBaseSystemModelOfDifferentType()
         {
             var stringProp = InputFactory.Property("prop", InputPrimitiveType.String);
             var baseModel = InputFactory.Model("baseModel", properties: [stringProp]);
