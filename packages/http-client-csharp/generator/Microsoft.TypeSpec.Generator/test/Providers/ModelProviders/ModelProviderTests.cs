@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -52,6 +53,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
             Assert.NotNull(prop1Field);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateBaseSystemModelOfSameType()
+        {
+            var stringProp = InputFactory.Property("prop", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [stringProp]);
+            var derivedModel = InputFactory.Model("derivedModel", properties: [stringProp], baseModel: baseModel);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel], createModelCore: CreateModel);
+
+            var derivedModelProvider = new ModelProvider(derivedModel);
+            Assert.IsEmpty(derivedModelProvider.Properties);
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateBaseSystemModelOfDifferntType()
+        {
+            var stringProp = InputFactory.Property("prop", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [stringProp]);
+            var intProp = InputFactory.Property("prop", InputPrimitiveType.Int32);
+            var derivedModel = InputFactory.Model("derivedModel", properties: [intProp], baseModel: baseModel);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel], createModelCore: CreateModel);
+
+            var derivedModelProvider = new ModelProvider(derivedModel);
+            Assert.AreEqual(1, derivedModelProvider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.New, derivedModelProvider.Properties[0].Modifiers);
+        }
+
+        private ModelProvider CreateModel(InputModelType model)
+        {
+            if (model.Name == "baseModel")
+            {
+                return new SystemObjectTypeProvider(typeof(BaseModel), model);
+            }
+            return new ModelProvider(model);
+        }
+
+        private class BaseModel
+        {
+            public string? Prop { get; set; }
         }
 
         // Validates that the property body's setter is correctly set based on the property type

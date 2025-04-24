@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", ": " ")}";
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", " : " ")}";
                     }
                 }
 
@@ -376,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            var (baseProperties, baseSystemProperties) = EnumerateBaseModels();
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -399,21 +399,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
                     }
-                    var baseProperty = baseProperties.GetValueOrDefault(property.Name);
-                    if (baseProperty is not null)
+
+                    if (baseSystemProperties.TryGetValue(property.Name, out var baseSystemProperty))
                     {
+                        if (DomainEqual(baseSystemProperty, property))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            SetOutputPropertyAsNew(outputProperty, baseSystemProperty);
+                            outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseSystemProperty, BaseModelProvider!);
+                        }
+                    }
+
+                    if (baseProperties.TryGetValue(property.Name, out var baseProperty))
+                    {
+                        // skip the property if exists in base system type, set it as new if type differs
                         if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
                         else
                         {
-                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                            outputProperty.Body = new ExpressionPropertyBody(
-                                This.Property(fieldName).NullCoalesce(Default),
-                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                            outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
+                            SetOutputPropertyAsNew(outputProperty, baseProperty);
                         }
                         outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                     }
@@ -427,16 +436,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
+
+            void SetOutputPropertyAsNew(PropertyProvider outputProperty, InputModelProperty baseProperty)
+            {
+                outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                outputProperty.Body = new ExpressionPropertyBody(
+                    This.Property(fieldName).NullCoalesce(Default),
+                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
+            }
         }
 
-        private IEnumerable<InputModelType> EnumerateBaseModels()
+        private (Dictionary<string, InputModelProperty> BsaeProperties, Dictionary<string, InputModelProperty> BaseSystemProperties) EnumerateBaseModels()
         {
-            var model = _inputModel;
-            while (model.BaseModel != null)
+            var baseProperties = new Dictionary<string, InputModelProperty>();
+            var baseSystemProperties = new Dictionary<string, InputModelProperty>();
+            var baseModel = _inputModel.BaseModel;
+            while (baseModel != null)
             {
-                yield return model.BaseModel;
-                model = model.BaseModel;
+                var baseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel);
+                if (baseModelProvider is SystemObjectTypeProvider)
+                {
+                    foreach (var property in baseModel.Properties)
+                    {
+                        baseSystemProperties[property.Name] = property;
+                    }
+                }
+                else
+                {
+                    foreach (var property in baseModel.Properties)
+                    {
+                        baseProperties[property.Name] = property;
+                    }
+                }
+                baseModel = baseModel.BaseModel;
             }
+            return (baseProperties, baseSystemProperties);
         }
 
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
