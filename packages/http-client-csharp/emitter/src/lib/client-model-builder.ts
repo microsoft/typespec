@@ -40,6 +40,20 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
+  // TODO - this is a workaround because of bug in TCGC: https://github.com/Azure/typespec-azure/issues/2572
+  // now in the TCGC output, a lot of constants are sharing the same name
+  const constantNameMap = new Map<string, number>();
+  for (const constant of sdkContext.__typeCache.constants.values()) {
+    const count = constantNameMap.get(constant.name);
+    if (count) {
+      constantNameMap.set(constant.name, count + 1);
+      constant.name = `${constant.name}${count}`;
+    }
+    else {
+      constantNameMap.set(constant.name, 1);
+    }
+  }
+
   const clientModel: CodeModel = {
     // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
     // if the typespec is changed.
