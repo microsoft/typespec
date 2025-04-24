@@ -296,12 +296,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
                 } else if (operation.isLro()
-                    && (settings.isFluent() || settings.getPollingSettings("default") != null)
-                    && !methodsReturnDescription.getSyncReturnType().equals(ClassType.INPUT_STREAM)) {
-                    // Skip InputStream, no idea how to do this in PollerFlux.
+                    && (settings.isFluent() || settings.getPollingSettings("default") != null)) {
 
-                    if (proxyMethod.isSync()) {
-                        // Skip sync ProxyMethods for polling as sync polling isn't ready yet.
+                    if (proxyMethod.isSync()
+                        || methodsReturnDescription.getSyncReturnType().equals(ClassType.INPUT_STREAM)) {
+                        // Skip the following
+                        // 1. Sync ProxyMethods for polling as sync polling isn't ready yet.
+                        // 2. InputStream return type as it does not adhere to PollerFlux contract.
                         continue;
                     }
 
