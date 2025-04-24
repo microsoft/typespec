@@ -21,7 +21,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string _fromDictionaryName = "FromDictionary";
         private const string _fromObjectName = "FromObject";
 
-        private readonly CSharpType _requestBodyType = typeof(BinaryContent);
+        private readonly CSharpType _requestBodyType =
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 

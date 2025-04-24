@@ -1,7 +1,8 @@
 import type { Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
-import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
+import { Typekit, TypekitPrototype } from "./define-kit.js";
 
+export * from "./create-diagnosable.js";
 export * from "./define-kit.js";
 export * from "./kits/index.js";
 
@@ -34,14 +35,43 @@ export function createTypekit(realm: Realm): Typekit {
 
       // Wrap functions to set `this` correctly
       if (typeof value === "function") {
-        return function (this: any, ...args: any[]) {
+        const proxyWrapper = function (this: any, ...args: any[]) {
+          // Call the original function (`value`) with the correct `this` (the proxy)
           return value.apply(proxy, args);
         };
+
+        // functions may also have properties added to them, like in the case of `withDiagnostics`.
+        // Copy enumerable properties from the original function (`value`) to the wrapper
+        for (const propName of Object.keys(value)) {
+          const originalPropValue = (value as any)[propName];
+
+          if (typeof originalPropValue === "function") {
+            // If the property is a function, wrap it to ensure `this` is bound correctly
+            (proxyWrapper as any)[propName] = function (this: any, ...args: any[]) {
+              // Call the original property function with `this` bound to the proxy
+              return originalPropValue.apply(proxy, args);
+            };
+          } else {
+            // If the property is not a function, copy it directly
+            // Use Reflect.defineProperty to handle potential getters/setters correctly, though Object.keys usually only returns data properties.
+            Reflect.defineProperty(
+              proxyWrapper,
+              propName,
+              Reflect.getOwnPropertyDescriptor(value, propName)!,
+            );
+          }
+        }
+
+        return proxyWrapper;
       }
 
-      // Only wrap objects marked as Typekit namespaces
-      if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
-        return new Proxy(value, handler); // Wrap namespace objects
+      // Wrap objects to ensure their functions are bound correctly, avoid wrapping `get` accessors
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Reflect.getOwnPropertyDescriptor(target, prop)?.get
+      ) {
+        return new Proxy(value, handler);
       }
 
       return value;
@@ -50,11 +80,6 @@ export function createTypekit(realm: Realm): Typekit {
 
   const proxy = new Proxy(tk, handler);
   return proxy;
-}
-
-// Helper function to check if an object is a Typekit namespace
-function isTypekitNamespace(obj: any): boolean {
-  return obj && !!obj[TypekitNamespaceSymbol];
 }
 
 // #region Default Typekit
