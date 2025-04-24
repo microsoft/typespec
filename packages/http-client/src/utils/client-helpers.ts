@@ -119,7 +119,7 @@ export function getConstructors($: Typekit, client: InternalClient): Operation[]
     $.operation.create({
       name: "constructor",
       parameters: params,
-      returnType: $.program.checker.voidType,
+      returnType: $.intrinsic.void,
     }),
   );
 
@@ -192,6 +192,6 @@ export function createBaseConstructor(
   return $.operation.create({
     name: "constructor",
     parameters: combinedParams,
-    returnType: $.program.checker.voidType,
+    returnType: $.intrinsic.void,
   });
 }
