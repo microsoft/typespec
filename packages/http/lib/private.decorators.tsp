@@ -16,3 +16,39 @@ extern dec httpPart(
  * @param value If true, inapplicable metadata will be included in the payload.
  */
 extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);
+
+/**
+ * The visibility mode for the merge patch transform.
+ */
+enum MergePatchVisibilityMode {
+  /**
+   * The Update mode. This is used when a resource can be updated but must already exist.
+   */
+  Update,
+
+  /**
+   * The Create or Update mode. This is used when a resource can be created OR updated in a single operation.
+   */
+  CreateOrUpdate,
+}
+
+/**
+ * Options for the `@applyMergePatch` decorator.
+ */
+model ApplyMergePatchOptions {
+  /**
+   * The visibility mode to use.
+   */
+  visibilityMode: MergePatchVisibilityMode;
+}
+
+/**
+ * Performs the canonical merge-patch transformation on the given model and injects its
+ * transformed properties into the target.
+ */
+extern dec applyMergePatch(
+  target: Reflection.Model,
+  source: Reflection.Model,
+  nameTemplate: valueof string,
+  options: valueof ApplyMergePatchOptions
+);

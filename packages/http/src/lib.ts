@@ -195,6 +195,13 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
       },
     },
+    "merge-patch-contains-null": {
+      severity: "error",
+      messages: {
+        default:
+          "Cannot convert model to a merge-patch compatible shape because it contains the 'null' intrinsic type.",
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
