@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,9 +51,6 @@ import java.util.stream.Stream;
  */
 public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>> {
     private static final ClientMethodMapper INSTANCE = new ClientMethodMapper();
-
-    private static final Pattern ANYTHING_THEN_PERIOD = Pattern.compile(".*\\.");
-
     private final Map<CacheKey, List<ClientMethod>> parsed = new ConcurrentHashMap<>();
 
     private static class CacheKey {
@@ -599,14 +595,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         return signatures;
     }
 
-    private static ClientMethodParameter
-        toBinaryDataClientMethodParameter(ClientMethodParameter clientMethodParameter) {
-        return clientMethodParameter.newBuilder()
-            .rawType(ClassType.BINARY_DATA)
-            .wireType(ClassType.BINARY_DATA)
-            .build();
-    }
-
     /**
      * Extension point of additional methods for LRO.
      */
@@ -1060,40 +1048,51 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(withContextMethod);
     }
 
-    private IType getPollingIntermediateType(PollingSettings details, IType syncReturnType) {
-        IType pollResponseType = syncReturnType.asNullable();
+    private IType getPollingIntermediateType(PollingSettings pollingSettings, IType syncReturnType) {
+        assert pollingSettings != null;
+
         if (JavaSettings.getInstance().isFluent()) {
-            return pollResponseType;
-        }
-        if (details != null && details.getIntermediateType() != null) {
-            pollResponseType = createTypeFromModelName(details.getIntermediateType());
-        }
-        // azure-core wants poll response to be non-null
-        if (pollResponseType.asNullable() == ClassType.VOID) {
-            pollResponseType = ClassType.BINARY_DATA;
+            return syncReturnType.asNullable();
         }
 
-        return pollResponseType;
+        final IType intermediateResponseType;
+        if (pollingSettings.getIntermediateType() != null) {
+            intermediateResponseType = createTypeFromModelName(pollingSettings.getIntermediateType());
+        } else {
+            intermediateResponseType = syncReturnType.asNullable();
+        }
+        if (intermediateResponseType.asNullable() == ClassType.VOID) {
+            // azure-core wants poll response to be non-null
+            return ClassType.BINARY_DATA;
+        } else {
+            return intermediateResponseType;
+        }
     }
 
-    private IType getPollingFinalType(PollingSettings details, IType syncReturnType, HttpMethod httpMethod) {
-        IType resultType = syncReturnType.asNullable();
+    private IType getPollingFinalType(PollingSettings pollingSettings, IType syncReturnType, HttpMethod httpMethod) {
+        assert pollingSettings != null;
+
         if (JavaSettings.getInstance().isFluent()) {
-            return resultType;
-        }
-        if (details != null && details.getFinalType() != null) {
-            resultType = createTypeFromModelName(details.getFinalType());
-        }
-        // azure-core wants poll response to be non-null
-        if (resultType.asNullable() == ClassType.VOID) {
-            resultType = ClassType.BINARY_DATA;
-        }
-        // DELETE would not have final response as resource is deleted
-        if (httpMethod == HttpMethod.DELETE) {
-            resultType = PrimitiveType.VOID;
+            return syncReturnType.asNullable();
         }
 
-        return resultType;
+        if (httpMethod == HttpMethod.DELETE) {
+            // DELETE would not have final response as resource is deleted.
+            return PrimitiveType.VOID;
+        }
+
+        final IType finalResponseType;
+        if (pollingSettings.getFinalType() != null) {
+            finalResponseType = createTypeFromModelName(pollingSettings.getFinalType());
+        } else {
+            finalResponseType = syncReturnType.asNullable();
+        }
+        if (finalResponseType.asNullable() == ClassType.VOID) {
+            // azure-core wants poll response to be non-null
+            return ClassType.BINARY_DATA;
+        } else {
+            return finalResponseType;
+        }
     }
 
     private static boolean hasNonRequiredParameters(List<ClientMethodParameter> parameters) {
@@ -1102,57 +1101,59 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private static MethodPollingDetails methodPollingDetailsFromMetadata(Operation operation,
         PollingSettings pollingSettings) {
+        assert pollingSettings != null;
 
-        if (pollingSettings == null || operation.getConvenienceApi() == null) {
+        final LongRunningMetadata metadata = operation.getLroMetadata();
+        if (metadata == null || operation.getConvenienceApi() == null) {
+            // only TypeSpec would have 'LongRunningMetadata'
             return null;
         }
 
-        MethodPollingDetails methodPollingDetails = null;
-        if (operation.getLroMetadata() != null) {
-            // only TypeSpec would have LongRunningMetadata
-            LongRunningMetadata metadata = operation.getLroMetadata();
-            ObjectMapper objectMapper = Mappers.getObjectMapper();
-            IType intermediateType = objectMapper.map(metadata.getPollResultType());
-            IType finalType = metadata.getFinalResultType() == null
-                ? PrimitiveType.VOID
-                : objectMapper.map(metadata.getFinalResultType());
-
-            // PollingDetails would override LongRunningMetadata
-            if (pollingSettings.getIntermediateType() != null) {
-                intermediateType = createTypeFromModelName(pollingSettings.getIntermediateType());
-            }
-            if (pollingSettings.getFinalType() != null) {
-                finalType = createTypeFromModelName(pollingSettings.getFinalType());
-            }
-
-            // PollingStrategy
-            JavaSettings settings = JavaSettings.getInstance();
-            final String packageName = settings.getPackage(settings.getImplementationSubpackage());
-            String pollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingSettings.getStrategy()
-                : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
-                    packageName + "." + metadata.getPollingStrategy().getLanguage().getJava().getName());
-            String syncPollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingSettings.getSyncStrategy()
-                : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
-                    packageName + ".Sync" + metadata.getPollingStrategy().getLanguage().getJava().getName());
-            if (metadata.getPollingStrategy() != null && metadata.getFinalResultPropertySerializedName() != null) {
-                // add "<property-name>" argument to polling strategy constructor
-                Function<String, String> addPropertyNameToArguments = (strategy) -> {
-                    strategy = strategy.substring(0, strategy.length() - 1) + ", ";
-                    strategy
-                        += ClassType.STRING.defaultValueExpression(metadata.getFinalResultPropertySerializedName());
-                    strategy += ")";
-                    return strategy;
-                };
-                pollingStrategy = addPropertyNameToArguments.apply(pollingStrategy);
-                syncPollingStrategy = addPropertyNameToArguments.apply(syncPollingStrategy);
-            }
-
-            methodPollingDetails = new MethodPollingDetails(pollingStrategy, syncPollingStrategy, intermediateType,
-                finalType, pollingSettings.getPollIntervalInSeconds());
+        ObjectMapper objectMapper = Mappers.getObjectMapper();
+        final IType intermediateType;
+        if (pollingSettings.getIntermediateType() != null) {
+            // pollingSettings would take precedence over 'LongRunningMetadata'
+            intermediateType = createTypeFromModelName(pollingSettings.getIntermediateType());
+        } else {
+            intermediateType = objectMapper.map(metadata.getPollResultType());
         }
-        return methodPollingDetails;
+
+        final IType finalType;
+        if (pollingSettings.getFinalType() != null) {
+            finalType = createTypeFromModelName(pollingSettings.getFinalType());
+        } else {
+            if (metadata.getFinalResultType() == null) {
+                finalType = PrimitiveType.VOID;
+            } else {
+                finalType = objectMapper.map(metadata.getFinalResultType());
+            }
+        }
+
+        // PollingStrategy
+        final JavaSettings settings = JavaSettings.getInstance();
+        final String packageName = settings.getPackage(settings.getImplementationSubpackage());
+        String pollingStrategy = metadata.getPollingStrategy() == null
+            ? pollingSettings.getStrategy()
+            : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
+                packageName + "." + metadata.getPollingStrategy().getLanguage().getJava().getName());
+        String syncPollingStrategy = metadata.getPollingStrategy() == null
+            ? pollingSettings.getSyncStrategy()
+            : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
+                packageName + ".Sync" + metadata.getPollingStrategy().getLanguage().getJava().getName());
+        if (metadata.getPollingStrategy() != null && metadata.getFinalResultPropertySerializedName() != null) {
+            // add "<property-name>" argument to polling strategy constructor
+            Function<String, String> addPropertyNameToArguments = (strategy) -> {
+                strategy = strategy.substring(0, strategy.length() - 1) + ", ";
+                strategy += ClassType.STRING.defaultValueExpression(metadata.getFinalResultPropertySerializedName());
+                strategy += ")";
+                return strategy;
+            };
+            pollingStrategy = addPropertyNameToArguments.apply(pollingStrategy);
+            syncPollingStrategy = addPropertyNameToArguments.apply(syncPollingStrategy);
+        }
+
+        return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, intermediateType, finalType,
+            pollingSettings.getPollIntervalInSeconds());
     }
 
     /**
@@ -1162,16 +1163,18 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @return IType of the model
      */
     private static IType createTypeFromModelName(String modelName) {
-        String finalTypeName;
-        String finalTypePackage;
-        if (modelName.contains(".")) {
-            finalTypeName = ANYTHING_THEN_PERIOD.matcher(modelName).replaceAll("");
-            finalTypePackage = modelName.replace("." + finalTypeName, "");
+        final String className;
+        final String packageName;
+        final int lastDotIndex = modelName.lastIndexOf('.');
+        if (lastDotIndex >= 0) {
+            className = modelName.substring(lastDotIndex + 1);
+            packageName = modelName.substring(0, lastDotIndex);
         } else {
-            finalTypeName = modelName;
-            finalTypePackage = JavaSettings.getInstance().getPackage();
+            className = modelName;
+            packageName = JavaSettings.getInstance().getPackage();
         }
-        return new ClassType.Builder().packageName(finalTypePackage).name(finalTypeName).build();
+
+        return new ClassType.Builder().packageName(packageName).name(className).build();
     }
 
     private static MethodNamer resolveMethodNamer(ProxyMethod proxyMethod, ConvenienceApi convenienceApi,
