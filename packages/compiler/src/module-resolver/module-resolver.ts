@@ -432,14 +432,7 @@ export async function resolveModule(
   }
 
   async function resolvedFile(path: string): Promise<ResolvedFile | undefined> {
-    try {
-      return { type: "file", path: await realpath(path) };
-    } catch (e: any) {
-      if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-        return undefined;
-      }
-      throw e;
-    }
+    return { type: "file", path: await realpath(path) };
   }
 }
 
