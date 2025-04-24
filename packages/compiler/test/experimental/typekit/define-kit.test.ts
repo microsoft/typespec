@@ -32,6 +32,9 @@ it("supports nested kits", async () => {
   });
   const tk = $(program);
 
+  // Ensure program isn't wrapped in a proxy
+  expect(tk.program).toBe(program);
+
   expect((tk as any).__nestedTest.foo).toBe(program.checker.anyType);
   expect((tk as any).__nestedTest.nested.foo).toBe(program.checker.anyType);
   expect((tk as any).__nestedTest.nested.bar()).toBe(program.checker.anyType);
