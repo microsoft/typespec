@@ -548,7 +548,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node,
     mapper?: TypeMapper,
     constraint?: CheckValueConstraint,
-    options: { legacyTupleAndModelCast?: boolean } = {},
   ): Value | null {
     const initial = checkNode(node, mapper, constraint);
     if (initial === null) {
@@ -560,14 +559,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       entity = initial;
     }
-    // if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
-    //   entity = legacy_tryTypeToValueCast(entity, constraint, node);
-    // }
     if (entity === null) {
       return null;
     }
     if (isValue(entity)) {
       return constraint ? inferScalarsFromConstraints(entity, constraint.type) : entity;
+    }
+    // If a template parameter that can be a value is used in a template declaration then we allow it but we return null because we don't have an actual value.
+    if (
+      entity.kind === "TemplateParameter" &&
+      entity.constraint?.valueType &&
+      entity.constraint.type === undefined &&
+      mapper === undefined
+    ) {
+      return null;
     }
     reportExpectedValue(node, entity);
     return null;
@@ -4664,15 +4669,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(
-      defaultNode,
-      undefined,
-      {
-        kind: "assignment",
-        type,
-      },
-      { legacyTupleAndModelCast: true },
-    );
+    const defaultValue = getValueForNode(defaultNode, undefined, {
+      kind: "assignment",
+      type,
+    });
     if (defaultValue === null) {
       return null;
     }
