@@ -21,6 +21,7 @@ import {
   $statusCode,
   $useAuth,
 } from "./decorators.js";
+import { $applyMergePatch } from "./merge-patch.js";
 import {
   $httpFile,
   $httpPart,
@@ -59,5 +60,6 @@ export const $decorators = {
     httpPart: $httpPart,
     plainData: $plainData,
     includeInapplicableMetadataInPayload: $includeInapplicableMetadataInPayload,
+    applyMergePatch: $applyMergePatch,
   } satisfies TypeSpecHttpPrivateDecorators,
 };

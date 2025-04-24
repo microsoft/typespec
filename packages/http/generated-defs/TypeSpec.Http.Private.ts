@@ -4,6 +4,10 @@ export interface HttpPartOptions {
   readonly name?: string;
 }
 
+export interface ApplyMergePatchOptions {
+  readonly visibilityMode: unknown;
+}
+
 export type PlainDataDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type HttpFileDecorator = (context: DecoratorContext, target: Model) => void;
@@ -13,6 +17,18 @@ export type HttpPartDecorator = (
   target: Model,
   type: Type,
   options: HttpPartOptions,
+) => void;
+
+/**
+ * Performs the canonical merge-patch transformation on the given model and injects its
+ * transformed properties into the target.
+ */
+export type ApplyMergePatchDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
+  options: ApplyMergePatchOptions,
 ) => void;
 
 /**
@@ -30,5 +46,6 @@ export type TypeSpecHttpPrivateDecorators = {
   plainData: PlainDataDecorator;
   httpFile: HttpFileDecorator;
   httpPart: HttpPartDecorator;
+  applyMergePatch: ApplyMergePatchDecorator;
   includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
 };

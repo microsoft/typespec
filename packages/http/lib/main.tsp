@@ -271,3 +271,23 @@ model Link {
 }
 
 scalar LinkHeader<T extends Record<url> | Link[]> extends string;
+
+@friendlyName(NameTemplate, T)
+@mediaTypeHint("application/merge-patch+json")
+@applyMergePatch(T, NameTemplate, #{ visibilityMode: Private.MergePatchVisibilityMode.Update })
+model MergePatchUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}MergePatchUpdate"
+> {}
+
+@friendlyName(NameTemplate, T)
+@mediaTypeHint("application/merge-patch+json")
+@applyMergePatch(
+  T,
+  NameTemplate,
+  #{ visibilityMode: Private.MergePatchVisibilityMode.CreateOrUpdate }
+)
+model MergePatchCreateOrUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
+> {}
