@@ -1,25 +1,18 @@
-import type {
-  ErrorType,
-  NeverType,
-  NullType,
-  Type,
-  UnknownType,
-  VoidType,
-} from "../../../core/types.js";
+import type { ErrorType, NeverType, NullType, UnknownType, VoidType } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /** @experimental */
 export interface IntrinsicKit {
   /** The intrinsic 'any' type. */
-  get any(): Type;
+  get any(): UnknownType;
   /** The intrinsic 'error' type. */
-  get error(): Type;
+  get error(): ErrorType;
   /** The intrinsic 'never' type. */
-  get never(): Type;
+  get never(): NeverType;
   /** The intrinsic 'null' type. */
-  get null(): Type;
+  get null(): NullType;
   /** The intrinsic 'void' type. */
-  get void(): Type;
+  get void(): VoidType;
 }
 
 interface TypekitExtension {
