@@ -46,6 +46,7 @@ import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -379,13 +380,12 @@ function createOAPIEmitter(
   }
 
   function isValidServerVariableType(program: Program, type: Type): boolean {
+    const tk = $(program);
     switch (type.kind) {
       case "String":
       case "Union":
       case "Scalar":
-        return ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(type, program.checker.getStdType("string"), type),
-        );
+        return tk.type.isAssignableTo(type, tk.builtin.string, type);
       case "Enum":
         for (const member of type.members.values()) {
           if (member.value && typeof member.value !== "string") {
