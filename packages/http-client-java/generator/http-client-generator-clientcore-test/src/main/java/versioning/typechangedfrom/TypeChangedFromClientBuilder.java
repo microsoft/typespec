@@ -190,6 +190,24 @@ public final class TypeChangedFromClientBuilder
         return this;
     }
 
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private TypeChangedFromServiceVersion serviceVersion;
+
+    /**
+     * Sets Service version.
+     * 
+     * @param serviceVersion the serviceVersion value.
+     * @return the TypeChangedFromClientBuilder.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public TypeChangedFromClientBuilder serviceVersion(TypeChangedFromServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     /**
      * Builds an instance of TypeChangedFromClientImpl with the provided parameters.
      * 
@@ -198,8 +216,10 @@ public final class TypeChangedFromClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private TypeChangedFromClientImpl buildInnerClient() {
         this.validateClient();
+        TypeChangedFromServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : TypeChangedFromServiceVersion.getLatest();
         TypeChangedFromClientImpl client
-            = new TypeChangedFromClientImpl(createHttpPipeline(), this.endpoint, this.version);
+            = new TypeChangedFromClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
         return client;
     }
 

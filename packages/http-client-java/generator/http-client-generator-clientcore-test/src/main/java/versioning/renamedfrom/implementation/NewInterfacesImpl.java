@@ -15,6 +15,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
+import versioning.renamedfrom.RenamedFromServiceVersion;
 import versioning.renamedfrom.Versions;
 
 /**
@@ -39,6 +40,15 @@ public final class NewInterfacesImpl {
     NewInterfacesImpl(RenamedFromClientImpl client) {
         this.service = NewInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+    }
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public RenamedFromServiceVersion getServiceVersion() {
+        return client.getServiceVersion();
     }
 
     /**

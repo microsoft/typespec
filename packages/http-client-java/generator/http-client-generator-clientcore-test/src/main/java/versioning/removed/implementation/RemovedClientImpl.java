@@ -16,6 +16,7 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.removed.ModelV2;
 import versioning.removed.ModelV3;
+import versioning.removed.RemovedServiceVersion;
 import versioning.removed.Versions;
 
 /**
@@ -56,6 +57,20 @@ public final class RemovedClientImpl {
     }
 
     /**
+     * Service version.
+     */
+    private final RemovedServiceVersion serviceVersion;
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public RemovedServiceVersion getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -75,11 +90,14 @@ public final class RemovedClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1', 'v2preview' or 'v2' in client.
+     * @param serviceVersion Service version.
      */
-    public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
+    public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+        RemovedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
+        this.serviceVersion = serviceVersion;
         this.service = RemovedClientService.getNewInstance(this.httpPipeline);
     }
 

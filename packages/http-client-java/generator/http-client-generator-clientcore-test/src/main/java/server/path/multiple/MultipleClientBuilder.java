@@ -171,20 +171,20 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
     }
 
     /*
-     * Version parameter
+     * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String apiVersion;
+    private MultipleServiceVersion serviceVersion;
 
     /**
-     * Sets Version parameter.
+     * Sets Service version.
      * 
-     * @param apiVersion the apiVersion value.
+     * @param serviceVersion the serviceVersion value.
      * @return the MultipleClientBuilder.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public MultipleClientBuilder apiVersion(String apiVersion) {
-        this.apiVersion = apiVersion;
+    public MultipleClientBuilder serviceVersion(MultipleServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
         return this;
     }
 
@@ -196,8 +196,9 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
     @Metadata(properties = { MetadataProperties.GENERATED })
     private MultipleClientImpl buildInnerClient() {
         this.validateClient();
-        String localApiVersion = (apiVersion != null) ? apiVersion : "";
-        MultipleClientImpl client = new MultipleClientImpl(createHttpPipeline(), this.endpoint, localApiVersion);
+        MultipleServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : MultipleServiceVersion.getLatest();
+        MultipleClientImpl client = new MultipleClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
         return client;
     }
 

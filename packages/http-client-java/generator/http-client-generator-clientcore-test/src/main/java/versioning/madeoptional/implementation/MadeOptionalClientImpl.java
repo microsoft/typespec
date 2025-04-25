@@ -15,6 +15,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
+import versioning.madeoptional.MadeOptionalServiceVersion;
 import versioning.madeoptional.TestModel;
 import versioning.madeoptional.Versions;
 
@@ -56,6 +57,20 @@ public final class MadeOptionalClientImpl {
     }
 
     /**
+     * Service version.
+     */
+    private final MadeOptionalServiceVersion serviceVersion;
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public MadeOptionalServiceVersion getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -75,11 +90,14 @@ public final class MadeOptionalClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1' or 'v2' in client.
+     * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
+    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+        MadeOptionalServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
+        this.serviceVersion = serviceVersion;
         this.service = MadeOptionalClientService.getNewInstance(this.httpPipeline);
     }
 

@@ -188,6 +188,24 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
         return this;
     }
 
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private RemovedServiceVersion serviceVersion;
+
+    /**
+     * Sets Service version.
+     * 
+     * @param serviceVersion the serviceVersion value.
+     * @return the RemovedClientBuilder.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public RemovedClientBuilder serviceVersion(RemovedServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     /**
      * Builds an instance of RemovedClientImpl with the provided parameters.
      * 
@@ -196,7 +214,10 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
     @Metadata(properties = { MetadataProperties.GENERATED })
     private RemovedClientImpl buildInnerClient() {
         this.validateClient();
-        RemovedClientImpl client = new RemovedClientImpl(createHttpPipeline(), this.endpoint, this.version);
+        RemovedServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : RemovedServiceVersion.getLatest();
+        RemovedClientImpl client
+            = new RemovedClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
         return client;
     }
 

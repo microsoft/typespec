@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
+import server.versions.versioned.VersionedServiceVersion;
 
 /**
  * Initializes a new instance of the VersionedClient type.
@@ -39,17 +40,17 @@ public final class VersionedClientImpl {
     }
 
     /**
-     * Version parameter.
+     * Service version.
      */
-    private final String apiVersion;
+    private final VersionedServiceVersion serviceVersion;
 
     /**
-     * Gets Version parameter.
+     * Gets Service version.
      * 
-     * @return the apiVersion value.
+     * @return the serviceVersion value.
      */
-    public String getApiVersion() {
-        return this.apiVersion;
+    public VersionedServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
@@ -71,12 +72,12 @@ public final class VersionedClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param apiVersion Version parameter.
+     * @param serviceVersion Service version.
      */
-    public VersionedClientImpl(HttpPipeline httpPipeline, String endpoint, String apiVersion) {
+    public VersionedClientImpl(HttpPipeline httpPipeline, String endpoint, VersionedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.apiVersion = apiVersion;
+        this.serviceVersion = serviceVersion;
         this.service = VersionedClientService.getNewInstance(this.httpPipeline);
     }
 
@@ -166,7 +167,7 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryApiVersion(this.getEndpoint(), this.getApiVersion(), requestContext);
+        return service.withQueryApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
     }
 
     /**
@@ -191,7 +192,7 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPathApiVersionWithResponse(RequestContext requestContext) {
-        return service.withPathApiVersion(this.getEndpoint(), this.getApiVersion(), requestContext);
+        return service.withPathApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
     }
 
     /**
@@ -216,7 +217,8 @@ public final class VersionedClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withQueryOldApiVersionWithResponse(RequestContext requestContext) {
-        return service.withQueryOldApiVersion(this.getEndpoint(), this.getApiVersion(), requestContext);
+        return service.withQueryOldApiVersion(this.getEndpoint(), this.getServiceVersion().getVersion(),
+            requestContext);
     }
 
     /**

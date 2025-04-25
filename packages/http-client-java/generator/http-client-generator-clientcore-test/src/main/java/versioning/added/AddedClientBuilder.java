@@ -188,6 +188,24 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         return this;
     }
 
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private AddedServiceVersion serviceVersion;
+
+    /**
+     * Sets Service version.
+     * 
+     * @param serviceVersion the serviceVersion value.
+     * @return the AddedClientBuilder.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public AddedClientBuilder serviceVersion(AddedServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     /**
      * Builds an instance of AddedClientImpl with the provided parameters.
      * 
@@ -196,7 +214,10 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private AddedClientImpl buildInnerClient() {
         this.validateClient();
-        AddedClientImpl client = new AddedClientImpl(createHttpPipeline(), this.endpoint, this.version);
+        AddedServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : AddedServiceVersion.getLatest();
+        AddedClientImpl client
+            = new AddedClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
         return client;
     }
 

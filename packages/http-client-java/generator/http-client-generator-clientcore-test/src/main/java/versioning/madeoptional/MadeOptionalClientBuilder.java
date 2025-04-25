@@ -189,6 +189,24 @@ public final class MadeOptionalClientBuilder
         return this;
     }
 
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private MadeOptionalServiceVersion serviceVersion;
+
+    /**
+     * Sets Service version.
+     * 
+     * @param serviceVersion the serviceVersion value.
+     * @return the MadeOptionalClientBuilder.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public MadeOptionalClientBuilder serviceVersion(MadeOptionalServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     /**
      * Builds an instance of MadeOptionalClientImpl with the provided parameters.
      * 
@@ -197,7 +215,10 @@ public final class MadeOptionalClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private MadeOptionalClientImpl buildInnerClient() {
         this.validateClient();
-        MadeOptionalClientImpl client = new MadeOptionalClientImpl(createHttpPipeline(), this.endpoint, this.version);
+        MadeOptionalServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : MadeOptionalServiceVersion.getLatest();
+        MadeOptionalClientImpl client
+            = new MadeOptionalClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
         return client;
     }
 

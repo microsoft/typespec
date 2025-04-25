@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
+import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV1;
 import versioning.added.ModelV2;
 import versioning.added.Versions;
@@ -56,6 +57,20 @@ public final class AddedClientImpl {
     }
 
     /**
+     * Service version.
+     */
+    private final AddedServiceVersion serviceVersion;
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public AddedServiceVersion getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -89,11 +104,14 @@ public final class AddedClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1' or 'v2' in client.
+     * @param serviceVersion Service version.
      */
-    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
+    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+        AddedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
+        this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
         this.service = AddedClientService.getNewInstance(this.httpPipeline);
     }

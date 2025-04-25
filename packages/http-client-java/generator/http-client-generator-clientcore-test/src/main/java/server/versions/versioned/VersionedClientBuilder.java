@@ -172,20 +172,20 @@ public final class VersionedClientBuilder
     }
 
     /*
-     * Version parameter
+     * Service version
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private String apiVersion;
+    private VersionedServiceVersion serviceVersion;
 
     /**
-     * Sets Version parameter.
+     * Sets Service version.
      * 
-     * @param apiVersion the apiVersion value.
+     * @param serviceVersion the serviceVersion value.
      * @return the VersionedClientBuilder.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public VersionedClientBuilder apiVersion(String apiVersion) {
-        this.apiVersion = apiVersion;
+    public VersionedClientBuilder serviceVersion(VersionedServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
         return this;
     }
 
@@ -197,8 +197,9 @@ public final class VersionedClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private VersionedClientImpl buildInnerClient() {
         this.validateClient();
-        String localApiVersion = (apiVersion != null) ? apiVersion : "";
-        VersionedClientImpl client = new VersionedClientImpl(createHttpPipeline(), this.endpoint, localApiVersion);
+        VersionedServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : VersionedServiceVersion.getLatest();
+        VersionedClientImpl client = new VersionedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
         return client;
     }
 

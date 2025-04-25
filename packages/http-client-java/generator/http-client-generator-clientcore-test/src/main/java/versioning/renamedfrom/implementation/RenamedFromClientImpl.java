@@ -16,6 +16,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
+import versioning.renamedfrom.RenamedFromServiceVersion;
 import versioning.renamedfrom.Versions;
 
 /**
@@ -56,6 +57,20 @@ public final class RenamedFromClientImpl {
     }
 
     /**
+     * Service version.
+     */
+    private final RenamedFromServiceVersion serviceVersion;
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public RenamedFromServiceVersion getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -89,11 +104,14 @@ public final class RenamedFromClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1' or 'v2' in client.
+     * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
+    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+        RenamedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
+        this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
         this.service = RenamedFromClientService.getNewInstance(this.httpPipeline);
     }

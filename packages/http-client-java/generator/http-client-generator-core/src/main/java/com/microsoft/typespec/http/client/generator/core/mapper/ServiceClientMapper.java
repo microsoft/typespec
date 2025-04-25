@@ -217,7 +217,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         for (Parameter p : clientParameters) {
             String serializedName = p.getLanguage().getDefault().getSerializedName();
 
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isBranded() || settings.isAzureCoreV2())
                 && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
                 // skip api-version, ServiceVersion will always be added to client for DPG
                 apiVersionSerializedName = serializedName;
@@ -266,7 +266,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
 
-        if (settings.isDataPlaneClient() && serviceVersionClassName != null) {
+        if ((settings.isDataPlaneClient() || !settings.isBranded() || settings.isAzureCoreV2())
+            && serviceVersionClassName != null) {
             // Always add a ServiceVersion parameter for DPG
             serviceClientProperties.add(new ServiceClientProperty.Builder().description("Service version")
                 .type(new ClassType.Builder().name(serviceVersionClassName).packageName(settings.getPackage()).build())

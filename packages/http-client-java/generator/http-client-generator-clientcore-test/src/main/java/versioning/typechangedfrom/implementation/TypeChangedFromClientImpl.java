@@ -16,6 +16,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.typechangedfrom.TestModel;
+import versioning.typechangedfrom.TypeChangedFromServiceVersion;
 import versioning.typechangedfrom.Versions;
 
 /**
@@ -56,6 +57,20 @@ public final class TypeChangedFromClientImpl {
     }
 
     /**
+     * Service version.
+     */
+    private final TypeChangedFromServiceVersion serviceVersion;
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public TypeChangedFromServiceVersion getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -75,11 +90,14 @@ public final class TypeChangedFromClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      * @param version Need to be set as 'v1' or 'v2' in client.
+     * @param serviceVersion Service version.
      */
-    public TypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version) {
+    public TypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+        TypeChangedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
+        this.serviceVersion = serviceVersion;
         this.service = TypeChangedFromClientService.getNewInstance(this.httpPipeline);
     }
 

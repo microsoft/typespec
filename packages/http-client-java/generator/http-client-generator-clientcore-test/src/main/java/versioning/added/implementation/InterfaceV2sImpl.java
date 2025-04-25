@@ -14,6 +14,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
+import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV2;
 import versioning.added.Versions;
 
@@ -39,6 +40,15 @@ public final class InterfaceV2sImpl {
     InterfaceV2sImpl(AddedClientImpl client) {
         this.service = InterfaceV2sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
+    }
+
+    /**
+     * Gets Service version.
+     * 
+     * @return the serviceVersion value.
+     */
+    public AddedServiceVersion getServiceVersion() {
+        return client.getServiceVersion();
     }
 
     /**

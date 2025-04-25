@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
+import server.path.multiple.MultipleServiceVersion;
 
 /**
  * Initializes a new instance of the MultipleClient type.
@@ -38,17 +39,17 @@ public final class MultipleClientImpl {
     }
 
     /**
-     * Version parameter.
+     * Service version.
      */
-    private final String apiVersion;
+    private final MultipleServiceVersion serviceVersion;
 
     /**
-     * Gets Version parameter.
+     * Gets Service version.
      * 
-     * @return the apiVersion value.
+     * @return the serviceVersion value.
      */
-    public String getApiVersion() {
-        return this.apiVersion;
+    public MultipleServiceVersion getServiceVersion() {
+        return this.serviceVersion;
     }
 
     /**
@@ -70,12 +71,12 @@ public final class MultipleClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Pass in http://localhost:3000 for endpoint.
-     * @param apiVersion Version parameter.
+     * @param serviceVersion Service version.
      */
-    public MultipleClientImpl(HttpPipeline httpPipeline, String endpoint, String apiVersion) {
+    public MultipleClientImpl(HttpPipeline httpPipeline, String endpoint, MultipleServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.apiVersion = apiVersion;
+        this.serviceVersion = serviceVersion;
         this.service = MultipleClientService.getNewInstance(this.httpPipeline);
     }
 
@@ -119,7 +120,7 @@ public final class MultipleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> noOperationParamsWithResponse(RequestContext requestContext) {
-        return service.noOperationParams(this.getEndpoint(), this.getApiVersion(), requestContext);
+        return service.noOperationParams(this.getEndpoint(), this.getServiceVersion().getVersion(), requestContext);
     }
 
     /**
@@ -145,7 +146,8 @@ public final class MultipleClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOperationPathParamWithResponse(String keyword, RequestContext requestContext) {
-        return service.withOperationPathParam(this.getEndpoint(), this.getApiVersion(), keyword, requestContext);
+        return service.withOperationPathParam(this.getEndpoint(), this.getServiceVersion().getVersion(), keyword,
+            requestContext);
     }
 
     /**

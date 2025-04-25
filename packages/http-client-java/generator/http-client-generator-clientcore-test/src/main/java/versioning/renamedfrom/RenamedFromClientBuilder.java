@@ -189,6 +189,24 @@ public final class RenamedFromClientBuilder
         return this;
     }
 
+    /*
+     * Service version
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private RenamedFromServiceVersion serviceVersion;
+
+    /**
+     * Sets Service version.
+     * 
+     * @param serviceVersion the serviceVersion value.
+     * @return the RenamedFromClientBuilder.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public RenamedFromClientBuilder serviceVersion(RenamedFromServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     /**
      * Builds an instance of RenamedFromClientImpl with the provided parameters.
      * 
@@ -197,7 +215,10 @@ public final class RenamedFromClientBuilder
     @Metadata(properties = { MetadataProperties.GENERATED })
     private RenamedFromClientImpl buildInnerClient() {
         this.validateClient();
-        RenamedFromClientImpl client = new RenamedFromClientImpl(createHttpPipeline(), this.endpoint, this.version);
+        RenamedFromServiceVersion localServiceVersion
+            = (serviceVersion != null) ? serviceVersion : RenamedFromServiceVersion.getLatest();
+        RenamedFromClientImpl client
+            = new RenamedFromClientImpl(createHttpPipeline(), this.endpoint, this.version, localServiceVersion);
         return client;
     }
 

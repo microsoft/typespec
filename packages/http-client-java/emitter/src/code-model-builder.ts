@@ -282,7 +282,6 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
-    console.log("Building code model for ", this.options.flavor ?? "clientcore", " SDK");
     if (this.program.hasError()) {
       return this.codeModel;
     }
@@ -1787,7 +1786,7 @@ export class CodeModelBuilder {
 
         // group schema
 
-        var coreNamespace = this.namespace;
+        let coreNamespace = this.namespace;
         if (this.isAzureV1()) {
           coreNamespace = "com.azure.core.http";
         } else {
