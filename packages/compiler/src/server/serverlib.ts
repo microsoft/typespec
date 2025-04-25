@@ -54,7 +54,8 @@ import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { formatLog } from "../core/logger/index.js";
+import { createConsoleSink, formatDiagnostic, formatLog } from "../core/logger/index.js";
+import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -80,6 +81,7 @@ import {
   PositionDetail,
   ProcessedLog,
   SourceFile,
+  SourceLocation,
   SyntaxKind,
   TextRange,
   TypeReferenceNode,
@@ -110,6 +112,7 @@ import {
 } from "./type-details.js";
 import {
   CompileResult,
+  CustomCompileResult,
   InitProjectConfig,
   InitProjectContext,
   SemanticTokenKind,
@@ -193,6 +196,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
+    compileProject,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -312,6 +316,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getInitProjectContext(): Promise<InitProjectContext> {
+    log({ level: "info", message: "crystal->Get init project context" });
     return {
       coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
     };
@@ -344,6 +349,79 @@ export function createServer(host: ServerHost): Server {
     } catch (e) {
       log({ level: "error", message: "Unexpected error when initializing project", detail: e });
       return false;
+    }
+  }
+
+  async function compileProject(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<CustomCompileResult> {
+    const option: CompilerOptions = {
+      ...param.options,
+    };
+
+    const result = await compileService.compile(param.doc, option, true);
+    if (result === undefined) {
+      return {
+        hasError: true,
+        diagnostics:
+          "Failed to get compiler result, please check the compilation output for details",
+        entryPoint: undefined,
+        options: undefined,
+      };
+    } else {
+      const isSourceLocation = (obj: any): obj is SourceLocation => {
+        return obj && "file" in obj;
+      };
+      let diagnostics: string | undefined = undefined;
+      if (result.program.diagnostics.length > 0) {
+        // diagnostics = result.program.diagnostics
+        //   .map((diagnostic) =>
+        //     formatLog(
+        //       {
+        //         level: diagnostic.severity,
+        //         message: diagnostic.message,
+        //         code: diagnostic.code,
+        //         url: diagnostic.url,
+        //         sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
+        //         related: getRelatedLocations(diagnostic),
+        //       },
+        //       { pretty: false },
+        //     ),
+        //   )
+        //   .join("\n");
+        diagnostics = result.program.diagnostics
+          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }))
+          .join("\n");
+      }
+      // if ((result?.program.diagnostics.length ?? 0) > 0) {
+      //   diagnostics = JSON.stringify(
+      //     result?.program.diagnostics.map((x) => {
+      //       let target = undefined;
+      //       if (x.target && x.target !== NoTarget && isSourceLocation(x.target)) {
+      //         target = x.target;
+      //       }
+
+      //       return {
+      //         message: x.message,
+      //         code: x.code,
+      //         severity: x.severity,
+      //         path: target?.file.path,
+      //         text: target?.file.text,
+      //         pos: target?.pos,
+      //         end: target?.end,
+      //       };
+      //     }),
+      //     null,
+      //     2,
+      //   );
+      // }
+      return {
+        hasError: result.program.hasError(),
+        diagnostics: diagnostics ?? "",
+        entryPoint: result.document.uri,
+        options: result.program.compilerOptions,
+      };
     }
   }
 
@@ -1085,6 +1163,19 @@ export function createServer(host: ServerHost): Server {
   }
 
   function createCompilerHost(): CompilerHost {
+    const logSink = createConsoleSink({
+      pretty: true,
+      pathRelativeTo: process.cwd(),
+      trackAction: true,
+    });
+    logSink.log = (log: ProcessedLog) => {
+      const msg = formatLog(log, { excludeLogLevel: true });
+      const sLog: ServerLog = {
+        level: log.level,
+        message: msg,
+      };
+      host.log(sLog);
+    };
     const base = host.compilerHost;
     return {
       ...base,
@@ -1092,16 +1183,18 @@ export function createServer(host: ServerHost): Server {
       readFile,
       stat,
       getSourceFileKind,
-      logSink: {
-        log: (log: ProcessedLog) => {
-          const msg = formatLog(log, { excludeLogLevel: true });
-          const sLog: ServerLog = {
-            level: log.level,
-            message: msg,
-          };
-          host.log(sLog);
-        },
-      },
+      logSink,
+      // logSink: {
+      //   log: (log: ProcessedLog) => {
+      //     const msg = formatLog(log, { excludeLogLevel: true });
+      //     const sLog: ServerLog = {
+      //       level: log.level,
+      //       message: msg,
+      //     };
+      //     host.log(sLog);
+      //   },
+      //   trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
+      // },
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {

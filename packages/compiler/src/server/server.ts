@@ -135,6 +135,8 @@ function main() {
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
   connection.onRequest(initProjectRequestName, profile(s.initProject));
+  const compileProjectRequestName: CustomRequestName = "typespec/compileProject";
+  connection.onRequest(compileProjectRequestName, profile(s.compileProject));
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

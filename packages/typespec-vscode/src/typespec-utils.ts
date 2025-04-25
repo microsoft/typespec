@@ -53,3 +53,8 @@ export async function TraverseMainTspFileInWorkspace() {
         .map((uri) => normalizeSlashes(uri.fsPath)),
     );
 }
+
+export function GetVscodeUriFromPath(path: string) {
+  const uri = vscode.Uri.file(path);
+  return uri.toString();
+}

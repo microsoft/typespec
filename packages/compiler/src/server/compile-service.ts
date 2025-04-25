@@ -44,7 +44,11 @@ export interface CompileService {
    * @param document The document to compile. This is not necessarily the entrypoint, compile will try to guess which entrypoint to compile to include this one.
    * @returns the compiled result or undefined if compilation was aborted.
    */
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions?: CompilerOptions,
+    bypassCache?: boolean,
+  ): Promise<CompileResult | undefined>;
 
   /**
    * Load the AST for the given document.
@@ -101,17 +105,21 @@ export function createCompileService({
 
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
+    additionalOptions?: CompilerOptions,
+    bypassCache = false,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
-
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
+      cwd: getDirectoryPath(path),
+    });
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
+      ...additionalOptions,
     };
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
@@ -143,7 +151,12 @@ export function createCompileService({
 
     let program: Program;
     try {
-      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
+      program = await compileProgram(
+        compilerHost,
+        mainFile,
+        options,
+        bypassCache ? undefined : oldPrograms.get(mainFile),
+      );
       oldPrograms.set(mainFile, program);
       if (!fileService.upToDate(document)) {
         return undefined;

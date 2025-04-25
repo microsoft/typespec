@@ -210,6 +210,7 @@ export {
 export {
   CompileResult,
   createServer,
+  CustomCompileResult,
   TypeSpecLanguageConfiguration,
   type CustomRequestName,
   type InitProjectConfig,

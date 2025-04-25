@@ -69,6 +69,13 @@ export interface CompileResult {
   readonly optionsFromConfig: CompilerOptions;
 }
 
+export interface CustomCompileResult {
+  readonly hasError: boolean;
+  readonly diagnostics: string | undefined;
+  readonly entryPoint: string | undefined;
+  readonly options: CompilerOptions | undefined;
+}
+
 export interface Server {
   readonly pendingMessages: readonly ServerLog[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
@@ -104,6 +111,10 @@ export interface Server {
   getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+  compileProject(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<CustomCompileResult>;
 }
 
 export interface ServerSourceFile extends SourceFile {

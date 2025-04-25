@@ -6,6 +6,7 @@ import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
+import { client } from "../../extension.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
@@ -13,7 +14,11 @@ import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { ResultCode } from "../../types.js";
-import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import {
+  getEntrypointTspFile,
+  GetVscodeUriFromPath,
+  TraverseMainTspFileInWorkspace,
+} from "../../typespec-utils.js";
 import {
   ExecOutput,
   isFile,
@@ -444,15 +449,16 @@ async function doEmit(
             emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
-        const compileResult = await compile(
-          cli,
-          mainTspFile,
-          emitters.map((e) => {
-            return { name: e.package, options: {} };
-          }),
-          false,
+
+        const compileResult = await client?.compileProject(
+          {
+            // uri: pathToFileURL(resolve(mainTspFile)).href,
+            uri: GetVscodeUriFromPath(mainTspFile).toString(),
+          },
+          { emit: emitters.map((e) => e.package) },
         );
-        if (compileResult.exitCode !== 0) {
+        if (compileResult?.diagnostics) logger.info(compileResult?.diagnostics);
+        if (compileResult?.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
@@ -468,6 +474,30 @@ async function doEmit(
           });
           return ResultCode.Success;
         }
+        // const compileResult = await compile(
+        //   cli,
+        //   mainTspFile,
+        //   emitters.map((e) => {
+        //     return { name: e.package, options: {} };
+        //   }),
+        //   false,
+        // );
+        // if (compileResult.exitCode !== 0) {
+        //   logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
+        //     showOutput: true,
+        //     showPopup: true,
+        //   });
+        //   telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+        //     emitResult: `Emitting code failed: ${inspect(compileResult)}`,
+        //   });
+        //   return ResultCode.Fail;
+        // } else {
+        //   logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
+        //     showOutput: true,
+        //     showPopup: true,
+        //   });
+        //   return ResultCode.Success;
+        // }
       } catch (err: any) {
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
           const execOutput = err as ExecOutput;
@@ -541,6 +571,7 @@ export async function emitCode(
       tspProjectFile = selectedProjectFile.path;
     }
   } else {
+    const doc = uri.toString();
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
       logger.info(`No entrypoint file (${StartFileName}). Invalid TypeSpec project.`, [], {
