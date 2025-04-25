@@ -40,6 +40,11 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
   telemetryClient.Initialize(stateManager);
+  /**
+   * workaround: vscode output cannot display ANSI color.
+   * Set the NO_COLOR environment variable to suppress the addition of ANSI color escape codes.
+   */
+  process.env["NO_COLOR"] = "true";
   context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());

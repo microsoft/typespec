@@ -18,6 +18,7 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import type {
   CompilerHost,
+  TrackActionTask,
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
@@ -26,6 +27,7 @@ import { resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { serverOptions } from "./constants.js";
+import { DynamicServerTask } from "./dynamic-server-task.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
@@ -48,6 +50,7 @@ export interface CompileService {
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions?: CompilerOptions,
     bypassCache?: boolean,
+    trackAction?: boolean,
   ): Promise<CompileResult | undefined>;
 
   /**
@@ -106,7 +109,8 @@ export function createCompileService({
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions?: CompilerOptions,
-    bypassCache = false,
+    bypassCache: boolean = false,
+    trackAction: boolean = false,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
@@ -149,10 +153,39 @@ export function createCompileService({
       return undefined;
     }
 
+    async function trackActionFunc<T>(
+      message: string,
+      finalMessage: string,
+      asyncAction: (task: TrackActionTask) => Promise<T>,
+    ): Promise<T> {
+      const task = new DynamicServerTask(message, finalMessage, serverHost.log);
+      task.start();
+
+      try {
+        const result = await asyncAction(task);
+        if (!task.isStopped) {
+          task.succeed();
+        }
+
+        return result;
+      } catch (error) {
+        task.fail(message);
+        throw error;
+      }
+    }
     let program: Program;
     try {
       program = await compileProgram(
-        compilerHost,
+        trackAction
+          ? {
+              ...compilerHost,
+              logSink: {
+                log: compilerHost.logSink.log,
+                trackAction: (message, finalMessage, action) =>
+                  trackActionFunc(message, finalMessage, action),
+              },
+            }
+          : compilerHost,
         mainFile,
         options,
         bypassCache ? undefined : oldPrograms.get(mainFile),

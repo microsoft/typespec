@@ -82,9 +82,7 @@ import {
   ProcessedLog,
   SourceFile,
   SyntaxKind,
-  TaskStatus,
   TextRange,
-  TrackActionTask,
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
@@ -361,7 +359,7 @@ export function createServer(host: ServerHost): Server {
       ...param.options,
     };
 
-    const result = await compileService.compile(param.doc, option, true);
+    const result = await compileService.compile(param.doc, option, true, true);
     if (result === undefined) {
       return {
         hasError: true,
@@ -1126,91 +1124,6 @@ export function createServer(host: ServerHost): Server {
 
   function createCompilerHost(): CompilerHost {
     const base = host.compilerHost;
-    const StatusIcons = {
-      success: "✔",
-      failure: "×",
-      warn: "⚠",
-      skipped: "•",
-    };
-    class DynamicServerTask implements TrackActionTask {
-      #log: (log: ServerLog) => void;
-      #message: string;
-      #interval: NodeJS.Timeout | undefined;
-      #running: boolean;
-      #finalMessage: string;
-
-      constructor(message: string, finalMessage: string, log: (log: ServerLog) => void) {
-        this.#message = message;
-        this.#finalMessage = finalMessage;
-        this.#log = log;
-        this.#running = true;
-      }
-
-      get message() {
-        return this.#message;
-      }
-
-      get isStopped() {
-        return !this.#running;
-      }
-
-      set message(newMessage: string) {
-        this.#message = newMessage;
-      }
-
-      start() {
-        this.#log({
-          level: "info",
-          message: this.#message,
-        });
-      }
-
-      succeed(message?: string) {
-        this.stop("success", message);
-      }
-      fail(message?: string) {
-        this.stop("failure", message);
-      }
-      warn(message?: string) {
-        this.stop("warn", message);
-      }
-      skip(message?: string) {
-        this.stop("skipped", message);
-      }
-
-      stop(status: TaskStatus, message?: string) {
-        this.#running = false;
-        this.#message = message ?? this.#finalMessage;
-        if (this.#interval) {
-          clearInterval(this.#interval);
-          this.#interval = undefined;
-        }
-        this.#log({
-          level: status !== "failure" ? "info" : "error",
-          message: `${StatusIcons[status]} ${this.#message}\n`,
-        });
-      }
-    }
-    async function trackAction<T>(
-      message: string,
-      finalMessage: string,
-      asyncAction: (task: TrackActionTask) => Promise<T>,
-    ): Promise<T> {
-      const task = new DynamicServerTask(message, finalMessage, host.log);
-      task.start();
-
-      try {
-        const result = await asyncAction(task);
-        if (!task.isStopped) {
-          task.succeed();
-        }
-
-        return result;
-      } catch (error) {
-        task.fail(message);
-        throw error;
-      }
-    }
     return {
       ...base,
       parseCache: new WeakMap(),
@@ -1226,7 +1139,6 @@ export function createServer(host: ServerHost): Server {
           };
           host.log(sLog);
         },
-        trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
       },
     };
 
