@@ -3,6 +3,7 @@ import { resolvePath } from "@typespec/compiler";
 import type { GraphQLEmitterOptions } from "./lib.js";
 import { createGraphQLEmitter } from "./schema-emitter.js";
 
+
 const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
