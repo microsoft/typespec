@@ -428,12 +428,21 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       concurrently:
         specifier: ^9.1.2
         version: 9.1.2
@@ -682,9 +691,18 @@ importers:
       '@typespec/emitter-framework':
         specifier: workspace:^
         version: link:../emitter-framework
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       eslint:
         specifier: ^9.23.0
         version: 9.23.0
@@ -731,6 +749,9 @@ importers:
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
@@ -740,6 +761,12 @@ importers:
       '@typespec/spector':
         specifier: workspace:^
         version: link:../spector
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       '@typespec/ts-http-runtime':
         specifier: 0.2.1
         version: 0.2.1

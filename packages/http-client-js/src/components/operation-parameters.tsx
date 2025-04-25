@@ -17,8 +17,8 @@ export function getOperationOptionsParameterRefkey(operation: HttpOperation) {
 export function getOperationParameters(operation: HttpOperation): ts.ParameterDescriptor[] {
   const transformNamer = useTransformNamePolicy();
   const requiredParameters = operation.parameters.properties
-    .filter((p) => !p.property.optional && !hasDefaultValue(p))
-    .filter((p) => p.path.length === 1);
+    .filter((p) => p.kind !== "bodyProperty" || (p.kind === "bodyProperty" && p.path.length === 1))
+    .filter((p) => !p.property.optional && !hasDefaultValue(p));
 
   const parameters: ts.ParameterDescriptor[] = [];
 

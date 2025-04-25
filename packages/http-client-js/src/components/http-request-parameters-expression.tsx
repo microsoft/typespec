@@ -109,7 +109,10 @@ function buildMemberChainExpression(
   const propertyApplicationName = namePolicy.getName(httpProperty.property.name, "property");
 
   // If the property is at the top level, return early
-  if (httpProperty.path.length === 1) {
+  if (
+    httpProperty.kind !== "bodyProperty" ||
+    (httpProperty.kind === "bodyProperty" && httpProperty.path.length === 1)
+  ) {
     if (httpProperty.property.optional || hasDefaultValue(httpProperty)) {
       return {
         propertyName: propertyApplicationName,

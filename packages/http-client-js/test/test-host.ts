@@ -20,8 +20,22 @@ export async function createHttpClientJavascriptEmitterTestRunner() {
   const host = await createHttpClientJsTestHost();
 
   return createTestWrapper(host, {
-    autoImports: ["@typespec/http", "@typespec/rest"],
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest"],
+    autoImports: [
+      "@typespec/http",
+      "@typespec/rest",
+      "@typespec/http/streams",
+      "@typespec/streams",
+      "@typespec/sse",
+      "@typespec/events",
+    ],
+    autoUsings: [
+      "TypeSpec.Http",
+      "TypeSpec.Rest",
+      "TypeSpec.Http.Streams",
+      "TypeSpec.Streams",
+      "TypeSpec.SSE",
+      "TypeSpec.Events",
+    ],
     compilerOptions: {
       noEmit: false,
       emit: ["@typespec/http-client-js"],

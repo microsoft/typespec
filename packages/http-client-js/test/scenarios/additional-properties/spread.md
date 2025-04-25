@@ -57,9 +57,7 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
     return input_ as any;
   }
   return {
-    additionalProperties: jsonRecordStringToApplicationTransform(
-      (({ name, age, optional, ...rest }) => rest)(input_),
-    ),
+    additionalProperties: jsonRecordStringToApplicationTransform((({ ...rest }) => rest)(input_)),
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
