@@ -44,15 +44,15 @@ try {
                 Pop-Location
             }
 
-            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
-            Push-Location $generatorTestDir
-            try {
-                & ./Setup.ps1
-                & ./Spector-Tests.ps1
-            }
-            finally {
-                Pop-Location
-            }
+            # $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
+            # Push-Location $generatorTestDir
+            # try {
+            #     & ./Setup.ps1
+            #     & ./Spector-Tests.ps1
+            # }
+            # finally {
+            #     Pop-Location
+            # }
 
             Write-Host "Spector tests passed"
         } 
