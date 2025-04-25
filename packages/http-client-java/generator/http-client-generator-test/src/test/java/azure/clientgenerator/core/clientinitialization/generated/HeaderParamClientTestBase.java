@@ -18,6 +18,10 @@ import azure.clientgenerator.core.clientinitialization.ParamAliasClient;
 import azure.clientgenerator.core.clientinitialization.ParamAliasClientBuilder;
 import azure.clientgenerator.core.clientinitialization.PathParamClient;
 import azure.clientgenerator.core.clientinitialization.PathParamClientBuilder;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClient;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClientBuilder;
+import azure.clientgenerator.core.clientinitialization.parentclient.ParentClient;
+import azure.clientgenerator.core.clientinitialization.parentclient.ParentClientBuilder;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -34,6 +38,10 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
     protected PathParamClient pathParamClient;
 
     protected ParamAliasClient paramAliasClient;
+
+    protected ChildClient childClient;
+
+    protected ParentClient parentClient;
 
     @Override
     protected void beforeTest() {
@@ -80,7 +88,6 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
 
         ParamAliasClientBuilder paramAliasClientbuilder = new ParamAliasClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .blob(Configuration.getGlobalConfiguration().get("BLOB", "blob"))
             .blobName(Configuration.getGlobalConfiguration().get("BLOBNAME", "blobname"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
@@ -88,6 +95,25 @@ class HeaderParamClientTestBase extends TestProxyTestBase {
             paramAliasClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         paramAliasClient = paramAliasClientbuilder.buildClient();
+
+        ChildClientBuilder childClientbuilder = new ChildClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .blobName(Configuration.getGlobalConfiguration().get("BLOBNAME", "blobname"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            childClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        childClient = childClientbuilder.buildClient();
+
+        ParentClientBuilder parentClientbuilder = new ParentClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            parentClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        parentClient = parentClientbuilder.buildClient();
 
     }
 }

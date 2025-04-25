@@ -4,8 +4,9 @@ azure-mgmt-core==1.5.0
 
 # only for azure
 -e ./generated/azure-client-generator-core-access
--e ./generated/azure-client-generator-core-usage
+-e ./generated/azure-client-generator-core-client-initialization
 -e ./generated/azure-client-generator-core-flatten-property
+-e ./generated/azure-client-generator-core-usage
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
 -e ./generated/azure-core-lro-rpc

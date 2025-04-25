@@ -37,6 +37,7 @@ import { reportDiagnostic } from "../../lib.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";
@@ -202,7 +203,7 @@ function* emitRawServerOperation(
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.property?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation,
       module,
       { altName: defaultBodyTypeName },
     );
@@ -314,7 +315,7 @@ function* emitRawServerOperation(
       }
       case "text/plain": {
         const string = ctx.program.checker.getStdType("string");
-        const [assignable] = ctx.program.checker.isTypeAssignableTo(
+        const assignable = $(ctx.program).type.isAssignableTo(
           body.type,
           string,
           body.property ?? body.type,

@@ -450,6 +450,9 @@ async function doEmit(
           });
         });
 
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
         const compileResult = await client?.compileProject(
           {
             // uri: pathToFileURL(resolve(mainTspFile)).href,
@@ -517,6 +520,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );

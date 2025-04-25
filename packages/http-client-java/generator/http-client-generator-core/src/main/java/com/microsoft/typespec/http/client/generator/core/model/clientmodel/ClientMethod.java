@@ -15,7 +15,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -411,16 +410,6 @@ public class ClientMethod {
 
             if (proxyMethod != null) {
                 proxyMethod.addImportsTo(imports, includeImplementationImports, settings);
-                for (ProxyMethodParameter parameter : proxyMethod.getParameters()) {
-                    parameter.getClientType().addImportsTo(imports, true);
-
-                    if (parameter.getExplode()) {
-                        imports.add("java.util.Optional");
-                        imports.add("java.util.stream.Stream");
-                        imports.add(ArrayList.class.getName());
-                        imports.add("java.util.Collection");
-                    }
-                }
             }
 
             if (getReturnValue().getType() == ClassType.INPUT_STREAM) {

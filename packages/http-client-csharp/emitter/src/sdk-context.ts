@@ -31,7 +31,7 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   __typeCache: SdkTypeCache;
 }
 
-/*
+/**
  * Creates a new CSharp emitter context.
  * @param context - The SDK context.
  * @param logger - The logger to use.

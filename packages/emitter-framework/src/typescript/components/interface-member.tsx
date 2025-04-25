@@ -1,7 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { getHttpPart } from "@typespec/http";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";
 import { TypeExpression } from "./type-expression.js";
 
@@ -11,6 +11,7 @@ export interface InterfaceMemberProps {
 }
 
 export function InterfaceMember(props: InterfaceMemberProps) {
+  const { $ } = useTsp();
   const namer = ts.useTSNamePolicy();
   const name = namer.getName(props.type.name, "object-member-getter");
 
