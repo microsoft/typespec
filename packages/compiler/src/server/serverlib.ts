@@ -61,10 +61,8 @@ import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../co
 import {
   ensureTrailingDirectorySeparator,
   getDirectoryPath,
-  getRelativePathFromDirectory,
   joinPaths,
   normalizePath,
-  resolvePath,
 } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
@@ -104,7 +102,7 @@ import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
-import { getRenameImportEdit } from "./rename-file.js";
+import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -389,37 +387,28 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const file of params.files) {
+      const oldFilePath = await fileService.getPath({ uri: file.oldUri });
+      const newFilePath = await fileService.getPath({ uri: file.newUri });
       const isDirRename = !file.oldUri.endsWith(".tsp");
+
       for (const diagnostic of result.program.diagnostics) {
         if (diagnostic.code !== "import-not-found") continue;
-
         const target = diagnostic.target as Node;
-        if (target.kind === SyntaxKind.ImportStatement && target.parent) {
-          const filePath = target.parent.file.path;
-          const fileDir = getDirectoryPath(filePath);
-          const importTarget = resolvePath(fileDir, target.path.value);
-          const oldFilePath = await fileService.getPath({ uri: file.oldUri });
-          if (importTarget === oldFilePath || importTarget.startsWith(oldFilePath)) {
-            let newFilePath = await fileService.getPath({ uri: file.newUri });
-            if (isDirRename) {
-              const relativeToOldPath = getRelativePathFromDirectory(
-                oldFilePath,
-                importTarget,
-                false,
-              );
-              newFilePath = resolvePath(newFilePath, relativeToOldPath);
-            }
+        if (target.kind === SyntaxKind.ImportStatement) {
+          const result = getUpdatedImportValue(target, {
+            oldPath: oldFilePath,
+            newPath: newFilePath,
+            isDirRename,
+          });
 
-            let replaceText = getRelativePathFromDirectory(fileDir, newFilePath, false);
-            replaceText = replaceText.startsWith(".") ? replaceText : `./${replaceText}`;
-
+          if (result) {
             log({
               level: "info",
-              message: `The imports content '${target.path.value}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
+              message: `The imports content '${target.path.value}' needs to be modified in tsp file '${result.filePath}' to '${result.newValue}'`,
             });
 
-            const edit = getRenameImportEdit(target, replaceText);
-            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: [edit] } });
+            const edit = getRenameImportEdit(target, result.newValue);
+            await host.applyEdit({ changes: { [fileService.getURL(result.filePath)]: [edit] } });
           }
         }
       }
