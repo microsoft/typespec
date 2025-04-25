@@ -54,7 +54,8 @@ import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { createConsoleSink, formatDiagnostic, formatLog } from "../core/logger/index.js";
+import { DynamicTask } from "../core/logger/dynamic-task.js";
+import { formatDiagnostic, formatLog } from "../core/logger/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -81,9 +82,9 @@ import {
   PositionDetail,
   ProcessedLog,
   SourceFile,
-  SourceLocation,
   SyntaxKind,
   TextRange,
+  TrackActionTask,
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
@@ -370,52 +371,13 @@ export function createServer(host: ServerHost): Server {
         options: undefined,
       };
     } else {
-      const isSourceLocation = (obj: any): obj is SourceLocation => {
-        return obj && "file" in obj;
-      };
       let diagnostics: string | undefined = undefined;
       if (result.program.diagnostics.length > 0) {
-        // diagnostics = result.program.diagnostics
-        //   .map((diagnostic) =>
-        //     formatLog(
-        //       {
-        //         level: diagnostic.severity,
-        //         message: diagnostic.message,
-        //         code: diagnostic.code,
-        //         url: diagnostic.url,
-        //         sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
-        //         related: getRelatedLocations(diagnostic),
-        //       },
-        //       { pretty: false },
-        //     ),
-        //   )
-        //   .join("\n");
         diagnostics = result.program.diagnostics
           .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }))
           .join("\n");
       }
-      // if ((result?.program.diagnostics.length ?? 0) > 0) {
-      //   diagnostics = JSON.stringify(
-      //     result?.program.diagnostics.map((x) => {
-      //       let target = undefined;
-      //       if (x.target && x.target !== NoTarget && isSourceLocation(x.target)) {
-      //         target = x.target;
-      //       }
 
-      //       return {
-      //         message: x.message,
-      //         code: x.code,
-      //         severity: x.severity,
-      //         path: target?.file.path,
-      //         text: target?.file.text,
-      //         pos: target?.pos,
-      //         end: target?.end,
-      //       };
-      //     }),
-      //     null,
-      //     2,
-      //   );
-      // }
       return {
         hasError: result.program.hasError(),
         diagnostics: diagnostics ?? "",
@@ -1163,38 +1125,44 @@ export function createServer(host: ServerHost): Server {
   }
 
   function createCompilerHost(): CompilerHost {
-    const logSink = createConsoleSink({
-      pretty: true,
-      pathRelativeTo: process.cwd(),
-      trackAction: true,
-    });
-    logSink.log = (log: ProcessedLog) => {
-      const msg = formatLog(log, { excludeLogLevel: true });
-      const sLog: ServerLog = {
-        level: log.level,
-        message: msg,
-      };
-      host.log(sLog);
-    };
     const base = host.compilerHost;
+    async function trackAction<T>(
+      message: string,
+      finalMessage: string,
+      asyncAction: (task: TrackActionTask) => Promise<T>,
+    ): Promise<T> {
+      const task = new DynamicTask(message, finalMessage, process.stderr);
+      task.start();
+
+      try {
+        const result = await asyncAction(task);
+        if (!task.isStopped) {
+          task.succeed();
+        }
+
+        return result;
+      } catch (error) {
+        task.fail(message);
+        throw error;
+      }
+    }
     return {
       ...base,
       parseCache: new WeakMap(),
       readFile,
       stat,
       getSourceFileKind,
-      logSink,
-      // logSink: {
-      //   log: (log: ProcessedLog) => {
-      //     const msg = formatLog(log, { excludeLogLevel: true });
-      //     const sLog: ServerLog = {
-      //       level: log.level,
-      //       message: msg,
-      //     };
-      //     host.log(sLog);
-      //   },
-      //   trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
-      // },
+      logSink: {
+        log: (log: ProcessedLog) => {
+          const msg = formatLog(log, { excludeLogLevel: true });
+          const sLog: ServerLog = {
+            level: log.level,
+            message: msg,
+          };
+          host.log(sLog);
+        },
+        trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
+      },
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {
