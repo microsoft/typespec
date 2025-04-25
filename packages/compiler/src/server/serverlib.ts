@@ -64,6 +64,7 @@ import {
   ensureTrailingDirectorySeparator,
   getBaseFileName,
   getDirectoryPath,
+  getPathComponents,
   getRelativePathFromDirectory,
   joinPaths,
   normalizePath,
@@ -405,9 +406,16 @@ export function createServer(host: ServerHost): Server {
 
       // Handle all tsp files in rename folder
       for (const file of files) {
-        const oldFile = resolvePath(oldFilePath, file);
+        // After the folder is named, the `diffOld` is '../lib/my/test.tsp', and `lib` has been named `lib1`,
+        // and through `getPathComponents(diffOld)`, we get ['','..','lib','my','test.tsp']
+        // Ultimately we hope it is `<comm path>/lib1/my/test.tsp`
+        const diffOld = getRelativePathFromDirectory(oldFilePath, file, false);
+        const paths = getPathComponents(diffOld).slice(3);
+        const oldFile = resolvePath(oldFilePath, ...paths);
+
         const newFile = resolvePath(newFilePath, file);
         renameFolderNewFiles.push(newFile);
+
         fileSystemCache.notify([
           { uri: fileService.getURL(oldFile), type: FileChangeType.Deleted },
           { uri: fileService.getURL(newFile), type: FileChangeType.Created },
@@ -422,69 +430,68 @@ export function createServer(host: ServerHost): Server {
     // Add this method to resolve timing issues between renamed files and `fs.stat`
     // to prevent `fs.stat` from getting the files before modification.
     // Currently the test requires a delay of 300ms
-    setTimeout(async () => {
-      const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
-      if (!result) {
-        log({
-          level: "debug",
-          message: `The main tsp file '${mainFile}' compilation failed, please check the detailed compilation message`,
-        });
-        return;
-      }
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
+    if (!result) {
+      log({
+        level: "debug",
+        message: `The main tsp file '${mainFile}' compilation failed, please check the detailed compilation message`,
+      });
+      return;
+    }
 
-      for (const file of params.files) {
-        for (const diagnostic of result.program.diagnostics) {
-          if (diagnostic.code !== "import-not-found") continue;
+    for (const file of params.files) {
+      for (const diagnostic of result.program.diagnostics) {
+        if (diagnostic.code !== "import-not-found") continue;
 
-          const target = diagnostic.target as Node;
-          if (target.kind === SyntaxKind.ImportStatement && target.parent) {
-            const filePath = target.parent.file.path;
-            const fileDir = getDirectoryPath(filePath);
-            const absolutePath = resolvePath(fileDir, target.path.value);
-            const oldFilePath = await fileService.getPath({ uri: file.oldUri });
-            if (absolutePath === oldFilePath || absolutePath.startsWith(oldFilePath)) {
-              const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
-                target.path.pos,
-              );
+        const target = diagnostic.target as Node;
+        if (target.kind === SyntaxKind.ImportStatement && target.parent) {
+          const filePath = target.parent.file.path;
+          const fileDir = getDirectoryPath(filePath);
+          const absolutePath = resolvePath(fileDir, target.path.value);
+          const oldFilePath = await fileService.getPath({ uri: file.oldUri });
+          if (absolutePath === oldFilePath || absolutePath.startsWith(oldFilePath)) {
+            const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
+              target.path.pos,
+            );
 
-              let newFilePath = await fileService.getPath({ uri: file.newUri });
-              const findRenameFolderFile = renameFolderNewFiles.find((file) =>
-                file.endsWith(getBaseFileName(absolutePath)),
-              );
-              newFilePath =
-                !newFilePath.endsWith(tspExtionsionName) && findRenameFolderFile
-                  ? findRenameFolderFile
-                  : newFilePath;
+            let newFilePath = await fileService.getPath({ uri: file.newUri });
+            const findRenameFolderFile = renameFolderNewFiles.find((file) =>
+              file.endsWith(getBaseFileName(absolutePath)),
+            );
+            newFilePath =
+              !newFilePath.endsWith(tspExtionsionName) && findRenameFolderFile
+                ? findRenameFolderFile
+                : newFilePath;
 
-              let replaceText = getRelativePathFromDirectory(fileDir, newFilePath, false);
-              replaceText = replaceText.startsWith(".") ? replaceText : `./${replaceText}`;
+            let replaceText = getRelativePathFromDirectory(fileDir, newFilePath, false);
+            replaceText = replaceText.startsWith(".") ? replaceText : `./${replaceText}`;
 
-              log({
-                level: "info",
-                message: `The imports content '${target.path.value}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
-              });
+            log({
+              level: "info",
+              message: `The imports content '${target.path.value}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
+            });
 
-              const vsEdits = [
-                TextEdit.replace(
-                  Range.create(
-                    Position.create(
-                      changeImpLineAndOffset.line,
-                      changeImpLineAndOffset.character + 1,
-                    ),
-                    Position.create(
-                      changeImpLineAndOffset.line,
-                      changeImpLineAndOffset.character + target.path.value.length + 1,
-                    ),
+            const vsEdits = [
+              TextEdit.replace(
+                Range.create(
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + 1,
                   ),
-                  replaceText,
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + target.path.value.length + 1,
+                  ),
                 ),
-              ];
-              await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
-            }
+                replaceText,
+              ),
+            ];
+            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
           }
         }
       }
-    }, 300);
+    }
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
