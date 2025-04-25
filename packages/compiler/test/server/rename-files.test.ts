@@ -1,3 +1,4 @@
+import { setTimeout } from "timers/promises";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
 import { createTestServerHost, TestServerHost } from "../../src/testing/test-server-host.js";
@@ -69,6 +70,29 @@ describe("files", () => {
         import "./c.tsp";
       `,
       "c.tsp": `// a.tsp`,
+    });
+  });
+
+  it("handle file system having delayed rename", async () => {
+    await setup({
+      "main.tsp": `
+        import "./a.tsp";
+      `,
+      "a.tsp": `// a.tsp`,
+    });
+
+    await rename(
+      {
+        "a.tsp": "b.tsp",
+      },
+      { delay: 10 },
+    );
+
+    await expectFiles({
+      "main.tsp": `
+        import "./b.tsp";
+      `,
+      "b.tsp": `// a.tsp`,
     });
   });
 
@@ -194,18 +218,49 @@ describe("folders", () => {
     });
   });
 });
+
 async function setup(files: Record<string, string>) {
   for (const [path, content] of Object.entries(files)) {
     host.addTypeSpecFile(path, content);
   }
 }
+
+async function rename(
+  files: Record<string, string>,
+  fsAction: "before" | { delay: number } = "before",
+) {
+  const lspParams = {
+    files: Object.entries(files).map(([oldUri, newUri]) => ({
+      oldUri: host.getURL(oldUri),
+      newUri: host.getURL(newUri),
+    })),
+  };
+
+  if (fsAction === "before") {
+    await renameFiles(files);
+    await host.server.renameFiles(lspParams);
+  } else {
+    await Promise.all([
+      setTimeout(fsAction.delay).then((x) => renameFiles(files)),
+      host.server.renameFiles(lspParams),
+    ]);
+  }
+}
+
+async function expectFiles(expected: Record<string, string>) {
+  for (const [path, content] of Object.entries(expected)) {
+    const file = await host.compilerHost.readFile(path);
+    expect(file.text).toEqual(content);
+  }
+}
+
 async function renameFile(oldPath: string, newPath: string) {
   const contents = await host.compilerHost.readFile(oldPath);
   await host.compilerHost.writeFile(newPath, contents.text);
   await host.compilerHost.rm(oldPath, { recursive: false });
 }
 
-async function rename(files: Record<string, string>) {
+async function renameFiles(files: Record<string, string>) {
   for (const [oldPath, newPath] of Object.entries(files)) {
     if (oldPath.endsWith(".tsp")) {
       await renameFile(oldPath, newPath);
@@ -215,19 +270,5 @@ async function rename(files: Record<string, string>) {
         await renameFile(resolvePath(oldPath, file), resolvePath(newPath, file));
       }
     }
-  }
-
-  await host.server.renameFiles({
-    files: Object.entries(files).map(([oldUri, newUri]) => ({
-      oldUri: host.getURL(oldUri),
-      newUri: host.getURL(newUri),
-    })),
-  });
-}
-
-async function expectFiles(expected: Record<string, string>) {
-  for (const [path, content] of Object.entries(expected)) {
-    const file = await host.compilerHost.readFile(path);
-    expect(file.text).toEqual(content);
   }
 }
