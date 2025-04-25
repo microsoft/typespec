@@ -54,7 +54,6 @@ import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { DynamicTask } from "../core/logger/dynamic-task.js";
 import { formatDiagnostic, formatLog } from "../core/logger/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
@@ -83,6 +82,7 @@ import {
   ProcessedLog,
   SourceFile,
   SyntaxKind,
+  TaskStatus,
   TextRange,
   TrackActionTask,
   TypeReferenceNode,
@@ -1126,12 +1126,77 @@ export function createServer(host: ServerHost): Server {
 
   function createCompilerHost(): CompilerHost {
     const base = host.compilerHost;
+    const StatusIcons = {
+      success: "✔",
+      failure: "×",
+      warn: "⚠",
+      skipped: "•",
+    };
+    class DynamicServerTask implements TrackActionTask {
+      #log: (log: ServerLog) => void;
+      #message: string;
+      #interval: NodeJS.Timeout | undefined;
+      #running: boolean;
+      #finalMessage: string;
+
+      constructor(message: string, finalMessage: string, log: (log: ServerLog) => void) {
+        this.#message = message;
+        this.#finalMessage = finalMessage;
+        this.#log = log;
+        this.#running = true;
+      }
+
+      get message() {
+        return this.#message;
+      }
+
+      get isStopped() {
+        return !this.#running;
+      }
+
+      set message(newMessage: string) {
+        this.#message = newMessage;
+      }
+
+      start() {
+        this.#log({
+          level: "info",
+          message: this.#message,
+        });
+      }
+
+      succeed(message?: string) {
+        this.stop("success", message);
+      }
+      fail(message?: string) {
+        this.stop("failure", message);
+      }
+      warn(message?: string) {
+        this.stop("warn", message);
+      }
+      skip(message?: string) {
+        this.stop("skipped", message);
+      }
+
+      stop(status: TaskStatus, message?: string) {
+        this.#running = false;
+        this.#message = message ?? this.#finalMessage;
+        if (this.#interval) {
+          clearInterval(this.#interval);
+          this.#interval = undefined;
+        }
+        this.#log({
+          level: status !== "failure" ? "info" : "error",
+          message: `${StatusIcons[status]} ${this.#message}\n`,
+        });
+      }
+    }
     async function trackAction<T>(
       message: string,
       finalMessage: string,
       asyncAction: (task: TrackActionTask) => Promise<T>,
     ): Promise<T> {
-      const task = new DynamicTask(message, finalMessage, process.stderr);
+      const task = new DynamicServerTask(message, finalMessage, host.log);
       task.start();
 
       try {
