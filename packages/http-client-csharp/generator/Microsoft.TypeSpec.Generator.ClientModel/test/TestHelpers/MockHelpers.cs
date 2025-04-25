@@ -58,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
+            RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
@@ -126,6 +127,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (httpMessageApi is not null)
             {
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
+            }
+
+            if (requestContentApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.RequestContentApi).Returns(requestContentApi);
             }
 
             if (createInputLibrary is not null)
