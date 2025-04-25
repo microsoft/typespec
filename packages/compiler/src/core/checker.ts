@@ -265,11 +265,15 @@ export interface Checker {
 
   /** @internal */
   getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
-
+  /** @internal */
   readonly errorType: ErrorType;
+  /** @internal */
   readonly voidType: VoidType;
+  /** @internal */
   readonly neverType: NeverType;
+  /** @internal */
   readonly nullType: NullType;
+  /** @internal */
   readonly anyType: UnknownType;
 }
 

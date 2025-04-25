@@ -23,6 +23,7 @@ import {
   resolveCompilerOptions,
   resolvePath,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -740,7 +741,7 @@ export class HttpMetadata {
           (p: ModelProperty) => !isMetadata(program, p) && !isStatusCode(program, p),
         );
 
-        if (anyProp === undefined) return program.checker.voidType;
+        if (anyProp === undefined) return $(program).intrinsic.void;
 
         if (responseType.name === "") {
           return metaInfo.getEffectivePayloadType(responseType, Visibility.Read);
