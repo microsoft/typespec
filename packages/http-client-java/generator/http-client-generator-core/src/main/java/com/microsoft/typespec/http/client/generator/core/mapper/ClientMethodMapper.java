@@ -435,7 +435,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         generateOnlyRequiredParameters, defaultOverloadType);
 
                     if (dpgMethodPollingDetailsWithModel != null) {
-                        // additional LRO method for data-plane, with intermediate/final type, for convenience of
+                        // additional LRO method for data-plane, with poll/final type, for convenience of
                         // grow-up, it is public in implementation, but not exposed in wrapper client
                         //
                         final ImplementationDetails implementationDetails;
