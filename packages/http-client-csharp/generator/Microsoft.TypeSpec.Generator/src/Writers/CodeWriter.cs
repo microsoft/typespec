@@ -751,7 +751,8 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                var isImplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                var isImplicitOrExplicit = isImplicit || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                 if (!isImplicitOrExplicit)
                 {
                     if (method.ReturnType != null)
@@ -773,9 +774,9 @@ namespace Microsoft.TypeSpec.Generator
                     Append($"{method.ExplicitInterface}.");
                 }
 
-                if (isImplicitOrExplicit)
+                if (isImplicit)
                 {
-                    // Implicit/explicit operator method name is just the return type.
+                    // Implicit operator method name is just the return type.
                     // But we need to include the actual CSharpType so that the correct namespace using gets written.
                     AppendIf($"{method.ReturnType}", method.ReturnType is not null);
                 }

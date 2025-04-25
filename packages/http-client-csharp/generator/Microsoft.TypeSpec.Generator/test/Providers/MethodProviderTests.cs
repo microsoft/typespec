@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -12,13 +13,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     public class MethodProviderTests
     {
         [Test]
-        public void CorrectUsingIsAppliedForOperatorMethod()
+        public void CorrectUsingIsAppliedForImplicitOperatorMethod()
         {
             MockHelpers.LoadMockGenerator();
             var enclosingType = new TestTypeProvider();
             var writer = new TypeProviderWriter(enclosingType);
             var file = writer.Write();
             StringAssert.Contains("using System.IO;", file.Content);
+        }
+
+        [Test]
+        public void ImplicitOperatorMethodSignatureThrowsIfReturnTypeIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _ = new MethodSignature(
+                "TestName",
+                $"",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
+                null,
+                $"",
+                [new ParameterProvider("input", $"", typeof(Stream))]));
+        }
+
+        [Test]
+        public void ExplicitOperatorMethodSignatureDoesNotThrowIfReturnTypeIsNull()
+        {
+            // Explicit operator does not require specifying a return type because it is the enclosing type
+            Assert.DoesNotThrow(() => _ = new MethodSignature(
+                "TestName",
+                $"",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                MethodSignatureModifiers.Operator,
+                null,
+                $"",
+                [new ParameterProvider("input", $"", typeof(Stream))]));
         }
 
         private class TestTypeProvider : TypeProvider
