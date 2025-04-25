@@ -1017,5 +1017,26 @@ describe("compiler: templates", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("validate incompatible composed values", async () => {
+      testHost.addJsFile("effect.js", {
+        $call: () => null,
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+        extern dec call(target, arg: valueof {foo: int32});
+        @call(#{foo: T}) model Dec<T extends valueof string> {}
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message:
+          "Argument of type '{ foo: string }' is not assignable to parameter of type '{ foo: int32 }'",
+      });
+    });
   });
 });
