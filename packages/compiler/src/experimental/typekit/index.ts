@@ -1,6 +1,6 @@
 import type { Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
-import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
+import { Typekit, TypekitPrototype } from "./define-kit.js";
 
 export * from "./create-diagnosable.js";
 export * from "./define-kit.js";
@@ -65,9 +65,13 @@ export function createTypekit(realm: Realm): Typekit {
         return proxyWrapper;
       }
 
-      // Only wrap objects marked as Typekit namespaces
-      if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
-        return new Proxy(value, handler); // Wrap namespace objects
+      // Wrap objects to ensure their functions are bound correctly, avoid wrapping `get` accessors
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Reflect.getOwnPropertyDescriptor(target, prop)?.get
+      ) {
+        return new Proxy(value, handler);
       }
 
       return value;
@@ -76,11 +80,6 @@ export function createTypekit(realm: Realm): Typekit {
 
   const proxy = new Proxy(tk, handler);
   return proxy;
-}
-
-// Helper function to check if an object is a Typekit namespace
-function isTypekitNamespace(obj: any): boolean {
-  return obj && !!obj[TypekitNamespaceSymbol];
 }
 
 // #region Default Typekit
