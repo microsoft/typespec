@@ -100,7 +100,7 @@
   {
    "$id": "12",
    "kind": "constant",
-   "name": "oldOpContentType",
+   "name": "oldOpContentType1",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -128,7 +128,7 @@
   {
    "$id": "16",
    "kind": "constant",
-   "name": "newOpInNewInterfaceContentType",
+   "name": "newOpInNewInterfaceContentType1",
    "valueType": {
     "$id": "17",
     "kind": "string",

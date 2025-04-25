@@ -49,7 +49,7 @@
   {
    "$id": "8",
    "kind": "constant",
-   "name": "postRoundTripEmptyContentType",
+   "name": "postRoundTripEmptyContentType1",
    "valueType": {
     "$id": "9",
     "kind": "string",

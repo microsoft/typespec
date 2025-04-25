@@ -21,7 +21,7 @@
   {
    "$id": "4",
    "kind": "constant",
-   "name": "simpleContentType",
+   "name": "simpleContentType1",
    "valueType": {
     "$id": "5",
     "kind": "string",

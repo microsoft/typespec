@@ -795,7 +795,7 @@
   {
    "$id": "94",
    "kind": "constant",
-   "name": "HelloAgainRequestContentType",
+   "name": "HelloAgainRequestContentType1",
    "valueType": {
     "$id": "95",
     "kind": "string",
@@ -823,7 +823,7 @@
   {
    "$id": "98",
    "kind": "constant",
-   "name": "noContentTypeContentType",
+   "name": "noContentTypeContentType1",
    "valueType": {
     "$id": "99",
     "kind": "string",
@@ -865,7 +865,7 @@
   {
    "$id": "104",
    "kind": "constant",
-   "name": "createLiteralContentType",
+   "name": "createLiteralContentType1",
    "valueType": {
     "$id": "105",
     "kind": "string",
@@ -893,7 +893,7 @@
   {
    "$id": "108",
    "kind": "constant",
-   "name": "ThingRequiredLiteralInt",
+   "name": "ThingRequiredLiteralInt1",
    "valueType": {
     "$id": "109",
     "kind": "int32",
@@ -907,7 +907,7 @@
   {
    "$id": "110",
    "kind": "constant",
-   "name": "ThingOptionalLiteralBool",
+   "name": "ThingOptionalLiteralBool1",
    "valueType": {
     "$id": "111",
     "kind": "boolean",
@@ -935,7 +935,7 @@
   {
    "$id": "114",
    "kind": "constant",
-   "name": "HelloLiteralRequestP1",
+   "name": "HelloLiteralRequestP11",
    "valueType": {
     "$id": "115",
     "kind": "string",
@@ -949,7 +949,7 @@
   {
    "$id": "116",
    "kind": "constant",
-   "name": "ThingRequiredLiteralInt",
+   "name": "ThingRequiredLiteralInt2",
    "valueType": {
     "$id": "117",
     "kind": "int32",
@@ -963,7 +963,7 @@
   {
    "$id": "118",
    "kind": "constant",
-   "name": "ThingOptionalLiteralBool",
+   "name": "ThingOptionalLiteralBool2",
    "valueType": {
     "$id": "119",
     "kind": "boolean",
@@ -1019,7 +1019,7 @@
   {
    "$id": "126",
    "kind": "constant",
-   "name": "patchActionContentType",
+   "name": "patchActionContentType1",
    "valueType": {
     "$id": "127",
     "kind": "string",
@@ -1047,7 +1047,7 @@
   {
    "$id": "130",
    "kind": "constant",
-   "name": "anonymousBodyContentType",
+   "name": "anonymousBodyContentType1",
    "valueType": {
     "$id": "131",
     "kind": "string",
@@ -1061,7 +1061,7 @@
   {
    "$id": "132",
    "kind": "constant",
-   "name": "ThingRequiredLiteralString",
+   "name": "ThingRequiredLiteralString1",
    "valueType": {
     "$id": "133",
     "kind": "string",
@@ -1075,7 +1075,7 @@
   {
    "$id": "134",
    "kind": "constant",
-   "name": "ThingRequiredLiteralInt",
+   "name": "ThingRequiredLiteralInt3",
    "valueType": {
     "$id": "135",
     "kind": "int32",
@@ -1089,7 +1089,7 @@
   {
    "$id": "136",
    "kind": "constant",
-   "name": "ThingRequiredLiteralFloat",
+   "name": "ThingRequiredLiteralFloat1",
    "valueType": {
     "$id": "137",
     "kind": "float32",
@@ -1103,7 +1103,7 @@
   {
    "$id": "138",
    "kind": "constant",
-   "name": "ThingRequiredLiteralBool",
+   "name": "ThingRequiredLiteralBool1",
    "valueType": {
     "$id": "139",
     "kind": "boolean",
@@ -1117,7 +1117,7 @@
   {
    "$id": "140",
    "kind": "constant",
-   "name": "ThingOptionalLiteralString",
+   "name": "ThingOptionalLiteralString1",
    "valueType": {
     "$id": "141",
     "kind": "string",
@@ -1131,7 +1131,7 @@
   {
    "$id": "142",
    "kind": "constant",
-   "name": "ThingOptionalLiteralInt",
+   "name": "ThingOptionalLiteralInt1",
    "valueType": {
     "$id": "143",
     "kind": "int32",
@@ -1145,7 +1145,7 @@
   {
    "$id": "144",
    "kind": "constant",
-   "name": "ThingOptionalLiteralFloat",
+   "name": "ThingOptionalLiteralFloat1",
    "valueType": {
     "$id": "145",
     "kind": "float32",
@@ -1159,7 +1159,7 @@
   {
    "$id": "146",
    "kind": "constant",
-   "name": "ThingOptionalLiteralBool",
+   "name": "ThingOptionalLiteralBool3",
    "valueType": {
     "$id": "147",
     "kind": "boolean",
@@ -1187,7 +1187,7 @@
   {
    "$id": "150",
    "kind": "constant",
-   "name": "friendlyModelContentType",
+   "name": "friendlyModelContentType1",
    "valueType": {
     "$id": "151",
     "kind": "string",
@@ -1215,7 +1215,7 @@
   {
    "$id": "154",
    "kind": "constant",
-   "name": "projectedNameModelContentType",
+   "name": "projectedNameModelContentType1",
    "valueType": {
     "$id": "155",
     "kind": "string",
@@ -1271,7 +1271,7 @@
   {
    "$id": "162",
    "kind": "constant",
-   "name": "internalProtocolContentType",
+   "name": "internalProtocolContentType1",
    "valueType": {
     "$id": "163",
     "kind": "string",

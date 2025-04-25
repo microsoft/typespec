@@ -21,7 +21,7 @@
   {
    "$id": "4",
    "kind": "constant",
-   "name": "createResourceContentType",
+   "name": "createResourceContentType1",
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -63,7 +63,7 @@
   {
    "$id": "10",
    "kind": "constant",
-   "name": "UpdateResourceRequestContentType",
+   "name": "UpdateResourceRequestContentType1",
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -77,7 +77,7 @@
   {
    "$id": "12",
    "kind": "constant",
-   "name": "UpdateResourceRequestContentType",
+   "name": "UpdateResourceRequestContentType2",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -105,7 +105,7 @@
   {
    "$id": "16",
    "kind": "constant",
-   "name": "UpdateResourceRequestContentType",
+   "name": "UpdateResourceRequestContentType3",
    "valueType": {
     "$id": "17",
     "kind": "string",

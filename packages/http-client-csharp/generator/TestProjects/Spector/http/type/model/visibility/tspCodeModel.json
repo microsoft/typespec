@@ -21,7 +21,7 @@
   {
    "$id": "4",
    "kind": "constant",
-   "name": "getModelContentType",
+   "name": "getModelContentType1",
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -119,7 +119,7 @@
   {
    "$id": "18",
    "kind": "constant",
-   "name": "putReadOnlyModelContentType",
+   "name": "putReadOnlyModelContentType1",
    "valueType": {
     "$id": "19",
     "kind": "string",

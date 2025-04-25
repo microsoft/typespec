@@ -82,7 +82,7 @@
   {
    "$id": "10",
    "kind": "constant",
-   "name": "testContentType",
+   "name": "testContentType1",
    "valueType": {
     "$id": "11",
     "kind": "string",

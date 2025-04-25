@@ -173,7 +173,7 @@
   {
    "$id": "20",
    "kind": "constant",
-   "name": "v1ContentType",
+   "name": "v1ContentType1",
    "valueType": {
     "$id": "21",
     "kind": "string",
@@ -201,7 +201,7 @@
   {
    "$id": "24",
    "kind": "constant",
-   "name": "v2ContentType",
+   "name": "v2ContentType1",
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -229,7 +229,7 @@
   {
    "$id": "28",
    "kind": "constant",
-   "name": "v2InInterfaceContentType",
+   "name": "v2InInterfaceContentType1",
    "valueType": {
     "$id": "29",
     "kind": "string",

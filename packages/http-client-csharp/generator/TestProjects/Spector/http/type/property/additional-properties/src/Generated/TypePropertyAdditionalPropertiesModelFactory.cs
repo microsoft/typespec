@@ -79,7 +79,7 @@ namespace _Type.Property.AdditionalProperties
 
         public static SpreadRecordForNonDiscriminatedUnion2 SpreadRecordForNonDiscriminatedUnion2(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static WidgetData2 WidgetData2(WidgetData1Kind kind = default, string start = default) => throw null;
+        public static WidgetData2 WidgetData2(WidgetData1Kind1 kind = default, string start = default) => throw null;
 
         public static SpreadRecordForNonDiscriminatedUnion3 SpreadRecordForNonDiscriminatedUnion3(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
     }

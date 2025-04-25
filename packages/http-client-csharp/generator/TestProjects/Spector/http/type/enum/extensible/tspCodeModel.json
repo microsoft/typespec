@@ -197,7 +197,7 @@
   {
    "$id": "24",
    "kind": "constant",
-   "name": "GetKnownValueResponseContentType",
+   "name": "GetKnownValueResponseContentType1",
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -211,7 +211,7 @@
   {
    "$id": "26",
    "kind": "constant",
-   "name": "GetKnownValueResponseContentType",
+   "name": "GetKnownValueResponseContentType2",
    "valueType": {
     "$id": "27",
     "kind": "string",
@@ -225,7 +225,7 @@
   {
    "$id": "28",
    "kind": "constant",
-   "name": "GetKnownValueResponseContentType",
+   "name": "GetKnownValueResponseContentType3",
    "valueType": {
     "$id": "29",
     "kind": "string",
@@ -239,7 +239,7 @@
   {
    "$id": "30",
    "kind": "constant",
-   "name": "GetKnownValueResponseContentType",
+   "name": "GetKnownValueResponseContentType4",
    "valueType": {
     "$id": "31",
     "kind": "string",
@@ -253,7 +253,7 @@
   {
    "$id": "32",
    "kind": "constant",
-   "name": "GetKnownValueResponseContentType",
+   "name": "GetKnownValueResponseContentType5",
    "valueType": {
     "$id": "33",
     "kind": "string",

@@ -96,7 +96,7 @@
   {
    "$id": "12",
    "kind": "constant",
-   "name": "TestRequestContentType",
+   "name": "TestRequestContentType1",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -110,7 +110,7 @@
   {
    "$id": "14",
    "kind": "constant",
-   "name": "TestRequestContentType",
+   "name": "TestRequestContentType2",
    "valueType": {
     "$id": "15",
     "kind": "string",

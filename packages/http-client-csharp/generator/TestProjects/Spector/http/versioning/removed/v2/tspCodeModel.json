@@ -192,7 +192,7 @@
   {
    "$id": "22",
    "kind": "constant",
-   "name": "v2ContentType",
+   "name": "v2ContentType1",
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -220,7 +220,7 @@
   {
    "$id": "26",
    "kind": "constant",
-   "name": "modelV3ContentType",
+   "name": "modelV3ContentType1",
    "valueType": {
     "$id": "27",
     "kind": "string",

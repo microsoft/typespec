@@ -49,7 +49,7 @@
   {
    "$id": "8",
    "kind": "constant",
-   "name": "inputAndOutputContentType",
+   "name": "inputAndOutputContentType1",
    "valueType": {
     "$id": "9",
     "kind": "string",

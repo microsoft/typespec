@@ -527,7 +527,7 @@
   {
    "$id": "62",
    "kind": "constant",
-   "name": "MixedLiteralsCasesStringLiteral1",
+   "name": "MixedLiteralsCasesStringLiteral11",
    "valueType": {
     "$id": "63",
     "kind": "string",
@@ -569,7 +569,7 @@
   {
    "$id": "68",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType1",
    "valueType": {
     "$id": "69",
     "kind": "string",
@@ -583,7 +583,7 @@
   {
    "$id": "70",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType1",
    "valueType": {
     "$id": "71",
     "kind": "string",
@@ -597,7 +597,7 @@
   {
    "$id": "72",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType2",
    "valueType": {
     "$id": "73",
     "kind": "string",
@@ -611,7 +611,7 @@
   {
    "$id": "74",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType2",
    "valueType": {
     "$id": "75",
     "kind": "string",
@@ -625,7 +625,7 @@
   {
    "$id": "76",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType3",
    "valueType": {
     "$id": "77",
     "kind": "string",
@@ -639,7 +639,7 @@
   {
    "$id": "78",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType3",
    "valueType": {
     "$id": "79",
     "kind": "string",
@@ -653,7 +653,7 @@
   {
    "$id": "80",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType4",
    "valueType": {
     "$id": "81",
     "kind": "string",
@@ -667,7 +667,7 @@
   {
    "$id": "82",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType4",
    "valueType": {
     "$id": "83",
     "kind": "string",
@@ -681,7 +681,7 @@
   {
    "$id": "84",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType5",
    "valueType": {
     "$id": "85",
     "kind": "string",
@@ -695,7 +695,7 @@
   {
    "$id": "86",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType5",
    "valueType": {
     "$id": "87",
     "kind": "string",
@@ -709,7 +709,7 @@
   {
    "$id": "88",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType6",
    "valueType": {
     "$id": "89",
     "kind": "string",
@@ -723,7 +723,7 @@
   {
    "$id": "90",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType6",
    "valueType": {
     "$id": "91",
     "kind": "string",
@@ -737,7 +737,7 @@
   {
    "$id": "92",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType7",
    "valueType": {
     "$id": "93",
     "kind": "string",
@@ -751,7 +751,7 @@
   {
    "$id": "94",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType7",
    "valueType": {
     "$id": "95",
     "kind": "string",
@@ -765,7 +765,7 @@
   {
    "$id": "96",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType8",
    "valueType": {
     "$id": "97",
     "kind": "string",
@@ -779,7 +779,7 @@
   {
    "$id": "98",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType8",
    "valueType": {
     "$id": "99",
     "kind": "string",
@@ -793,7 +793,7 @@
   {
    "$id": "100",
    "kind": "constant",
-   "name": "getContentType",
+   "name": "getContentType9",
    "valueType": {
     "$id": "101",
     "kind": "string",
@@ -807,7 +807,7 @@
   {
    "$id": "102",
    "kind": "constant",
-   "name": "sendContentType",
+   "name": "sendContentType9",
    "valueType": {
     "$id": "103",
     "kind": "string",

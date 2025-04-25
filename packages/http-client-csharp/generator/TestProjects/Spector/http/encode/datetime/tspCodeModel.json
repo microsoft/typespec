@@ -21,7 +21,7 @@
   {
    "$id": "4",
    "kind": "constant",
-   "name": "defaultContentType",
+   "name": "defaultContentType1",
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -49,7 +49,7 @@
   {
    "$id": "8",
    "kind": "constant",
-   "name": "rfc3339ContentType",
+   "name": "rfc3339ContentType1",
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -77,7 +77,7 @@
   {
    "$id": "12",
    "kind": "constant",
-   "name": "rfc7231ContentType",
+   "name": "rfc7231ContentType1",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -105,7 +105,7 @@
   {
    "$id": "16",
    "kind": "constant",
-   "name": "unixTimestampContentType",
+   "name": "unixTimestampContentType1",
    "valueType": {
     "$id": "17",
     "kind": "string",
@@ -133,7 +133,7 @@
   {
    "$id": "20",
    "kind": "constant",
-   "name": "unixTimestampArrayContentType",
+   "name": "unixTimestampArrayContentType1",
    "valueType": {
     "$id": "21",
     "kind": "string",

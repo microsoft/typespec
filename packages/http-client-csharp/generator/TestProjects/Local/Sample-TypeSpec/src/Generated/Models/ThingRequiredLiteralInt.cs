@@ -44,10 +44,10 @@ namespace SampleTypeSpec
 
         /// <param name="obj"> The object to compare. </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is ThingRequiredLiteralInt other && this.Equals(other);
+        public override bool Equals(object obj) => obj is ThingRequiredLiteralInt other && Equals(other);
 
         /// <param name="other"> The instance to compare. </param>
-        public bool Equals(ThingRequiredLiteralInt other) => int.Equals(_value, other._value);
+        public bool Equals(ThingRequiredLiteralInt other) => Equals(_value, other._value);
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]

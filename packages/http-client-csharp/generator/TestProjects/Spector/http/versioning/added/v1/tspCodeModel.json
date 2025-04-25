@@ -100,7 +100,7 @@
   {
    "$id": "12",
    "kind": "constant",
-   "name": "v1ContentType",
+   "name": "v1ContentType1",
    "valueType": {
     "$id": "13",
     "kind": "string",

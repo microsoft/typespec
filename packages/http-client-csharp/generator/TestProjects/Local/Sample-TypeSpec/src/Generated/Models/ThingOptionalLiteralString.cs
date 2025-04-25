@@ -46,7 +46,7 @@ namespace SampleTypeSpec
 
         /// <param name="obj"> The object to compare. </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && this.Equals(other);
+        public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && Equals(other);
 
         /// <param name="other"> The instance to compare. </param>
         public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
