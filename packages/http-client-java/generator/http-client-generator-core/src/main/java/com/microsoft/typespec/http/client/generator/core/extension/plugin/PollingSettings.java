@@ -23,17 +23,36 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
     }
 
     /**
-     * The default polling strategy format.
+     * The format of the java source code to instantiate a polling strategy class with PollingStrategyOptions argument.
      */
-    public static final String DEFAULT_POLLING_STRATEGY_FORMAT
-        = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
-            "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
+    public static final String INSTANTIATE_POLLING_STRATEGY_FORMAT;
+    /**
+     * The format of the java source code to instantiate a polling strategy class with PollingStrategyOptions and LRO
+     * final result arguments.
+     */
+    public static final String INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT;
+    private static final String INSTANTIATE_DEFAULT_POLLING_STRATEGY;
+    private static final String INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY;
+    static {
+        final String[] ctrOptionsArg = {
+            "new PollingStrategyOptions({httpPipeline})",
+            "    .setEndpoint({endpoint})",
+            "    .setContext({context})",
+            "    .setServiceVersion({serviceVersion})" };
+        INSTANTIATE_POLLING_STRATEGY_FORMAT = "new %s<>" + "(" + String.join("\n", ctrOptionsArg) + ")";
+        final String[] ctrOptionsAndFinalResultArg = {
+            "new PollingStrategyOptions({httpPipeline})",
+            "    .setEndpoint({endpoint})",
+            "    .setContext({context})",
+            "    .setServiceVersion({serviceVersion}), %s" };
+        INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT
+            = "new %s<>" + "(" + String.join("\n", ctrOptionsAndFinalResultArg) + ")";
 
-    private static final String DEFAULT_POLLING_CODE
-        = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
-
-    private static final String DEFAULT_SYNC_POLLING_CODE
-        = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
+        INSTANTIATE_DEFAULT_POLLING_STRATEGY
+            = String.format(INSTANTIATE_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
+        INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY
+            = String.format(INSTANTIATE_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
+    }
 
     /**
      * Gets the strategy for polling.
@@ -45,7 +64,7 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      */
     public String getStrategy() {
         if (strategy == null || "default".equalsIgnoreCase(strategy)) {
-            return DEFAULT_POLLING_CODE;
+            return INSTANTIATE_DEFAULT_POLLING_STRATEGY;
         } else {
             return strategy;
         }
@@ -61,7 +80,7 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      */
     public String getSyncStrategy() {
         if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
-            return DEFAULT_SYNC_POLLING_CODE;
+            return INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY;
         } else {
             return syncStrategy;
         }

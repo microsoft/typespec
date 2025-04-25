@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1109,6 +1108,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return null;
         }
 
+        // Step_1: Resolve LRO intermediate and final response types.
+        //
         ObjectMapper objectMapper = Mappers.getObjectMapper();
         final IType intermediateType;
         if (pollingSettings.getIntermediateType() != null) {
@@ -1129,27 +1130,32 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
         }
 
-        // PollingStrategy
+        // Step_2: Resolve LRO polling strategy.
+        //
+        final String pollingStrategy;
+        final String syncPollingStrategy;
         final JavaSettings settings = JavaSettings.getInstance();
         final String packageName = settings.getPackage(settings.getImplementationSubpackage());
-        String pollingStrategy = metadata.getPollingStrategy() == null
-            ? pollingSettings.getStrategy()
-            : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
-                packageName + "." + metadata.getPollingStrategy().getLanguage().getJava().getName());
-        String syncPollingStrategy = metadata.getPollingStrategy() == null
-            ? pollingSettings.getSyncStrategy()
-            : String.format(PollingSettings.DEFAULT_POLLING_STRATEGY_FORMAT,
-                packageName + ".Sync" + metadata.getPollingStrategy().getLanguage().getJava().getName());
-        if (metadata.getPollingStrategy() != null && metadata.getFinalResultPropertySerializedName() != null) {
-            // add "<property-name>" argument to polling strategy constructor
-            Function<String, String> addPropertyNameToArguments = (strategy) -> {
-                strategy = strategy.substring(0, strategy.length() - 1) + ", ";
-                strategy += ClassType.STRING.defaultValueExpression(metadata.getFinalResultPropertySerializedName());
-                strategy += ")";
-                return strategy;
-            };
-            pollingStrategy = addPropertyNameToArguments.apply(pollingStrategy);
-            syncPollingStrategy = addPropertyNameToArguments.apply(syncPollingStrategy);
+        if (metadata.getPollingStrategy() != null) {
+            final String strategyName = metadata.getPollingStrategy().getLanguage().getJava().getName();
+            final String strategyFqdnName = packageName + "." + strategyName;
+            final String syncStrategyFqdnName = packageName + "." + "Sync" + strategyName;
+
+            if (metadata.getFinalResultPropertySerializedName() != null) {
+                final String finalResultArg
+                    = ClassType.STRING.defaultValueExpression(metadata.getFinalResultPropertySerializedName());
+                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
+                    strategyFqdnName, finalResultArg);
+                syncPollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
+                    syncStrategyFqdnName, finalResultArg);
+            } else {
+                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, strategyFqdnName);
+                syncPollingStrategy
+                    = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
+            }
+        } else {
+            pollingStrategy = pollingSettings.getStrategy();
+            syncPollingStrategy = pollingSettings.getSyncStrategy();
         }
 
         return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, intermediateType, finalType,
