@@ -258,10 +258,11 @@ export function createServer(host: ServerHost): Server {
             filters: [
               {
                 scheme: "file",
-                pattern: {
-                  // This configuration allows both file and folder renaming
-                  glob: "**/*",
-                },
+                pattern: { glob: "**/*.tsp", matches: "file" },
+              },
+              {
+                scheme: "file",
+                pattern: { glob: "**/*", matches: "folder" },
               },
             ],
           },
