@@ -59,9 +59,13 @@ For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/v
 
 **Type:** `boolean`
 
+Set to `true` to generate protocol methods. The default value is `true`.
+
 ### `generate-convenience-methods`
 
 **Type:** `boolean`
+
+Set to `true` to generate convenience methods. The default value is `true`.
 
 ### `unreferenced-types-handling`
 
@@ -97,7 +101,7 @@ Set to `true` to automatically attempt to attach to a debugger when executing th
 
 **Type:** `"info" | "debug" | "verbose"`
 
-Set the log level. The default value is `info`.
+Set the log level for which to collect traces. The default value is `info`.
 
 ### `disable-xml-docs`
 
