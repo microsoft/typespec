@@ -229,18 +229,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         return code`${csType.type.getTypeReference(this.emitter.getContext()?.scope)}`;
       }
 
-      return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
-      // return this.collectionDeclaration(elementType); FIX MERFE CONFLICT!
+      return this.collectionDeclaration(elementType);
     }
 
     collectionDeclaration(elementType: Type): EmitterOutput<string> {
       const collectionType = CSharpServiceOptions.getInstance().collectionType;
       switch (collectionType) {
         case CollectionType.IEnumerable:
-          return code`IEnumerable<${this.emitter.emitTypeReference(elementType)}>`;
+          return code`IEnumerable<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
         case CollectionType.Array:
         default:
-          return code`${this.emitter.emitTypeReference(elementType)}[]`;
+          return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
       }
     }
 

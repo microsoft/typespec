@@ -1,4 +1,4 @@
-import { AssetEmitter, EmitterOutput, StringBuilder, code } from "@typespec/asset-emitter";
+import { AssetEmitter, EmitterOutput, Scope, StringBuilder, code } from "@typespec/asset-emitter";
 import {
   IntrinsicScalarName,
   IntrinsicType,

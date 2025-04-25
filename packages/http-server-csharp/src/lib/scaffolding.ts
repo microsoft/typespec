@@ -113,10 +113,9 @@ function getReturnStatement(
 
   if (returnType.isCollection) {
     if (returnType instanceof CSharpCollectionType) {
-      return `return Task.FromResult<${returnType.getTypeReference()}>(${returnType.getImplementationType()});`;
+      return `return Task.FromResult<${instantiated}>(${returnType.getImplementationType()});`;
     }
-    return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
-    //     return `return Task.FromResult<${instantiated}>([]);`; //FIR MERGE CONFLICT
+    return `return Task.FromResult<${instantiated}>([]);`;
   }
 
   if (returnType.name === "string") {
