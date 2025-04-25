@@ -1,5 +1,5 @@
 ---
-changeKind: dependencies
+changeKind: internal
 packages:
   - "@typespec/bundler"
   - "@typespec/html-program-viewer"
