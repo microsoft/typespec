@@ -1,109 +1,168 @@
-import { deepStrictEqual } from "assert";
-import { it } from "vitest";
-import { createTestServerHost } from "../../src/testing/test-server-host.js";
+import { beforeEach, expect, it } from "vitest";
+import { resolvePath } from "../../src/core/path-utils.js";
+import { createTestServerHost, TestServerHost } from "../../src/testing/test-server-host.js";
+import { listAllFilesInDir } from "../../src/utils/fs-utils.js";
+let host: TestServerHost;
 
-it("Rename a single file and update the content of the corresponding import at the same time", async () => {
-  const host = await createTestServerHost();
-
-  host.addTypeSpecFile(
-    "./main.tsp",
-    `
-    import "./lib/test.tsp";
-    import "./subdir/subfile.tsp";
-    `,
-  );
-  host.addTypeSpecFile(
-    "./lib/test.tsp",
-    `
-    import "./common.tsp";
-    import "../subdir/subfile.tsp";
-    `,
-  );
-  host.addTypeSpecFile("./lib/common.tsp", "model Base {}");
-  host.addTypeSpecFile("./subdir/subfile.tsp", "model SubFile {}");
-
-  await host.compilerHost.rm("./subdir/subfile.tsp", { recursive: false });
-  host.addTypeSpecFile("./subdir/subfile1.tsp", "model SubFile {}");
-
-  await host.server.renameFiles({
-    files: [
-      { oldUri: host.getURL("./subdir/subfile.tsp"), newUri: host.getURL("./subdir/subfile1.tsp") },
-    ],
-  });
-
-  const mainDoc = await host.compilerHost.readFile("./main.tsp");
-  deepStrictEqual(
-    mainDoc.text,
-    `
-    import "./lib/test.tsp";
-    import "./subdir/subfile1.tsp";
-    `,
-    "No changes expected",
-  );
-
-  const libDoc = await host.compilerHost.readFile("./lib/test.tsp");
-  deepStrictEqual(
-    libDoc.text,
-    `
-    import "./common.tsp";
-    import "../subdir/subfile1.tsp";
-    `,
-    "No changes expected",
-  );
+beforeEach(async () => {
+  host = await createTestServerHost();
 });
 
-it("Move files and update the content of the corresponding import at the same time", async () => {
-  const host = await createTestServerHost();
-
-  host.addTypeSpecFile(
-    "./main.tsp",
-    `
-    import "./lib/test.tsp";
-    import "./lib/common.tsp";
-    import "./lib/enum.tsp";
+it("rename a single file", async () => {
+  await setup({
+    "./main.tsp": `
+      import "./lib/test.tsp";
+      import "./subdir/subfile.tsp";
     `,
-  );
-  host.addTypeSpecFile(
-    "./lib/test.tsp",
-    `
-    import "../subdir/subfile.tsp";
-    import "./enum.tsp";
+    "./lib/test.tsp": `
+      import "./common.tsp";
+      import "../subdir/subfile.tsp";
     `,
-  );
-  host.addTypeSpecFile("./lib/common.tsp", "model Base {}");
-  host.addTypeSpecFile("./lib/enum.tsp", "enum DirEnum { A, B, C }");
-  host.addTypeSpecFile("./subdir/subfile.tsp", "model SubFile {}");
-
-  await host.compilerHost.rm("./lib/common.tsp", { recursive: false });
-  await host.compilerHost.rm("./lib/enum.tsp", { recursive: false });
-  host.addTypeSpecFile("./subdir/common.tsp", "model Base {}");
-  host.addTypeSpecFile("./subdir/enum.tsp", "enum DirEnum { A, B, C }");
-
-  await host.server.renameFiles({
-    files: [
-      { oldUri: host.getURL("./lib/common.tsp"), newUri: host.getURL("./subdir/common.tsp") },
-      { oldUri: host.getURL("./lib/enum.tsp"), newUri: host.getURL("./subdir/enum.tsp") },
-    ],
+    "./lib/common.tsp": "model Base {}",
+    "./subdir/subfile.tsp": "model SubFile {}",
   });
 
-  const mainDoc = await host.compilerHost.readFile("./main.tsp");
-  deepStrictEqual(
-    mainDoc.text,
-    `
-    import "./lib/test.tsp";
-    import "./subdir/common.tsp";
-    import "./subdir/enum.tsp";
-    `,
-    "No changes expected",
-  );
+  await rename({
+    "subdir/subfile.tsp": "subdir/subfile1.tsp",
+  });
 
-  const libDoc = await host.compilerHost.readFile("./lib/test.tsp");
-  deepStrictEqual(
-    libDoc.text,
-    `
-    import "../subdir/subfile.tsp";
-    import "../subdir/enum.tsp";
+  await expectFiles({
+    "./main.tsp": `
+      import "./lib/test.tsp";
+      import "./subdir/subfile1.tsp";
     `,
-    "No changes expected",
-  );
+    "./lib/test.tsp": `
+      import "./common.tsp";
+      import "../subdir/subfile1.tsp";
+    `,
+    "./lib/common.tsp": "model Base {}",
+    "./subdir/subfile1.tsp": "model SubFile {}",
+  });
 });
+
+it("move multiple files", async () => {
+  await setup({
+    "./main.tsp": `
+      import "./lib/test.tsp";
+      import "./lib/common.tsp";
+      import "./lib/enum.tsp";
+    `,
+    "./lib/test.tsp": `
+      import "../subdir/subfile.tsp";
+      import "./enum.tsp";
+    `,
+    "./lib/common.tsp": "model Base {}",
+    "./lib/enum.tsp": "enum DirEnum { A, B, C }",
+    "./subdir/subfile.tsp": "model SubFile {}",
+  });
+
+  await rename({
+    "lib/common.tsp": "subdir/common.tsp",
+    "lib/enum.tsp": "subdir/enum.tsp",
+  });
+
+  await expectFiles({
+    "./main.tsp": `
+      import "./lib/test.tsp";
+      import "./subdir/common.tsp";
+      import "./subdir/enum.tsp";
+    `,
+    "./lib/test.tsp": `
+      import "../subdir/subfile.tsp";
+      import "../subdir/enum.tsp";
+    `,
+    "./subdir/common.tsp": "model Base {}",
+    "./subdir/enum.tsp": "enum DirEnum { A, B, C }",
+    "./subdir/subfile.tsp": "model SubFile {}",
+  });
+});
+
+it("renames a single folder", async () => {
+  await setup({
+    "./main.tsp": `
+      import "./lib/a.tsp";
+      import "./lib/b.tsp";
+    `,
+    "./lib/a.tsp": ``,
+    "./lib/b.tsp": ``,
+  });
+
+  await rename({ "./lib": "./lib-renamed" });
+
+  await expectFiles({
+    "./main.tsp": `
+      import "./lib-renamed/a.tsp";
+      import "./lib-renamed/b.tsp";
+    `,
+    "./lib-renamed/a.tsp": ``,
+    "./lib-renamed/b.tsp": ``,
+  });
+});
+
+it("moves multiple folder", async () => {
+  await setup({
+    "./main.tsp": `
+      import "./lib1/a.tsp";
+      import "./lib1/b.tsp";
+      import "./lib2/a.tsp";
+      import "./lib2/b.tsp";
+    `,
+    "./lib1/a.tsp": `// lib1/a.tsp`,
+    "./lib1/b.tsp": `// lib1/b.tsp`,
+    "./lib2/a.tsp": `// lib2/a.tsp`,
+    "./lib2/b.tsp": `// lib2/b.tsp`,
+  });
+
+  await rename({ "./lib1": "./sub/lib1", "./lib2": "./sub/lib2" });
+
+  await expectFiles({
+    "./main.tsp": `
+      import "./sub/lib1/a.tsp";
+      import "./sub/lib1/b.tsp";
+      import "./sub/lib2/a.tsp";
+      import "./sub/lib2/b.tsp";
+    `,
+    "./sub/lib1/a.tsp": `// lib1/a.tsp`,
+    "./sub/lib1/b.tsp": `// lib1/b.tsp`,
+    "./sub/lib2/a.tsp": `// lib2/a.tsp`,
+    "./sub/lib2/b.tsp": `// lib2/b.tsp`,
+  });
+});
+
+async function setup(files: Record<string, string>) {
+  for (const [path, content] of Object.entries(files)) {
+    host.addTypeSpecFile(path, content);
+  }
+}
+async function renameFile(oldPath: string, newPath: string) {
+  const contents = await host.compilerHost.readFile(oldPath);
+  await host.compilerHost.writeFile(newPath, contents.text);
+  await host.compilerHost.rm(oldPath, { recursive: false });
+}
+
+async function rename(files: Record<string, string>) {
+  for (const [oldPath, newPath] of Object.entries(files)) {
+    if (oldPath.endsWith(".tsp")) {
+      await renameFile(oldPath, newPath);
+    } else {
+      const files = await listAllFilesInDir(host.compilerHost, oldPath);
+      for (const file of files) {
+        await renameFile(resolvePath(oldPath, file), resolvePath(newPath, file));
+      }
+    }
+  }
+
+  await host.server.renameFiles({
+    files: Object.entries(files).map(([oldUri, newUri]) => ({
+      oldUri: host.getURL(oldUri),
+      newUri: host.getURL(newUri),
+    })),
+  });
+}
+
+async function expectFiles(expected: Record<string, string>) {
+  for (const [path, content] of Object.entries(expected)) {
+    const file = await host.compilerHost.readFile(path);
+    expect(file.text).toEqual(content);
+  }
+}

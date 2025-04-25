@@ -63,7 +63,6 @@ import {
   ensureTrailingDirectorySeparator,
   getBaseFileName,
   getDirectoryPath,
-  getPathComponents,
   getRelativePathFromDirectory,
   joinPaths,
   normalizePath,
@@ -97,6 +96,7 @@ import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
 import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
@@ -368,26 +368,6 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getFilesInDirectory(directoryPath: string): Promise<string[]> {
-    const files: string[] = [];
-
-    async function readDirs(dir: string) {
-      const fileOrDirs = await compilerHost.readDir(dir);
-      for (const file of fileOrDirs) {
-        const fullPath = resolvePath(dir, file);
-        const stat = await compilerHost.stat(fullPath);
-        if (stat.isDirectory()) {
-          await readDirs(fullPath);
-        } else {
-          files.push(fullPath);
-        }
-      }
-    }
-
-    await readDirs(directoryPath);
-    return files;
-  }
-
   async function renameFiles(params: RenameFilesParams): Promise<void> {
     const firstFilePath = params.files.values().next().value;
     if (!firstFilePath) {
@@ -402,17 +382,11 @@ export function createServer(host: ServerHost): Server {
     ) {
       const oldFilePath = await fileService.getPath({ uri: firstFilePath.oldUri });
       const newFilePath = await fileService.getPath({ uri: firstFilePath.newUri });
-      const files = await getFilesInDirectory(newFilePath);
+      const files = await listAllFilesInDir(compilerHost, newFilePath);
 
       // Handle all tsp files in rename folder
       for (const file of files) {
-        // After the folder is named, the `diffOld` is '../lib/my/test.tsp', and `lib` has been named `lib1`,
-        // and through `getPathComponents(diffOld)`, we get ['','..','lib','my','test.tsp']
-        // Ultimately we hope it is `<comm path>/lib1/my/test.tsp`
-        const diffOld = getRelativePathFromDirectory(oldFilePath, file, false);
-        const paths = getPathComponents(diffOld).slice(3);
-        const oldFile = resolvePath(oldFilePath, ...paths);
-
+        const oldFile = resolvePath(oldFilePath, file);
         const newFile = resolvePath(newFilePath, file);
         renameFolderNewFiles.push(newFile);
 
