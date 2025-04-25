@@ -431,7 +431,7 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function resolvedFile(path: string): Promise<ResolvedFile | undefined> {
+  async function resolvedFile(path: string): Promise<ResolvedFile> {
     return { type: "file", path: await realpath(path) };
   }
 }
