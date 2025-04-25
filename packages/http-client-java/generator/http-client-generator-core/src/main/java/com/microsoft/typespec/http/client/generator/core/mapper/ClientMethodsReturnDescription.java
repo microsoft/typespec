@@ -235,9 +235,9 @@ public final class ClientMethodsReturnDescription {
                         pollingDetails.getFinalType());
                     return createReturnValue(returnType, pollingDetails.getFinalType());
                 } else {
-                    IType returnType
-                        = GenericType.SyncPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-                    return createReturnValue(returnType, pollingDetails.getFinalType());
+                    IType returnType = GenericType.SyncPoller(pollingDetails.getPollResultType(),
+                        pollingDetails.getFinalResultType());
+                    return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             case LongRunningBeginAsync:
                 if (settings.isFluent()) {
@@ -245,9 +245,9 @@ public final class ClientMethodsReturnDescription {
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
                 } else {
-                    IType returnType
-                        = GenericType.PollerFlux(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-                    return createReturnValue(returnType, pollingDetails.getFinalType());
+                    IType returnType = GenericType.PollerFlux(pollingDetails.getPollResultType(),
+                        pollingDetails.getFinalResultType());
+                    return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             default:
                 throw new IllegalArgumentException("Unsupported method type: " + methodType

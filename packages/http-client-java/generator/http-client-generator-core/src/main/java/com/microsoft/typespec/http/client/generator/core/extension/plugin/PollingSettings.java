@@ -15,8 +15,8 @@ import java.io.IOException;
 public final class PollingSettings implements JsonSerializable<PollingSettings> {
     private String strategy;
     private String syncStrategy;
-    private String intermediateType;
-    private String finalType;
+    private String pollResultType;
+    private String finalResultType;
     private String pollInterval;
 
     public PollingSettings() {
@@ -24,11 +24,16 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
 
     /**
      * The format of the java source code to instantiate a polling strategy class with PollingStrategyOptions argument.
+     * For example, in case of the strategy 'OperationLocationPollingStrategy' class, the code after applying the format
+     * looks like -
+     * new OperationLocationPollingStrategy(new PollingStrategyOptions(...));
      */
     public static final String INSTANTIATE_POLLING_STRATEGY_FORMAT;
     /**
      * The format of the java source code to instantiate a polling strategy class with PollingStrategyOptions and LRO
-     * final result arguments.
+     * final result arguments. For example, in case of the strategy 'OperationLocationPollingStrategy' class, the code
+     * after applying the format looks like -
+     * new OperationLocationPollingStrategy(new PollingStrategyOptions(...), finalResultType);
      */
     public static final String INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT;
     private static final String INSTANTIATE_DEFAULT_POLLING_STRATEGY;
@@ -91,8 +96,8 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      *
      * @return The intermediate type for polling.
      */
-    public String getIntermediateType() {
-        return intermediateType;
+    public String getPollResultType() {
+        return pollResultType;
     }
 
     /**
@@ -100,8 +105,8 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      *
      * @return The final type for polling.
      */
-    public String getFinalType() {
-        return finalType;
+    public String getFinalResultType() {
+        return finalResultType;
     }
 
     /**
@@ -118,8 +123,8 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
         return jsonWriter.writeStartObject()
             .writeStringField("strategy", strategy)
             .writeStringField("sync-strategy", syncStrategy)
-            .writeStringField("intermediate-type", intermediateType)
-            .writeStringField("final-type", finalType)
+            .writeStringField("intermediate-type", pollResultType)
+            .writeStringField("final-type", finalResultType)
             .writeStringField("poll-interval", pollInterval)
             .writeEndObject();
     }
@@ -144,9 +149,9 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
                 } else if ("sync-strategy".equals(fieldName)) {
                     pollingSettings.syncStrategy = reader.getString();
                 } else if ("intermediate-type".equals(fieldName)) {
-                    pollingSettings.intermediateType = reader.getString();
+                    pollingSettings.pollResultType = reader.getString();
                 } else if ("final-type".equals(fieldName)) {
-                    pollingSettings.finalType = reader.getString();
+                    pollingSettings.finalResultType = reader.getString();
                 } else if ("poll-interval".equals(fieldName)) {
                     pollingSettings.pollInterval = reader.getString();
                 } else {

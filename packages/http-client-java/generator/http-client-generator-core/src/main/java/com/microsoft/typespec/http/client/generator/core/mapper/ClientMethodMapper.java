@@ -379,8 +379,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
 
-                    PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
-
+                    final PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
                     MethodPollingDetails methodPollingDetails = null;
                     MethodPollingDetails dpgMethodPollingDetailsWithModel = null;   // for additional LRO methods
 
@@ -395,8 +394,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             methodPollingDetails
                                 = new MethodPollingDetails(pollingSettings.getStrategy(),
                                     pollingSettings.getSyncStrategy(),
-                                    getPollingIntermediateType(pollingSettings, syncReturnType),
-                                    getPollingFinalType(pollingSettings, syncReturnType,
+                                    getPollResultType(pollingSettings, syncReturnType),
+                                    getPollingFinalResultType(pollingSettings, syncReturnType,
                                         MethodUtil.getHttpMethod(operation)),
                                     pollingSettings.getPollIntervalInSeconds());
                         }
@@ -404,25 +403,25 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                     if (methodPollingDetails != null && isProtocolMethod
                     // models of LRO configured
-                        && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getIntermediateType())
-                            && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalType())
-                                || ClassType.VOID.equals(methodPollingDetails.getFinalType().asNullable())))) {
+                        && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getPollResultType())
+                            && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalResultType())
+                                || ClassType.VOID.equals(methodPollingDetails.getFinalResultType().asNullable())))) {
 
                         // a new method to be added as implementation only (not exposed to client) for developer
                         dpgMethodPollingDetailsWithModel = methodPollingDetails;
 
                         // keep consistency with DPG from Swagger, see getPollingFinalType
-                        IType resultType = ClassType.BINARY_DATA;
+                        IType finalResultType = ClassType.BINARY_DATA;
                         // DELETE would not have final response as resource is deleted
                         if (MethodUtil.getHttpMethod(operation) == HttpMethod.DELETE) {
-                            resultType = PrimitiveType.VOID;
+                            finalResultType = PrimitiveType.VOID;
                         }
 
                         // DPG keep the method with BinaryData
                         methodPollingDetails
                             = new MethodPollingDetails(dpgMethodPollingDetailsWithModel.getPollingStrategy(),
                                 dpgMethodPollingDetailsWithModel.getSyncPollingStrategy(), ClassType.BINARY_DATA,
-                                resultType, dpgMethodPollingDetailsWithModel.getPollIntervalInSeconds());
+                                finalResultType, dpgMethodPollingDetailsWithModel.getPollIntervalInSeconds());
                     }
 
                     final ClientMethod lroBaseMethod
@@ -1047,28 +1046,29 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(withContextMethod);
     }
 
-    private IType getPollingIntermediateType(PollingSettings pollingSettings, IType syncReturnType) {
+    private IType getPollResultType(PollingSettings pollingSettings, IType syncReturnType) {
         assert pollingSettings != null;
 
         if (JavaSettings.getInstance().isFluent()) {
             return syncReturnType.asNullable();
         }
 
-        final IType intermediateResponseType;
-        if (pollingSettings.getIntermediateType() != null) {
-            intermediateResponseType = createTypeFromModelName(pollingSettings.getIntermediateType());
+        final IType pollResultType;
+        if (pollingSettings.getPollResultType() != null) {
+            pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
         } else {
-            intermediateResponseType = syncReturnType.asNullable();
+            pollResultType = syncReturnType.asNullable();
         }
-        if (intermediateResponseType.asNullable() == ClassType.VOID) {
+        if (pollResultType.asNullable() == ClassType.VOID) {
             // azure-core wants poll response to be non-null
             return ClassType.BINARY_DATA;
         } else {
-            return intermediateResponseType;
+            return pollResultType;
         }
     }
 
-    private IType getPollingFinalType(PollingSettings pollingSettings, IType syncReturnType, HttpMethod httpMethod) {
+    private IType getPollingFinalResultType(PollingSettings pollingSettings, IType syncReturnType,
+        HttpMethod httpMethod) {
         assert pollingSettings != null;
 
         if (JavaSettings.getInstance().isFluent()) {
@@ -1080,17 +1080,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return PrimitiveType.VOID;
         }
 
-        final IType finalResponseType;
-        if (pollingSettings.getFinalType() != null) {
-            finalResponseType = createTypeFromModelName(pollingSettings.getFinalType());
+        final IType finalResultType;
+        if (pollingSettings.getFinalResultType() != null) {
+            finalResultType = createTypeFromModelName(pollingSettings.getFinalResultType());
         } else {
-            finalResponseType = syncReturnType.asNullable();
+            finalResultType = syncReturnType.asNullable();
         }
-        if (finalResponseType.asNullable() == ClassType.VOID) {
+        if (finalResultType.asNullable() == ClassType.VOID) {
             // azure-core wants poll response to be non-null
             return ClassType.BINARY_DATA;
         } else {
-            return finalResponseType;
+            return finalResultType;
         }
     }
 
@@ -1111,22 +1111,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // Step_1: Resolve LRO intermediate and final response types.
         //
         ObjectMapper objectMapper = Mappers.getObjectMapper();
-        final IType intermediateType;
-        if (pollingSettings.getIntermediateType() != null) {
+        final IType pollResultType;
+        if (pollingSettings.getPollResultType() != null) {
             // pollingSettings would take precedence over 'LongRunningMetadata'
-            intermediateType = createTypeFromModelName(pollingSettings.getIntermediateType());
+            pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
         } else {
-            intermediateType = objectMapper.map(metadata.getPollResultType());
+            pollResultType = objectMapper.map(metadata.getPollResultType());
         }
 
-        final IType finalType;
-        if (pollingSettings.getFinalType() != null) {
-            finalType = createTypeFromModelName(pollingSettings.getFinalType());
+        final IType finalResultType;
+        if (pollingSettings.getFinalResultType() != null) {
+            finalResultType = createTypeFromModelName(pollingSettings.getFinalResultType());
         } else {
             if (metadata.getFinalResultType() == null) {
-                finalType = PrimitiveType.VOID;
+                finalResultType = PrimitiveType.VOID;
             } else {
-                finalType = objectMapper.map(metadata.getFinalResultType());
+                finalResultType = objectMapper.map(metadata.getFinalResultType());
             }
         }
 
@@ -1158,7 +1158,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             syncPollingStrategy = pollingSettings.getSyncStrategy();
         }
 
-        return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, intermediateType, finalType,
+        return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
             pollingSettings.getPollIntervalInSeconds());
     }
 
