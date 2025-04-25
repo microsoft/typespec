@@ -9,6 +9,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -16,8 +18,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 
 /**
- * Type that holds polling information resolved for an {@link Operation}, and exposes a view of the metadata as
- * {@link MethodPollingDetails}.
+ * Type that parses and holds long-running polling metadata for an {@link Operation}, and exposes a view of the metadata
+ * as {@link MethodPollingDetails}.
  */
 final class PollingMetadata {
     private final String pollingStrategy;
@@ -27,7 +29,18 @@ final class PollingMetadata {
     private final int pollIntervalInSeconds;
     private final HttpMethod httpMethod;
 
-    static PollingMetadata create(Operation operation, ProxyMethod proxyMethod, IType syncReturnType) {
+    /**
+     * Creates long-running polling metadata for an {@link Operation}.
+     *
+     * @param operation the operation to create the polling metadata for.
+     * @param proxyMethod the proxy method representing the long-running proxy api.
+     * @param operationResponseType the return type originally derived from the {@code operation} response
+     * schema ({@link Operation#getResponseSchemas()}). See 'getResponseBodyType' in
+     * {@link ClientMethodsReturnDescription}.
+     *
+     * @return the polling metadata.
+     */
+    static PollingMetadata create(Operation operation, ProxyMethod proxyMethod, IType operationResponseType) {
         final JavaSettings settings = JavaSettings.getInstance();
         final PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
 
@@ -42,16 +55,16 @@ final class PollingMetadata {
             //
             if (settings.isFluent()) {
                 return new PollingMetadata(pollingSettings.getPollingStrategy(),
-                    pollingSettings.getSyncPollingStrategy(), syncReturnType.asNullable(), syncReturnType.asNullable(),
-                    pollingSettings.getPollIntervalInSeconds(), httpMethod);
+                    pollingSettings.getSyncPollingStrategy(), operationResponseType.asNullable(),
+                    operationResponseType.asNullable(), pollingSettings.getPollIntervalInSeconds(), httpMethod);
             }
 
-            final IType pollResultType = getPollResultType(pollingSettings, syncReturnType);
+            final IType pollResultType = getPollResultType(pollingSettings, operationResponseType);
             final IType finalResultType;
             if (httpMethod == HttpMethod.DELETE) {
                 finalResultType = PrimitiveType.VOID;
             } else {
-                finalResultType = getFinalResultType(pollingSettings, syncReturnType);
+                finalResultType = getFinalResultType(pollingSettings, operationResponseType);
             }
             return new PollingMetadata(pollingSettings.getPollingStrategy(), pollingSettings.getSyncPollingStrategy(),
                 pollResultType, finalResultType, pollingSettings.getPollIntervalInSeconds(), httpMethod);
@@ -59,10 +72,20 @@ final class PollingMetadata {
             // Create 'PollingMetadata' from TypeSpec long-running metadata.
             // Note: Only TypeSpec would have 'Operation::LongRunningMetadata' available.
             //
-            return create(pollingSettings, lroMetadata, httpMethod);
+            return create(lroMetadata, pollingSettings, httpMethod);
         }
     }
 
+    /**
+     * Gets the view of the polling metadata as {@link MethodPollingDetails}.
+     * <p>
+     * The resulting {@link MethodPollingDetails} is used for long-running {@link ClientMethod} i.e, client methods of
+     * type {@link ClientMethodType#LongRunningBeginSync}, {@link ClientMethodType#LongRunningBeginAsync},
+     * {@link ClientMethodType#LongRunningSync} and {@link ClientMethodType#LongRunningAsync}.
+     * </p>
+     *
+     * @return the polling metadata.
+     */
     MethodPollingDetails asMethodPollingDetails() {
         return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
             pollIntervalInSeconds);
@@ -75,6 +98,18 @@ final class PollingMetadata {
         return false;
     }
 
+    /**
+     * Gets the view of the polling metadata as {@link MethodPollingDetails} to enable long-running {@link ClientMethod}
+     * with {@link com.azure.core.util.BinaryData} for poll and final result types.
+     * <p>
+     * the long-running {@link ClientMethod} are the client methods of type
+     * {@link ClientMethodType#LongRunningBeginSync},
+     * {@link ClientMethodType#LongRunningBeginAsync}, {@link ClientMethodType#LongRunningSync} and
+     * {@link ClientMethodType#LongRunningAsync}.
+     * </p>
+     *
+     * @return the polling metadata.
+     */
     MethodPollingDetails asMethodPollingDetailsForBinaryDataResult() {
         final IType pollResultType = ClassType.BINARY_DATA;
         final IType finalResultType;
@@ -87,12 +122,20 @@ final class PollingMetadata {
             pollIntervalInSeconds);
     }
 
-    private static IType getPollResultType(PollingSettings pollingSettings, IType syncReturnType) {
+    /**
+     * Gets the {@link IType} representing the poll result when the long-running operation is in progress.
+     *
+     * @param pollingSettings the settings to obtain the poll result.
+     * @param operationResponseType the type to use if {@code pollSettings} do not contain the poll result.
+     *
+     * @return the poll result type.
+     */
+    private static IType getPollResultType(PollingSettings pollingSettings, IType operationResponseType) {
         final IType pollResultType;
         if (pollingSettings.getPollResultType() != null) {
             pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
         } else {
-            pollResultType = syncReturnType.asNullable();
+            pollResultType = operationResponseType.asNullable();
         }
         if (pollResultType.asNullable() == ClassType.VOID) {
             // azure-core requires poll response to be non-null.
@@ -102,12 +145,20 @@ final class PollingMetadata {
         }
     }
 
-    private static IType getFinalResultType(PollingSettings pollingSettings, IType syncReturnType) {
+    /**
+     * Gets the {@link IType} representing the final result once the long-running operation is completed.
+     *
+     * @param pollingSettings the settings to obtain the final result.
+     * @param operationResponseType the type to use if {@code pollSettings} do not contain the final result.
+     *
+     * @return the final result type.
+     */
+    private static IType getFinalResultType(PollingSettings pollingSettings, IType operationResponseType) {
         final IType finalResultType;
         if (pollingSettings.getFinalResultType() != null) {
             finalResultType = createTypeFromModelName(pollingSettings.getFinalResultType());
         } else {
-            finalResultType = syncReturnType.asNullable();
+            finalResultType = operationResponseType.asNullable();
         }
         if (finalResultType.asNullable() == ClassType.VOID) {
             // azure-core requires poll response to be non-null
@@ -117,7 +168,16 @@ final class PollingMetadata {
         }
     }
 
-    private static PollingMetadata create(PollingSettings pollingSettings, LongRunningMetadata lroMetadata,
+    /**
+     * create {@link PollingMetadata} from the TypeSpec long-running metadata.
+     *
+     * @param lroMetadata the long-running metadata from the TypeSpec ({@link Operation#getLroMetadata()}).
+     * @param pollingSettings the settings to use in-addition to the {@code lroMetadata}.
+     * @param httpMethod the http verb initiating the long-running operation.
+     *
+     * @return the polling metadata.
+     */
+    private static PollingMetadata create(LongRunningMetadata lroMetadata, PollingSettings pollingSettings,
         HttpMethod httpMethod) {
         assert pollingSettings != null && lroMetadata != null;
 
@@ -126,7 +186,7 @@ final class PollingMetadata {
         final ObjectMapper objectMapper = Mappers.getObjectMapper();
         final IType pollResultType;
         if (pollingSettings.getPollResultType() != null) {
-            // pollingSettings would take precedence over 'LongRunningMetadata'
+            // For result types, the 'PollingSettings' would take precedence over 'LongRunningMetadata'
             pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
         } else {
             pollResultType = objectMapper.map(lroMetadata.getPollResultType());
