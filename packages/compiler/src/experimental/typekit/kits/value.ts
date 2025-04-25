@@ -2,7 +2,9 @@ import { Numeric } from "../../../core/numeric.js";
 import type {
   ArrayValue,
   BooleanValue,
+  Entity,
   EnumValue,
+  Node,
   NullValue,
   NumericValue,
   ObjectValue,
@@ -10,6 +12,7 @@ import type {
   StringValue,
   Value,
 } from "../../../core/types.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /** @experimental */
@@ -94,6 +97,16 @@ export interface ValueKit {
   isBoolean(type: Value): type is BooleanValue;
 
   is(type: { valueKind: string }): type is Value;
+
+  /**
+   * Check if the source type can be assigned to the target.
+   * @param source Source type
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic
+   */
+  isAssignableTo: Diagnosable<
+    (source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean
+  >;
 }
 
 interface TypekitExtension {
@@ -185,5 +198,8 @@ defineKit<TypekitExtension>({
     isScalar(type) {
       return type.valueKind === "ScalarValue";
     },
+    isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
+      return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
   },
 });
