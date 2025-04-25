@@ -41,8 +41,8 @@ final class PollingMetadata {
             // Create 'PollingMetadata' from 'PollingSettings'.
             //
             if (settings.isFluent()) {
-                return new PollingMetadata(pollingSettings.getStrategy(), pollingSettings.getSyncStrategy(),
-                    syncReturnType.asNullable(), syncReturnType.asNullable(),
+                return new PollingMetadata(pollingSettings.getPollingStrategy(),
+                    pollingSettings.getSyncPollingStrategy(), syncReturnType.asNullable(), syncReturnType.asNullable(),
                     pollingSettings.getPollIntervalInSeconds(), httpMethod);
             }
 
@@ -53,8 +53,8 @@ final class PollingMetadata {
             } else {
                 finalResultType = getFinalResultType(pollingSettings, syncReturnType);
             }
-            return new PollingMetadata(pollingSettings.getStrategy(), pollingSettings.getSyncStrategy(), pollResultType,
-                finalResultType, pollingSettings.getPollIntervalInSeconds(), httpMethod);
+            return new PollingMetadata(pollingSettings.getPollingStrategy(), pollingSettings.getSyncPollingStrategy(),
+                pollResultType, finalResultType, pollingSettings.getPollIntervalInSeconds(), httpMethod);
         } else {
             // Create 'PollingMetadata' from TypeSpec long-running metadata.
             // Note: Only TypeSpec would have 'Operation::LongRunningMetadata' available.
@@ -167,8 +167,8 @@ final class PollingMetadata {
                     = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
             }
         } else {
-            pollingStrategy = pollingSettings.getStrategy();
-            syncPollingStrategy = pollingSettings.getSyncStrategy();
+            pollingStrategy = pollingSettings.getPollingStrategy();
+            syncPollingStrategy = pollingSettings.getSyncPollingStrategy();
         }
 
         return new PollingMetadata(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,

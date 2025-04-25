@@ -392,8 +392,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         if (methodPollingDetails == null) {
                             final IType syncReturnType = methodsReturnDescription.getSyncReturnType();
                             methodPollingDetails
-                                = new MethodPollingDetails(pollingSettings.getStrategy(),
-                                    pollingSettings.getSyncStrategy(),
+                                = new MethodPollingDetails(pollingSettings.getPollingStrategy(),
+                                    pollingSettings.getSyncPollingStrategy(),
                                     getPollResultType(pollingSettings, syncReturnType),
                                     getPollingFinalResultType(pollingSettings, syncReturnType,
                                         MethodUtil.getHttpMethod(operation)),
@@ -1154,8 +1154,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
             }
         } else {
-            pollingStrategy = pollingSettings.getStrategy();
-            syncPollingStrategy = pollingSettings.getSyncStrategy();
+            pollingStrategy = pollingSettings.getPollingStrategy();
+            syncPollingStrategy = pollingSettings.getSyncPollingStrategy();
         }
 
         return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,

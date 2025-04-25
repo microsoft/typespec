@@ -13,8 +13,8 @@ import java.io.IOException;
  * type representing the user configured polling settings for long-running operations.
  */
 public final class PollingSettings implements JsonSerializable<PollingSettings> {
-    private String strategy;
-    private String syncStrategy;
+    private String pollingStrategy;
+    private String syncPollingStrategy;
     private String pollResultType;
     private String finalResultType;
     private String pollInterval;
@@ -29,6 +29,7 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      * new OperationLocationPollingStrategy(new PollingStrategyOptions(...));
      */
     public static final String INSTANTIATE_POLLING_STRATEGY_FORMAT;
+
     /**
      * The format of the java source code to instantiate a polling strategy class with PollingStrategyOptions and LRO
      * final result arguments. For example, in case of the strategy 'OperationLocationPollingStrategy' class, the code
@@ -38,6 +39,7 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
     public static final String INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT;
     private static final String INSTANTIATE_DEFAULT_POLLING_STRATEGY;
     private static final String INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY;
+
     static {
         final String[] ctrOptionsArg = {
             "new PollingStrategyOptions({httpPipeline})",
@@ -45,6 +47,7 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
             "    .setContext({context})",
             "    .setServiceVersion({serviceVersion})" };
         INSTANTIATE_POLLING_STRATEGY_FORMAT = "new %s<>" + "(" + String.join("\n", ctrOptionsArg) + ")";
+
         final String[] ctrOptionsAndFinalResultArg = {
             "new PollingStrategyOptions({httpPipeline})",
             "    .setEndpoint({endpoint})",
@@ -67,11 +70,11 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      *
      * @return The strategy for polling.
      */
-    public String getStrategy() {
-        if (strategy == null || "default".equalsIgnoreCase(strategy)) {
+    public String getPollingStrategy() {
+        if (pollingStrategy == null || "default".equalsIgnoreCase(pollingStrategy)) {
             return INSTANTIATE_DEFAULT_POLLING_STRATEGY;
         } else {
-            return strategy;
+            return pollingStrategy;
         }
     }
 
@@ -83,11 +86,11 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      *
      * @return The sync strategy for polling.
      */
-    public String getSyncStrategy() {
-        if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
+    public String getSyncPollingStrategy() {
+        if (syncPollingStrategy == null || "default".equalsIgnoreCase(syncPollingStrategy)) {
             return INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY;
         } else {
-            return syncStrategy;
+            return syncPollingStrategy;
         }
     }
 
@@ -121,8 +124,8 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeStartObject()
-            .writeStringField("strategy", strategy)
-            .writeStringField("sync-strategy", syncStrategy)
+            .writeStringField("strategy", pollingStrategy)
+            .writeStringField("sync-strategy", syncPollingStrategy)
             .writeStringField("intermediate-type", pollResultType)
             .writeStringField("final-type", finalResultType)
             .writeStringField("poll-interval", pollInterval)
@@ -145,9 +148,9 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
                 reader.nextToken();
 
                 if ("strategy".equals(fieldName)) {
-                    pollingSettings.strategy = reader.getString();
+                    pollingSettings.pollingStrategy = reader.getString();
                 } else if ("sync-strategy".equals(fieldName)) {
-                    pollingSettings.syncStrategy = reader.getString();
+                    pollingSettings.syncPollingStrategy = reader.getString();
                 } else if ("intermediate-type".equals(fieldName)) {
                     pollingSettings.pollResultType = reader.getString();
                 } else if ("final-type".equals(fieldName)) {
