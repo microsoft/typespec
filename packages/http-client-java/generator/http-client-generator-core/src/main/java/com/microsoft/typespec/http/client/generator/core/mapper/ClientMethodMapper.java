@@ -354,8 +354,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                         if (settings.isFluent()) {
                             // fluent + sync stack needs simple rest response for implementation only
-                            // todo: anu - discuss with Weidong, Xiaofei to see if we can move this to
-                            // FluentClientMethodMapper.
+                            //
                             final IType baseType = ClassType.BINARY_DATA;
                             final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType,
                                 isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored());
@@ -379,39 +378,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
 
-                    final PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
-                    MethodPollingDetails methodPollingDetails = null;
                     final MethodNamer methodNamer
                         = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
-
-                    if (pollingSettings != null) {
-                        // try lroMetadata
-                        methodPollingDetails = methodPollingDetailsFromMetadata(operation, pollingSettings);
-
-                        // result from methodPollingDetails already handled JavaSettings.PollingDetails (as well as
-                        // LongRunningMetadata)
-                        if (methodPollingDetails == null) {
-                            final IType syncReturnType = methodsReturnDescription.getSyncReturnType();
-                            methodPollingDetails
-                                = new MethodPollingDetails(pollingSettings.getPollingStrategy(),
-                                    pollingSettings.getSyncPollingStrategy(),
-                                    getPollResultType(pollingSettings, syncReturnType),
-                                    getPollingFinalResultType(pollingSettings, syncReturnType,
-                                        MethodUtil.getHttpMethod(operation)),
-                                    pollingSettings.getPollIntervalInSeconds());
-                        }
-
-                        // models of LRO configured
-                        if (isProtocolMethod
-                            && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getPollResultType())
-                                && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalResultType())
-                                    || ClassType.VOID
-                                        .equals(methodPollingDetails.getFinalResultType().asNullable())))) {
-
-                            // a new method to be added as implementation only (not exposed to client) for developer
-                            // additional LRO method for data-plane, with poll/final type, for convenience of
-                            // grow-up, it is public in implementation, but not exposed in wrapper client
-                            //
+                    final PollingMetadata pollingMetadata
+                        = PollingMetadata.create(operation, proxyMethod, methodsReturnDescription.getSyncReturnType());
+                    if (pollingMetadata != null) {
+                        if (isProtocolMethod && pollingMetadata.hasModelResultTypes()) {
                             final ImplementationDetails implementationDetails;
                             if (baseMethod.getImplementationDetails() != null) {
                                 implementationDetails = baseMethod.getImplementationDetails()
@@ -424,37 +396,35 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             }
                             final Builder lroWithIntermediateFinalTypeBuilder = baseMethod.newBuilder()
                                 .implementationDetails(implementationDetails)
-                                .methodPollingDetails(methodPollingDetails);
+                                .methodPollingDetails(pollingMetadata.asMethodPollingDetails());
 
                             createLroBeginMethods(lroWithIntermediateFinalTypeBuilder.build(), methods,
                                 methodNamer.getLroModelBeginAsyncMethodName(), methodNamer.getLroModelBeginMethodName(),
                                 methodsReturnDescription, isProtocolMethod, generateOnlyRequiredParameters,
                                 defaultOverloadType);
                         }
-                    }
 
-                    if (isProtocolMethod && methodPollingDetails != null) {
-                        // keep consistency with DPG from Swagger, see getPollingFinalType
-                        IType finalResultType = ClassType.BINARY_DATA;
-                        // DELETE would not have final response as resource is deleted
-                        if (MethodUtil.getHttpMethod(operation) == HttpMethod.DELETE) {
-                            finalResultType = PrimitiveType.VOID;
+                        final MethodPollingDetails pollingDetails;
+                        if (isProtocolMethod) {
+                            pollingDetails = pollingMetadata.asMethodPollingDetailsForBinaryDataResult();
+                        } else {
+                            pollingDetails = pollingMetadata.asMethodPollingDetails();
                         }
-                        // DPG keep the method with BinaryData
-                        methodPollingDetails = new MethodPollingDetails(methodPollingDetails.getPollingStrategy(),
-                            methodPollingDetails.getSyncPollingStrategy(), ClassType.BINARY_DATA, finalResultType,
-                            methodPollingDetails.getPollIntervalInSeconds());
+
+                        final ClientMethod lroBaseMethod
+                            = baseMethod.newBuilder().methodPollingDetails(pollingDetails).build();
+
+                        createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+                            methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
+                            generateOnlyRequiredParameters, defaultOverloadType);
+                    } else {
+                        createLroBeginMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+                            methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
+                            generateOnlyRequiredParameters, defaultOverloadType);
+
+                        this.createAdditionalLroMethods(baseMethod, methods, isProtocolMethod, methodsReturnDescription,
+                            generateOnlyRequiredParameters, defaultOverloadType);
                     }
-
-                    final ClientMethod lroBaseMethod
-                        = baseMethod.newBuilder().methodPollingDetails(methodPollingDetails).build();
-
-                    createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                        methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
-                        generateOnlyRequiredParameters, defaultOverloadType);
-
-                    this.createAdditionalLroMethods(lroBaseMethod, methods, isProtocolMethod, methodsReturnDescription,
-                        generateOnlyRequiredParameters, defaultOverloadType);
                 } else {
                     if (proxyMethod.isSync()) {
                         // If the ProxyMethod is sync, perform a complete generation of synchronous simple APIs.
