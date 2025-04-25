@@ -207,6 +207,7 @@ describe("compiler: models", () => {
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
       });
+
       it(`error if constraint is not compatible with property type`, async () => {
         testHost.addTypeSpecFile(
           "main.tsp",
@@ -217,7 +218,7 @@ describe("compiler: models", () => {
         const diagnostics = await testHost.diagnose("main.tsp");
         expectDiagnostics(diagnostics, {
           code: "unassignable",
-          message: "Type 'T' is not assignable to type 'string'.",
+          message: "Type 'int32' is not assignable to type 'string'",
         });
       });
     });

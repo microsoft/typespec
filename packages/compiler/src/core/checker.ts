@@ -572,7 +572,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       entity.constraint.type === undefined &&
       mapper === undefined
     ) {
-      return null;
+      return createValue(
+        {
+          entityKind: "Value",
+          valueKind: "NullValue",
+          type: entity.constraint.valueType,
+          value: null,
+        },
+        entity.constraint.valueType,
+      );
     }
     reportExpectedValue(node, entity);
     return null;
@@ -4627,7 +4635,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(sym, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, mapper);
       if (prop.default) {
-        const defaultValue = checkDefaultValue(prop.default, type.type);
+        const defaultValue = checkDefaultValue(prop.default, type.type, mapper);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
         }
@@ -4664,12 +4672,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     };
   }
 
-  function checkDefaultValue(defaultNode: Node, type: Type): Value | null {
+  function checkDefaultValue(
+    defaultNode: Node,
+    type: Type,
+    mapper: TypeMapper | undefined,
+  ): Value | null {
     if (isErrorType(type)) {
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(defaultNode, undefined, {
+    const defaultValue = getValueForNode(defaultNode, mapper, {
       kind: "assignment",
       type,
     });
