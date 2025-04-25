@@ -60,18 +60,18 @@ try {
             Write-Error "Spector tests failed: $_"
         }
         # Copy coverage report to artifacts directory
-        try {
-            $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
-            if (!(Test-Path $coverageReportDir)) {
-                New-Item -ItemType Directory -Path $coverageReportDir
+        # try {
+        #     $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
+        #     if (!(Test-Path $coverageReportDir)) {
+        #         New-Item -ItemType Directory -Path $coverageReportDir
 
-                # $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
-                $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
-                Copy-Item $sourceFile -Destination $targetFile
-            }
-        } catch {
-            Write-Error "Failed to copy coverage report file: $_"
-        }
+        #         $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
+        #         $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
+        #         Copy-Item $sourceFile -Destination $targetFile
+        #     }
+        # } catch {
+        #     Write-Error "Failed to copy coverage report file: $_"
+        # }
     }
     if ($GenerationChecks) {
         try {
