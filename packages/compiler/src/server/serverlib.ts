@@ -28,7 +28,6 @@ import {
   MarkupContent,
   MarkupKind,
   ParameterInformation,
-  Position,
   PrepareRenameParams,
   Range,
   ReferenceParams,
@@ -108,6 +107,7 @@ import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
+import { getRenameImportEdit } from "./rename-file.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -451,10 +451,6 @@ export function createServer(host: ServerHost): Server {
           const absolutePath = resolvePath(fileDir, target.path.value);
           const oldFilePath = await fileService.getPath({ uri: file.oldUri });
           if (absolutePath === oldFilePath || absolutePath.startsWith(oldFilePath)) {
-            const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
-              target.path.pos,
-            );
-
             let newFilePath = await fileService.getPath({ uri: file.newUri });
             const findRenameFolderFile = renameFolderNewFiles.find((file) =>
               file.endsWith(getBaseFileName(absolutePath)),
@@ -472,22 +468,8 @@ export function createServer(host: ServerHost): Server {
               message: `The imports content '${target.path.value}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
             });
 
-            const vsEdits = [
-              TextEdit.replace(
-                Range.create(
-                  Position.create(
-                    changeImpLineAndOffset.line,
-                    changeImpLineAndOffset.character + 1,
-                  ),
-                  Position.create(
-                    changeImpLineAndOffset.line,
-                    changeImpLineAndOffset.character + target.path.value.length + 1,
-                  ),
-                ),
-                replaceText,
-              ),
-            ];
-            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
+            const edit = getRenameImportEdit(target, replaceText);
+            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: [edit] } });
           }
         }
       }
