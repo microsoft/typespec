@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents code model info.
  */
-public class Info implements JsonSerializable<Info> {
+public class Info {
     private String title;
     private String description;
     private String termsOfService;
@@ -186,47 +181,5 @@ public class Info implements JsonSerializable<Info> {
             && Objects.equals(license, rhs.license)
             && Objects.equals(externalDocs, rhs.externalDocs)
             && Objects.equals(extensions, rhs.extensions);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("title", title)
-            .writeStringField("description", description)
-            .writeStringField("termsOfService", termsOfService)
-            .writeJsonField("contact", contact)
-            .writeJsonField("license", license)
-            .writeJsonField("externalDocs", externalDocs)
-            .writeJsonField("extensions", extensions)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an Info instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An Info instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Info fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Info::new, (info, fieldName, reader) -> {
-            if ("title".equals(fieldName)) {
-                info.title = reader.getString();
-            } else if ("description".equals(fieldName)) {
-                info.description = reader.getString();
-            } else if ("termsOfService".equals(fieldName)) {
-                info.termsOfService = reader.getString();
-            } else if ("contact".equals(fieldName)) {
-                info.contact = Contact.fromJson(reader);
-            } else if ("license".equals(fieldName)) {
-                info.license = License.fromJson(reader);
-            } else if ("externalDocs".equals(fieldName)) {
-                info.externalDocs = ExternalDocumentation.fromJson(reader);
-            } else if ("extensions".equals(fieldName)) {
-                info.extensions = DictionaryAny.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

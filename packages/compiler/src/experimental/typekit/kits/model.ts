@@ -1,5 +1,4 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
-import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import {
   DiscriminatedUnionLegacy,
   getDiscriminatedUnionFromInheritance,
@@ -14,6 +13,7 @@ import type {
   Type,
 } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
 
@@ -126,7 +126,7 @@ export interface ModelKit {
    * Resolves a discriminated union for the given model from inheritance.
    * @param type Model to resolve the discriminated union for.
    */
-  getDiscriminatedUnion(model: Model): DiscriminatedUnionLegacy | undefined;
+  getDiscriminatedUnion: Diagnosable<(model: Model) => DiscriminatedUnionLegacy | undefined>;
 }
 
 interface TypekitExtension {
@@ -151,7 +151,6 @@ defineKit<TypekitExtension>({
         name: desc.name ?? "",
         decorators: decoratorApplication(this, desc.decorators),
         properties: properties,
-        node: undefined as any,
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
@@ -245,13 +244,13 @@ defineKit<TypekitExtension>({
 
       return undefined;
     },
-    getDiscriminatedUnion(model) {
+    getDiscriminatedUnion: createDiagnosable(function (model) {
       const discriminator = getDiscriminator(this.program, model);
       if (!discriminator) {
-        return undefined;
+        return [undefined, []];
       }
 
-      return ignoreDiagnostics(getDiscriminatedUnionFromInheritance(model, discriminator));
-    },
+      return getDiscriminatedUnionFromInheritance(model, discriminator);
+    }),
   },
 });

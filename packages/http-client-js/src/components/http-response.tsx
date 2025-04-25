@@ -1,34 +1,34 @@
-import { Children, code, For, Refkey } from "@alloy-js/core";
+import { Children, code, For, List, Refkey } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { ClientOperation } from "@typespec/http-client";
+import { useTsp } from "@typespec/emitter-framework";
+import { HttpOperation } from "@typespec/http";
 import { getCreateRestErrorRefkey } from "./static-helpers/rest-error.jsx";
 import { ContentTypeEncodingProvider } from "./transforms/content-type-encoding-provider.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
 export interface HttpResponseProps {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
   responseRefkey: Refkey;
   children?: Children;
 }
 
 export function HttpResponse(props: HttpResponseProps) {
   return (
-    <>
-      <HttpResponses operation={props.operation} />
-
+    <List hardline>
+      <HttpResponses httpOperation={props.httpOperation} />
       {code`throw ${getCreateRestErrorRefkey()}(response);`}
-    </>
+    </List>
   );
 }
 
 export interface HttpResponsesProps {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
   children?: Children;
 }
 
 export function HttpResponses(props: HttpResponsesProps) {
+  const { $ } = useTsp();
   // Handle response by status code and content type
-  const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
+  const responses = $.httpOperation.flattenResponses(props.httpOperation);
   return (
     <For each={responses.filter((r) => !$.httpResponse.isErrorResponse(r))}>
       {({ statusCode, contentType, responseContent, type }) => {

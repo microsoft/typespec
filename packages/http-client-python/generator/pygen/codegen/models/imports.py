@@ -30,9 +30,11 @@ class TypingSection(str, Enum):
 
 
 class MsrestImportType(Enum):
-    Module = auto()  # import _serialization.py or msrest.serialization as Module
-    Serializer = auto()  # from _serialization.py or msrest.serialization import Serializer
-    SerializerDeserializer = auto()  # from _serialization.py or msrest.serialization import Serializer and Deserializer
+    Module = auto()  # import _utils/serialization.py or msrest.serialization as Module
+    Serializer = auto()  # from _utils/serialization.py or msrest.serialization import Serializer
+    SerializerDeserializer = (
+        auto()
+    )  # from _utils/serialization.py or msrest.serialization import Serializer and Deserializer
 
 
 class ImportModel:
@@ -168,23 +170,12 @@ class FileImport:
         self.type_definitions.update(file_import.type_definitions)
 
     def add_mutable_mapping_import(self) -> None:
-        self.add_import("sys", ImportType.STDLIB)
-        self.add_submodule_import(
-            "typing",
-            "MutableMapping",
-            ImportType.BY_VERSION,
-            TypingSection.REGULAR,
-            None,
-            (((3, 9), "collections.abc", None),),
-        )
+        self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
 
     def define_mutable_mapping_type(self) -> None:
         """Helper function for defining the mutable mapping type"""
         self.add_mutable_mapping_import()
-        self.define_mypy_type(
-            "JSON",
-            "MutableMapping[str, Any] # pylint: disable=unsubscriptable-object",
-        )
+        self.define_mypy_type("JSON", "MutableMapping[str, Any]")
         self.add_submodule_import("typing", "Any", ImportType.STDLIB)
 
     def to_dict(
@@ -272,21 +263,23 @@ class FileImport:
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import("msrest", "Deserializer", ImportType.THIRDPARTY, typing_section)
         else:
-            # _serialization.py is always in root namespace
-            imported_namespace = self.code_model.namespace
+            # _utils/serialization.py is always in root namespace
+            imported_namespace = f"{self.code_model.namespace}._utils"
             if self.code_model.options["multiapi"]:
-                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX while _serialization.py is in azure.mgmt.xxx
-                imported_namespace = get_parent_namespace(imported_namespace)
+                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX
+                # while _utils/serialization.py is in azure.mgmt.xxx
+                imported_namespace = f"{get_parent_namespace(imported_namespace)}._utils"
             if msrest_import_type == MsrestImportType.Module:
                 self.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace, imported_namespace),
-                    "_serialization",
+                    "serialization",
                     ImportType.LOCAL,
                     typing_section,
+                    alias="_serialization",
                 )
             else:
                 relative_path = self.code_model.get_relative_import_path(
-                    serialize_namespace, imported_namespace, module_name="_serialization"
+                    serialize_namespace, f"{self.code_model.namespace}._utils.serialization"
                 )
                 self.add_submodule_import(relative_path, "Serializer", ImportType.LOCAL, typing_section)
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:

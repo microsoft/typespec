@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -38,6 +39,8 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return;
             }
+            // We need to construct the emitter independently as the CodeModelGenerator is not yet initialized.
+            using var emitter = new Emitter(Console.OpenStandardOutput());
 
             var highestVersions = new Dictionary<string, (Version Version, string Path)>(StringComparer.OrdinalIgnoreCase);
             foreach (var dllPath in dllPathsInOrder)
@@ -55,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Warning: Could not read assembly info from {dllPath}: {ex.Message}");
+                    emitter.Info($"Warning: Could not read assembly info from {dllPath}: {ex.Message}");
                 }
             }
 
@@ -78,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Warning: Failed to load catalog for {kvp.Value.Path}: {ex.Message}");
+                    emitter.Info($"Warning: Failed to load catalog for {kvp.Value.Path}: {ex.Message}");
                 }
             }
         }

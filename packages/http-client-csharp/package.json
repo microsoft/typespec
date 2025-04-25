@@ -28,8 +28,7 @@
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
-    "install:samples": "cd ../../docs/samples/client/csharp/SampleService && npm install",
-    "build": "npm run build:emitter && npm run build:generator && npm run extract-api && npm run install:samples",
+    "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
@@ -42,7 +41,7 @@
     "lint:fix": "eslint . --fix",
     "format": "pnpm -w format:dir packages/http-client-csharp",
     "extract-api": "npx api-extractor run --local --verbose",
-    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js"
+    "regen-docs": "npm run build:emitter && node ../../packages/tspd/cmd/tspd.js doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js"
   },
   "files": [
     "dist/emitter/src/**",
@@ -52,13 +51,13 @@
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.54.0 <1.0.0 || ~0.55.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.54.0 <1.0.0 || ~0.55.0-0",
+    "@azure-tools/typespec-azure-core": ">=0.54.0 <0.55.0 || ~0.55.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.54.0 <0.55.0 || ~0.55.0-0",
     "@typespec/compiler": "^1.0.0-0",
     "@typespec/http": "^1.0.0-0",
     "@typespec/openapi": "^1.0.0-0",
-    "@typespec/rest": ">=0.68.0 <1.0.0 || ~0.69.0-0",
-    "@typespec/versioning": ">=0.68.0 <1.0.0 || ~0.69.0-0"
+    "@typespec/rest": ">=0.68.0 <0.69.0 || ~0.69.0-0",
+    "@typespec/versioning": ">=0.68.0 <0.69.0 || ~0.69.0-0"
   },
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.13",

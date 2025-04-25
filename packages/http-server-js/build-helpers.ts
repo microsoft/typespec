@@ -6,10 +6,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const HELPER_DECLARATION_PATH = path.resolve("generated-defs", "helpers");
-const HELPER_SRC_PATH = path.resolve("src", "helpers");
+const GENERATED_DEFS = path.resolve("generated-defs");
 
-console.log("Building JS server generator helpers.");
+const HELPER_DECLARATION_PATH = path.resolve(GENERATED_DEFS, "helpers");
+const HELPER_SRC_PATH = path.resolve("src", "helpers");
 
 async function* visitAllFiles(base: string): AsyncIterable<string> {
   const contents = await fs.readdir(base, { withFileTypes: true });
@@ -23,7 +23,39 @@ async function* visitAllFiles(base: string): AsyncIterable<string> {
   }
 }
 
+async function buildPackageJsonTs() {
+  console.log("Building package.json.ts");
+  const packageJson = await fs.readFile(path.resolve("package.json"), "utf-8");
+
+  const parsed = JSON.parse(packageJson);
+
+  const mergedDependencies: Record<string, string> = {
+    ...parsed.devDependencies,
+    ...parsed.dependencies,
+  };
+
+  const fileText = [
+    "// Copyright (c) Microsoft Corporation",
+    "// Licensed under the MIT license.",
+    "",
+    "// prettier-ignore",
+    "",
+    `export const hsjsDependencies: Record<string, string> = {`,
+    ...Object.entries(mergedDependencies).map(([name, version]) => {
+      return `  ${JSON.stringify(name)}: ${JSON.stringify(version)},`;
+    }),
+    "};",
+    "",
+  ].join("\n");
+
+  await fs.writeFile(path.resolve(GENERATED_DEFS, "package.json.ts"), fileText);
+}
+
 async function main() {
+  console.log("Building JS server generator helpers.");
+
+  await buildPackageJsonTs();
+
   const allFiles: string[] = [];
   const indices = new Map<string, string[]>();
 
@@ -72,12 +104,10 @@ async function main() {
     const contents = await fs.readFile(file, "utf-8");
 
     let childModuleLines =
-      childModules
-        ?.filter((m) => path.basename(m, ".ts") !== "index")
-        .map((child) => {
-          const childBase = path.basename(child, ".ts");
-          return `  await import("./${childBase}.js").then((m) => m.createModule(module));`;
-        }) ?? [];
+      childModules?.map((child) => {
+        const childBase = path.basename(child, ".ts");
+        return `  await import("./${childBase}.js").then((m) => m.createModule(module));`;
+      }) ?? [];
 
     if (childModuleLines.length > 0) {
       childModuleLines = ["      // Child modules", ...childModuleLines, ""];
@@ -128,9 +158,24 @@ async function main() {
 
     const targetPath = path.resolve(HELPER_DECLARATION_PATH, relativePath, "index.ts");
 
-    const children = files.map((file) => {
-      return `  await import("./${path.basename(file, ".ts")}.js").then((m) => m.createModule(module));`;
-    });
+    const childIndices = new Set(
+      allFiles
+        .filter((f) => f.startsWith(dir))
+        // Remove the directory prefix and then check if it's a nested directory lower.
+        .map((f) => /^[/\\]([a-zA-Z_-]+)[/\\]/.exec(f.replace(dir, "")))
+        .filter((match) => !!match)
+        .map((match) => match[1]),
+    );
+
+    const children = [
+      ...[...childIndices].map((dir) => {
+        return `  await import("./${dir}/index.js").then((m) => m.createModule(module));`;
+      }),
+
+      ...files.map((file) => {
+        return `  await import("./${path.basename(file, ".ts")}.js").then((m) => m.createModule(module));`;
+      }),
+    ];
 
     const transformed = [
       "// Copyright (c) Microsoft Corporation",

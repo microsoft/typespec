@@ -26,7 +26,7 @@ describe("Payload.JsonMergePatch", () => {
         },
       ],
       intValue: 1,
-      floatValue: 1.1,
+      floatValue: 1.25,
       innerModel: {
         name: "InnerMadge",
         description: "innerDesc",
@@ -50,7 +50,7 @@ describe("Payload.JsonMergePatch", () => {
         },
       ],
       intValue: 1,
-      floatValue: 1.1,
+      floatValue: 1.25,
       innerModel: {
         name: "InnerMadge",
         description: "innerDesc",

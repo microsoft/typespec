@@ -230,10 +230,11 @@ class DpgModelSerializer(_ModelSerializer):
         file_import = FileImport(self.code_model)
         if any(not m.parents for m in self.models):
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(self.serialize_namespace),
-                "_model_base",
+                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_utils.model_base"),
+                "Model",
                 ImportType.LOCAL,
                 TypingSection.REGULAR,
+                alias="_Model",
             )
         for model in self.models:
             if model.base == "json":
@@ -272,7 +273,7 @@ class DpgModelSerializer(_ModelSerializer):
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
-        basename = "_model_base.Model"
+        basename = "_Model"
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:

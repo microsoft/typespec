@@ -126,8 +126,11 @@ public class ClientMethodParameter extends MethodParameter {
             annotation.addImportsTo(imports, includeImplementationImports);
         }
         getClientType().addImportsTo(imports, includeImplementationImports);
-        if (includeImplementationImports && getRawType() != null) {
-            getRawType().addImportsTo(imports, includeImplementationImports);
+        if (includeImplementationImports) {
+            getWireType().addImportsTo(imports, includeImplementationImports);
+            if (getRawType() != null) {
+                getRawType().addImportsTo(imports, includeImplementationImports);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 {
   "$id": "1",
-  "Name": "UnbrandedTypeSpec",
+  "Name": "SampleTypeSpec",
   "ApiVersions": [],
   "Enums": [
     {
@@ -20,7 +20,7 @@
           "Description": "accept"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_requiredLiteralString",
       "IsExtensible": true,
       "IsNullable": false,
@@ -43,7 +43,7 @@
           "Description": "123"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_requiredLiteralInt",
       "IsExtensible": true,
       "IsNullable": false,
@@ -66,7 +66,7 @@
           "Description": "1.23"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_requiredLiteralFloat",
       "IsExtensible": true,
       "IsNullable": false,
@@ -89,7 +89,7 @@
           "Description": "reject"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_optionalLiteralString",
       "IsExtensible": true,
       "IsNullable": false,
@@ -112,7 +112,7 @@
           "Description": "456"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_optionalLiteralInt",
       "IsExtensible": true,
       "IsNullable": false,
@@ -135,7 +135,7 @@
           "Description": "4.56"
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "The Thing_optionalLiteralFloat",
       "IsExtensible": true,
       "IsNullable": false,
@@ -231,7 +231,7 @@
           "Value": 4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "Int based extensible enum",
       "IsExtensible": true,
       "IsNullable": false,
@@ -263,7 +263,7 @@
           "Value": 4.4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "Float based extensible enum",
       "IsExtensible": true,
       "IsNullable": false,
@@ -295,7 +295,7 @@
           "Value": 4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "float fixed enum",
       "IsExtensible": true,
       "IsNullable": false,
@@ -327,7 +327,7 @@
           "Value": 4.4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "float fixed enum",
       "IsExtensible": false,
       "IsNullable": false,
@@ -359,7 +359,7 @@
           "Value": 4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "float fixed enum",
       "IsExtensible": false,
       "IsNullable": false,
@@ -391,7 +391,7 @@
           "Value": 4
         }
       ],
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "int fixed enum",
       "IsExtensible": false,
       "IsNullable": false,
@@ -403,7 +403,7 @@
       "$id": "60",
       "Kind": "Model",
       "Name": "Thing",
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "A model with a few properties of literal types",
       "IsNullable": false,
       "Usage": "RoundTrip",
@@ -655,7 +655,7 @@
       "$id": "95",
       "Kind": "Model",
       "Name": "RoundTripModel",
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "this is a roundtrip model",
       "IsNullable": false,
       "Usage": "RoundTrip",
@@ -1012,7 +1012,7 @@
             "$id": "142",
             "Kind": "Model",
             "Name": "ModelWithRequiredNullableProperties",
-            "Namespace": "UnbrandedTypeSpec",
+            "Namespace": "SampleTypeSpec",
             "Description": "A model with a few required nullable properties",
             "IsNullable": false,
             "Usage": "RoundTrip",
@@ -1080,7 +1080,7 @@
       "$id": "149",
       "Kind": "Model",
       "Name": "Friend",
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "this is not a friendly model but with a friendly name",
       "IsNullable": false,
       "Usage": "RoundTrip",
@@ -1104,7 +1104,7 @@
       "$id": "152",
       "Kind": "Model",
       "Name": "ProjectedModel",
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "Description": "this is a model with a projected name",
       "IsNullable": false,
       "Usage": "RoundTrip",
@@ -1128,7 +1128,7 @@
       "$id": "155",
       "Kind": "Model",
       "Name": "ReturnsAnonymousModelResponse",
-      "Namespace": "UnbrandedTypeSpec",
+      "Namespace": "SampleTypeSpec",
       "IsNullable": false,
       "Usage": "Output",
       "Properties": []
@@ -1143,7 +1143,7 @@
         {
           "$id": "157",
           "Name": "sayHi",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Return hi",
           "Parameters": [
             {
@@ -1273,7 +1273,7 @@
         {
           "$id": "170",
           "Name": "helloAgain",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Return hi again",
           "Parameters": [
             {
@@ -1418,7 +1418,7 @@
         {
           "$id": "184",
           "Name": "noContentType",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Return hi again",
           "Parameters": [
             {
@@ -1557,7 +1557,7 @@
         {
           "$id": "197",
           "Name": "helloDemo2",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Return hi in demo2",
           "Parameters": [
             {
@@ -1614,7 +1614,7 @@
         {
           "$id": "202",
           "Name": "createLiteral",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Create with literal value",
           "Parameters": [
             {
@@ -1715,7 +1715,7 @@
         {
           "$id": "211",
           "Name": "helloLiteral",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Send literal parameters",
           "Parameters": [
             {
@@ -1868,7 +1868,7 @@
         {
           "$id": "228",
           "Name": "topAction",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "top level method",
           "Parameters": [
             {
@@ -1950,7 +1950,7 @@
         {
           "$id": "236",
           "Name": "topAction2",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "top level method2",
           "Parameters": [
             {
@@ -2007,7 +2007,7 @@
         {
           "$id": "241",
           "Name": "patchAction",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "top level patch",
           "Parameters": [
             {
@@ -2108,7 +2108,7 @@
         {
           "$id": "250",
           "Name": "anonymousBody",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "body parameter without body decorator",
           "Parameters": [
             {
@@ -2210,7 +2210,7 @@
         {
           "$id": "259",
           "Name": "friendlyModel",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Model can have its friendly name",
           "Parameters": [
             {
@@ -2312,7 +2312,7 @@
         {
           "$id": "268",
           "Name": "addTimeHeader",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Parameters": [
             {
               "$ref": "158"
@@ -2389,7 +2389,7 @@
         {
           "$id": "276",
           "Name": "projectedNameModel",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "Model can have its projected name",
           "Parameters": [
             {
@@ -2491,7 +2491,7 @@
         {
           "$id": "285",
           "Name": "returnsAnonymousModel",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "return anonymous model",
           "Parameters": [
             {
@@ -2548,7 +2548,7 @@
         {
           "$id": "290",
           "Name": "getUnknownValue",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "get extensible enum",
           "Parameters": [
             {
@@ -2607,7 +2607,7 @@
         {
           "$id": "296",
           "Name": "internalProtocol",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "When set protocol false and convenient true, then the protocol method should be internal",
           "Parameters": [
             {
@@ -2708,7 +2708,7 @@
         {
           "$id": "305",
           "Name": "stillConvenient",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
           "Parameters": [
             {
@@ -2761,7 +2761,7 @@
         {
           "$id": "310",
           "Name": "headAsBoolean",
-          "ResourceName": "UnbrandedTypeSpec",
+          "ResourceName": "SampleTypeSpec",
           "Description": "head as boolean.",
           "Parameters": [
             {

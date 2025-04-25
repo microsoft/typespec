@@ -1,5 +1,56 @@
 # Change Log - @typespec/http-client-python
 
+## 0.11.2
+
+### Other Changes
+
+- Bump typespec and typespec-azure to latest version
+
+
+## 0.11.1
+
+### Bug Fixes
+
+- [#6646](https://github.com/microsoft/typespec/pull/6646) Reorder generated `_vendor` file into a `_utils_` folder
+- [#7062](https://github.com/microsoft/typespec/pull/7062) Remove warnings thrown if no `package-name` is specified, since this is the default behavior we want
+
+
+## 0.11.0
+
+### Features
+
+- [#6968](https://github.com/microsoft/typespec/pull/6968) Support parameter promoting to client level and add tests.
+- [#6955](https://github.com/microsoft/typespec/pull/6955) Support optional path parameter.
+
+### Bug Fixes
+
+- [#6979](https://github.com/microsoft/typespec/pull/6979) Improve emitter performance by updating black plugin implementation.
+- [#7048](https://github.com/microsoft/typespec/pull/7048) Align key in apiview mapping with apiview structure
+
+
+## 0.10.0
+
+### Features
+
+- [#5925](https://github.com/microsoft/typespec/pull/5925) Improve user experience in multi clouds scenario
+
+### Bug Fixes
+
+- [#7005](https://github.com/microsoft/typespec/pull/7005) Fix docstring type for multi namespaces
+- [#7007](https://github.com/microsoft/typespec/pull/7007) Fix for setup.py
+- [#6977](https://github.com/microsoft/typespec/pull/6977) add more hooks into setup.py template for users with custom templates
+
+
+## 0.9.2
+
+### Bug Fixes
+
+- [#6974](https://github.com/microsoft/typespec/pull/6974) Allow `_` in namespaces
+
+### Other Changes
+
+- Drop support for python3.8
+
 ## 0.9.1
 
 ### Bug Fixes

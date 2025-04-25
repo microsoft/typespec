@@ -275,7 +275,7 @@ class BodyParameter(_ParameterBase):
         if self.is_form_data:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.utils"),
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )
@@ -356,6 +356,9 @@ class Parameter(_ParameterBase):
             ParameterLocation.QUERY,
         )
         if self.code_model.options["only_path_and_body_params_positional"] and query_or_header:
+            return ParameterMethodLocation.KEYWORD_ONLY
+        # for optional path parameter, we need to use keyword only
+        if self.location == ParameterLocation.PATH and self.optional:
             return ParameterMethodLocation.KEYWORD_ONLY
         return ParameterMethodLocation.POSITIONAL
 
