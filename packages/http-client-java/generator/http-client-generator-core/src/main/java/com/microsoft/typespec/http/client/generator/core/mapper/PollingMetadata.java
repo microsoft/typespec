@@ -98,9 +98,16 @@ final class PollingMetadata {
         return false;
     }
 
+    boolean hasModelResultTypes() {
+        final boolean pollResultTypeUsesModel = !ClassType.BINARY_DATA.equals(pollResultType);
+        final boolean finalResultTypeUsesModel
+            = !ClassType.BINARY_DATA.equals(finalResultType) && !ClassType.VOID.equals(finalResultType);
+        return pollResultTypeUsesModel && finalResultTypeUsesModel;
+    }
+
     /**
      * Gets the view of the polling metadata as {@link MethodPollingDetails} to enable long-running {@link ClientMethod}
-     * with {@link com.azure.core.util.BinaryData} for poll and final result types.
+     * with {@link com.azure.core.util.BinaryData} type for poll and final result.
      * <p>
      * the long-running {@link ClientMethod} are the client methods of type
      * {@link ClientMethodType#LongRunningBeginSync},
@@ -211,18 +218,18 @@ final class PollingMetadata {
         final String packageName = settings.getPackage(settings.getImplementationSubpackage());
         if (lroMetadata.getPollingStrategy() != null) {
             final String strategyName = lroMetadata.getPollingStrategy().getLanguage().getJava().getName();
-            final String strategyFqdnName = packageName + "." + strategyName;
+            final String strategyFqName = packageName + "." + strategyName;
             final String syncStrategyFqdnName = packageName + "." + "Sync" + strategyName;
 
             if (lroMetadata.getFinalResultPropertySerializedName() != null) {
                 final String finalResultArg
                     = ClassType.STRING.defaultValueExpression(lroMetadata.getFinalResultPropertySerializedName());
                 pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
-                    strategyFqdnName, finalResultArg);
+                    strategyFqName, finalResultArg);
                 syncPollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
                     syncStrategyFqdnName, finalResultArg);
             } else {
-                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, strategyFqdnName);
+                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, strategyFqName);
                 syncPollingStrategy
                     = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
             }

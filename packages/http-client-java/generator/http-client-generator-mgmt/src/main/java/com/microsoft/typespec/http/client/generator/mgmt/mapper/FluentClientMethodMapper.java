@@ -26,6 +26,8 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
+        // Objects.requireNonNull(lroBaseMethod.getMethodPollingDetails());
+
         // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
         // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
         // as Response data is not included in an LRO API.

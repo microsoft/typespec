@@ -381,7 +381,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                     final PollingSettings pollingSettings = settings.getPollingSettings(proxyMethod.getOperationId());
                     MethodPollingDetails methodPollingDetails = null;
-                    MethodPollingDetails dpgMethodPollingDetailsWithModel = null;   // for additional LRO methods
+                    final MethodNamer methodNamer
+                        = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
 
                     if (pollingSettings != null) {
                         // try lroMetadata
@@ -399,64 +400,58 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                         MethodUtil.getHttpMethod(operation)),
                                     pollingSettings.getPollIntervalInSeconds());
                         }
+
+                        // models of LRO configured
+                        if (isProtocolMethod
+                            && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getPollResultType())
+                                && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalResultType())
+                                    || ClassType.VOID
+                                        .equals(methodPollingDetails.getFinalResultType().asNullable())))) {
+
+                            // a new method to be added as implementation only (not exposed to client) for developer
+                            // additional LRO method for data-plane, with poll/final type, for convenience of
+                            // grow-up, it is public in implementation, but not exposed in wrapper client
+                            //
+                            final ImplementationDetails implementationDetails;
+                            if (baseMethod.getImplementationDetails() != null) {
+                                implementationDetails = baseMethod.getImplementationDetails()
+                                    .newBuilder()
+                                    .implementationOnly(true)
+                                    .build();
+                            } else {
+                                implementationDetails
+                                    = new ImplementationDetails.Builder().implementationOnly(true).build();
+                            }
+                            final Builder lroWithIntermediateFinalTypeBuilder = baseMethod.newBuilder()
+                                .implementationDetails(implementationDetails)
+                                .methodPollingDetails(methodPollingDetails);
+
+                            createLroBeginMethods(lroWithIntermediateFinalTypeBuilder.build(), methods,
+                                methodNamer.getLroModelBeginAsyncMethodName(), methodNamer.getLroModelBeginMethodName(),
+                                methodsReturnDescription, isProtocolMethod, generateOnlyRequiredParameters,
+                                defaultOverloadType);
+                        }
                     }
 
-                    if (methodPollingDetails != null && isProtocolMethod
-                    // models of LRO configured
-                        && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getPollResultType())
-                            && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalResultType())
-                                || ClassType.VOID.equals(methodPollingDetails.getFinalResultType().asNullable())))) {
-
-                        // a new method to be added as implementation only (not exposed to client) for developer
-                        dpgMethodPollingDetailsWithModel = methodPollingDetails;
-
+                    if (isProtocolMethod && methodPollingDetails != null) {
                         // keep consistency with DPG from Swagger, see getPollingFinalType
                         IType finalResultType = ClassType.BINARY_DATA;
                         // DELETE would not have final response as resource is deleted
                         if (MethodUtil.getHttpMethod(operation) == HttpMethod.DELETE) {
                             finalResultType = PrimitiveType.VOID;
                         }
-
                         // DPG keep the method with BinaryData
-                        methodPollingDetails
-                            = new MethodPollingDetails(dpgMethodPollingDetailsWithModel.getPollingStrategy(),
-                                dpgMethodPollingDetailsWithModel.getSyncPollingStrategy(), ClassType.BINARY_DATA,
-                                finalResultType, dpgMethodPollingDetailsWithModel.getPollIntervalInSeconds());
+                        methodPollingDetails = new MethodPollingDetails(methodPollingDetails.getPollingStrategy(),
+                            methodPollingDetails.getSyncPollingStrategy(), ClassType.BINARY_DATA, finalResultType,
+                            methodPollingDetails.getPollIntervalInSeconds());
                     }
 
                     final ClientMethod lroBaseMethod
                         = baseMethod.newBuilder().methodPollingDetails(methodPollingDetails).build();
 
-                    final MethodNamer methodNamer
-                        = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
-
                     createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
                         methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
                         generateOnlyRequiredParameters, defaultOverloadType);
-
-                    if (dpgMethodPollingDetailsWithModel != null) {
-                        // additional LRO method for data-plane, with poll/final type, for convenience of
-                        // grow-up, it is public in implementation, but not exposed in wrapper client
-                        //
-                        final ImplementationDetails implementationDetails;
-                        if (lroBaseMethod.getImplementationDetails() != null) {
-                            implementationDetails = lroBaseMethod.getImplementationDetails()
-                                .newBuilder()
-                                .implementationOnly(true)
-                                .build();
-                        } else {
-                            implementationDetails
-                                = new ImplementationDetails.Builder().implementationOnly(true).build();
-                        }
-                        final Builder lroWithIntermediateFinalTypeBuilder = lroBaseMethod.newBuilder()
-                            .implementationDetails(implementationDetails)
-                            .methodPollingDetails(dpgMethodPollingDetailsWithModel);
-
-                        createLroBeginMethods(lroWithIntermediateFinalTypeBuilder.build(), methods,
-                            methodNamer.getLroModelBeginAsyncMethodName(), methodNamer.getLroModelBeginMethodName(),
-                            methodsReturnDescription, isProtocolMethod, generateOnlyRequiredParameters,
-                            defaultOverloadType);
-                    }
 
                     this.createAdditionalLroMethods(lroBaseMethod, methods, isProtocolMethod, methodsReturnDescription,
                         generateOnlyRequiredParameters, defaultOverloadType);

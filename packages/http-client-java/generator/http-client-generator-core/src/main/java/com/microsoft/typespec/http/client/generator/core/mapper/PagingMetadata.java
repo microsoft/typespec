@@ -32,7 +32,7 @@ final class PagingMetadata {
     private final Operation nextOperation;
     private final ModelPropertySegment itemPropertyReference;
     private final ModelPropertySegment nextLinkPropertyReference;
-    private final IType lroIntermediateType;
+    private final IType lroPollResultType;
     private final List<ClientMethod> nextMethods;
     private final MethodPageDetails.ContinuationToken continuationToken;
 
@@ -59,14 +59,14 @@ final class PagingMetadata {
         }
         final ModelPropertySegment nextLinkPropertyReference = getPageableNextLink(xmsPageable, responseType);
         final Operation nextOperation = xmsPageable.getNextOperation();
-        final IType lroIntermediateType;
+        final IType lroPollResultType;
         if (operation.isLro() && nextOperation != operation) {
             // For a paging Operation, the ProxyMethod return type is Flux<ByteBuffer> and ClientMethod return type is
             // PagedResponse<>. The 'lroIntermediateType' is the type of pagination response - the type with values and
             // nextLink.
-            lroIntermediateType = SchemaUtil.getOperationResponseType(operation, settings);
+            lroPollResultType = SchemaUtil.getOperationResponseType(operation, settings);
         } else {
-            lroIntermediateType = null;
+            lroPollResultType = null;
         }
 
         final List<ClientMethod> nextMethods;
@@ -79,7 +79,7 @@ final class PagingMetadata {
         final MethodPageDetails.ContinuationToken continuationToken = getContinuationToken(xmsPageable, responseType);
 
         return new PagingMetadata(operation, nextOperation, itemPropertyReference, nextLinkPropertyReference,
-            nextMethods, lroIntermediateType, continuationToken);
+            nextMethods, lroPollResultType, continuationToken);
     }
 
     boolean isNextMethod() {
@@ -98,7 +98,7 @@ final class PagingMetadata {
     MethodPageDetails asMethodPageDetails(boolean isSync) {
         final ClientMethodType nextMethodType = nextMethodType(isSync);
         final ClientMethod nextMethod = enumerateNextMethodsOfType(nextMethodType).findFirst().orElse(null);
-        return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroIntermediateType,
+        return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod, lroPollResultType,
             continuationToken);
     }
 
@@ -127,7 +127,7 @@ final class PagingMetadata {
             return null;
         }
         return new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethodWithContext,
-            lroIntermediateType, continuationToken);
+            lroPollResultType, continuationToken);
     }
 
     private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseType) {
@@ -187,14 +187,14 @@ final class PagingMetadata {
     }
 
     private PagingMetadata(Operation operation, Operation nextOperation, ModelPropertySegment itemPropertyReference,
-        ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroIntermediateType,
+        ModelPropertySegment nextLinkPropertyReference, List<ClientMethod> nextMethods, IType lroPollResultType,
         MethodPageDetails.ContinuationToken continuationToken) {
         this.operation = operation;
         this.nextOperation = nextOperation;
         this.itemPropertyReference = itemPropertyReference;
         this.nextLinkPropertyReference = nextLinkPropertyReference;
         this.nextMethods = nextMethods;
-        this.lroIntermediateType = lroIntermediateType;
+        this.lroPollResultType = lroPollResultType;
         this.continuationToken = continuationToken;
     }
 }
