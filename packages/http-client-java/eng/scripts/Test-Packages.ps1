@@ -65,7 +65,7 @@ try {
             if (!(Test-Path $coverageReportDir)) {
                 New-Item -ItemType Directory -Path $coverageReportDir
 
-                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
+                # $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
                 $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
                 Copy-Item $sourceFile -Destination $targetFile
             }
