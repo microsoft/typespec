@@ -47,13 +47,13 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
         "set this option to the version that should be used to generate against.",
     },
-    "generate-protocol-methods": { 
+    "generate-protocol-methods": {
       type: "boolean",
       nullable: true,
       description:
         "Set to `false` to skip generation of protocol methods. The default value is `true`.",
     },
-    "generate-convenience-methods": { 
+    "generate-convenience-methods": {
       type: "boolean",
       nullable: true,
       description:
