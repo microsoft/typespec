@@ -24,6 +24,7 @@ import {
   resolveCompilerOptions,
   resolvePath,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -92,9 +93,18 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
 
 export const UnknownType: CSharpType = new CSharpType({
   name: "JsonNode",
-  namespace: "System.Text.Json",
+  namespace: "System.Text.Json.Nodes",
   isValueType: false,
-  isBuiltIn: true,
+  isBuiltIn: false,
+  isClass: true,
+});
+
+export const RecordType = new CSharpType({
+  name: "JsonObject",
+  namespace: "System.Text.Json.Nodes",
+  isBuiltIn: false,
+  isValueType: false,
+  isClass: true,
 });
 export function getCSharpType(
   program: Program,
@@ -144,7 +154,7 @@ export function getCSharpType(
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
-          namespace: namespace || "Models",
+          namespace: `${namespace}`,
           isBuiltIn: false,
           isValueType: false,
           isClass: true,
@@ -155,7 +165,7 @@ export function getCSharpType(
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
-          namespace: `${namespace}.Models`,
+          namespace: `${namespace}`,
           isBuiltIn: false,
           isValueType: true,
         }),
@@ -197,13 +207,7 @@ export function getCSharpType(
       }
       if (isRecord(type))
         return {
-          type: new CSharpType({
-            name: "JsonObject",
-            namespace: "System.Text.Json.Nodes",
-            isBuiltIn: false,
-            isValueType: false,
-            isClass: false,
-          }),
+          type: RecordType,
         };
       let name: string = type.name;
       if (isTemplateInstance(type)) {
@@ -212,7 +216,7 @@ export function getCSharpType(
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, name, NameCasingType.Class),
-          namespace: `${namespace}.Models`,
+          namespace: `${namespace}`,
           isBuiltIn: false,
           isValueType: false,
           isClass: true,
@@ -504,8 +508,10 @@ export function formatComment(
 export function getCSharpIdentifier(
   name: string,
   context: NameCasingType = NameCasingType.Class,
+  checkReserved: boolean = true,
 ): string {
   if (name === undefined) return "Placeholder";
+  name = replaceCSharpReservedWord(name, context);
   switch (context) {
     case NameCasingType.Namespace:
       const parts: string[] = [];
@@ -528,6 +534,7 @@ export function ensureCSharpIdentifier(
   context: NameCasingType = NameCasingType.Class,
 ): string {
   let location = "";
+  let includeDot = false;
   switch (target.kind) {
     case "Enum":
       location = `enum ${target.name}`;
@@ -560,11 +567,9 @@ export function ensureCSharpIdentifier(
     case "Namespace":
       location = `namespace ${target.name}`;
       let invalid: boolean = false;
-      const nsName: StringBuilder = new StringBuilder();
       for (const part of name.split(".")) {
         if (!isValidCSharpIdentifier(part)) {
           invalid = true;
-          nsName.pushLiteralSegment(transformInvalidIdentifier(part));
         }
       }
 
@@ -574,9 +579,10 @@ export function ensureCSharpIdentifier(
           format: { identifier: name, location: location },
           target: target.node ?? NoTarget,
         });
-        return nsName.segments.join(".");
       }
-      return name;
+
+      includeDot = true;
+      break;
     case "Operation": {
       const parent = target.interface
         ? `interface ${target.interface.name}`
@@ -593,7 +599,7 @@ export function ensureCSharpIdentifier(
     }
   }
 
-  if (!isValidCSharpIdentifier(name)) {
+  if (!isValidCSharpIdentifier(name, includeDot)) {
     reportDiagnostic(program, {
       code: "invalid-identifier",
       format: { identifier: name, location: location },
@@ -757,7 +763,7 @@ export class HttpMetadata {
           (p: ModelProperty) => !isMetadata(program, p) && !isStatusCode(program, p),
         );
 
-        if (anyProp === undefined) return program.checker.voidType;
+        if (anyProp === undefined) return $(program).intrinsic.void;
 
         if (responseType.name === "") {
           return metaInfo.getEffectivePayloadType(responseType, Visibility.Read);
@@ -813,8 +819,151 @@ export async function ensureCleanDirectory(program: Program, targetPath: string)
   await program.host.mkdirp(targetPath);
 }
 
-export function isValidCSharpIdentifier(identifier: string): boolean {
-  return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
+export function isValidCSharpIdentifier(identifier: string, isNamespace: boolean = false): boolean {
+  if (!isNamespace) return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
+  return identifier?.match(/^[A-Za-z_][\w.]*$/) !== null;
+}
+
+export function replaceCSharpReservedWord(identifier: string, context?: NameCasingType): string {
+  function generateReplacement(input: string): [string, string] {
+    return [input, `${pascalCase(input)}Name`];
+  }
+  const contextualWords: string[] = [
+    "add",
+    "allows",
+    "alias",
+    "and",
+    "ascending",
+    "args",
+    "async",
+    "await",
+    "by",
+    "descending",
+    "dynamic",
+    "equals",
+    "field",
+    "file",
+    "from",
+    "get",
+    "global",
+    "group",
+    "init",
+    "into",
+    "join",
+    "let",
+    "managed",
+    "nameof",
+    "nint",
+    "not",
+    "notnull",
+    "nuint",
+    "on",
+    "or",
+    "orderby",
+    "partial",
+    "record",
+    "remove",
+    "required",
+    "scoped",
+    "select",
+    "set",
+    "unmanaged",
+    "value",
+    "var",
+    "when",
+    "where",
+    "with",
+    "yield",
+  ];
+  const reservedWords: string[] = [
+    "abstract",
+    "as",
+    "base",
+    "bool",
+    "boolean",
+    "break",
+    "byte",
+    "case",
+    "catch",
+    "char",
+    "checked",
+    "class",
+    "const",
+    "continue",
+    "decimal",
+    "default",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "event",
+    "explicit",
+    "extern",
+    "false",
+    "finally",
+    "fixed",
+    "float",
+    "for",
+    "foreach",
+    "goto",
+    "if",
+    "implicit",
+    "in",
+    "int",
+    "interface",
+    "internal",
+    "is",
+    "lock",
+    "long",
+    "namespace",
+    "new",
+    "null",
+    "object",
+    "operator",
+    "out",
+    "override",
+    "params",
+    "private",
+    "protected",
+    "public",
+    "readonly",
+    "ref",
+    "return",
+    "sbyte",
+    "sealed",
+    "short",
+    "sizeof",
+    "stackalloc",
+    "static",
+    "string",
+    "struct",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "type",
+    "typeof",
+    "uint",
+    "ulong",
+    "unchecked",
+    "unsafe",
+    "ushort",
+    "using",
+    "virtual",
+    "void",
+    "volatile",
+    "while",
+  ];
+  const reserved: Map<string, string> = new Map<string, string>(
+    reservedWords.concat(contextualWords).map((w) => generateReplacement(w)),
+  );
+  const check = reserved.get(identifier.toLowerCase());
+  if (check !== undefined) {
+    return getCSharpIdentifier(check, context, false);
+  }
+
+  return identifier;
 }
 
 export function getValidChar(target: string, position: number): string {
@@ -1002,6 +1151,14 @@ export class CSharpOperationHelpers {
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
   #anonymousModels: Map<Model, EmittedTypeInfo & { hasUniqueItems: boolean }>;
   #opCache: Map<Operation, CSharpOperationParameter[]>;
+  getResponse(program: Program, operation: HttpOperation): CSharpType {
+    return new CSharpType({
+      name: "void",
+      namespace: "System",
+      isBuiltIn: true,
+      isValueType: true,
+    });
+  }
   getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
     function safeConcat(...names: (string | undefined)[]): string {
       return names
@@ -1014,7 +1171,7 @@ export class CSharpOperationHelpers {
     const bodyParam = operation.parameters.body;
     const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
     const result: CSharpOperationParameter[] = [];
-    if (operation.verb === "get" && operation.parameters.body !== undefined) {
+    if (!cached && operation.verb === "get" && operation.parameters.body !== undefined) {
       reportDiagnostic(program, {
         code: "get-request-body",
         target: operation.operation,
@@ -1234,7 +1391,6 @@ export class CSharpOperationHelpers {
       });
     }
 
-    this.#opCache.set(operation.operation, result);
     return result;
   }
   getTypeInfo(program: Program, tsType: Type, modelProperty?: ModelProperty): EmittedTypeInfo {
@@ -1321,7 +1477,7 @@ export class CSharpOperationHelpers {
           case CollectionType.Array:
           default:
             return {
-              typeReference: code`${csharpType.getTypeReference()}[]`,
+              typeReference: code`${csharpType.getTypeReference()}[]`, //          typeReference: code`${csharpType.getTypeReference(myEmitter.getContext().scope)}[]`,
               defaultValue: `{${defaults.join(", ")}}`,
               nullableType: csharpType.isNullable,
             };
@@ -1340,7 +1496,7 @@ export class CSharpOperationHelpers {
 
         if (isRecord(tsType)) {
           modelResult = {
-            typeReference: code`System.Text.Json.Nodes.JsonObject`,
+            typeReference: code`${RecordType.getTypeReference(myEmitter.getContext().scope)}`,
             nullableType: false,
             hasUniqueItems: hasUniqueItems,
           };
@@ -1361,14 +1517,11 @@ export class CSharpOperationHelpers {
               };
         } else {
           modelResult = {
-            typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+            typeReference: code`${this.emitter.emitTypeReference(tsType, this.emitter.getContext())}`,
             nullableType: false,
             hasUniqueItems: hasUniqueItems,
           };
         }
-
-        this.#anonymousModels.set(tsType, modelResult);
-
         return modelResult;
       case "ModelProperty":
         return this.getTypeInfo(program, tsType.type, tsType);
@@ -1387,12 +1540,23 @@ export class CSharpOperationHelpers {
           return { typeReference: "int", defaultValue: stringValue, nullableType: false };
         }
         if (typeof tsType.value === "string") {
-          return { typeReference: "string", defaultValue: tsType.value, nullableType: false };
+          const retVal = this.getTypeInfo(program, tsType.enum);
+          retVal.defaultValue = `${retVal.typeReference}.${ensureCSharpIdentifier(program, tsType, tsType.name, NameCasingType.Property)}`;
+          return retVal;
         }
         return { typeReference: code`object`, nullableType: false };
       case "Union":
         return this.getUnionInfo(program, tsType);
       case "UnionVariant":
+        if (
+          isStringEnumType(program, tsType.union) &&
+          tsType.type.kind === "String" &&
+          typeof tsType.name === "string"
+        ) {
+          const retVal = this.getUnionInfo(program, tsType.union);
+          retVal.defaultValue = `${retVal.typeReference}.${ensureCSharpIdentifier(program, tsType, tsType.name, NameCasingType.Property)}`;
+          return retVal;
+        }
         return this.getTypeInfo(program, tsType.type);
       default:
         return {
@@ -1403,7 +1567,7 @@ export class CSharpOperationHelpers {
   }
   getUnionInfo(program: Program, union: Union): EmittedTypeInfo {
     const propResult = getNonNullableTsType(union);
-    if (propResult === undefined) {
+    if (propResult === undefined || isStringEnumType(program, union)) {
       return {
         typeReference: code`${this.emitter.emitTypeReference(union)}`,
         nullableType: [...union.variants.values()].some((v) => isNullType(v.type)),
@@ -1441,6 +1605,18 @@ export function findNumericType(type: NumericLiteral): [string, string] {
   const stringValue = type.valueAsString;
   if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
   return ["int", stringValue];
+}
+
+export function isStringEnumType(program: Program, union: Union): boolean {
+  const baseType = coalesceUnionTypes(program, union);
+  if (!baseType.isBuiltIn || baseType.name !== "string") return false;
+  return ![...union.variants.values()].some(
+    (v) =>
+      (v.type.kind === "String" ||
+        v.type.kind === "StringTemplate" ||
+        v.type.kind === "StringTemplateSpan") &&
+      typeof v.name !== "string",
+  );
 }
 
 export function coalesceUnionTypes(program: Program, union: Union): CSharpType {
@@ -1610,4 +1786,19 @@ export function getStatusCode(program: Program, model: Model) {
 
 export function isByteType(type: Type): boolean {
   return type.kind === "Scalar" && ["int8", "uint8"].includes(type.name);
+}
+
+export function getImports(scope?: Scope<string>, visited?: Set<Scope<string>>): string[] {
+  if (scope === undefined) return [];
+  if (!visited) visited = new Set<Scope<string>>();
+  if (visited.has(scope)) return [];
+  visited.add(scope);
+  switch (scope.kind) {
+    case "namespace":
+      return getImports(scope.parentScope, visited);
+    case "sourceFile":
+      return [...scope.sourceFile.imports.keys()];
+    default:
+      return [];
+  }
 }

@@ -35,6 +35,18 @@ function assertFileContains(fileName: string, fileContents: string, searchString
   );
 }
 
+function assertFileDoesNotContain(
+  fileName: string,
+  fileContents: string,
+  searchString: string,
+): void {
+  assert.strictEqual(
+    fileContents.includes(searchString),
+    false,
+    `Unwanted "${searchString}" found in ${fileName}, contents of file: ${fileContents}`,
+  );
+}
+
 async function compileAndValidateSingleModel(
   runner: BasicTestRunner,
   code: string,
@@ -55,16 +67,27 @@ async function compile(
 
 async function compileAndValidateMultiple(
   runner: BasicTestRunner,
-  code: string,
+  code: string | [string, string],
   fileChecks: [string, string[]][],
+  notFileChecks?: [string, string[]][],
 ): Promise<void> {
-  const spec = getStandardService(code);
+  const spec =
+    typeof code === "string" ? getStandardService(code) : getStandardService(code[0], code[1]);
   await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
       assertFileContains(modelKey, modelContents, element);
     });
+  }
+
+  if (notFileChecks) {
+    for (const [fileToCheck, expectedContent] of notFileChecks) {
+      const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
+      expectedContent.forEach((element) => {
+        assertFileDoesNotContain(modelKey, modelContents, element);
+      });
+    }
   }
 }
 
@@ -726,7 +749,7 @@ it("handles integer enums", async () => {
         /** non-nullable enum */
         bazProp: IntegerEnum;
       }
-      `,
+`,
     [
       [
         "Foo.cs",
@@ -769,6 +792,141 @@ it("handles non-integer numeric enums", async () => {
           `public double? BarNullableProp { get; set; }`,
           `public double BazProp { get; set; }`,
           `public double? BazNullableProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("handles extensible enums and discriminators for inheritance", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** An extensible string union */
+      union PetType { /** Dog */ Dog: "dog", /** Cat */ Cat: "cat", string}
+      /** A fixed string union */
+      union AnimalType {/** Wolf */ Wolf: "wolf", /** Bear */ Bear: "bear"}
+
+      /** base discriminated type */
+      @discriminator("kind")
+      model Pet {
+        /** The disriminated type */
+        kind: PetType;
+
+        /** The name */
+        name: string;
+
+        /** Age in years */
+        age: safeint;
+      }
+      
+      /** A leaf instance */
+      model Dog extends Pet {
+        /** specific kind */
+        kind: PetType.Dog;
+      /** tail length */
+        tail: "long" | "short";
+      }
+
+      /** A leaf instance */
+      model Cat extends Pet {
+        /** specific kind */
+        kind: PetType.Cat;
+        /** hair length */
+        hair: "long" | "short" | "hairless";
+      }
+      
+      /** A base animal */
+      @discriminator("kind")
+      model Animal {
+        /** The animal */
+        kind: AnimalType;
+      }
+
+      /** A leaf animal */
+      model Wolf extends Animal {
+        kind: AnimalType.Wolf;
+        variety: "dire" | "timber" | "red";
+      }
+
+      /** A leaf animal */
+      model Bear extends Animal {
+        kind: AnimalType.Bear;
+        color: "brown" | "black" | "white";
+
+      }
+      `,
+    [
+      [
+        "Pet.cs",
+        [
+          "public partial class Pet",
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          `public PetType Kind { get; set; }`,
+          `public string Name { get; set; }`,
+          `public long Age { get; set; }`,
+        ],
+      ],
+      [
+        "Animal.cs",
+        [
+          "public partial class Animal",
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          `public AnimalType Kind { get; set; }`,
+        ],
+      ],
+      [
+        "Dog.cs",
+        [
+          "public partial class Dog : Pet {",
+          `public new PetType Kind { get; } = PetType.Dog;`,
+          `public string Tail { get; set; }`,
+        ],
+      ],
+      [
+        "Cat.cs",
+        [
+          "public partial class Cat : Pet {",
+          `public new PetType Kind { get; } = PetType.Cat;`,
+          `public string Hair { get; set; }`,
+        ],
+      ],
+      [
+        "Bear.cs",
+        [
+          "public partial class Bear : Animal {",
+          `public new AnimalType Kind { get; } = AnimalType.Bear;`,
+          `public string Color { get; set; }`,
+        ],
+      ],
+      [
+        "Wolf.cs",
+        [
+          "public partial class Wolf : Animal {",
+          `public new AnimalType Kind { get; } = AnimalType.Wolf;`,
+          `public string Variety { get; set; }`,
+        ],
+      ],
+      [
+        "PetType.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum PetType",
+          `[JsonStringEnumMemberName("dog")]`,
+          "Dog,",
+          `[JsonStringEnumMemberName("cat")]`,
+          "Cat",
+        ],
+      ],
+      [
+        "AnimalType.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum AnimalType",
+          `[JsonStringEnumMemberName("wolf")]`,
+          "Wolf,",
+          `[JsonStringEnumMemberName("bear")]`,
+          "Bear",
         ],
       ],
     ],
@@ -904,6 +1062,46 @@ it("Generates good name for model instantiation without hints", async () => {
     `,
     "FooToy.cs",
     ["public partial class FooToy"],
+  );
+});
+
+it("Generates good names for anonymous responses", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using Rest.Resource;
+
+       model Toy {
+        @key("toyId")
+        id: int64;
+      
+        petId: int64;
+        name: string;
+      }
+
+      model Foo<T> {
+        prop: T;
+      }
+
+      #suppress "@typespec/http-server-csharp/anonymous-model" "test"
+      #suppress "@typespec/http-server-csharp/invalid-identifier" "test"
+       op foo(): { /** a property */ foo: Foo<Toy>};
+    `,
+    [
+      ["FooToy.cs", ["public partial class FooToy", "public Toy Prop { get; set; }"]],
+      [
+        "ContosoOperationsFooResponse.cs",
+        ["public partial class ContosoOperationsFooResponse", "public FooToy Foo { get; set; }"],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "public partial class ContosoOperationsController",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ContosoOperationsFooResponse))]",
+          "public virtual async Task<IActionResult> Foo()",
+        ],
+      ],
+    ],
   );
 });
 
@@ -1158,22 +1356,28 @@ it("generates appropriate types for records", async () => {
       [
         "BarResponse.cs",
         [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
           "public partial class BarResponse",
-          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
-          "public System.Text.Json.Nodes.JsonObject StringMap { get; set; }",
+          "public JsonObject RecordProp { get; set; }",
+          "public JsonObject StringMap { get; set; }",
         ],
       ],
       [
         "ContosoOperationsFooRequest.cs",
         [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
           "public partial class ContosoOperationsFooRequest",
-          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+          "public JsonObject RecordProp { get; set; }",
         ],
       ],
       [
         "ContosoOperationsController.cs",
         [
-          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(System.Text.Json.Nodes.JsonObject))]",
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso.Controllers",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(JsonObject))]",
           `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
           `public virtual async Task<IActionResult> Bar()`,
         ],
@@ -1181,10 +1385,141 @@ it("generates appropriate types for records", async () => {
       [
         "IContosoOperations.cs",
         [
-          `Task<System.Text.Json.Nodes.JsonObject> FooAsync( System.Text.Json.Nodes.JsonObject recordProp);`,
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
+          `Task<JsonObject> FooAsync( JsonObject recordProp);`,
           `Task<BarResponse> BarAsync( );`,
         ],
       ],
+    ],
+  );
+});
+
+it("generates appropriate types for inherited instantiated models", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model BarResponse extends File {
+        
+      }
+
+      @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
+      @route("/foo") @get op bar(): BarResponse;
+      `,
+    [
+      [
+        "FileStringNameBytes.cs",
+        ["namespace TypeSpec.Http", "public partial class FileStringNameBytes"],
+      ],
+      [
+        "BarResponse.cs",
+        [
+          "using TypeSpec.Http;",
+          "namespace Microsoft.Contoso",
+          "public partial class BarResponse : FileStringNameBytes",
+        ],
+      ],
+      [
+        "ContosoOperationsFooRequest.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
+          "public partial class ContosoOperationsFooRequest",
+          "public JsonObject RecordProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso.Controllers",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(JsonObject))]",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          `public virtual async Task<IActionResult> Bar()`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using System.Text.Json.Nodes;",
+          "namespace Microsoft.Contoso",
+          `Task<JsonObject> FooAsync( JsonObject recordProp);`,
+          `Task<BarResponse> BarAsync( );`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates appropriate types for arrays", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    [
+      `
+      @doc("Template to have Array operations")
+      interface ArrayOperations<TArr> {
+        /** Get an array value */
+        @get
+        get(): TArr;
+ 
+        /** Put an array value */
+        @put
+        put(@body body: TArr): void;
+      }
+
+
+      @doc("Array inner model")
+    model InnerModel {
+      @doc("Required string property")
+      property: string;
+
+      @doc("self reference")
+      children?: InnerModel[];
+    }
+
+    alias NullableModel = InnerModel | null;
+    @doc("Array of nullable model values")
+    @route("/nullable-model")
+    interface NullableModelValue
+      extends ArrayOperations<NullableModel[]> {}
+      `,
+      "Type.Array",
+    ],
+    [
+      [
+        "InnerModel.cs",
+        [
+          "namespace TypeName.Array",
+          "public partial class InnerModel",
+          "public string Property { get; set; }",
+          "public InnerModel[] Children { get; set; }",
+        ],
+      ],
+      [
+        "NullableModelValueController.cs",
+        [
+          "using TypeName.Array;",
+          "namespace TypeName.Array.Controllers",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(InnerModel[]))]",
+          `public virtual async Task<IActionResult> GetName()`,
+          "[ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]",
+          `public virtual async Task<IActionResult> Put(InnerModel[] body)`,
+        ],
+      ],
+      [
+        "INullableModelValue.cs",
+        [
+          "namespace TypeName.Array",
+          `Task<InnerModel[]> GetNameAsync( );`,
+          `Task PutAsync( InnerModel[] body);`,
+        ],
+      ],
+    ],
+    [
+      ["InnerModel.cs", ["using TypeSpec.Service", "using undefined"]],
+      ["INullableModelValue.cs", ["using TypeSpec.Service", "using undefined"]],
+      ["NullableModelValueController.cs", ["using TypeSpec.Service", "using undefined"]],
     ],
   );
 });
@@ -1453,6 +1788,100 @@ it("handles multipartBody requests and shared routes", async () => {
           "public string MediaType { get; set; }",
           "public string Filename { get; set; }",
           "public byte[] Contents { get; set; }",
+        ],
+      ],
+    ],
+  );
+
+  const files = [...runner.fs.keys()];
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("HttpPartFile.cs")),
+    false,
+  );
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("FooRequest.cs")),
+    false,
+  );
+});
+
+it("handles complex multipartBody requests", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      model Bar<T extends {}> {
+        ...T;
+      }
+
+      model FileRequiredMetaData extends File {
+        filename: string;
+        contentType: string;
+      }
+        
+      model Address {
+        city: string;
+      }
+
+      model FooRequest {
+        id: HttpPart<string>;
+        address: HttpPart<Address>;
+        profileImage: HttpPart<FileRequiredMetaData>;
+        previousAddresses: HttpPart<Address[]>;
+        pictures: HttpPart<FileRequiredMetaData>[];
+      }
+
+      model FooJsonRequest {
+        mediaType: string;
+        filename: string;
+        contents: bytes;
+      }
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooBinary(
+        @path id: string,
+        @header("content-type") contentType: "multipart/form-data", 
+        @multipartBody body: FooRequest
+      ): void;
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooJson(
+        @path id: string,
+        @header("content-type") contentType: "application/json", 
+        @body body: FooJsonRequest
+      ): void;
+      `,
+    [
+      [
+        "FooJsonRequest.cs",
+        [
+          "public partial class FooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "using Microsoft.AspNetCore.Http.Extensions;",
+          "using Microsoft.Contoso;",
+          `[Consumes("multipart/form-data")]`,
+          "public virtual async Task<IActionResult> FooBinary(string id)",
+          ".FooBinaryAsync(id, reader)",
+          "public virtual async Task<IActionResult> FooJson(string id, FooJsonRequest body)",
+          ".FooJsonAsync(id, body)",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "Task FooBinaryAsync( string id, MultipartReader reader);",
+          "Task FooJsonAsync( string id, FooJsonRequest body);",
         ],
       ],
     ],
@@ -1763,7 +2192,11 @@ it("Initializes enum types", async () => {
     [
       [
         "IContosoOperations.cs",
-        ["Task<Widget> CreateAsync( Widget body);", "Task<Color> GetDefaultColorAsync( );"],
+        [
+          "namespace Microsoft.Contoso",
+          "Task<Widget> CreateAsync( Widget body);",
+          "Task<Color> GetDefaultColorAsync( );",
+        ],
       ],
       [
         "ContosoOperations.cs",
@@ -1771,7 +2204,7 @@ it("Initializes enum types", async () => {
           "public class ContosoOperations : IContosoOperations",
           "public Task<Widget> CreateAsync( Widget body)",
           "public Task<Color> GetDefaultColorAsync( )",
-          "return Task.FromResult<Microsoft.Contoso.Service.Models.Color>(default);",
+          "return Task.FromResult<Color>(default);",
         ],
       ],
       [
@@ -2363,7 +2796,7 @@ describe("emit correct code for `@error` models", () => {
         `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
         `Code = code;`,
         `MessageProp = message;`,
-        `ValueProp = value;`,
+        `ValueName = value;`,
         `HeadersProp = headers;`,
         `StackTraceProp = stackTrace;`,
         `SourceProp = source;`,
@@ -2374,7 +2807,7 @@ describe("emit correct code for `@error` models", () => {
         `HelpLinkProp = helpLink;`,
         `public string Code { get; set; }`,
         `public string MessageProp { get; set; }`,
-        `public string ValueProp { get; set; }`,
+        `public string ValueName { get; set; }`,
         `public string HeadersProp { get; set; }`,
         `public string StackTraceProp { get; set; }`,
         `public string SourceProp { get; set; }`,

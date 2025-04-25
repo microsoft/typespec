@@ -94,12 +94,21 @@ export function getBusinessLogicImplementations(
   return sourceFiles;
 }
 
-function getReturnStatement(returnType: CSharpType | CSharpCollectionType): string {
+function getReturnStatement(
+  returnType: CSharpType | CSharpCollectionType,
+  instantiated: string,
+): string {
+  if (returnType.name === "JsonObject") {
+    return `return Task.FromResult(new JsonObject());`;
+  }
+  if (returnType.name === "JsonNode") {
+    return `return Task.FromResult(new JsonObject() as JsonNode);`;
+  }
   if (returnType.isValueType && returnType.isNullable) {
-    return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
+    return `return Task.FromResult(_initializer.Initialize(typeof(${instantiated})) as ${instantiated} ?? default);`;
   }
   if (returnType.isValueType) {
-    return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
+    return `return Task.FromResult<${instantiated}>(default);`;
   }
 
   if (returnType.isCollection) {
@@ -107,12 +116,13 @@ function getReturnStatement(returnType: CSharpType | CSharpCollectionType): stri
       return `return Task.FromResult<${returnType.getTypeReference()}>(${returnType.getImplementationType()});`;
     }
     return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
+    //     return `return Task.FromResult<${instantiated}>([]);`; //FIR MERGE CONFLICT
   }
 
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
   } else if (returnType.isClass) {
-    return `return Task.FromResult(_initializer.Initialize<${returnType.getTypeReference()}>());`;
+    return `return Task.FromResult(_initializer.Initialize<${instantiated}>());`;
   } else {
     return `throw new NotImplementedException();`;
   }
@@ -122,7 +132,7 @@ function getBusinessLogicImplementation(mock: BusinessLogicImplementation): stri
   for (const method of mock.methods) {
     const methodCode: string =
       method.instantiatedReturnType !== undefined
-        ? getReturnStatement(method.returnType)
+        ? getReturnStatement(method.returnType, method.instantiatedReturnType)
         : "return Task.CompletedTask;";
     methods.push(`        public ${method.returnTypeName} ${method.methodName}( ${method.methodParams})
         {
@@ -131,14 +141,7 @@ function getBusinessLogicImplementation(mock: BusinessLogicImplementation): stri
   }
   return `${GeneratedFileHeaderWithNullable}
 
-using System;
-using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;${mock.methods.some((m) => m.methodParams.includes("MultipartReader")) ? `\nusing Microsoft.AspNetCore.WebUtilities;` : ""}
-using ${mock.namespace}.Models;
-using TypeSpec.Helpers;
+${mock.usings.flatMap((u) => `using ${u};`).join("\n")}
 
 namespace ${mock.namespace}
 {
@@ -191,7 +194,14 @@ ${mocks
   })
   .flatMap((e) => `using ${e};`)
   .join("\n")}
-using ${mocks[0].namespace};
+${mocks
+  .filter((m) => {
+    const result: boolean = !cache.has(m.namespace);
+    cache.set(m.namespace, m.namespace);
+    return result;
+  })
+  .flatMap((t) => `using ${t.namespace};`)
+  .join("\n")}
 
 namespace TypeSpec.Helpers
 {
