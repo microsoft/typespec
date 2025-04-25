@@ -51,13 +51,13 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       type: "boolean",
       nullable: true,
       description:
-        "Set to `true` to generate protocol methods. The default value is `true`.",
+        "Set to `false` to skip generation of protocol methods. The default value is `true`.",
     },
     "generate-convenience-methods": { 
       type: "boolean",
       nullable: true,
       description:
-        "Set to `true` to generate convenience methods. The default value is `true`.",
+        "Set to `false` to skip generation of convenience methods. The default value is `true`.",
     },
     "unreferenced-types-handling": {
       type: "string",
