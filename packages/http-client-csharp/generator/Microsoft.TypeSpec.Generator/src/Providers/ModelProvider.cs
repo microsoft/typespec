@@ -402,13 +402,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (baseSystemProperties.TryGetValue(property.Name, out var baseSystemProperty))
                     {
-                        if (DomainEqual(baseSystemProperty, property))
+                        if (DomainEqual(baseSystemProperty, property, isBaseSystemProperty: true))
                         {
                             continue;
                         }
                         else
                         {
-                            SetOutputPropertyAsNew(outputProperty, baseSystemProperty);
+                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
                             outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseSystemProperty, BaseModelProvider!);
                         }
                     }
@@ -422,7 +422,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
                         else
                         {
-                            SetOutputPropertyAsNew(outputProperty, baseProperty);
+                            outputProperty.Modifiers |= MethodSignatureModifiers.New;
+                            var fieldName = $"_{baseProperty.Name.ToVariableName()}";
+                            outputProperty.Body = new ExpressionPropertyBody(
+                                This.Property(fieldName).NullCoalesce(Default),
+                                outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
+                            outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
                         outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                     }
@@ -436,16 +441,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. properties];
-
-            void SetOutputPropertyAsNew(PropertyProvider outputProperty, InputModelProperty baseProperty)
-            {
-                outputProperty.Modifiers |= MethodSignatureModifiers.New;
-                var fieldName = $"_{baseProperty.Name.ToVariableName()}";
-                outputProperty.Body = new ExpressionPropertyBody(
-                    This.Property(fieldName).NullCoalesce(Default),
-                    outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
-                outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
-            }
         }
 
         private (Dictionary<string, InputModelProperty> BaseProperties, Dictionary<string, InputModelProperty> BaseSystemProperties) EnumerateBaseModels()
@@ -457,7 +452,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var baseModelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel);
                 if (baseModelProvider is SystemObjectTypeProvider)
-                {
+                    {
                     foreach (var property in baseModel.Properties)
                     {
                         baseSystemProperties[property.Name] = property;
@@ -475,10 +470,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return (baseProperties, baseSystemProperties);
         }
 
-        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
+        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty, bool isBaseSystemProperty = false)
         {
             if (baseProperty.Type.Name != derivedProperty.Type.Name)
+            {
                 return false;
+            }
+            if (isBaseSystemProperty)
+            {
+                return true;
+            }
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
             var baseNullable = baseProperty.Type is InputNullableType;
@@ -608,7 +609,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
-                baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
+                if (RawDataField is null)
+                {
+                    baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
+                }
+                else
+                {
+                    baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters.Where(p => p.Name == RawDataField.Name));
+                }
             }
 
             HashSet<PropertyProvider> overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
@@ -918,7 +926,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
             var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
+            while (baseModelProvider != null && baseModelProvider is not SystemObjectTypeProvider)
             {
                 if (baseModelProvider.RawDataField != null)
                 {

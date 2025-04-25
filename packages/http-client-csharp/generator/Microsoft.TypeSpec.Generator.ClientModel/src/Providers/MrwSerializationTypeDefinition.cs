@@ -335,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && _model.BaseModelProvider is not SystemObjectTypeProvider)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -359,7 +359,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && _model.BaseModelProvider is not SystemObjectTypeProvider)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -407,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && _model.BaseModelProvider is not SystemObjectTypeProvider)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
