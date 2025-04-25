@@ -64,7 +64,9 @@ class OperationGroup(BaseModel):
         )
 
     def base_class(self, async_mode: bool) -> str:
-        pipeline_client = f"{'Async' if async_mode else ''}PipelineClient"
+        pipeline_client = (
+            f"{'Async' if async_mode else ''}PipelineClient[HttpRequest, {'Async' if async_mode else ''}HttpResponse]"
+        )
         base_classes: List[str] = []
         if self.is_mixin:
             base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
@@ -165,6 +167,16 @@ class OperationGroup(BaseModel):
                 utils_path,
                 "ClientMixinABC",
                 ImportType.LOCAL,
+            )
+            file_import.add_submodule_import(
+                "rest",
+                "HttpRequest",
+                ImportType.SDKCORE,
+            )
+            file_import.add_submodule_import(
+                "rest",
+                f"{'Async' if async_mode else ''}HttpResponse",
+                ImportType.SDKCORE,
             )
         else:
             file_import.add_msrest_import(
