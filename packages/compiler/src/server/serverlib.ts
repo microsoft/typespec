@@ -16,7 +16,6 @@ import {
   DocumentSymbol,
   DocumentSymbolParams,
   ExecuteCommandParams,
-  FileChangeType,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -61,7 +60,6 @@ import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
-  getBaseFileName,
   getDirectoryPath,
   getRelativePathFromDirectory,
   joinPaths,
@@ -96,7 +94,6 @@ import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
 import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
-import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
@@ -369,32 +366,9 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function renameFiles(params: RenameFilesParams): Promise<void> {
-    const firstFilePath = params.files.values().next().value;
+    const firstFilePath = params.files[0];
     if (!firstFilePath) {
       return;
-    }
-
-    const tspExtionsionName = ".tsp";
-    const renameFolderNewFiles: string[] = [];
-    if (
-      !firstFilePath.oldUri.endsWith(tspExtionsionName) &&
-      !firstFilePath.newUri.endsWith(tspExtionsionName)
-    ) {
-      const oldFilePath = await fileService.getPath({ uri: firstFilePath.oldUri });
-      const newFilePath = await fileService.getPath({ uri: firstFilePath.newUri });
-      const files = await listAllFilesInDir(compilerHost, newFilePath);
-
-      // Handle all tsp files in rename folder
-      for (const file of files) {
-        const oldFile = resolvePath(oldFilePath, file);
-        const newFile = resolvePath(newFilePath, file);
-        renameFolderNewFiles.push(newFile);
-
-        fileSystemCache.notify([
-          { uri: fileService.getURL(oldFile), type: FileChangeType.Deleted },
-          { uri: fileService.getURL(newFile), type: FileChangeType.Created },
-        ]);
-      }
     }
 
     const mainFile = await compileService.getMainFileForDocument(
@@ -415,6 +389,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const file of params.files) {
+      const isDirRename = !file.oldUri.endsWith(".tsp");
       for (const diagnostic of result.program.diagnostics) {
         if (diagnostic.code !== "import-not-found") continue;
 
@@ -422,17 +397,18 @@ export function createServer(host: ServerHost): Server {
         if (target.kind === SyntaxKind.ImportStatement && target.parent) {
           const filePath = target.parent.file.path;
           const fileDir = getDirectoryPath(filePath);
-          const absolutePath = resolvePath(fileDir, target.path.value);
+          const importTarget = resolvePath(fileDir, target.path.value);
           const oldFilePath = await fileService.getPath({ uri: file.oldUri });
-          if (absolutePath === oldFilePath || absolutePath.startsWith(oldFilePath)) {
+          if (importTarget === oldFilePath || importTarget.startsWith(oldFilePath)) {
             let newFilePath = await fileService.getPath({ uri: file.newUri });
-            const findRenameFolderFile = renameFolderNewFiles.find((file) =>
-              file.endsWith(getBaseFileName(absolutePath)),
-            );
-            newFilePath =
-              !newFilePath.endsWith(tspExtionsionName) && findRenameFolderFile
-                ? findRenameFolderFile
-                : newFilePath;
+            if (isDirRename) {
+              const relativeToOldPath = getRelativePathFromDirectory(
+                oldFilePath,
+                importTarget,
+                false,
+              );
+              newFilePath = resolvePath(newFilePath, relativeToOldPath);
+            }
 
             let replaceText = getRelativePathFromDirectory(fileDir, newFilePath, false);
             replaceText = replaceText.startsWith(".") ? replaceText : `./${replaceText}`;
