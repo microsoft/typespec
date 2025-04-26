@@ -152,7 +152,7 @@ function createTestCompilerHost(
   };
 }
 
-export async function createTestFileSystem(options?: TestHostOptions): Promise<TestFileSystem> {
+export function createTestFileSystem(options?: TestHostOptions): TestFileSystem {
   const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
   const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);
 

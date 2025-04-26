@@ -34,3 +34,6 @@ export type {
   TypeSpecTestLibrary,
   TypeSpecTestLibraryInit,
 } from "./types.js";
+
+// TODO: use named imports
+export * from "./test-host-v2.js";

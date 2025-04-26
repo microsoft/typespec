@@ -1,7 +1,16 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import {
+  createTestHost,
+  createTestHostBuilder,
+  createTestWrapper,
+} from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { OpenAPITestLibrary } from "../src/testing/index.js";
+
+export const HostBuilder = createTestHostBuilder(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi"],
+});
 
 export async function createOpenAPITestHost() {
   return createTestHost({
