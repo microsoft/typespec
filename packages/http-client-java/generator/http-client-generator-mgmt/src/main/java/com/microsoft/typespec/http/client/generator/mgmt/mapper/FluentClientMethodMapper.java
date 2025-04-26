@@ -23,15 +23,17 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
     @Override
     protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
-        boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
-
-        // Objects.requireNonNull(lroBaseMethod.getMethodPollingDetails());
+        CreateClientMethodArgs createMethodArgs) {
 
         // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
         // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
         // as Response data is not included in an LRO API.
 
+        final JavaSettings settings = createMethodArgs.settings;
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
         final ProxyMethod proxyMethod = lroBaseMethod.getProxyMethod();
 
         // async
@@ -48,7 +50,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
         methods.add(lroFinalResultAsyncMethod);
 
-        if (generateClientMethodWithOnlyRequiredParameters) {
+        if (generateRequiredOnlyParametersOverload) {
             final ClientMethod lroFinalResultAsyncMethodWithRequiredParameters = lroFinalResultAsyncMethod.newBuilder()
                 .onlyRequiredParameters(true)
                 .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
@@ -77,7 +79,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
         methods.add(lroFinalResultSyncMethod);
 
-        if (generateClientMethodWithOnlyRequiredParameters) {
+        if (generateRequiredOnlyParametersOverload) {
             final ClientMethod lroFinalResultSyncMethodWithRequiredParameters = lroFinalResultSyncMethod.newBuilder()
                 .onlyRequiredParameters(true)
                 .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,

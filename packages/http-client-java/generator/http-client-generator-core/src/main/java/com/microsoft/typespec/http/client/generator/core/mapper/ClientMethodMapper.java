@@ -239,8 +239,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final MethodOverloadType defaultOverloadType = hasNonRequiredParameters(parameters)
                     ? MethodOverloadType.OVERLOAD_MAXIMUM
                     : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
-                final boolean generateOnlyRequiredParameters = settings.isRequiredParameterClientMethods()
-                    && defaultOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
 
                 final JavaVisibility methodVisibilityInWrapperClient;
                 if (operation.getInternalApi() == Boolean.TRUE
@@ -251,6 +249,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     methodVisibilityInWrapperClient = JavaVisibility.Public;
                 }
+
+                final MethodNamer methodNamer
+                    = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+                final CreateClientMethodArgs createClientMethodArgs = new CreateClientMethodArgs(settings,
+                    isProtocolMethod, methodsReturnDescription, defaultOverloadType, methodNamer);
 
                 final ClientMethod baseMethod = builder.parameters(parameters)
                     .requiredNullableParameterExpressions(requiredParameterExpressions)
@@ -263,27 +266,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 if (operation.isPageable()) {
                     final PagingMetadata pagingMetadata = PagingMetadata.create(operation, proxyMethod, settings);
                     if (pagingMetadata == null) {
-                        // skip if paging metadata cannot be derived.
+                        // Skip if paging metadata cannot be derived.
                         continue;
                     }
 
                     if (proxyMethod.isSync()) {
                         // If the ProxyMethod is sync, perform a complete generation of synchronous pageable APIs.
-                        createPagingClientMethods(true, operation, isProtocolMethod, settings, methods, baseMethod,
-                            pagingMetadata, methodsReturnDescription, generateOnlyRequiredParameters,
-                            defaultOverloadType);
+                        createPagingClientMethods(true, methods, baseMethod, pagingMetadata, createClientMethodArgs);
                     } else {
                         // If the ProxyMethod is async, perform a complete generation of asynchronous pageable APIs.
-                        createPagingClientMethods(false, operation, isProtocolMethod, settings, methods, baseMethod,
-                            pagingMetadata, methodsReturnDescription, generateOnlyRequiredParameters,
-                            defaultOverloadType);
+                        createPagingClientMethods(false, methods, baseMethod, pagingMetadata, createClientMethodArgs);
 
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
                             // If SyncMethodsGeneration is enabled and Sync Stack is not, perform synchronous pageable
                             // API generation.
-                            createPagingClientMethods(true, operation, isProtocolMethod, settings, methods, baseMethod,
-                                pagingMetadata, methodsReturnDescription, generateOnlyRequiredParameters,
-                                defaultOverloadType);
+                            createPagingClientMethods(true, methods, baseMethod, pagingMetadata,
+                                createClientMethodArgs);
                         }
                     }
                 } else if (operation.isLro()
@@ -372,50 +370,40 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             addClientMethodWithContext(methods, withResponseSyncMethod,
                                 simpleSyncMethodWithContextVisibility, isProtocolMethod);
                         }
-                    }
-
-                    final MethodNamer methodNamer
-                        = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+                    } ;
                     final PollingMetadata pollingMetadata
                         = PollingMetadata.create(operation, proxyMethod, methodsReturnDescription.getSyncReturnType());
                     if (pollingMetadata != null) {
                         if (isProtocolMethod) {
-                            createLroBeginProtocolMethods(baseMethod, methods, pollingMetadata, methodNamer,
-                                methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
+                            createLroBeginProtocolMethods(baseMethod, methods, pollingMetadata, createClientMethodArgs);
                         } else {
                             final ClientMethod lroBaseMethod = baseMethod.newBuilder()
                                 .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
                                 .build();
                             createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                                methodNamer.getLroBeginMethodName(), methodsReturnDescription, false,
-                                generateOnlyRequiredParameters, defaultOverloadType);
+                                methodNamer.getLroBeginMethodName(), createClientMethodArgs);
                         }
                     } else {
                         createLroBeginMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                            methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
-                            generateOnlyRequiredParameters, defaultOverloadType);
+                            methodNamer.getLroBeginMethodName(), createClientMethodArgs);
 
-                        this.createAdditionalLroMethods(baseMethod, methods, isProtocolMethod, methodsReturnDescription,
-                            generateOnlyRequiredParameters, defaultOverloadType);
+                        this.createAdditionalLroMethods(baseMethod, methods, createClientMethodArgs);
                     }
                 } else {
                     if (proxyMethod.isSync()) {
                         // If the ProxyMethod is sync, perform a complete generation of synchronous simple APIs.
-                        createSimpleClientMethods(true, operation, isProtocolMethod, methods, baseMethod,
-                            methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
+                        createSimpleClientMethods(true, methods, baseMethod, createClientMethodArgs);
                     } else {
                         // Otherwise, perform a complete generation of asynchronous simple APIs.
                         if (settings.getSyncMethods() != SyncMethodsGeneration.SYNC_ONLY) {
                             // SyncMethodsGeneration.NONE would still generate these
-                            createSimpleClientMethods(false, operation, isProtocolMethod, methods, baseMethod,
-                                methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
+                            createSimpleClientMethods(false, methods, baseMethod, createClientMethodArgs);
                         }
 
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
                             // If SyncMethodsGeneration is enabled and Sync Stack is not, perform synchronous simple
                             // API generation.
-                            createSimpleClientMethods(true, operation, isProtocolMethod, methods, baseMethod,
-                                methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
+                            createSimpleClientMethods(true, methods, baseMethod, createClientMethodArgs);
                         }
                     }
                 }
@@ -426,6 +414,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Extension point of additional methods for LRO.
+     */
+    protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
+        CreateClientMethodArgs createClientMethodArgs) {
     }
 
     private static List<Request> getCodeModelRequests(Operation operation, boolean isProtocolMethod,
@@ -531,38 +526,25 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         return signatures;
     }
 
-    /**
-     * Extension point of additional methods for LRO.
-     */
-    protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
-        boolean isProtocolMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+    private void createPagingClientMethods(boolean isSync, List<ClientMethod> methods, ClientMethod baseMethod,
+        PagingMetadata pagingMetadata, CreateClientMethodArgs createClientMethodArgs) {
 
-    }
-
-    private void createPagingClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        JavaSettings settings, List<ClientMethod> methods, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-        ClientMethodsReturnDescription methodsReturnDescription, boolean generateClientMethodWithOnlyRequiredParameters,
-        MethodOverloadType defaultOverloadType) {
-
-        createSinglePageClientMethods(isSync, operation, isProtocolMethod, settings, methods, baseMethod,
-            pagingMetadata, methodsReturnDescription, defaultOverloadType);
-
+        createSinglePageClientMethods(isSync, methods, baseMethod, pagingMetadata, createClientMethodArgs);
         if (pagingMetadata.isNextMethod()) {
             // If this was the next method there is no streaming methods to be generated.
             return;
         }
-        createPageStreamingClientMethods(isSync, operation, isProtocolMethod, settings, methods, baseMethod,
-            pagingMetadata, methodsReturnDescription, generateClientMethodWithOnlyRequiredParameters,
-            defaultOverloadType);
+        createPageStreamingClientMethods(isSync, methods, baseMethod, pagingMetadata, createClientMethodArgs);
     }
 
-    private void createSinglePageClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        JavaSettings settings, List<ClientMethod> methods, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-        ClientMethodsReturnDescription methodsReturnDescription, MethodOverloadType defaultOverloadType) {
+    private void createSinglePageClientMethods(boolean isSync, List<ClientMethod> methods, ClientMethod baseMethod,
+        PagingMetadata pagingMetadata, CreateClientMethodArgs createMethodArgs) {
 
-        final MethodNamer methodNamer
-            = resolveMethodNamer(baseMethod.getProxyMethod(), operation.getConvenienceApi(), isProtocolMethod);
+        final JavaSettings settings = createMethodArgs.settings;
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         final String singlePageMethodName;
         final ClientMethodType singlePageMethodType;
@@ -601,13 +583,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         addClientMethodWithContext(methods, singlePageMethod, singlePageMethodWithContextVisibility, isProtocolMethod);
     }
 
-    private void createPageStreamingClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        JavaSettings settings, List<ClientMethod> methods, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-        ClientMethodsReturnDescription methodsReturnDescription, boolean generateClientMethodWithOnlyRequiredParameters,
-        MethodOverloadType defaultOverloadType) {
+    private void createPageStreamingClientMethods(boolean isSync, List<ClientMethod> methods, ClientMethod baseMethod,
+        PagingMetadata pagingMetadata, CreateClientMethodArgs createMethodArgs) {
 
-        final MethodNamer methodNamer
-            = resolveMethodNamer(baseMethod.getProxyMethod(), operation.getConvenienceApi(), isProtocolMethod);
+        final JavaSettings settings = createMethodArgs.settings;
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         final String pagingMethodName;
         final ClientMethodType pagingMethodType;
@@ -651,7 +635,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             createOverloadForVersioning(isProtocolMethod, methods, pagingMethod);
         }
 
-        if (generateClientMethodWithOnlyRequiredParameters) {
+        if (generateRequiredOnlyParametersOverload) {
             final ClientMethod pagingMethodWithOnlyRequiredParameters = pagingMethod.newBuilder()
                 .onlyRequiredParameters(true)
                 .methodVisibility(pagingMethodWithOnlyRequiredParametersVisibility)
@@ -670,9 +654,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroBeginProtocolMethods(ClientMethod baseMethod, List<ClientMethod> methods,
-        PollingMetadata pollingMetadata, MethodNamer methodNamer,
-        ClientMethodsReturnDescription clientMethodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+        PollingMetadata pollingMetadata, CreateClientMethodArgs createMethodArgs) {
+
+        assert createMethodArgs.isProtocolMethod;
+        final MethodNamer methodNamer = createMethodArgs.methodNamer;
+
         if (pollingMetadata.hasModelResultTypes()) {
             final ImplementationDetails implementationDetails;
             if (baseMethod.getImplementationDetails() != null) {
@@ -687,26 +673,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 .build();
 
             createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroModelBeginAsyncMethodName(),
-                methodNamer.getLroModelBeginMethodName(), clientMethodsReturnDescription, true,
-                generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+                methodNamer.getLroModelBeginMethodName(), createMethodArgs);
         }
 
         final ClientMethod lroBaseMethod = baseMethod.newBuilder()
             .methodPollingDetails(pollingMetadata.asMethodPollingDetailsForBinaryDataResult())
             .build();
         createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-            methodNamer.getLroBeginMethodName(), clientMethodsReturnDescription, true,
-            generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+            methodNamer.getLroBeginMethodName(), createMethodArgs);
     }
 
     private void createLroBeginMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods, String asyncMethodName,
-        String syncMethodName, ClientMethodsReturnDescription clientMethodsReturnDescription, boolean isProtocolMethod,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+        String syncMethodName, CreateClientMethodArgs createClientMethodArgs) {
 
         final boolean createAsync = JavaSettings.getInstance().isGenerateAsyncMethods();
         if (createAsync) {
-            createLroBeginMethods(false, lroBaseMethod, methods, asyncMethodName, clientMethodsReturnDescription,
-                isProtocolMethod, generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+            createLroBeginMethods(false, lroBaseMethod, methods, asyncMethodName, createClientMethodArgs);
         }
 
         if (lroBaseMethod.getProxyMethod().hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
@@ -715,14 +697,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final boolean createSync
             = (JavaSettings.getInstance().isGenerateSyncMethods() || JavaSettings.getInstance().isSyncStackEnabled());
         if (createSync) {
-            createLroBeginMethods(true, lroBaseMethod, methods, syncMethodName, clientMethodsReturnDescription,
-                isProtocolMethod, generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+            createLroBeginMethods(true, lroBaseMethod, methods, syncMethodName, createClientMethodArgs);
         }
     }
 
     private void createLroBeginMethods(boolean isSync, ClientMethod lroBaseMethod, List<ClientMethod> methods,
-        String methodName, ClientMethodsReturnDescription clientMethodsReturnDescription, boolean isProtocolMethod,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+        String methodName, CreateClientMethodArgs createMethodArgs) {
+
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
 
         final ClientMethodType clientMethodType;
         if (isSync) {
@@ -731,58 +716,55 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             clientMethodType = ClientMethodType.LongRunningBeginAsync;
         }
         final MethodPollingDetails methodPollingDetails = lroBaseMethod.getMethodPollingDetails();
+
         // LRO 'begin[Operation]' sync or async method.
-        final ClientMethod beginLroAsyncMethod = lroBaseMethod.newBuilder()
-            .returnValue(clientMethodsReturnDescription.getReturnValue(clientMethodType, methodPollingDetails))
+        final ClientMethod beginLroMethod = lroBaseMethod.newBuilder()
+            .returnValue(methodsReturnDescription.getReturnValue(clientMethodType, methodPollingDetails))
             .name(methodName)
             .onlyRequiredParameters(false)
             .type(clientMethodType)
             .groupedParameterRequired(false)
             .methodVisibility(methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod))
             .build();
-        methods.add(beginLroAsyncMethod);
+        methods.add(beginLroMethod);
 
         // LRO 'begin[Operation]' sync or async method overloads with versioning.
-        createOverloadForVersioning(isProtocolMethod, methods, beginLroAsyncMethod);
+        createOverloadForVersioning(isProtocolMethod, methods, beginLroMethod);
 
-        if (generateClientMethodWithOnlyRequiredParameters) {
+        if (generateRequiredOnlyParametersOverload) {
             // LRO 'begin[Operation]' sync or async method overload with only required parameters.
-            final ClientMethod beginAsyncMethodWithRequiredParameters = beginLroAsyncMethod.newBuilder()
+            final ClientMethod beginLroMethodWithRequiredParameters = beginLroMethod.newBuilder()
                 .onlyRequiredParameters(true)
                 .methodVisibility(
                     methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
                 .build();
-            methods.add(beginAsyncMethodWithRequiredParameters);
+            methods.add(beginLroMethodWithRequiredParameters);
         }
 
         // LRO 'begin[Operation]' sync or async method overload with only required with context parameters.
-        final JavaVisibility beginLroAsyncMethodWithContextVisibility
+        final JavaVisibility beginLroMethodWithContextVisibility
             = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
-        addClientMethodWithContext(methods, beginLroAsyncMethod, beginLroAsyncMethodWithContextVisibility,
-            isProtocolMethod);
+        addClientMethodWithContext(methods, beginLroMethod, beginLroMethodWithContextVisibility, isProtocolMethod);
     }
 
-    private void createSimpleClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+    private void createSimpleClientMethods(boolean isSync, List<ClientMethod> methods, ClientMethod baseMethod,
+        CreateClientMethodArgs createClientMethodArgs) {
 
-        createSimpleWithResponseClientMethods(isSync, operation, isProtocolMethod, methods, baseMethod,
-            methodsReturnDescription, defaultOverloadType);
+        createSimpleWithResponseClientMethods(isSync, methods, baseMethod, createClientMethodArgs);
 
         if (baseMethod.getProxyMethod().isCustomHeaderIgnored()) {
             return;
         }
-        createSimpleValueClientMethods(isSync, operation, isProtocolMethod, methods, baseMethod,
-            methodsReturnDescription, generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+        createSimpleValueClientMethods(isSync, methods, baseMethod, createClientMethodArgs);
     }
 
-    private void createSimpleWithResponseClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        MethodOverloadType defaultOverloadType) {
+    private void createSimpleWithResponseClientMethods(boolean isSync, List<ClientMethod> methods,
+        ClientMethod baseMethod, CreateClientMethodArgs createMethodArgs) {
 
-        final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
-        final MethodNamer methodNamer
-            = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         // '[Operation]WithResponse' sync or async methods.
         //
@@ -819,13 +801,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             isProtocolMethod);
     }
 
-    private void createSimpleValueClientMethods(boolean isSync, Operation operation, boolean isProtocolMethod,
-        List<ClientMethod> methods, ClientMethod baseMethod, ClientMethodsReturnDescription methodsReturnDescription,
-        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+    private void createSimpleValueClientMethods(boolean isSync, List<ClientMethod> methods, ClientMethod baseMethod,
+        CreateClientMethodArgs createMethodArgs) {
 
-        final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
-        final MethodNamer methodNamer
-            = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         // Simple '[Operation]' sync or async methods.
         //
@@ -858,7 +841,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         // overload for versioning
         createOverloadForVersioning(isProtocolMethod, methods, simpleMethod);
 
-        if (generateClientMethodWithOnlyRequiredParameters) {
+        if (generateRequiredOnlyParametersOverload) {
             final ClientMethod simpleMethodWithRequiredParameters = simpleMethod.newBuilder()
                 .methodVisibility(simpleMethodWithRequiredParametersVisibility)
                 .onlyRequiredParameters(true)
@@ -1027,6 +1010,30 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 return new MethodNamer(proxyMethod.getBaseName());
             }
             return new MethodNamer(proxyMethod.getName());
+        }
+    }
+
+    /**
+     * Type holding common arguments shared across all client method creator functions for a proxy method.
+     */
+    protected static class CreateClientMethodArgs {
+        public final JavaSettings settings;
+        public final boolean isProtocolMethod;
+        public final ClientMethodsReturnDescription methodsReturnDescription;
+        public final MethodOverloadType defaultOverloadType;
+        public final MethodNamer methodNamer;
+        public final boolean generateRequiredOnlyParametersOverload;
+
+        CreateClientMethodArgs(JavaSettings settings, boolean isProtocolMethod,
+            ClientMethodsReturnDescription methodsReturnDescription, MethodOverloadType defaultOverloadType,
+            MethodNamer methodNamer) {
+            this.settings = settings;
+            this.isProtocolMethod = isProtocolMethod;
+            this.methodsReturnDescription = methodsReturnDescription;
+            this.defaultOverloadType = defaultOverloadType;
+            this.methodNamer = methodNamer;
+            this.generateRequiredOnlyParametersOverload = settings.isRequiredParameterClientMethods()
+                && defaultOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
         }
     }
 }
