@@ -3,17 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod.Builder;
@@ -27,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
@@ -383,40 +379,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     final PollingMetadata pollingMetadata
                         = PollingMetadata.create(operation, proxyMethod, methodsReturnDescription.getSyncReturnType());
                     if (pollingMetadata != null) {
-                        if (isProtocolMethod && pollingMetadata.hasModelResultTypes()) {
-                            final ImplementationDetails implementationDetails;
-                            if (baseMethod.getImplementationDetails() != null) {
-                                implementationDetails = baseMethod.getImplementationDetails()
-                                    .newBuilder()
-                                    .implementationOnly(true)
-                                    .build();
-                            } else {
-                                implementationDetails
-                                    = new ImplementationDetails.Builder().implementationOnly(true).build();
-                            }
-                            final Builder lroWithIntermediateFinalTypeBuilder = baseMethod.newBuilder()
-                                .implementationDetails(implementationDetails)
-                                .methodPollingDetails(pollingMetadata.asMethodPollingDetails());
-
-                            createLroBeginMethods(lroWithIntermediateFinalTypeBuilder.build(), methods,
-                                methodNamer.getLroModelBeginAsyncMethodName(), methodNamer.getLroModelBeginMethodName(),
-                                methodsReturnDescription, isProtocolMethod, generateOnlyRequiredParameters,
-                                defaultOverloadType);
-                        }
-
-                        final MethodPollingDetails pollingDetails;
                         if (isProtocolMethod) {
-                            pollingDetails = pollingMetadata.asMethodPollingDetailsForBinaryDataResult();
+                            createLroBeginProtocolMethods(baseMethod, methods, pollingMetadata, methodNamer,
+                                methodsReturnDescription, generateOnlyRequiredParameters, defaultOverloadType);
                         } else {
-                            pollingDetails = pollingMetadata.asMethodPollingDetails();
+                            final ClientMethod lroBaseMethod = baseMethod.newBuilder()
+                                .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
+                                .build();
+                            createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+                                methodNamer.getLroBeginMethodName(), methodsReturnDescription, false,
+                                generateOnlyRequiredParameters, defaultOverloadType);
                         }
-
-                        final ClientMethod lroBaseMethod
-                            = baseMethod.newBuilder().methodPollingDetails(pollingDetails).build();
-
-                        createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                            methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
-                            generateOnlyRequiredParameters, defaultOverloadType);
                     } else {
                         createLroBeginMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
                             methodNamer.getLroBeginMethodName(), methodsReturnDescription, isProtocolMethod,
@@ -694,6 +667,36 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
         addClientMethodWithContext(methods, pagingMethodWithContext, pagingMethodWithContextVisibility,
             isProtocolMethod);
+    }
+
+    private void createLroBeginProtocolMethods(ClientMethod baseMethod, List<ClientMethod> methods,
+        PollingMetadata pollingMetadata, MethodNamer methodNamer,
+        ClientMethodsReturnDescription clientMethodsReturnDescription,
+        boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
+        if (pollingMetadata.hasModelResultTypes()) {
+            final ImplementationDetails implementationDetails;
+            if (baseMethod.getImplementationDetails() != null) {
+                implementationDetails
+                    = baseMethod.getImplementationDetails().newBuilder().implementationOnly(true).build();
+            } else {
+                implementationDetails = new ImplementationDetails.Builder().implementationOnly(true).build();
+            }
+            final ClientMethod lroBaseMethod = baseMethod.newBuilder()
+                .implementationDetails(implementationDetails)
+                .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
+                .build();
+
+            createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroModelBeginAsyncMethodName(),
+                methodNamer.getLroModelBeginMethodName(), clientMethodsReturnDescription, true,
+                generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
+        }
+
+        final ClientMethod lroBaseMethod = baseMethod.newBuilder()
+            .methodPollingDetails(pollingMetadata.asMethodPollingDetailsForBinaryDataResult())
+            .build();
+        createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+            methodNamer.getLroBeginMethodName(), clientMethodsReturnDescription, true,
+            generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
     }
 
     private void createLroBeginMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods, String asyncMethodName,
@@ -1011,141 +1014,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         methods.add(withContextMethod);
     }
 
-    private IType getPollResultType(PollingSettings pollingSettings, IType syncReturnType) {
-        assert pollingSettings != null;
-
-        if (JavaSettings.getInstance().isFluent()) {
-            return syncReturnType.asNullable();
-        }
-
-        final IType pollResultType;
-        if (pollingSettings.getPollResultType() != null) {
-            pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
-        } else {
-            pollResultType = syncReturnType.asNullable();
-        }
-        if (pollResultType.asNullable() == ClassType.VOID) {
-            // azure-core wants poll response to be non-null
-            return ClassType.BINARY_DATA;
-        } else {
-            return pollResultType;
-        }
-    }
-
-    private IType getPollingFinalResultType(PollingSettings pollingSettings, IType syncReturnType,
-        HttpMethod httpMethod) {
-        assert pollingSettings != null;
-
-        if (JavaSettings.getInstance().isFluent()) {
-            return syncReturnType.asNullable();
-        }
-
-        if (httpMethod == HttpMethod.DELETE) {
-            // DELETE would not have final response as resource is deleted.
-            return PrimitiveType.VOID;
-        }
-
-        final IType finalResultType;
-        if (pollingSettings.getFinalResultType() != null) {
-            finalResultType = createTypeFromModelName(pollingSettings.getFinalResultType());
-        } else {
-            finalResultType = syncReturnType.asNullable();
-        }
-        if (finalResultType.asNullable() == ClassType.VOID) {
-            // azure-core wants poll response to be non-null
-            return ClassType.BINARY_DATA;
-        } else {
-            return finalResultType;
-        }
-    }
-
     private static boolean hasNonRequiredParameters(List<ClientMethodParameter> parameters) {
         return parameters.stream().anyMatch(p -> !p.isRequired() && !p.isConstant());
-    }
-
-    private static MethodPollingDetails methodPollingDetailsFromMetadata(Operation operation,
-        PollingSettings pollingSettings) {
-        assert pollingSettings != null;
-
-        final LongRunningMetadata metadata = operation.getLroMetadata();
-        if (metadata == null || operation.getConvenienceApi() == null) {
-            // only TypeSpec would have 'LongRunningMetadata'
-            return null;
-        }
-
-        // Step_1: Resolve LRO intermediate and final response types.
-        //
-        ObjectMapper objectMapper = Mappers.getObjectMapper();
-        final IType pollResultType;
-        if (pollingSettings.getPollResultType() != null) {
-            // pollingSettings would take precedence over 'LongRunningMetadata'
-            pollResultType = createTypeFromModelName(pollingSettings.getPollResultType());
-        } else {
-            pollResultType = objectMapper.map(metadata.getPollResultType());
-        }
-
-        final IType finalResultType;
-        if (pollingSettings.getFinalResultType() != null) {
-            finalResultType = createTypeFromModelName(pollingSettings.getFinalResultType());
-        } else {
-            if (metadata.getFinalResultType() == null) {
-                finalResultType = PrimitiveType.VOID;
-            } else {
-                finalResultType = objectMapper.map(metadata.getFinalResultType());
-            }
-        }
-
-        // Step_2: Resolve LRO polling strategy.
-        //
-        final String pollingStrategy;
-        final String syncPollingStrategy;
-        final JavaSettings settings = JavaSettings.getInstance();
-        final String packageName = settings.getPackage(settings.getImplementationSubpackage());
-        if (metadata.getPollingStrategy() != null) {
-            final String strategyName = metadata.getPollingStrategy().getLanguage().getJava().getName();
-            final String strategyFqdnName = packageName + "." + strategyName;
-            final String syncStrategyFqdnName = packageName + "." + "Sync" + strategyName;
-
-            if (metadata.getFinalResultPropertySerializedName() != null) {
-                final String finalResultArg
-                    = ClassType.STRING.defaultValueExpression(metadata.getFinalResultPropertySerializedName());
-                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
-                    strategyFqdnName, finalResultArg);
-                syncPollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
-                    syncStrategyFqdnName, finalResultArg);
-            } else {
-                pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, strategyFqdnName);
-                syncPollingStrategy
-                    = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
-            }
-        } else {
-            pollingStrategy = pollingSettings.getPollingStrategy();
-            syncPollingStrategy = pollingSettings.getSyncPollingStrategy();
-        }
-
-        return new MethodPollingDetails(pollingStrategy, syncPollingStrategy, pollResultType, finalResultType,
-            pollingSettings.getPollIntervalInSeconds());
-    }
-
-    /**
-     * Create IType from model name (full name or simple name).
-     *
-     * @param modelName the model name. If it is simple name, package name from JavaSetting will be used.
-     * @return IType of the model
-     */
-    private static IType createTypeFromModelName(String modelName) {
-        final String className;
-        final String packageName;
-        final int lastDotIndex = modelName.lastIndexOf('.');
-        if (lastDotIndex >= 0) {
-            className = modelName.substring(lastDotIndex + 1);
-            packageName = modelName.substring(0, lastDotIndex);
-        } else {
-            className = modelName;
-            packageName = JavaSettings.getInstance().getPackage();
-        }
-
-        return new ClassType.Builder().packageName(packageName).name(className).build();
     }
 
     private static MethodNamer resolveMethodNamer(ProxyMethod proxyMethod, ConvenienceApi convenienceApi,
