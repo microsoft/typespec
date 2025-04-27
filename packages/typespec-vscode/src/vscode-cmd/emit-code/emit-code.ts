@@ -453,35 +453,49 @@ async function doEmit(
         telemetryClient.logOperationDetailTelemetry(tel.activityId, {
           CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
         });
-        const compileResult = await client?.compileProject(
+        if (!client) {
+          logger.error("LSP client is not started.");
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
+        const compileResult = await client.compileProject(
           {
-            // uri: pathToFileURL(resolve(mainTspFile)).href,
             uri: GetVscodeUriFromPath(mainTspFile).toString(),
           },
           { emit: emitters.map((e) => e.package) },
         );
+        if (!compileResult) {
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
         const addSuffix = (count: number, suffix: string) =>
           count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
         let count = 0;
         if (
-          compileResult?.warningDiagnostics &&
+          compileResult.warningDiagnostics &&
           (count = compileResult?.warningDiagnostics.length) > 0
         ) {
           logger.warning(`Found ${addSuffix(count, "warning")}`);
-          for (const diag of compileResult?.warningDiagnostics) {
+          for (const diag of compileResult.warningDiagnostics) {
             logger.warning(diag);
           }
         }
         if (
-          compileResult?.errorDiagnostics &&
+          compileResult.errorDiagnostics &&
           (count = compileResult?.errorDiagnostics.length) > 0
         ) {
           logger.warning(`Found ${addSuffix(count, "error")}`);
-          for (const diag of compileResult?.errorDiagnostics) {
+          for (const diag of compileResult.errorDiagnostics) {
             logger.error(diag);
           }
         }
-        if (compileResult?.hasError) {
+        if (compileResult.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
@@ -497,30 +511,6 @@ async function doEmit(
           });
           return ResultCode.Success;
         }
-        // const compileResult = await compile(
-        //   cli,
-        //   mainTspFile,
-        //   emitters.map((e) => {
-        //     return { name: e.package, options: {} };
-        //   }),
-        //   false,
-        // );
-        // if (compileResult.exitCode !== 0) {
-        //   logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
-        //     showOutput: true,
-        //     showPopup: true,
-        //   });
-        //   telemetryClient.logOperationDetailTelemetry(tel.activityId, {
-        //     emitResult: `Emitting code failed: ${inspect(compileResult)}`,
-        //   });
-        //   return ResultCode.Fail;
-        // } else {
-        //   logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
-        //     showOutput: true,
-        //     showPopup: true,
-        //   });
-        //   return ResultCode.Success;
-        // }
       } catch (err: any) {
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
           const execOutput = err as ExecOutput;
