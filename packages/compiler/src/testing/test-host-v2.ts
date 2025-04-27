@@ -1,21 +1,15 @@
-import {
-  CompilerOptions,
-  Diagnostic,
-  NoTarget,
-  NodeHost,
-  Program,
-  SourceFile,
-  Type,
-  compile,
-  compilerAssert,
-  getRelativePathFromDirectory,
-  joinPaths,
-  resolvePath,
-} from "@typespec/compiler";
 import { readFile } from "fs/promises";
+import { compilerAssert } from "../core/diagnostics.js";
+import { NodeHost } from "../core/node-host.js";
+import { CompilerOptions } from "../core/options.js";
+import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
+import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
+import { Diagnostic, NoTarget, SourceFile, Type } from "../core/types.js";
+import { expectDiagnosticEmpty } from "./expect.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
+import { TestFileSystem } from "./types.js";
 
 export interface TestCompileResult {
   readonly program: Program;
@@ -32,14 +26,8 @@ interface TestCompileOptions {
 }
 
 interface Testable {
-  // compile(
-  //   main: string,
-  //   options?: TestCompileOptions
-  // ): Promise<TestCompileResult>;
-  // diagnose(
-  //   main: string,
-  //   options?: TestCompileOptions
-  // ): Promise<readonly Diagnostic[]>;
+  compile(main: string, options?: TestCompileOptions): Promise<TestCompileResult>;
+  diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
   compileAndDiagnose(
     main: string,
     options?: TestCompileOptions,
@@ -47,26 +35,28 @@ interface Testable {
 }
 
 // Immutable structure meant to be reused
-export interface TestHostBuilder extends Testable {
+export interface Tester extends Testable {
   // addImports(): TestHostBuilder;
   // addUsing(...names: string[]): TestHostBuilder;
-  // wrap(fn: (x: string) => string): TestHostBuilder;
+  wrap(fn: (x: string) => string): Tester;
   // createHost(): TestHostV2;
 }
 
-export function createTestHostBuilder(
-  base: string,
-  options: { libraries: string[] },
-): TestHostBuilder {
-  let loaded: Promise<void> | undefined;
-  const fs = createTestFileSystem();
-  fs.addTypeSpecFile(".keep", ""); // dummy so it knows / is a directory TODO: better way to do this?
+export interface TesterInstance extends Testable {}
 
-  return {
-    compileAndDiagnose,
-  };
+export function createTester(base: string, options: { libraries: string[] }): Tester {
+  const fs = createTestFileSystem();
+  let loaded: Promise<void> | undefined;
+
+  return createTesterInternal({
+    fs: async () => {
+      await load();
+      return fs;
+    },
+  });
 
   function load(): Promise<void> {
+    fs.addTypeSpecFile(".keep", ""); // dummy so it knows / is a directory TODO: better way to do this?
     if (loaded) return loaded;
 
     loaded = loadInternal();
@@ -116,14 +106,59 @@ export function createTestHostBuilder(
       }
     }
   }
+}
+
+interface TesterInternalParams {
+  fs: () => Promise<TestFileSystem>;
+  wraps?: ((code: string) => string)[];
+}
+function createTesterInternal(params: TesterInternalParams) {
+  const testable = createTesterInstance(params);
+  return {
+    ...testable,
+    wrap,
+  };
+
+  function wrap(fn: (x: string) => string): Tester {
+    return createTesterInternal({
+      ...params,
+      wraps: [...(params.wraps ?? []), fn],
+    });
+  }
+}
+
+function createTesterInstance(params: TesterInternalParams): TesterInstance {
+  return {
+    compileAndDiagnose,
+    compile,
+    diagnose,
+  };
 
   async function compileAndDiagnose(
-    main: string,
+    code: string,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult, readonly Diagnostic[]]> {
-    await load();
-    fs.addTypeSpecFile("main.tsp", main);
-    const program = await compile(fs.compilerHost, resolveVirtualPath("main.tsp"));
+    const fs = await params.fs();
+    if (params.wraps) {
+      for (const wrap of params.wraps) {
+        code = wrap(code);
+      }
+    }
+    fs.addTypeSpecFile("main.tsp", code);
+    const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     return [{ program, types: {} }, program.diagnostics];
+  }
+
+  async function compile(code: string, options?: TestCompileOptions): Promise<TestCompileResult> {
+    const [result, diagnostics] = await compileAndDiagnose(code, options);
+    expectDiagnosticEmpty(diagnostics);
+    return result;
+  }
+  async function diagnose(
+    code: string,
+    options?: TestCompileOptions,
+  ): Promise<readonly Diagnostic[]> {
+    const [_, diagnostics] = await compileAndDiagnose(code, options);
+    return diagnostics;
   }
 }
