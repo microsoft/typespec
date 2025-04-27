@@ -294,9 +294,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     }
 
                     createLroWithResponseMethods(false, baseMethod, methods, createMethodArgs);
-                    final boolean createSync = JavaSettings.getInstance().isSyncStackEnabled()
+                    final boolean createWithResponseSync = JavaSettings.getInstance().isSyncStackEnabled()
                         && !proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER);
-                    if (createSync) {
+                    if (createWithResponseSync) {
                         if (settings.isFluent()) {
                             createFluentLroWithResponseSyncMethods(baseMethod, methods, operation, createMethodArgs);
                         } else {
@@ -304,22 +304,24 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         }
                     }
 
-                    final PollingMetadata pollingMetadata
-                        = PollingMetadata.create(operation, proxyMethod, methodsReturnDescription.getSyncReturnType());
-                    if (pollingMetadata != null) {
-                        if (isProtocolMethod) {
-                            createProtocolLroBeginMethods(baseMethod, methods, pollingMetadata, createMethodArgs);
-                        } else {
-                            final ClientMethod lroBaseMethod = baseMethod.newBuilder()
-                                .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
-                                .build();
-                            createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                                methodNamer.getLroBeginMethodName(), createMethodArgs);
-                        }
-                    } else {
+                    if (settings.isFluent()) {
                         createLroBeginMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
                             methodNamer.getLroBeginMethodName(), createMethodArgs);
                         this.createAdditionalLroMethods(baseMethod, methods, createMethodArgs);
+                    } else {
+                        final PollingMetadata pollingMetadata = PollingMetadata.create(operation, proxyMethod,
+                            methodsReturnDescription.getSyncReturnType());
+                        if (pollingMetadata != null) {
+                            if (isProtocolMethod) {
+                                createProtocolLroBeginMethods(baseMethod, methods, pollingMetadata, createMethodArgs);
+                            } else {
+                                final ClientMethod lroBaseMethod = baseMethod.newBuilder()
+                                    .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
+                                    .build();
+                                createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+                                    methodNamer.getLroBeginMethodName(), createMethodArgs);
+                            }
+                        }
                     }
                 } else {
                     // Create Simple Client Methods.
