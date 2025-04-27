@@ -230,7 +230,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      execSync(command, { stdio: [process.stdin, process.stdout] });
+      execSync(command, { stdio: 'pipe' });
       const blackExcludeDirs = [
         "__pycache__/*",
         "node_modules/*",
@@ -255,7 +255,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(
         `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
         {
-          stdio: [process.stdin, process.stdout],
+          stdio: 'pipe',
         },
       );
       checkForPylintIssues(outputDir);
