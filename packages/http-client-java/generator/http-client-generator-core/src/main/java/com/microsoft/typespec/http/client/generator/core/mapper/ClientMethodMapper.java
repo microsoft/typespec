@@ -13,7 +13,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod.Builder;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalDocumentation;
@@ -402,28 +401,18 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (JavaSettings.getInstance().isSyncStackEnabled()
             && !proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
             // '[Operation]WithResponse' sync method, with required and optional parameters.
-            final Builder withResponseSyncBuilder = baseMethod.newBuilder()
-                .name(proxyMethod.getSimpleRestResponseMethodName())
-                .onlyRequiredParameters(false)
-                .type(ClientMethodType.SimpleSyncRestResponse)
-                .groupedParameterRequired(false)
-                .hasWithContextOverload(simpleSyncMethodWithContextVisibility != NOT_GENERATE)
-                .proxyMethod(proxyMethod.toSync());
 
             if (settings.isFluent()) {
-                // fluent + sync stack needs simple rest response for implementation only
-                //
-                final IType baseType = ClassType.BINARY_DATA;
-                final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType, isProtocolMethod,
-                    settings, proxyMethod.isCustomHeaderIgnored());
-                final ReturnValue binaryDataResponse = methodsReturnDescription.createReturnValue(returnType, baseType);
-                final ClientMethod withResponseSyncMethod
-                    = withResponseSyncBuilder.returnValue(binaryDataResponse).methodVisibility(NOT_VISIBLE).build();
-                methods.add(withResponseSyncMethod);
-                addClientMethodWithContext(methods, withResponseSyncMethod, NOT_VISIBLE, isProtocolMethod);
+                addFluentLroWithResponseSyncMethods(baseMethod, methods, operation, createMethodArgs);
             } else {
-                final ClientMethod withResponseSyncMethod = withResponseSyncBuilder
+                final ClientMethod withResponseSyncMethod = baseMethod.newBuilder()
                     .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.SimpleSyncRestResponse))
+                    .name(proxyMethod.getSimpleRestResponseMethodName())
+                    .onlyRequiredParameters(false)
+                    .type(ClientMethodType.SimpleSyncRestResponse)
+                    .groupedParameterRequired(false)
+                    .hasWithContextOverload(simpleSyncMethodWithContextVisibility != NOT_GENERATE)
+                    .proxyMethod(proxyMethod.toSync())
                     .methodVisibility(simpleSyncMethodVisibility)
                     .build();
                 methods.add(withResponseSyncMethod);
@@ -431,6 +420,45 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     isProtocolMethod);
             }
         }
+    }
+
+    private void addFluentLroWithResponseSyncMethods(ClientMethod baseMethod, List<ClientMethod> methods,
+        Operation operation, CreateClientMethodArgs createMethodArgs) {
+
+        final JavaSettings settings = createMethodArgs.settings;
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+
+        final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
+        final JavaVisibility simpleSyncMethodWithContextVisibility;
+        if (settings.isDataPlaneClient()) {
+            simpleSyncMethodWithContextVisibility = NOT_VISIBLE;
+        } else {
+            simpleSyncMethodWithContextVisibility = methodVisibility(ClientMethodType.SimpleSyncRestResponse,
+                defaultOverloadType, true, isProtocolMethod);
+        }
+
+        final IType baseType = ClassType.BINARY_DATA;
+        final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType, isProtocolMethod, settings,
+            proxyMethod.isCustomHeaderIgnored());
+        final ReturnValue binaryDataResponse = methodsReturnDescription.createReturnValue(returnType, baseType);
+
+        // '[Operation]WithResponse' LRO Fluent sync method, with required and optional parameters.
+        // Fluent + Sync stack needs simple rest response for implementation only.
+        //
+        final ClientMethod withResponseSyncMethod = baseMethod.newBuilder()
+            .returnValue(binaryDataResponse)
+            .name(proxyMethod.getSimpleRestResponseMethodName())
+            .onlyRequiredParameters(false)
+            .type(ClientMethodType.SimpleSyncRestResponse)
+            .groupedParameterRequired(false)
+            .hasWithContextOverload(simpleSyncMethodWithContextVisibility != NOT_GENERATE)
+            .proxyMethod(proxyMethod.toSync())
+            .methodVisibility(NOT_VISIBLE)
+            .build();
+        methods.add(withResponseSyncMethod);
+        addClientMethodWithContext(methods, withResponseSyncMethod, NOT_VISIBLE, isProtocolMethod);
     }
 
     private static List<Request> getCodeModelRequests(Operation operation, boolean isProtocolMethod,
