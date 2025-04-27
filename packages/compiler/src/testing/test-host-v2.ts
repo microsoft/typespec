@@ -44,68 +44,70 @@ export interface Tester extends Testable {
 
 export interface TesterInstance extends Testable {}
 
-export function createTester(base: string, options: { libraries: string[] }): Tester {
-  const fs = createTestFileSystem();
-  let loaded: Promise<void> | undefined;
-
+export interface TesterOptions {
+  libraries: string[];
+}
+export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
-    fs: async () => {
-      await load();
-      return fs;
-    },
+    fs: once(() => createTesterFs(base, options)),
+  });
+}
+
+function once<T>(fn: () => Promise<T>): () => Promise<T> {
+  let load: Promise<T> | undefined;
+  return () => {
+    if (load) return load;
+    load = fn();
+    return load;
+  };
+}
+
+async function createTesterFs(base: string, options: TesterOptions) {
+  const fs = createTestFileSystem();
+
+  const sl = await createSourceLoader({ ...NodeHost, realpath: async (x) => x });
+  const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
+  for (const lib of options.libraries) {
+    await sl.importPath(lib, NoTarget, base);
+  }
+
+  await fs.addTypeSpecLibrary(StandardTestLibrary);
+  fs.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
+  fs.addJsFile(".tsp/test-lib/test.js", {
+    namespace: "TypeSpec",
+    $test(_: any, target: Type) {},
   });
 
-  function load(): Promise<void> {
-    if (loaded) return loaded;
-
-    loaded = loadInternal();
-    return loaded;
-
-    async function loadInternal() {
-      const sl = await createSourceLoader({ ...NodeHost, realpath: async (x) => x });
-      const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
-      for (const lib of options.libraries) {
-        await sl.importPath(lib, NoTarget, base);
-      }
-
-      await fs.addTypeSpecLibrary(StandardTestLibrary);
-      fs.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
-      fs.addJsFile(".tsp/test-lib/test.js", {
-        namespace: "TypeSpec",
-        $test(_: any, target: Type) {},
-      });
-
-      function computeVirtualPath(file: SourceFile): string {
-        const context = sl.resolution.locationContexts.get(file);
-        compilerAssert(
-          context?.type === "library",
-          `Unexpected: all source files should be in a library but ${file.path} was in '${context?.type}'`,
-        );
-        const relativePath = getRelativePathFromDirectory(base, file.path, false);
-        if (context.metadata.name === selfName) {
-          return joinPaths("node_modules", selfName, relativePath);
-        } else {
-          return relativePath;
-        }
-      }
-
-      for (const file of sl.resolution.sourceFiles.values()) {
-        const relativePath = computeVirtualPath(file.file);
-        fs.addTypeSpecFile(resolveVirtualPath(relativePath), file.file.text);
-      }
-      for (const file of sl.resolution.jsSourceFiles.values()) {
-        const relativePath = computeVirtualPath(file.file);
-        fs.addJsFile(resolveVirtualPath(relativePath), file.esmExports);
-      }
-      for (const [path, lib] of sl.resolution.loadedLibraries) {
-        fs.addTypeSpecFile(
-          resolvePath("node_modules", path, "package.json"),
-          (lib.manifest as any).file.text,
-        );
-      }
-      fs.freeze();
+  function computeVirtualPath(file: SourceFile): string {
+    const context = sl.resolution.locationContexts.get(file);
+    compilerAssert(
+      context?.type === "library",
+      `Unexpected: all source files should be in a library but ${file.path} was in '${context?.type}'`,
+    );
+    const relativePath = getRelativePathFromDirectory(base, file.path, false);
+    if (context.metadata.name === selfName) {
+      return joinPaths("node_modules", selfName, relativePath);
+    } else {
+      return relativePath;
     }
   }
+
+  for (const file of sl.resolution.sourceFiles.values()) {
+    const relativePath = computeVirtualPath(file.file);
+    fs.addTypeSpecFile(resolveVirtualPath(relativePath), file.file.text);
+  }
+  for (const file of sl.resolution.jsSourceFiles.values()) {
+    const relativePath = computeVirtualPath(file.file);
+    fs.addJsFile(resolveVirtualPath(relativePath), file.esmExports);
+  }
+  for (const [path, lib] of sl.resolution.loadedLibraries) {
+    fs.addTypeSpecFile(
+      resolvePath("node_modules", path, "package.json"),
+      (lib.manifest as any).file.text,
+    );
+  }
+  fs.freeze();
+  return fs;
 }
 
 interface TesterInternalParams {
