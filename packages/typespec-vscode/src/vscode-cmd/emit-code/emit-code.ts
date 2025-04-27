@@ -460,7 +460,27 @@ async function doEmit(
           },
           { emit: emitters.map((e) => e.package) },
         );
-        if (compileResult?.diagnostics) logger.info(compileResult?.diagnostics);
+        const addSuffix = (count: number, suffix: string) =>
+          count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
+        let count = 0;
+        if (
+          compileResult?.warningDiagnostics &&
+          (count = compileResult?.warningDiagnostics.length) > 0
+        ) {
+          logger.warning(`Found ${addSuffix(count, "warning")}`);
+          for (const diag of compileResult?.warningDiagnostics) {
+            logger.warning(diag);
+          }
+        }
+        if (
+          compileResult?.errorDiagnostics &&
+          (count = compileResult?.errorDiagnostics.length) > 0
+        ) {
+          logger.warning(`Found ${addSuffix(count, "error")}`);
+          for (const diag of compileResult?.errorDiagnostics) {
+            logger.error(diag);
+          }
+        }
         if (compileResult?.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,

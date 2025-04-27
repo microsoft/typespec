@@ -71,9 +71,10 @@ export interface CompileResult {
 
 export interface CustomCompileResult {
   readonly hasError: boolean;
-  readonly diagnostics: string | undefined;
-  readonly entryPoint: string | undefined;
-  readonly options: CompilerOptions | undefined;
+  readonly warningDiagnostics?: string[];
+  readonly errorDiagnostics?: string[];
+  readonly entryPoint?: string;
+  readonly options?: CompilerOptions;
 }
 
 export interface Server {

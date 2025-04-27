@@ -363,22 +363,29 @@ export function createServer(host: ServerHost): Server {
     if (result === undefined) {
       return {
         hasError: true,
-        diagnostics:
+        errorDiagnostics: [
           "Failed to get compiler result, please check the compilation output for details",
+        ],
         entryPoint: undefined,
         options: undefined,
       };
     } else {
-      let diagnostics: string | undefined = undefined;
+      let errorDiagnostics: string[] | undefined = undefined;
+      let warningDiagnostics: string[] | undefined = undefined;
       if (result.program.diagnostics.length > 0) {
-        diagnostics = result.program.diagnostics
-          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }))
-          .join("\n");
+        errorDiagnostics = result.program.diagnostics
+          .filter((diag) => diag.severity === "error")
+          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }));
+
+        warningDiagnostics = result.program.diagnostics
+          .filter((diag) => diag.severity === "warning")
+          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }));
       }
 
       return {
         hasError: result.program.hasError(),
-        diagnostics: diagnostics ?? "",
+        errorDiagnostics: errorDiagnostics,
+        warningDiagnostics: warningDiagnostics,
         entryPoint: result.document.uri,
         options: result.program.compilerOptions,
       };
