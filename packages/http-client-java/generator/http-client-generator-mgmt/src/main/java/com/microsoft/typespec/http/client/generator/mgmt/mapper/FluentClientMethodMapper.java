@@ -24,74 +24,8 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     @Override
     protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
         CreateClientMethodArgs createMethodArgs) {
-
-        // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
-        // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
-        // as Response data is not included in an LRO API.
-
-        final JavaSettings settings = createMethodArgs.settings;
-        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
-        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
-        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
-        final ProxyMethod proxyMethod = lroBaseMethod.getProxyMethod();
-
-        // async
-        //
-        final ClientMethod lroFinalResultAsyncMethod = lroBaseMethod.newBuilder()
-            .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningAsync))
-            .name(proxyMethod.getSimpleAsyncMethodName())
-            .onlyRequiredParameters(false)
-            .type(ClientMethodType.LongRunningAsync)
-            .groupedParameterRequired(false)
-            .methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, false, isProtocolMethod))
-            .build();
-
-        methods.add(lroFinalResultAsyncMethod);
-
-        if (generateRequiredOnlyParametersOverload) {
-            final ClientMethod lroFinalResultAsyncMethodWithRequiredParameters = lroFinalResultAsyncMethod.newBuilder()
-                .onlyRequiredParameters(true)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
-                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                .build();
-            methods.add(lroFinalResultAsyncMethodWithRequiredParameters);
-        }
-
-        final JavaVisibility lroFinalResultAsyncMethodWithContextVisibility
-            = methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod);
-        addClientMethodWithContext(methods, lroFinalResultAsyncMethod, lroFinalResultAsyncMethodWithContextVisibility,
-            isProtocolMethod);
-
-        // sync
-        //
-        final ClientMethod lroFinalResultSyncMethod = lroBaseMethod.newBuilder()
-            .returnValue(methodsReturnDescription.getReturnValue(ClientMethodType.LongRunningSync))
-            .name(proxyMethod.getName())
-            .onlyRequiredParameters(false)
-            .type(ClientMethodType.LongRunningSync)
-            .groupedParameterRequired(false)
-            .onlyRequiredParameters(true)
-            .methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, false, isProtocolMethod))
-            .build();
-
-        methods.add(lroFinalResultSyncMethod);
-
-        if (generateRequiredOnlyParametersOverload) {
-            final ClientMethod lroFinalResultSyncMethodWithRequiredParameters = lroFinalResultSyncMethod.newBuilder()
-                .onlyRequiredParameters(true)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningSync,
-                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                .build();
-            methods.add(lroFinalResultSyncMethodWithRequiredParameters);
-        }
-
-        final JavaVisibility lroFinalResultSyncMethodWithContextVisibility
-            = methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod);
-        addClientMethodWithContext(methods, lroFinalResultSyncMethod, lroFinalResultSyncMethodWithContextVisibility,
-            isProtocolMethod);
+        createLroGetFinalResultClientMethods(false, lroBaseMethod, methods, createMethodArgs);
+        createLroGetFinalResultClientMethods(true, lroBaseMethod, methods, createMethodArgs);
     }
 
     @Override
@@ -160,5 +94,54 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             }
         }
         return visibility;
+    }
+
+    private void createLroGetFinalResultClientMethods(boolean isSync, ClientMethod baseMethod,
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
+        // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
+        // as Response data is not included in an LRO API.
+
+        final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
+        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
+
+        final String methodName;
+        final ClientMethodType clientMethodType;
+        if (isSync) {
+            methodName = proxyMethod.getName();
+            clientMethodType = ClientMethodType.LongRunningSync;
+        } else {
+            methodName = proxyMethod.getSimpleAsyncMethodName();
+            clientMethodType = ClientMethodType.LongRunningAsync;
+        }
+        final JavaVisibility methodVisibility
+            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+        final JavaVisibility methodWithRequiredOnlyParametersVisibility
+            = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
+        final JavaVisibility methodWithContextVisibility
+            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+
+        final ClientMethod lroGetFinalResultMethod = baseMethod.newBuilder()
+            .returnValue(methodsReturnDescription.getReturnValue(clientMethodType))
+            .name(methodName)
+            .onlyRequiredParameters(false)
+            .type(clientMethodType)
+            .groupedParameterRequired(false)
+            .methodVisibility(methodVisibility)
+            .build();
+        methods.add(lroGetFinalResultMethod);
+
+        if (generateRequiredOnlyParametersOverload) {
+            final ClientMethod lroGetFinalResultMethodWithRequiredOnlyParameters = lroGetFinalResultMethod.newBuilder()
+                .onlyRequiredParameters(true)
+                .methodVisibility(methodWithRequiredOnlyParametersVisibility)
+                .build();
+            methods.add(lroGetFinalResultMethodWithRequiredOnlyParameters);
+        }
+
+        addClientMethodWithContext(methods, lroGetFinalResultMethod, methodWithContextVisibility, isProtocolMethod);
     }
 }

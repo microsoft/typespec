@@ -293,19 +293,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         continue;
                     }
 
-                    createLroWithResponseMethods(false, baseMethod, methods, createMethodArgs);
+                    createLroWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
                     final boolean createWithResponseSync = JavaSettings.getInstance().isSyncStackEnabled()
                         && !proxyMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER);
                     if (createWithResponseSync) {
                         if (settings.isFluent()) {
-                            createFluentLroWithResponseSyncMethods(baseMethod, methods, operation, createMethodArgs);
+                            createFluentLroWithResponseSyncClientMethods(baseMethod, methods, operation,
+                                createMethodArgs);
                         } else {
-                            createLroWithResponseMethods(true, baseMethod, methods, createMethodArgs);
+                            createLroWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
                         }
                     }
 
                     if (settings.isFluent()) {
-                        createLroBeginMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+                        createLroBeginClientMethods(baseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
                             methodNamer.getLroBeginMethodName(), createMethodArgs);
                         this.createAdditionalLroMethods(baseMethod, methods, createMethodArgs);
                     } else {
@@ -313,13 +314,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             methodsReturnDescription.getSyncReturnType());
                         if (pollingMetadata != null) {
                             if (isProtocolMethod) {
-                                createProtocolLroBeginMethods(baseMethod, methods, pollingMetadata, createMethodArgs);
+                                createProtocolLroBeginClientMethods(baseMethod, methods, pollingMetadata,
+                                    createMethodArgs);
                             } else {
                                 final ClientMethod lroBaseMethod = baseMethod.newBuilder()
                                     .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
                                     .build();
-                                createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
-                                    methodNamer.getLroBeginMethodName(), createMethodArgs);
+                                createLroBeginClientMethods(lroBaseMethod, methods,
+                                    methodNamer.getLroBeginAsyncMethodName(), methodNamer.getLroBeginMethodName(),
+                                    createMethodArgs);
                             }
                         }
                     }
@@ -586,7 +589,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         addClientMethodWithContext(methods, pagingMethodWithContext, methodWithContextVisibility, isProtocolMethod);
     }
 
-    private void createLroWithResponseMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
+    private void createLroWithResponseClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
         CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
@@ -635,7 +638,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
     }
 
-    private void createFluentLroWithResponseSyncMethods(ClientMethod baseMethod, List<ClientMethod> methods,
+    private void createFluentLroWithResponseSyncClientMethods(ClientMethod baseMethod, List<ClientMethod> methods,
         Operation operation, CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
@@ -674,7 +677,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         addClientMethodWithContext(methods, withResponseSyncMethod, NOT_VISIBLE, isProtocolMethod);
     }
 
-    private void createProtocolLroBeginMethods(ClientMethod baseMethod, List<ClientMethod> methods,
+    private void createProtocolLroBeginClientMethods(ClientMethod baseMethod, List<ClientMethod> methods,
         PollingMetadata pollingMetadata, CreateClientMethodArgs createMethodArgs) {
 
         assert createMethodArgs.isProtocolMethod;
@@ -693,23 +696,23 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
                 .build();
 
-            createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroModelBeginAsyncMethodName(),
+            createLroBeginClientMethods(lroBaseMethod, methods, methodNamer.getLroModelBeginAsyncMethodName(),
                 methodNamer.getLroModelBeginMethodName(), createMethodArgs);
         }
 
         final ClientMethod lroBaseMethod = baseMethod.newBuilder()
             .methodPollingDetails(pollingMetadata.asMethodPollingDetailsForBinaryDataResult())
             .build();
-        createLroBeginMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
+        createLroBeginClientMethods(lroBaseMethod, methods, methodNamer.getLroBeginAsyncMethodName(),
             methodNamer.getLroBeginMethodName(), createMethodArgs);
     }
 
-    private void createLroBeginMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods, String asyncMethodName,
-        String syncMethodName, CreateClientMethodArgs createClientMethodArgs) {
+    private void createLroBeginClientMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
+        String asyncMethodName, String syncMethodName, CreateClientMethodArgs createClientMethodArgs) {
 
         final boolean createAsync = JavaSettings.getInstance().isGenerateAsyncMethods();
         if (createAsync) {
-            createLroBeginMethods(false, lroBaseMethod, methods, asyncMethodName, createClientMethodArgs);
+            createLroBeginClientMethods(false, lroBaseMethod, methods, asyncMethodName, createClientMethodArgs);
         }
 
         if (lroBaseMethod.getProxyMethod().hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
@@ -718,11 +721,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final boolean createSync
             = (JavaSettings.getInstance().isGenerateSyncMethods() || JavaSettings.getInstance().isSyncStackEnabled());
         if (createSync) {
-            createLroBeginMethods(true, lroBaseMethod, methods, syncMethodName, createClientMethodArgs);
+            createLroBeginClientMethods(true, lroBaseMethod, methods, syncMethodName, createClientMethodArgs);
         }
     }
 
-    private void createLroBeginMethods(boolean isSync, ClientMethod lroBaseMethod, List<ClientMethod> methods,
+    private void createLroBeginClientMethods(boolean isSync, ClientMethod lroBaseMethod, List<ClientMethod> methods,
         String methodName, CreateClientMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
