@@ -56,7 +56,6 @@ export function createTester(base: string, options: { libraries: string[] }): Te
   });
 
   function load(): Promise<void> {
-    fs.addTypeSpecFile(".keep", ""); // dummy so it knows / is a directory TODO: better way to do this?
     if (loaded) return loaded;
 
     loaded = loadInternal();
@@ -104,6 +103,7 @@ export function createTester(base: string, options: { libraries: string[] }): Te
           (lib.manifest as any).file.text,
         );
       }
+      fs.freeze();
     }
   }
 }
@@ -113,7 +113,7 @@ interface TesterInternalParams {
   wraps?: ((code: string) => string)[];
 }
 function createTesterInternal(params: TesterInternalParams) {
-  const testable = createTesterInstance(params);
+  const testable = createInstance();
   return {
     ...testable,
     wrap,
@@ -123,6 +123,16 @@ function createTesterInternal(params: TesterInternalParams) {
     return createTesterInternal({
       ...params,
       wraps: [...(params.wraps ?? []), fn],
+    });
+  }
+
+  function createInstance(): TesterInstance {
+    return createTesterInstance({
+      ...params,
+      fs: async () => {
+        const fs = await params.fs();
+        return fs.clone();
+      },
     });
   }
 }
