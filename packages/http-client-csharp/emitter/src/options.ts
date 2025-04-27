@@ -47,8 +47,18 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
         "set this option to the version that should be used to generate against.",
     },
-    "generate-protocol-methods": { type: "boolean", nullable: true },
-    "generate-convenience-methods": { type: "boolean", nullable: true },
+    "generate-protocol-methods": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to skip generation of protocol methods. The default value is `true`.",
+    },
+    "generate-convenience-methods": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to skip generation of convenience methods. The default value is `true`.",
+    },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
@@ -84,7 +94,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       type: "string",
       enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
-      description: "Set the log level. The default value is `info`.",
+      description: "Set the log level for which to collect traces. The default value is `info`.",
     },
     "disable-xml-docs": {
       type: "boolean",

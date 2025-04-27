@@ -3,6 +3,7 @@ export * from "./builtin.js";
 export * from "./entity.js";
 export * from "./enum-member.js";
 export * from "./enum.js";
+export * from "./intrinsic.js";
 export * from "./literal.js";
 export * from "./model-property.js";
 export * from "./model.js";
