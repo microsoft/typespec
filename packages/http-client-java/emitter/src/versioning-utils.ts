@@ -52,6 +52,6 @@ export function getFilteredApiVersions(
     );
 }
 
-function isStableApiVersion(version: string): boolean {
+export function isStableApiVersion(version: string): boolean {
   return !version.toLowerCase().includes("preview");
 }
