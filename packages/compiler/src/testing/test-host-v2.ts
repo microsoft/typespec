@@ -39,7 +39,7 @@ export interface Tester extends Testable {
   // addImports(): TestHostBuilder;
   // addUsing(...names: string[]): TestHostBuilder;
   wrap(fn: (x: string) => string): Tester;
-  // createHost(): TestHostV2;
+  createInstance(): TesterInstance;
 }
 
 export interface TesterInstance extends Testable {}
@@ -114,11 +114,13 @@ interface TesterInternalParams {
   fs: () => Promise<TestFileSystem>;
   wraps?: ((code: string) => string)[];
 }
-function createTesterInternal(params: TesterInternalParams) {
+
+function createTesterInternal(params: TesterInternalParams): Tester {
   const testable = createInstance();
   return {
     ...testable,
     wrap,
+    createInstance,
   };
 
   function wrap(fn: (x: string) => string): Tester {
