@@ -642,6 +642,8 @@ describe("Test Cookie Parameters", () => {
                 param2: string
               })
               namespace Test;
+
+              op test() : void;
         `,
         runner,
         { IsNamespaceNeeded: false },
