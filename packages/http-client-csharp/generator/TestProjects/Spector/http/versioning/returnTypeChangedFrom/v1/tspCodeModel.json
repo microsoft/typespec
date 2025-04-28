@@ -50,6 +50,8 @@
    "$id": "6",
    "kind": "constant",
    "name": "TestRequestContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -64,6 +66,8 @@
    "$id": "8",
    "kind": "constant",
    "name": "testContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -78,6 +82,8 @@
    "$id": "10",
    "kind": "constant",
    "name": "TestRequestContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -92,6 +98,8 @@
    "$id": "12",
    "kind": "constant",
    "name": "TestRequestContentType2",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "13",
     "kind": "string",

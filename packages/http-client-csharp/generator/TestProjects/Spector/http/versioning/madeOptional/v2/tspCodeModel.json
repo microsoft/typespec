@@ -69,6 +69,8 @@
    "$id": "8",
    "kind": "constant",
    "name": "testContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -83,6 +85,8 @@
    "$id": "10",
    "kind": "constant",
    "name": "testContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "11",
     "kind": "string",

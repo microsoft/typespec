@@ -8,6 +8,8 @@
    "$id": "2",
    "kind": "constant",
    "name": "invalidContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "3",
     "kind": "string",

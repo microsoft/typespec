@@ -8,6 +8,8 @@
    "$id": "2",
    "kind": "constant",
    "name": "safeintAsStringContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -22,6 +24,8 @@
    "$id": "4",
    "kind": "constant",
    "name": "safeintAsStringContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -36,6 +40,8 @@
    "$id": "6",
    "kind": "constant",
    "name": "uint32AsStringOptionalContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -50,6 +56,8 @@
    "$id": "8",
    "kind": "constant",
    "name": "uint32AsStringOptionalContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -64,6 +72,8 @@
    "$id": "10",
    "kind": "constant",
    "name": "uint8AsStringContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -78,6 +88,8 @@
    "$id": "12",
    "kind": "constant",
    "name": "uint8AsStringContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "13",
     "kind": "string",

@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Payload.ContentNegotiation
+namespace Payload.ContentNegotiation._DifferentBody
 {
     public readonly partial struct PngImageAsJsonContentType : IEquatable<PngImageAsJsonContentType>
     {

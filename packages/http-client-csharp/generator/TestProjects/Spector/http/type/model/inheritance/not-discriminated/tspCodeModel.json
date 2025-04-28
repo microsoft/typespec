@@ -8,6 +8,8 @@
    "$id": "2",
    "kind": "constant",
    "name": "postValidContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -22,6 +24,8 @@
    "$id": "4",
    "kind": "constant",
    "name": "getValidContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -36,6 +40,8 @@
    "$id": "6",
    "kind": "constant",
    "name": "putValidContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -50,6 +56,8 @@
    "$id": "8",
    "kind": "constant",
    "name": "putValidContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "9",
     "kind": "string",

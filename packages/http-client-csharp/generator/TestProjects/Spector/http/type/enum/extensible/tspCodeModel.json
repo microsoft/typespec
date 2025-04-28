@@ -156,6 +156,8 @@
    "$id": "18",
    "kind": "constant",
    "name": "getKnownValueContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "19",
     "kind": "string",
@@ -170,6 +172,8 @@
    "$id": "20",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "21",
     "kind": "string",
@@ -184,6 +188,8 @@
    "$id": "22",
    "kind": "constant",
    "name": "getUnknownValueContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -198,6 +204,8 @@
    "$id": "24",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -212,6 +220,8 @@
    "$id": "26",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType2",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "27",
     "kind": "string",
@@ -226,6 +236,8 @@
    "$id": "28",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType3",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "29",
     "kind": "string",
@@ -240,6 +252,8 @@
    "$id": "30",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType4",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "31",
     "kind": "string",
@@ -254,6 +268,8 @@
    "$id": "32",
    "kind": "constant",
    "name": "GetKnownValueResponseContentType5",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "33",
     "kind": "string",

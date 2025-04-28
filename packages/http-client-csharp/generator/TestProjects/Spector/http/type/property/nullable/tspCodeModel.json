@@ -8,6 +8,8 @@
    "$id": "2",
    "kind": "constant",
    "name": "getNonNullContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -22,6 +24,8 @@
    "$id": "4",
    "kind": "constant",
    "name": "getNullContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -36,6 +40,8 @@
    "$id": "6",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -50,6 +56,8 @@
    "$id": "8",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -64,6 +72,8 @@
    "$id": "10",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType2",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -78,6 +88,8 @@
    "$id": "12",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType3",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -92,6 +104,8 @@
    "$id": "14",
    "kind": "constant",
    "name": "getNonNullContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "15",
     "kind": "string",
@@ -106,6 +120,8 @@
    "$id": "16",
    "kind": "constant",
    "name": "getNullContentType1",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "17",
     "kind": "string",
@@ -120,6 +136,8 @@
    "$id": "18",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType4",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "19",
     "kind": "string",
@@ -134,6 +152,8 @@
    "$id": "20",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType5",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "21",
     "kind": "string",
@@ -148,6 +168,8 @@
    "$id": "22",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType6",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -162,6 +184,8 @@
    "$id": "24",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType7",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -176,6 +200,8 @@
    "$id": "26",
    "kind": "constant",
    "name": "getNonNullContentType2",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "27",
     "kind": "string",
@@ -190,6 +216,8 @@
    "$id": "28",
    "kind": "constant",
    "name": "getNullContentType2",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "29",
     "kind": "string",
@@ -204,6 +232,8 @@
    "$id": "30",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType8",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "31",
     "kind": "string",
@@ -218,6 +248,8 @@
    "$id": "32",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType9",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "33",
     "kind": "string",
@@ -232,6 +264,8 @@
    "$id": "34",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType10",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "35",
     "kind": "string",
@@ -246,6 +280,8 @@
    "$id": "36",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType11",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "37",
     "kind": "string",
@@ -260,6 +296,8 @@
    "$id": "38",
    "kind": "constant",
    "name": "getNonNullContentType3",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "39",
     "kind": "string",
@@ -274,6 +312,8 @@
    "$id": "40",
    "kind": "constant",
    "name": "getNullContentType3",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "41",
     "kind": "string",
@@ -288,6 +328,8 @@
    "$id": "42",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType12",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "43",
     "kind": "string",
@@ -302,6 +344,8 @@
    "$id": "44",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType13",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "45",
     "kind": "string",
@@ -316,6 +360,8 @@
    "$id": "46",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType14",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "47",
     "kind": "string",
@@ -330,6 +376,8 @@
    "$id": "48",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType15",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "49",
     "kind": "string",
@@ -344,6 +392,8 @@
    "$id": "50",
    "kind": "constant",
    "name": "getNonNullContentType4",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "51",
     "kind": "string",
@@ -358,6 +408,8 @@
    "$id": "52",
    "kind": "constant",
    "name": "getNullContentType4",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "53",
     "kind": "string",
@@ -372,6 +424,8 @@
    "$id": "54",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType16",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "55",
     "kind": "string",
@@ -386,6 +440,8 @@
    "$id": "56",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType17",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "57",
     "kind": "string",
@@ -400,6 +456,8 @@
    "$id": "58",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType18",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "59",
     "kind": "string",
@@ -414,6 +472,8 @@
    "$id": "60",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType19",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "61",
     "kind": "string",
@@ -428,6 +488,8 @@
    "$id": "62",
    "kind": "constant",
    "name": "getNonNullContentType5",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "63",
     "kind": "string",
@@ -442,6 +504,8 @@
    "$id": "64",
    "kind": "constant",
    "name": "getNullContentType5",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "65",
     "kind": "string",
@@ -456,6 +520,8 @@
    "$id": "66",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType20",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "67",
     "kind": "string",
@@ -470,6 +536,8 @@
    "$id": "68",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType21",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "69",
     "kind": "string",
@@ -484,6 +552,8 @@
    "$id": "70",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType22",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "71",
     "kind": "string",
@@ -498,6 +568,8 @@
    "$id": "72",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType23",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "73",
     "kind": "string",
@@ -512,6 +584,8 @@
    "$id": "74",
    "kind": "constant",
    "name": "getNonNullContentType6",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "75",
     "kind": "string",
@@ -526,6 +600,8 @@
    "$id": "76",
    "kind": "constant",
    "name": "getNullContentType6",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "77",
     "kind": "string",
@@ -540,6 +616,8 @@
    "$id": "78",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType24",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "79",
     "kind": "string",
@@ -554,6 +632,8 @@
    "$id": "80",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType25",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "81",
     "kind": "string",
@@ -568,6 +648,8 @@
    "$id": "82",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType26",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "83",
     "kind": "string",
@@ -582,6 +664,8 @@
    "$id": "84",
    "kind": "constant",
    "name": "PatchNonNullRequestContentType27",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "85",
     "kind": "string",

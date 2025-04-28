@@ -8,6 +8,8 @@
    "$id": "2",
    "kind": "constant",
    "name": "putContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -22,6 +24,8 @@
    "$id": "4",
    "kind": "constant",
    "name": "getContentType",
+   "namespace": "",
+   "usage": 0,
    "valueType": {
     "$id": "5",
     "kind": "string",
