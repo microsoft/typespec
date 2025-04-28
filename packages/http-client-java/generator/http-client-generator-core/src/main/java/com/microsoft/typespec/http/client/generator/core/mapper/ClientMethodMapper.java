@@ -710,6 +710,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         } else {
             clientMethodType = ClientMethodType.LongRunningBeginAsync;
         }
+        final JavaVisibility methodVisibility
+            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+        final JavaVisibility methodWithRequiredParametersVisibility
+            = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
+        final JavaVisibility methodWithContextVisibility
+            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
         final MethodPollingDetails methodPollingDetails = lroBaseMethod.getMethodPollingDetails();
 
         // LRO 'begin[Operation]' sync or async method.
@@ -719,7 +725,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .onlyRequiredParameters(false)
             .type(clientMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod))
+            .methodVisibility(methodVisibility)
             .build();
         methods.add(beginLroMethod);
 
@@ -730,16 +736,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             // LRO 'begin[Operation]' sync or async method overload with only required parameters.
             final ClientMethod beginLroMethodWithRequiredParameters = beginLroMethod.newBuilder()
                 .onlyRequiredParameters(true)
-                .methodVisibility(
-                    methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                .methodVisibility(methodWithRequiredParametersVisibility)
                 .build();
             methods.add(beginLroMethodWithRequiredParameters);
         }
 
         // LRO 'begin[Operation]' sync or async method overload with only required with context parameters.
-        final JavaVisibility beginLroMethodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
-        addClientMethodWithContext(methods, beginLroMethod, beginLroMethodWithContextVisibility, isProtocolMethod);
+        addClientMethodWithContext(methods, beginLroMethod, methodWithContextVisibility, isProtocolMethod);
     }
 
     private void createSimpleClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
