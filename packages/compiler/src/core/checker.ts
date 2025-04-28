@@ -4692,6 +4692,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (!related) {
       reportCheckerDiagnostics(diagnostics);
       return null;
+    } else if ((defaultValue.valueKind as any) === "TemplateValue") {
+      // Right now we don't want to expose `TemplateValue` in the type graph.
+      // And as interating with the template declaration is not a supported feature we can just drop it.
+      return null;
     } else {
       return { ...defaultValue, type };
     }
