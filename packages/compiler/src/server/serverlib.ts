@@ -413,18 +413,6 @@ export function createServer(host: ServerHost): Server {
       const newFilePath = await fileService.getPath({ uri: file.newUri });
       const isDirRename = !file.oldUri.endsWith(".tsp");
 
-      if (isDirRename) {
-        // Update cache for renamed files.
-        const files = await listAllFilesInDir(compilerHost, newFilePath);
-        for (const file of files) {
-          const oldFile = resolvePath(oldFilePath, file);
-
-          fileSystemCache.notify([
-            { uri: fileService.getURL(oldFile), type: FileChangeType.Deleted },
-          ]);
-        }
-      }
-
       for (const diagnostic of result.program.diagnostics) {
         if (diagnostic.code !== "import-not-found") continue;
         const target = diagnostic.target as Node;
