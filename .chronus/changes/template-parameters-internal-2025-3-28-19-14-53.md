@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Mark `TemplateParameter` type as an experiemntal type
+Mark `TemplateParameter` type as an experimental type
