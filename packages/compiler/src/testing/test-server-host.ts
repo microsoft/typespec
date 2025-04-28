@@ -1,6 +1,6 @@
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic } from "vscode-languageserver/node.js";
+import { Diagnostic, FileChangeType } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
@@ -95,6 +95,10 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
               this.fs.set(path, lines.join("\n"));
             });
           }
+
+          server.watchedFilesChanged({
+            changes: [{ uri, type: FileChangeType.Changed }],
+          });
         }
       }
 

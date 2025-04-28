@@ -430,9 +430,6 @@ export function createServer(host: ServerHost): Server {
             });
 
             const edit = getRenameImportEdit(target, result.newValue);
-            fileSystemCache.notify([
-              { uri: fileService.getURL(result.filePath), type: FileChangeType.Changed },
-            ]);
             await host.applyEdit({ changes: { [fileService.getURL(result.filePath)]: [edit] } });
           }
         }
