@@ -5,17 +5,25 @@ import { findVersionedNamespace, getVersions } from "@typespec/versioning";
 /**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
  * `undefined` if the service is not versioned.
- * 
+ *
  * @param program the program
  * @param client the SDK client
  * @returns the array of api-version on the TypeSpec service that contains this SDK client
  */
-export function getServiceApiVersions(program: Program, client: SdkClientType<SdkHttpOperation>): string[] | undefined {
+export function getServiceApiVersions(
+  program: Program,
+  client: SdkClientType<SdkHttpOperation>,
+): string[] | undefined {
   // TODO: use client.apiVersions after TCGC supports multiple service
   let apiVersions: string[] | undefined;
-  const verVersionedNamespace: Namespace | undefined = findVersionedNamespace(program, client.__raw.service);
+  const verVersionedNamespace: Namespace | undefined = findVersionedNamespace(
+    program,
+    client.__raw.service,
+  );
   if (verVersionedNamespace) {
-    apiVersions = getVersions(program, verVersionedNamespace)[1]?.getVersions().map((version) => version.value);
+    apiVersions = getVersions(program, verVersionedNamespace)[1]
+      ?.getVersions()
+      .map((version) => version.value);
   }
   return apiVersions;
 }
