@@ -10,13 +10,13 @@ import {
   resolveInfo,
   setInfo,
 } from "../src/decorators.js";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
 describe("openapi: decorators", () => {
   let runner: TesterInstance;
 
   beforeEach(async () => {
-    runner = await createOpenAPITestRunner();
+    runner = Tester.createInstance();
   });
 
   describe("@operationId", () => {
@@ -543,7 +543,7 @@ describe("openapi: decorators", () => {
       ],
     ];
     it.each(testCases)("%s", async (_, tagMetaDecorator, expected) => {
-      const runner = await createOpenAPITestRunner();
+      const runner = Tester.createInstance();
       const { PetStore } = await runner.compile(
         `
         @service()

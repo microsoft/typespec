@@ -6,7 +6,3 @@ export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
 })
   .importLibraries()
   .using("OpenAPI");
-
-export async function createOpenAPITestRunner() {
-  return Tester.createInstance();
-}
