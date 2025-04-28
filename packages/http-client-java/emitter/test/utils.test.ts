@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  pascalCase,
-  removeClientSuffix,
-  stringArrayContainsIgnoreCase,
-} from "../src/utils.js";
-import {
-  isStableApiVersion,
-} from "../src/versioning-utils.js";
+import { pascalCase, removeClientSuffix, stringArrayContainsIgnoreCase } from "../src/utils.js";
+import { isStableApiVersion } from "../src/versioning-utils.js";
 
 describe("utils", () => {
   it("pascalCase", () => {
