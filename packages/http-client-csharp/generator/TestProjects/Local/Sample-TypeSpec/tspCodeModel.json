@@ -5961,19 +5961,6 @@
       "uri": "{sampleTypeSpecUrl}",
       "path": "/link",
       "bufferResponse": true,
-      "paging": {
-       "$id": "608",
-       "itemPropertySegments": [
-        "things"
-       ],
-       "nextLink": {
-        "$id": "609",
-        "responseSegments": [
-         "next"
-        ],
-        "responseLocation": "Body"
-       }
-      },
       "generateProtocolMethod": true,
       "generateConvenienceMethod": true,
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
@@ -5981,7 +5968,7 @@
      },
      "parameters": [
       {
-       "$id": "610",
+       "$id": "608",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
@@ -5999,9 +5986,9 @@
       }
      ],
      "response": {
-      "$id": "611",
+      "$id": "609",
       "type": {
-       "$id": "612",
+       "$id": "610",
        "kind": "array",
        "name": "ArrayThing",
        "valueType": {
@@ -6017,7 +6004,20 @@
      "isOverride": false,
      "generateConvenient": true,
      "generateProtocol": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink"
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithNextLink",
+     "pagingMetadata": {
+      "$id": "611",
+      "itemPropertySegments": [
+       "things"
+      ],
+      "nextLink": {
+       "$id": "612",
+       "responseSegments": [
+        "next"
+       ],
+       "responseLocation": "Body"
+      }
+     }
     },
     {
      "$id": "613",
@@ -6105,22 +6105,6 @@
       "uri": "{sampleTypeSpecUrl}",
       "path": "/continuation",
       "bufferResponse": true,
-      "paging": {
-       "$id": "621",
-       "itemPropertySegments": [
-        "things"
-       ],
-       "continuationToken": {
-        "$id": "622",
-        "parameter": {
-         "$ref": "615"
-        },
-        "responseSegments": [
-         "nextToken"
-        ],
-        "responseLocation": "Body"
-       }
-      },
       "generateProtocolMethod": true,
       "generateConvenienceMethod": true,
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
@@ -6128,11 +6112,11 @@
      },
      "parameters": [
       {
-       "$id": "623",
+       "$id": "621",
        "name": "token",
        "nameInRequest": "token",
        "type": {
-        "$id": "624",
+        "$id": "622",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6149,7 +6133,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "625",
+       "$id": "623",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
@@ -6167,9 +6151,9 @@
       }
      ],
      "response": {
-      "$id": "626",
+      "$id": "624",
       "type": {
-       "$id": "627",
+       "$id": "625",
        "kind": "array",
        "name": "ArrayThing",
        "valueType": {
@@ -6185,7 +6169,23 @@
      "isOverride": false,
      "generateConvenient": true,
      "generateProtocol": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken"
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationToken",
+     "pagingMetadata": {
+      "$id": "626",
+      "itemPropertySegments": [
+       "things"
+      ],
+      "continuationToken": {
+       "$id": "627",
+       "parameter": {
+        "$ref": "615"
+       },
+       "responseSegments": [
+        "nextToken"
+       ],
+       "responseLocation": "Body"
+      }
+     }
     },
     {
      "$id": "628",
@@ -6286,22 +6286,6 @@
       "uri": "{sampleTypeSpecUrl}",
       "path": "/continuation/header",
       "bufferResponse": true,
-      "paging": {
-       "$id": "638",
-       "itemPropertySegments": [
-        "things"
-       ],
-       "continuationToken": {
-        "$id": "639",
-        "parameter": {
-         "$ref": "630"
-        },
-        "responseSegments": [
-         "next-token"
-        ],
-        "responseLocation": "Header"
-       }
-      },
       "generateProtocolMethod": true,
       "generateConvenienceMethod": true,
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
@@ -6309,11 +6293,11 @@
      },
      "parameters": [
       {
-       "$id": "640",
+       "$id": "638",
        "name": "token",
        "nameInRequest": "token",
        "type": {
-        "$id": "641",
+        "$id": "639",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -6330,7 +6314,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "642",
+       "$id": "640",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
@@ -6348,9 +6332,9 @@
       }
      ],
      "response": {
-      "$id": "643",
+      "$id": "641",
       "type": {
-       "$id": "644",
+       "$id": "642",
        "kind": "array",
        "name": "ArrayThing",
        "valueType": {
@@ -6366,7 +6350,23 @@
      "isOverride": false,
      "generateConvenient": true,
      "generateProtocol": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse"
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithContinuationTokenHeaderResponse",
+     "pagingMetadata": {
+      "$id": "643",
+      "itemPropertySegments": [
+       "things"
+      ],
+      "continuationToken": {
+       "$id": "644",
+       "parameter": {
+        "$ref": "630"
+       },
+       "responseSegments": [
+        "next-token"
+       ],
+       "responseLocation": "Header"
+      }
+     }
     },
     {
      "$id": "645",
@@ -6433,12 +6433,6 @@
       "uri": "{sampleTypeSpecUrl}",
       "path": "/list/paging",
       "bufferResponse": true,
-      "paging": {
-       "$id": "651",
-       "itemPropertySegments": [
-        "items"
-       ]
-      },
       "generateProtocolMethod": true,
       "generateConvenienceMethod": true,
       "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
@@ -6446,7 +6440,7 @@
      },
      "parameters": [
       {
-       "$id": "652",
+       "$id": "651",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
@@ -6464,9 +6458,9 @@
       }
      ],
      "response": {
-      "$id": "653",
+      "$id": "652",
       "type": {
-       "$id": "654",
+       "$id": "653",
        "kind": "array",
        "name": "ArrayThing",
        "valueType": {
@@ -6482,7 +6476,13 @@
      "isOverride": false,
      "generateConvenient": true,
      "generateProtocol": true,
-     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging"
+     "crossLanguageDefinitionId": "SampleTypeSpec.ListWithPaging",
+     "pagingMetadata": {
+      "$id": "654",
+      "itemPropertySegments": [
+       "items"
+      ]
+     }
     },
     {
      "$id": "655",

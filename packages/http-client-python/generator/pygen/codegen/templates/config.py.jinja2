@@ -21,14 +21,8 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
 {% if serializer.set_constants() %}
         {{ op_tools.serialize(serializer.set_constants()) | indent(8) -}}
 {% endif %}
-{% if client.credential %}
-    {% set cred_scopes = client.credential.type if client.credential.type.policy is defined and client.credential.type.policy.credential_scopes is defined %}
-    {% if not cred_scopes %}
-        {% set cred_scopes = client.credential.type.types | selectattr("policy.credential_scopes") | first if client.credential.type.types is defined %}
-    {% endif %}
-    {% if cred_scopes %}
-        self.credential_scopes = kwargs.pop('credential_scopes', {{ cred_scopes.policy.credential_scopes }})
-    {% endif %}
+{% if client.credential_scopes is not none %}
+        self.credential_scopes = kwargs.pop('credential_scopes', {{ client.credential_scopes }})
 {% endif %}
         kwargs.setdefault('sdk_moniker', '{{ client.config.sdk_moniker }}/{}'.format(VERSION))
         self.polling_interval = kwargs.get("polling_interval", 30)

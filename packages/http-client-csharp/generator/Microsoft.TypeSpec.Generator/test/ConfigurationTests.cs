@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder);
 
             // get the unknown property from the configuration
-            var additionalConfigOptions = configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = configuration.AdditionalConfigurationOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            var additionalConfigOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigurationOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));

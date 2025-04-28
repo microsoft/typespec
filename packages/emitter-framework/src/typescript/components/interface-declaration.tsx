@@ -9,8 +9,9 @@ import {
   Operation,
   RekeyableMap,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
@@ -24,6 +25,8 @@ export type InterfaceDeclarationProps =
   | ts.InterfaceDeclarationProps;
 
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
+  const { $ } = useTsp();
+
   if (!isTypedInterfaceDeclarationProps(props)) {
     return <ts.InterfaceDeclaration {...props} />;
   }
@@ -40,7 +43,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  const extendsType = props.extends ?? getExtendsType(props.type);
+  const extendsType = props.extends ?? getExtendsType($, props.type);
 
   return (
     <ts.InterfaceDeclaration
@@ -74,7 +77,7 @@ export function InterfaceExpression(props: InterfaceExpressionProps) {
   );
 }
 
-function getExtendsType(type: Model | Interface): Children | undefined {
+function getExtendsType($: Typekit, type: Model | Interface): Children | undefined {
   if (!$.model.is(type)) {
     return undefined;
   }
@@ -120,6 +123,7 @@ function getExtendsType(type: Model | Interface): Children | undefined {
  * Renders the members of an interface from its properties, including any additional children.
  */
 function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
+  const { $ } = useTsp();
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(props.type)) {
     typeMembers = $.model.getProperties(props.type);

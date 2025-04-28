@@ -23,8 +23,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
-import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { defaultSDKContextOptions } from "./sdk-context-options.js";
+import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -56,7 +55,7 @@ function findProjectRoot(path: string): string | undefined {
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
-  const outputFolder = _resolveOutputFolder(context);
+  const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
@@ -67,7 +66,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        options["sdk-context-options"] ?? defaultSDKContextOptions,
+        options["sdk-context-options"],
       ),
       logger,
     );
@@ -99,7 +98,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       );
       logger.info(`Checking if ${csProjFile} exists`);
 
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
       const generatorPath = resolvePath(
         projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
       );
@@ -140,8 +140,26 @@ export function createConfiguration(
   namespace: string,
   sdkContext: SdkContext,
 ): Configuration {
+  const skipKeys = [
+    "new-project",
+    "update-code-model",
+    "sdk-context-options",
+    "save-inputs",
+    "generator-name",
+    "debug",
+    "logLevel",
+    "generator-name",
+    "api-version",
+    "generate-protocol-methods",
+    "generate-convenience-methods",
+    "emitter-extension-path",
+  ];
+  const derivedOptions = Object.fromEntries(
+    Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
+  );
   return {
-    "output-folder": ".",
+    // spread custom options first so that the predefined options below can override them
+    ...derivedOptions,
     "package-name": options["package-name"] ?? namespace,
     "unreferenced-types-handling": options["unreferenced-types-handling"],
     "disable-xml-docs":

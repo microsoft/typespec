@@ -1,5 +1,13 @@
 # Change Log - @typespec/openapi3
 
+## 1.0.0-rc.1
+
+### Bug Fixes
+
+- [#6279](https://github.com/microsoft/typespec/pull/6279) Fix various issues when using xml payloads and custom scalars
+- [#6887](https://github.com/microsoft/typespec/pull/6887) Fix using union templates
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes
