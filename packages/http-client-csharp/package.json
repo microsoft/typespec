@@ -69,7 +69,7 @@
     "@typespec/http": "1.0.0-rc.1",
     "@typespec/http-specs": "0.1.0-alpha.20",
     "@typespec/json-schema": "1.0.0-rc.1",
-    "@typespec/library-linter": "0.68.0",
+    "@typespec/library-linter": "0.69.0",
     "@typespec/openapi": "1.0.0-rc.1",
     "@typespec/rest": "0.69.0",
     "@typespec/versioning": "0.69.0",
