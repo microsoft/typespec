@@ -15,6 +15,7 @@
     "@typespec/spector": "0.1.0-alpha.12",
     "@typespec/spec-api": "0.1.0-alpha.4",
     "@typespec/http-specs": "0.1.0-alpha.20",
+    "@typespec/json-schema": "1.0.0-rc.1",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.3.2.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
