@@ -301,7 +301,7 @@ components:
         type: integer
         format: int32
         default: 50
-      explode: false
+      explode: true
     TodoItems.PaginationControls.offset:
       name: offset
       in: query
@@ -311,7 +311,7 @@ components:
         type: integer
         format: int32
         default: 0
-      explode: false
+      explode: true
   schemas:
     ApiError:
       type: object

@@ -14,7 +14,7 @@ paths:
           schema:
             type: string
             nullable: true
-          explode: false
+          explode: true
       responses:
         '200':
           description: The request has succeeded.

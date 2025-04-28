@@ -1544,7 +1544,7 @@ function createOAPIEmitter(
 
     if (httpProperty.options.explode !== true) {
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
-      attributes.explode = false;
+      attributes.explode = true;
     }
     const style = getParameterStyle(httpProperty.property);
     if (style) {
