@@ -36,8 +36,10 @@ interface Testable {
 
 // Immutable structure meant to be reused
 export interface Tester extends Testable {
-  // addImports(): TestHostBuilder;
-  // addUsing(...names: string[]): TestHostBuilder;
+  /** Auto import all libraries defined in this tester. */
+  importLibraries(): Tester;
+  import(...imports: string[]): Tester;
+  using(...names: string[]): Tester;
   wrap(fn: (x: string) => string): Tester;
   createInstance(): TesterInstance;
 }
@@ -50,6 +52,7 @@ export interface TesterOptions {
 export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
     fs: once(() => createTesterFs(base, options)),
+    libraries: options.libraries,
   });
 }
 
@@ -112,7 +115,10 @@ async function createTesterFs(base: string, options: TesterOptions) {
 
 interface TesterInternalParams {
   fs: () => Promise<TestFileSystem>;
+  libraries: string[];
   wraps?: ((code: string) => string)[];
+  imports?: string[];
+  usings?: string[];
 }
 
 function createTesterInternal(params: TesterInternalParams): Tester {
@@ -120,6 +126,9 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   return {
     ...testable,
     wrap,
+    importLibraries,
+    import: importFn,
+    using,
     createInstance,
   };
 
@@ -127,6 +136,27 @@ function createTesterInternal(params: TesterInternalParams): Tester {
     return createTesterInternal({
       ...params,
       wraps: [...(params.wraps ?? []), fn],
+    });
+  }
+
+  function importLibraries(): Tester {
+    return createTesterInternal({
+      ...params,
+      imports: [...(params.imports ?? []), ...params.libraries],
+    });
+  }
+
+  function importFn(...imports: string[]): Tester {
+    return createTesterInternal({
+      ...params,
+      imports: [...(params.imports ?? []), ...imports],
+    });
+  }
+
+  function using(...usings: string[]): Tester {
+    return createTesterInternal({
+      ...params,
+      usings: [...(params.usings ?? []), ...usings],
     });
   }
 
@@ -148,17 +178,27 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     diagnose,
   };
 
+  function applyWraps(code: string, wraps: ((code: string) => string)[]): string {
+    for (const wrap of wraps) {
+      code = wrap(code);
+    }
+    return code;
+  }
   async function compileAndDiagnose(
     code: string,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult, readonly Diagnostic[]]> {
     const fs = await params.fs();
-    if (params.wraps) {
-      for (const wrap of params.wraps) {
-        code = wrap(code);
-      }
-    }
-    fs.addTypeSpecFile("main.tsp", code);
+
+    const imports = (params.imports ?? []).map((x) => `import "${x}";`);
+    const usings = (params.usings ?? []).map((x) => `using ${x};`);
+
+    const actualCode = [
+      ...imports,
+      ...usings,
+      params.wraps ? applyWraps(code, params.wraps) : code,
+    ].join("\n");
+    fs.addTypeSpecFile("main.tsp", actualCode);
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     return [{ program, types: {} }, program.diagnostics];
   }

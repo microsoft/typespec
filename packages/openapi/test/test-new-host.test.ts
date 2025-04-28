@@ -30,3 +30,32 @@ it("case 2: wraps", async () => {
     message: "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
   });
 });
+
+const LibsImported = Tester.importLibraries();
+
+it("case 3: auto imports", async () => {
+  const diagnostics = await LibsImported.diagnose(`
+      using OpenAPI;
+      @operationId("foo")
+      model Foo {}
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "decorator-wrong-target",
+    message: "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
+  });
+});
+
+const LibsAndUsing = Tester.importLibraries().using("OpenAPI");
+
+it("case 4: auto imports and auto using", async () => {
+  const diagnostics = await LibsAndUsing.diagnose(`
+      @operationId("foo")
+      model Foo {}
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "decorator-wrong-target",
+    message: "Cannot apply @operationId decorator to Foo since it is not assignable to Operation",
+  });
+});
