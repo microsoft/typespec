@@ -1,9 +1,10 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.js";
 import { getProgram } from "../test-host.js";
 describe("Typescript Function Declaration", () => {
@@ -19,7 +20,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation} />
             </SourceFile>
@@ -45,7 +46,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration async type={operation} />
             </SourceFile>
@@ -77,7 +78,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration export type={operation} />
             </SourceFile>
@@ -103,7 +104,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration name="newName" type={operation} />
             </SourceFile>
@@ -129,11 +130,14 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration
                 type={operation}
-                parameters={{ name: "string", age: "number" }}
+                parameters={[
+                  { name: "name", type: "string" },
+                  { name: "age", type: "number" },
+                ]}
               />
             </SourceFile>
           </Output>,
@@ -167,7 +171,7 @@ describe("Typescript Function Declaration", () => {
         const model = Array.from((namespace as Namespace).models.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation}>
                 <FunctionDeclaration.Parameters type={model} />
@@ -198,7 +202,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <FunctionDeclaration export type={operation}>
                 const message = "Hello World!"; console.log(message);

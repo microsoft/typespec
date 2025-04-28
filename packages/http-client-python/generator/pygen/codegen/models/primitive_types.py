@@ -618,13 +618,13 @@ class MultiPartFileType(PrimitiveType):
         return self.name
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}._vendor.{self.name}"
+        return f"~{self.code_model.namespace}._utils.utils.{self.name}"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
+            self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.utils"),
             self.name,
             ImportType.LOCAL,
         )

@@ -15,10 +15,13 @@ export type FunctionDeclarationProps =
   | FunctionDeclarationPropsWithType
   | ts.FunctionDeclarationProps;
 
+/**
+ * A TypeScript function declaration. Pass the `type` prop to create the
+ * function declaration by converting from a TypeSpec Operation. Any other props
+ * provided will take precedence.
+ */
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
   if (!isTypedFunctionDeclarationProps(props)) {
-    if (!props.name) {
-    }
     return <ts.FunctionDeclaration {...props} />;
   }
 

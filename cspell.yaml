@@ -57,7 +57,9 @@ words:
   - Dorg
   - Dosgi
   - dotenv
+  - duplicative
   - Dskip
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -87,6 +89,7 @@ words:
   - hscs
   - hsjs
   - HSTS
+  - httpx
   - imple
   - Infima
   - initcs
@@ -145,6 +148,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -155,6 +159,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -178,6 +183,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport

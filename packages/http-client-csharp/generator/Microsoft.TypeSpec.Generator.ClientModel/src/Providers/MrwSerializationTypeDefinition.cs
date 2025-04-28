@@ -191,18 +191,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 deserialize
             };
             return new MethodProvider(
-                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                new MethodSignature(Type.Name, null, modifiers, Type, null, [result]),
                 methodBody,
                 this);
         }
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {requestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                new MethodSignature(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, requestContentType, null, [model]),
                 new MethodBodyStatement[]
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
@@ -794,8 +795,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
 
-                    // By default, we should only deserialize properties with wire info. Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo == null)
+                    // By default, we should only deserialize properties with wire info that are payload properties.
+                    // Those properties without wire info indicate they are not spec properties.
+                    if (wireInfo?.Location != PropertyLocation.Body)
                     {
                         continue;
                     }
@@ -1369,10 +1371,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
             List<MethodBodyStatement> propertyStatements = new();
+
+            // we should only write those properties with wire info and are payload properties.
+            // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (property.WireInfo == null)
+                if (property.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }
@@ -1382,8 +1386,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (field.WireInfo == null)
+                if (field.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }

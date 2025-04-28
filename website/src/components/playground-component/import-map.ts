@@ -2,9 +2,18 @@ export interface VersionData {
   latest: string;
   requested: string;
   resolved: string;
+  importMap: ImportMap;
 }
 
-export async function loadImportMap({ latestVersion }: { latestVersion: string }) {
+export interface ImportMap {
+  imports: Record<string, string>;
+}
+
+export async function loadImportMap({
+  latestVersion,
+}: {
+  latestVersion: string;
+}): Promise<VersionData> {
   const optionsScript = document.querySelector("script[type=playground-options]");
   if (optionsScript === undefined) {
     throw new Error("Could not find script[type=playground-options] script");
@@ -26,11 +35,10 @@ export async function loadImportMap({ latestVersion }: { latestVersion: string }
 
   (window as any).importShim.addImportMap(importMap);
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   return {
     latest: latestVersion,
-    requested: requestedVersion,
+    requested: requestedVersion!,
     resolved: requestedVersion ?? latestVersion,
-    importMap: JSON.parse(content),
+    importMap,
   };
 }

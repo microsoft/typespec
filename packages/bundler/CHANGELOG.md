@@ -1,5 +1,23 @@
 # Change Log - @typespec/bundler
 
+## 0.4.1
+
+### Bug Fixes
+
+- [#6839](https://github.com/microsoft/typespec/pull/6839) Fix bundler on windows
+
+
+## 0.4.0
+
+### Features
+
+- [#6733](https://github.com/microsoft/typespec/pull/6733) Migrate bundler build system to esbuild
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.3.0
 
 ### Breaking Changes

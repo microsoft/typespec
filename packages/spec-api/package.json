@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spec-api",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Spec api to implement mock api",
   "type": "module",
   "exports": {
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "deep-equal": "^2.2.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {

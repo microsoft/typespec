@@ -99,6 +99,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.AreEqual(cst1.GetHashCode(), cst2.GetHashCode());
         }
 
+        [Test]
+        public void TypesWithDifferentDeclaringTypesAreNotEqual()
+        {
+            var declaringType1 = new CSharpType(
+                "type1",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+            var declaringType2 = new CSharpType(
+                "type2",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+
+            var nested1 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType1,
+                [],
+                true,
+                false);
+            var nested2 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType2,
+                [],
+                true,
+                false);
+
+            Assert.IsFalse(nested1.Equals(nested2));
+        }
+
         [TestCase(typeof(IList<>), new[] { typeof(int) })]
         [TestCase(typeof(IReadOnlyList<>), new[] { typeof(string) })]
         [TestCase(typeof(IDictionary<,>), new[] { typeof(string), typeof(string) })]

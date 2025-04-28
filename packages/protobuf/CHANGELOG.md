@@ -1,5 +1,19 @@
 # Change Log - @typespec/protobuf
 
+## 0.69.0
+
+### Bug Fixes
+
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+
+
+## 0.68.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.67.0
 
 ### Features

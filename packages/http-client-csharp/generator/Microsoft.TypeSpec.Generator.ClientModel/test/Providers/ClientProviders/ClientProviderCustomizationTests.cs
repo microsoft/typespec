@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -21,7 +22,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -52,7 +54,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -83,11 +86,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task CanAddMethodSameName()
         {
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
-            ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -122,7 +124,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -156,11 +159,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(false)]
         public async Task CanReplaceStructMethod(bool isStructCustomized)
         {
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)
-            ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            List<InputParameter> parameters = [InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: parameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(isStructCustomized.ToString()));
@@ -203,7 +205,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -238,7 +241,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -274,7 +278,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             InputClient subClient = InputFactory.Client("custom", parent: inputClient);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
@@ -301,8 +306,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("dog", operations: [], parameters: [], parent: inputClient);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            InputClient subClient = InputFactory.Client("dog", methods: [], parameters: [], parent: inputClient);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

@@ -1,7 +1,7 @@
 {
   "name": "@typespec/standalone-cli",
   "private": true,
-  "version": "0.67.3",
+  "version": "0.69.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Standalone CLI",
   "homepage": "https://typespec.io",

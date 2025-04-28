@@ -1,9 +1,5 @@
 import {
   Enum,
-  ModelProperty,
-  Program,
-  Scalar,
-  Type,
   getEncode,
   getFormat,
   getMaxItems,
@@ -13,7 +9,12 @@ import {
   getMinValue,
   getMinValueExclusive,
   isArrayModelType,
+  ModelProperty,
+  Program,
   resolveEncodedName,
+  Scalar,
+  Type,
+  Union,
 } from "@typespec/compiler";
 import { camelCase } from "change-case";
 import {
@@ -27,8 +28,9 @@ import {
   RawValue,
   StringValue,
 } from "./interfaces.js";
-import { getStringConstraint, isArrayType } from "./type-helpers.js";
-import { ExtendedIntrinsicScalarName, getCSharpTypeForScalar } from "./utils.js";
+
+import { getEnumType, getStringConstraint, isArrayType } from "./type-helpers.js";
+import { ExtendedIntrinsicScalarName, getCSharpTypeForScalar, isStringEnumType } from "./utils.js";
 
 export const JsonNamespace: string = "System.Text.Json";
 
@@ -489,7 +491,7 @@ export function getSafeIntAttribute(type: Scalar): Attribute | undefined {
   return attr;
 }
 
-function getEnumAttribute(type: Enum, cSharpName?: string): Attribute {
+function getEnumAttribute(type: Enum | Union, cSharpName?: string): Attribute {
   return new Attribute(
     new AttributeType({
       name: `JsonConverter(typeof(JsonStringEnumConverter))`,
@@ -503,7 +505,12 @@ export function getAttributes(program: Program, type: Type, cSharpName?: string)
   const result: Set<Attribute> = new Set<Attribute>();
   switch (type.kind) {
     case "Enum":
-      result.add(getEnumAttribute(type, cSharpName));
+      if (getEnumType(type) === "string") result.add(getEnumAttribute(type, cSharpName));
+      break;
+    case "Union":
+      if (isStringEnumType(program, type)) {
+        result.add(getEnumAttribute(type, cSharpName));
+      }
       break;
     case "Model":
       break;

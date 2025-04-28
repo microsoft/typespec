@@ -13,12 +13,21 @@ import {
   getMinValue,
   getMinValueExclusive,
 } from "../../../core/intrinsic-type-state.js";
-import { isErrorType, isNeverType } from "../../../core/type-utils.js";
-import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
-import { getDoc, getSummary } from "../../../lib/decorators.js";
+import { isNeverType } from "../../../core/type-utils.js";
+import {
+  Entity,
+  Enum,
+  Model,
+  Namespace,
+  Node,
+  Scalar,
+  Union,
+  type Type,
+} from "../../../core/types.js";
+import { getDoc, getSummary, isErrorModel } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
+import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
-import { $ } from "../index.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
@@ -34,10 +43,10 @@ export interface TypeTypekit {
    */
   finishType(type: Type): void;
   /**
-   * Checks if a type is decorated with @error
+   * Checks if a type is decorated with `@error`
    * @param type The type to check.
    */
-  isError(type: Type): boolean;
+  isError(type: Type): type is Model;
   /**
    * Get the name of this type in the specified encoding.
    */
@@ -122,6 +131,25 @@ export interface TypeTypekit {
    * @returns True if the type is a user defined type, false otherwise.
    */
   isUserDefined(type: Type): boolean;
+
+  /**
+   * Checks if the given type is in the given namespace (directly or indirectly) by walking up the type's namespace chain.
+   *
+   * @param type The type to check.
+   * @param namespace The namespace to check membership against.
+   * @returns True if the type is in the namespace, false otherwise.
+   */
+  inNamespace(type: Type, namespace: Namespace): boolean;
+
+  /**
+   * Check if the source type can be assigned to the target.
+   * @param source Source type
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic
+   */
+  isAssignableTo: Diagnosable<
+    (source: Type, target: Entity, diagnosticTarget?: Entity | Node) => boolean
+  >;
 }
 
 interface TypekitExtension {
@@ -215,7 +243,7 @@ defineKit<TypekitExtension>({
       return clone;
     },
     isError(type) {
-      return isErrorType(type);
+      return isErrorModel(this.program, type);
     },
     getEncodedName(type, encoding) {
       return resolveEncodedName(this.program, type, encoding);
@@ -231,7 +259,7 @@ defineKit<TypekitExtension>({
     },
     getDiscriminator(type) {
       let discriminator: Discriminator | undefined;
-      if ($.model.is(type)) {
+      if (this.model.is(type)) {
         discriminator = getDiscriminator(this.program, type);
       } else {
         const unionDiscriminator = ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
@@ -273,5 +301,40 @@ defineKit<TypekitExtension>({
     isUserDefined(type) {
       return getLocationContext(this.program, type).type === "project";
     },
+    inNamespace(type: Type, namespace: Namespace): boolean {
+      // A namespace is always in itself
+      if (type === namespace) {
+        return true;
+      }
+
+      // Handle types with known containers
+      switch (type.kind) {
+        case "ModelProperty":
+          if (type.model) {
+            return this.type.inNamespace(type.model, namespace);
+          }
+          break;
+        case "EnumMember":
+          return this.type.inNamespace(type.enum, namespace);
+        case "UnionVariant":
+          return this.type.inNamespace(type.union, namespace);
+        case "Operation":
+          if (type.interface) {
+            return this.type.inNamespace(type.interface, namespace);
+          }
+          // Operations that belong to a namespace directly will be handled in the generic case
+          break;
+      }
+
+      // Generic case handles all other types
+      if ("namespace" in type && type.namespace) {
+        return this.type.inNamespace(type.namespace, namespace);
+      }
+      // If we got this far, the type does not belong to the namespace
+      return false;
+    },
+    isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
+      return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
   },
 });

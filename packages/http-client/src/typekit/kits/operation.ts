@@ -56,7 +56,7 @@ defineKit<SdkKit>({
     },
     getOverloads(client, operation) {
       if (operation.name === "constructor") {
-        const constructors = getConstructors(client);
+        const constructors = getConstructors(this, client);
         if (constructors.length > 1) {
           return constructors;
         }
