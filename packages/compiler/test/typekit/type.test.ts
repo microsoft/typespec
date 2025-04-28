@@ -86,7 +86,26 @@ describe("getPlausibleName", () => {
     expect($(program).type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
   });
 
-  it("returns a generated name for anonymous arrays", async () => {
+  it("returns a generated name for templated scalars", async () => {
+    const {
+      Bar,
+      context: { program },
+    } = await getTypes(
+      `
+      scalar myInt extends int32;
+      @test model Bar {
+        myIntArray: Array<myInt>;
+      }
+      `,
+      ["Bar"],
+    );
+
+    const int32Array = (Bar as Model).properties.get("myIntArray")!.type as Model;
+    expect(isTemplateInstance(int32Array)).toBe(true);
+    expect($(program).type.getPlausibleName(int32Array)).toBe("MyIntArray");
+  });
+
+  it("returns a generated name for various nesting levels", async () => {
     const {
       Bar,
       context: { program },

@@ -12,6 +12,10 @@ export function getPlausibleName(type: Model | Union | Enum | Scalar | Interface
     name = "TypeExpression"; // TODO: Implement automatic name generation based on the type context
   }
 
+  if (type.kind === "Scalar") {
+    name = `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+  }
+
   if (isTemplateInstance(type)) {
     const namePrefix = type.templateMapper.args
       .map((a) => {
