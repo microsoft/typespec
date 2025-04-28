@@ -1,5 +1,5 @@
 import { Namespace } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, TesterInstance } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
@@ -13,7 +13,7 @@ import {
 import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
-  let runner: BasicTestRunner;
+  let runner: TesterInstance;
 
   beforeEach(async () => {
     runner = await createOpenAPITestRunner();

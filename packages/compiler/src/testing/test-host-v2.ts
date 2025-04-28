@@ -5,16 +5,14 @@ import { CompilerOptions } from "../core/options.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { Diagnostic, NoTarget, SourceFile, Type } from "../core/types.js";
+import { Diagnostic, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
-export interface TestCompileResult {
-  readonly program: Program;
-  readonly types: Record<string, Type>;
-}
+// Need a way to combine that with `program`
+export type TestCompileResult = Record<string, Type>;
 
 export interface JsFileDef {
   [key: string]: string | unknown;
@@ -44,7 +42,9 @@ export interface Tester extends Testable {
   createInstance(): TesterInstance;
 }
 
-export interface TesterInstance extends Testable {}
+export interface TesterInstance extends Testable {
+  readonly program: Program;
+}
 
 export interface TesterOptions {
   libraries: string[];
@@ -75,11 +75,6 @@ async function createTesterFs(base: string, options: TesterOptions) {
   }
 
   await fs.addTypeSpecLibrary(StandardTestLibrary);
-  fs.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
-  fs.addJsFile(".tsp/test-lib/test.js", {
-    namespace: "TypeSpec",
-    $test(_: any, target: Type) {},
-  });
 
   function computeVirtualPath(file: SourceFile): string {
     const context = sl.resolution.locationContexts.get(file);
@@ -122,9 +117,11 @@ interface TesterInternalParams {
 }
 
 function createTesterInternal(params: TesterInternalParams): Tester {
-  const testable = createInstance();
+  const { compile, compileAndDiagnose, diagnose } = createInstance();
   return {
-    ...testable,
+    compile,
+    compileAndDiagnose,
+    diagnose,
     wrap,
     importLibraries,
     import: importFn,
@@ -172,10 +169,18 @@ function createTesterInternal(params: TesterInternalParams): Tester {
 }
 
 function createTesterInstance(params: TesterInternalParams): TesterInstance {
+  let savedProgram: Program | undefined;
+
   return {
     compileAndDiagnose,
     compile,
     diagnose,
+    get program() {
+      if (!savedProgram) {
+        throw new Error("Program not initialized. Call compile first.");
+      }
+      return savedProgram;
+    },
   };
 
   function applyWraps(code: string, wraps: ((code: string) => string)[]): string {
@@ -189,6 +194,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult, readonly Diagnostic[]]> {
     const fs = await params.fs();
+    const types = await addTestLib(fs);
 
     const imports = (params.imports ?? []).map((x) => `import "${x}";`);
     const usings = (params.usings ?? []).map((x) => `using ${x};`);
@@ -200,7 +206,8 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     ].join("\n");
     fs.addTypeSpecFile("main.tsp", actualCode);
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
-    return [{ program, types: {} }, program.diagnostics];
+    savedProgram = program;
+    return [{ program, ...types } as any, program.diagnostics];
   }
 
   async function compile(code: string, options?: TestCompileOptions): Promise<TestCompileResult> {
@@ -215,4 +222,36 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     const [_, diagnostics] = await compileAndDiagnose(code, options);
     return diagnostics;
   }
+}
+
+function addTestLib(fs: TestFileSystem): Record<string, Type> {
+  const testTypes: Record<string, Type> = {};
+  // add test decorators
+  fs.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
+  fs.addJsFile(".tsp/test-lib/test.js", {
+    namespace: "TypeSpec",
+    $test(_: any, target: Type, nameLiteral?: StringLiteral) {
+      let name = nameLiteral?.value;
+      if (!name) {
+        if (
+          target.kind === "Model" ||
+          target.kind === "Scalar" ||
+          target.kind === "Namespace" ||
+          target.kind === "Enum" ||
+          target.kind === "Operation" ||
+          target.kind === "ModelProperty" ||
+          target.kind === "EnumMember" ||
+          target.kind === "Interface" ||
+          (target.kind === "Union" && !target.expression)
+        ) {
+          name = target.name!;
+        } else {
+          throw new Error("Need to specify a name for test type");
+        }
+      }
+
+      testTypes[name] = target;
+    },
+  });
+  return testTypes;
 }
