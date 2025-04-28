@@ -17,6 +17,7 @@ import {
   SdkTupleType,
   SdkType,
   SdkUnionType,
+  UsageFlags,
   getAccessOverride,
   isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
@@ -354,6 +355,9 @@ function fromSdkConstantType(
   literalType = {
     kind: constantType.kind,
     name: constantType.name,
+    namespace: "", // constantType.namespace, TODO - constant type now does not have namespace. TCGC will add it later
+    access: undefined, // constantType.access, TODO - constant type now does not have access. TCGC will add it later
+    usage: UsageFlags.None, // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
     valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
     value: constantType.value,
     decorators: constantType.decorators,

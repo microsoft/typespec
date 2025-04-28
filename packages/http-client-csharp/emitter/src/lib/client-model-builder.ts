@@ -8,7 +8,7 @@ import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
 import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { getClientNamespaceString } from "./utils.js";
+import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -40,8 +40,28 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
-  // TODO - this is a workaround because of bug in TCGC: https://github.com/Azure/typespec-azure/issues/2572
-  // now in the TCGC output, a lot of constants are sharing the same name
+  // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
+  // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
+  // issues:
+  // - https://github.com/Azure/typespec-azure/issues/2572 (constants in operations)
+  // - https://github.com/Azure/typespec-azure/issues/2563 (constants in models)
+  // First we correct the names of the constants in models.
+  for (const model of sdkContext.__typeCache.models.values()) {
+    // because this `models` list already contains all the models, therefore we just need to iterate all of them to find if any their properties is constant
+    for (const property of model.properties) {
+      const type = property.type;
+      if (type.kind === "constant") {
+        // if a property is constant, we need to override its name, namespace, access and usage.
+        type.name = `${model.name}${firstLetterToUpperCase(property.name)}`;
+        type.namespace = model.namespace;
+        type.access = model.access;
+        type.usage = model.usage;
+      }
+    }
+  }
+  // hopefully the above would resolve all those name conflicts in those constants used in models.
+  // but it would not cover the constant used as operation parameters
+  // therefore here we just number them if we find other name collisions.
   const constantNameMap = new Map<string, number>();
   for (const constant of sdkContext.__typeCache.constants.values()) {
     const count = constantNameMap.get(constant.name);
