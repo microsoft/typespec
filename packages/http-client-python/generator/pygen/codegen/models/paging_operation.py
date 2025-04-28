@@ -60,9 +60,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
         self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
-        if (yaml_data.get("nextLinkReInjectedParameters")):
-            raise ValueError(yaml_data.get("nextLinkReInjectedParameters"))
-        self.next_link_reinjected_parameters: List[Parameter] = [Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])]
+        self.next_link_reinjected_parameters: List[Parameter] = [
+            Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
+        ]
 
     @property
     def has_continuation_token(self) -> bool:

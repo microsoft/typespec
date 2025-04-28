@@ -1276,10 +1276,11 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 else api_version_param.full_client_name
             )
             retval.append(f'_next_request_params["api-version"] = {api_version}')
-            if (builder.next_link_reinjected_parameters):
+            if builder.next_link_reinjected_parameters:
                 for param in builder.next_link_reinjected_parameters:
                     if param.location == ParameterLocation.QUERY:
-                        retval.append(f'_next_request_params["{param.wire_name}"] = {param.client_name}')
+                        retval.append(f"if {param.client_name}:")
+                        retval.append(f'    _next_request_params["{param.wire_name}"] = {param.client_name}')
             query_str = ", params=_next_request_params"
             next_link_str = "urllib.parse.urljoin(next_link, _parsed_next_link.path)"
         except StopIteration:
