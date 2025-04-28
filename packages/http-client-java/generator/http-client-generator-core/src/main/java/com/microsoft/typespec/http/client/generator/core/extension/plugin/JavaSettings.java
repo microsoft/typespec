@@ -274,12 +274,12 @@ public class JavaSettings {
         this.clientBuilderDisabled = getBooleanValue(host, "disable-client-builder", false);
 
         // The polling configuration.
-        final Map<String, PollingSettings> polling
+        final Map<String, PollingSettings> operationPollingMapping
             = host.getValueWithJsonReader("polling", reader -> reader.readMap(PollingSettings::fromJson));
-        if (polling != null && !polling.containsKey("default")) {
-            polling.put("default", new PollingSettings());
+        if (operationPollingMapping != null && !operationPollingMapping.containsKey("default")) {
+            operationPollingMapping.put("default", new PollingSettings());
         }
-        this.polling = polling;
+        this.operationPollingMapping = operationPollingMapping;
 
         // Whether to generate samples.
         this.generateSamples = getBooleanValue(host, "generate-samples", false);
@@ -1277,7 +1277,7 @@ public class JavaSettings {
         return generateGraalVmConfig;
     }
 
-    private final Map<String, PollingSettings> polling;
+    private final Map<String, PollingSettings> operationPollingMapping;
 
     /**
      * Gets the polling configuration for the specified operation.
@@ -1287,15 +1287,15 @@ public class JavaSettings {
      * configuration is specified for the operation.
      */
     public PollingSettings getPollingSettings(String operationId) {
-        if (polling == null) {
+        if (operationPollingMapping == null) {
             return null;
         }
-        for (String key : polling.keySet()) {
+        for (String key : operationPollingMapping.keySet()) {
             if (key.equalsIgnoreCase(operationId)) {
-                return polling.get(key);
+                return operationPollingMapping.get(key);
             }
         }
-        return polling.get("default");
+        return operationPollingMapping.get("default");
     }
 
     private final boolean annotateGettersAndSettersForSerialization;

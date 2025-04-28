@@ -11,6 +11,8 @@ import java.io.IOException;
 
 /**
  * type representing the user configured polling settings for long-running operations.
+ * <a href="https://github.com/Azure/autorest.java?tab=readme-ov-file#polling-configuration">Configure Polling
+ * Settings</a>
  */
 public final class PollingSettings implements JsonSerializable<PollingSettings> {
     private String pollingStrategy;

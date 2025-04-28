@@ -91,13 +91,12 @@ final class PollingMetadata {
             pollIntervalInSeconds);
     }
 
-    boolean hasBinaryDataResultTypes() {
-        if (ClassType.BINARY_DATA.equals(pollResultType)) {
-            return ClassType.BINARY_DATA.equals(finalResultType) || ClassType.VOID.equals(finalResultType.asNullable());
-        }
-        return false;
-    }
-
+    /**
+     * Checks whether the poll and final result types are model types (i.e., not {@link com.azure.core.util.BinaryData}
+     * type).
+     *
+     * @return true if the poll and final result types are model types, false otherwise.
+     */
     boolean hasModelResultTypes() {
         final boolean pollResultTypeUsesModel = !ClassType.BINARY_DATA.equals(pollResultType);
         final boolean finalResultTypeUsesModel
