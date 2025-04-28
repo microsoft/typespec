@@ -643,10 +643,20 @@ export interface UnionVariant extends BaseType, DecoratedType {
   union: Union;
 }
 
+/**
+ * This is a type you should never see in the program.
+ * If you do you might be missing a `isTemplateDeclaration` check to exclude that type.
+ * Working with template declaration is not something that is currently supported.
+ *
+ * @experimental
+ */
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
+  /** @internal */
   node: TemplateParameterDeclarationNode;
+  /** @internal */
   constraint?: MixedParameterConstraint;
+  /** @internal */
   default?: Type | Value | IndeterminateEntity;
 }
 
