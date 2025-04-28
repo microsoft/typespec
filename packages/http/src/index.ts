@@ -53,15 +53,15 @@ export { $linter } from "./linter.js";
 export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
 export {
+  HttpVisibilityProvider,
+  Visibility,
   createMetadataInfo,
   getVisibilitySuffix,
-  HttpVisibilityProvider,
   isApplicableMetadata,
   isApplicableMetadataOrBody,
   isMetadata,
   isVisible,
   resolveRequestVisibility,
-  Visibility,
   type MetadataInfo,
   type MetadataInfoOptions,
 } from "./metadata.js";
@@ -75,9 +75,9 @@ export {
 } from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
+  HttpPart,
   getHttpFileModel,
   getHttpPart,
-  HttpPart,
   isHttpFile,
   isOrExtendsHttpFile,
 } from "./private.decorators.js";
@@ -92,6 +92,8 @@ export {
   setRoute,
   setSharedRoute,
 } from "./route.js";
+
+export { MergePatchProperties, getMergePatchProperties, isMergePatch } from "./merge-patch.js";
 
 export type {
   AnyHttpAuthRef,
@@ -135,11 +137,11 @@ export type {
   ImplicitFlow,
   NoAuth,
   NoHttpAuthRef,
-  Oauth2Auth,
   OAuth2Flow,
   OAuth2FlowType,
   OAuth2HttpAuthRef,
   OAuth2Scope,
+  Oauth2Auth,
   OpenIDConnectAuth,
   OperationContainer,
   OperationVerbSelector,
