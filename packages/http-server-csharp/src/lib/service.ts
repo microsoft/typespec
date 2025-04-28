@@ -53,6 +53,7 @@ import {
   isHeader,
   isStatusCode,
 } from "@typespec/http";
+import { getUniqueItems } from "@typespec/json-schema";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
 import path from "path";
@@ -211,11 +212,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
-      const collectionDeclaration = this.collectionDeclaration(elementType);
-      return this.emitter.result.declaration(
-        ensureCSharpIdentifier(this.emitter.getProgram(), array, name),
-        code`${collectionDeclaration}`,
-      );
+      return this.collectionDeclaration(elementType, array);
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
@@ -229,12 +226,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         return code`${csType.type.getTypeReference(this.emitter.getContext()?.scope)}`;
       }
 
-      return this.collectionDeclaration(elementType);
+      return this.collectionDeclaration(elementType, array);
     }
 
-    collectionDeclaration(elementType: Type): EmitterOutput<string> {
-      const collectionType = CSharpServiceOptions.getInstance().collectionType;
+    collectionDeclaration(elementType: Type, array: Model): EmitterOutput<string> {
+      const isUniqueItems = getUniqueItems(this.emitter.getProgram(), array);
+      const collectionType = isUniqueItems
+        ? CollectionType.ISet
+        : CSharpServiceOptions.getInstance().collectionType;
+
       switch (collectionType) {
+        case CollectionType.ISet:
+          return code`ISet<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
         case CollectionType.IEnumerable:
           return code`IEnumerable<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
         case CollectionType.Array:

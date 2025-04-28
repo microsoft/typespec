@@ -590,7 +590,7 @@ it("generates standard scalar array for uniqueItems model", async () => {
       @route("/Foo/{id}") @get op get(@path id: string): Foo;
       `,
     "IContosoOperations.cs",
-    ["Task<ISet<string>[]> ListAsync( )", "Task<ISet<string>> GetAsync( string id)"],
+    ["Task<ISet<string>[]> ListAsync( )", "Task<ISet<string>> GetNameAsync( string id)"],
   );
 });
 
