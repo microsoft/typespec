@@ -86,7 +86,7 @@ describe("getPlausibleName", () => {
     expect($(program).type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
   });
 
-  it("returns a generated name for templated scalars", async () => {
+  it("handles scalars correctly", async () => {
     const {
       Bar,
       context: { program },
@@ -95,14 +95,19 @@ describe("getPlausibleName", () => {
       scalar myInt extends int32;
       @test model Bar {
         myIntArray: Array<myInt>;
+        myInt: myInt;
       }
       `,
       ["Bar"],
     );
 
-    const int32Array = (Bar as Model).properties.get("myIntArray")!.type as Model;
-    expect(isTemplateInstance(int32Array)).toBe(true);
-    expect($(program).type.getPlausibleName(int32Array)).toBe("MyIntArray");
+    const myIntArray = (Bar as Model).properties.get("myIntArray")!.type as Model;
+    expect(isTemplateInstance(myIntArray)).toBe(true);
+    expect($(program).type.getPlausibleName(myIntArray)).toBe("MyIntArray");
+
+    const myInt = (Bar as Model).properties.get("myInt")!.type as Scalar;
+    expect(isTemplateInstance(myInt)).toBe(false);
+    expect($(program).type.getPlausibleName(myInt)).toBe("myInt");
   });
 
   it("returns a generated name for various nesting levels", async () => {
