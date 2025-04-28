@@ -156,6 +156,7 @@ import {
   UnknownType,
   UsingStatementNode,
   Value,
+  ValueWithTemplate,
   VoidType,
 } from "./types.js";
 
@@ -303,7 +304,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
   >();
-  const valueExactTypes = new WeakMap<Value, Type>();
+  const valueExactTypes = new WeakMap<ValueWithTemplate, Type>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -575,12 +576,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return createValue(
         {
           entityKind: "Value",
-          valueKind: "NullValue",
+          valueKind: "TemplateValue",
           type: entity.constraint.valueType,
-          value: null,
         },
         entity.constraint.valueType,
-      );
+      ) as any;
     }
     reportExpectedValue(node, entity);
     return null;
@@ -3823,7 +3823,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
-  function createValue<T extends Value>(value: T, preciseType: Type): T {
+  function createValue<T extends ValueWithTemplate>(value: T, preciseType: Type): T {
     valueExactTypes.set(value, preciseType);
     return value;
   }
