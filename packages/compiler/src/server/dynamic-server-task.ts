@@ -1,12 +1,7 @@
+import { StatusIcons } from "../core/logger/dynamic-task.js";
 import { TaskStatus, TrackActionTask } from "../core/types.js";
 import { ServerLog } from "./types.js";
 
-const StatusIcons = {
-  success: "✔",
-  failure: "×",
-  warn: "⚠",
-  skipped: "•",
-};
 export class DynamicServerTask implements TrackActionTask {
   #log: (log: ServerLog) => void;
   #message: string;
