@@ -202,6 +202,12 @@ export const $lib = createTypeSpecLibrary({
           "Cannot convert model to a merge-patch compatible shape because it contains the 'null' intrinsic type.",
       },
     },
+    "merge-patch-content-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type '${"contentType"}'.`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
@@ -231,6 +237,7 @@ export const $lib = createTypeSpecLibrary({
     file: { description: "State for the @Private.file decorator" },
     httpPart: { description: "State for the @Private.httpPart decorator" },
     mergePatchModel: { description: "State marking mergePatch models " },
+    mergePatchProperty: { description: "State marking merge path model property source" },
   },
 });
 

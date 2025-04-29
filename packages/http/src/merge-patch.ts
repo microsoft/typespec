@@ -35,15 +35,26 @@ import {
   ApplyMergePatchDecorator,
   ApplyMergePatchOptions,
   MergePatchModelDecorator,
+  MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
   target: Model,
+  source: Model,
 ) => {
-  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, true);
+  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
 };
+
+export const $mergePatchProperty: MergePatchPropertyDecorator = (
+  ctx: DecoratorContext,
+  target: ModelProperty,
+  source: ModelProperty,
+) => {
+  ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(target, source);
+};
+
 export const $applyMergePatch: ApplyMergePatchDecorator = (
   ctx: DecoratorContext,
   target: Model,
@@ -75,7 +86,7 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
   );
 
   target.properties = (mutated.type as Model).properties;
-  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, true);
+  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
 };
 
 /**
@@ -86,6 +97,29 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
  */
 export function isMergePatch(program: Program, model: Model): boolean {
   return program.stateMap(HttpStateKeys.mergePatchModel).has(model);
+}
+
+/**
+ * If the given model is part of a mergePatch transform, return s alink to the source model
+ * @param program The compiled TypeSpec program
+ * @param model The model to check
+ * @returns If this model was created by a mergePatch transform, returns the corresponding model that was transformed. Otherwise returns undefined.
+ */
+export function getMergePatchSource(program: Program, model: Model): Model | undefined {
+  return program.stateMap(HttpStateKeys.mergePatchModel).get(model);
+}
+
+/**
+ * If the given property was created as part of a mergePatch transform, return s alink to the source model
+ * @param program The compiled TypeSpec program
+ * @param property The property to check
+ * @returns If this property was created by a mergePatch transform, returns the corresponding source property that was transformed. Otherwise returns undefined.
+ */
+export function getMergePatchPropertySource(
+  program: Program,
+  property: ModelProperty,
+): ModelProperty | undefined {
+  return program.stateMap(HttpStateKeys.mergePatchProperty).get(property);
 }
 
 /** The characteristics of the property as part of a mergePatch request body */
@@ -120,11 +154,12 @@ export function getMergePatchProperties(
     }
   }
   if (!property.model || !isMergePatch(program, property.model)) return undefined;
+  const sourceProperty = getMergePatchPropertySource(program, property)!;
   return {
-    erasable: property.optional || property.defaultValue !== undefined,
-    updateBehavior: getUpdateBehavior(property.type),
-    sourceProperty: property.sourceProperty,
-    erasedValue: property.defaultValue,
+    erasable: sourceProperty.optional || sourceProperty.defaultValue !== undefined,
+    updateBehavior: getUpdateBehavior(sourceProperty.type),
+    sourceProperty: sourceProperty,
+    erasedValue: sourceProperty.defaultValue,
   };
 }
 
@@ -432,6 +467,7 @@ function createMergePatchMutator(
           const isEffectivelyOptional = prop.optional || prop.defaultValue !== undefined;
 
           if (isEffectivelyOptional) clone.type = nullable(realm, clone.type);
+          ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
       },
     };
@@ -475,13 +511,14 @@ function createMergePatchMutator(
               realm.remove(clone);
             } else {
               const mutated = mutateSubgraph(program, [mpMutator], prop);
-
-              clone.properties.set(key, mutated.type as ModelProperty);
+              const mutatedProp = mutated.type as ModelProperty;
+              mutatedProp.model = clone;
+              clone.properties.set(key, mutatedProp);
             }
           }
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
-          ctx.call($mergePatchModel, clone);
+          ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
           ctx.call($friendlyName, clone, nameTemplate, clone);
         },
       },
@@ -491,6 +528,7 @@ function createMergePatchMutator(
           if (isMutableType(prop.type)) {
             clone.type = mutateSubgraph(program, [self], prop.type).type;
           }
+          ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
       },
       UnionVariant: {
@@ -524,7 +562,7 @@ function createMergePatchMutator(
           type: t,
         }),
         $(realm).unionVariant.create({
-          type: realm.program.checker.nullType,
+          type: $(realm).intrinsic.null,
         }),
       ],
     });
