@@ -335,7 +335,7 @@ public class ProxyMethod {
             = this.getAllParameters().stream().map(this::mapToSyncParam).collect(Collectors.toList());
 
         String syncMethodName = this.getName()
-            + (JavaSettings.getInstance().isAzureCoreV2() || !JavaSettings.getInstance().isBranded() ? "" : "Sync");
+            + (JavaSettings.getInstance().isAzureV2() || !JavaSettings.getInstance().isAzureV1() ? "" : "Sync");
         this.syncProxy = new ProxyMethod.Builder().parameters(syncParams)
             .httpMethod(this.getHttpMethod())
             .name(syncMethodName)
@@ -434,7 +434,7 @@ public class ProxyMethod {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
 
-                if (!settings.isBranded()) {
+                if (!settings.isAzureV1()) {
                     ClientModel errorModel
                         = ClientModelUtil.getErrorModelFromException(getUnexpectedResponseExceptionType());
                     if (errorModel != null) {
@@ -447,7 +447,7 @@ public class ProxyMethod {
                 getUnexpectedResponseExceptionTypes().keySet()
                     .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
 
-                if (!settings.isBranded()) {
+                if (!settings.isAzureV1()) {
                     for (ClassType exceptionType : getUnexpectedResponseExceptionTypes().keySet()) {
                         ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exceptionType);
                         if (errorModel != null) {

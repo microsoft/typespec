@@ -52,7 +52,7 @@ public class MethodUtil {
     public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
         = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
     public static final String REPEATABILITY_REQUEST_ID_EXPRESSION
-        = JavaSettings.getInstance().isBranded() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
+        = JavaSettings.getInstance().isAzureV1() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
     public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
         = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 

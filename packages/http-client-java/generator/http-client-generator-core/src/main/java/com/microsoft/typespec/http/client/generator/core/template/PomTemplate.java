@@ -29,7 +29,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
     public void write(Pom pom, XmlFile xmlFile) {
         JavaSettings settings = JavaSettings.getInstance();
-        boolean branded = settings.isBranded();
+        boolean branded = settings.isAzureV1();
 
         // copyright
         if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
@@ -221,7 +221,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
             pluginBlock.block("configuration", configurationBlock -> {
-                configurationBlock.tag("release", JavaSettings.getInstance().isBranded() ? "11" : "17");
+                configurationBlock.tag("release", JavaSettings.getInstance().isAzureV1() ? "11" : "17");
             });
         });
 

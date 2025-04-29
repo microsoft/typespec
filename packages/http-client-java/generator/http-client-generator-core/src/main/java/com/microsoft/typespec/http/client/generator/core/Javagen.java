@@ -188,7 +188,7 @@ public class Javagen extends NewPlugin {
             }
 
             // Service version
-            if (settings.isDataPlaneClient() || !settings.isBranded() || settings.isAzureCoreV2()) {
+            if (settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2()) {
                 String packageName = settings.getPackage();
                 if (CoreUtils.isNullOrEmpty(client.getServiceClients())) {
                     List<String> serviceVersions = settings.getServiceVersions();

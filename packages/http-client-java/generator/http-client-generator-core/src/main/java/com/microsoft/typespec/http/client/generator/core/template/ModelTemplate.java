@@ -551,7 +551,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             && Stream.concat(model.getProperties().stream(), propertyReferences.stream())
                 .anyMatch(p -> ClientModelUtil.needsPublicSetter(p, settings));
 
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             if (fluent) {
                 javaFile.annotation("Fluent");
             } else {
@@ -1326,7 +1326,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             Annotation.GENERATED.addImportsTo(imports);
         } else {
             Annotation.METADATA.addImportsTo(imports);
@@ -1335,7 +1335,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             classBlock.annotation(Annotation.GENERATED.getName());
         } else {
             classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");

@@ -162,7 +162,7 @@ public class TypeSpecPlugin extends Javagen {
             .filter(ModelUtil::isGeneratingModel)
             .anyMatch(ClientModelUtil::isMultipartModel);
         if (generateMultipartFormDataHelper) {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             } else {

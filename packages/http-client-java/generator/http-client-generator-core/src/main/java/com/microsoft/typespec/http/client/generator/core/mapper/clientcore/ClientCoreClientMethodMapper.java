@@ -587,7 +587,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     IType listType = itemProperty.getWireType();
                     IType elementType = ((ListType) listType).getElementType();
                     // unbranded would use the model, instead of BinaryData, as return type
-                    if (isProtocolMethod && settings.isBranded()) {
+                    if (isProtocolMethod && settings.isAzureV1()) {
                         returnTypeHolder.asyncRestResponseReturnType = createProtocolPagedRestResponseReturnType();
                         returnTypeHolder.asyncReturnType = createProtocolPagedAsyncReturnType();
                         returnTypeHolder.syncReturnType = createProtocolPagedSyncReturnType();

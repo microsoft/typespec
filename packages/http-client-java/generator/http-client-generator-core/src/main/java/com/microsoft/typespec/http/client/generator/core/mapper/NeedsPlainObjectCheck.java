@@ -14,7 +14,7 @@ public interface NeedsPlainObjectCheck {
      */
     default boolean isPlainObject(ObjectSchema compositeType) {
         return !JavaSettings.getInstance().isDataPlaneClient()
-            && JavaSettings.getInstance().isBranded()
+            && JavaSettings.getInstance().isAzureV1()
             && compositeType.getProperties().isEmpty()
             && compositeType.getDiscriminator() == null
             && compositeType.getParents() == null

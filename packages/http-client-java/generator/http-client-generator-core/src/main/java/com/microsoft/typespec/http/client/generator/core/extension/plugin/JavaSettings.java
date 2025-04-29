@@ -186,16 +186,9 @@ public class JavaSettings {
         // The brand name we use to generate SDK.
         this.flavor = getStringValue(host, "flavor", "azure");
 
-        if (isAzureCoreV2()) {
-            Mappers.setFactory(new AzureVNextMapperFactory());
-            Templates.setFactory(new AzureVNextTemplateFactory());
-        } else if (!isBranded()) {
-            Mappers.setFactory(new ClientCoreMapperFactory());
-            Templates.setFactory(new ClientCoreTemplateFactory());
-        }
+        updateFlavorFactories();
 
-        this.modelsSubpackage
-            = getStringValue(host, "models-subpackage", isBranded(this.flavor) || isAzureCoreV2() ? "models" : "");
+        this.modelsSubpackage = getStringValue(host, "models-subpackage", isAzureV1() || isAzureV2() ? "models" : "");
 
         // The custom types that will be generated.
         String customTypes = getStringValue(host, "custom-types", "");
@@ -399,20 +392,30 @@ public class JavaSettings {
         this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
     }
 
-    /**
-     * Whether to generate with Azure branding.
-     *
-     * @return Whether to generate with Azure branding.
-     */
-    public boolean isBranded() {
-        return isBranded(this.flavor);
+    private void updateFlavorFactories() {
+        if (isAzureV2()) {
+            Mappers.setFactory(new AzureVNextMapperFactory());
+            Templates.setFactory(new AzureVNextTemplateFactory());
+        } else if (!isAzureV1()) {
+            Mappers.setFactory(new ClientCoreMapperFactory());
+            Templates.setFactory(new ClientCoreTemplateFactory());
+        }
     }
 
-    private static boolean isBranded(String flavor) {
+    /**
+     * Whether to generate with Azure V1.
+     *
+     * @return Whether to generate with Azure V1.
+     */
+    public boolean isAzureV1() {
+        return isAzureV1(this.flavor);
+    }
+
+    private static boolean isAzureV1(String flavor) {
         return "azure".equalsIgnoreCase(flavor);
     }
 
-    public boolean isAzureCoreV2() {
+    public boolean isAzureV2() {
         return "azurev2".equalsIgnoreCase(this.flavor);
     }
 
@@ -1179,7 +1182,7 @@ public class JavaSettings {
      * @return Whether the client is a vanilla client.
      */
     public boolean isVanilla() {
-        return isBranded() && !isDataPlaneClient() && !isFluent();
+        return isAzureV1() && !isDataPlaneClient() && !isFluent();
     }
 
     private final boolean useIterable;

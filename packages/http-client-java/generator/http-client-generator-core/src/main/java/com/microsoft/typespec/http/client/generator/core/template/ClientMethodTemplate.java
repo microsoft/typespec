@@ -455,7 +455,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                                 }
 
                                 // convert List<WireType> to String
-                                if (JavaSettings.getInstance().isBranded()) {
+                                if (JavaSettings.getInstance().isAzureV1()) {
                                     // Always use serializeIterable as Iterable supports both Iterable and List.
                                     expression = String.format(
                                         "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
@@ -835,7 +835,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String serviceMethodCall
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            if (settings.isBranded()) {
+            if (settings.isAzureV1()) {
                 pagedSinglePageResponseConversion(restAPIMethod, clientMethod, settings, function);
             } else {
                 function.line("return new PagedResponse<>(");
@@ -1318,7 +1318,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (settings.isDataPlaneClient() && settings.isBranded()) {
+                    if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                         function.line("getValues(res.getValue(), \"%s\"),",
                             clientMethod.getMethodPageDetails().getSerializedItemName());
                     } else {
@@ -1326,7 +1326,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (settings.isDataPlaneClient() && settings.isBranded()) {
+                        if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                             function.line("getNextLink(res.getValue(), \"%s\"),",
                                 clientMethod.getMethodPageDetails().getSerializedNextLinkName());
                         } else {
@@ -1689,7 +1689,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             return String.format("() -> %s(%s)", methodName, argumentLine);
         } else {
             return String.format("pagingOptions -> { %s return %s(%s); }",
@@ -1727,7 +1727,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
 
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             return String.format("nextLink -> %s(%s)", methodName, argumentLine);
         } else {
             return String.format("(pagingOptions, nextLink) -> { %s return %s(%s); }",

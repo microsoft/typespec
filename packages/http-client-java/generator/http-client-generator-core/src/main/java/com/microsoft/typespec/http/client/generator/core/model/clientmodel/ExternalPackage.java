@@ -70,7 +70,7 @@ public class ExternalPackage {
         }
 
         public ExternalPackage build() {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 switch (packageName) {
                     case CLIENTCORE_PACKAGE_NAME:
                         packageName = AZURE_CORE_PACKAGE_NAME;

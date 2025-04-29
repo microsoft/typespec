@@ -345,7 +345,7 @@ public class ServiceClient {
 
             ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
             ClassType.RETRY_POLICY.addImportsTo(imports, false);
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 imports.add(UserAgentPolicy.class.getName());
             }
         }

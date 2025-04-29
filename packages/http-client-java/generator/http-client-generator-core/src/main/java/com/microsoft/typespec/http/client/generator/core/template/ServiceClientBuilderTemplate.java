@@ -175,7 +175,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         String.format("String[] DEFAULT_SCOPES = new String[] {%s}", String.join(", ", scopes)));
                 }
 
-                if (settings.isBranded() || settings.isAzureCoreV2()) {
+                if (settings.isAzureV1() || settings.isAzureV2()) {
                     // properties for sdk name and version
                     String propertiesValue = "new HashMap<>()";
                     String artifactId = ClientModelUtil.getArtifactId();
@@ -295,7 +295,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         serializerExpression = getLocalBuildVariableName(getSerializerMemberName());
                     }
 
-                    if (!settings.isBranded() || settings.isAzureCoreV2()) {
+                    if (!settings.isAzureV1() || settings.isAzureV2()) {
                         if (constructorArgs != null && !constructorArgs.isEmpty()) {
                             function
                                 .line(String.format("%1$s client = new %2$s(%3$s%4$s);", serviceClient.getClassName(),
@@ -571,7 +571,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 ClassType.DURATION, "defaultPollInterval", false, "Duration.ofSeconds(30)"));
         }
 
-        if (settings.isBranded() && !settings.isDataPlaneClient()) {
+        if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
             commonProperties.add(new ServiceClientProperty("The serializer to serialize an object into a string",
                 ClassType.SERIALIZER_ADAPTER, getSerializerMemberName(), false,
                 settings.isFluent()
@@ -579,7 +579,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                     : JACKSON_SERIALIZER));
         }
 
-        if (!settings.isAzureOrFluent() && settings.isBranded()) {
+        if (!settings.isAzureOrFluent() && settings.isAzureV1()) {
             commonProperties.add(new ServiceClientProperty(
                 "The retry policy that will attempt to retry failed " + "requests, if applicable.",
                 ClassType.RETRY_POLICY, "retryPolicy", false, null));
@@ -597,7 +597,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             Annotation.GENERATED.addImportsTo(imports);
         } else {
             Annotation.METADATA.addImportsTo(imports);
@@ -606,7 +606,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             classBlock.annotation(Annotation.GENERATED.getName());
         } else {
             classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");

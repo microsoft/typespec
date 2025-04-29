@@ -26,18 +26,18 @@ public final class TemplateHelper {
         = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static String getPomProjectName(String serviceName) {
-        return String.format(JavaSettings.getInstance().isBranded() ? "Microsoft Azure SDK for %s" : "SDK for %s",
+        return String.format(JavaSettings.getInstance().isAzureV1() ? "Microsoft Azure SDK for %s" : "SDK for %s",
             serviceName);
     }
 
     public static String getPomProjectDescription(String serviceName) {
-        return String.format(JavaSettings.getInstance().isBranded()
+        return String.format(JavaSettings.getInstance().isAzureV1()
             ? "This package contains Microsoft Azure %1$s client library."
             : "This package contains %1$s client library.", serviceName);
     }
 
     public static String getByteCloneExpression(String propertyName) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             return String.format("CoreUtils.clone(%s)", propertyName);
         } else {
             // TODO: generic not having CoreUtils
@@ -47,10 +47,10 @@ public final class TemplateHelper {
 
     public static void createHttpPipelineMethod(JavaSettings settings, String defaultCredentialScopes,
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
-        if (settings.isAzureCoreV2()) {
+        if (settings.isAzureV2()) {
             createAzureVNextHttpPipelineMethod(settings, defaultCredentialScopes, securityInfo, pipelinePolicyDetails,
                 function);
-        } else if (settings.isBranded()) {
+        } else if (settings.isAzureV1()) {
             createAzureHttpPipelineMethod(settings, defaultCredentialScopes, securityInfo, pipelinePolicyDetails,
                 function);
         } else {

@@ -71,7 +71,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             Annotation.SERVICE_CLIENT.addImportsTo(imports);
             imports.add(String.format("%1$s.%2$s", ClientModelUtil.getServiceClientBuilderPackageName(serviceClient),
                 serviceClient.getInterfaceName() + ClientModelUtil.getBuilderSuffix()));
-        } else if (settings.isBranded()) {
+        } else if (settings.isAzureV1()) {
             imports.add("com.azure.core.util.serializer.JacksonAdapter");
         }
 
@@ -206,7 +206,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
 
                 classBlock.constructor(visibility,
                     String.format("%1$s(%2$s)", serviceClient.getClassName(), constructorParams), constructorBlock -> {
-                        if (!settings.isBranded() || settings.isAzureCoreV2()) {
+                        if (!settings.isAzureV1() || settings.isAzureV2()) {
                             if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter()))) {
                                 writeMaxOverloadedDataPlaneConstructorImplementation(constructorBlock, serviceClient,
@@ -255,7 +255,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                             }
                         } else {
                             final String initializeSerializer
-                                = settings.isBranded() ? "JacksonAdapter.createDefaultSerializerAdapter()" : null;
+                                = settings.isAzureV1() ? "JacksonAdapter.createDefaultSerializerAdapter()" : null;
                             if (constructor.getParameters().isEmpty()) {
                                 constructorBlock.line(
                                     "this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), %1$s).build(), %2$s%3$s);",
@@ -291,7 +291,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
     }
 
     private String getSerializerPhrase() {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             return "this.getSerializerAdapter()";
         }
         return "RestProxyUtils.createDefaultSerializer()";
@@ -367,7 +367,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
     protected void writeMaxOverloadedDataPlaneConstructorImplementation(JavaBlock constructorBlock,
         ServiceClient serviceClient, Consumer<JavaBlock> constructorParametersCodes) {
         constructorBlock.line("this.httpPipeline = httpPipeline;");
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             constructorBlock.line("this.serializerAdapter = serializerAdapter;");
         }
         constructorParametersCodes.accept(constructorBlock);
@@ -388,7 +388,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         }
 
         if (serviceClient.getProxy() != null) {
-            if (!JavaSettings.getInstance().isBranded()) {
+            if (!JavaSettings.getInstance().isAzureV1()) {
                 constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline);",
                     ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName());
             } else {

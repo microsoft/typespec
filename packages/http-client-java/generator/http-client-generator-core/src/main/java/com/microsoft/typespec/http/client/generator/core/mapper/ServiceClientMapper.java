@@ -154,7 +154,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         List<ProxyMethod> proxyMethods
             = allProxyMethods.stream().filter(ProxyMethod::isSync).collect(Collectors.toUnmodifiableList());
 
-        if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isAzureCoreV2()) {
+        if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             List<ProxyMethodParameter> allParameters = proxyMethods.get(0).getAllParameters();
             allParameters.forEach(parameter -> {
                 boolean isCommon = true;
@@ -217,7 +217,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         for (Parameter p : clientParameters) {
             String serializedName = p.getLanguage().getDefault().getSerializedName();
 
-            if ((settings.isDataPlaneClient() || !settings.isBranded() || settings.isAzureCoreV2())
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
                 // skip api-version, ServiceVersion will always be added to client for DPG
                 apiVersionSerializedName = serializedName;
@@ -266,7 +266,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
 
-        if ((settings.isDataPlaneClient() || !settings.isBranded() || settings.isAzureCoreV2())
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
             && serviceVersionClassName != null) {
             // Always add a ServiceVersion parameter for DPG
             serviceClientProperties.add(new ServiceClientProperty.Builder().description("Service version")
@@ -303,7 +303,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         serviceClientProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through.",
             ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             serviceClientProperties
                 .add(new ServiceClientProperty("The serializer to serialize an object into a string.",
                     ClassType.SERIALIZER_ADAPTER, "serializerAdapter", true, null,
@@ -456,7 +456,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         List<Constructor> serviceClientConstructors = new ArrayList<>();
 
-        if (!settings.isBranded() || settings.isAzureCoreV2()) {
+        if (!settings.isAzureV1() || settings.isAzureV2()) {
             serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)

@@ -104,7 +104,7 @@ public class Annotation {
         public Builder knownClass(Class<?> clazz) {
             this.packageName(clazz.getPackage().getName()).name(clazz.getSimpleName());
 
-            if (!JavaSettings.getInstance().isBranded()) {
+            if (!JavaSettings.getInstance().isAzureV1()) {
                 this.packageName(clazz.getPackage()
                     .getName()
                     .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)

@@ -67,7 +67,7 @@ public class Project {
         AZURE_IDENTITY("com.azure", "azure-identity", "1.15.4"),
         AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.60"),
 
-        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.8");
+        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.9");
 
         private final String groupId;
         private final String artifactId;
@@ -114,9 +114,9 @@ public class Project {
         this.serviceName = serviceName;
         this.namespace = JavaSettings.getInstance().getPackage();
         this.artifactId = ClientModelUtil.getArtifactId();
-        if (JavaSettings.getInstance().isAzureCoreV2()) {
+        if (JavaSettings.getInstance().isAzureV2()) {
             this.groupId = "com.azure.v2";
-        } else if (JavaSettings.getInstance().isBranded()) {
+        } else if (JavaSettings.getInstance().isAzureV1()) {
             this.groupId = "com.azure";
         } else {
             this.groupId = "io.clientcore";

@@ -62,7 +62,7 @@ public class JavaInterface implements JavaType {
         contents.interfaceBlock(JavaVisibility.PackagePrivate, interfaceName, interfaceAction);
     }
 
-    public final void method(JavaVisibility visibility, List<JavaModifier> modifiers, String methodSignature,
+    private void method(JavaVisibility visibility, List<JavaModifier> modifiers, String methodSignature,
         Consumer<JavaBlock> method) {
         addExpectedNewLine();
         contents.method(visibility, modifiers, methodSignature, method);

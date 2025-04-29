@@ -126,7 +126,7 @@ public final class ModelTemplateHeaderHelper {
     public static String getHttpHeaderNameInstanceExpression(String headerName) {
         // match the init logic of HEADER_TO_KNOWN_HTTPHEADERNAME
         String caseInsensitiveName = HttpHeaderName.fromString(headerName).getCaseInsensitiveName();
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
 
             if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
                 // known name
@@ -159,13 +159,13 @@ public final class ModelTemplateHeaderHelper {
                 continue;
             }
 
-            if (JavaSettings.getInstance().isBranded()
+            if (JavaSettings.getInstance().isAzureV1()
                 && HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
                 // Header is a well-known HttpHeaderName, don't need to create a private constant.
                 continue;
             }
 
-            if (!JavaSettings.getInstance().isBranded()
+            if (!JavaSettings.getInstance().isAzureV1()
                 && CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
                 // Header is a well-known HttpHeaderName, don't need to create a private constant.
                 continue;
@@ -188,7 +188,7 @@ public final class ModelTemplateHeaderHelper {
                 || wireType instanceof GenericType);
 
         // No matter the wire type the rawHeaders will need to be accessed.
-        String knownHttpHeaderNameConstant = JavaSettings.getInstance().isBranded()
+        String knownHttpHeaderNameConstant = JavaSettings.getInstance().isAzureV1()
             ? HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName())
             : CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
         String httpHeaderName = knownHttpHeaderNameConstant != null
@@ -288,7 +288,7 @@ public final class ModelTemplateHeaderHelper {
         block.line();
 
         block.block("rawHeaders.stream().forEach(header -> ", body -> {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 body.line("String headerName = header.getName().getValue();");
             } else {
                 body.line("String headerName = header.getName().getValue();");

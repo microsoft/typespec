@@ -97,7 +97,7 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
 
@@ -132,7 +132,7 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 builder.convenienceMethods(convenienceMethods);
             }
 
@@ -384,12 +384,12 @@ public class ClientModelUtil {
     public static String getArtifactId() {
         JavaSettings settings = JavaSettings.getInstance();
         String artifactId = settings.getArtifactId();
-        if ((settings.isDataPlaneClient() || !settings.isBranded()) && CoreUtils.isNullOrEmpty(artifactId)) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1()) && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
             artifactId = settings.getPackage().toLowerCase(Locale.ROOT).replace("com.", "").replace(".", "-");
         }
 
-        if (settings.isAzureCoreV2()) {
+        if (settings.isAzureV2()) {
             artifactId = settings.getPackage()
                 .toLowerCase(Locale.ROOT)
                 .replace("com.", "")

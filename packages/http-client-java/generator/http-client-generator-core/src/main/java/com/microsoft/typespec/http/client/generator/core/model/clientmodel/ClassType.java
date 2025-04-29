@@ -189,7 +189,6 @@ public class ClassType implements IType {
 
             put(DateTimeRfc1123.class,
                 new ClassDetails(DateTimeRfc1123.class, "io.clientcore.core.utils.DateTimeRfc1123"));
-            put(Base64Util.class, new ClassDetails(Base64Util.class, "java.lang.String"));
             put(Base64Url.class, new ClassDetails(Base64Url.class, "io.clientcore.core.utils.Base64Uri"));
             put(TokenCredential.class,
                 new ClassDetails(TokenCredential.class, "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
@@ -210,7 +209,7 @@ public class ClassType implements IType {
     };
 
     private static ClassType.Builder getClassTypeBuilder(Class<?> classKey) {
-        if (JavaSettings.getInstance().isAzureCoreV2()) {
+        if (JavaSettings.getInstance().isAzureV2()) {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
                 return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureVNextClass());
             } else {
@@ -222,7 +221,7 @@ public class ClassType implements IType {
                         .replace(ExternalPackage.AZURE_XML_PACKAGE_NAME, ExternalPackage.CLIENTCORE_XML_PACKAGE_NAME))
                     .name(classKey.getSimpleName());
             }
-        } else if (!JavaSettings.getInstance().isBranded()) {
+        } else if (!JavaSettings.getInstance().isAzureV1()) {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
                 return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getGenericClass());
             } else {
@@ -358,12 +357,12 @@ public class ClassType implements IType {
         .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
         .jsonToken("JsonToken.STRING")
         .jsonDeserializationMethod("getNullable(nonNullReader -> new "
-            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
+            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
         .xmlElementDeserializationMethod(
-            "getNullableElement(" + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+            "getNullableElement(" + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
-            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
         .build();
 
     public static final ClassType LOCAL_DATE = new Builder(false).knownClass(java.time.LocalDate.class)
@@ -383,15 +382,15 @@ public class ClassType implements IType {
         .jsonToken("JsonToken.STRING")
         .serializationValueGetterModifier(valueGetter -> valueGetter
             + " == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(" + valueGetter + ")")
-        .jsonDeserializationMethod(JavaSettings.getInstance().isBranded()
+        .jsonDeserializationMethod(JavaSettings.getInstance().isAzureV1()
             ? ("getNullable(nonNullReader -> " + CORE_UTILS.getName()
                 + ".parseBestOffsetDateTime(nonNullReader.getString()))")
             : ("getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()))"))
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod(JavaSettings.getInstance().isBranded()
+        .xmlElementDeserializationMethod(JavaSettings.getInstance().isAzureV1()
             ? ("getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
             : ("getNullableElement(dateString -> OffsetDateTime.parse(dateString))"))
-        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isBranded()
+        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isAzureV1()
             ? ("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
                 + ".parseBestOffsetDateTime(dateString))")
             : ("%s.getNullableAttribute(%s, %s, dateString -> OffsetDateTime.parse(dateString))"))
@@ -400,7 +399,7 @@ public class ClassType implements IType {
     public static final ClassType DURATION = new Builder(false).knownClass(Duration.class)
         .defaultValueExpressionConverter(defaultValueExpression -> "Duration.parse(\"" + defaultValueExpression + "\")")
         .jsonToken("JsonToken.STRING")
-        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isBranded()
+        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isAzureV1()
             ? CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")"
             : "Objects.toString(" + valueGetter + ", null)")
         .jsonDeserializationMethod("getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()))")
@@ -497,7 +496,7 @@ public class ClassType implements IType {
 
     public static final ClassType CONTEXT = ClassType.getClassTypeBuilder(Context.class)
         .defaultValueExpressionConverter(
-            epr -> (JavaSettings.getInstance().isBranded() ? "com.azure.core.util." : "io.clientcore.core.utils.")
+            epr -> (JavaSettings.getInstance().isAzureV1() ? "com.azure.core.util." : "io.clientcore.core.utils.")
                 + TemplateUtil.getContextNone())
         .build();
 

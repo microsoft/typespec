@@ -444,7 +444,7 @@ public class ClientMethod {
                     }
                 } else {
                     imports.add(TypeReference.class.getName());
-                    if (!JavaSettings.getInstance().isBranded()) {
+                    if (!JavaSettings.getInstance().isAzureV1()) {
                         imports.add(Type.class.getName());
                         imports.add(ParameterizedType.class.getName());
                     }

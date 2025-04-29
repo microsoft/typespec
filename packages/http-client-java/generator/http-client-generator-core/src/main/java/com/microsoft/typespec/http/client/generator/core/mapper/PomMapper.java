@@ -24,7 +24,7 @@ public class PomMapper implements IMapper<Project, Pom> {
 
     @Override
     public Pom map(Project project) {
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return createGenericPom(project);
         } else {
             return createAzurePom(project);

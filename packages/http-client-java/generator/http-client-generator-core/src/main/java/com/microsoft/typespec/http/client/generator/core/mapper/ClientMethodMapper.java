@@ -1056,7 +1056,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         ReturnValue returnValue, MethodPageDetails details, ClientMethodParameter contextParameter) {
 
         List<ClientMethodParameter> updatedParams = new ArrayList<>(parameters);
-        if (JavaSettings.getInstance().isBranded()
+        if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
             updatedParams.add(contextParameter);
         }
@@ -1094,7 +1094,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     protected static void addClientMethodWithContext(List<ClientMethod> methods, Builder builder,
         List<ClientMethodParameter> parameters, ClientMethodParameter contextParameter) {
         List<ClientMethodParameter> updatedParams = new ArrayList<>(parameters);
-        if (JavaSettings.getInstance().isBranded()
+        if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
             updatedParams.add(contextParameter);
         }

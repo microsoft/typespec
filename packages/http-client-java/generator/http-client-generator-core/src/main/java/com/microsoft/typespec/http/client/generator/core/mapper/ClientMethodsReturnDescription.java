@@ -219,7 +219,7 @@ public final class ClientMethodsReturnDescription {
                     pageItemName, pageResponseModel.getName()));
         }
 
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(ClassType.BINARY_DATA));
             IType asyncReturnType = GenericType.PagedFlux(ClassType.BINARY_DATA);
             IType syncReturnType = GenericType.PagedIterable(ClassType.BINARY_DATA);
@@ -274,7 +274,7 @@ public final class ClientMethodsReturnDescription {
      */
     private static IType getResponseBodyType(Operation operation, boolean isProtocolMethod, JavaSettings settings) {
         final IType expectedResponseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             return SchemaUtil.tryMapToBinaryData(expectedResponseBodyType, operation);
         }
         return expectedResponseBodyType;

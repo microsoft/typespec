@@ -485,7 +485,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
     private void addBuilderTraits(ClientBuilder clientBuilder, ServiceClient serviceClient) {
         clientBuilder.addBuilderTrait(ClientBuilderTrait.HTTP_TRAIT);
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.PROXY_TRAIT);
         }
 
@@ -494,7 +494,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.TOKEN_CREDENTIAL_TRAIT);
         }
         if (serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.KEY)) {
-            if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isUseKeyCredential()) {
+            if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isUseKeyCredential()) {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.KEY_CREDENTIAL_TRAIT);
             } else {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.AZURE_KEY_CREDENTIAL_TRAIT);
@@ -633,7 +633,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.CORE.getPackageName(), true));
-        if (settings.isAzureCoreV2()) {
+        if (settings.isAzureV2()) {
             requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.AZURE_CORE_VNEXT_PACKAGE_NAME, true));
         }
 

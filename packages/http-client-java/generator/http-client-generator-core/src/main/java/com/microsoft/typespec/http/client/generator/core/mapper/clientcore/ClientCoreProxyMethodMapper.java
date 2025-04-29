@@ -478,7 +478,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
         ClassType swaggerDefaultExceptionType = null;
         Map<Integer, ClassType> swaggerExceptionTypeMap = new HashMap<>();
 
-        if (settings.isDataPlaneClient() && settings.isBranded()) {
+        if (settings.isDataPlaneClient() && settings.isAzureV1()) {
             // LLC does not use model, hence exception from swagger
             swaggerDefaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
             exceptionDefinitions.defaultExceptionType = swaggerDefaultExceptionType;
@@ -522,7 +522,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
 
                 // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
                 if (swaggerDefaultExceptionType == null
-                    && settings.isBranded()
+                    && settings.isAzureV1()
                     && !CoreUtils.isNullOrEmpty(operation.getExceptions())
                     && operation.getExceptions().get(0).getSchema() != null) {
                     // no default error, use the 1st to keep backward compatibility

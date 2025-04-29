@@ -417,7 +417,7 @@ abstract class ConvenienceMethodTemplateBase {
         imports.add(JacksonAdapter.class.getName());
         imports.add(CollectionFormat.class.getName());
         imports.add(TypeReference.class.getName());
-        if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isAzureCoreV2()) {
+        if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             imports.add(Type.class.getName());
             imports.add(ParameterizedType.class.getName());
         }
@@ -442,7 +442,7 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected void addGeneratedAnnotation(JavaType typeBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             typeBlock.annotation(Annotation.GENERATED.getName());
         } else {
             typeBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
@@ -829,9 +829,7 @@ abstract class ConvenienceMethodTemplateBase {
             .collect(Collectors.toMap(key -> key.getSerializedName() == null ? key.getName() : key.getSerializedName(),
                 Function.identity()));
         for (MethodParameter convenienceParameter : convenienceParameters) {
-            String name = convenienceParameter.getSerializedName() == null
-                ? convenienceParameter.getName()
-                : convenienceParameter.getSerializedName();
+            String name = convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
         }
         return parameterMap;

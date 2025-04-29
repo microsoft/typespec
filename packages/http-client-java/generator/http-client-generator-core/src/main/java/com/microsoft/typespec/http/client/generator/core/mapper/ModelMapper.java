@@ -59,7 +59,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             Set<ImplementationDetails.Usage> usages = SchemaUtil.mapSchemaContext(compositeType.getUsage());
             if (isPredefinedModel(modelType)) {
                 // TODO (weidxu): a more consistent handling of external model for all data-plane
-                if (settings.isBranded() && !settings.isDataPlaneClient()) {
+                if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
                     return result;
                 } else {
                     usages = new HashSet<>(usages);
@@ -657,9 +657,9 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * @return Whether the type is predefined.
      */
     protected boolean isPredefinedModel(ClassType compositeType) {
-        if ((JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded())
-            || JavaSettings.getInstance().isAzureCoreV2()
-            || !JavaSettings.getInstance().isBranded()) {
+        if ((JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1())
+            || JavaSettings.getInstance().isAzureV2()
+            || !JavaSettings.getInstance().isAzureV1()) {
             // see ObjectMapper.mapPredefinedModel
             // this might be too simplified.
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");

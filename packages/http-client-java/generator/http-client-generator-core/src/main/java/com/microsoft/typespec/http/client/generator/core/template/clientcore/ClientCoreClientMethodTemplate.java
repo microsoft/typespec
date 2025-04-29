@@ -457,7 +457,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                                 }
 
                                 // convert List<WireType> to String
-                                if (JavaSettings.getInstance().isBranded()) {
+                                if (JavaSettings.getInstance().isAzureV1()) {
                                     // Always use serializeIterable as Iterable supports both Iterable and List.
                                     expression = String.format(
                                         "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
@@ -672,7 +672,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             String serviceMethodCall
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            if (settings.isBranded()) {
+            if (settings.isAzureV1()) {
                 function.line("return new PagedResponseBase<>(");
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
@@ -1163,7 +1163,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         String lambdaParameters = "";
-        if (!settings.isBranded()) {
+        if (!settings.isAzureV1()) {
             lambdaParameters = "pagingOptions";
         }
 
@@ -1174,7 +1174,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         JavaSettings settings) {
 
         String lambdaParameters = "nextLink";
-        if (!settings.isBranded()) {
+        if (!settings.isAzureV1()) {
             lambdaParameters = "(pagingOptions, nextLink)";
         }
 

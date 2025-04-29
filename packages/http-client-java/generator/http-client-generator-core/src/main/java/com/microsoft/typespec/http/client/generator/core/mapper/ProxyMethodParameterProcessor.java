@@ -91,7 +91,7 @@ final class ProxyMethodParameterProcessor {
 
         // RequestOptions Parameter.
         //
-        if (settings.isAzureCoreV2() || !settings.isBranded()) {
+        if (settings.isAzureV2() || !settings.isAzureV1()) {
             final ProxyMethodParameter contextParameter = ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER;
             allParameters.add(contextParameter);
             parameters.add(contextParameter);
@@ -103,7 +103,7 @@ final class ProxyMethodParameterProcessor {
 
         // Context Parameter.
         //
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             final ProxyMethodParameter contextParameter = ProxyMethodParameter.CONTEXT_PARAMETER;
             allParameters.add(contextParameter);
             parameters.add(contextParameter);

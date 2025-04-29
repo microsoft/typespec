@@ -162,7 +162,7 @@ public class TemplateUtil {
 
         // helper methods for LLC
         if (settings.isDataPlaneClient()
-            && settings.isBranded()
+            && settings.isAzureV1()
             && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
         }
@@ -192,7 +192,7 @@ public class TemplateUtil {
         // Array, class, enum, and primitive types are all able to use TypeReference.createInstance which will create
         // or use a singleton instance.
         // Generic types must use a custom instance that supports complex generic parameters.
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return (type instanceof ArrayType
                 || type instanceof ClassType
                 || type instanceof EnumType
@@ -219,7 +219,7 @@ public class TemplateUtil {
     public static void writeTypeReferenceStaticVariable(JavaClass classBlock, GenericType type) {
         // see getLongRunningOperationTypeReferenceExpression
 
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             StringBuilder sb = new StringBuilder();
             for (IType typeArgument : type.getTypeArguments()) {
                 if (sb.length() > 0) {
@@ -370,7 +370,7 @@ public class TemplateUtil {
     }
 
     public static String getContextNone() {
-        return JavaSettings.getInstance().isBranded() ? "Context.NONE" : "Context.none()";
+        return JavaSettings.getInstance().isAzureV1() ? "Context.NONE" : "Context.none()";
     }
 
     public static String getRequestContextNone() {

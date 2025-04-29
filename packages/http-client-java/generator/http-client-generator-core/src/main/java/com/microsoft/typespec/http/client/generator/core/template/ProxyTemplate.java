@@ -43,7 +43,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                     "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
                     restAPI.getClientTypeName()));
             });
-            if (settings.isBranded()) {
+            if (settings.isAzureV1()) {
                 classBlock.annotation(String.format("Host(\"%1$s\")", restAPI.getBaseURL()));
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")",
                     serviceInterfaceWithLengthLimit(restAPI.getClientTypeName())));
@@ -59,7 +59,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
 
             classBlock.interfaceBlock(visibility, restAPI.getName(), interfaceBlock -> {
 
-                if (settings.isAzureCoreV2() || !settings.isBranded()) {
+                if (settings.isAzureV2() || !settings.isAzureV1()) {
                     List<ProxyMethodParameter> commonParams = restAPI.getCommonParams();
 
                     StringBuilder params = new StringBuilder();
@@ -111,7 +111,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
 
                     writeProxyMethodHeaders(restAPIMethod, interfaceBlock);
 
-                    if (settings.isBranded()) {
+                    if (settings.isAzureV1()) {
                         interfaceBlock.annotation(String.format("%1$s(\"%2$s\")",
                             CodeNamer.toPascalCase(restAPIMethod.getHttpMethod().toString().toLowerCase()),
                             restAPIMethod.getUrlPath()));
@@ -139,14 +139,14 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                                 + " } " + returnValueWireTypeCode + ")");
                     }
 
-                    if (settings.isBranded()) {
+                    if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
                         if (restAPIMethod.getReturnValueWireType() != null) {
                             interfaceBlock.annotation(String.format("ReturnValueWireType(%1$s.class)",
                                 restAPIMethod.getReturnValueWireType()));
                         }
                     }
 
-                    if (!settings.isDataPlaneClient() || !settings.isBranded() || isExceptionCustomized()) {
+                    if (!settings.isDataPlaneClient() || !settings.isAzureV1() || isExceptionCustomized()) {
                         // write @UnexpectedResponseExceptionType
 
                         if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
@@ -241,7 +241,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     }
 
     protected void writeUnexpectedExceptions(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
                 .entrySet()) {
                 interfaceBlock.annotation(String.format(
@@ -275,7 +275,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     }
 
     protected void writeSingleUnexpectedException(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             interfaceBlock.annotation(String.format("UnexpectedResponseExceptionType(%1$s.class)",
                 restAPIMethod.getUnexpectedResponseExceptionType()));
         } else {

@@ -509,7 +509,7 @@ public class ClientModel {
      */
     private void addImmutableAnnotationImport(Set<String> imports) {
         Annotation.IMMUTABLE.addImportsTo(imports);
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             Annotation.METADATA.addImportsTo(imports);
             Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
@@ -522,7 +522,7 @@ public class ClientModel {
      */
     private void addFluentAnnotationImport(Set<String> imports) {
         Annotation.FLUENT.addImportsTo(imports);
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             Annotation.METADATA.addImportsTo(imports);
             Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }

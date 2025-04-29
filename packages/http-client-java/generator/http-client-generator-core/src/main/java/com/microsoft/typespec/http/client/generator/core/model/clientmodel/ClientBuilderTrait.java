@@ -98,7 +98,7 @@ public class ClientBuilderTrait {
     }
 
     private static ClientBuilderTrait createHttpTrait() {
-        boolean isBranded = JavaSettings.getInstance().isBranded();
+        boolean isBranded = JavaSettings.getInstance().isAzureV1();
 
         ClientBuilderTrait httpTrait = new ClientBuilderTrait();
         httpTrait.setTraitInterfaceName("HttpTrait");
@@ -206,7 +206,7 @@ public class ClientBuilderTrait {
         importPackages.add(ClassType.HTTP_PIPELINE_POLICY.getFullName());
         httpClientBuilderTraitMethods.add(addPolicyMethod);
 
-        if (!isBranded || JavaSettings.getInstance().isAzureCoreV2()) {
+        if (!isBranded || JavaSettings.getInstance().isAzureV2()) {
             // redirectOptions
             ServiceClientProperty redirectOptionsProperty
                 = new ServiceClientProperty("The redirect options to configure redirect policy",
@@ -243,7 +243,7 @@ public class ClientBuilderTrait {
 
     private static String addLogging(LogLevel level, String message) {
 
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             switch (level) {
                 case VERBOSE:
                     return String.format("LOGGER.atVerbose().log(\"%s\");", message);
