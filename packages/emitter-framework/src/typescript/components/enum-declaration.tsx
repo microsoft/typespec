@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -31,7 +32,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   return (
     <ts.EnumDeclaration
       name={name}
-      refkey={ay.refkey(props.type)}
+      refkey={efRefkey(props.type)}
       default={props.default}
       export={props.export}
     >
@@ -41,7 +42,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
             <EnumMember
               type={value}
               refkey={
-                $.union.is(props.type) ? ay.refkey(props.type.variants.get(key)) : ay.refkey(value)
+                $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
               }
             />
           );
@@ -61,7 +62,7 @@ export function EnumMember(props: EnumMemberProps) {
     <ts.EnumMember
       name={props.type.name}
       jsValue={props.type.value ?? props.type.name}
-      refkey={ay.refkey(props.refkey ?? props.type)}
+      refkey={props.refkey ?? efRefkey(props.type)}
     />
   );
 }
