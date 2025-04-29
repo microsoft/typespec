@@ -1,4 +1,4 @@
-import { For, refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
@@ -19,7 +19,7 @@ export function Models(props: ModelsProps) {
         {(type) => {
           if ($.model.is(type) && $.model.isHttpFile(type)) {
             return (
-              <ts.TypeDeclaration name="File" export kind="type" refkey={refkey(type)}>
+              <ts.TypeDeclaration name="File" export kind="type" refkey={ef.efRefkey(type)}>
                 {getFileTypeReference()}
               </ts.TypeDeclaration>
             );
