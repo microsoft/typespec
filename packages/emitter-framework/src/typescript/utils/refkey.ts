@@ -14,5 +14,8 @@ export const refKeyPrefix = Symbol.for("emitter-framework:typescript");
  * @returns A `Refkey` object that can be used to identify the value.
  */
 export function efRefkey(...args: unknown[]) {
+  if (args.length === 0) {
+    return ayRefkey(); // Generates a unique refkey
+  }
   return ayRefkey(refKeyPrefix, ...args);
 }
