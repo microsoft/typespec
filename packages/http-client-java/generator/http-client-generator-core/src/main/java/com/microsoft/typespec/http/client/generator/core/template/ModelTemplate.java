@@ -664,7 +664,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         addFieldAnnotations(model, property, classBlock, settings);
 
-        if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
+        if (model.isStronglyTypedHeader() && ClientModelUtil.isImmutableOutputModel(model, settings)) {
+            // a shortcut for Headers class
+            classBlock.privateFinalMemberVariable(fieldSignature);
+        } else if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
             classBlock.privateFinalMemberVariable(fieldSignature);
         } else {
             classBlock.privateMemberVariable(fieldSignature);
