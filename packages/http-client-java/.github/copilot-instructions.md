@@ -2,13 +2,22 @@
 
 ---
 
-# Update package for latest compiler
+# Update Package for Latest Dependencies
 
 Steps:
 1. Run `ncu -u` on "package.json" in root and in both "generator/http-client-generator-clientcore-test" and "generator/http-client-generator-test" folders.
-2. Bump the minor version of `@typespec/http-client-java` in the 3 "package.json".
-3. Update `peerDependencies` in root "package.json", according to the versions in `devDependencies`.
-4. Update `override` in the other 2 "package.json", according to the versions in root "package.json".
-5. Run `Geenrate.ps1` in "generator/http-client-generator-clientcore-test" and "generator/http-client-generator-test" folders.
+2. Update `peerDependencies` in root "package.json", according to the versions in `devDependencies`.
+3. Update `override` in the other 2 "package.json", according to the versions in root "package.json".
+4. Save the files, and run `npm install` in root, so that "package-lock.json" would be updated.
+
+Developer may need to run `Geenrate.ps1` in "generator/http-client-generator-clientcore-test" and "generator/http-client-generator-test" folders, to update the e2e spector tests.
+
+# Update Package and Prepare for Minor/Patch Release
+
+Execute "Update Package for Latest Dependencies".
+
+Then
+1. Bump minor/patch version of `@typespec/http-client-java` in the 3 "package.json".
+2. Save the file, and run `npm install` in root, so that "package-lock.json" would be updated.
 
 The [publish to NPM](https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294) would be automatically triggered, after the PR is merged.
