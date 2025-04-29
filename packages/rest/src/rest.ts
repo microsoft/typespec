@@ -112,7 +112,6 @@ function autoRouteProducer(
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
   const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
-  console.log("HEre", segments, routePath);
   const filteredParameters: HttpOperationParameter[] = [];
   const filteredParamProperties = new Set<ModelProperty>();
   const paramOptions = {
