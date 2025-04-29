@@ -15,13 +15,14 @@ export function getServiceApiVersions(
   client: SdkClientType<SdkHttpOperation>,
 ): string[] | undefined {
   // TODO: use client.apiVersions after TCGC supports multiple service
+  // Also, this function lacks the logic of the handling of added/removed on the Namespace/Interface of the SDK client.
   let apiVersions: string[] | undefined;
-  const verVersionedNamespace: Namespace | undefined = findVersionedNamespace(
+  const versionedNamespace: Namespace | undefined = findVersionedNamespace(
     program,
     client.__raw.service,
   );
-  if (verVersionedNamespace) {
-    apiVersions = getVersions(program, verVersionedNamespace)[1]
+  if (versionedNamespace) {
+    apiVersions = getVersions(program, versionedNamespace)[1]
       ?.getVersions()
       .map((version) => version.value);
   }
