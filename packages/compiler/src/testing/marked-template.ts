@@ -45,22 +45,15 @@ export interface TemplateWithMarkers<T extends Record<string, Type>> {
 type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
-
-type PickMarkers<T extends (Marker<Type, string> | string)[]> = T extends (infer U)[]
-  ? U extends Marker<infer K, infer N>
-    ? { [key in N]: K }
-    : never
-  : never;
-
-type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void
-  ? I
-  : never;
-
+type InferType<T> = T extends Marker<infer K, infer _> ? K : never;
+type CollectType<T extends ReadonlyArray<Marker<Type, string> | string>> = {
+  [K in T[number] as K extends Marker<infer _K, infer N> ? N : never]: InferType<K>;
+};
 /** Specify that this value is dynamic and needs to be interpolated with the given keys */
 export function extract<const T extends (Marker<Type, string> | string)[]>(
   strings: TemplateStringsArray,
   ...keys: T
-): TemplateWithMarkers<Prettify<UnionToIntersection<PickMarkers<T>>> & Record<string, Type>> {
+): TemplateWithMarkers<Prettify<CollectType<T>> & Record<string, Type>> {
   const markers: Marker<Type, string>[] = [];
   const result: string[] = [strings[0]];
   keys.forEach((key, i) => {
