@@ -1,8 +1,8 @@
-import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -32,7 +32,7 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
-    <ts.TypeDeclaration {...props} name={name} refkey={props.refkey ?? getRefkey(props.type)}>
+    <ts.TypeDeclaration {...props} name={name} refkey={props.refkey ?? efRefkey(props.type)}>
       <TypeExpression type={props.type} noReference />
       {props.children}
     </ts.TypeDeclaration>
