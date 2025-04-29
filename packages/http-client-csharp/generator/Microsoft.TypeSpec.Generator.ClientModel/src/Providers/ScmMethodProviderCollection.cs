@@ -533,7 +533,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, isProtocolMethod: true);
 
             // XmlDocs will be null if the method isn't public
             if (protocolMethod.XmlDocs != null)
