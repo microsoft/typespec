@@ -609,25 +609,25 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
-
-        final JavaVisibility methodWithContextVisibility;
-        if (settings.isDataPlaneClient()) {
-            methodWithContextVisibility = NOT_VISIBLE;
-        } else {
-            methodWithContextVisibility = methodVisibility(ClientMethodType.SimpleSyncRestResponse, defaultOverloadType,
-                true, isProtocolMethod);
-        }
 
         final IType baseType = ClassType.BINARY_DATA;
         final IType returnType = ResponseTypeFactory.createSyncResponse(operation, baseType, isProtocolMethod, settings,
             proxyMethod.isCustomHeaderIgnored());
         final ReturnValue binaryDataResponse = methodsReturnDescription.createReturnValue(returnType, baseType);
 
-        // Fluent '[Operation]WithResponse' LRO sync method, with required and optional parameters.
-        // Fluent + Sync stack needs simple rest response for implementation only.
+        // Fluent + Sync-Stack needs LRO '[Operation]WithResponse' in implementation scope to enable LRO
+        // 'begin[Operation]'.
+        // Design discussion: https://github.com/Azure/autorest.java/issues/2284
+        //
+        // The sync api corresponding to the below 'withResponseSyncMethod' ClientMethod would look like,
+        //
+        // - private Response<BinaryData> createOrUpdateWithResponse(..)
+        //
+        // such a private api will be used to implement the public LRO 'begin[Operation]' sync method:
+        //
+        // - public SyncPoller<PollResult<Foo>, Foo> beginCreateOrUpdate(..)
         //
         final ClientMethod withResponseSyncMethod = baseMethod.newBuilder()
             .returnValue(binaryDataResponse)
@@ -635,7 +635,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .onlyRequiredParameters(false)
             .type(ClientMethodType.SimpleSyncRestResponse)
             .groupedParameterRequired(false)
-            .hasWithContextOverload(methodWithContextVisibility != NOT_GENERATE)
+            .hasWithContextOverload(true)
             .proxyMethod(proxyMethod.toSync())
             .methodVisibility(NOT_VISIBLE)
             .build();

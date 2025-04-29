@@ -218,7 +218,7 @@ final class PollingMetadata {
         if (lroMetadata.getPollingStrategy() != null) {
             final String strategyName = lroMetadata.getPollingStrategy().getLanguage().getJava().getName();
             final String strategyFqName = packageName + "." + strategyName;
-            final String syncStrategyFqdnName = packageName + "." + "Sync" + strategyName;
+            final String syncStrategyFqName = packageName + "." + "Sync" + strategyName;
 
             if (lroMetadata.getFinalResultPropertySerializedName() != null) {
                 final String finalResultArg
@@ -226,11 +226,11 @@ final class PollingMetadata {
                 pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
                     strategyFqName, finalResultArg);
                 syncPollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_WITH_RESULT_FORMAT,
-                    syncStrategyFqdnName, finalResultArg);
+                    syncStrategyFqName, finalResultArg);
             } else {
                 pollingStrategy = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, strategyFqName);
                 syncPollingStrategy
-                    = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqdnName);
+                    = String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT, syncStrategyFqName);
             }
         } else {
             pollingStrategy = pollingSettings.getPollingStrategy();

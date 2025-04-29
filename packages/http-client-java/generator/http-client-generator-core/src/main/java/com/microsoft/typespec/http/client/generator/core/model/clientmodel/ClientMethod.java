@@ -45,13 +45,22 @@ public class ClientMethod {
      */
     private final String name;
     /**
-     * The parameters of this ClientMethod.
+     * An immutable list containing all parameters defined for the operation-endpoint, including constants, client
+     * and method-scoped parameters.
      */
     private final List<ClientMethodParameter> _parameters;
+    /**
+     * A copy of {@code _parameters} returned from the {@link ClientMethod#getParameters()}.
+     */
     private final List<ClientMethodParameter> parameters;
+    /**
+     * The subset of parameters in {@code parameters} that are scoped only to the method.
+     */
     private final List<ClientMethodParameter> methodParameters;
+    /**
+     * The subset of parameters in {@code methodParameters} that are required for the method.
+     */
     private final List<ClientMethodParameter> methodRequiredParameters;
-
     /**
      * Whether this ClientMethod has omitted optional parameters.
      */
