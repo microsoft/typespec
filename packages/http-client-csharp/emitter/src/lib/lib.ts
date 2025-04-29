@@ -47,10 +47,10 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     },
   },
   "no-root-client": {
-    severity: "error",
+    severity: "warning",
     messages: {
       default:
-        "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
+        "There is no client defined in the provided typespec file.",
     },
   },
   "unsupported-auth": {

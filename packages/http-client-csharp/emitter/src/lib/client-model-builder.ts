@@ -30,7 +30,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       format: {},
       target: NoTarget,
     });
-    return {} as CodeModel;
   }
 
   const rootApiVersions =
