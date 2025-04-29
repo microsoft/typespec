@@ -50,7 +50,6 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
-  IndeterminateEntity,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -71,7 +70,6 @@ import {
   Type,
   TypeSpecLibrary,
   TypeSpecScriptNode,
-  Value,
 } from "./types.js";
 
 export interface Program {
@@ -121,9 +119,7 @@ export interface Program {
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
   /** @internal */
-  resolveTypeOrValueReference(
-    reference: string,
-  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]];
+  resolveTypeOrValueReference(reference: string): [Entity | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
@@ -919,7 +915,7 @@ async function createProgram(
 
   function resolveTypeOrValueReference(
     reference: string,
-  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]] {
+  ): [Entity | undefined, readonly Diagnostic[]] {
     const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
     if (parseDiagnostics.length > 0) {
       return [undefined, parseDiagnostics];

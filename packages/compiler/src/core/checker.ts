@@ -262,9 +262,7 @@ export interface Checker {
    * @returns Resolved type and diagnostics if there was an error.
    * @internal
    */
-  resolveTypeOrValueReference(
-    node: TypeReferenceNode,
-  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]];
+  resolveTypeOrValueReference(node: TypeReferenceNode): [Entity | undefined, readonly Diagnostic[]];
 
   /** @internal */
   getValueForNode(node: Node): Value | null;
@@ -1071,7 +1069,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function resolveTypeOrValueReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]] {
+  ): [Entity | undefined, readonly Diagnostic[]] {
     const oldDiagnosticHook = onCheckerDiagnostic;
     const diagnostics: Diagnostic[] = [];
     onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
