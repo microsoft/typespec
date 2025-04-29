@@ -256,6 +256,15 @@ export interface Checker {
    * @internal use program.resolveTypeReference
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
+  /**
+   * Check and resolve a type or value for the given type reference node.
+   * @param node Node.
+   * @returns Resolved type and diagnostics if there was an error.
+   * @internal
+   */
+  resolveTypeOrValueReference(
+    node: TypeReferenceNode,
+  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]];
 
   /** @internal */
   getValueForNode(node: Node): Value | null;
@@ -363,6 +372,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     isStdType,
     getStdType,
     resolveTypeReference,
+    resolveTypeOrValueReference,
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
@@ -1057,6 +1067,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
   ): Type | Value | IndeterminateEntity | null {
     return checkNode(node.argument, mapper);
+  }
+
+  function resolveTypeOrValueReference(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]] {
+    const oldDiagnosticHook = onCheckerDiagnostic;
+    const diagnostics: Diagnostic[] = [];
+    onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
+    const entity = checkTypeOrValueReference(node, undefined, false);
+    onCheckerDiagnostic = oldDiagnosticHook;
+    return [entity === errorType ? undefined : entity, diagnostics];
   }
 
   function resolveTypeReference(

@@ -1,8 +1,10 @@
-import { Type } from "../../../core/types.js";
+import { IndeterminateEntity, Type, Value } from "../../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
-export type ResolveKit = Diagnosable<(reference: string) => Type | undefined>;
+export type ResolveKit = Diagnosable<
+  (reference: string) => Type | Value | IndeterminateEntity | undefined
+>;
 
 interface TypekitExtension {
   /**
@@ -23,6 +25,6 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   resolve: createDiagnosable(function (reference) {
     // Directly use the program's resolveTypeReference method
-    return this.program.resolveTypeReference(reference);
+    return this.program.resolveTypeOrValueReference(reference);
   }),
 });

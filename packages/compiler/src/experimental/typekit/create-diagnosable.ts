@@ -18,15 +18,12 @@ export type DiagnosableFunction<P extends unknown[], R> = (
  * @template P The parameters of the function.
  * @template R The primary return type of the function.
  */
-export type Diagnosable<F> = F extends (...args: infer P extends unknown[]) => infer R
-  ? {
-      (...args: P): R;
-      /**
-       * Returns a tuple of its primary result and any diagnostics.
-       */
-      withDiagnostics: DiagnosableFunction<P, R>;
-    }
-  : never;
+export type Diagnosable<F extends (...args: any[]) => unknown> = F & {
+  /**
+   * Returns a tuple of its primary result and any diagnostics.
+   */
+  withDiagnostics: (...args: Parameters<F>) => [ReturnType<F>, readonly Diagnostic[]];
+};
 
 /**
  * Creates a diagnosable function wrapper.

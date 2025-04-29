@@ -50,6 +50,7 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
+  IndeterminateEntity,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -70,6 +71,7 @@ import {
   Type,
   TypeSpecLibrary,
   TypeSpecScriptNode,
+  Value,
 } from "./types.js";
 
 export interface Program {
@@ -117,6 +119,11 @@ export interface Program {
   getGlobalNamespaceType(): Namespace;
 
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /** @internal */
+  resolveTypeOrValueReference(
+    reference: string,
+  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
@@ -233,6 +240,8 @@ async function createProgram(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    /** @internal */
+    resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
@@ -906,6 +915,20 @@ async function createProgram(
     mutate(node).parent = resolver.symbols.global.declarations[0];
     resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
+  }
+
+  function resolveTypeOrValueReference(
+    reference: string,
+  ): [Type | Value | IndeterminateEntity | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return program.checker.resolveTypeOrValueReference(node);
   }
 }
 

@@ -1,4 +1,5 @@
 import { Numeric } from "../../../core/numeric.js";
+import { isValue } from "../../../core/type-utils.js";
 import type {
   ArrayValue,
   BooleanValue,
@@ -107,6 +108,24 @@ export interface ValueKit {
   isAssignableTo: Diagnosable<
     (source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean
   >;
+
+  /**
+   * Resolve a value reference to a TypeSpec value.
+   * By default any diagnostics are ignored.
+   *
+   * If a `kind` is provided, it will check if the resolved value matches the expected kind
+   * and throw an error if it doesn't.
+   *
+   * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
+   */
+  resolve: Diagnosable<
+    <K extends Value["valueKind"] | undefined>(
+      reference: string,
+      kind?: K,
+    ) => K extends Value["valueKind"]
+      ? Extract<Value, { valueKind: K }> | undefined
+      : Value | undefined
+  >;
 }
 
 interface TypekitExtension {
@@ -200,6 +219,16 @@ defineKit<TypekitExtension>({
     },
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
       return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
+    resolve: createDiagnosable(function (reference, kind) {
+      const [value, diagnostics] = this.program.resolveTypeOrValueReference(reference);
+      if (value && !isValue(value)) {
+        return [undefined, diagnostics];
+      }
+      if (value && kind && value.valueKind !== kind) {
+        throw new Error(`Value kind mismatch: expected ${kind}, got ${value.valueKind}`);
+      }
+      return [value, diagnostics];
     }),
   },
 });
