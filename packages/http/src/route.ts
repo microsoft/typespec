@@ -213,7 +213,6 @@ export function DefaultRouteProducer(
       : joinPathSegments([...parentSegments, ...(routePath ? [routePath] : [])]);
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
-  console.log("parsedUriTemplate", { uriTemplate, routePath, parsedUriTemplate });
   const parameters: HttpOperationParameters = diagnostics.pipe(
     getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions),
   );
