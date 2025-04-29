@@ -49,8 +49,7 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   "no-root-client": {
     severity: "warning",
     messages: {
-      default:
-        "There is no client defined in the provided typespec file.",
+      default: "There is no client defined in the provided typespec file.",
     },
   },
   "unsupported-auth": {
