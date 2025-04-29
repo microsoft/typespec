@@ -1,10 +1,8 @@
-import { IndeterminateEntity, Type, Value } from "../../../core/types.js";
+import { Entity } from "../../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
-export type ResolveKit = Diagnosable<
-  (reference: string) => Type | Value | IndeterminateEntity | undefined
->;
+export type ResolveKit = Diagnosable<(reference: string) => Entity | undefined>;
 
 interface TypekitExtension {
   /**
