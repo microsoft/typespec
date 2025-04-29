@@ -15,8 +15,7 @@ export type DiagnosableFunction<P extends unknown[], R> = (
  * Represents the enhanced function returned by `createDiagnosable`.
  * This function, when called directly, ignores diagnostics.
  * It also has a `withDiagnostics` method to access the original function's behavior.
- * @template P The parameters of the function.
- * @template R The primary return type of the function.
+ * @template F The function type to be wrapped. This should not include diagnostics on the return type.
  */
 export type Diagnosable<F extends (...args: any[]) => unknown> = F & {
   /**

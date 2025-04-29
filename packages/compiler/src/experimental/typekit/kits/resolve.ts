@@ -24,7 +24,6 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   resolve: createDiagnosable(function (reference) {
-    // Directly use the program's resolveTypeReference method
     return this.program.resolveTypeOrValueReference(reference);
   }),
 });
