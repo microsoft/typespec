@@ -3,30 +3,17 @@ import { type Diagnostic } from "../../core/types.js";
 import { Typekit } from "./define-kit.js";
 
 /**
- * Represents a function that can return diagnostics along with its primary result.
- * @template P The parameters of the function.
- * @template R The primary return type of the function.
- */
-export type DiagnosableFunction<P extends unknown[], R> = (
-  ...args: P
-) => [R, readonly Diagnostic[]];
-
-/**
  * Represents the enhanced function returned by `createDiagnosable`.
  * This function, when called directly, ignores diagnostics.
  * It also has a `withDiagnostics` method to access the original function's behavior.
- * @template P The parameters of the function.
- * @template R The primary return type of the function.
+ * @template F The function type to be wrapped. This should not include diagnostics on the return type.
  */
-export type Diagnosable<F> = F extends (...args: infer P extends unknown[]) => infer R
-  ? {
-      (...args: P): R;
-      /**
-       * Returns a tuple of its primary result and any diagnostics.
-       */
-      withDiagnostics: DiagnosableFunction<P, R>;
-    }
-  : never;
+export type Diagnosable<F extends (...args: any[]) => unknown> = F & {
+  /**
+   * Returns a tuple of its primary result and any diagnostics.
+   */
+  withDiagnostics: (...args: Parameters<F>) => [ReturnType<F>, readonly Diagnostic[]];
+};
 
 /**
  * Creates a diagnosable function wrapper.
