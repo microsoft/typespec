@@ -9,7 +9,6 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
-import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
@@ -67,8 +66,7 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(CodeActionCommand.NpmInstallImportPackage, async (path: string) => {
       try {
-        const projectFiles = getDirectoryPath(path);
-        await spawnExecutionAndLogToOutput("npm", ["install"], normalizeSlashes(projectFiles));
+        await spawnExecutionAndLogToOutput("npm", ["install"], path);
       } catch (error) {
         logger.error("Failed to execute npm install, see details: ", [error]);
       }

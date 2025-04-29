@@ -1,7 +1,7 @@
 import vscode from "vscode";
-import { getDirectoryPath, isPathAbsolute, resolvePath } from "./path-utils.js";
+import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";
 import { CodeActionCommand } from "./types.js";
-import { loadPackageJsonFile } from "./utils.js";
+import { searchAndLoadPackageJson } from "./utils.js";
 
 export function createCodeActionProvider() {
   return vscode.languages.registerCodeActionsProvider(
@@ -50,6 +50,15 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       }
     });
 
+    actions.push(...(await this.createInstallPackageByNpm(context, actions)));
+
+    return actions;
+  }
+
+  private async createInstallPackageByNpm(
+    context: vscode.CodeActionContext,
+    actions: vscode.CodeAction[],
+  ): Promise<vscode.CodeAction[]> {
     // When the corresponding node dependency package is not installed,
     // consider generating a quick fix to install via npm command
     const diagnostics = context.diagnostics.filter(
@@ -59,20 +68,23 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
         diagnostic.code === "import-not-found",
     );
     if (diagnostics.length === 0) {
-      return actions;
+      return [];
     }
 
     for (const diagnostic of diagnostics) {
       if ("data" in diagnostic) {
         if (diagnostic.data && typeof diagnostic.data === "object" && "file" in diagnostic.data) {
           const packageFile = diagnostic.data.file as string;
-          const targetPackageUri = await this.findPackageJsonFilePath(
+          const { packageJsonFolder, packageJson } = await searchAndLoadPackageJson(
             getDirectoryPath(packageFile),
           );
-          if (targetPackageUri === undefined) {
+          if (packageJsonFolder === undefined) {
             continue;
           }
 
+          // The message content is Couldn't resolve import "@typespec/http".
+          // The compiler's diagnostics do not provide a specific attribute to obtain the package name,
+          // so a regular expression is used to extract the package name within the double quotes
           const targets = diagnostic.message.match(/"([^"]+)"/);
           if (targets === null) {
             continue;
@@ -82,40 +94,23 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           const packageNameIndex = 1;
           const targetPackage = targets[packageNameIndex];
 
-          const packageJson = await loadPackageJsonFile(targetPackageUri);
           if (
             !targetPackage.startsWith("./") &&
             !isPathAbsolute(targetPackage) &&
             packageJson &&
-            (Object.prototype.hasOwnProperty.call(packageJson.peerDependencies, targetPackage) ||
-              Object.prototype.hasOwnProperty.call(packageJson.dependencies, targetPackage) ||
-              Object.prototype.hasOwnProperty.call(packageJson.devDependencies, targetPackage))
+            ((packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
+              (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
+              (packageJson.devDependencies && targetPackage in packageJson.devDependencies))
           ) {
-            const action = this.createInstallPackageCodeAction(diagnostic, targetPackageUri);
+            const action = this.createInstallPackageCodeAction(diagnostic, packageJsonFolder);
             if (!actions.some((item) => item.title === action.title)) {
-              actions.push(action);
+              return [action];
             }
           }
         }
       }
     }
-
-    return actions;
-  }
-
-  private async findPackageJsonFilePath(startPath: string): Promise<string | undefined> {
-    let currentPath = startPath;
-    const projectRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    while (projectRoot && currentPath.length <= projectRoot.length) {
-      const packageJsonPath = resolvePath(currentPath, "package.json");
-      const stats = await vscode.workspace.fs.stat(vscode.Uri.file(packageJsonPath));
-      if (stats.type === vscode.FileType.File) {
-        return packageJsonPath;
-      }
-      currentPath = getDirectoryPath(currentPath);
-    }
-
-    return undefined;
+    return [];
   }
 
   private createInstallPackageCodeAction(
