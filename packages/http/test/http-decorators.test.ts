@@ -371,19 +371,17 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics if property is optional but not using path expansion in the route", async () => {
+    it("accept optional path when specified at the root of @route", async () => {
       const diagnostics = await runner.diagnose(`
-        @route("/{myPath}") op test(@path myPath?: string): string;
+        @route("{/myPath}") op test(@path myPath?: string): string;
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/optional-needs-path-expansion",
-      });
+      expectDiagnosticEmpty(diagnostics);
     });
 
     it("accept optional path when specified in route", async () => {
       const diagnostics = await runner.diagnose(`
-        @route("{/myPath}") op test(@path myPath?: string): string;
+        @route("base{/myPath}") op test(@path myPath?: string): string;
       `);
 
       expectDiagnosticEmpty(diagnostics);
