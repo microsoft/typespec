@@ -112,6 +112,7 @@ function autoRouteProducer(
   const diagnostics = createDiagnosticCollector();
   const routePath = getRoutePath(program, operation)?.path;
   const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
+  console.log("HEre", segments, routePath);
   const filteredParameters: HttpOperationParameter[] = [];
   const filteredParamProperties = new Set<ModelProperty>();
   const paramOptions = {
@@ -139,10 +140,10 @@ function autoRouteProducer(
       } else {
         // Add the path variable for the parameter
         if (param.type.kind === "String") {
-          segments.push(`/${param.type.value}`);
+          segments.push(`${param.type.value}`);
           continue; // Skip adding to the parameter list
         } else {
-          segments.push(`/${getUriTemplatePathParam(httpParam)}`);
+          segments.push(`${getUriTemplatePathParam(httpParam)}`);
         }
       }
     }
