@@ -1,5 +1,10 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.6
+
+Republish
+
+
 ## 0.1.0-alpha.5
 
 ### Features
