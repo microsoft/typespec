@@ -233,6 +233,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
 
+        public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
