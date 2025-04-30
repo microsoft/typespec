@@ -3,6 +3,7 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -36,7 +37,7 @@ public final class UnionStringLiteralsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     UnionStringLiteralsImpl(ValueTypesClientImpl client) {
-        this.service = UnionStringLiteralsService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(UnionStringLiteralsService.class, client.getHttpPipeline());
         this.client = client;
     }
 

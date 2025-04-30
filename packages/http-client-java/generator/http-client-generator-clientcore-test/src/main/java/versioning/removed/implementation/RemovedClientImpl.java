@@ -3,6 +3,7 @@ package versioning.removed.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -98,7 +99,7 @@ public final class RemovedClientImpl {
         this.endpoint = endpoint;
         this.version = version;
         this.serviceVersion = serviceVersion;
-        this.service = RemovedClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(RemovedClientService.class, this.httpPipeline);
     }
 
     /**

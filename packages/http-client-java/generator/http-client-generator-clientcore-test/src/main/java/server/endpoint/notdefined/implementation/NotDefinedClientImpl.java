@@ -3,6 +3,7 @@ package server.endpoint.notdefined.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -59,7 +60,7 @@ public final class NotDefinedClientImpl {
     public NotDefinedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = NotDefinedClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(NotDefinedClientService.class, this.httpPipeline);
     }
 
     /**

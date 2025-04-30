@@ -3,6 +3,7 @@ package encode.datetime.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -33,7 +34,7 @@ public final class ResponseHeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ResponseHeadersImpl(DatetimeClientImpl client) {
-        this.service = ResponseHeadersService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(ResponseHeadersService.class, client.getHttpPipeline());
         this.client = client;
     }
 

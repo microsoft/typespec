@@ -4,6 +4,8 @@
 package authentication.union;
 
 import io.clientcore.core.credentials.KeyCredential;
+import io.clientcore.core.credentials.oauth.AccessToken;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -18,9 +20,9 @@ class UnionClientTest {
 
     @Test
     void validToken() {
-        UnionClient client
-            = new UnionClientBuilder().credential(new KeyCredential("https://security.microsoft.com/.default"))
-                .buildClient();
+        UnionClient client = new UnionClientBuilder()
+            .credential(request -> new AccessToken("https://security.microsoft.com/.default", OffsetDateTime.MAX))
+            .buildClient();
         client.validToken();
     }
 }

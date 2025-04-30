@@ -3,6 +3,7 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -38,7 +39,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersLabelExpansionStandardsImpl(RoutesClientImpl client) {
-        this.service = PathParametersLabelExpansionStandardsService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(PathParametersLabelExpansionStandardsService.class, client.getHttpPipeline());
         this.client = client;
     }
 

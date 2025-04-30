@@ -3,6 +3,7 @@ package type.model.usage.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -64,7 +65,7 @@ public final class UsageClientImpl {
     public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = UsageClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(UsageClientService.class, this.httpPipeline);
     }
 
     /**

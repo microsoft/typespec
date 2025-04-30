@@ -3,6 +3,7 @@ package versioning.renamedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -113,7 +114,7 @@ public final class RenamedFromClientImpl {
         this.version = version;
         this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
-        this.service = RenamedFromClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(RenamedFromClientService.class, this.httpPipeline);
     }
 
     /**

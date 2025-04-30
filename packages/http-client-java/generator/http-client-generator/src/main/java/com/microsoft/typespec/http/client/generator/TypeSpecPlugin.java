@@ -218,6 +218,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("disable-required-property-annotation", true);
         // Defaulting to KeyCredential and not providing TypeSpec services to generate with AzureKeyCredential.
         SETTINGS_MAP.put("use-key-credential", true);
+        SETTINGS_MAP.put("use-test-proxy", true);
     }
 
     public Map<String, String> getCrossLanguageDefinitionMap() {
@@ -267,6 +268,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        }
+        if (options.getUseRestProxy()) {
+            SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
         }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);

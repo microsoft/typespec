@@ -3,6 +3,7 @@ package parameters.collectionformat.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -37,7 +38,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(CollectionFormatClientImpl client) {
-        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
         this.client = client;
     }
 

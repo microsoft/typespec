@@ -3,6 +3,7 @@ package type.model.inheritance.singlediscriminator.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -63,7 +64,7 @@ public final class SingleDiscriminatorClientImpl {
     public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = SingleDiscriminatorClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(SingleDiscriminatorClientService.class, this.httpPipeline);
     }
 
     /**

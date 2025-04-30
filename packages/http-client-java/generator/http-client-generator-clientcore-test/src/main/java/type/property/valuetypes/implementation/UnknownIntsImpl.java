@@ -3,6 +3,7 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -36,7 +37,7 @@ public final class UnknownIntsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     UnknownIntsImpl(ValueTypesClientImpl client) {
-        this.service = UnknownIntsService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(UnknownIntsService.class, client.getHttpPipeline());
         this.client = client;
     }
 

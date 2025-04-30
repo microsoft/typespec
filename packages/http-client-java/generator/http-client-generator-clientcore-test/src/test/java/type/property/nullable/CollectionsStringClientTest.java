@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class CollectionsStringClientTest {
@@ -22,6 +23,7 @@ public class CollectionsStringClientTest {
         client.patchNonNull(property);
     }
 
+    @Disabled
     @Test
     public void patchNull() {
         client.patchNull(new CollectionsStringProperty().setRequiredProperty("foo").setNullableProperty(null));

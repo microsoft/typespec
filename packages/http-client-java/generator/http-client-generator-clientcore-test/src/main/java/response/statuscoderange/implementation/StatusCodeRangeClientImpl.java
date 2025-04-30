@@ -3,6 +3,7 @@ package response.statuscoderange.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -64,7 +65,7 @@ public final class StatusCodeRangeClientImpl {
     public StatusCodeRangeClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = StatusCodeRangeClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(StatusCodeRangeClientService.class, this.httpPipeline);
     }
 
     /**

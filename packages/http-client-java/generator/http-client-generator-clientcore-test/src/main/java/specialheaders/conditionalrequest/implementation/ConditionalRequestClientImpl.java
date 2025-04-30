@@ -3,6 +3,7 @@ package specialheaders.conditionalrequest.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -62,7 +63,7 @@ public final class ConditionalRequestClientImpl {
     public ConditionalRequestClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = ConditionalRequestClientService.getNewInstance(this.httpPipeline);
+        this.service = RestProxy.create(ConditionalRequestClientService.class, this.httpPipeline);
     }
 
     /**

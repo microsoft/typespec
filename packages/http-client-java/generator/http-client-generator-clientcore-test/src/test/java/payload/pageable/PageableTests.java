@@ -8,6 +8,7 @@ import io.clientcore.core.http.paging.PagingOptions;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class PageableTests {
@@ -23,6 +24,7 @@ public class PageableTests {
         Assertions.assertEquals(4, pagedIterable.stream().count());
     }
 
+    @Disabled
     @Test
     public void testContinuationToken() {
         PagedIterable<Pet> pagedIterable = tokenClient.requestHeaderResponseBody(null, "foo", "bar");

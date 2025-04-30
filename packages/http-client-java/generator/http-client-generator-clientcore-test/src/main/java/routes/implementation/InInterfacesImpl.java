@@ -3,6 +3,7 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -33,7 +34,7 @@ public final class InInterfacesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     InInterfacesImpl(RoutesClientImpl client) {
-        this.service = InInterfacesService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(InInterfacesService.class, client.getHttpPipeline());
         this.client = client;
     }
 

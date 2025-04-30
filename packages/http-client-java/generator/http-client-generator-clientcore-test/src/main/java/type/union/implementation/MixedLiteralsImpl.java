@@ -3,6 +3,7 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +38,7 @@ public final class MixedLiteralsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     MixedLiteralsImpl(UnionClientImpl client) {
-        this.service = MixedLiteralsService.getNewInstance(client.getHttpPipeline());
+        this.service = RestProxy.create(MixedLiteralsService.class, client.getHttpPipeline());
         this.client = client;
     }
 
