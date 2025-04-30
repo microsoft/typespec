@@ -281,16 +281,19 @@ public class Javagen extends NewPlugin {
             // Readme, Changelog
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
-                if (generateSwaggerMarkdown) {
-                    javaPackage.addSwaggerReadmeMarkdown(project);
+
+                if (settings.isBranded()) {
+                    if (generateSwaggerMarkdown) {
+                        javaPackage.addSwaggerReadmeMarkdown(project);
+                    }
+                    javaPackage.addChangelogMarkdown(project);
+
+                    // test proxy asserts.json
+                    javaPackage.addTestProxyAssetsJson(project);
+
+                    // Blank readme sample
+                    javaPackage.addProtocolExamplesBlank();
                 }
-                javaPackage.addChangelogMarkdown(project);
-
-                // test proxy asserts.json
-                javaPackage.addTestProxyAssetsJson(project);
-
-                // Blank readme sample
-                javaPackage.addProtocolExamplesBlank();
             }
         }
         return javaPackage;
