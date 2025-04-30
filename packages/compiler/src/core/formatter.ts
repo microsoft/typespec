@@ -35,11 +35,40 @@ export async function format(
   formatter: Formatter,
   prettierConfig?: Options,
 ): Promise<string> {
+  return runFormatter(prettierFormat, code, formatter, prettierConfig);
+}
+
+/**
+ * Check the given code is correctly formatted with the given formatter
+ * @param code The code to check the format of
+ * @param formatter The formatter to use
+ * @param prettierConfig Optional config for prettier
+ * @returns true if the code is formatted correctly
+ * @throws PrettierParserError if the code is not valid
+ */
+export async function checkFormat(
+  code: string,
+  formatter: Formatter,
+  prettierConfig?: Options,
+): Promise<boolean> {
+  return runFormatter(check, code, formatter, prettierConfig);
+}
+
+async function runFormatter<T>(
+  fn: (code: string, options?: Options) => Promise<T>,
+  code: string,
+  formatter: Formatter,
+  prettierConfig?: Options,
+): Promise<T> {
   switch (formatter) {
     case "typespec":
-      return formatTypeSpec(code, prettierConfig);
+      return fn(code, {
+        ...prettierConfig,
+        parser: "typespec",
+        plugins: [typespecPrettierPlugin],
+      });
     case "tspconfig":
-      return await prettierFormat(code, {
+      return await fn(code, {
         ...prettierConfig,
         parser: "yaml",
         plugins: [YamlPlugin],

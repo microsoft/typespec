@@ -2,27 +2,26 @@ import { readFile, writeFile } from "fs/promises";
 import { globby } from "globby";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
-import { checkFormatTypeSpec, format, getFormatterFromFilename } from "./formatter.js";
+import { checkFormat, format, getFormatterFromFilename } from "./formatter.js";
 import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
 import { Diagnostic, NoTarget } from "./types.js";
 
 export interface TypeSpecFormatOptions {
   exclude?: string[];
-  debug?: boolean;
 }
 
 export interface TypeSpecFormatResult {
   /**
    * The list of files which were formatted successfully, the paths of which are either relative or absolute based on the original file path patterns.
    */
-  readonly formattedFiles: string[];
+  readonly formatted: string[];
 
   /** Files that were included in the filter but are not in the scope of the typespec formatter. */
-  readonly ignoredFiles: string[];
+  readonly ignored: string[];
 
   /** Files with errors */
-  readonly erroredFiles: [string, Diagnostic][];
+  readonly errored: [string, Diagnostic][];
 }
 
 /**
@@ -35,54 +34,64 @@ export async function formatFiles(
   { exclude }: TypeSpecFormatOptions,
 ): Promise<TypeSpecFormatResult> {
   const files = await findFiles(patterns, exclude);
-  const erroredFiles: [string, Diagnostic][] = [];
-  const formattedFiles: string[] = [];
-  const ignoredFiles: string[] = [];
+  const errored: [string, Diagnostic][] = [];
+  const formatted: string[] = [];
+  const ignored: string[] = [];
   for (const file of files) {
     const result = await formatFile(file);
     switch (result.kind) {
       case "formatted":
-        formattedFiles.push(file);
+        formatted.push(file);
         break;
       case "ignored":
-        ignoredFiles.push(file);
+        ignored.push(file);
         break;
       case "error":
-        erroredFiles.push([file, result.diagnostic]);
+        errored.push([file, result.diagnostic]);
         break;
     }
   }
 
-  return { formattedFiles, ignoredFiles, erroredFiles };
+  return { formatted, ignored, errored };
 }
 
+export interface CheckFilesFormatResult {
+  readonly formatted: string[];
+  readonly needsFormat: string[];
+  readonly ignored: string[];
+  readonly errored: [string, Diagnostic][];
+}
 /**
- * Find all the unformatted files.
- * @returns list of files not formatted.
+ * Check the format of the files in the given pattern.
  */
-export async function findUnformattedTypeSpecFiles(
+export async function checkFilesFormat(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions,
-): Promise<string[]> {
+  { exclude }: TypeSpecFormatOptions,
+): Promise<CheckFilesFormatResult> {
   const files = await findFiles(patterns, exclude);
-  const unformatted = [];
+  const errored: [string, Diagnostic][] = [];
+  const formatted: string[] = [];
+  const needsFormat: string[] = [];
+  const ignored: string[] = [];
   for (const file of files) {
-    try {
-      if (!(await checkFormatTypeSpecFile(file))) {
-        unformatted.push(file);
-      }
-    } catch (e) {
-      if (e instanceof PrettierParserError) {
-        const details = debug ? e.message : "";
-        // eslint-disable-next-line no-console
-        console.error(`File '${file}' failed to format. ${details}`);
-        unformatted.push(file);
-      } else {
-        throw e;
-      }
+    const result = await checkFileFormat(file);
+    switch (result.kind) {
+      case "formatted":
+        formatted.push(file);
+        break;
+      case "needs-format":
+        formatted.push(file);
+        break;
+      case "ignored":
+        ignored.push(file);
+        break;
+      case "error":
+        errored.push([file, result.diagnostic]);
+        break;
     }
   }
-  return unformatted;
+
+  return { formatted, needsFormat, ignored, errored };
 }
 
 export type FormatFileResult =
@@ -120,14 +129,43 @@ export async function formatFile(filename: string): Promise<FormatFileResult> {
   }
 }
 
+export type CheckFormatResult =
+  /** File formatted successfully. */
+  | { kind: "formatted" }
+  /** File needs format */
+  | { kind: "needs-format" }
+  /** File is not in a format that can be formatted by TypeSpec */
+  | { kind: "ignored" }
+  /** Error occurred, probably a parsing error. */
+  | { kind: "error"; diagnostic: Diagnostic };
+
 /**
  * Check the given TypeSpec file is correctly formatted.
- * @returns true if code is formatted correctly.
  */
-export async function checkFormatTypeSpecFile(filename: string): Promise<boolean> {
+export async function checkFileFormat(filename: string): Promise<CheckFormatResult> {
   const content = await readFile(filename, "utf-8");
   const prettierConfig = await resolveConfig(filename);
-  return await checkFormatTypeSpec(content, prettierConfig ?? {});
+  const formatter = getFormatterFromFilename(filename);
+  if (formatter === undefined) {
+    return { kind: "ignored" };
+  }
+  try {
+    const formatted = await checkFormat(content, formatter, prettierConfig ?? {});
+    return { kind: formatted ? "formatted" : "needs-format" };
+  } catch (e) {
+    if (e instanceof PrettierParserError) {
+      return {
+        kind: "error",
+        diagnostic: createDiagnostic({
+          code: "format-failed",
+          format: { file: filename, details: e.message },
+          target: NoTarget,
+        }),
+      };
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function findFiles(include: string[], ignore: string[] = []): Promise<string[]> {
