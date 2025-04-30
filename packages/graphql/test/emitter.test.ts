@@ -3,10 +3,7 @@ import { describe, it } from "vitest";
 import { emitSingleSchema } from "./test-host.js";
 import { expect } from "vitest";
 
-const expectedGraphQLSchema = `
-type Bear {
-  growl: String
-}`;
+const expectedGraphQLSchema = `query { hello: String }`;
 
 // input TSP lives in main.tsp
 describe('name', () => {
