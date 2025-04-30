@@ -28,10 +28,12 @@ export const $lib = createTypeSpecLibrary({
       },
     },
 
-    "optional-needs-path-expansion": {
-      severity: "error",
+    "double-slash": {
+      severity: "warning",
       messages: {
-        default: paramMessage`Optional path parameter '${"paramName"}' must be declared with a leading '/' in the corresponding route path variable. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
+        default: paramMessage`Route will result in duplicate slashes as parameter '${"paramName"}' use path expansion and is prefixed with a /`,
+        optionalUnset: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is not set.`,
+        optionalSet: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is set.`,
       },
     },
     "missing-server-param": {

@@ -150,6 +150,22 @@ export interface TypeTypekit {
   isAssignableTo: Diagnosable<
     (source: Type, target: Entity, diagnosticTarget?: Entity | Node) => boolean
   >;
+
+  /**
+   * Resolve a type reference to a TypeSpec type.
+   * By default any diagnostics are ignored.
+   *
+   * If a `kind` is provided, it will check if the resolved type matches the expected kind
+   * and throw an error if it doesn't.
+   *
+   * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
+   */
+  resolve: Diagnosable<
+    <K extends Type["kind"] | undefined>(
+      reference: string,
+      kind?: K,
+    ) => K extends Type["kind"] ? Extract<Type, { kind: K }> : undefined
+  >;
 }
 
 interface TypekitExtension {
@@ -335,6 +351,13 @@ defineKit<TypekitExtension>({
     },
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
       return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
+    resolve: createDiagnosable(function (reference, kind) {
+      const [type, diagnostics] = this.program.resolveTypeReference(reference);
+      if (type && kind && type.kind !== kind) {
+        throw new Error(`Type kind mismatch: expected ${kind}, got ${type.kind}`);
+      }
+      return [type, diagnostics];
     }),
   },
 });
