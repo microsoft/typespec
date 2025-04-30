@@ -1,9 +1,5 @@
-import { ignoreDiagnostics } from "../../core/diagnostics.js";
-import { getDiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
 import { getLocationContext } from "../../core/helpers/location-context.js";
 import {
-  Discriminator,
-  getDiscriminator,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -73,11 +69,6 @@ export interface TypeTypekit {
    * @param type The scalar to get the name of.z
    */
   getPlausibleName(type: Model | Union | Enum | Scalar): string;
-  /**
-   * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
-   * @param type
-   */
-  getDiscriminator(type: Model | Union): Discriminator | undefined;
   /**
    * Gets the maximum value for a numeric or model property type.
    * @param type type to get the maximum value for
@@ -272,20 +263,6 @@ defineKit<TypekitExtension>({
     },
     getPlausibleName(type) {
       return getPlausibleName(type);
-    },
-    getDiscriminator(type) {
-      let discriminator: Discriminator | undefined;
-      if (this.model.is(type)) {
-        discriminator = getDiscriminator(this.program, type);
-      } else {
-        const unionDiscriminator = ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
-        const propertyName = unionDiscriminator?.options.discriminatorPropertyName;
-        if (propertyName) {
-          discriminator = { propertyName };
-        }
-      }
-
-      return discriminator;
     },
     maxValue(type) {
       return getMaxValue(this.program, type);

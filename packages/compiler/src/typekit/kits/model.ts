@@ -198,7 +198,7 @@ defineKit<TypekitExtension>({
       const properties = copyMap(model.properties);
 
       // Add discriminator property if it exists
-      const discriminator = this.type.getDiscriminator(model);
+      const discriminator = this.model.getDiscriminatedUnion(model);
       if (discriminator) {
         const discriminatorName = discriminator.propertyName;
         properties.set(
