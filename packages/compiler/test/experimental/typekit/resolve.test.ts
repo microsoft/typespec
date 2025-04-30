@@ -1,6 +1,6 @@
 import { beforeEach, expect, it } from "vitest";
-import { IntrinsicType } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
+import { isValue } from "../../../src/index.js";
 import { createTestHost } from "../../../src/testing/test-host.js";
 import { createTestWrapper } from "../../../src/testing/test-utils.js";
 import { BasicTestRunner } from "../../../src/testing/types.js";
@@ -15,11 +15,22 @@ it("resolve resolves existing types", async () => {
   const tk = $(runner.program);
   const stringType = tk.resolve("TypeSpec.string");
   expect(stringType).toBeDefined();
-  expect(stringType?.kind).toBe("Scalar");
-  expect((stringType as IntrinsicType).name).toBe("string");
+  expect(tk.builtin.string).toBe(stringType);
 
   const [stringTypeDiag, diagnostics] = tk.resolve.withDiagnostics("TypeSpec.string");
   expect(stringTypeDiag).toBe(stringType);
+  expect(diagnostics).toHaveLength(0);
+});
+
+it("resolve resolves existing values", async () => {
+  await runner.compile(`const stringValue = "test";`);
+  const tk = $(runner.program);
+  const stringValue = tk.resolve("stringValue");
+  expect(stringValue).toBeDefined();
+  expect(isValue(stringValue!)).toBe(true);
+
+  const [stringValueDiag, diagnostics] = tk.resolve.withDiagnostics("stringValue");
+  expect(isValue(stringValueDiag!)).toBe(true);
   expect(diagnostics).toHaveLength(0);
 });
 
