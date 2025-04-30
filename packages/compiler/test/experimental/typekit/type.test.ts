@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { Enum, Model, Namespace, Scalar, Union } from "../../../src/core/types.js";
 import { $ } from "../../../src/experimental/typekit/index.js";
 import { isTemplateInstance } from "../../../src/index.js";
@@ -537,5 +537,65 @@ describe("isAssignableTo", () => {
     );
     expect(validTest[0]).toBe(true);
     expectDiagnosticEmpty(validTest[1]);
+  });
+});
+
+describe("resolve", () => {
+  it("resolves to the value type", async () => {
+    const {
+      context: { program },
+    } = await getTypes(
+      `
+        alias stringLiteral = "hello";
+        alias aliasedLiteral = stringLiteral;
+        enum Foo { one: 1, two: 2 }
+        const aValue = "value";
+      `,
+      [],
+    );
+
+    const tk = $(program);
+    const stringLiteral = tk.type.resolve("stringLiteral");
+    assert(tk.literal.isString(stringLiteral!));
+    expect(stringLiteral.value).toBe("hello");
+
+    const aliasedLiteral = tk.type.resolve("aliasedLiteral", "String");
+    expect(aliasedLiteral!.value).toBe("hello");
+
+    const enumMember = tk.type.resolve("Foo.one", "EnumMember");
+    expect(tk.enumMember.is(enumMember!)).toBe(true);
+
+    // Not actually a type
+    const confusedValue = tk.type.resolve("aValue");
+    expect(confusedValue).toBeUndefined();
+  });
+
+  it("throws an error for incorrect kind assertion", async () => {
+    const {
+      context: { program },
+    } = await getTypes(
+      `
+        alias stringLiteral = "hello";
+      `,
+      [],
+    );
+
+    const tk = $(program);
+    expect(() => tk.type.resolve("stringLiteral", "Boolean")).toThrow(
+      "Type kind mismatch: expected Boolean, got String",
+    );
+  });
+
+  it("returns undefined and diagnostics for invalid references", async () => {
+    const {
+      context: { program },
+    } = await getTypes(``, []);
+
+    const tk = $(program);
+    const [unknownType, diagnostics] = tk.type.resolve.withDiagnostics("unknownType");
+    expect(unknownType).toBeUndefined();
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+    });
   });
 });
