@@ -1,4 +1,4 @@
-import { Diagnostic, Program, Union } from "@typespec/compiler";
+import { Diagnostic, Program, Type, Union } from "@typespec/compiler";
 import { unsafe_$ as $ } from "@typespec/compiler/experimental";
 import {
   BasicTestRunner,
@@ -12,11 +12,17 @@ import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
 import { createHttpTestRunner, getOperationsWithServiceNamespace } from "./test-host.js";
 
-function isNullableUnion(program: Program, union: Union): boolean {
+function isNullableUnion(program: Program, union: Type): boolean {
   return (
+    $(program).union.is(union) &&
     union.variants.size === 2 &&
     [...union.variants.values()].some((v) => v.type === $(program).intrinsic.null)
   );
+}
+
+function extractFromUnion<T extends Type>(program: Program, union: Type, extract: T): T[] | undefined {
+  if (!$(program).union.is(union)) return undefined;
+  return [...union.variants.values()].filter(v => $(program).type.isAssignableTo(v.type, extract)).flatMap(variant => variant.type) as T[];
 }
 
 async function compileAndDiagnoseWithRunner(
@@ -113,8 +119,55 @@ describe("merge-patch: mutator validation", () => {
     const description = bodyType.properties.get("description");
     ok(description);
     deepStrictEqual(description.optional, true);
-    deepStrictEqual(description.type.kind, "Union");
     deepStrictEqual(isNullableUnion(runner.program, description.type), true);
+  });
+  it("correctly transforms complex type properties", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Resource {
+       id: string;
+       name?: string;
+       quantity?: safeint;
+       color: "blue" | "green" | "red" = "blue";
+       flavor?: "vanilla" | "chocolate" | "strawberry" = "vanilla";
+       related?: Record<Resource>;
+       tags?: string[];
+     }
+      @patch op update(@body body: MergePatchUpdate<Resource>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    const idProp = bodyType.properties.get("id");
+    ok(idProp);
+    deepStrictEqual(idProp.optional, true);
+    deepStrictEqual($(runner.program).scalar.isString(idProp.type), true)
+    const nameProp = bodyType.properties.get("name");
+    ok(nameProp);
+    deepStrictEqual(nameProp.optional, true);
+    deepStrictEqual(isNullableUnion(runner.program, nameProp.type), true)
+    const quantity = bodyType.properties.get("quantity");
+    ok(quantity);
+    deepStrictEqual(quantity.optional, true);
+    deepStrictEqual(isNullableUnion(runner.program, quantity.type), true);
+    const color = bodyType.properties.get("color");
+    ok(color);
+    deepStrictEqual(color.optional, true);
+    deepStrictEqual(color.defaultValue, undefined);
+    deepStrictEqual(isNullableUnion(runner.program, color.type), true);
+    const flavor = bodyType.properties.get("flavor");
+    ok(flavor);
+    deepStrictEqual(flavor.optional, true);
+    deepStrictEqual(flavor.defaultValue, undefined);
+    deepStrictEqual(isNullableUnion(runner.program, flavor.type), true);
+    const related = bodyType.properties.get("related");
+    ok(related);
+    deepStrictEqual(related.optional, true);
+    deepStrictEqual(related.defaultValue, undefined);
+    deepStrictEqual(isNullableUnion(runner.program, related.type), true);
+    $(runner.program).union.
   });
 });
 describe("merge-patch: emitter apis", () => {
