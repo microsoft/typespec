@@ -1,6 +1,6 @@
 import type { DecoratorApplication, DecoratorFunction, RekeyableMap } from "../core/types.js";
 import { createRekeyableMap } from "../utils/misc.js";
-import { Typekit } from "./define-kit.js";
+import { type Typekit } from "./define-kit.js";
 
 /**
  * Creates a shallow copy of a rekeyable map.

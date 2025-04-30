@@ -1,6 +1,6 @@
 import { ignoreDiagnostics } from "../core/diagnostics.js";
 import { type Diagnostic } from "../core/types.js";
-import { Typekit } from "./define-kit.js";
+import { type Typekit } from "./define-kit.js";
 
 /**
  * Represents the enhanced function returned by `createDiagnosable`.

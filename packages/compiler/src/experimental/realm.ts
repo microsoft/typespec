@@ -1,7 +1,7 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { Program } from "../core/program.js";
 import { Type } from "../core/types.js";
-import { Typekit } from "../typekit/index.js";
+import type { Typekit } from "../typekit/index.js";
 import { createTypekit } from "./typekit/index.js";
 
 /**

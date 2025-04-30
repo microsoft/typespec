@@ -1,9 +1,9 @@
 import type { Program } from "../core/program.js";
 import { Realm } from "../experimental/realm.js";
-import { Typekit } from "./define-kit.js";
+import { type Typekit } from "./define-kit.js";
 
 export { createDiagnosable, Diagnosable } from "./create-diagnosable.js";
-export { defineKit, Typekit } from "./define-kit.js";
+export { defineKit, type Typekit } from "./define-kit.js";
 export {
   ArrayKit,
   BuiltinKit,

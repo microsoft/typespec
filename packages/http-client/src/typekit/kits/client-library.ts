@@ -10,7 +10,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { defineKit, Typekit } from "@typespec/compiler/typekit";
+import { defineKit, type Typekit } from "@typespec/compiler/typekit";
 import { HttpOperation, isHttpFile } from "@typespec/http";
 import { InternalClient } from "../../interfaces.js";
 

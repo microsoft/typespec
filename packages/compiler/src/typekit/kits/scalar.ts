@@ -1,7 +1,7 @@
 import { isIntrinsicType } from "../../core/decorator-utils.js";
 import type { IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
 import { type EncodeData, getEncode, getFormat } from "../../lib/decorators.js";
-import { defineKit, Typekit } from "../define-kit.js";
+import { defineKit, type Typekit } from "../define-kit.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ModelPropertyKit } from "./model-property.js";
 

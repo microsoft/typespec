@@ -1,6 +1,6 @@
 import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
 import { Program } from "@typespec/compiler";
-import { $, Typekit } from "@typespec/compiler/typekit";
+import { $, type Typekit } from "@typespec/compiler/typekit";
 
 export type TspContext = {
   program: Program;

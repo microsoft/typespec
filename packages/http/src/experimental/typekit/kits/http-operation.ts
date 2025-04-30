@@ -1,5 +1,10 @@
 import { Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { createDiagnosable, defineKit, Diagnosable, Typekit } from "@typespec/compiler/typekit";
+import {
+  createDiagnosable,
+  defineKit,
+  type Diagnosable,
+  type Typekit,
+} from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../../operations.js";
 import {
   HttpOperation,
