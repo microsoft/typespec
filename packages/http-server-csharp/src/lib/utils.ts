@@ -1470,15 +1470,15 @@ export class CSharpOperationHelpers {
         switch (collectionType) {
           case CollectionType.IEnumerable:
             return {
-              typeReference: code`IEnumerable<${csharpType.getTypeReference()}>`,
-              defaultValue: `new List<${csharpType.getTypeReference()}> {${defaults.join(", ")}}`,
+              typeReference: code`IEnumerable<${csharpType.getTypeReference(myEmitter.getContext()?.scope)}>`,
+              defaultValue: `new List<${csharpType.getTypeReference(myEmitter.getContext()?.scope)}> {${defaults.join(", ")}}`,
               nullableType: csharpType.isNullable,
             };
           case CollectionType.Array:
           default:
             return {
-              typeReference: code`${csharpType.getTypeReference()}[]`, //          typeReference: code`${csharpType.getTypeReference(myEmitter.getContext().scope)}[]`,
-              defaultValue: `{${defaults.join(", ")}}`,
+              typeReference: code`${csharpType.getTypeReference(myEmitter.getContext()?.scope)}[]`,
+              defaultValue: `[${defaults.join(", ")}]`,
               nullableType: csharpType.isNullable,
             };
         }

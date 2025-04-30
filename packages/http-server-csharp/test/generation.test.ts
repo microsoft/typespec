@@ -1553,13 +1553,13 @@ it("generates appropriate types for literal tuples in operation parameters", asy
         "Foo.cs",
         [
           "public partial class Foo",
-          "public int[] IntProp { get; } = {8, 10}",
-          "public double[] FloatProp { get; } = {3.14, 5.2}",
+          "public int[] IntProp { get; } = [8, 10]",
+          "public double[] FloatProp { get; } = [3.14, 5.2]",
           `public string StringProp { get; } = "string of characters"`,
-          `public string[] StringArrayProp { get; } = {"A string of characters", "and another"}`,
-          `public string[] StringTempProp { get; } = {"A string of characters and then some", "Yet another string of characters"}`,
-          "public bool[] TrueProp { get; } = {true, true}",
-          "public bool[] FalseProp { get; } = {false, false}",
+          `public string[] StringArrayProp { get; } = ["A string of characters", "and another"]`,
+          `public string[] StringTempProp { get; } = ["A string of characters and then some", "Yet another string of characters"]`,
+          "public bool[] TrueProp { get; } = [true, true]",
+          "public bool[] FalseProp { get; } = [false, false]",
         ],
       ],
       [
@@ -1599,7 +1599,7 @@ it("generates valid code for overridden parameters", async () => {
       ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
       [
         "Foo.cs",
-        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = {8, 10}"],
+        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
@@ -1638,7 +1638,7 @@ it("generates valid code for anonymous models", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public int[] IntProp { get; } = {8, 10}",
+          "public int[] IntProp { get; } = [8, 10]",
           "public Model0 ModelProp { get; set; }",
           "public Model1 AnotherModelProp { get; set; }",
           "public Model0 YetAnother { get; set; }",
@@ -2841,8 +2841,11 @@ describe("collection type: defined as emitter option", () => {
   model FooProp {
     name: string;
   }
+  
+  model Bar is Array<string>;
 
   @route("/foo") op foo(): Foo[];
+  @route("/Bar") op bar(): Bar[];
 `;
   it("defined collection type as enumerable", async () => {
     const runner = await createCSharpServiceEmitterTestRunner({
@@ -2864,7 +2867,13 @@ describe("collection type: defined as emitter option", () => {
           "public ISet<string> StringUnique { get; set; }",
         ],
       ],
-      ["IContosoOperations.cs", ["Task<IEnumerable<Foo>> FooAsync( );"]],
+      [
+        "IContosoOperations.cs",
+        [
+          "Task<IEnumerable<Foo>> FooAsync( );",
+          "Task<IEnumerable<IEnumerable<string>>> BarAsync( );",
+        ],
+      ],
     ]);
   });
   it("default collection is array", async () => {
@@ -2877,7 +2886,7 @@ describe("collection type: defined as emitter option", () => {
           "public int[] IntProp { get; set; }",
           "public string[] StringProp { get; set; }",
           "public FooProp[] ModelProp { get; set; }",
-          "public int[] IntPropInitialized { get; } = {8, 10};",
+          "public int[] IntPropInitialized { get; } = [8, 10];",
           "public int[] IntArr { get; set; }",
           "public string[] StringArr { get; set; }",
           "public FooProp[] ModelArr { get; set; }",
@@ -2900,14 +2909,14 @@ describe("collection type: defined as emitter option", () => {
           "public int[] IntProp { get; set; }",
           "public string[] StringProp { get; set; }",
           "public FooProp[] ModelProp { get; set; }",
-          "public int[] IntPropInitialized { get; } = {8, 10};",
+          "public int[] IntPropInitialized { get; } = [8, 10];",
           "public int[] IntArr { get; set; }",
           "public string[] StringArr { get; set; }",
           "public FooProp[] ModelArr { get; set; }",
           "public ISet<string> StringUnique { get; set; }",
         ],
       ],
-      ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );"]],
+      ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );", "Task<string[][]> BarAsync( );"]],
     ]);
   });
 });
