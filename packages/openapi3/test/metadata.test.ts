@@ -663,7 +663,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         "Parameters.q": {
           name: "q",
           in: "query",
-          explode: false,
           required: true,
           schema: { type: "string" },
         },
@@ -731,7 +730,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
               name: "q",
               in: "query",
               required: true,
-              explode: false,
               schema: { type: "string" },
             },
             {
