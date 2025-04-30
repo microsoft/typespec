@@ -2819,6 +2819,20 @@ describe("emit correct code for `@error` models", () => {
       ],
     );
   });
+
+  it("generates standard scalar array for uniqueItems model", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `    
+        /** A simple test model*/
+        model Foo is Array<string>;
+        @get @route("/Foo") op list(): Foo[];
+        @route("/Foo/{id}") @get op get(@path id: string): Foo;
+        `,
+      "IContosoOperations.cs",
+      ["Task<string[][]> ListAsync( )", "Task<string[]> GetNameAsync( string id)"],
+    );
+  });
 });
 
 describe("collection type: defined as emitter option", () => {
