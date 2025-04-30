@@ -14,6 +14,7 @@ export function createGraphQLEmitter(
   options: ResolvedGraphQLEmitterOptions,
 ) {
   const program = context.program;
+  const placeholderSchema = `query { hello: String }`;
 
   return {
     emitGraphQL,
@@ -25,7 +26,7 @@ export function createGraphQLEmitter(
       navigateProgram(program, semanticNodeListener());
       await emitFile(program, {
         path: filePath,
-        content: "query { hello: String }",
+        content: placeholderSchema,
         newLine: options.newLine,
       });
     }
