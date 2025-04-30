@@ -64,13 +64,23 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CodeActionCommand.NpmInstallImportPackage, async (path: string) => {
-      try {
-        await spawnExecutionAndLogToOutput("npm", ["install"], path);
-      } catch (error) {
-        logger.error("Failed to execute npm install, see details: ", [error]);
-      }
-    }),
+    commands.registerCommand(
+      CodeActionCommand.NpmInstallImportPackage,
+      async (projectFolder: string, packageName: string = "") => {
+        try {
+          await spawnExecutionAndLogToOutput(
+            "npm",
+            packageName === "" ? ["install"] : ["install", packageName],
+            projectFolder,
+          );
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            "Failed to execute npm install. Please check the output for details.",
+          );
+          logger.error("Failed to execute npm install, see details: ", [error]);
+        }
+      },
+    ),
   );
 
   /* emit command. */

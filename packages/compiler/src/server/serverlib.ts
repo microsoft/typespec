@@ -527,7 +527,7 @@ export function createServer(host: ServerHost): Server {
         }
         diagnostic.data = {
           id: diagnosticIdCounter++,
-          file: await fileService.getPath({ uri: diagDocument.uri }),
+          file: diagDocument.uri,
         };
         const diagnostics = diagnosticMap.get(diagDocument);
         compilerAssert(
