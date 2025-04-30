@@ -21,5 +21,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             return clientProvider;
         }
+
+        protected override MethodProvider? VisitMethod(MethodProvider method)
+        {
+            if (method is ScmMethodProvider scmMethod)
+            {
+                return VisitMethod(scmMethod);
+            }
+
+            return base.VisitMethod(method);
+        }
+
+        protected internal virtual ScmMethodProvider? VisitMethod(ScmMethodProvider method)
+        {
+            return method;
+        }
     }
 }
