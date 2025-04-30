@@ -9,7 +9,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
