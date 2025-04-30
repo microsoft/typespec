@@ -572,16 +572,17 @@ describe("uri template", () => {
       [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
       [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
-      ["@query one: string", "/foo{?one}"],
+      ["@query one: string", "/foo{?one*}"],
       ["@query(#{explode: true}) one: string", "/foo{?one*}"],
+      ["@query(#{explode: false}) one: string", "/foo{?one}"],
       [
         "@query(#{explode: true}) one: string, @query(#{explode: true}) two: string",
         "/foo{?one*,two*}",
       ],
 
       // cspell:ignore Atwo Dtwo
-      [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
-      [`@query("one-two") one: string`, "/foo{?one%2Dtwo}"],
+      [`@query("one:two") one: string`, "/foo{?one%3Atwo*}"],
+      [`@query("one-two") one: string`, "/foo{?one%2Dtwo*}"],
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
