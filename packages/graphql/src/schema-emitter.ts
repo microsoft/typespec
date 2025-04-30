@@ -1,7 +1,6 @@
 import {
   emitFile,
   interpolatePath,
-  ListenerFlow,
   navigateProgram,
   type EmitContext,
   type Model,
@@ -19,7 +18,7 @@ export function createGraphQLEmitter(
   return {
     emitGraphQL,
   };
-
+  
   async function emitGraphQL() {
     // replace this with the real emitter code
     if (!program.compilerOptions.noEmit) {
@@ -34,10 +33,10 @@ export function createGraphQLEmitter(
   }
 
   function getSemanticNodeListener() {
-    // TODO: Implement TSP to GraphQL type conversion logic
+    // TODO: Add GraphQL types to registry as the TSP nodes are visited
     return {
       namespace: (namespace: Namespace) => {
-        console.log("namespace", namespace.name);
+        {}
       },
       model: (model: Model) => {
         {}

@@ -1,13 +1,13 @@
 import { strictEqual } from "node:assert";
 import { describe, it } from "vitest";
 import { emitSingleSchema } from "./test-host.js";
-import { expect } from "vitest";
 
+// For now, the expected output is a placeholder string.
+// In the future, this should be replaced with the actual GraphQL schema output.
 const expectedGraphQLSchema = `query { hello: String }`;
 
-// input TSP lives in main.tsp
-describe('name', () => {
-  it("emit schema.graphql with two types Person and Book", async () => {
+describe("name", () => {
+  it("Emits a schema.graphql file with placeholder text", async () => {
     const code = `
       @schema
       namespace TestNamespace {
@@ -25,8 +25,7 @@ describe('name', () => {
         op getAuthors(): Author[];
       }
     `;
-    const emitterOptions = {}
-    const results = await emitSingleSchema(code, emitterOptions);
+    const results = await emitSingleSchema(code, {});
     strictEqual(results, expectedGraphQLSchema);
   });
 });
