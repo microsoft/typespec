@@ -23,7 +23,6 @@ paths:
             format: int32
             minimum: 0
             maximum: 10
-          explode: true
       responses:
         '200':
           description: The request has succeeded.

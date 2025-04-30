@@ -15,7 +15,6 @@ paths:
           required: false
           schema:
             type: string
-          explode: true
       responses:
         '200':
           description: The request has succeeded.
@@ -104,7 +103,6 @@ paths:
           required: true
           schema:
             type: string
-          explode: true
       responses:
         '200':
           description: The request has succeeded.
