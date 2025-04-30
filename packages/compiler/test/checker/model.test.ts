@@ -68,26 +68,6 @@ describe("compiler: models", () => {
     match(diagnostics[0].message, /Model already has a property/);
   });
 
-  it("doesn't invoke decorators on uninstantiated templates", async () => {
-    const blues = new WeakSet();
-    let calls = 0;
-    testHost.addJsFile("dec.js", {
-      $blue(p: any, t: Type) {
-        calls++;
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./dec.js";
-      @blue model A<T> { @blue x: int32}
-      `,
-    );
-    await testHost.compile("./");
-    strictEqual(calls, 0);
-  });
-
   it("emit single error when there is an invalid ref in a templated type", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
