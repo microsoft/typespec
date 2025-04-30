@@ -2,7 +2,7 @@ import { readFile, writeFile } from "fs/promises";
 import { globby } from "globby";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
-import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
+import { checkFormatTypeSpec, format, getFormatterFromFilename } from "./formatter.js";
 import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
 import { Diagnostic, NoTarget } from "./types.js";
@@ -16,42 +16,44 @@ export interface TypeSpecFormatResult {
   /**
    * The list of files which were formatted successfully, the paths of which are either relative or absolute based on the original file path patterns.
    */
-  formattedFiles: string[];
+  readonly formattedFiles: string[];
+
+  /** Files that were included in the filter but are not in the scope of the typespec formatter. */
+  readonly ignoredFiles: string[];
+
+  /** Files with errors */
+  readonly erroredFiles: [string, Diagnostic][];
 }
 
 /**
- * Format all the TypeSpec files.
+ * Format all the TypeSpec project files(.tsp, tspconfig.yaml).
  * @param patterns List of wildcard pattern searching for TypeSpec files.
  * @returns list of files which failed to format.
  */
-export async function formatTypeSpecFiles(
+export async function formatFiles(
   patterns: string[],
-  { exclude, debug }: TypeSpecFormatOptions,
-): Promise<[TypeSpecFormatResult, readonly Diagnostic[]]> {
+  { exclude }: TypeSpecFormatOptions,
+): Promise<TypeSpecFormatResult> {
   const files = await findFiles(patterns, exclude);
-  const diagnostics: Diagnostic[] = [];
+  const erroredFiles: [string, Diagnostic][] = [];
   const formattedFiles: string[] = [];
+  const ignoredFiles: string[] = [];
   for (const file of files) {
-    try {
-      await formatTypeSpecFile(file);
-      formattedFiles.push(file);
-    } catch (e) {
-      if (e instanceof PrettierParserError) {
-        const details = debug ? e.message : "";
-        diagnostics.push(
-          createDiagnostic({
-            code: "format-failed",
-            format: { file, details },
-            target: NoTarget,
-          }),
-        );
-      } else {
-        throw e;
-      }
+    const result = await formatFile(file);
+    switch (result.kind) {
+      case "formatted":
+        formattedFiles.push(file);
+        break;
+      case "ignored":
+        ignoredFiles.push(file);
+        break;
+      case "error":
+        erroredFiles.push([file, result.diagnostic]);
+        break;
     }
   }
 
-  return [{ formattedFiles }, diagnostics];
+  return { formattedFiles, ignoredFiles, erroredFiles };
 }
 
 /**
@@ -83,11 +85,39 @@ export async function findUnformattedTypeSpecFiles(
   return unformatted;
 }
 
-export async function formatTypeSpecFile(filename: string) {
+export type FormatFileResult =
+  /** File formatted successfully. */
+  | { kind: "formatted" }
+  /** File is not in a format that can be formatted by TypeSpec */
+  | { kind: "ignored" }
+  /** Error occurred, probably a parsing error. */
+  | { kind: "error"; diagnostic: Diagnostic };
+
+export async function formatFile(filename: string): Promise<FormatFileResult> {
   const content = await readFile(filename, "utf-8");
   const prettierConfig = await resolveConfig(filename);
-  const formattedContent = await formatTypeSpec(content, prettierConfig ?? {});
-  await writeFile(filename, formattedContent);
+  const formatter = getFormatterFromFilename(filename);
+  if (formatter === undefined) {
+    return { kind: "ignored" };
+  }
+  try {
+    const formattedContent = await format(content, formatter, prettierConfig ?? {});
+    await writeFile(filename, formattedContent);
+    return { kind: "formatted" };
+  } catch (e) {
+    if (e instanceof PrettierParserError) {
+      return {
+        kind: "error",
+        diagnostic: createDiagnostic({
+          code: "format-failed",
+          format: { file: filename, details: e.message },
+          target: NoTarget,
+        }),
+      };
+    } else {
+      throw e;
+    }
+  }
 }
 
 /**
