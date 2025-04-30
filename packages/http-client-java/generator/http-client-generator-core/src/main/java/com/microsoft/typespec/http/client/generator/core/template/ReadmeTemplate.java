@@ -13,11 +13,12 @@ import java.nio.charset.StandardCharsets;
 public class ReadmeTemplate {
 
     public String write(Project project) {
-        String templateReadme = JavaSettings.getInstance().isBranded() ? "Readme_protocol.txt" : "Readme_unbranded.txt";
-        return TemplateUtil.loadTextFromResource(templateReadme, TemplateUtil.SERVICE_NAME,
-            project.getServiceName(), TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(),
-            TemplateUtil.GROUP_ID, project.getGroupId(), TemplateUtil.ARTIFACT_ID, project.getArtifactId(),
-            TemplateUtil.ARTIFACT_VERSION, project.getVersion(), TemplateUtil.PACKAGE_NAME, project.getNamespace());
+        final String templateReadme
+            = JavaSettings.getInstance().isBranded() ? "Readme_protocol.txt" : "Readme_unbranded.txt";
+        return TemplateUtil.loadTextFromResource(templateReadme, TemplateUtil.SERVICE_NAME, project.getServiceName(),
+            TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(), TemplateUtil.GROUP_ID,
+            project.getGroupId(), TemplateUtil.ARTIFACT_ID, project.getArtifactId(), TemplateUtil.ARTIFACT_VERSION,
+            project.getVersion(), TemplateUtil.PACKAGE_NAME, project.getNamespace());
     }
 
     protected static String getImpression(Project project) {
