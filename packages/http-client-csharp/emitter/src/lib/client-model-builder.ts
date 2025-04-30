@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
-import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
@@ -24,13 +23,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
   const rootClients = sdkPackage.clients;
-  if (rootClients.length === 0) {
-    sdkContext.logger.reportDiagnostic({
-      code: "no-root-client",
-      format: {},
-      target: NoTarget,
-    });
-  }
 
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
