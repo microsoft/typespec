@@ -18,12 +18,11 @@ export function createGraphQLEmitter(
   return {
     emitGraphQL,
   };
-  
+
   async function emitGraphQL() {
-    // replace this with the real emitter code
     if (!program.compilerOptions.noEmit) {
       const filePath = interpolatePath(options.outputFile, { "schema-name": "schema" });
-      navigateProgram(program, getSemanticNodeListener());
+      navigateProgram(program, semanticNodeListener());
       await emitFile(program, {
         path: filePath,
         content: "query { hello: String }",
@@ -32,7 +31,7 @@ export function createGraphQLEmitter(
     }
   }
 
-  function getSemanticNodeListener() {
+  function semanticNodeListener() {
     // TODO: Add GraphQL types to registry as the TSP nodes are visited
     return {
       namespace: (namespace: Namespace) => {
