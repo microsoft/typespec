@@ -107,7 +107,7 @@
    "kind": "constant",
    "name": "newOpContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -123,7 +123,7 @@
    "kind": "constant",
    "name": "newOpContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "15",
     "kind": "string",
@@ -139,7 +139,7 @@
    "kind": "constant",
    "name": "newOpInNewInterfaceContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "17",
     "kind": "string",
@@ -155,7 +155,7 @@
    "kind": "constant",
    "name": "newOpInNewInterfaceContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "19",
     "kind": "string",

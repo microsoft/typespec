@@ -180,7 +180,7 @@
    "kind": "constant",
    "name": "v2ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "21",
     "kind": "string",
@@ -196,7 +196,7 @@
    "kind": "constant",
    "name": "v2ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -212,7 +212,7 @@
    "kind": "constant",
    "name": "modelV3ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -228,7 +228,7 @@
    "kind": "constant",
    "name": "modelV3ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "27",
     "kind": "string",

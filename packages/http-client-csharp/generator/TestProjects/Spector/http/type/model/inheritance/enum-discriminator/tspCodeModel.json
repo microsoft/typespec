@@ -88,7 +88,7 @@
    "kind": "constant",
    "name": "getExtensibleModelContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -104,7 +104,7 @@
    "kind": "constant",
    "name": "putExtensibleModelContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -120,7 +120,7 @@
    "kind": "constant",
    "name": "getExtensibleModelMissingDiscriminatorContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "15",
     "kind": "string",
@@ -136,7 +136,7 @@
    "kind": "constant",
    "name": "getExtensibleModelWrongDiscriminatorContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "17",
     "kind": "string",
@@ -152,7 +152,7 @@
    "kind": "constant",
    "name": "getFixedModelContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "19",
     "kind": "string",
@@ -168,7 +168,7 @@
    "kind": "constant",
    "name": "putFixedModelContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "21",
     "kind": "string",
@@ -184,7 +184,7 @@
    "kind": "constant",
    "name": "getFixedModelMissingDiscriminatorContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -200,7 +200,7 @@
    "kind": "constant",
    "name": "getFixedModelWrongDiscriminatorContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "25",
     "kind": "string",

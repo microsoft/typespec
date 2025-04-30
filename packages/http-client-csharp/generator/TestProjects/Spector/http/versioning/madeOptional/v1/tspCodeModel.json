@@ -51,7 +51,7 @@
    "kind": "constant",
    "name": "testContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -67,7 +67,7 @@
    "kind": "constant",
    "name": "testContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "9",
     "kind": "string",

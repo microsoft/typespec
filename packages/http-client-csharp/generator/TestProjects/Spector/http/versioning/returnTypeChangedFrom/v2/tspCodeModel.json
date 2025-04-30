@@ -70,7 +70,7 @@
    "kind": "constant",
    "name": "TestRequestContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "9",
     "kind": "string",
@@ -86,7 +86,7 @@
    "kind": "constant",
    "name": "testContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -102,7 +102,7 @@
    "kind": "constant",
    "name": "TestRequestContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -118,7 +118,7 @@
    "kind": "constant",
    "name": "TestRequestContentType2",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "15",
     "kind": "string",

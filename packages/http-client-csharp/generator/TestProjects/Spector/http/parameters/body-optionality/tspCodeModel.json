@@ -9,7 +9,7 @@
    "kind": "constant",
    "name": "requiredExplicitContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -25,7 +25,7 @@
    "kind": "constant",
    "name": "requiredImplicitContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "5",
     "kind": "string",
@@ -41,7 +41,7 @@
    "kind": "constant",
    "name": "setContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "7",
     "kind": "string",
@@ -57,7 +57,7 @@
    "kind": "constant",
    "name": "omitContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "9",
     "kind": "string",

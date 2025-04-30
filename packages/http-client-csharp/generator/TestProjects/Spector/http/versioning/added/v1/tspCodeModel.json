@@ -88,7 +88,7 @@
    "kind": "constant",
    "name": "v1ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "11",
     "kind": "string",
@@ -104,7 +104,7 @@
    "kind": "constant",
    "name": "v1ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "13",
     "kind": "string",

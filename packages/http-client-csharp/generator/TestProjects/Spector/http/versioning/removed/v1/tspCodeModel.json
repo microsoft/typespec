@@ -196,7 +196,7 @@
    "kind": "constant",
    "name": "v1ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "23",
     "kind": "string",
@@ -212,7 +212,7 @@
    "kind": "constant",
    "name": "v1ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "25",
     "kind": "string",
@@ -228,7 +228,7 @@
    "kind": "constant",
    "name": "v2ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "27",
     "kind": "string",
@@ -244,7 +244,7 @@
    "kind": "constant",
    "name": "v2ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "29",
     "kind": "string",
@@ -260,7 +260,7 @@
    "kind": "constant",
    "name": "modelV3ContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "31",
     "kind": "string",
@@ -276,7 +276,7 @@
    "kind": "constant",
    "name": "modelV3ContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "33",
     "kind": "string",
@@ -292,7 +292,7 @@
    "kind": "constant",
    "name": "v1InInterfaceContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "35",
     "kind": "string",
@@ -308,7 +308,7 @@
    "kind": "constant",
    "name": "v1InInterfaceContentType1",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "37",
     "kind": "string",

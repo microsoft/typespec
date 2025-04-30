@@ -9,7 +9,7 @@
    "kind": "constant",
    "name": "invalidContentType",
    "namespace": "",
-   "usage": 0,
+   "usage": "None",
    "valueType": {
     "$id": "3",
     "kind": "string",
