@@ -669,8 +669,8 @@ describe("compiler: templates", () => {
       `);
     });
 
-    describe("model properties", () => {
-      it("on model", async () => {
+    describe("on model properties", () => {
+      it("under model", async () => {
         await expectMarkDecoratorNotCalled(`
           model Foo<T> {
             @mark(T)
@@ -679,16 +679,7 @@ describe("compiler: templates", () => {
         `);
       });
 
-      it("on model properties", async () => {
-        await expectMarkDecoratorNotCalled(`
-          model Foo<T> {
-            @mark(T)
-            prop: string;
-          }
-        `);
-      });
-
-      it("on model properties (on operation)", async () => {
+      it("under operation returnType", async () => {
         await expectMarkDecoratorNotCalled(`
           op foo<T>(): {
             @mark(T)
@@ -697,7 +688,7 @@ describe("compiler: templates", () => {
         `);
       });
 
-      it("on model properties (on operation in interface)", async () => {
+      it("in operation in interface", async () => {
         await expectMarkDecoratorNotCalled(`
           interface Test<T> {
             foo(@mark(T) prop: string;): void;
@@ -705,7 +696,7 @@ describe("compiler: templates", () => {
         `);
       });
 
-      it("on model properties (nested)", async () => {
+      it("nested", async () => {
         await expectMarkDecoratorNotCalled(`
           model Foo<T> {
             nested: {
@@ -716,7 +707,7 @@ describe("compiler: templates", () => {
         `);
       });
 
-      it("on model properties (nested in union)", async () => {
+      it("nested in union", async () => {
         await expectMarkDecoratorNotCalled(`
           model Foo<T> {
             nested: string | {
