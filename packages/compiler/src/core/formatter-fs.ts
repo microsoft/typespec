@@ -11,15 +11,14 @@ export interface TypeSpecFormatOptions {
   exclude?: string[];
 }
 
+/**  The paths of which are either relative or absolute based on the original file path patterns. */
 export interface TypeSpecFormatResult {
-  /**
-   * The list of files which were formatted successfully, the paths of which are either relative or absolute based on the original file path patterns.
-   */
+  /** Files which were formatted successfully, */
   readonly formatted: string[];
-
+  /** Files which had a valid format already. */
+  readonly alreadyFormatted: string[];
   /** Files that were included in the filter but are not in the scope of the typespec formatter. */
   readonly ignored: string[];
-
   /** Files with errors */
   readonly errored: [string, Diagnostic][];
 }
@@ -36,12 +35,16 @@ export async function formatFiles(
   const files = await findFiles(patterns, exclude);
   const errored: [string, Diagnostic][] = [];
   const formatted: string[] = [];
+  const alreadyFormatted: string[] = [];
   const ignored: string[] = [];
   for (const file of files) {
     const result = await formatFile(file);
     switch (result.kind) {
       case "formatted":
         formatted.push(file);
+        break;
+      case "already-formatted":
+        alreadyFormatted.push(file);
         break;
       case "ignored":
         ignored.push(file);
@@ -52,7 +55,7 @@ export async function formatFiles(
     }
   }
 
-  return { formatted, ignored, errored };
+  return { formatted, ignored, errored, alreadyFormatted };
 }
 
 export interface CheckFilesFormatResult {
@@ -97,6 +100,8 @@ export async function checkFilesFormat(
 export type FormatFileResult =
   /** File formatted successfully. */
   | { kind: "formatted" }
+  /** File was already formatted. */
+  | { kind: "already-formatted" }
   /** File is not in a format that can be formatted by TypeSpec */
   | { kind: "ignored" }
   /** Error occurred, probably a parsing error. */
@@ -111,6 +116,9 @@ export async function formatFile(filename: string): Promise<FormatFileResult> {
   }
   try {
     const formattedContent = await format(content, formatter, prettierConfig ?? {});
+    if (formattedContent === content) {
+      return { kind: "already-formatted" };
+    }
     await writeFile(filename, formattedContent);
     return { kind: "formatted" };
   } catch (e) {

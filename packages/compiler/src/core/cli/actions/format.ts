@@ -57,7 +57,10 @@ async function format(host: CliCompilerHost, args: FormatArgs) {
       exclude: args["exclude"],
     });
     const msg = [
-      formattedCount(result.formatted),
+      result.formatted.length > 0 ? formattedCount(result.formatted) : undefined,
+      result.alreadyFormatted.length > 0
+        ? alreadyFormattedCount(result.alreadyFormatted)
+        : undefined,
       result.ignored.length > 0 ? ignoredCount(result.ignored) : undefined,
       result.errored.length > 0 ? errorCount(result.errored) : undefined,
     ]
@@ -79,6 +82,9 @@ async function format(host: CliCompilerHost, args: FormatArgs) {
 
 function formattedCount(files: readonly string[]): string {
   return pc.green(`${files.length} formatted`);
+}
+function alreadyFormattedCount(files: readonly string[]): string {
+  return pc.green(`${files.length} already formatted`);
 }
 function needsFormatCount(files: readonly string[]): string {
   return pc.yellow(`${files.length} need format`);
