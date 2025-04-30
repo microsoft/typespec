@@ -28,10 +28,10 @@ namespace Bar {
 It should generate a client for Foo with a single operation as defined in the spec
 
 ```ts src/fooClient.ts
-import { GetOptions, get } from "./api/fooClientOperations.js";
+import { type GetOptions, get } from "./api/fooClientOperations.js";
 import {
-  FooClientContext,
-  FooClientOptions,
+  type FooClientContext,
+  type FooClientOptions,
   createFooClientContext,
 } from "./api/fooClientContext.js";
 
@@ -50,11 +50,11 @@ export class FooClient {
 It should generate a client for Bar with `create` and `get` operations as defined in the spec
 
 ```ts src/barClient.ts
-import { BarItem } from "./models/models.js";
-import { GetOptions, get, CreateOptions, create } from "./api/barClientOperations.js";
+import type { BarItem } from "./models/models.js";
+import { type GetOptions, get, type CreateOptions, create } from "./api/barClientOperations.js";
 import {
-  BarClientContext,
-  BarClientOptions,
+  type BarClientContext,
+  type BarClientOptions,
   createBarClientContext,
 } from "./api/barClientContext.js";
 
