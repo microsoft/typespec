@@ -3,7 +3,9 @@
 
 package authentication.oauth2;
 
+import authentication.utils.OAuthBearerTokenAuthenticationPolicy;
 import io.clientcore.core.credentials.oauth.AccessToken;
+import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
 import io.clientcore.core.http.models.HttpResponseException;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +18,9 @@ public class OAuth2Tests {
     @Test
     public void testValid() {
         OAuth2Client client = new OAuth2ClientBuilder()
-            .credential(oAuthTokenRequestContext -> new AccessToken("token", OffsetDateTime.now().plusDays(2)))
+            .addHttpPipelinePolicy(new OAuthBearerTokenAuthenticationPolicy(
+                tokenRequestContext -> new AccessToken("token", OffsetDateTime.now().plusHours(1)),
+                new OAuthTokenRequestContext().addScopes("https://security.microsoft.com/.default")))
             .buildClient();
 
         client.valid();

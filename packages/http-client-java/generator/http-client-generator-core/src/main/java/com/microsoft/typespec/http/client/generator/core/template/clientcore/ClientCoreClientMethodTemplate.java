@@ -16,6 +16,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
@@ -708,7 +710,28 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                 // continuation token
-                function.line("null,");
+                if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+                    MethodPageDetails.ContinuationToken continuationToken
+                        = clientMethod.getMethodPageDetails().getContinuationToken();
+                    if (continuationToken.getResponseHeaderSerializedName() != null) {
+                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
+                            .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
+                    } else if (continuationToken.getResponsePropertyReference() != null) {
+                        StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
+                        for (ModelPropertySegment propertySegment : continuationToken.getResponsePropertyReference()) {
+                            continuationTokenExpression.append(".")
+                                .append(
+                                    CodeNamer.getModelNamer().modelPropertyGetterName(propertySegment.getProperty()))
+                                .append("()");
+                        }
+                        function.line(continuationTokenExpression.append(",").toString());
+                    } else {
+                        // this should not happen
+                        function.line("null,");
+                    }
+                } else {
+                    function.line("null,");
+                }
                 // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);
