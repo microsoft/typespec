@@ -20,7 +20,7 @@ namespace Logging.Plugin
         {
         }
 
-        protected override IReadOnlyList<ScmMethodProvider> BuildMethods()
+        protected override IReadOnlyList<MethodProvider> BuildMethods()
         {
             // Add the base methods.
             var methods = base.BuildMethods();

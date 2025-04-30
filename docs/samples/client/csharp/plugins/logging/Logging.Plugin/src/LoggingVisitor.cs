@@ -10,9 +10,9 @@ namespace Logging.Plugin
 {
     public class LoggingVisitor : ScmLibraryVisitor
     {
-        protected override ScmMethodProviderCollection Visit(InputServiceMethod serviceMethod,
+        protected override MethodProviderCollection  Visit(InputServiceMethod serviceMethod,
             TypeProvider enclosingType,
-            ScmMethodProviderCollection methodProvider)
+            MethodProviderCollection methodProvider)
         {
             return new LoggingMethodProviderCollection(serviceMethod, enclosingType);
         }
