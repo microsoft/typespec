@@ -33,18 +33,18 @@ async function check(host: CliCompilerHost, args: FormatArgs) {
 
     if (result.needsFormat.length > 0 || result.errored.length > 0) {
       const msg = [
-        needsFormatCount(result.needsFormat),
-        result.errored.length > 0 ? errorCount(result.errored) : undefined,
-        formattedCount(result.formatted),
-        result.ignored.length > 0 ? ignoredCount(result.ignored) : undefined,
+        needsFormatText(result.needsFormat),
+        result.errored.length > 0 ? errorText(result.errored) : undefined,
+        formattedText(result.formatted),
+        result.ignored.length > 0 ? ignoredText(result.ignored) : undefined,
       ];
 
       task.warn(msg.filter((x) => x).join(", "));
       process.exit(1);
     } else {
       const msg = [
-        formattedCount(result.formatted),
-        result.ignored.length > 0 ? ignoredCount(result.ignored) : undefined,
+        formattedText(result.formatted),
+        result.ignored.length > 0 ? ignoredText(result.ignored) : undefined,
       ];
       task.succeed(msg.filter((x) => x).join(", "));
     }
@@ -57,12 +57,10 @@ async function format(host: CliCompilerHost, args: FormatArgs) {
       exclude: args["exclude"],
     });
     const msg = [
-      result.formatted.length > 0 ? formattedCount(result.formatted) : undefined,
-      result.alreadyFormatted.length > 0
-        ? alreadyFormattedCount(result.alreadyFormatted)
-        : undefined,
-      result.ignored.length > 0 ? ignoredCount(result.ignored) : undefined,
-      result.errored.length > 0 ? errorCount(result.errored) : undefined,
+      result.formatted.length > 0 ? formattedText(result.formatted) : undefined,
+      result.alreadyFormatted.length > 0 ? unchangedText(result.alreadyFormatted) : undefined,
+      result.ignored.length > 0 ? ignoredText(result.ignored) : undefined,
+      result.errored.length > 0 ? errorText(result.errored) : undefined,
     ]
       .filter((x) => x)
       .join(", ");
@@ -80,18 +78,18 @@ async function format(host: CliCompilerHost, args: FormatArgs) {
   });
 }
 
-function formattedCount(files: readonly string[]): string {
+function formattedText(files: readonly string[]): string {
   return pc.green(`${files.length} formatted`);
 }
-function alreadyFormattedCount(files: readonly string[]): string {
-  return pc.green(`${files.length} already formatted`);
+function unchangedText(files: readonly string[]): string {
+  return pc.green(`${files.length} unchanged`);
 }
-function needsFormatCount(files: readonly string[]): string {
+function needsFormatText(files: readonly string[]): string {
   return pc.yellow(`${files.length} need format`);
 }
-function ignoredCount(files: readonly string[]): string {
+function ignoredText(files: readonly string[]): string {
   return pc.gray(`${files.length} ignored`);
 }
-function errorCount(errored: readonly [string, Diagnostic][]): string {
+function errorText(errored: readonly [string, Diagnostic][]): string {
   return pc.red(`${errored.length} error${errored.length > 1 ? "s" : ""}`);
 }
