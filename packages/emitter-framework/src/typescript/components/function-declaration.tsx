@@ -25,7 +25,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     return <ts.FunctionDeclaration {...props} />;
   }
 
-  const refkey = props.refkey ?? efRefkey(props.type);
+  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
 
   let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 

@@ -25,17 +25,12 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   if (!props.type.name || props.type.name === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-
+  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
   const members = Array.from(type.members.entries());
 
   return (
-    <ts.EnumDeclaration
-      name={name}
-      refkey={efRefkey(props.type)}
-      default={props.default}
-      export={props.export}
-    >
+    <ts.EnumDeclaration name={name} refkey={refkey} default={props.default} export={props.export}>
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
           return (

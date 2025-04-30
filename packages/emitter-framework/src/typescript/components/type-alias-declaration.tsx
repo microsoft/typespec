@@ -29,10 +29,10 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   if (!originalName || originalName === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-
+  const refkey = props.refkey ?? efRefkey(props.type);
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
-    <ts.TypeDeclaration {...props} name={name} refkey={props.refkey ?? efRefkey(props.type)}>
+    <ts.TypeDeclaration {...props} name={name} refkey={refkey}>
       <TypeExpression type={props.type} noReference />
       {props.children}
     </ts.TypeDeclaration>

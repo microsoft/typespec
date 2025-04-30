@@ -42,7 +42,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   name = namePolicy.getName(name, "interface");
 
-  const refkey = props.refkey ?? efRefkey(props.type);
+  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
 

@@ -4,7 +4,7 @@ import { Enum, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
-import { efRefkey } from "../../../src/typescript/utils/refkey.js";
+import { efRefkey } from "../../../src/typescript/index.js";
 import { getEmitOutput } from "../../utils.js";
 
 describe("Typescript Enum Declaration", () => {
