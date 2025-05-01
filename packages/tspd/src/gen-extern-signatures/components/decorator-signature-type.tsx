@@ -168,16 +168,25 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <ay.For each={model.properties.values()}>
-      {(x) => (
+    <ay.List joiner=";" enderPunctuation>
+      {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
-          name={x.name}
-          optional={x.optional}
-          type={<ValueTsType type={x.type} />}
+          indexer="key: string"
+          type={<ValueTsType type={model.indexer.value} />}
         />
       )}
-    </ay.For>
+      <ay.For each={model.properties.values()}>
+        {(x) => (
+          <ts.InterfaceMember
+            readonly
+            name={x.name}
+            optional={x.optional}
+            type={<ValueTsType type={x.type} />}
+          />
+        )}
+      </ay.For>
+    </ay.List>
   );
 }
 
