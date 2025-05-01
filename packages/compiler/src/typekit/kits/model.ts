@@ -235,9 +235,9 @@ defineKit<TypekitExtension>({
       }
 
       // model MyModel { ...Record<>} should be model with additional properties
-      const spread = this.model.getIndexType(model);
-      if (spread && this.record.is(spread)) {
-        return spread;
+      const indexType = this.model.getIndexType(model);
+      if (indexType && this.record.is(indexType)) {
+        return indexType;
       }
 
       if (model.baseModel) {
