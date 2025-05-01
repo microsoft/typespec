@@ -11,7 +11,6 @@ import type {
   ModelProperty,
   RekeyableMap,
   SourceModel,
-  Type,
 } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
