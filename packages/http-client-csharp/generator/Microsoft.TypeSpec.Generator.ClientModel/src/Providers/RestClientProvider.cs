@@ -234,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!TryGetSpecialHeaderParam(inputParameter, out _) && (!inputParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(type, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -309,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
                     (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(paramType, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -318,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static IfStatement BuildQueryOrHeaderParameterNullCheck(
+        private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
             CSharpType? parameterType,
             ValueExpression valueExpression,
             MethodBodyStatement originalStatement)
@@ -424,7 +424,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, escape).Terminate());
+                    MethodBodyStatement statement;
+                    if (inputParam?.IsRequired == false)
+                    {
+                        statement = BuildQueryOrHeaderOrPathParameterNullCheck(
+                            type,
+                            valueExpression,
+                            uri.AppendPath(valueExpression, escape, true).Terminate());
+                    }
+                    else
+                    {
+                        statement = uri.AppendPath(valueExpression, escape).Terminate();
+                    }
+                    statements.Add(statement);
                 }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
