@@ -101,6 +101,58 @@ describe("getPlausibleName", () => {
     expect(isTemplateInstance(Foo2)).toBe(true);
     expect($(program).type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
   });
+
+  it("handles scalars correctly", async () => {
+    const {
+      Bar,
+      context: { program },
+    } = await getTypes(
+      `
+      scalar myInt extends int32;
+      @test model Bar {
+        myIntArray: Array<myInt>;
+        myInt: myInt;
+      }
+      `,
+      ["Bar"],
+    );
+
+    const myIntArray = (Bar as Model).properties.get("myIntArray")!.type as Model;
+    expect(isTemplateInstance(myIntArray)).toBe(true);
+    expect($(program).type.getPlausibleName(myIntArray)).toBe("MyIntArray");
+
+    const myInt = (Bar as Model).properties.get("myInt")!.type as Scalar;
+    expect(isTemplateInstance(myInt)).toBe(false);
+    expect($(program).type.getPlausibleName(myInt)).toBe("myInt");
+  });
+
+  it("returns a generated name for various nesting levels", async () => {
+    const {
+      Bar,
+      context: { program },
+    } = await getTypes(
+      `
+      model Foo<T> {t: T};
+      model Box<T> {t: T};
+      @test model Bar {
+        stringArrayArray: Array<Array<string>>;
+        stringFoo: Foo<string>;
+        boxFoo: Box<Foo<string>>;
+      }
+      `,
+      ["Bar"],
+    );
+
+    const stringArrayArray = (Bar as Model).properties.get("stringArrayArray")!.type as Model;
+    const stringFoo = (Bar as Model).properties.get("stringFoo")!.type as Model;
+    const boxFoo = (Bar as Model).properties.get("boxFoo")!.type as Model;
+    expect(isTemplateInstance(stringArrayArray)).toBe(true);
+    expect($(program).type.getPlausibleName(stringArrayArray)).toBe("StringArrayArray");
+    expect(isTemplateInstance(stringFoo)).toBe(true);
+    expect($(program).type.getPlausibleName(stringFoo)).toBe("StringFoo");
+    expect(isTemplateInstance(boxFoo)).toBe(true);
+    expect($(program).type.getPlausibleName(boxFoo)).toBe("StringFooBox");
+  });
 });
 
 describe("minValue and maxValue", () => {
