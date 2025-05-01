@@ -807,6 +807,9 @@ it("handles extensible enums and discriminators for inheritance", async () => {
       /** A fixed string union */
       union AnimalType {/** Wolf */ Wolf: "wolf", /** Bear */ Bear: "bear"}
 
+      /** another extensible string union */
+      union WolfBreed {string, red: "red", timber: "timber", dire: "dire"}
+
       /** base discriminated type */
       @discriminator("kind")
       model Pet {
@@ -846,7 +849,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
       /** A leaf animal */
       model Wolf extends Animal {
         kind: AnimalType.Wolf;
-        variety: "dire" | "timber" | "red";
+        variety: WolfBreed = WolfBreed.dire;
       }
 
       /** A leaf animal */
@@ -904,7 +907,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Wolf : Animal {",
           `public new AnimalType Kind { get; } = AnimalType.Wolf;`,
-          `public string Variety { get; set; }`,
+          `public WolfBreed Variety { get; set; } = WolfBreed.Dire`,
         ],
       ],
       [

@@ -651,9 +651,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const attr = getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!;
         if (!attributes.has(attr.type.name)) attributes.set(attr.type.name, attr);
       }
-      const defaultValue = property.defaultValue
-        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
-        : typeDefault;
+      const defaultValue =
+        this.#opHelpers.getDefaultValue(
+          this.emitter.getProgram(),
+          property.type,
+          property.defaultValue,
+        ) ?? typeDefault;
       const attributeList = [...attributes.values()];
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
