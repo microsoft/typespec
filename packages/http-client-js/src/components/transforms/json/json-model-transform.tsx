@@ -24,7 +24,7 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
     $.model.getProperties(props.type, { includeExtended: true }).values(),
   ).filter((p) => !$.type.isNever(p.type));
 
-  const discriminator = $.type.getDiscriminator(props.type);
+  const discriminator = $.model.getDiscriminatedUnion(props.type);
 
   const discriminate = getJsonTransformDiscriminatorRefkey(props.type, props.target);
 
