@@ -1,0 +1,175 @@
+Scope: 2 of 46 workspace projects
+packages/emitter-framework test$ vitest run
+packages/emitter-framework test:  RUN  v3.0.9 /home/maorleger/workspace/typespec/packages/emitter-framework
+packages/emitter-framework test:  ✓ test/testing/snippet-extractor-java.test.ts (5 tests) 19ms
+packages/emitter-framework test:  ✓ test/testing/snippet-extractor-csharp.test.ts (5 tests) 24ms
+packages/emitter-framework test:  ✓ test/testing/snippet-extractor-typescript.test.ts (7 tests) 27ms
+packages/emitter-framework test:  ✓ test/testing/snippet-extractor-python.test.ts (2 tests) 12ms
+packages/emitter-framework test:  ↓ test/typescript/components/type-transform.test.tsx (10 tests | 10 skipped)
+packages/emitter-framework test:  ✓ test/typescript/components/value-expression.test.tsx (14 tests) 783ms
+packages/emitter-framework test:  ✓ test/typescript/components/function-expression.test.tsx (3 tests) 618ms
+packages/emitter-framework test:  ✓ test/typescript/components/arrow-function.test.tsx (3 tests) 653ms
+packages/emitter-framework test:    ✓ arrow functions with a `type` prop > creates a function 351ms
+packages/emitter-framework test:  ✓ test/typescript/components/function-type.test.tsx (3 tests) 637ms
+packages/emitter-framework test:    ✓ function types with a `type` prop > creates a function type 351ms
+packages/emitter-framework test:  ✓ test/typescript/components/member-expression.test.tsx (4 tests) 758ms
+packages/emitter-framework test:  ✓ test/typescript/components/type-alias-declaration.test.tsx (5 tests) 895ms
+packages/emitter-framework test:    ✓ Typescript Type Alias Declaration > Type Alias bound to Typespec Scalar > Scalar extends utcDateTime > creates a type alias declaration for a utcDateTime without encoding 415ms
+packages/emitter-framework test:  ✓ test/typescript/components/enum-declaration.test.tsx (4 tests) 705ms
+packages/emitter-framework test:    ✓ Typescript Enum Declaration > takes an enum type parameter 378ms
+packages/emitter-framework test:  ✓ test/typescript/components/function-declaration.test.tsx (7 tests | 1 skipped) 1065ms
+packages/emitter-framework test:    ✓ Typescript Function Declaration > Function bound to Typespec Types > Bound to Operation > creates a function 432ms
+packages/emitter-framework test:  ✓ test/typescript/components/union-declaration.test.tsx (6 tests) 1070ms
+packages/emitter-framework test:    ✓ Typescript Union Declaration > Union not bound to Typespec Types > creates a union declaration 505ms
+packages/emitter-framework test:  ✓ test/typescript/components/interface-method.test.tsx (8 tests) 1042ms
+packages/emitter-framework test:    ✓ interface methods with a `type` prop > creates a interface method 379ms
+packages/emitter-framework test:  ✓ test/typescript/components/interface-declaration.test.tsx (17 tests) 1732ms
+packages/emitter-framework test:    ✓ Typescript Interface > Interface bound to Typespec Types > Bound to Model > creates an interface that extends a model for Record spread 557ms
+packages/emitter-framework test:  Test Files  15 passed | 1 skipped (16)
+packages/emitter-framework test:       Tests  92 passed | 11 skipped (103)
+packages/emitter-framework test:    Start at  22:25:25
+packages/emitter-framework test:    Duration  6.47s (transform 9.23s, setup 0ms, collect 62.40s, tests 10.04s, environment 5ms, prepare 3.66s)
+packages/emitter-framework test: Done
+packages/http-client-js test$ vitest run
+packages/http-client-js test:  RUN  v3.0.9 /home/maorleger/workspace/typespec/packages/http-client-js
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/encoding/bytes_body.md > Scenario: Should not encode a bytes data when the body is bytes > Test: ts src/api/testClientOperations.ts function foo
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/anonymous_part.md > Scenario: Should handle an http part with anonymous model > Test: ts src/api/testClientOperations.ts function foo
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unsupported content type. Falling back to json
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: Basic file part > Test: ts src/models/models.ts interface RequestBody
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: Basic file part > Test: ts src/api/testClientOperations.ts function doThing
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: With part content type > Test: ts src/models/models.ts interface PngFile
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: With part content type > Test: ts src/models/models.ts interface RequestBody
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: With part content type > Test: ts src/api/testClientOperations.ts function doThing
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: Multiple files > Test: ts src/models/models.ts interface RequestBody
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file.md > Scenario: Multiple files > Test: ts src/api/testClientOperations.ts function doThing
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file_content_type.md > Scenario: Should handle part files with specific content type > Test: ts src/api/testClientOperations.ts function imageJpegContentType
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file_content_type.md > Scenario: Should handle part files with specific content type > Test: ts src/models/internal/serializers.ts function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file_content_type.md > Scenario: Should handle part files with specific content type > Test: ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToApplicationTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/file_content_type.md > Scenario: Should handle part files with specific content type > Test: ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToTransportTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/non-string-float.md > Scenario: Tests content-type: multipart/form-data for non string > Test: ts src/api/testClientOperations.ts function float
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unsupported content type. Falling back to json
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/simple_part.md > Scenario: Simple multipart part > Test: ts src/models/models.ts interface Foo
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unsupported content type. Falling back to json
+packages/http-client-js test: Unsupported content type. Falling back to json
+packages/http-client-js test: Unsupported content type. Falling back to json
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/multipart/simple_part.md > Scenario: Simple multipart part > Test: ts src/api/testClientOperations.ts function doThing
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unsupported content type. Falling back to json
+packages/http-client-js test: Unsupported content type. Falling back to json
+packages/http-client-js test: Unsupported content type. Falling back to json
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/constant_as_optional.md > Scenario: Should emit an operation that has a content type with a single possible value > Test: ts src/api/testClientOperations.ts function get
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/constant_as_optional.md > Scenario: Should emit an operation that has a content type with a single possible value > Test: ts src/api/testClientOperations.ts interface GetOptions
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/constant_as_optional.md > Scenario: Should emit an operation that has a content type with a single possible value > Test: ts src/testClient.ts class TestClient
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/default_value_as_optional.md > Scenario: Should emit an operation that has a default value > Test: ts src/api/testClientOperations.ts function get
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/default_value_as_optional.md > Scenario: Should emit an operation that has a default value > Test: ts src/api/testClientOperations.ts interface GetOptions
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/default_value_as_optional.md > Scenario: Should emit an operation that has a default value > Test: ts src/testClient.ts class TestClient
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  `Content-Type` header ignored because there is no body.
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/file.md > Scenario: Should handle File Parts > Test: ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToApplicationTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/file.md > Scenario: Should handle File Parts > Test: ts src/models/internal/serializers.ts function jsonFileSpecificContentTypeToTransportTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/file.md > Scenario: Should handle File Parts > Test: ts src/models/internal/serializers.ts function jsonFileToTransportTransform
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/multipart.md > Scenario: Should emit serializer and deserializer correctly for properties with primitive array type > Test: ts src/models/models.ts interface FileSpecificContentType
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/multipart.md > Scenario: Should emit serializer and deserializer correctly for properties with primitive array type > Test: ts src/models/models.ts interface FileWithHttpPartSpecificContentTypeRequest
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: stderr | test/scenarios.test.ts > Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/serializers/multipart.md > Scenario: Should emit serializer and deserializer correctly for properties with primitive array type > Test: ts src/api/testClientOperations.ts function create
+packages/http-client-js test: Warning compiling code:
+packages/http-client-js test:  Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test: Unknown encoding
+packages/http-client-js test:  ✓ test/scenarios.test.ts (249 tests | 4 skipped) 46138ms
+packages/http-client-js test:    ✓ Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/additional-properties/extends.md > Scenario: Should generate a model with an additional properties defined as extending a Record > Test: ts src/models/models.ts interface Widget 1457ms
+packages/http-client-js test:    ✓ Scenario File: /home/maorleger/workspace/typespec/packages/http-client-js/test/scenarios/operation-parameters/only_optional.md > Scenario: Should emit an operation that has only optional parameters > Test: ts src/testClient.ts class TestClient 616ms
+packages/http-client-js test:  Test Files  1 passed (1)
+packages/http-client-js test:       Tests  245 passed | 4 skipped (249)
+packages/http-client-js test:    Start at  22:25:32
+packages/http-client-js test:    Duration  48.54s (transform 1.46s, setup 0ms, collect 1.82s, tests 46.14s, environment 0ms, prepare 104ms)
+packages/http-client-js test: Done

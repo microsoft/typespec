@@ -243,10 +243,6 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
   );
 }
 
-export function capitalize(name: string): string {
-  return name[0].toUpperCase() + name.slice(1);
-}
-
 const LIB_NAMESPACE = [
   "azure.core",
   "azure.resourcemanager",
