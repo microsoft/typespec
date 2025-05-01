@@ -96,15 +96,15 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
     }
   }
 
-  const spreadType = $.model.getSpreadType(type);
-  if (spreadType) {
+  const indexType = $.model.getIndexType(type);
+  if (indexType) {
     // When extending a record we need to override the element type to be unknown to avoid type errors
-    if ($.record.is(spreadType)) {
+    if ($.record.is(indexType)) {
       // Here we are in the additional properties land.
       // Instead of extending we need to create an envelope property
       // do nothing here.
     } else {
-      extending.push(<TypeExpression type={spreadType} />);
+      extending.push(<TypeExpression type={indexType} />);
     }
   }
 
