@@ -23,7 +23,7 @@ export function DecoratorSignatures({
   dollarDecoratorsRefKey: dollarDecoratorsRefkey,
 }: DecoratorSignaturesProps) {
   return (
-    <>
+    <ts.TypeRefContext>
       <LocalTypes />
       <hbr />
       <hbr />
@@ -39,7 +39,7 @@ export function DecoratorSignatures({
         decorators={decorators}
         refkey={dollarDecoratorsRefkey}
       />
-    </>
+    </ts.TypeRefContext>
   );
 }
 

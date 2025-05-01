@@ -6,7 +6,6 @@ import {
   Model,
   Scalar,
   type Type,
-  compilerAssert,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
@@ -86,7 +85,7 @@ function TargetParameterTsType(props: { type: Type | undefined }) {
     // so we only change that when isTarget is true.
     return typespecCompiler.Scalar;
   } else {
-    compilerAssert(false, `Unexpected type for target parameter: ${type.kind}`);
+    return typespecCompiler.Type;
   }
 }
 
