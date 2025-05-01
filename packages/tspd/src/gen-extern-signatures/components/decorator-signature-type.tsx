@@ -6,6 +6,7 @@ import {
   Model,
   Scalar,
   type Type,
+  compilerAssert,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
@@ -76,7 +77,7 @@ function TargetParameterTsType(props: { type: Type | undefined }) {
     return (typespecCompiler as any)[type.name];
   } else if (type.kind === "Union") {
     const variants = [...new Set([...type.variants.values()])].map((x) => (
-      <TargetParameterTsType type={x} />
+      <TargetParameterTsType type={x.type} />
     ));
     return ay.join(variants, { joiner: " | " });
   } else if (type.kind === "Scalar") {
@@ -84,6 +85,8 @@ function TargetParameterTsType(props: { type: Type | undefined }) {
     // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
     // so we only change that when isTarget is true.
     return typespecCompiler.Scalar;
+  } else {
+    compilerAssert(false, `Unexpected type for target parameter: ${type.kind}`);
   }
 }
 
