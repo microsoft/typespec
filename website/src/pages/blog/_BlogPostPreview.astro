@@ -7,8 +7,10 @@ import Link from "@typespec/astro-utils/components/link.astro";
 
 export type Props = {
   post: {
-    slug: string;
+    slug?: string;
     data: {
+      slug?: string;
+      redirect_slug?: string;
       title: string;
       description: string;
       publishDate: Date;
@@ -20,7 +22,11 @@ export type Props = {
 
 const { post, imageLoading } = Astro.props;
 
-const image = post.data.image && (await resolveBlogImagePath(post.slug, post.data.image));
+// Get the actual slug to use - prioritize data.slug, then post.slug, then fallback to data.redirect_slug
+const postSlug = post.data.slug || post.slug || post.data.redirect_slug || "";
+
+// Use the determined slug for image resolution
+const image = post.data.image && (await resolveBlogImagePath(postSlug, post.data.image));
 ---
 
 <style>
@@ -89,15 +95,15 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
     background: var(--colorNeutralBackground2);
   }
 </style>
-<article aria-labelledby={post.slug}>
-  <Link class="link" href={`/blog/${post.slug}/`} data-astro-prefetch>
+<article aria-labelledby={postSlug}>
+  <Link class="link" href={`/blog/${postSlug}/`} data-astro-prefetch>
     <Card noPadding>
       <div class="image-container">
         {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
       </div>
 
       <div class="content">
-        <h3 class="heading-4 md:heading-3" id={post.slug}>
+        <h3 class="heading-4 md:heading-3" id={postSlug}>
           {post.data.title}
         </h3>
         <p class="text-astro-gray-200">{post.data.description}</p>
