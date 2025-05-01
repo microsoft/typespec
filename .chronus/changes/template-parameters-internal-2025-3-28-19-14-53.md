@@ -1,10 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: internal
+changeKind: fix
 packages:
-  - "@typespec/http-specs"
-  - "@typespec/spec-api"
-  - "@typespec/spector"
+  - "@typespec/compiler"
 ---
 
-Fix dyns
+Mark `TemplateParameter` type as an experimental type

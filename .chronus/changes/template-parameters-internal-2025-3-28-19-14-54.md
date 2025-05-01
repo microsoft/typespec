@@ -1,8 +1,6 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
-  - "@typespec/http-specs"
+  - "@typespec/tspd"
 ---
-
-Update paging scenario to use new dynamic builder for full url
