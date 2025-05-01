@@ -1,11 +1,18 @@
-import type { Enum, EnumMember, ModelProperty, Scalar, Type, Value } from "../../core/types.js";
+import type {
+  Entity,
+  Enum,
+  EnumMember,
+  ModelProperty,
+  Scalar,
+  Type,
+  Value,
+} from "../../core/types.js";
 import { getVisibilityForClass } from "../../core/visibility/core.js";
 import { EncodeData, getEncode, getFormat } from "../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
 /**
  * A descriptor for a model property.
- * @experimental
  */
 export interface ModelPropertyDescriptor {
   /**
@@ -36,7 +43,6 @@ export interface ModelPropertyDescriptor {
  * on the model property or the type of the model property. In such cases,
  * these operations will return the metadata from the model property if it
  * exists, or the type of the model property if it exists.
- * @experimental
  */
 export interface ModelPropertyKit {
   /**
@@ -49,7 +55,7 @@ export interface ModelPropertyKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is ModelProperty;
+  is(type: Entity): type is ModelProperty;
 
   /**
    * Get the encoding of the model property or its type. The property's type
@@ -81,7 +87,6 @@ interface TypekitExtension {
    * on the model property or the type of the model property. In such cases,
    * these operations will return the metadata from the model property if it
    * exists, or the type of the model property if it exists.
-   * @experimental
    */
   modelProperty: ModelPropertyKit;
 }
@@ -93,7 +98,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   modelProperty: {
     is(type) {
-      return type.kind === "ModelProperty";
+      return this.type.is(type) && type.kind === "ModelProperty";
     },
 
     getEncoding(type) {

@@ -1,14 +1,11 @@
-import { Tuple, Type } from "../../core/types.js";
+import { Entity, Tuple, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
-/**
- * @experimental
- */
 export interface TupleKit {
   /**
    * Check if a type is a tuple.
    */
-  is(type: Type): type is Tuple;
+  is(type: Entity): type is Tuple;
   /**
    * Creates a tuple type.
    *
@@ -18,7 +15,6 @@ export interface TupleKit {
 }
 
 interface TypekitExtension {
-  /** @experimental */
   tuple: TupleKit;
 }
 
@@ -29,7 +25,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   tuple: {
     is(type) {
-      return type.kind === "Tuple";
+      return this.type.is(type) && type.kind === "Tuple";
     },
     create(values: Type[] = []): Tuple {
       const tuple: Tuple = this.program.checker.createType({

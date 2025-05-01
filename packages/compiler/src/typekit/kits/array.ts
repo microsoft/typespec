@@ -1,12 +1,12 @@
 import { isArrayModelType } from "../../core/type-utils.js";
-import { Model, Type } from "../../core/types.js";
+import { Entity, Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {
   /**
    * Check if a type is an array.
    */
-  is(type: Type): boolean;
+  is(type: Entity): boolean;
   /**
    * Get the element type of an array.
    */
@@ -29,7 +29,10 @@ defineKit<TypekitExtension>({
   array: {
     is(type) {
       return (
-        type.kind === "Model" && isArrayModelType(this.program, type) && type.properties.size === 0
+        this.type.is(type) &&
+        type.kind === "Model" &&
+        isArrayModelType(this.program, type) &&
+        type.properties.size === 0
       );
     },
     getElementType(type) {

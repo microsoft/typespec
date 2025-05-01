@@ -15,7 +15,6 @@ export interface EntityKit {
 }
 
 interface TypekitExtension {
-  /** @experimental */
   entity: EntityKit;
 }
 

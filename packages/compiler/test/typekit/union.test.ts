@@ -201,3 +201,22 @@ it("can get diagnostics from getDiscriminatedUnion", async () => {
     code: "invalid-discriminated-union-variant",
   });
 });
+
+it("can check if an entity is a union", async () => {
+  const {
+    Foo,
+    context: { program },
+  } = await getTypes(
+    `
+    union Foo {
+      hi: "hello",
+      bye: "goodbye"
+    }`,
+    ["Foo"],
+  );
+  const tk = $(program);
+
+  expect(tk.union.is(Foo)).toBe(true);
+  expect(tk.union.is(tk.builtin.string)).toBe(false);
+  expect(tk.union.is(tk.value.create("value"))).toBe(false);
+});
