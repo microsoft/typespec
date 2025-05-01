@@ -13,6 +13,10 @@ import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler
 import { InputParameter } from "./input-parameter.js";
 import { InputServiceMethod } from "./input-service-method.js";
 
+/**
+ * The input client type for the CSharp emitter.
+ * @beta
+ */
 export interface InputClient extends DecoratedType {
   kind: "client";
   name: string;
@@ -106,6 +110,10 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
   return type.kind === "union";
 }
 
+/**
+ * The input model type for the CSharp emitter.
+ * @beta
+ */
 export interface InputModelType extends InputTypeBase {
   kind: "model";
   properties: InputModelProperty[];

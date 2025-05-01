@@ -9,6 +9,7 @@ import {
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -202,7 +203,7 @@ function* emitRawServerOperation(
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.property?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation,
       module,
       { altName: defaultBodyTypeName },
     );
@@ -314,7 +315,7 @@ function* emitRawServerOperation(
       }
       case "text/plain": {
         const string = ctx.program.checker.getStdType("string");
-        const [assignable] = ctx.program.checker.isTypeAssignableTo(
+        const assignable = $(ctx.program).type.isAssignableTo(
           body.type,
           string,
           body.property ?? body.type,

@@ -26,11 +26,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
-    reportDiagnostic(sdkContext.program, {
-      code: "no-package-name",
-      target: NoTarget,
-      format: { namespace, packageName },
-    });
     options["package-name"] = packageName;
   }
   if ((options as any).flavor !== "azure") {
@@ -236,7 +231,27 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       execSync(command, { stdio: [process.stdin, process.stdout] });
-      const blackExcludeDirs = ["__pycache__/*", "node_modules/*", "venv/*", "env/*"];
+      const blackExcludeDirs = [
+        "__pycache__/*",
+        "node_modules/*",
+        "venv/*",
+        "env/*",
+        ".direnv",
+        ".eggs",
+        ".git",
+        ".hg",
+        ".tox",
+        ".venv",
+        ".eggs",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".vscode",
+        "_build",
+        "build",
+        "dist",
+        ".nox",
+        ".svn",
+      ];
       execSync(
         `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
         {

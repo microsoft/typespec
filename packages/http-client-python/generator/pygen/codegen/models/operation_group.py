@@ -63,11 +63,13 @@ class OperationGroup(BaseModel):
             operation_group.has_non_abstract_operations for operation_group in self.operation_groups
         )
 
-    @property
-    def base_class(self) -> str:
+    def base_class(self, async_mode: bool) -> str:
+        pipeline_client = (
+            f"{'Async' if async_mode else ''}PipelineClient[HttpRequest, {'Async' if async_mode else ''}HttpResponse]"
+        )
         base_classes: List[str] = []
         if self.is_mixin:
-            base_classes.append(f"{self.client.name}MixinABC")
+            base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
 
     def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
@@ -100,8 +102,12 @@ class OperationGroup(BaseModel):
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        utils_path = self.code_model.get_relative_import_path(
+            serialize_namespace,
+            f"{self.code_model.namespace}._utils.utils",
+        )
+
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
         if not self.code_model.options["combine_operation_files"]:
@@ -141,32 +147,38 @@ class OperationGroup(BaseModel):
                 ImportType.LOCAL,
                 alias="_models",
             )
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(
+                serialize_namespace,
+                self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                module_name="_configuration",
+            ),
+            f"{self.client.name}Configuration",
+            ImportType.LOCAL,
+        )
+        file_import.add_submodule_import(
+            "" if self.code_model.is_azure_flavor else "runtime",
+            f"{'Async' if async_mode else ''}PipelineClient",
+            ImportType.SDKCORE,
+        )
         if self.is_mixin:
             file_import.add_submodule_import(
-                # XxxMixinABC is always defined in _vendor of client namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_vendor",
-                ),
-                f"{self.client.name}MixinABC",
+                # XxxMixinABC is always defined in _utils of client namespace
+                utils_path,
+                "ClientMixinABC",
                 ImportType.LOCAL,
             )
-        else:
             file_import.add_submodule_import(
-                "" if self.code_model.is_azure_flavor else "runtime",
-                f"{'Async' if async_mode else ''}PipelineClient",
+                "rest",
+                "HttpRequest",
                 ImportType.SDKCORE,
             )
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_configuration",
-                ),
-                f"{self.client.name}Configuration",
-                ImportType.LOCAL,
+                "rest",
+                f"{'Async' if async_mode else ''}HttpResponse",
+                ImportType.SDKCORE,
             )
+        else:
             file_import.add_msrest_import(
                 serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
                 msrest_import_type=MsrestImportType.Serializer,
@@ -179,12 +191,8 @@ class OperationGroup(BaseModel):
             )
         if self.has_abstract_operations:
             file_import.add_submodule_import(
-                # raise_if_not_implemented is always defined in _vendor of top namespace
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
-                    module_name="_vendor",
-                ),
+                # raise_if_not_implemented is always defined in _utils of top namespace
+                utils_path,
                 "raise_if_not_implemented",
                 ImportType.LOCAL,
             )

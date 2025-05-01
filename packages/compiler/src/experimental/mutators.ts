@@ -15,10 +15,10 @@ import {
   Type,
   TypeMapper,
 } from "../core/types.js";
+import { $ } from "../typekit/index.js";
 import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
 import { Realm } from "./realm.js";
-import { $ } from "./typekit/index.js";
 
 // #region Types
 

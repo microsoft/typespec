@@ -5,6 +5,10 @@ package azure.clientgenerator.core.clientinitialization;
 
 import azure.clientgenerator.core.clientinitialization.models.Input;
 import azure.clientgenerator.core.clientinitialization.models.WithBodyRequest;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClient;
+import azure.clientgenerator.core.clientinitialization.parentclient.ChildClientBuilder;
+import azure.clientgenerator.core.clientinitialization.parentclient.ParentClient;
+import azure.clientgenerator.core.clientinitialization.parentclient.ParentClientBuilder;
 import org.junit.jupiter.api.Test;
 
 public final class ClientInitializationTests {
@@ -47,9 +51,23 @@ public final class ClientInitializationTests {
 
     @Test
     public void testParamAlias() {
-        // TODO: blob and blobName should be one param
-        ParamAliasClient client = new ParamAliasClientBuilder().blobName(TEST_BLOB).blob(TEST_BLOB).buildClient();
+        ParamAliasClient client = new ParamAliasClientBuilder().blobName(TEST_BLOB).buildClient();
         client.withOriginalName();
         client.withAliasedName();
+    }
+
+    @Test
+    public void testChildClient() {
+        // ChildClient via ParentClient
+        ParentClient parentClient = new ParentClientBuilder().buildClient();
+        ChildClient childClient = parentClient.getChildClient(TEST_BLOB);
+
+        childClient.getStandalone();
+        childClient.deleteStandalone();
+
+        // ChildClient via ChildClientBuilder
+        childClient = new ChildClientBuilder().blobName(TEST_BLOB).buildClient();
+
+        childClient.withQuery("text");
     }
 }
