@@ -20,7 +20,6 @@ export {
   OperationDescriptor,
   OperationKit,
   RecordKit,
-  ResolveKit,
   ScalarKit,
   TupleKit,
   TypeTypekit,
