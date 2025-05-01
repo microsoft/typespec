@@ -374,6 +374,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _relativeFilePath = relativeFilePath;
             }
+
+            // Rebuild the canonical view
+            _canonicalView = new(BuildCanonicalView);
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 

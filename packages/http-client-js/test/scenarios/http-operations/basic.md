@@ -23,10 +23,10 @@ op foo(): Widget;
 A class named `TestClient` is generated, encapsulating API operations. It includes a single method, `foo`, which internally calls the corresponding operation function.
 
 ```ts src/testClient.ts
-import { FooOptions, foo } from "./api/testClientOperations.js";
+import { type FooOptions, foo } from "./api/testClientOperations.js";
 import {
-  TestClientContext,
-  TestClientOptions,
+  type TestClientContext,
+  type TestClientOptions,
   createTestClientContext,
 } from "./api/testClientContext.js";
 

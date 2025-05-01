@@ -9,6 +9,7 @@ import {
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -37,7 +38,6 @@ import { reportDiagnostic } from "../../lib.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";

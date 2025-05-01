@@ -31,17 +31,17 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.11.0",
-    "@alloy-js/typescript": "^0.11.0",
+    "@alloy-js/core": "^0.13.0",
+    "@alloy-js/typescript": "^0.13.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.11.0",
+    "@alloy-js/cli": "^0.13.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.11.0",
-    "@alloy-js/typescript": "^0.11.0",
+    "@alloy-js/core": "^0.13.0",
+    "@alloy-js/typescript": "^0.13.0",
     "@types/minimist": "^1.2.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
