@@ -62,12 +62,6 @@ const authorsWithAvatars = await Promise.all(
   .title h1 {
     margin: 0 0 0.5em 0;
   }
-  .date {
-    display: block;
-    padding: 1rem;
-    font-size: var(--fontSizeBase400);
-    color: var(--colorNeutralForeground1);
-  }
   .last-updated-on {
     font-style: italic;
   }
@@ -85,9 +79,6 @@ const authorsWithAvatars = await Promise.all(
     </div>
     <div class="prose">
       <div class="title">
-        <time class="date" datetime={publishDate.toISOString()}>
-          {format(publishDate, "MMMM d, yyyy")}
-        </time>
         <h1>{title}</h1>
         <hr />
       </div>

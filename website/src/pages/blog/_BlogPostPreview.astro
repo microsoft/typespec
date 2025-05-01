@@ -36,13 +36,6 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   .link:hover {
     outline: solid var(--colorBrandForeground1);
   }
-  .date {
-    display: block;
-    padding: 1rem;
-    text-align: left;
-    font-size: var(--fontSizeBase500);
-    border-bottom: 1px solid var(--colorNeutralStroke3);
-  }
 
   .image {
     margin: auto;
@@ -99,11 +92,6 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
 <article aria-labelledby={post.slug}>
   <Link class="link" href={`/blog/${post.slug}/`} data-astro-prefetch>
     <Card noPadding>
-      <header>
-        <time class="date" datetime={post.data.publishDate.toISOString()}>
-          {format(post.data.publishDate, "MMMM d, yyyy")}
-        </time>
-      </header>
       <div class="image-container">
         {image && <Image class="image" src={image} alt="" loading={imageLoading} />}
       </div>
