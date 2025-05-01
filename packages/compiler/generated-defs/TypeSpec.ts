@@ -1033,8 +1033,13 @@ export type DefaultVisibilityDecorator = (
  * This transformation is recursive, so it will also apply the filter to any nested
  * or referenced models that are the types of any properties in the `target`.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the visibility filter to.
  * @param filter The visibility filter to apply to the properties of the target model.
+ * @param nameTemplate The name template to use when renaming new model instances.
  * @example
  * ```typespec
  * model Dog {
@@ -1054,6 +1059,7 @@ export type WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
   filter: VisibilityFilter,
+  nameTemplate?: string,
 ) => void;
 
 /**
@@ -1064,7 +1070,12 @@ export type WithVisibilityFilterDecorator = (
  * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
  * fully updated.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the transformation to.
+ * @param nameTemplate The name template to use when renaming new model instances.
  * @example
  * ```typespec
  * model Dog {
@@ -1083,7 +1094,11 @@ export type WithVisibilityFilterDecorator = (
  * }
  * ```
  */
-export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
+export type WithLifecycleUpdateDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  nameTemplate?: string,
+) => void;
 
 export type TypeSpecDecorators = {
   mediaTypeHint: MediaTypeHintDecorator;

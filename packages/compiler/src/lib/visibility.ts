@@ -28,7 +28,9 @@ import {
   Model,
   ModelProperty,
   Operation,
+  Tuple,
   Type,
+  Union,
   UnionVariant,
 } from "../core/types.js";
 import {
@@ -43,10 +45,15 @@ import {
   VisibilityFilter,
 } from "../core/visibility/core.js";
 import { getLifecycleVisibilityEnum } from "../core/visibility/lifecycle.js";
-import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
+import { MutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
 import { useStateMap } from "../utils/index.js";
+import { mutate } from "../utils/misc.js";
 import { isKey } from "./key.js";
-import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
+import {
+  createStateSymbol,
+  filterModelPropertiesInPlace,
+  replaceTemplatedStringFromProperties,
+} from "./utils.js";
 
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
@@ -375,18 +382,55 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
 
 // -- @withVisibilityFilter decorator ----------------------
 
+const VISIBILITY_FILTER_MUTATOR_CACHE = Symbol.for("TypeSpec.Core.visibilityFilterMutatorCache");
+
+interface VisibilityFilterMutatorCache {
+  [VISIBILITY_FILTER_MUTATOR_CACHE]?: {
+    unnamed?: VisibilityFilterMutatorCacheByNameTemplate;
+    byNameTemplate?: {
+      [nameTemplate: string]: VisibilityFilterMutatorCacheByNameTemplate;
+    };
+  };
+}
+
+interface VisibilityFilterMutatorCacheByNameTemplate {
+  byVisibilityFilter?: WeakMap<VisibilityFilter, Mutator>;
+  lifecycleUpdate?: Mutator;
+}
+
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
   _filter: GeneratedVisibilityFilter,
+  nameTemplate?: string,
 ) => {
   const filter = VisibilityFilter.fromDecoratorArgument(_filter);
 
-  const vfMutator: Mutator = createVisibilityFilterMutator(filter, {
-    decoratorFn: $withVisibilityFilter,
-  });
+  const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
+    VISIBILITY_FILTER_MUTATOR_CACHE
+  ] ??= {});
 
-  const { type } = mutateSubgraph(context.program, [vfMutator], target);
+  const byNameTemplate = (mutatorCache.byNameTemplate ??= {});
+
+  const mutatorCacheByNameTemplate =
+    nameTemplate === undefined
+      ? (mutatorCache.unnamed ??= {})
+      : (byNameTemplate[nameTemplate] ??= {});
+
+  const mutatorCacheByVisibilityFilter = (mutatorCacheByNameTemplate.byVisibilityFilter ??=
+    new WeakMap());
+
+  let mutator = mutatorCacheByVisibilityFilter.get(filter);
+
+  if (!mutator) {
+    mutator = createVisibilityFilterMutator(filter, {
+      decoratorFn: $withVisibilityFilter,
+      nameTemplate,
+    });
+    mutatorCacheByVisibilityFilter.set(filter, mutator);
+  }
+
+  const { type } = cachedMutateSubgraph(context.program, mutator, target);
 
   target.properties = (type as Model).properties;
 };
@@ -396,27 +440,70 @@ export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
 export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
   context: DecoratorContext,
   target: Model,
+  nameTemplate?: string,
 ) => {
-  const lifecycle = getLifecycleVisibilityEnum(context.program);
-  const lifecycleUpdate: VisibilityFilter = {
-    all: new Set([lifecycle.members.get("Update")!]),
-  };
+  const mutatorCache = ((context.program as VisibilityFilterMutatorCache)[
+    VISIBILITY_FILTER_MUTATOR_CACHE
+  ] ??= {});
 
-  const lifecycleCreateOrUpdate: VisibilityFilter = {
-    any: new Set([lifecycle.members.get("Create")!, lifecycle.members.get("Update")!]),
-  };
+  const byNameTemplate = (mutatorCache.byNameTemplate ??= {});
 
-  const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate);
+  const mutatorCacheByNameTemplate =
+    nameTemplate === undefined
+      ? (mutatorCache.unnamed ??= {})
+      : (byNameTemplate[nameTemplate] ??= {});
 
-  const updateMutator = createVisibilityFilterMutator(lifecycleUpdate, {
-    recur: createOrUpdateMutator,
-    decoratorFn: $withLifecycleUpdate,
-  });
+  let mutator = mutatorCacheByNameTemplate.lifecycleUpdate;
 
-  const { type } = mutateSubgraph(context.program, [updateMutator], target);
+  if (!mutator) {
+    const lifecycle = getLifecycleVisibilityEnum(context.program);
+    const lifecycleUpdate: VisibilityFilter = {
+      all: new Set([lifecycle.members.get("Update")!]),
+    };
+
+    const lifecycleCreateOrUpdate: VisibilityFilter = {
+      any: new Set([lifecycle.members.get("Create")!, lifecycle.members.get("Update")!]),
+    };
+
+    const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate);
+
+    mutator = createVisibilityFilterMutator(lifecycleUpdate, {
+      recur: createOrUpdateMutator,
+      decoratorFn: $withLifecycleUpdate,
+      nameTemplate,
+    });
+
+    mutatorCacheByNameTemplate.lifecycleUpdate = mutator;
+  }
+
+  const { type } = cachedMutateSubgraph(context.program, mutator, target);
 
   target.properties = (type as Model).properties;
 };
+
+const VISIBILITY_FILTER_MUTATOR_RESULT = Symbol.for("TypeSpec.Core.visibilityFilterMutatorResult");
+
+interface VisibilityFilterMutatorResultCache {
+  [VISIBILITY_FILTER_MUTATOR_RESULT]?: WeakMap<MutableType, ReturnType<typeof mutateSubgraph>>;
+}
+
+function cachedMutateSubgraph(
+  program: Program,
+  mutator: Mutator,
+  source: VisibilitySubject,
+): ReturnType<typeof mutateSubgraph> {
+  const mutatorCache = ((mutator as unknown as VisibilityFilterMutatorResultCache)[
+    VISIBILITY_FILTER_MUTATOR_RESULT
+  ] ??= new WeakMap());
+
+  const cached = mutatorCache.get(source);
+  if (cached) {
+    return cached;
+  }
+  const mutated = mutateSubgraph(program, [mutator], source);
+  mutatorCache.set(source, mutated);
+  return mutated;
+}
 
 /**
  * Options for the `createVisibilityFilterMutator` function.
@@ -435,6 +522,13 @@ interface CreateVisibilityFilterMutatorOptions {
    * to avoid an infinite loop.
    */
   decoratorFn?: DecoratorFunction;
+
+  /**
+   * Optionally, the name template to apply in the mutator.
+   *
+   * This is used to rename named types that are created by the mutator.
+   */
+  nameTemplate?: string;
 }
 
 /**
@@ -489,8 +583,8 @@ function createVisibilityFilterMutator(
           resetVisibilityModifiersForClass(program, clone, visibilityClass);
         }
 
-        if (isMutableType(prop.type)) {
-          clone.type = mutateSubgraph(program, [options.recur ?? self], prop.type).type;
+        if (isVisibilitySubject(prop.type)) {
+          clone.type = cachedMutateSubgraph(program, options.recur ?? self, prop.type).type;
         }
       },
     },
@@ -504,16 +598,27 @@ function createVisibilityFilterMutator(
           if (member.type.kind === "Model" || member.type.kind === "Union") {
             const variant: UnionVariant = {
               ...member,
-              type: mutateSubgraph(program, [self], member.type).type,
+              type: cachedMutateSubgraph(program, self, member.type).type,
             };
             clone.variants.set(key, variant);
           }
         }
+
+        rename(clone, options.nameTemplate);
       },
     },
     Model: {
       filter: () => MutatorFlow.DoNotRecur,
       mutate: (model, clone, program, realm) => {
+        if (model.indexer && isVisibilitySubject(model.indexer.value)) {
+          clone.indexer = { ...model.indexer };
+          mutate(clone.indexer).value = cachedMutateSubgraph(
+            program,
+            options.recur ?? self,
+            model.indexer.value,
+          ).type;
+        }
+
         for (const [key, prop] of model.properties) {
           if (!isVisible(program, prop, filter)) {
             // Property is not visible, remove it
@@ -529,13 +634,23 @@ function createVisibilityFilterMutator(
         if (options.decoratorFn) {
           clone.decorators = clone.decorators.filter((d) => d.decorator !== options.decoratorFn);
         }
+
+        rename(clone, options.nameTemplate);
       },
     },
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecur,
       mutate: (prop, clone, program) => {
-        if (isMutableType(prop.type)) {
-          clone.type = mutateSubgraph(program, [self], prop.type).type;
+        if (isVisibilitySubject(prop.type)) {
+          clone.type = cachedMutateSubgraph(program, self, prop.type).type;
+        }
+      },
+    },
+    UnionVariant: {
+      filter: () => MutatorFlow.DoNotRecur,
+      mutate: (variant, clone, program) => {
+        if (isVisibilitySubject(variant.type)) {
+          clone.type = cachedMutateSubgraph(program, self, variant.type).type;
         }
       },
     },
@@ -543,8 +658,8 @@ function createVisibilityFilterMutator(
       filter: () => MutatorFlow.DoNotRecur,
       mutate: (tuple, clone, program) => {
         for (const [index, element] of tuple.values.entries()) {
-          if (isMutableType(element)) {
-            clone.values[index] = mutateSubgraph(program, [self], element).type;
+          if (isVisibilitySubject(element)) {
+            clone.values[index] = cachedMutateSubgraph(program, self, element).type;
           }
         }
       },
@@ -552,6 +667,31 @@ function createVisibilityFilterMutator(
   };
 
   return self;
+
+  type NamedType = Type & { name?: string };
+
+  /**
+   * Internal helper to rename a type in place.
+   */
+  function rename(type: NamedType, nameTemplate?: string) {
+    if (!nameTemplate || !type.name) return;
+
+    const renamed = replaceTemplatedStringFromProperties(nameTemplate, type);
+
+    type.name = renamed;
+  }
+}
+
+type VisibilitySubject = Model | Union | ModelProperty | UnionVariant | Tuple;
+
+function isVisibilitySubject(t: Type): t is VisibilitySubject {
+  return (
+    t.kind === "Model" ||
+    t.kind === "Union" ||
+    t.kind === "ModelProperty" ||
+    t.kind === "UnionVariant" ||
+    t.kind === "Tuple"
+  );
 }
 
 // #endregion
