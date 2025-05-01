@@ -38,6 +38,7 @@ This traditional workflow leads to several problems:
 4. **Update delays**: Changes must propagate through multiple systems manually
 
 For example, if a parameter name changes in the implementation, developers must remember to update:
+
 - The OpenAPI specification
 - API documentation
 - Client libraries in multiple languages
@@ -105,6 +106,7 @@ Reusing components across API definitions is often cumbersome, leading to duplic
 ### 3. Weak Type System
 
 Most API description formats have limited type systems that make it difficult to:
+
 - Express complex relationships between types
 - Define precise constraints
 - Create generic patterns (like pagination that works with any resource)

@@ -1,9 +1,11 @@
 # TypeSpec: A Practical Guide to API Modeling
+
 # Book Outline
 
 ## Part I: Getting Started with TypeSpec
 
 ### Chapter 1: Introduction to TypeSpec
+
 - What is TypeSpec and why was it created
 - The problem of API design and documentation
 - How TypeSpec solves these problems
@@ -12,6 +14,7 @@
 - Comparison with other API modeling languages (OpenAPI, RAML, etc.)
 
 ### Chapter 2: Installation and Setup
+
 - System requirements
 - Installing TypeSpec
   - NPM package (Node.js)
@@ -32,6 +35,7 @@
   - Watch mode for automatic compilation
 
 ### Chapter 3: Building Your First API
+
 - A simple REST API example (Pet Store)
 - Basic syntax introduction
   - Import and using statements
@@ -46,6 +50,7 @@
 ## Part II: TypeSpec Language Fundamentals
 
 ### Chapter 4: TypeSpec Language Basics
+
 - Declarations and scopes
 - Imports
   - Importing TypeSpec files
@@ -58,6 +63,7 @@
 - Identifiers and naming conventions
 
 ### Chapter 5: Working with Models
+
 - What are models and why are they important
 - Model declaration syntax
 - Properties
@@ -79,6 +85,7 @@
 - Visibility modifiers
 
 ### Chapter 6: Types in TypeSpec
+
 - Scalar types
   - Built-in scalars
   - Custom scalars
@@ -102,6 +109,7 @@
   - Default values
 
 ### Chapter 7: Operations and Interfaces
+
 - Operations
   - Declaration
   - Parameters
@@ -115,6 +123,7 @@
 - Best practices for organizing operations
 
 ### Chapter 8: Decorators and Directives
+
 - Understanding decorators
   - What are decorators
   - Built-in decorators
@@ -134,6 +143,7 @@
 ## Part III: Building REST APIs with TypeSpec
 
 ### Chapter 9: HTTP Basics in TypeSpec
+
 - Importing the HTTP library
 - HTTP operations
   - Operation verbs (GET, POST, PUT, etc.)
@@ -152,6 +162,7 @@
   - Error responses
 
 ### Chapter 10: Advanced HTTP Features
+
 - Content types
   - JSON
   - Form data
@@ -170,6 +181,7 @@
 - Multipart requests
 
 ### Chapter 11: Building REST APIs
+
 - REST design principles
 - Importing the REST library
 - Resource modeling
@@ -181,6 +193,7 @@
 - Error handling patterns
 
 ### Chapter 12: Practical REST API Examples
+
 - User management API
 - E-commerce API
 - Content management API
@@ -190,6 +203,7 @@
 ## Part IV: TypeSpec Libraries and Emitters
 
 ### Chapter 13: TypeSpec Standard Library
+
 - Built-in data types
 - Built-in decorators
 - Discriminated types
@@ -198,6 +212,7 @@
 - Examples and usage
 
 ### Chapter 14: TypeSpec Libraries
+
 - HTTP library in depth
 - REST library in depth
 - Versioning library
@@ -209,6 +224,7 @@
 - Library usage patterns and best practices
 
 ### Chapter 15: Working with Emitters
+
 - What are emitters
 - Built-in emitters
   - OpenAPI 3.0
@@ -227,6 +243,7 @@
 - Customizing output
 
 ### Chapter 16: From TypeSpec to Code
+
 - Code generation workflow
 - Client code generation
   - JavaScript
@@ -239,6 +256,7 @@
 ## Part V: Advanced TypeSpec
 
 ### Chapter 17: Advanced Language Features
+
 - Type relations
 - Templates with advanced constraints
 - Type literals in depth
@@ -247,6 +265,7 @@
 - Metadata programming
 
 ### Chapter 18: Extending TypeSpec
+
 - Creating custom decorators
 - Building linters
 - Emitter basics
@@ -257,6 +276,7 @@
 - Creating scaffolding templates
 
 ### Chapter 19: TypeSpec in the Enterprise
+
 - Large-scale API design with TypeSpec
 - Multi-team collaboration
 - Versioning strategies
@@ -266,6 +286,7 @@
 - API governance with TypeSpec
 
 ### Chapter 20: Best Practices and Patterns
+
 - TypeSpec style guide
 - Common pitfalls and how to avoid them
 - Performance considerations
@@ -277,24 +298,28 @@
 ## Part VI: Appendices
 
 ### Appendix A: TypeSpec Quick Reference
+
 - Syntax summary
 - Built-in types
 - Common decorators
 - CLI commands
 
 ### Appendix B: TypeSpec and OpenAPI
+
 - Mapping between TypeSpec and OpenAPI concepts
 - TypeSpec features not in OpenAPI
 - Converting between TypeSpec and OpenAPI
 - When to use TypeSpec vs. raw OpenAPI
 
 ### Appendix C: Resources
+
 - Official documentation
 - Community resources
 - Tools and extensions
 - Further reading
 
 ### Appendix D: Glossary
+
 - TypeSpec terminology
 - API design terminology
 - REST terminology

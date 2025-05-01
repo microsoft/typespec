@@ -110,7 +110,7 @@ Decorators allow you to add metadata and behavior to your API definitions:
 ```typespec
 @service({
   title: "Pet Store API",
-  version: "1.0.0"
+  version: "1.0.0",
 })
 namespace PetStore;
 
@@ -119,12 +119,12 @@ model Pet {
   @key
   @doc("The unique identifier for the pet")
   id: string;
-  
+
   @doc("The name of the pet")
   @minLength(1)
   @maxLength(100)
   name: string;
-  
+
   @doc("The status of the pet")
   status: Status;
 }

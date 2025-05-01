@@ -1,0 +1,136 @@
+{/_ prettier-ignore _/}
+<FileTree>
+
+- api-extractor.base.json
+- CODE_OF_CONDUCT.md
+- CONTRIBUTING.md
+- cspell.yaml
+- eslint.config.js
+- LICENSE
+- package.json
+- pnpm-lock.yaml
+- pnpm-workspace.yaml
+- README.md
+- SECURITY.md
+- troubleshooting.md
+- tsconfig.base.json
+- tsconfig.eng.json
+- tsconfig.eng.tsbuildinfo
+- tsconfig.json
+- tsconfig.ws.json
+- vitest.config.ts
+- vitest.workspace.ts
+- blog/
+  - codegeneration.md
+  - dotnet_core_1_0_analysis.md
+  - net_1_0.md
+  - outline.md
+  - rust_1_0_analysis.md
+  - rust_1_0.md
+  - transcript.md
+  - typescript_1_0_rc_analysis.md
+  - typescript_1_0_rc.md
+  - typespec_1_0_release_analysis.md
+- docker/
+  - Dockerfile
+  - readme.md
+- docs/
+  - readme.md
+  - intro/
+    - getting-started.md
+  - samples/
+    - client/
+- e2e/
+  - e2e-tests.js
+  - package.json
+  - basic-current/
+    - main.tsp
+  - basic-latest/
+    - main.tsp
+    - package.json
+- eng/
+  - tsconfig.json
+  - vitest.config.ts
+  - common/
+    - CredScanSuppression.json
+    - config/
+    - pipelines/
+    - scripts/
+  - emitters/
+    - pipelines/
+    - scripts/
+  - tsp-core/
+    - pipelines/
+    - scripts/
+- grammars/
+  - typespec.json
+- icons/
+  - raw/
+    - readme.md
+    - tsp-logo-inverted.svg
+    - tsp-logo.svg
+- packages/
+  - Directory.Build.props
+  - asset-emitter/
+  - astro-utils/
+  - best-practices/
+  - bundle-uploader/
+  - bundler/
+  - compiler/
+  - emitter-framework/
+  - eslint-plugin-typespec/
+  - events/
+  - html-program-viewer/
+  - http/
+  - http-client/
+  - http-client-csharp/
+  - http-client-java/
+  - http-client-js/
+  - http-client-python/
+  - http-server-csharp/
+  - http-server-js/
+  - http-specs/
+  - internal-build-utils/
+  - json-schema/
+  - library-linter/
+  - monarch/
+  - openapi/
+  - openapi3/
+  - playground/
+  - playground-website/
+  - prettier-plugin-typespec/
+  - protobuf/
+  - react-components/
+  - rest/
+  - samples/
+  - spec/
+  - spec-api/
+  - spec-coverage-sdk/
+  - spec-dashboard/
+  - spector/
+  - sse/
+  - standalone/
+  - streams/
+  - tmlanguage-generator/
+  - tspd/
+  - typespec-vs/
+  - typespec-vscode/
+  - versioning/
+  - xml/
+- temp/
+  - ecommerce.md
+  - server_code_generation.md
+  - tsp_1_0_video_content.md
+  - typespec_1.0_release_plan.md
+  - vscode_project_scaffolding.gif
+- website/
+  - algolia.ts
+  - astro.config.mjs
+  - ec.config.mjs
+  - package.json
+  - playground-versions.json
+  - README.md
+  - tsconfig.json
+  - public/
+  - src/
+    </FileTree>
