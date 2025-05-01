@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -47,6 +47,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 null,
                 $"",
                 [new ParameterProvider("input", $"", typeof(Stream))]));
+        }
+
+        [Test]
+        public void TestUpdate()
+        {
+            MockHelpers.LoadMockGenerator();
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Throw(Null), typeProvider);
+            // add the method to the type provider
+            typeProvider.Update(methods: [methodProvider]);
+
+            // now update the method and check if the type provider reflects the change
+            methodProvider.Update(new MethodSignature("Updated", $"", MethodSignatureModifiers.Public, null, $"", []));
+            var updatedMethods = typeProvider.CanonicalView.Methods;
+            Assert.IsNotNull(updatedMethods);
+            Assert.AreEqual(1, updatedMethods!.Count);
+
+            var updatedMethod = updatedMethods[0];
+            Assert.AreEqual("Updated", updatedMethod.Signature.Name);
         }
 
         private class TestTypeProvider : TypeProvider
