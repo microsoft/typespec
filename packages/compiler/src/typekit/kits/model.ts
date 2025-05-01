@@ -143,7 +143,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
-const spreadCache = new Map<Model, Model>();
+const indexCache = new Map<Model, Model>();
 defineKit<TypekitExtension>({
   model: {
     create(desc) {
@@ -173,8 +173,8 @@ defineKit<TypekitExtension>({
       return getEffectiveModelType(this.program, model, filter);
     },
     getIndexType(model) {
-      if (spreadCache.has(model)) {
-        return spreadCache.get(model);
+      if (indexCache.has(model)) {
+        return indexCache.get(model);
       }
 
       if (!model.indexer) {
@@ -183,13 +183,13 @@ defineKit<TypekitExtension>({
 
       if (model.indexer.key.name === "string") {
         const record = this.record.create(model.indexer.value);
-        spreadCache.set(model, record);
+        indexCache.set(model, record);
         return record;
       }
 
       if (model.indexer.key.name === "integer") {
         const array = this.array.create(model.indexer.value);
-        spreadCache.set(model, array);
+        indexCache.set(model, array);
         return array;
       }
 
