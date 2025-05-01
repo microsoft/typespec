@@ -99,10 +99,12 @@ export interface ModelKit {
   getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
 
   /**
-   * Given a model, return the type that is spread
-   * @returns the type that is spread or undefined if no spread
+   * Given a model, return the index type if one exists.
+   * For example, given the model: `model Foo { ...Record<string>; ...Record<int8>; }`,
+   * the index type is `Record<string | int8>`.
+   * @returns the index type of the model, or undefined if no index type exists.
    */
-  getSpreadType: (model: Model) => Type | undefined;
+  getIndexType: (model: Model) => Model | undefined;
   /**
    * Gets all properties from a model, explicitly defined and implicitly defined.
    * @param model model to get the properties from
@@ -141,7 +143,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
-const spreadCache = new Map<Model, Model>();
+const indexCache = new Map<Model, Model>();
 defineKit<TypekitExtension>({
   model: {
     create(desc) {
@@ -170,9 +172,9 @@ defineKit<TypekitExtension>({
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
     },
-    getSpreadType(model) {
-      if (spreadCache.has(model)) {
-        return spreadCache.get(model);
+    getIndexType(model) {
+      if (indexCache.has(model)) {
+        return indexCache.get(model);
       }
 
       if (!model.indexer) {
@@ -181,17 +183,17 @@ defineKit<TypekitExtension>({
 
       if (model.indexer.key.name === "string") {
         const record = this.record.create(model.indexer.value);
-        spreadCache.set(model, record);
+        indexCache.set(model, record);
         return record;
       }
 
       if (model.indexer.key.name === "integer") {
         const array = this.array.create(model.indexer.value);
-        spreadCache.set(model, array);
+        indexCache.set(model, array);
         return array;
       }
 
-      return model.indexer.value;
+      return undefined;
     },
     getProperties(model, options = {}) {
       // Add explicitly defined properties
@@ -233,9 +235,9 @@ defineKit<TypekitExtension>({
       }
 
       // model MyModel { ...Record<>} should be model with additional properties
-      const spread = this.model.getSpreadType(model);
-      if (spread && this.model.is(spread) && this.record.is(spread)) {
-        return spread;
+      const indexType = this.model.getIndexType(model);
+      if (indexType && this.record.is(indexType)) {
+        return indexType;
       }
 
       if (model.baseModel) {
