@@ -3,7 +3,6 @@ import * as ts from "@alloy-js/typescript";
 
 import { Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { efRefkey } from "@typespec/emitter-framework/typescript";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";
 import { JsonRecordTransformDeclaration } from "./json-record-transform.jsx";
@@ -78,8 +77,8 @@ export function JsonModelTransformDeclaration(
     "function",
   );
 
-  const returnType = props.target === "transport" ? "any" : efRefkey(props.type);
-  const inputType = props.target === "transport" ? <>{efRefkey(props.type)} | null</> : "any";
+  const returnType = props.target === "transport" ? "any" : ay.refkey(props.type);
+  const inputType = props.target === "transport" ? <>{ay.refkey(props.type)} | null</> : "any";
   const inputRef = ay.refkey();
 
   const parameters: ts.ParameterDescriptor[] = [

@@ -2,7 +2,6 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Discriminator, Model, Union } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { efRefkey } from "@typespec/emitter-framework/typescript";
 import { JsonTransform } from "./json-transform.jsx";
 
 export interface JsonTransformDiscriminatorProps {
@@ -84,7 +83,7 @@ export function JsonTransformDiscriminatorDeclaration(
     "function",
   );
 
-  const typeRef = efRefkey(props.type);
+  const typeRef = ay.refkey(props.type);
   const returnType = props.target === "transport" ? "any" : typeRef;
   const inputType = props.target === "transport" ? typeRef : "any";
   const inputRef = ay.refkey();

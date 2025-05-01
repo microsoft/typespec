@@ -19,7 +19,7 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
   }
 
   const { type, ...coreProps } = props;
-  const refkey = props.refkey ?? efRefkey(props.type);
+  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
 
   const originalName = coreProps.name ?? type.name;
 
