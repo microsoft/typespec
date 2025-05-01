@@ -1,4 +1,4 @@
-import { createNamedContext, reactive, useContext } from "@alloy-js/core";
+import { createNamedContext, shallowReactive, useContext } from "@alloy-js/core";
 import type { Model, Program } from "@typespec/compiler";
 
 export type TspdContext = {
@@ -22,7 +22,7 @@ export function useTspd() {
 }
 
 export function createTspdContext(program: Program): TspdContext {
-  const localTypes = reactive<Model[]>([]);
+  const localTypes = shallowReactive<Model[]>([]);
   return {
     program,
     localTypes,

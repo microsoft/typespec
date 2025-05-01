@@ -47,7 +47,7 @@ export function LocalTypes() {
   const { localTypes } = useTspd();
   return (
     <ay.StatementList>
-      <ay.For each={localTypes} joiner={"\n"}>
+      <ay.For each={localTypes}>
         {(type) => {
           return (
             <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
