@@ -198,7 +198,7 @@ function ValueTsType({ type }: { type: Type }) {
         if (type.indexer && type.name === "Record" && type.namespace?.name === "TypeSpec") {
           return (
             <>
-              Record{"<"}
+              Record{"<string, "}
               <ValueTsType type={type.indexer.value} />
               {">"}
             </>

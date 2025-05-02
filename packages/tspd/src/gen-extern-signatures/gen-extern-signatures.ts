@@ -161,13 +161,6 @@ export async function generateExternDecorators(
     for (const file of rawFiles) {
       files[file.path] = await format(file.contents);
     }
-
-    // files[file] = await format();
-    // if (!ns.includes(".Private")) {
-    //   files[`${base}.ts-test.ts`] = await format(
-    //     generateSignatureTests(ns, packageName, `./${base}.js`, nsDecorators),
-    //   );
-    // }
   }
   return files;
 }
