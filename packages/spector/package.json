@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.8.0",
+    "@azure/identity": "~4.9.1",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
