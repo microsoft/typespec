@@ -13,7 +13,7 @@ import { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { declarationRefkey, efRefkey } from "../utils/refkey.js";
+import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
@@ -42,7 +42,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   name = namePolicy.getName(name, "interface");
 
-  const refkey = declarationRefkey(props.refkey, props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
 
@@ -52,7 +52,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
       export={props.export}
       kind={props.kind}
       name={name}
-      refkey={refkey}
+      refkey={refkeys}
       extends={extendsType}
     >
       <InterfaceBody {...props} />

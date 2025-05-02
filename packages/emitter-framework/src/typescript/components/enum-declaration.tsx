@@ -3,7 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { declarationRefkey, efRefkey } from "../utils/refkey.js";
+import { declarationRefkeys, efRefkey } from "../utils/refkey.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -25,12 +25,12 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   if (!props.type.name || props.type.name === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-  const refkey = declarationRefkey(props.refkey, props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
   const members = Array.from(type.members.entries());
 
   return (
-    <ts.EnumDeclaration name={name} refkey={refkey} default={props.default} export={props.export}>
+    <ts.EnumDeclaration name={name} refkey={refkeys} default={props.default} export={props.export}>
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
           return (

@@ -28,7 +28,7 @@ export function efRefkey(...args: unknown[]) {
  * @param args The parameters of the refkey.
  * @returns An array of refkeys that can be passed to an Alloy declaration.
  */
-export function declarationRefkey(refkey?: Refkey | Refkey[], ...args: unknown[]) {
+export function declarationRefkeys(refkey?: Refkey | Refkey[], ...args: unknown[]) {
   if (refkey) {
     return [refkey, efRefkey(...args)].flat();
   }
