@@ -39,12 +39,11 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
         name: param.rest ? `...${param.name}` : param.name,
         type: param.rest ? (
           <>
-            {"("}
+            (
             {param.type ? (
               <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
             ) : undefined}
-            {")"}
-            {"[]"}
+            )[]
           </>
         ) : (
           <ParameterTsType constraint={param.type} />
