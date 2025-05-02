@@ -1,7 +1,6 @@
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
-import { efRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface ClassMethodPropsWithType extends Omit<ts.ClassMethodProps, "name"> {
@@ -17,15 +16,13 @@ export function ClassMethod(props: ClassMethodProps) {
     return <ts.ClassMethod {...props} />;
   }
 
-  const refkey = props.refkey ?? efRefkey(props.type, "method");
-
   const name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
   const returnType =
     props.returnType === null ? undefined : <TypeExpression type={getReturnType(props.type)} />;
 
   return (
     <ts.ClassMethod
-      refkey={refkey}
+      refkey={props.refkey}
       name={name}
       async={props.async}
       returnType={returnType}

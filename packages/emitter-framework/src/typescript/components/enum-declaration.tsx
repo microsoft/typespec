@@ -57,7 +57,7 @@ export function EnumMember(props: EnumMemberProps) {
     <ts.EnumMember
       name={props.type.name}
       jsValue={props.type.value ?? props.type.name}
-      refkey={props.refkey ?? efRefkey(props.type)}
+      refkey={props.refkey}
     />
   );
 }
