@@ -17,7 +17,7 @@ export function DollarDecoratorsType(props: Readonly<DollarDecoratorsTypeProps>)
       refkey={props.refkey}
     >
       <ts.InterfaceExpression>
-        <ay.For each={props.decorators} joiner={"\n"}>
+        <ay.For each={props.decorators}>
           {(signature) => {
             return <ts.InterfaceMember name={signature.name.slice(1)} type={signature.typeName} />;
           }}

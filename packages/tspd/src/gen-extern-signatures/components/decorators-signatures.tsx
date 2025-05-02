@@ -27,7 +27,7 @@ export function DecoratorSignatures({
       <LocalTypes />
       <hbr />
       <hbr />
-      <ay.For each={decorators} joiner={"\n\n"}>
+      <ay.For each={decorators} doubleHardline>
         {(signature) => {
           return <DecoratorSignatureType signature={signature} />;
         }}
@@ -47,7 +47,7 @@ export function LocalTypes() {
   const { localTypes } = useTspd();
   return (
     <ay.StatementList>
-      <ay.For each={localTypes} joiner={"\n\n"}>
+      <ay.For each={localTypes} doubleHardline>
         {(type) => {
           return (
             <ts.InterfaceDeclaration export name={type.name} refkey={ay.refkey(type)}>
