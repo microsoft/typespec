@@ -1,12 +1,12 @@
 import { isArrayModelType } from "../../core/type-utils.js";
-import { Entity, Model, Type } from "../../core/types.js";
+import { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {
   /**
    * Check if a type is an array.
    */
-  is(type: Entity): boolean;
+  is(type: Entity): type is ArrayModelType;
   /**
    * Get the element type of an array.
    */
@@ -14,7 +14,7 @@ export interface ArrayKit {
   /**
    * Create an array type.
    */
-  create(elementType: Type): Model;
+  create(elementType: Type): ArrayModelType;
 }
 
 interface TypekitExtension {
@@ -49,7 +49,7 @@ defineKit<TypekitExtension>({
           key: this.builtin.integer,
           value: elementType,
         },
-      });
+      }) as ArrayModelType;
     },
   },
 });
