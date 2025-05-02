@@ -115,15 +115,22 @@ export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
 
 function TargetParameterTsType(props: { type: Type | undefined }) {
   const type = props.type;
+  if (type === undefined) {
+    return typespecCompiler.Type;
+  }
+  if (type.kind === "Union") {
+    const variants = [...type.variants.values()].map((x) => x.type).map(getTargetType);
+    return ay.join(new Set(variants).values(), { joiner: " | " });
+  } else {
+    return getTargetType(type);
+  }
+}
+
+function getTargetType(type: Type) {
   if (type === undefined || isUnknownType(type)) {
     return typespecCompiler.Type;
   } else if (type.kind === "Model" && isReflectionType(type)) {
     return (typespecCompiler as any)[type.name];
-  } else if (type.kind === "Union") {
-    const variants = [...new Set([...type.variants.values()])].map((x) => (
-      <TargetParameterTsType type={x.type} />
-    ));
-    return ay.join(variants, { joiner: " | " });
   } else if (type.kind === "Scalar") {
     // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
     // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
@@ -141,7 +148,7 @@ function getTypeConstraintTSType(type: Type) {
     const variants = [...type.variants.values()];
 
     if (variants.every((x) => isReflectionType(x.type))) {
-      return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
+      return [...new Set(variants)].map((x) => useCompilerType((x.type as Model).name)).join(" | ");
     } else {
       return typespecCompiler.Type;
     }
