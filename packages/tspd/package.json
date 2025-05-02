@@ -55,8 +55,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@alloy-js/core": "^0.14.0",
-    "@alloy-js/typescript": "^0.14.0",
+    "@alloy-js/core": "^0.15.0",
+    "@alloy-js/typescript": "^0.15.0",
     "@typespec/compiler": "workspace:^",
     "picocolors": "~1.1.1",
     "prettier": "~3.5.3",
@@ -66,7 +66,7 @@
     "typedoc-plugin-markdown": "^4.5.2"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.14.0",
+    "@alloy-js/cli": "^0.15.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "~22.13.11",
     "@types/yargs": "~17.0.33",
