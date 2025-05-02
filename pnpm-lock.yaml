@@ -738,8 +738,8 @@ importers:
         specifier: workspace:^
         version: link:../spector
       '@typespec/ts-http-runtime':
-        specifier: 0.2.1
-        version: 0.2.1
+        specifier: 0.2.2
+        version: 0.2.2
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
@@ -6405,8 +6405,8 @@ packages:
     resolution: {integrity: sha512-I+/rgqOVBn6f0o7NDTmAPWWC6NuqhV174lfYvAm9fUaWeiefLdux9/YI3/nLugEn9L8fcSi0XmpKi/r5u0nmpw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typespec/ts-http-runtime@0.2.1':
-    resolution: {integrity: sha512-3zI/d10N4D0L0MQVNTLp9PhhY49Wtg9iYZcb+rWxA4Ii9eJigpamCXjGaH7SkrhQ4+5w++ad7TP64tQzUvRDQA==}
+  '@typespec/ts-http-runtime@0.2.2':
+    resolution: {integrity: sha512-Gz/Sm64+Sq/vklJu1tt9t+4R2lvnud8NbTD/ZfpZtMiUX7YeVpCA8j6NSW8ptwcoLL+NmYANwqP8DV0q/bwl2w==}
     engines: {node: '>=18.0.0'}
 
   '@ungap/structured-clone@1.3.0':
@@ -18911,7 +18911,7 @@ snapshots:
       '@typescript-eslint/types': 8.31.1
       eslint-visitor-keys: 4.2.0
 
-  '@typespec/ts-http-runtime@0.2.1':
+  '@typespec/ts-http-runtime@0.2.2':
     dependencies:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
