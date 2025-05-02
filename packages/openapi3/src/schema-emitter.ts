@@ -54,7 +54,7 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { capitalize } from "@typespec/compiler/utils";
+import { capitalize } from "@typespec/compiler/casing";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,

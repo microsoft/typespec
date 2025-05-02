@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { RekeyableMap } from "../src/index.js";
-import { capitalize, createRekeyableMap } from "../src/utils/misc.js";
+import { createRekeyableMap } from "../src/utils/misc.js";
 
 describe("compiler: util", () => {
   describe("RekeyableMap", () => {
@@ -92,26 +92,6 @@ describe("compiler: util", () => {
           ["d", "pos 4"],
         ],
       );
-    });
-  });
-
-  describe("capitalize", () => {
-    it("should capitalize the first letter of a string", () => {
-      const str = "hello world";
-      const result = capitalize(str);
-      deepStrictEqual(result, "Hello world");
-    });
-
-    it("should return an empty string when input is empty", () => {
-      const str = "";
-      const result = capitalize(str);
-      deepStrictEqual(result, "");
-    });
-
-    it("should handle single-character strings", () => {
-      const str = "a";
-      const result = capitalize(str);
-      deepStrictEqual(result, "A");
     });
   });
 });

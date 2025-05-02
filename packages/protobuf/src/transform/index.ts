@@ -27,7 +27,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
-import { capitalize } from "@typespec/compiler/utils";
+import { capitalize } from "@typespec/compiler/casing";
 import {
   map,
   matchType,

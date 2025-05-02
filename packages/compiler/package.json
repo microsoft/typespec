@@ -59,6 +59,10 @@
     },
     "./internals/prettier-formatter": {
       "import": "./dist/src/internals/prettier-formatter.js"
+    },
+    "./casing": {
+      "types": "./dist/src/casing/index.d.ts",
+      "default": "./dist/src/casing/index.js"
     }
   },
   "browser": {
