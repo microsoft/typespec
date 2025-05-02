@@ -30,7 +30,7 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       type: typespecCompiler.DecoratorContext,
     },
     {
-      name: "target",
+      name: decorator.target.name,
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
     ...decorator.parameters.map(
@@ -100,14 +100,16 @@ export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
   if (constraint.type && constraint.valueType) {
     return (
       <>
-        {getTypeConstraintTSType(constraint.type)} | <ValueTsType type={constraint.valueType} />
+        <TypeConstraintTSType type={constraint.type} />
+        {" | "}
+        <ValueTsType type={constraint.valueType} />
       </>
     );
   }
   if (constraint.valueType) {
     return <ValueTsType type={constraint.valueType} />;
   } else if (constraint.type) {
-    return getTypeConstraintTSType(constraint.type);
+    return <TypeConstraintTSType type={constraint.type} />;
   }
 
   return typespecCompiler.Type;
@@ -141,14 +143,19 @@ function getTargetType(type: Type) {
   }
 }
 
-function getTypeConstraintTSType(type: Type) {
+function TypeConstraintTSType({ type }: { type: Type }) {
   if (type.kind === "Model" && isReflectionType(type)) {
     return (typespecCompiler as any)[type.name];
   } else if (type.kind === "Union") {
-    const variants = [...type.variants.values()];
+    const variants = [...type.variants.values()].map((x) => x.type);
 
-    if (variants.every((x) => isReflectionType(x.type))) {
-      return [...new Set(variants)].map((x) => useCompilerType((x.type as Model).name)).join(" | ");
+    if (variants.every((x) => isReflectionType(x))) {
+      return ay.join(
+        [...new Set(variants)].map((x) => getCompilerType((x as Model).name)),
+        {
+          joiner: " | ",
+        },
+      );
     } else {
       return typespecCompiler.Type;
     }
@@ -156,7 +163,7 @@ function getTypeConstraintTSType(type: Type) {
   return typespecCompiler.Type;
 }
 
-function useCompilerType(name: string) {
+function getCompilerType(name: string) {
   return (typespecCompiler as any)[name];
 }
 

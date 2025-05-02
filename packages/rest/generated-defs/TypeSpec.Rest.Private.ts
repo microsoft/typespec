@@ -33,7 +33,7 @@ export type ActionSegmentDecorator = (
 
 export type ResourceTypeForKeyParamDecorator = (
   context: DecoratorContext,
-  target: ModelProperty,
+  entity: ModelProperty,
   resourceType: Model,
 ) => void;
 
