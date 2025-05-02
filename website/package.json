@@ -62,7 +62,7 @@
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
-    "astro-expressive-code": "^0.40.2",
+    "astro-expressive-code": "^0.41.2",
     "rehype-mermaid": "^3.0.0",
     "remark-heading-id": "^1.0.1",
     "rimraf": "~6.0.1",

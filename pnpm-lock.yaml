@@ -152,8 +152,8 @@ importers:
         specifier: workspace:^
         version: link:../playground
       astro-expressive-code:
-        specifier: ^0.40.2
-        version: 0.40.2(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1))
+        specifier: ^0.41.2
+        version: 0.41.2(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1))
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -2525,8 +2525,8 @@ importers:
         specifier: workspace:^
         version: link:../packages/xml
       astro-expressive-code:
-        specifier: ^0.40.2
-        version: 0.40.2(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1))
+        specifier: ^0.41.2
+        version: 0.41.2(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1))
       rehype-mermaid:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.52.0)
@@ -4001,14 +4001,26 @@ packages:
   '@expressive-code/core@0.40.2':
     resolution: {integrity: sha512-gXY3v7jbgz6nWKvRpoDxK4AHUPkZRuJsM79vHX/5uhV9/qX6Qnctp/U/dMHog/LCVXcuOps+5nRmf1uxQVPb3w==}
 
+  '@expressive-code/core@0.41.2':
+    resolution: {integrity: sha512-AJW5Tp9czbLqKMzwudL9Rv4js9afXBxkSGLmCNPq1iRgAYcx9NkTPJiSNCesjKRWoVC328AdSu6fqrD22zDgDg==}
+
   '@expressive-code/plugin-frames@0.40.2':
     resolution: {integrity: sha512-aLw5IlDlZWb10Jo/TTDCVsmJhKfZ7FJI83Zo9VDrV0OBlmHAg7klZqw68VDz7FlftIBVAmMby53/MNXPnMjTSQ==}
+
+  '@expressive-code/plugin-frames@0.41.2':
+    resolution: {integrity: sha512-pfy0hkJI4nbaONjmksFDcuHmIuyPTFmi1JpABe4q2ajskiJtfBf+WDAL2pg595R9JNoPrrH5+aT9lbkx2noicw==}
 
   '@expressive-code/plugin-shiki@0.40.2':
     resolution: {integrity: sha512-t2HMR5BO6GdDW1c1ISBTk66xO503e/Z8ecZdNcr6E4NpUfvY+MRje+LtrcvbBqMwWBBO8RpVKcam/Uy+1GxwKQ==}
 
+  '@expressive-code/plugin-shiki@0.41.2':
+    resolution: {integrity: sha512-xD4zwqAkDccXqye+235BH5bN038jYiSMLfUrCOmMlzxPDGWdxJDk5z4uUB/aLfivEF2tXyO2zyaarL3Oqht0fQ==}
+
   '@expressive-code/plugin-text-markers@0.40.2':
     resolution: {integrity: sha512-/XoLjD67K9nfM4TgDlXAExzMJp6ewFKxNpfUw4F7q5Ecy+IU3/9zQQG/O70Zy+RxYTwKGw2MA9kd7yelsxnSmw==}
+
+  '@expressive-code/plugin-text-markers@0.41.2':
+    resolution: {integrity: sha512-JFWBz2qYxxJOJkkWf96LpeolbnOqJY95TvwYc0hXIHf9oSWV0h0SY268w/5N3EtQaD9KktzDE+VIVwb9jdb3nw==}
 
   '@floating-ui/core@1.6.9':
     resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
@@ -7091,6 +7103,11 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
 
+  astro-expressive-code@0.41.2:
+    resolution: {integrity: sha512-HN0jWTnhr7mIV/2e6uu4PPRNNo/k4UEgTLZqbp3MrHU+caCARveG2yZxaZVBmxyiVdYqW5Pd3u3n2zjnshixbw==}
+    peerDependencies:
+      astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
+
   astro-rehype-relative-markdown-links@0.18.1:
     resolution: {integrity: sha512-PA2oLXs8+8CX+/cDEeHo4UJfMPKXazIJM8BgnQloR/vGXRnW3KjbLI3nqSoNVmq91YaFv2UHfHKoetEcfwieUw==}
     peerDependencies:
@@ -8662,6 +8679,9 @@ packages:
 
   expressive-code@0.40.2:
     resolution: {integrity: sha512-1zIda2rB0qiDZACawzw2rbdBQiWHBT56uBctS+ezFe5XMAaFaHLnnSYND/Kd+dVzO9HfCXRDpzH3d+3fvOWRcw==}
+
+  expressive-code@0.41.2:
+    resolution: {integrity: sha512-aLZiZaqorRtNExtGpUjK9zFH9aTpWeoTXMyLo4b4IcuXfPqtLPPxhRm/QlPb8QqIcMMXnSiGRHSFpQfX0m7HJw==}
 
   exsolve@1.0.5:
     resolution: {integrity: sha512-pz5dvkYYKQ1AHVrgOzBKWeP4u4FRb3a6DNK2ucr0OoNwYIU4QWsJ+NM36LLzORT+z845MzKHHhpXiUF5nvQoJg==}
@@ -11481,6 +11501,9 @@ packages:
 
   rehype-expressive-code@0.40.2:
     resolution: {integrity: sha512-+kn+AMGCrGzvtH8Q5lC6Y5lnmTV/r33fdmi5QU/IH1KPHKobKr5UnLwJuqHv5jBTSN/0v2wLDS7RTM73FVzqmQ==}
+
+  rehype-expressive-code@0.41.2:
+    resolution: {integrity: sha512-vHYfWO9WxAw6kHHctddOt+P4266BtyT1mrOIuxJD+1ELuvuJAa5uBIhYt0OVMyOhlvf57hzWOXJkHnMhpaHyxw==}
 
   rehype-format@5.0.1:
     resolution: {integrity: sha512-zvmVru9uB0josBVpr946OR8ui7nJEdzZobwLOOqHb/OOD88W0Vk2SqLwoVOj0fM6IPCCO6TaV9CvQvJMWwukFQ==}
@@ -15269,18 +15292,43 @@ snapshots:
       unist-util-visit: 5.0.0
       unist-util-visit-parents: 6.0.1
 
+  '@expressive-code/core@0.41.2':
+    dependencies:
+      '@ctrl/tinycolor': 4.1.0
+      hast-util-select: 6.0.4
+      hast-util-to-html: 9.0.5
+      hast-util-to-text: 4.0.2
+      hastscript: 9.0.1
+      postcss: 8.5.3
+      postcss-nested: 6.2.0(postcss@8.5.3)
+      unist-util-visit: 5.0.0
+      unist-util-visit-parents: 6.0.1
+
   '@expressive-code/plugin-frames@0.40.2':
     dependencies:
       '@expressive-code/core': 0.40.2
+
+  '@expressive-code/plugin-frames@0.41.2':
+    dependencies:
+      '@expressive-code/core': 0.41.2
 
   '@expressive-code/plugin-shiki@0.40.2':
     dependencies:
       '@expressive-code/core': 0.40.2
       shiki: 1.29.2
 
+  '@expressive-code/plugin-shiki@0.41.2':
+    dependencies:
+      '@expressive-code/core': 0.41.2
+      shiki: 3.3.0
+
   '@expressive-code/plugin-text-markers@0.40.2':
     dependencies:
       '@expressive-code/core': 0.40.2
+
+  '@expressive-code/plugin-text-markers@0.41.2':
+    dependencies:
+      '@expressive-code/core': 0.41.2
 
   '@floating-ui/core@1.6.9':
     dependencies:
@@ -19955,6 +20003,11 @@ snapshots:
       astro: 5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1)
       rehype-expressive-code: 0.40.2
 
+  astro-expressive-code@0.41.2(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1)):
+    dependencies:
+      astro: 5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1)
+      rehype-expressive-code: 0.41.2
+
   astro-rehype-relative-markdown-links@0.18.1(astro@5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1)):
     dependencies:
       astro: 5.7.10(@azure/identity@4.8.0)(@azure/storage-blob@12.27.0)(@types/node@22.13.17)(encoding@0.1.13)(rollup@4.40.1)(tsx@4.19.4)(typescript@5.8.3)(yaml@2.7.1)
@@ -21965,6 +22018,13 @@ snapshots:
       '@expressive-code/plugin-frames': 0.40.2
       '@expressive-code/plugin-shiki': 0.40.2
       '@expressive-code/plugin-text-markers': 0.40.2
+
+  expressive-code@0.41.2:
+    dependencies:
+      '@expressive-code/core': 0.41.2
+      '@expressive-code/plugin-frames': 0.41.2
+      '@expressive-code/plugin-shiki': 0.41.2
+      '@expressive-code/plugin-text-markers': 0.41.2
 
   exsolve@1.0.5: {}
 
@@ -25464,6 +25524,10 @@ snapshots:
   rehype-expressive-code@0.40.2:
     dependencies:
       expressive-code: 0.40.2
+
+  rehype-expressive-code@0.41.2:
+    dependencies:
+      expressive-code: 0.41.2
 
   rehype-format@5.0.1:
     dependencies:
