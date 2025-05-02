@@ -198,7 +198,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
     });
   }
 
-  if ($.model.getSpreadType(props.type)) {
+  if ($.model.getIndexType(props.type)) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-spread-model-transformation-nyi",
       target: props.type,
