@@ -123,3 +123,17 @@ describe("resolve", () => {
     });
   });
 });
+
+it("'is' checks whether entity is a Value", async () => {
+  const { sourceProp, program } = await getAssignables({ source: '"foo"' });
+
+  const tk = $(program);
+  // true cases
+  expect(tk.value.is(tk.value.create("foo"))).toBe(true);
+  expect(tk.value.is(tk.value.create(123))).toBe(true);
+  expect(tk.value.is(tk.value.create(false))).toBe(true);
+
+  // false cases
+  expect(tk.value.is(sourceProp)).toBe(false);
+  expect(tk.value.is(tk.literal.create("foo"))).toBe(false);
+});

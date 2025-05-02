@@ -9,7 +9,6 @@ export * from "./model-property.js";
 export * from "./model.js";
 export * from "./operation.js";
 export * from "./record.js";
-export * from "./resolve.js";
 export * from "./scalar.js";
 export * from "./tuple.js";
 export * from "./type.js";
