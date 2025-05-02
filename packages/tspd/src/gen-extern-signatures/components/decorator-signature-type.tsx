@@ -4,6 +4,7 @@ import {
   IntrinsicScalarName,
   MixedParameterConstraint,
   Model,
+  Program,
   Scalar,
   type Type,
   getSourceLocation,
@@ -21,6 +22,7 @@ export interface DecoratorSignatureProps {
 
 /** Render the type of decorator implementation function  */
 export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>) {
+  const { program } = useTspd();
   const decorator = props.signature.decorator;
   const parameters: ts.ParameterDescriptor[] = [
     {
@@ -31,11 +33,25 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name: "target",
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
-    ...decorator.parameters.map((param) => ({
-      name: param.name,
-      type: <ParameterTsType constraint={param.type} />,
-      optional: param.optional,
-    })),
+    ...decorator.parameters.map(
+      (param): ts.ParameterDescriptor => ({
+        // https://github.com/alloy-framework/alloy/issues/144
+        name: param.rest ? `...${param.name}` : param.name,
+        type: param.rest ? (
+          <>
+            {"("}
+            {param.type ? (
+              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+            ) : undefined}
+            {")"}
+            {"[]"}
+          </>
+        ) : (
+          <ParameterTsType constraint={param.type} />
+        ),
+        optional: param.optional,
+      }),
+    ),
   ];
   return (
     <ts.TypeDeclaration
@@ -46,6 +62,35 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       <ts.FunctionType parameters={parameters} />
     </ts.TypeDeclaration>
   );
+}
+
+/** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
+function extractRestParamConstraint(
+  program: Program,
+  constraint: MixedParameterConstraint,
+): MixedParameterConstraint | undefined {
+  let valueType: Type | undefined;
+  let type: Type | undefined;
+  if (constraint.valueType) {
+    if (constraint.valueType.kind === "Model" && isArrayModelType(program, constraint.valueType)) {
+      valueType = constraint.valueType.indexer.value;
+    } else {
+      return undefined;
+    }
+  }
+  if (constraint.type) {
+    if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+      type = constraint.type.indexer.value;
+    } else {
+      return undefined;
+    }
+  }
+
+  return {
+    entityKind: "MixedParameterConstraint",
+    type,
+    valueType,
+  };
 }
 
 export interface ParameterTsTypeProps {

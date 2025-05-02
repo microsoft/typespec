@@ -89,13 +89,15 @@ export function generateSignatures(
             dollarDecoratorsRefKey={$decoratorsRef}
           />
         </ts.SourceFile>
-        <ts.SourceFile path={`${base}.ts-test.ts`}>
-          <DecoratorSignatureTests
-            namespaceName={namespaceName}
-            dollarDecoratorRefKey={userLib.$decorators}
-            dollarDecoratorsTypeRefKey={$decoratorsRef}
-          />
-        </ts.SourceFile>
+        {!base.includes(".Private") && (
+          <ts.SourceFile path={`${base}.ts-test.ts`}>
+            <DecoratorSignatureTests
+              namespaceName={namespaceName}
+              dollarDecoratorRefKey={userLib.$decorators}
+              dollarDecoratorsTypeRefKey={$decoratorsRef}
+            />
+          </ts.SourceFile>
+        )}
       </ay.Output>
     </TspdContext.Provider>
   );
