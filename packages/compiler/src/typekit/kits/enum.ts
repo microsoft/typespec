@@ -95,7 +95,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return this.type.is(type) && type.kind === "Enum";
+      return type.entityKind === "Type" && type.kind === "Enum";
     },
 
     createFromUnion(type) {

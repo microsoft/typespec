@@ -160,7 +160,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return this.type.is(type) && type.kind === "Model";
+      return type.entityKind === "Type" && type.kind === "Model";
     },
 
     isExpresion(type) {

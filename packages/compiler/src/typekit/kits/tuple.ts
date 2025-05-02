@@ -25,7 +25,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   tuple: {
     is(type) {
-      return this.type.is(type) && type.kind === "Tuple";
+      return type.entityKind === "Type" && type.kind === "Tuple";
     },
     create(values: Type[] = []): Tuple {
       const tuple: Tuple = this.program.checker.createType({

@@ -36,7 +36,7 @@ defineKit<TypekitExtension>({
   record: {
     is(type) {
       return (
-        this.type.is(type) &&
+        type.entityKind === "Type" &&
         type.kind === "Model" &&
         isRecordModelType(this.program, type) &&
         type.properties.size === 0

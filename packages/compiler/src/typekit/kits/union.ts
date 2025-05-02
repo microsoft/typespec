@@ -192,7 +192,7 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return this.type.is(type) && type.kind === "Union";
+      return type.entityKind === "Type" && type.kind === "Union";
     },
 
     isValidEnum(type) {

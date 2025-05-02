@@ -69,7 +69,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return this.type.is(type) && type.kind === "EnumMember";
+      return type.entityKind === "Type" && type.kind === "EnumMember";
     },
   },
 });

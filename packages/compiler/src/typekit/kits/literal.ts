@@ -111,13 +111,13 @@ defineKit<TypekitExtension>({
     },
 
     isBoolean(type) {
-      return this.type.is(type) && type.kind === "Boolean";
+      return type.entityKind === "Type" && type.kind === "Boolean";
     },
     isString(type) {
-      return this.type.is(type) && type.kind === "String";
+      return type.entityKind === "Type" && type.kind === "String";
     },
     isNumeric(type) {
-      return this.type.is(type) && type.kind === "Number";
+      return type.entityKind === "Type" && type.kind === "Number";
     },
     is(type) {
       return (

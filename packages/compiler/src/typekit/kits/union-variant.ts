@@ -77,7 +77,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return this.type.is(type) && type.kind === "UnionVariant";
+      return type.entityKind === "Type" && type.kind === "UnionVariant";
     },
   },
 });

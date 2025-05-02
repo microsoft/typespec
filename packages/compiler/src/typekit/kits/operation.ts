@@ -59,7 +59,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   operation: {
     is(type) {
-      return this.type.is(type) && type.kind === "Operation";
+      return type.entityKind === "Type" && type.kind === "Operation";
     },
     getPagingMetadata: createDiagnosable(function (operation) {
       return getPagingOperation(this.program, operation);

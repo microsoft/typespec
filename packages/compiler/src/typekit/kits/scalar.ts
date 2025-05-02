@@ -417,7 +417,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   scalar: {
     is(type) {
-      return this.type.is(type) && type.kind === "Scalar";
+      return type.entityKind === "Type" && type.kind === "Scalar";
     },
     extendsBoolean: extendsStdType("boolean"),
     extendsBytes: extendsStdType("bytes"),

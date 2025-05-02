@@ -98,7 +98,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   modelProperty: {
     is(type) {
-      return this.type.is(type) && type.kind === "ModelProperty";
+      return type.entityKind === "Type" && type.kind === "ModelProperty";
     },
 
     getEncoding(type) {
