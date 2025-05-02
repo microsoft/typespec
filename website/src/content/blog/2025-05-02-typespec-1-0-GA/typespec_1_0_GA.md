@@ -13,24 +13,24 @@ tags:
   - announcement
 ---
 
-Today, we're thrilled to announce the general availability of TypeSpec 1.0 GA! This milestone marks the transition of TypeSpec's core components from release candidate to production-ready status. TypeSpec is a Microsoft-built, community-supported project that makes API-first development truly practical by empowering you to define your APIs in a concise, human-readable format and generate all the artifacts you need—from OpenAPI specifications to client libraries and server code scaffolding—from a single source of truth.
+Today, we're thrilled to announce the general availability of TypeSpec 1.0! This milestone marks the transition of TypeSpec's core components from `release candidate` to `stable release` status. TypeSpec is a Microsoft-built, community-supported project that makes API-first development truly practical by empowering you to define your APIs in a concise, human-readable format and generate all the artifacts you need—from OpenAPI specifications to client libraries and server code scaffolding—from a single source of truth.
 
-The Azure SDK team has considered API-first development a best practice for a long time, but implementing it effectively has remained challenging. With TypeSpec 1.0 GA, we're delivering a production-ready solution that bridges the gap between API design principles and real-world implementation, making API-first development practical for teams of all sizes.
+The Azure SDK team has considered API-first development a best practice for a long time, but implementing it effectively has remained challenging. With TypeSpec 1.0, we're delivering a stable solution that bridges the gap between API design principles and real-world implementation, making API-first development practical for teams of all sizes.
 
 ## What's new in the 1.0 release?
 
-Since our [1.0 Release Candidate announcement](/blog/typespec-1-0-RC-release/) in March, we've been working closely with the community to refine TypeSpec based on your feedback. The 1.0 GA release includes:
+Since our [1.0 Release Candidate announcement](/blog/typespec-1-0-RC-release/) in March, we've been working closely with the community to refine TypeSpec based on your feedback. The 1.0 release includes:
 
 - Bug fixes and stability improvements in the core components
 - Enhanced documentation and examples
 - Performance optimizations
 - Refined developer experience in the VS Code extension
 
-## What's included in TypeSpec 1.0 GA?
+## What's included in TypeSpec 1.0?
 
 TypeSpec 1.0 GA includes a foundation of fully supported, production-ready components alongside preview features that are still actively being developed.
 
-### 1.0 GA components
+### 1.0 components
 
 These components are now officially production-ready:
 
@@ -112,7 +112,7 @@ From this definition, TypeSpec generates everything you need to implement and co
 
 ## Looking ahead
 
-While we're celebrating the 1.0 GA release, we're also excited about the future of TypeSpec. We're actively working on several initiatives to make TypeSpec even more versatile:
+While we're celebrating the 1.0 release, we're also excited about the future of TypeSpec. We're actively working on several initiatives to make TypeSpec even more versatile:
 
 ### Model-Context Protocol (MCP) Server Emitter
 
@@ -158,4 +158,4 @@ If you're new to TypeSpec, it's easy to get started:
 
 A huge thank you to everyone who has contributed to TypeSpec, whether through code, testing, documentation, or feedback. This milestone wouldn't have been possible without the support and engagement of our growing community.
 
-We're excited to see what you build with TypeSpec 1.0 GA!
+We're excited to see what you build with TypeSpec 1.0!
