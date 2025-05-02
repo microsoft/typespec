@@ -43,29 +43,29 @@ It generates a class called TestClient with a single operation
 
 ```ts src/demoServiceClient.ts
 import {
+  createDemoServiceClientContext,
   type DemoServiceClientContext,
   type DemoServiceClientOptions,
-  createDemoServiceClientContext,
 } from "./api/demoServiceClientContext.js";
 import {
-  type ListOptions,
-  list,
-  type ReadOptions,
-  read,
-  type CreateOptions,
-  create,
-  type UpdateOptions,
-  update,
-  type DeleteOptions,
-  delete_,
-  type AnalyzeOptions,
-  analyze,
-} from "./api/widgetsClient/widgetsClientOperations.js";
-import {
+  createWidgetsClientContext,
   type WidgetsClientContext,
   type WidgetsClientOptions,
-  createWidgetsClientContext,
 } from "./api/widgetsClient/widgetsClientContext.js";
+import {
+  analyze,
+  type AnalyzeOptions,
+  create,
+  type CreateOptions,
+  delete_,
+  type DeleteOptions,
+  list,
+  type ListOptions,
+  read,
+  type ReadOptions,
+  update,
+  type UpdateOptions,
+} from "./api/widgetsClient/widgetsClientOperations.js";
 
 export class DemoServiceClient {
   #context: DemoServiceClientContext;
