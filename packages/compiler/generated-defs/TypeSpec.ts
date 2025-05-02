@@ -304,7 +304,7 @@ export type FormatDecorator = (
  */
 export type PatternDecorator = (
   context: DecoratorContext,
-  target: Scalar | ModelProperty,
+  target: Scalar | Scalar | ModelProperty,
   pattern: string,
   validationMessage?: string,
 ) => void;

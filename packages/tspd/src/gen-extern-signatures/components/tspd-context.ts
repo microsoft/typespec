@@ -27,6 +27,9 @@ export function createTspdContext(program: Program): TspdContext {
     program,
     localTypes,
     addLocalType(type: Model) {
+      if (localTypes.some((t) => t === type)) {
+        return;
+      }
       localTypes.push(type);
     },
   };
