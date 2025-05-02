@@ -1,4 +1,4 @@
-import { Diagnostic, Program, Type } from "@typespec/compiler";
+import { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -16,7 +16,7 @@ import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
 import { createHttpTestRunner, getOperationsWithServiceNamespace } from "./test-host.js";
 
-function isNullableUnion(program: Program, union: Type): boolean {
+function checkNullableUnion(program: Program, union: Type): boolean {
   return (
     $(program).union.is(union) &&
     union.variants.size === 2 &&
@@ -24,15 +24,13 @@ function isNullableUnion(program: Program, union: Type): boolean {
   );
 }
 
-function extractFromUnion<T extends Type>(
-  program: Program,
-  union: Type,
-  extract: T,
-): T[] | undefined {
+function getNonNullableType(program: Program, union: Type): Type | undefined {
   if (!$(program).union.is(union)) return undefined;
-  return [...union.variants.values()]
-    .filter((v) => $(program).type.isAssignableTo(v.type, extract))
-    .flatMap((variant) => variant.type) as T[];
+  const values = [...union.variants.values()]
+    .filter((v) => v.type !== $(program).intrinsic.null)
+    .flatMap((variant) => variant.type);
+  if (values.length !== 1) return undefined;
+  return values[0];
 }
 
 async function compileAndDiagnoseWithRunner(
@@ -61,8 +59,8 @@ describe("merge-patch: http operation support", () => {
       }
       @patch op update(@body body: MergePatchUpdate<Foo>): void;`);
     expectDiagnosticEmpty(diag);
-    ok(program[0].parameters?.body?.contentTypes);
-    deepStrictEqual(program[0].parameters.body.contentTypes, ["application/merge-patch+json"]);
+    expect(program[0].parameters?.body?.contentTypes).toBeDefined();
+    expect(program[0].parameters?.body?.contentTypes).toEqual(["application/merge-patch+json"]);
   });
   it("uses the merge-patch content type for explicit bodyRoot", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
@@ -73,8 +71,8 @@ describe("merge-patch: http operation support", () => {
       }
       @patch op update(@bodyRoot body: MergePatchUpdate<Foo>): void;`);
     expectDiagnosticEmpty(diag);
-    ok(program[0].parameters?.body?.contentTypes);
-    deepStrictEqual(program[0].parameters.body.contentTypes, ["application/merge-patch+json"]);
+    expect(program[0].parameters?.body?.contentTypes).toBeDefined();
+    expect(program[0].parameters?.body?.contentTypes).toEqual(["application/merge-patch+json"]);
   });
   it("uses the merge-patch content type for implicit body", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
@@ -85,10 +83,22 @@ describe("merge-patch: http operation support", () => {
       }
       @patch op update(body: MergePatchUpdate<Foo>): void;`);
     expectDiagnosticEmpty(diag);
-    ok(program[0].parameters?.body?.contentTypes);
-    deepStrictEqual(program[0].parameters.body.contentTypes, ["application/merge-patch+json"]);
+    expect(program[0].parameters?.body?.contentTypes).toBeDefined();
+    expect(program[0].parameters?.body?.contentTypes).toEqual(["application/merge-patch+json"]);
   });
-  it("emits a diagnostic if content-type is specified with merge-patch", async () => {
+  it("uses the merge-patch content type for spread", async () => {
+    const [program, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        @path id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(...MergePatchUpdate<Foo>): void;`);
+    expectDiagnosticEmpty(diag);
+    expect(program[0].parameters?.body?.contentTypes).toBeDefined();
+    expect(program[0].parameters?.body?.contentTypes).toEqual(["application/merge-patch+json"]);
+  });
+  it("emits a diagnostic if content-type is specified with merge-patch @body", async () => {
     const [_, diag] = await getOperationsWithServiceNamespace(`
       model Foo {
         id: string;
@@ -101,6 +111,74 @@ describe("merge-patch: http operation support", () => {
       message:
         "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
     });
+  });
+  it("emits a diagnostic if content-type is specified with merge-patch union @body", async () => {
+    const [_, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@header("Content-type") contentType: "application/json", @body body: MergePatchUpdate<Foo> | null): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-content-type",
+      message:
+        "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
+    });
+  });
+  it("emits a diagnostic if content-type is specified with merge-patch @bodyRoot", async () => {
+    const [_, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@header("Content-type") contentType: "application/json", @bodyRoot body: MergePatchUpdate<Foo>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-content-type",
+      message:
+        "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
+    });
+  });
+  it("emits a diagnostic if content-type is specified with implicit body", async () => {
+    const [_, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@header("Content-type") contentType: "application/json", body: MergePatchUpdate<Foo>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-content-type",
+      message:
+        "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
+    });
+  });
+
+  it("emits a diagnostic if content-type is specified with spread", async () => {
+    const [_, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@header("Content-type") contentType: "application/json", ...MergePatchUpdate<Foo>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-content-type",
+      message:
+        "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
+    });
+  });
+
+  it("allows setting a compatible content-type with MergePatch", async () => {
+    const [_, diag] = await getOperationsWithServiceNamespace(`
+      model Foo {
+        id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@header("Content-type") contentType: "application/merge-patch+json", ...MergePatchUpdate<Foo>): void;`);
+    expectDiagnosticEmpty(diag);
   });
 });
 describe("merge-patch: mutator validation", () => {
@@ -124,17 +202,58 @@ describe("merge-patch: mutator validation", () => {
     const bodyType = program[0].parameters?.body?.type;
     ok(bodyType);
     deepStrictEqual(bodyType.kind, "Model");
-    deepStrictEqual(bodyType.properties.get("id")?.optional, true);
-    deepStrictEqual(bodyType.properties.get("name")?.optional, true);
+    expect(bodyType.properties.get("id")?.optional).toBe(true);
+    expect(bodyType.properties.get("name")?.optional).toBe(true);
     const description = bodyType.properties.get("description");
     ok(description);
-    deepStrictEqual(description.optional, true);
-    deepStrictEqual(isNullableUnion(runner.program, description.type), true);
+    expect(description.optional).toBe(true);
+    expect(checkNullableUnion(runner.program, description!.type)).toBe(true);
   });
+
+  function checkProperty(
+    model: Model,
+    name: string,
+    optional: boolean,
+    kind: TypeKind,
+    typeName?: string,
+  ): ModelProperty {
+    const prop = model.properties.get(name);
+    ok(prop);
+    expect(prop.optional).toBe(optional);
+    deepStrictEqual(prop.type.kind, kind);
+    if (typeName && (prop.type.kind === "Model" || prop.type.kind === "Scalar")) {
+      expect(prop.type.name).toStrictEqual(typeName);
+    }
+    return prop;
+  }
+
+  function isNullableUnion(property: ModelProperty) {
+    deepStrictEqual(property.type.kind, "Union");
+    expect(checkNullableUnion(runner.program, property.type)).toBe(true);
+    return property;
+  }
+
+  function validateResource(model: Model): void {
+    checkProperty(model, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(model, "name", true, "Union"));
+    isNullableUnion(checkProperty(model, "quantity", true, "Union"));
+    expect(
+      isNullableUnion(checkProperty(model, "color", true, "Union")).defaultValue,
+    ).toBeUndefined();
+    expect(
+      isNullableUnion(checkProperty(model, "flavor", true, "Union")).defaultValue,
+    ).toBeUndefined();
+    expect(checkProperty(model, "related", true, "Union").defaultValue).toBeUndefined();
+  }
   it("correctly transforms complex type properties", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
       runner,
       `
+      model SubResource {
+        name: string;
+        description?: string;
+      }
+
       model Resource {
        id: string;
        name?: string;
@@ -142,41 +261,38 @@ describe("merge-patch: mutator validation", () => {
        color: "blue" | "green" | "red" = "blue";
        flavor?: "vanilla" | "chocolate" | "strawberry" = "vanilla";
        related?: Record<Resource>;
+       children?: SubResource[];
        tags?: string[];
      }
-      @patch op update(@body body: MergePatchUpdate<Resource>): void;`,
+      @patch op update(@body body: MergePatchUpdate<Resource>): Resource;`,
     );
     expectDiagnosticEmpty(diag);
     const bodyType = typeGraph[0].parameters?.body?.type;
     ok(bodyType);
     deepStrictEqual(bodyType.kind, "Model");
-    const idProp = bodyType.properties.get("id");
-    ok(idProp);
-    deepStrictEqual(idProp.optional, true);
-    deepStrictEqual($(runner.program).scalar.isString(idProp.type), true);
-    const nameProp = bodyType.properties.get("name");
-    ok(nameProp);
-    deepStrictEqual(nameProp.optional, true);
-    deepStrictEqual(isNullableUnion(runner.program, nameProp.type), true);
-    const quantity = bodyType.properties.get("quantity");
-    ok(quantity);
-    deepStrictEqual(quantity.optional, true);
-    deepStrictEqual(isNullableUnion(runner.program, quantity.type), true);
-    const color = bodyType.properties.get("color");
-    ok(color);
-    deepStrictEqual(color.optional, true);
-    expect(color.defaultValue).toBeUndefined();
-    deepStrictEqual(isNullableUnion(runner.program, color.type), true);
-    const flavor = bodyType.properties.get("flavor");
-    ok(flavor);
-    deepStrictEqual(flavor.optional, true);
-    expect(flavor.defaultValue).toBeUndefined();
-    deepStrictEqual(isNullableUnion(runner.program, flavor.type), true);
-    const related = bodyType.properties.get("related");
+    validateResource(bodyType);
+    const related = checkProperty(bodyType, "related", true, "Union");
     ok(related);
-    deepStrictEqual(related.optional, true);
-    expect(related.defaultValue).toBeUndefined();
-    deepStrictEqual(isNullableUnion(runner.program, related.type), true);
+    expect(checkNullableUnion(runner.program, related.type)).toBe(true);
+    const resource = getNonNullableType(runner.program, related.type);
+    ok(resource);
+    deepStrictEqual(resource.kind, "Model");
+    const valueResource = $(runner.program).record.getElementType(resource);
+    ok(valueResource);
+    deepStrictEqual(valueResource.kind, "Model");
+    validateResource(valueResource);
+    const array = checkProperty(bodyType, "children", true, "Union");
+    ok(array);
+    deepStrictEqual(array.type.kind, "Union");
+    const realArray = getNonNullableType(runner.program, array.type);
+    ok(realArray);
+    deepStrictEqual(realArray.kind, "Model");
+    expect($(runner.program).array.is(realArray)).toBe(true);
+    const arraySchema = $(runner.program).array.getElementType(realArray);
+    ok(arraySchema);
+    deepStrictEqual(arraySchema.kind, "Model");
+    checkProperty(arraySchema, "name", false, "Scalar", "string");
+    checkProperty(arraySchema, "description", true, "Scalar", "string");
   });
 });
 describe("merge-patch: emitter apis", () => {
@@ -200,31 +316,31 @@ describe("merge-patch: emitter apis", () => {
     const bodyType = program[0].parameters?.body?.type;
     ok(bodyType);
     deepStrictEqual(bodyType.kind, "Model");
-    deepStrictEqual(isMergePatch(runner.program, bodyType), true);
+    expect(isMergePatch(runner.program, bodyType)).toBe(true);
     const sourceModel = getMergePatchSource(runner.program, bodyType);
     ok(sourceModel);
     deepStrictEqual(sourceModel.kind, "Model");
-    deepStrictEqual(sourceModel.name, "Foo");
+    expect(sourceModel.name).toStrictEqual("Foo");
     const nameProp = bodyType.properties.get("name");
     ok(nameProp);
     let mpProps = getMergePatchProperties(runner.program, nameProp);
     ok(mpProps);
-    deepStrictEqual(mpProps.erasable, false);
-    deepStrictEqual(mpProps.updateBehavior, "replace");
+    expect(mpProps.erasable).toBe(false);
+    expect(mpProps.updateBehavior).toStrictEqual("replace");
     deepStrictEqual(mpProps.sourceProperty, sourceModel.properties.get("name"));
     const idProp = bodyType.properties.get("id");
     ok(idProp);
     mpProps = getMergePatchProperties(runner.program, idProp);
     ok(mpProps);
-    deepStrictEqual(mpProps.erasable, false);
-    deepStrictEqual(mpProps.updateBehavior, "replace");
+    expect(mpProps.erasable).toBe(false);
+    expect(mpProps.updateBehavior).toStrictEqual("replace");
     deepStrictEqual(mpProps.sourceProperty, sourceModel.properties.get("id"));
     const descriptionProp = bodyType.properties.get("description");
     ok(descriptionProp);
     mpProps = getMergePatchProperties(runner.program, descriptionProp);
     ok(mpProps);
-    deepStrictEqual(mpProps.erasable, true);
-    deepStrictEqual(mpProps.updateBehavior, "replace");
+    expect(mpProps.erasable).toBe(true);
+    expect(mpProps.updateBehavior).toStrictEqual("replace");
     deepStrictEqual(mpProps.sourceProperty, sourceModel.properties.get("description"));
   });
 });

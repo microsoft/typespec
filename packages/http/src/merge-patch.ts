@@ -143,6 +143,9 @@ function createMergePatchMutator(
     _replaceInteriorMutator?: Mutator,
     _optionalInteriorMutator?: Mutator,
   ): Mutator {
+    function isReplaceMutator(): boolean {
+      return _replaceInteriorMutator === undefined;
+    }
     const mpMutator: Mutator = {
       name: `MergePatchProperty${visibilityMode}`,
       ModelProperty: {
@@ -175,8 +178,8 @@ function createMergePatchMutator(
 
           clone.decorators = decorators;
           resetVisibilityModifiersForClass(program, clone, Lifecycle);
-          clone.optional = true;
-          clone.defaultValue = undefined;
+          clone.optional = isReplaceMutator() ? prop.optional : true;
+          clone.defaultValue = isReplaceMutator() ? prop.defaultValue : undefined;
 
           if (isMutableType(prop.type)) {
             const mutated = prop.optional
@@ -189,7 +192,8 @@ function createMergePatchMutator(
           }
 
           // If the property is _effectively_ optional, we need to make this nullable.
-          const isEffectivelyOptional = prop.optional || prop.defaultValue !== undefined;
+          const isEffectivelyOptional =
+            !isReplaceMutator() && (prop.optional || prop.defaultValue !== undefined);
 
           if (isEffectivelyOptional) clone.type = nullable(realm, clone.type);
           ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
@@ -228,7 +232,11 @@ function createMergePatchMutator(
           } else if ($(realm).record.is(model) && isMutableType(model.indexer!.value)) {
             clone.indexer = {
               key: model.indexer!.key,
-              value: mutateSubgraph(program, [self], model.indexer!.value).type,
+              value: mutateSubgraph(
+                program,
+                [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
+                model.indexer!.value,
+              ).type,
             };
           }
 
@@ -254,7 +262,11 @@ function createMergePatchMutator(
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (prop, clone, program) => {
           if (isMutableType(prop.type)) {
-            clone.type = mutateSubgraph(program, [self], prop.type).type;
+            clone.type = mutateSubgraph(
+              program,
+              [prop.optional ? (_optionalInteriorMutator ?? self) : self],
+              prop.type,
+            ).type;
           }
           ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
@@ -263,7 +275,11 @@ function createMergePatchMutator(
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (variant, clone, program) => {
           if (isMutableType(variant.type)) {
-            const mutated = mutateSubgraph(program, [self], variant.type);
+            const mutated = mutateSubgraph(
+              program,
+              [_optionalInteriorMutator || self],
+              variant.type,
+            );
             clone.type = mutated.type;
           }
         },

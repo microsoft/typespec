@@ -15,14 +15,13 @@ import {
   getEncode,
   getMediaTypeHint,
   isArrayModelType,
-  isRecordModelType,
   navigateType,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
-import { isMergePatch } from "./experimental/merge-patch/helpers.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import {
   GetHttpPropertyOptions,
   HeaderProperty,
@@ -662,28 +661,8 @@ function resolveContentTypesForBody(
   return diagnostics.wrap(resolve());
 
   function resolve(): ResolvedContentType {
-    function isMergePatchBody(bodyType: Type): boolean {
-      switch (bodyType.kind) {
-        case "Model":
-          if (isMergePatch(program, bodyType)) return true;
-          if (isArrayModelType(program, bodyType) || isRecordModelType(program, bodyType))
-            return isMergePatchBody(bodyType.indexer.value);
-          return [...bodyType.properties.values()].some((p) => isMergePatchBody(p.type));
-        case "ModelProperty":
-          return isMergePatchBody(bodyType.type);
-        case "Union":
-          return [...bodyType.variants.values()].some((v) => isMergePatchBody(v.type));
-        case "UnionVariant":
-          return isMergePatchBody(bodyType.type);
-        case "Tuple":
-          return bodyType.values.some((v) => isMergePatchBody(v));
-        default:
-          return false;
-      }
-    }
-
     let mpContentType: string | undefined;
-    if (isMergePatchBody(type)) {
+    if (isMergePatchBody(program, type)) {
       mpContentType = "application/merge-patch+json";
     }
     if (contentTypeProperty) {
