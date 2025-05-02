@@ -53,8 +53,8 @@ import {
   isSecret,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
 import { capitalize } from "@typespec/compiler/casing";
+import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
