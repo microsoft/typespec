@@ -8,7 +8,7 @@ import {
   DecoratorSignatureType,
   ValueOfModelTsInterfaceBody,
 } from "./decorator-signature-type.jsx";
-import { DollarDecoratorsType } from "./dollard-decorators-type.jsx";
+import { DollarDecoratorsType } from "./dollar-decorators-type.jsx";
 import { createTspdContext, TspdContext, useTspd } from "./tspd-context.js";
 
 export interface DecoratorSignaturesProps {

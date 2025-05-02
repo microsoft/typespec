@@ -15,7 +15,7 @@ export function Models(props: ModelsProps) {
   const dataTypes = clientLibrary.dataTypes;
   return (
     <ts.SourceFile path={props.path ?? "models.ts"}>
-      <For each={dataTypes} joiner={"\n"} hardline>
+      <For each={dataTypes} hardline>
         {(type) => {
           if ($.model.is(type) && $.model.isHttpFile(type)) {
             return (
