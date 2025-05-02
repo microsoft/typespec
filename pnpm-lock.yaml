@@ -2174,6 +2174,12 @@ importers:
 
   packages/tspd:
     dependencies:
+      '@alloy-js/core':
+        specifier: ^0.15.0
+        version: 0.15.0
+      '@alloy-js/typescript':
+        specifier: ^0.15.0
+        version: 0.15.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2196,6 +2202,12 @@ importers:
         specifier: ~17.7.2
         version: 17.7.2
     devDependencies:
+      '@alloy-js/cli':
+        specifier: ^0.15.0
+        version: 0.15.0
+      '@alloy-js/rollup-plugin':
+        specifier: ^0.1.0
+        version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.1)
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.17
