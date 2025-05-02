@@ -90,7 +90,10 @@ export function generateSignatures(
           />
         </ts.SourceFile>
         {!base.includes(".Private") && (
-          <ts.SourceFile path={`${base}.ts-test.ts`}>
+          <ts.SourceFile
+            path={`${base}.ts-test.ts`}
+            headerComment="An error in the imports would mean that the decorator is not exported or doesn't have the right name."
+          >
             <DecoratorSignatureTests
               namespaceName={namespaceName}
               dollarDecoratorRefKey={userLib.$decorators}

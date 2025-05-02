@@ -14,10 +14,6 @@ export function DecoratorSignatureTests({
 }: Readonly<DecoratorSignatureTests>) {
   return (
     <>
-      <ts.JSDoc>
-        An error in the imports would mean that the decorator is not exported or doesn't have the
-        right name.
-      </ts.JSDoc>
       <hbr />
       <hbr />
       <ts.VarDeclaration
