@@ -14,3 +14,11 @@ updates:
       include: "scope"
     labels:
       - "emitter:client:python"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      alloy:
+        patterns:
+          - "@alloy-js/"
