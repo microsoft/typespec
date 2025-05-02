@@ -2,7 +2,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { efRefkey } from "../utils/refkey.js";
+import { declarationRefkey } from "../utils/refkey.js";
 import { UnionExpression } from "./union-expression.js";
 
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -19,7 +19,7 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
   }
 
   const { type, ...coreProps } = props;
-  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
+  const refkey = declarationRefkey(props.refkey, props.type);
 
   const originalName = coreProps.name ?? type.name;
 

@@ -2,7 +2,7 @@ import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
-import { efRefkey } from "../utils/refkey.js";
+import { declarationRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
@@ -29,7 +29,9 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   if (!originalName || originalName === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-  const refkey = props.refkey ?? efRefkey(props.type);
+
+  const refkey = declarationRefkey(props.refkey, props.name);
+
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (
     <ts.TypeDeclaration {...props} name={name} refkey={refkey}>

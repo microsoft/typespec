@@ -1,7 +1,7 @@
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
-import { efRefkey } from "../utils/refkey.js";
+import { declarationRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
@@ -25,7 +25,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     return <ts.FunctionDeclaration {...props} />;
   }
 
-  const refkey = [props.refkey ?? [], efRefkey(props.type)].flat();
+  const refkey = declarationRefkey(props.refkey, props.type);
 
   let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 
