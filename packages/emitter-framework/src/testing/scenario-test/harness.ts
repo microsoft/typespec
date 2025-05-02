@@ -28,7 +28,7 @@ const filterPaths = args.filter
   : undefined;
 
 const SCENARIOS_UPDATE =
-  process.env["SCENARIOS_UPDATE"] === "true" || process.env["RECORD"] === "true";
+  process.env["RECORD"] === "true" || process.env["SCENARIOS_UPDATE"] === "true";
 
 type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
 
