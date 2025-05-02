@@ -24,6 +24,7 @@ export interface HttpPartKit {
   unpack(type: Type): Type;
 }
 
+/** @typekit */
 export interface TypekitExtension {
   httpPart: HttpPartKit;
 }
