@@ -93,13 +93,6 @@ export {
   setSharedRoute,
 } from "./route.js";
 
-export {
-  MergePatchProperties,
-  getMergePatchProperties,
-  getMergePatchSource,
-  isMergePatch,
-} from "./merge-patch.js";
-
 export type {
   AnyHttpAuthRef,
   ApiKeyAuth,

@@ -1,13 +1,17 @@
-import { Diagnostic, Program, Type, Union } from "@typespec/compiler";
-import { unsafe_$ as $ } from "@typespec/compiler/experimental";
+import { Diagnostic, Program, Type } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { deepStrictEqual, ok } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { getMergePatchProperties, getMergePatchSource, isMergePatch } from "../src/merge-patch.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  getMergePatchProperties,
+  getMergePatchSource,
+  isMergePatch,
+} from "../src/experimental/merge-patch/helpers.js";
 import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
 import { createHttpTestRunner, getOperationsWithServiceNamespace } from "./test-host.js";
@@ -20,9 +24,15 @@ function isNullableUnion(program: Program, union: Type): boolean {
   );
 }
 
-function extractFromUnion<T extends Type>(program: Program, union: Type, extract: T): T[] | undefined {
+function extractFromUnion<T extends Type>(
+  program: Program,
+  union: Type,
+  extract: T,
+): T[] | undefined {
   if (!$(program).union.is(union)) return undefined;
-  return [...union.variants.values()].filter(v => $(program).type.isAssignableTo(v.type, extract)).flatMap(variant => variant.type) as T[];
+  return [...union.variants.values()]
+    .filter((v) => $(program).type.isAssignableTo(v.type, extract))
+    .flatMap((variant) => variant.type) as T[];
 }
 
 async function compileAndDiagnoseWithRunner(
@@ -87,7 +97,7 @@ describe("merge-patch: http operation support", () => {
       }
       @patch op update(@header("Content-type") contentType: "application/json", @body body: MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
-      code: "merge-patch-content-type",
+      code: "@typespec/http/merge-patch-content-type",
       message:
         "The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type 'application/json'.",
     });
@@ -143,11 +153,11 @@ describe("merge-patch: mutator validation", () => {
     const idProp = bodyType.properties.get("id");
     ok(idProp);
     deepStrictEqual(idProp.optional, true);
-    deepStrictEqual($(runner.program).scalar.isString(idProp.type), true)
+    deepStrictEqual($(runner.program).scalar.isString(idProp.type), true);
     const nameProp = bodyType.properties.get("name");
     ok(nameProp);
     deepStrictEqual(nameProp.optional, true);
-    deepStrictEqual(isNullableUnion(runner.program, nameProp.type), true)
+    deepStrictEqual(isNullableUnion(runner.program, nameProp.type), true);
     const quantity = bodyType.properties.get("quantity");
     ok(quantity);
     deepStrictEqual(quantity.optional, true);
@@ -155,19 +165,18 @@ describe("merge-patch: mutator validation", () => {
     const color = bodyType.properties.get("color");
     ok(color);
     deepStrictEqual(color.optional, true);
-    deepStrictEqual(color.defaultValue, undefined);
+    expect(color.defaultValue).toBeUndefined();
     deepStrictEqual(isNullableUnion(runner.program, color.type), true);
     const flavor = bodyType.properties.get("flavor");
     ok(flavor);
     deepStrictEqual(flavor.optional, true);
-    deepStrictEqual(flavor.defaultValue, undefined);
+    expect(flavor.defaultValue).toBeUndefined();
     deepStrictEqual(isNullableUnion(runner.program, flavor.type), true);
     const related = bodyType.properties.get("related");
     ok(related);
     deepStrictEqual(related.optional, true);
-    deepStrictEqual(related.defaultValue, undefined);
+    expect(related.defaultValue).toBeUndefined();
     deepStrictEqual(isNullableUnion(runner.program, related.type), true);
-    $(runner.program).union.
   });
 });
 describe("merge-patch: emitter apis", () => {
