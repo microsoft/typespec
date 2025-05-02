@@ -1412,10 +1412,7 @@ export class CSharpOperationHelpers {
           serializeValueAsJson(this.emitter.getProgram(), defaultValue, tsType),
         );
       case "Union":
-        const { typeReference: typeRef, nullableType: nullable } = this.getUnionInfo(
-          program,
-          tsType,
-        );
+        const { typeReference: typeRef } = this.getUnionInfo(program, tsType);
         if (defaultValue.valueKind === "StringValue" && isStringEnumType(program, tsType)) {
           const matches = [...tsType.variants].filter(
             (v) =>

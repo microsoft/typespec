@@ -1715,6 +1715,7 @@ it("handles implicit request body models correctly", async () => {
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+      ["ContosoOperationsFooRequest.cs", ["namespace Microsoft.Contoso {"]],
     ],
   );
 });
@@ -2116,6 +2117,7 @@ it("Handles spread parameters", async () => {
           "public Task<Widget> CreateAsync( string id, string color, string? kind)",
         ],
       ],
+      ["ContosoOperationsCreateRequest.cs", ["namespace Microsoft.Contoso {"]],
       [
         "ContosoOperationsController.cs",
         [
