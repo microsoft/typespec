@@ -3,12 +3,11 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./base-layout.astro";
 import { resolveBlogImagePath } from "../pages/blog/resolve-image";
 import { resolveAuthorAvatar } from "../utils/resolve-author-avatar";
-import { format } from "date-fns/format";
 import { Image } from "astro:assets";
 import BlogAuthor from "../components/BlogAuthor.astro";
 
 type Props = CollectionEntry<"blog">["data"];
-const { title, image: relativeImage, publishDate, author, authorAvatar, authors } = Astro.props;
+const { title, image: relativeImage, author, authorAvatar, authors } = Astro.props;
 const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage));
 // Fixed height value for all images
 const fixedHeight = 360;
