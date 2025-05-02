@@ -35,10 +35,8 @@ const { post, isRedirect } = Astro.props;
 // If this is a redirect path, redirect to the actual post URL
 // Include trailing slash since trailingSlash is set to always
 if (isRedirect) {
-  // Get the proper slug to use - prioritize data.slug, then post.slug
-  // Define it directly in the if block to make TypeScript recognize it's being used
-  const redirectTarget = `/blog/${post.data.slug || post.slug}/`;
-  return Astro.redirect(redirectTarget);
+  // Perform the redirect directly without creating an intermediate variable
+  return Astro.redirect(`/blog/${post.data.slug || post.slug}/`);
 }
 
 const { Content } = await post.render();
