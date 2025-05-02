@@ -365,7 +365,6 @@ function getDocComment(type: Type): string {
 
   const docLines = [...mainContentLines, ...(tagLines.length > 0 ? [""] : []), ...tagLines];
   return docLines.join("\n");
-  // return "/**\n" + docLines.map((x) => `* ${x}`).join("\n") + "\n*/\n";
 }
 
 function sanitizeDocComment(doc: string): string {
