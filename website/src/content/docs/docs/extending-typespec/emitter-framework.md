@@ -73,8 +73,8 @@ If you run this emitter, you will see a `src` directory and a `README.md` file i
 
 The emitter framework provides two components to allow easy access to typekits from within components:
 
-- `<TspContext.Provider value={Program}>` - accepts a TypeSpec `Program`, and makes it and ready to use typekits available in any child components via the `useTsp()` hook.
-- `<Output program={Program}>` - wrapper around the core alloy `Output` component that additionally takes a TypeSpec `Program` to allow use of the `useTsp()` hook in any child component.
+- `<Output program={Program}>` - wrapper around the core alloy `Output` component that additionally takes a TypeSpec `Program` to allow use of the `useTsp()` hook for easy access to typekits and the program in any child component.
+- `<TspContext.Provider value={Program}>` - accepts a TypeSpec `Program` to allow use of the `useTsp()` hook for easy access to typekits and the program in any child component. This is used internally by `<Output>`.
 
 ## TypeScript Emitter Framework Components
 
