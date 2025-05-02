@@ -53,6 +53,7 @@ import {
   isSecret,
   resolveEncodedName,
 } from "@typespec/compiler";
+import { capitalize } from "@typespec/compiler/casing";
 import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
@@ -860,10 +861,3 @@ export const Builders = {
     return builder;
   },
 } as const;
-
-/**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}

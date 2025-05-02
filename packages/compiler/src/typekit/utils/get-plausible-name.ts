@@ -1,3 +1,4 @@
+import { capitalize } from "../../casing/index.js";
 import { isTemplateInstance } from "../../core/type-utils.js";
 import { Enum, Interface, Model, Scalar, Union } from "../../core/types.js";
 
@@ -14,9 +15,9 @@ export function getPlausibleName(type: Model | Union | Enum | Scalar | Interface
         if (a.entityKind === "Type") {
           switch (a.kind) {
             case "Scalar":
-              // Box<scalar> is not a scalar so capital case naming convention applies
               const name = getPlausibleName(a);
-              return name.charAt(0).toUpperCase() + name.slice(1);
+              // Box<scalar> is not a scalar so capital case naming convention applies
+              return capitalize(name);
             case "Model":
             case "Interface":
             case "Enum":
