@@ -5,17 +5,15 @@ import {
   ApiPropertySignature,
   Excerpt,
 } from "@microsoft/api-extractor-model";
-import { type DocComment } from "@microsoft/tsdoc";
+import { type DocComment, type DocSection } from "@microsoft/tsdoc";
 import { joinPaths, PackageJson } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
 import { createTypekitDocs } from "./components/typekits-file.js";
 
-export interface LibraryApiModel {}
-
 export interface TypekitApi {
   typeName: string;
-  doc: string;
+  doc?: DocSection;
   entries: Record<string, TypekitEntryDoc>;
 }
 
@@ -25,7 +23,7 @@ export interface TypekitFunctionDoc {
   name: string;
   path: string[];
   parameters?: TsFunctionParameter[];
-  docComment: DocComment | undefined;
+  docComment?: DocComment;
   excerpt: Excerpt;
 }
 
@@ -70,8 +68,7 @@ async function getTypekitApi(
   function resolveTypekit(iface: ApiInterface, path: string[] = []): TypekitApi {
     const typekit: TypekitApi = {
       typeName: iface.displayName,
-      doc: "abc",
-      // docComment: iface.tsdocComment,
+      doc: iface.tsdocComment?.summarySection,
       entries: {},
     };
     for (const member of iface.members) {
@@ -110,7 +107,6 @@ async function getTypekitApi(
   }
 
   return {
-    doc: "TODO doc",
     typeName: "TODO",
     entries: Object.fromEntries(typekits.flatMap((kit) => Object.entries(kit.entries))),
   };

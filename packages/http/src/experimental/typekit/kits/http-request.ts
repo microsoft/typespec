@@ -32,6 +32,7 @@ interface HttpRequestKit {
   ): Model | undefined;
 }
 
+/** @typekit */
 interface TypekitExtension {
   httpRequest: HttpRequestKit;
 }

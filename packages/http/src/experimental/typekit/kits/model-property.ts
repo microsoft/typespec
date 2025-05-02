@@ -60,6 +60,7 @@ export interface HttpModelProperty {
   isHttpMultipartBody(prop: ModelProperty): boolean;
 }
 
+/** @typekit */
 interface TypekitExtension {
   modelProperty: HttpModelProperty;
 }

@@ -14,6 +14,7 @@ export interface HttpModel {
   isHttpFile(model: Model): boolean;
 }
 
+/** @typekit */
 interface TypekitExtension {
   model: HttpModel;
 }

@@ -59,6 +59,7 @@ export interface FlatHttpResponse {
   type: Type;
 }
 
+/** @typekit */
 interface TypekitExtension {
   /**
    * Utilities for working with HTTP operations.

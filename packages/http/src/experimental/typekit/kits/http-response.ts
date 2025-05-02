@@ -34,6 +34,7 @@ export interface HttpResponseKit {
   };
 }
 
+/** @typekit */
 interface TypekitExtension {
   /**
    * Utilities for working with HTTP responses.

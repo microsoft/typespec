@@ -1,16 +1,16 @@
 import * as ay from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import { TypekitApi, TypekitFunctionDoc } from "../typekit-docs.js";
+import { TsDoc } from "./tsdoc.jsx";
 
 export interface TypekitSectionProps {
   readonly typekit: TypekitApi;
 }
 
 export function TypekitSection(props: TypekitSectionProps) {
-  console.log("TypekitSection", props.typekit);
   return (
     <md.Section heading={props.typekit.typeName}>
-      <ay.Prose>{props.typekit.doc}</ay.Prose>
+      <ay.Prose>{props.typekit.doc && <TsDoc node={props.typekit.doc} />}</ay.Prose>
       <ay.For each={Object.values(props.typekit.entries)}>
         {(x) => <TypekitFunction typekit={x as any} />}
       </ay.For>
