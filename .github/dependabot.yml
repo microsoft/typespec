@@ -22,3 +22,5 @@ updates:
       alloy:
         patterns:
           - "@alloy-js/"
+    allow:
+      - dependency-name: "@alloy-js/*"
