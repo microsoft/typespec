@@ -1,4 +1,11 @@
-import { emitFile, interpolatePath, type EmitContext } from "@typespec/compiler";
+import {
+  emitFile,
+  interpolatePath,
+  navigateProgram,
+  type EmitContext,
+  type Model,
+  type Namespace,
+} from "@typespec/compiler";
 import type { ResolvedGraphQLEmitterOptions } from "./emitter.js";
 import type { GraphQLEmitterOptions } from "./lib.js";
 
@@ -7,20 +14,33 @@ export function createGraphQLEmitter(
   options: ResolvedGraphQLEmitterOptions,
 ) {
   const program = context.program;
+  const placeholderSchema = `query { hello: String }`;
 
   return {
     emitGraphQL,
   };
 
   async function emitGraphQL() {
-    // replace this with the real emitter code
     if (!program.compilerOptions.noEmit) {
       const filePath = interpolatePath(options.outputFile, { "schema-name": "schema" });
+      navigateProgram(program, semanticNodeListener());
       await emitFile(program, {
         path: filePath,
-        content: "",
+        content: placeholderSchema,
         newLine: options.newLine,
       });
     }
+  }
+
+  function semanticNodeListener() {
+    // TODO: Add GraphQL types to registry as the TSP nodes are visited
+    return {
+      namespace: (namespace: Namespace) => {
+        {}
+      },
+      model: (model: Model) => {
+        {}
+      },
+    };
   }
 }

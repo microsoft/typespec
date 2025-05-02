@@ -36,6 +36,8 @@
     "documents": "test/**/*.{js,ts}"
   },
   "dependencies": {
+    "@alloy-js/core": "^0.11.0",
+    "@alloy-js/typescript": "^0.11.0",
     "graphql": "^16.9.0"
   },
   "scripts": {
@@ -53,11 +55,11 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
+    "@typespec/compiler": "workspace:~",
+    "@typespec/emitter-framework": "^0.5.0"
   },
   "devDependencies": {
     "@types/node": "~22.13.13",
-    "@typespec/compiler": "workspace:~",
     "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
     "typescript": "~5.8.2",
