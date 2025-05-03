@@ -8,7 +8,7 @@ title: "[API] Typekits"
 
 Utilities for working with Models in the context of Http.
 
-### isHttpFile
+### model.isHttpFile
 
 ```ts
 /**
@@ -23,7 +23,7 @@ $(program).model.isHttpFile(model: Model): boolean;
 
 Utilities for working with model properties in the context of Http.
 
-### getHttpHeaderOptions
+### modelProperty.getHttpHeaderOptions
 
 ```ts
 /**
@@ -34,7 +34,7 @@ Utilities for working with model properties in the context of Http.
 $(program).modelProperty.getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
 ```
 
-### getHttpParamOptions
+### modelProperty.getHttpParamOptions
 
 ```ts
 /**
@@ -45,7 +45,7 @@ $(program).modelProperty.getHttpHeaderOptions(prop: ModelProperty): HeaderFieldO
 $(program).modelProperty.getHttpParamOptions(prop: ModelProperty): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
 ```
 
-### getHttpPathOptions
+### modelProperty.getHttpPathOptions
 
 ```ts
 /**
@@ -56,7 +56,7 @@ $(program).modelProperty.getHttpParamOptions(prop: ModelProperty): HeaderFieldOp
 $(program).modelProperty.getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
 ```
 
-### getHttpQueryOptions
+### modelProperty.getHttpQueryOptions
 
 ```ts
 /**
@@ -67,7 +67,7 @@ $(program).modelProperty.getHttpPathOptions(prop: ModelProperty): PathParameterO
 $(program).modelProperty.getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
 ```
 
-### isHttpHeader
+### modelProperty.isHttpHeader
 
 ```ts
 /**
@@ -78,7 +78,7 @@ $(program).modelProperty.getHttpQueryOptions(prop: ModelProperty): QueryParamete
 $(program).modelProperty.isHttpHeader(prop: ModelProperty): boolean;
 ```
 
-### isHttpMultipartBody
+### modelProperty.isHttpMultipartBody
 
 ```ts
 /**
@@ -89,7 +89,7 @@ $(program).modelProperty.isHttpHeader(prop: ModelProperty): boolean;
 $(program).modelProperty.isHttpMultipartBody(prop: ModelProperty): boolean;
 ```
 
-### isHttpPathParam
+### modelProperty.isHttpPathParam
 
 ```ts
 /**
@@ -100,7 +100,7 @@ $(program).modelProperty.isHttpMultipartBody(prop: ModelProperty): boolean;
 $(program).modelProperty.isHttpPathParam(prop: ModelProperty): boolean;
 ```
 
-### isHttpQueryParam
+### modelProperty.isHttpQueryParam
 
 ```ts
 /**
@@ -115,7 +115,7 @@ $(program).modelProperty.isHttpQueryParam(prop: ModelProperty): boolean;
 
 Utilities for working with HTTP operations.
 
-### flattenResponses
+### httpOperation.flattenResponses
 
 ```ts
 /**
@@ -126,7 +126,7 @@ Utilities for working with HTTP operations.
 $(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[];
 ```
 
-### get
+### httpOperation.get
 
 ```ts
 /**
@@ -137,7 +137,7 @@ $(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[]
 $(program).httpOperation.get: Diagnosable<(op: Operation) => HttpOperation>;
 ```
 
-### getReturnType
+### httpOperation.getReturnType
 
 ```ts
 /**
@@ -154,13 +154,13 @@ $(program).httpOperation.getReturnType(op: HttpOperation, options?: {
 
 Utilities for working with HTTP Parts.
 
-### get
+### httpPart.get
 
 ```ts
 $(program).httpPart.get(type: Type): HttpPart | undefined;
 ```
 
-### is
+### httpPart.is
 
 ```ts
 /**
@@ -171,7 +171,7 @@ $(program).httpPart.get(type: Type): HttpPart | undefined;
 $(program).httpPart.is(type: Type): boolean;
 ```
 
-### unpack
+### httpPart.unpack
 
 ```ts
 /**
@@ -186,7 +186,7 @@ $(program).httpPart.unpack(type: Type): Type;
 
 Utilities for working with HTTP responses.
 
-### isErrorResponse
+### httpResponse.isErrorResponse
 
 ```ts
 /**
