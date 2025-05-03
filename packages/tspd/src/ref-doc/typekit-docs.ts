@@ -89,7 +89,7 @@ async function getTypekitApi(
       if (member instanceof ApiPropertySignature) {
         const propertyReference = member.propertyTypeExcerpt.spannedTokens[0].canonicalReference;
         if (propertyReference) {
-          const subkit = api.resolveDeclarationReference(propertyReference, member);
+          const subkit = api!.resolveDeclarationReference(propertyReference, member);
           if (subkit.resolvedApiItem instanceof ApiInterface) {
             typekit.entries[member.displayName] = resolveTypekit(
               subkit.resolvedApiItem as ApiInterface,
