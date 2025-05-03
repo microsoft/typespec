@@ -10,6 +10,7 @@ import { joinPaths, PackageJson } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
 import { createTypekitDocs } from "./components/typekits-file.js";
+import { readPackageJson } from "./utils/misc.js";
 
 export interface TypekitApi {
   typeName: string;
@@ -33,11 +34,9 @@ export interface TsFunctionParameter {
   doc: string;
 }
 
-export async function writeTypekitDocs(
-  libraryPath: string,
-  pkgJson: PackageJson,
-  outputDir: string,
-): Promise<void> {
+export async function writeTypekitDocs(libraryPath: string, outputDir: string): Promise<void> {
+  const pkgJson = await readPackageJson(libraryPath);
+
   const typekits = await getTypekitApi(libraryPath, pkgJson);
   if (!typekits) {
     return;
