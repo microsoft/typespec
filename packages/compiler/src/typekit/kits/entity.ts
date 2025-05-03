@@ -3,6 +3,7 @@ import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**
+ * Typekits for working with the top level entity.
  * @typekit entity
  */
 export interface EntityKit {

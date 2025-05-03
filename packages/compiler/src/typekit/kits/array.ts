@@ -3,6 +3,7 @@ import { ArrayModelType, Entity, Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
+ * Typekits for working with array types(Model with number indexer).
  * @typekit array
  */
 export interface ArrayKit {

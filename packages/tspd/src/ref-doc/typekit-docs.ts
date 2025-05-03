@@ -144,6 +144,7 @@ async function getTypekitApi(
   }
 
   return {
+    memberName: "$",
     typeName: "TODO",
     entries: Object.fromEntries(typekits.flatMap((kit) => Object.entries(kit.entries))),
   };
