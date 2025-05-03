@@ -85,19 +85,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@playwright/browser-chromium",
-      "@scarf/scarf",
-      "@vscode/vsce-sign",
-      "autorest",
-      "esbuild",
-      "keytar",
-      "sharp",
-      "tree-sitter",
-      "tree-sitter-c-sharp",
-      "tree-sitter-java",
-      "tree-sitter-javascript",
-      "tree-sitter-python",
-      "tree-sitter-typescript"
+      "tree-sitter"
     ]
   }
 }
