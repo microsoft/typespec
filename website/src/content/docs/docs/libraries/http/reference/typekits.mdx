@@ -6,7 +6,7 @@ import { Badge } from '@astrojs/starlight/components';
 
 # Typekits
 
-## HttpModel
+## model
 
 Utilities for working with Models in the context of Http.
 
@@ -21,7 +21,7 @@ Utilities for working with Models in the context of Http.
 $(program).model.isHttpFile(model: Model): boolean;
 ```
 
-## HttpModelProperty
+## modelProperty
 
 Utilities for working with model properties in the context of Http.
 
@@ -113,7 +113,7 @@ $(program).modelProperty.isHttpPathParam(prop: ModelProperty): boolean;
 $(program).modelProperty.isHttpQueryParam(prop: ModelProperty): boolean;
 ```
 
-## HttpOperationKit
+## httpOperation
 
 Utilities for working with HTTP operations.
 
@@ -153,7 +153,7 @@ $(program).httpOperation.getReturnType(op: HttpOperation, options?: {
     }): Type;
 ```
 
-## HttpPartKit
+## httpPart
 
 Utilities for working with HTTP Parts.
 
@@ -185,7 +185,7 @@ $(program).httpPart.is(type: Type): boolean;
 $(program).httpPart.unpack(type: Type): Type;
 ```
 
-## HttpResponseKit
+## httpResponse
 
 Utilities for working with HTTP responses.
 

@@ -10,7 +10,7 @@ export interface TypekitSectionProps {
 
 export function TypekitSection(props: TypekitSectionProps) {
   return (
-    <md.Section heading={props.typekit.typeName}>
+    <md.Section heading={props.typekit.memberName}>
       <ay.Prose>{props.typekit.doc && <TsDoc node={props.typekit.doc} />}</ay.Prose>
       <ay.For each={Object.values(props.typekit.entries)}>
         {(x) => <TypekitFunction typekit={x as any} />}

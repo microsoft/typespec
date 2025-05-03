@@ -14,6 +14,7 @@ import { createTypekitDocs } from "./components/typekits-file.js";
 import { readPackageJson } from "./utils/misc.js";
 
 export interface TypekitApi {
+  memberName: string;
   typeName: string;
   doc?: DocSection;
   entries: Record<string, TypekitEntryDoc>;
@@ -69,6 +70,7 @@ async function getTypekitApi(
           )[0].text;
           const typekit: TypekitApi = resolveTypekit(member, [name]);
           typekits.push({
+            memberName: "$",
             typeName: member.displayName,
             doc: member.tsdocComment?.summarySection,
             entries: {
@@ -80,8 +82,9 @@ async function getTypekitApi(
     }
   }
 
-  function resolveTypekit(iface: ApiInterface, path: string[] = []): TypekitApi {
+  function resolveTypekit(iface: ApiInterface, path: string[]): TypekitApi {
     const typekit: TypekitApi = {
+      memberName: path[0],
       typeName: iface.displayName,
       doc: iface.tsdocComment?.summarySection,
       entries: {},

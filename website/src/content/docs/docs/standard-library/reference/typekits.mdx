@@ -6,7 +6,7 @@ import { Badge } from '@astrojs/starlight/components';
 
 # Typekits
 
-## ArrayKit
+## array
 
 ### array.create
 
@@ -35,7 +35,7 @@ $(program).array.getElementType(type: Model): Type;
 $(program).array.is(type: Entity): type is ArrayModelType;
 ```
 
-## BuiltinKit
+## builtin
 
 A kit of built-in types.
 
@@ -264,7 +264,7 @@ $(program).builtin.url;
 $(program).builtin.utcDateTime;
 ```
 
-## EntityKit
+## entity
 
 ### entity.isAssignableTo <Badge variant="note" text="Diagnosable" />
 
@@ -294,7 +294,7 @@ $(program).entity.resolve(): reference: stringEntity | undefined;
 $(program).entity.resolve.withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnosable[]];
 ```
 
-## EnumKit
+## enum
 
 A kit for working with enum types.
 
@@ -333,7 +333,7 @@ $(program).enum.createFromUnion(type: Union): Enum;
 $(program).enum.is(type: Entity): type is Enum;
 ```
 
-## EnumMemberKit
+## enumMember
 
 A kit for working with enum members.
 
@@ -357,7 +357,7 @@ $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
 $(program).enumMember.is(type: Entity): type is EnumMember;
 ```
 
-## IntrinsicKit
+## intrinsic
 
 ### intrinsic.any
 
@@ -415,7 +415,7 @@ $(program).intrinsic.null;
 $(program).intrinsic.void;
 ```
 
-## ModelKit
+## model
 
 Utilities for working with models.
 
@@ -505,7 +505,7 @@ $(program).model.is(type: Entity): type is Model;
 $(program).model.isExpresion(type: Model): boolean;
 ```
 
-## ModelPropertyKit
+## modelProperty
 
 Utilities for working with model properties.
 
@@ -564,7 +564,7 @@ $(program).modelProperty.getVisibilityForClass(property: ModelProperty, visibili
 $(program).modelProperty.is(type: Entity): type is ModelProperty;
 ```
 
-## OperationKit
+## operation
 
 Utilities for working with operation properties.
 
@@ -602,7 +602,7 @@ $(program).operation.getPagingMetadata.withDiagnostics(operation: Operation): [P
 $(program).operation.is(type: Entity): type is Operation;
 ```
 
-## RecordKit
+## record
 
 RecordKit provides utilities for working with Record Model types.
 
@@ -639,7 +639,7 @@ $(program).record.getElementType(type: Model): Type;
 $(program).record.is(type: Entity): type is RecordModelType;
 ```
 
-## TupleKit
+## tuple
 
 ### tuple.create
 
@@ -661,7 +661,7 @@ $(program).tuple.create(values?: Type[]): Tuple;
 $(program).tuple.is(type: Entity): type is Tuple;
 ```
 
-## TypeTypekit
+## type
 
 ### type.clone
 
@@ -908,7 +908,7 @@ $(program).type.resolve.withDiagnostics(<K extends Type): [["kind"] | undefined>
     }> : undefined), readonly Diagnosable[]];
 ```
 
-## UnionKit
+## union
 
 Utilities for working with unions.
 
@@ -1013,7 +1013,7 @@ $(program).union.isExtensible(type: Union): boolean;
 $(program).union.isValidEnum(type: Union): boolean;
 ```
 
-## UnionVariantKit
+## unionVariant
 
 Utilities for working with union variants.
 
@@ -1041,7 +1041,7 @@ $(program).unionVariant.create(desc: UnionVariantDescriptor): UnionVariant;
 $(program).unionVariant.is(type: Entity): type is UnionVariant;
 ```
 
-## ValueKit
+## value
 
 ### value.create
 
