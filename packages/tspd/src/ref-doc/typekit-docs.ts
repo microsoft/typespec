@@ -59,8 +59,10 @@ async function getTypekitApi(
   for (const pkgMember of api.packages[0].members) {
     for (const member of pkgMember.members) {
       if (member instanceof ApiInterface) {
+        console.log("Member", member.displayName);
         const docComment: DocComment | undefined = (member as ApiDocumentedItem).tsdocComment;
         const typekitTag = docComment?.customBlocks.find((x) => x.blockTag.tagName === "@typekit");
+        console.log("Typekit tag", typekitTag !== undefined);
         if (typekitTag) {
           const name = (typekitTag.content.nodes[0] as any).nodes.filter(
             (x: DocNode) => x.kind === "PlainText",
