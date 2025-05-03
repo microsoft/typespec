@@ -112,7 +112,15 @@ From this definition, TypeSpec generates everything you need to implement and co
 
 ## Looking ahead
 
-While we're celebrating the 1.0 release, we're also excited about the future of TypeSpec. We're actively working on several initiatives to make TypeSpec even more versatile:
+While we're celebrating the 1.0 GA release, we're also excited about the future of TypeSpec. We're actively working on several initiatives to make TypeSpec even more versatile:
+
+### Collaboration with Pinterest on GraphQL
+
+We're thrilled to be collaborating with Pinterest on developing a GraphQL emitter for TypeSpec. This collaboration demonstrates TypeSpec's adaptability to different API paradigms beyond REST.
+
+> "We've been searching for something like TypeSpec for years. What the team has implemented is a thoughtful, practical, and flexible framework that makes writing API specs as good as, if not better than, writing code. This is the future of API design."
+>
+> — _Pinterest Engineering Team_
 
 ### Model-Context Protocol (MCP) Server Emitter
 
