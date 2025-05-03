@@ -8,6 +8,7 @@ import {
 } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import prettier from "prettier";
+import { generateJsApiDocs } from "./api-docs.js";
 import { renderReadme } from "./emitters/markdown.js";
 import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
@@ -43,10 +44,9 @@ export async function generateLibraryDocs(
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (!options.skipJSApi) {
     await writeTypekitDocs(libraryPath, pkgJson, outputDir);
-    // TODO: reenable for debugging
-    // if (pkgJson.main) {
-    //   await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
-    // }
+    if (pkgJson.main) {
+      await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+    }
   }
   return diagnostics.diagnostics;
 }

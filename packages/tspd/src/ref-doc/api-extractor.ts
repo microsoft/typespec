@@ -7,6 +7,10 @@ export async function createApiModel(libraryPath: string, pkgJson: PackageJson) 
   const apiModel: ApiModel = new ApiModel();
 
   const typekitexports = Object.keys(pkgJson.exports!).filter((x) => x.includes("typekit"));
+  if (typekitexports.length === 0) {
+    return undefined;
+  }
+
   for (const exportName of [typekitexports[0]]) {
     const modelFilePath = createApiModelFileForExport(libraryPath, pkgJson, exportName);
     apiModel.loadPackage(joinPaths(modelFilePath));
@@ -23,6 +27,10 @@ function resolveDefinitionFilePath(
   exportName: string,
 ): string {
   const obj = (pkgJson.exports as any)?.[exportName] as any;
+  if (!obj) {
+    throw new Error(`Cannot resolve definition file path for export ${exportName}`);
+  }
+
   if (typeof obj === "string") {
     return joinPaths(libraryPath, obj).replace(/\.js$/, ".d.ts");
   }

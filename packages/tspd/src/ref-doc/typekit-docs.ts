@@ -53,7 +53,9 @@ async function getTypekitApi(
   pkgJson: PackageJson,
 ): Promise<TypekitApi | undefined> {
   const api = await createApiModel(libraryPath, pkgJson);
-
+  if (!api) {
+    return undefined;
+  }
   const typekits: TypekitApi[] = [];
   for (const pkgMember of api.packages[0].members) {
     for (const member of pkgMember.members) {
