@@ -5,6 +5,7 @@ import { FlatHttpResponse } from "./http-operation.js";
 
 /**
  * Utilities for working with HTTP responses.
+ * @typekit httpResponse
  * @experimental
  */
 export interface HttpResponseKit {
@@ -34,7 +35,6 @@ export interface HttpResponseKit {
   };
 }
 
-/** @typekit */
 interface TypekitExtension {
   /**
    * Utilities for working with HTTP responses.

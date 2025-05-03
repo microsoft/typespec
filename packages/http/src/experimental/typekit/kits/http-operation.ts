@@ -14,6 +14,7 @@ import {
 
 /**
  * Utilities for working with HTTP operations.
+ * @typekit httpOperation
  * @experimental
  */
 export interface HttpOperationKit {
@@ -59,7 +60,6 @@ export interface FlatHttpResponse {
   type: Type;
 }
 
-/** @typekit */
 interface TypekitExtension {
   /**
    * Utilities for working with HTTP operations.

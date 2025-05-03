@@ -1,5 +1,151 @@
 # Typekits
 
+## HttpModel
+
+Utilities for working with Models in the context of Http.
+
+### isHttpFile
+
+```ts
+/**
+ * Check if a model is an Http file.
+ *
+ * @param model - model to check
+ */
+$(program).model.isHttpFile(model: Model): boolean;
+```
+
+## HttpModelProperty
+
+Utilities for working with model properties in the context of Http.
+
+### getHttpHeaderOptions
+
+```ts
+/**
+ * Get the Http header options for a model property.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
+```
+
+### getHttpParamOptions
+
+```ts
+/**
+ * Get the Http parameter options for a model property.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.getHttpParamOptions(prop: ModelProperty): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
+```
+
+### getHttpPathOptions
+
+```ts
+/**
+ * Get the Http path options for a model property.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
+```
+
+### getHttpQueryOptions
+
+```ts
+/**
+ * Get the Http query options for a model property.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
+```
+
+### isHttpHeader
+
+```ts
+/**
+ * Check if a model property is an Http header.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.isHttpHeader(prop: ModelProperty): boolean;
+```
+
+### isHttpMultipartBody
+
+```ts
+/**
+ * Check if a model property is an Http multipart body.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.isHttpMultipartBody(prop: ModelProperty): boolean;
+```
+
+### isHttpPathParam
+
+```ts
+/**
+ * Check if a model property is an Http path parameter.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.isHttpPathParam(prop: ModelProperty): boolean;
+```
+
+### isHttpQueryParam
+
+```ts
+/**
+ * Check if a model property is an Http query parameter.
+ *
+ * @param prop - a TypeSpec ModelProperty
+ */
+$(program).modelProperty.isHttpQueryParam(prop: ModelProperty): boolean;
+```
+
+## HttpOperationKit
+
+Utilities for working with HTTP operations.
+
+### flattenResponses
+
+```ts
+/**
+ * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
+ *
+ * @param op - operation to extract the HttpResponse from
+ */
+$(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[];
+```
+
+### get
+
+```ts
+/**
+ * Get the corresponding HTTP operation for the given TypeSpec operation. The same TypeSpec operation will always return the exact same HttpOperation object.
+ *
+ * @param op - The TypeSpec operation to get the HTTP operation metadata for.
+ */
+$(program).httpOperation.get: Diagnosable<(op: Operation) => HttpOperation>;
+```
+
+### getReturnType
+
+```ts
+/**
+ * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
+ *
+ * @param op - operation to get the return type for
+ */
+$(program).httpOperation.getReturnType(op: HttpOperation, options?: {
+        includeErrors?: boolean;
+    }): Type;
+```
+
 ## HttpPartKit
 
 Utilities for working with HTTP Parts.
@@ -30,4 +176,17 @@ $(program).httpPart.is(type: Type): boolean;
  * @param type - HttpPart model to unpack
  */
 $(program).httpPart.unpack(type: Type): Type;
+```
+
+## HttpResponseKit
+
+Utilities for working with HTTP responses.
+
+### isErrorResponse
+
+```ts
+/**
+ * Check if the response is an error response.
+ */
+$(program).httpResponse.isErrorResponse(response: FlatHttpResponse): boolean;
 ```

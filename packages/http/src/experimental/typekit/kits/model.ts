@@ -4,6 +4,7 @@ import { isHttpFile } from "../../../private.decorators.js";
 
 /**
  * Utilities for working with Models in the context of Http.
+ * @typekit model
  * @experimental
  */
 export interface HttpModel {
@@ -14,7 +15,6 @@ export interface HttpModel {
   isHttpFile(model: Model): boolean;
 }
 
-/** @typekit */
 interface TypekitExtension {
   model: HttpModel;
 }

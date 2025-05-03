@@ -5,7 +5,7 @@ import {
   ApiPropertySignature,
   Excerpt,
 } from "@microsoft/api-extractor-model";
-import { type DocComment, type DocSection } from "@microsoft/tsdoc";
+import { DocNode, type DocComment, type DocSection } from "@microsoft/tsdoc";
 import { joinPaths, PackageJson } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { createApiModel } from "./api-extractor.js";
@@ -55,12 +55,24 @@ async function getTypekitApi(
   const api = await createApiModel(libraryPath, pkgJson);
 
   const typekits: TypekitApi[] = [];
-  for (const member of api.packages[0].members[0].members) {
-    if (member instanceof ApiInterface) {
-      const docComment: DocComment | undefined = (member as ApiDocumentedItem).tsdocComment;
-      if (docComment && docComment.modifierTagSet.hasTagName("@typekit")) {
-        const typekit: TypekitApi = resolveTypekit(member);
-        typekits.push(typekit);
+  for (const pkgMember of api.packages[0].members) {
+    for (const member of pkgMember.members) {
+      if (member instanceof ApiInterface) {
+        const docComment: DocComment | undefined = (member as ApiDocumentedItem).tsdocComment;
+        const typekitTag = docComment?.customBlocks.find((x) => x.blockTag.tagName === "@typekit");
+        if (typekitTag) {
+          const name = (typekitTag.content.nodes[0] as any).nodes.filter(
+            (x: DocNode) => x.kind === "PlainText",
+          )[0].text;
+          const typekit: TypekitApi = resolveTypekit(member, [name]);
+          typekits.push({
+            typeName: member.displayName,
+            doc: member.tsdocComment?.summarySection,
+            entries: {
+              [name]: typekit,
+            },
+          });
+        }
       }
     }
   }
@@ -81,9 +93,16 @@ async function getTypekitApi(
               subkit.resolvedApiItem as ApiInterface,
               [...path, member.displayName],
             );
+          } else if (propertyReference.toString() === "@typespec/compiler!Diagnosable:type") {
+            typekit.entries[member.displayName] = {
+              name: member.displayName,
+              docComment: member.tsdocComment,
+              path: [...path, member.displayName],
+              excerpt: member.excerpt,
+            };
           } else {
             throw new Error(
-              `All typekits properties should be sub kits but got a ${subkit.resolvedApiItem?.kind}`,
+              `All typekits properties should be sub kits but got a ${subkit.resolvedApiItem?.kind} for ${path.join(".")}.${member.displayName}: ${subkit.errorMessage}`,
             );
           }
         }

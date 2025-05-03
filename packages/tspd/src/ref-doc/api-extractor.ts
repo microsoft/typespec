@@ -4,18 +4,52 @@ import { TSDocConfigFile } from "@microsoft/tsdoc-config";
 import { joinPaths, type PackageJson } from "@typespec/compiler";
 
 export async function createApiModel(libraryPath: string, pkgJson: PackageJson) {
-  return createApiModelForExport(libraryPath, pkgJson, Object.keys(pkgJson.exports!)[0]);
+  const apiModel: ApiModel = new ApiModel();
+
+  const typekitexports = Object.keys(pkgJson.exports!).filter((x) => x.includes("typekit"));
+  for (const exportName of [typekitexports[0]]) {
+    const modelFilePath = createApiModelFileForExport(libraryPath, pkgJson, exportName);
+    apiModel.loadPackage(joinPaths(modelFilePath));
+  }
+
+  return apiModel;
 }
 
-export function createApiModelForExport(
+const knownConditions = ["import", "default"];
+
+function resolveDefinitionFilePath(
   libraryPath: string,
   pkgJson: PackageJson,
   exportName: string,
-) {
-  const modelFilePath = joinPaths(libraryPath, "temp", `${exportName}.api.json`);
+): string {
+  const obj = (pkgJson.exports as any)?.[exportName] as any;
+  if (typeof obj === "string") {
+    return joinPaths(libraryPath, obj).replace(/\.js$/, ".d.ts");
+  }
+  if (typeof obj === "object" && "types" in obj) {
+    return joinPaths(libraryPath, obj.types);
+  }
+  for (const condition of knownConditions) {
+    if (condition in obj) {
+      const conditionObj = obj[condition];
+      if (typeof conditionObj === "object" && "types" in conditionObj) {
+        return joinPaths(libraryPath, conditionObj.types).replace(/\.js$/, ".d.ts");
+      }
+    }
+  }
+  throw new Error(`Cannot resolve definition file path for export ${exportName}`);
+}
+
+export function createApiModelFileForExport(
+  libraryPath: string,
+  pkgJson: PackageJson,
+  exportName: string,
+): string {
+  const entrypoint = resolveDefinitionFilePath(libraryPath, pkgJson, exportName);
+  const modelFilePath = joinPaths(libraryPath, "temp", `${exportName.slice(2)}.api.json`);
   const config = ExtractorConfig.prepare({
     configObject: {
-      mainEntryPointFilePath: joinPaths(libraryPath, "dist/src/experimental/typekit/index.d.ts"),
+      mainEntryPointFilePath: entrypoint,
       compiler: {
         tsconfigFilePath: joinPaths(libraryPath, "tsconfig.json"),
       },
@@ -31,7 +65,7 @@ export function createApiModelForExport(
       tagDefinitions: [
         {
           tagName: "@typekit",
-          syntaxKind: "modifier",
+          syntaxKind: "block",
         },
       ],
     }),
@@ -41,7 +75,5 @@ export function createApiModelForExport(
   if (!extractorResult.succeeded) {
     throw new Error("API Extractor failed to generate the API model");
   }
-  const apiModel: ApiModel = new ApiModel();
-  apiModel.loadPackage(joinPaths(modelFilePath));
-  return apiModel;
+  return modelFilePath;
 }
