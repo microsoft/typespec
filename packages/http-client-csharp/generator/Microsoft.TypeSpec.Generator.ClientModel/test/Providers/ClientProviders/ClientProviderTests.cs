@@ -900,6 +900,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            name: "Foo",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "queryParam",
+                                    InputPrimitiveType.String,
+                                    isRequired: true,
+                                    location: InputRequestLocation.Query,
+                                    kind: InputParameterKind.Client)
+                            ]),
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "queryParam",
+                                InputPrimitiveType.String,
+                                isRequired: true,
+                                location: InputRequestLocation.Query,
+                                kind: InputParameterKind.Client)
+                        ])
+                ]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,

@@ -13,17 +13,6 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class MethodProviderHelpers
     {
-        public static bool IsMethodPublic(TypeSignatureModifiers typeModifiers, MethodSignatureModifiers methodModifiers)
-        {
-            if (!typeModifiers.HasFlag(TypeSignatureModifiers.Public))
-                return false;
-
-            if (methodModifiers.HasFlag(MethodSignatureModifiers.Public) || (methodModifiers.HasFlag(MethodSignatureModifiers.Protected) && !methodModifiers.HasFlag(MethodSignatureModifiers.Private)))
-                return true;
-
-            return false;
-        }
-
         public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(IEnumerable<ParameterProvider> parameters, bool skipParamValidation)
         {
             Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;

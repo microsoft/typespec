@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
     {
         public static Compilation LoadCompilation(IEnumerable<TypeProvider> providers, IEnumerable<Type>? metadataReferenceTypes = default)
         {
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
             List<SyntaxTree> files = new List<SyntaxTree>();
             foreach (var provider in providers)
             {
