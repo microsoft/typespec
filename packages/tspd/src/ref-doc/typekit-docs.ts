@@ -2,6 +2,7 @@ import {
   ApiDocumentedItem,
   ApiInterface,
   ApiMethodSignature,
+  ApiProperty,
   ApiPropertySignature,
   Excerpt,
 } from "@microsoft/api-extractor-model";
@@ -21,6 +22,7 @@ export interface TypekitApi {
 type TypekitEntryDoc = TypekitApi | TypekitFunctionDoc;
 
 export interface TypekitFunctionDoc {
+  kind: "getter" | "method" | "diagnosable";
   name: string;
   path: string[];
   parameters?: TsFunctionParameter[];
@@ -96,6 +98,7 @@ async function getTypekitApi(
             );
           } else if (propertyReference.toString() === "@typespec/compiler!Diagnosable:type") {
             typekit.entries[member.displayName] = {
+              kind: "diagnosable",
               name: member.displayName,
               docComment: member.tsdocComment,
               path: [...path, member.displayName],
@@ -109,6 +112,7 @@ async function getTypekitApi(
         }
       } else if (member instanceof ApiMethodSignature) {
         typekit.entries[member.displayName] = {
+          kind: "method",
           name: member.displayName,
           docComment: member.tsdocComment,
           path: [...path, member.displayName],
@@ -117,6 +121,15 @@ async function getTypekitApi(
             doc: "TODO doc",
             name: param.name,
           })),
+          excerpt: member.excerpt,
+        };
+      } else if (member instanceof ApiProperty) {
+        typekit.entries[member.displayName] = {
+          kind: "getter",
+          name: member.displayName,
+          docComment: member.tsdocComment,
+          path: [...path, member.displayName],
+          parameters: [],
           excerpt: member.excerpt,
         };
       } else {

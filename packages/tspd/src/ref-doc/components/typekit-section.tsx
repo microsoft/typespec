@@ -24,12 +24,13 @@ export interface TypekitFunctionProps {
 
 export function TypekitFunction(props: TypekitFunctionProps) {
   const path = [`$(program)`, ...props.typekit.path.slice(0, -1)];
+  const sig = props.typekit.kind === "getter" ? props.typekit.name : props.typekit.excerpt.text;
   return (
-    <md.Section heading={props.typekit.name}>
+    <md.Section heading={props.typekit.path.join(".")}>
       <ay.List>
         {"```ts"}
         {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
-        {`${path.join(".")}.${props.typekit.excerpt.text}`}
+        {`${path.join(".")}.${sig}`}
         {"```"}
       </ay.List>
     </md.Section>

@@ -6,7 +6,7 @@ title: "[API] Typekits"
 
 ## ArrayKit
 
-### create
+### array.create
 
 ```ts
 /**
@@ -15,7 +15,7 @@ title: "[API] Typekits"
 $(program).array.create(elementType: Type): ArrayModelType;
 ```
 
-### getElementType
+### array.getElementType
 
 ```ts
 /**
@@ -24,7 +24,7 @@ $(program).array.create(elementType: Type): ArrayModelType;
 $(program).array.getElementType(type: Model): Type;
 ```
 
-### is
+### array.is
 
 ```ts
 /**
@@ -37,9 +37,234 @@ $(program).array.is(type: Entity): type is ArrayModelType;
 
 A kit of built-in types.
 
+### builtin.boolean
+
+```ts
+/**
+ * Accessor for the boolean builtin type.
+ */
+$(program).builtin.boolean;
+```
+
+### builtin.bytes
+
+```ts
+/**
+ * Accessor for the bytes builtin type, representing binary data.
+ */
+$(program).builtin.bytes;
+```
+
+### builtin.decimal
+
+```ts
+/**
+ * Accessor for the decimal builtin type for high-precision decimal values.
+ */
+$(program).builtin.decimal;
+```
+
+### builtin.decimal128
+
+```ts
+/**
+ * Accessor for the decimal128 builtin type, a 128-bit decimal value.
+ */
+$(program).builtin.decimal128;
+```
+
+### builtin.duration
+
+```ts
+/**
+ * Accessor for the duration builtin type, representing a span of time.
+ */
+$(program).builtin.duration;
+```
+
+### builtin.float
+
+```ts
+/**
+ * Accessor for the float builtin type, representing a double-precision floating-point number.
+ */
+$(program).builtin.float;
+```
+
+### builtin.float32
+
+```ts
+/**
+ * Accessor for the float32 builtin type, representing a single-precision floating-point number.
+ */
+$(program).builtin.float32;
+```
+
+### builtin.float64
+
+```ts
+/**
+ * Accessor for the float64 builtin type, representing a double-precision floating-point number.
+ */
+$(program).builtin.float64;
+```
+
+### builtin.int16
+
+```ts
+/**
+ * Accessor for the int16 builtin type, representing a 16-bit signed integer.
+ */
+$(program).builtin.int16;
+```
+
+### builtin.int32
+
+```ts
+/**
+ * Accessor for the int32 builtin type, representing a 32-bit signed integer.
+ */
+$(program).builtin.int32;
+```
+
+### builtin.int64
+
+```ts
+/**
+ * Accessor for the int64 builtin type, representing a 64-bit signed integer.
+ */
+$(program).builtin.int64;
+```
+
+### builtin.int8
+
+```ts
+/**
+ * Accessor for the int8 builtin type, representing an 8-bit signed integer.
+ */
+$(program).builtin.int8;
+```
+
+### builtin.integer
+
+```ts
+/**
+ * Accessor for the integer builtin type, representing an arbitrary-precision integer.
+ */
+$(program).builtin.integer;
+```
+
+### builtin.numeric
+
+```ts
+/**
+ * Accessor for the numeric builtin type, representing a numeric value.
+ */
+$(program).builtin.numeric;
+```
+
+### builtin.offsetDateTime
+
+```ts
+/**
+ * Accessor for the offsetDateTime builtin type, representing a date and time with an offset.
+ */
+$(program).builtin.offsetDateTime;
+```
+
+### builtin.plainDate
+
+```ts
+/**
+ * Accessor for the plainDate builtin type, representing a date without time or offset.
+ */
+$(program).builtin.plainDate;
+```
+
+### builtin.plainTime
+
+```ts
+/**
+ * Accessor for the plainTime builtin type, representing a time without date or offset.
+ */
+$(program).builtin.plainTime;
+```
+
+### builtin.safeInt
+
+```ts
+/**
+ * Accessor for the safeInt builtin type, representing an integer within the safe range for JavaScript.
+ */
+$(program).builtin.safeInt;
+```
+
+### builtin.string
+
+```ts
+/**
+ * Accessor for the string builtin type.
+ */
+$(program).builtin.string;
+```
+
+### builtin.uint16
+
+```ts
+/**
+ * Accessor for the uint16 builtin type, representing a 16-bit unsigned integer.
+ */
+$(program).builtin.uint16;
+```
+
+### builtin.uint32
+
+```ts
+/**
+ * Accessor for the uint32 builtin type, representing a 32-bit unsigned integer.
+ */
+$(program).builtin.uint32;
+```
+
+### builtin.uint64
+
+```ts
+/**
+ * Accessor for the uint64 builtin type, representing a 64-bit unsigned integer.
+ */
+$(program).builtin.uint64;
+```
+
+### builtin.uint8
+
+```ts
+/**
+ * Accessor for the uint8 builtin type, representing an 8-bit unsigned integer.
+ */
+$(program).builtin.uint8;
+```
+
+### builtin.url
+
+```ts
+/**
+ * Accessor for the url builtin type, representing a valid URL string.
+ */
+$(program).builtin.url;
+```
+
+### builtin.utcDateTime
+
+```ts
+/**
+ * Accessor for the utcDateTime builtin type, representing a date and time in UTC.
+ */
+$(program).builtin.utcDateTime;
+```
+
 ## EntityKit
 
-### isAssignableTo
+### entity.isAssignableTo
 
 ```ts
 /**
@@ -54,7 +279,7 @@ A kit of built-in types.
 $(program).entity.isAssignableTo: Diagnosable<(source: Entity, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
 ```
 
-### resolve
+### entity.resolve
 
 ```ts
 /**
@@ -69,7 +294,7 @@ $(program).entity.resolve: Diagnosable<(reference: string) => Entity | undefined
 
 A kit for working with enum types.
 
-### create
+### enum.create
 
 ```ts
 /**
@@ -78,7 +303,7 @@ A kit for working with enum types.
 $(program).enum.create(desc: EnumDescriptor): Enum;
 ```
 
-### createFromUnion
+### enum.createFromUnion
 
 ```ts
 /**
@@ -93,7 +318,7 @@ $(program).enum.create(desc: EnumDescriptor): Enum;
 $(program).enum.createFromUnion(type: Union): Enum;
 ```
 
-### is
+### enum.is
 
 ```ts
 /**
@@ -108,7 +333,7 @@ $(program).enum.is(type: Entity): type is Enum;
 
 A kit for working with enum members.
 
-### create
+### enumMember.create
 
 ```ts
 /**
@@ -117,7 +342,7 @@ A kit for working with enum members.
 $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
 ```
 
-### is
+### enumMember.is
 
 ```ts
 /**
@@ -130,7 +355,25 @@ $(program).enumMember.is(type: Entity): type is EnumMember;
 
 ## IntrinsicKit
 
-### is
+### intrinsic.any
+
+```ts
+/**
+ * The intrinsic 'any' type.
+ */
+$(program).intrinsic.any;
+```
+
+### intrinsic.error
+
+```ts
+/**
+ * The intrinsic 'error' type.
+ */
+$(program).intrinsic.error;
+```
+
+### intrinsic.is
 
 ```ts
 /**
@@ -141,11 +384,38 @@ $(program).enumMember.is(type: Entity): type is EnumMember;
 $(program).intrinsic.is(entity: Entity): entity is IntrinsicType;
 ```
 
+### intrinsic.never
+
+```ts
+/**
+ * The intrinsic 'never' type.
+ */
+$(program).intrinsic.never;
+```
+
+### intrinsic.null
+
+```ts
+/**
+ * The intrinsic 'null' type.
+ */
+$(program).intrinsic.null;
+```
+
+### intrinsic.void
+
+```ts
+/**
+ * The intrinsic 'void' type.
+ */
+$(program).intrinsic.void;
+```
+
 ## ModelKit
 
 Utilities for working with models.
 
-### create
+### model.create
 
 ```ts
 /**
@@ -156,7 +426,7 @@ Utilities for working with models.
 $(program).model.create(desc: ModelDescriptor): Model;
 ```
 
-### getAdditionalPropertiesRecord
+### model.getAdditionalPropertiesRecord
 
 ```ts
 /**
@@ -169,7 +439,7 @@ $(program).model.create(desc: ModelDescriptor): Model;
 $(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
 ```
 
-### getDiscriminatedUnion
+### model.getDiscriminatedUnion
 
 ```ts
 /**
@@ -180,7 +450,7 @@ $(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
 $(program).model.getDiscriminatedUnion: Diagnosable<(model: Model) => DiscriminatedUnionLegacy | undefined>;
 ```
 
-### getEffectiveModel
+### model.getEffectiveModel
 
 ```ts
 /**
@@ -195,7 +465,7 @@ $(program).model.getDiscriminatedUnion: Diagnosable<(model: Model) => Discrimina
 $(program).model.getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
 ```
 
-### getProperties
+### model.getProperties
 
 ```ts
 /**
@@ -208,7 +478,7 @@ $(program).model.getProperties(model: Model, options?: {
     }): RekeyableMap<string, ModelProperty>;
 ```
 
-### is
+### model.is
 
 ```ts
 /**
@@ -219,7 +489,7 @@ $(program).model.getProperties(model: Model, options?: {
 $(program).model.is(type: Entity): type is Model;
 ```
 
-### isExpresion
+### model.isExpresion
 
 ```ts
 /**
@@ -236,7 +506,7 @@ Utilities for working with model properties.
 
 For many reflection operations, the metadata being asked for may be found on the model property or the type of the model property. In such cases, these operations will return the metadata from the model property if it exists, or the type of the model property if it exists.
 
-### create
+### modelProperty.create
 
 ```ts
 /**
@@ -247,7 +517,7 @@ For many reflection operations, the metadata being asked for may be found on the
 $(program).modelProperty.create(desc: ModelPropertyDescriptor): ModelProperty;
 ```
 
-### getEncoding
+### modelProperty.getEncoding
 
 ```ts
 /**
@@ -258,7 +528,7 @@ $(program).modelProperty.create(desc: ModelPropertyDescriptor): ModelProperty;
 $(program).modelProperty.getEncoding(property: ModelProperty): EncodeData | undefined;
 ```
 
-### getFormat
+### modelProperty.getFormat
 
 ```ts
 /**
@@ -269,7 +539,7 @@ $(program).modelProperty.getEncoding(property: ModelProperty): EncodeData | unde
 $(program).modelProperty.getFormat(property: ModelProperty): string | undefined;
 ```
 
-### getVisibilityForClass
+### modelProperty.getVisibilityForClass
 
 ```ts
 /**
@@ -278,7 +548,7 @@ $(program).modelProperty.getFormat(property: ModelProperty): string | undefined;
 $(program).modelProperty.getVisibilityForClass(property: ModelProperty, visibilityClass: Enum): Set<EnumMember>;
 ```
 
-### is
+### modelProperty.is
 
 ```ts
 /**
@@ -293,7 +563,7 @@ $(program).modelProperty.is(type: Entity): type is ModelProperty;
 
 Utilities for working with operation properties.
 
-### create
+### operation.create
 
 ```ts
 /**
@@ -304,7 +574,7 @@ Utilities for working with operation properties.
 $(program).operation.create(desc: OperationDescriptor): Operation;
 ```
 
-### getPagingMetadata
+### operation.getPagingMetadata
 
 ```ts
 /**
@@ -315,7 +585,7 @@ $(program).operation.create(desc: OperationDescriptor): Operation;
 $(program).operation.getPagingMetadata: Diagnosable<(operation: Operation) => PagingOperation | undefined>;
 ```
 
-### is
+### operation.is
 
 ```ts
 /**
@@ -330,7 +600,7 @@ $(program).operation.is(type: Entity): type is Operation;
 
 RecordKit provides utilities for working with Record Model types.
 
-### create
+### record.create
 
 ```ts
 /**
@@ -341,7 +611,7 @@ RecordKit provides utilities for working with Record Model types.
 $(program).record.create(elementType: Type): RecordModelType;
 ```
 
-### getElementType
+### record.getElementType
 
 ```ts
 /**
@@ -352,7 +622,7 @@ $(program).record.create(elementType: Type): RecordModelType;
 $(program).record.getElementType(type: Model): Type;
 ```
 
-### is
+### record.is
 
 ```ts
 /**
@@ -365,7 +635,7 @@ $(program).record.is(type: Entity): type is RecordModelType;
 
 ## TupleKit
 
-### create
+### tuple.create
 
 ```ts
 /**
@@ -376,7 +646,7 @@ $(program).record.is(type: Entity): type is RecordModelType;
 $(program).tuple.create(values?: Type[]): Tuple;
 ```
 
-### is
+### tuple.is
 
 ```ts
 /**
@@ -387,7 +657,7 @@ $(program).tuple.is(type: Entity): type is Tuple;
 
 ## TypeTypekit
 
-### clone
+### type.clone
 
 ```ts
 /**
@@ -398,7 +668,7 @@ $(program).tuple.is(type: Entity): type is Tuple;
 $(program).type.clone<T extends Type>(type: T): T;
 ```
 
-### finishType
+### type.finishType
 
 ```ts
 /**
@@ -407,7 +677,7 @@ $(program).type.clone<T extends Type>(type: T): T;
 $(program).type.finishType(type: Type): void;
 ```
 
-### getDoc
+### type.getDoc
 
 ```ts
 /**
@@ -418,7 +688,7 @@ $(program).type.finishType(type: Type): void;
 $(program).type.getDoc(type: Type): string | undefined;
 ```
 
-### getEncodedName
+### type.getEncodedName
 
 ```ts
 /**
@@ -429,7 +699,7 @@ $(program).type.getEncodedName(type: Type & {
     }, encoding: string): string;
 ```
 
-### getPlausibleName
+### type.getPlausibleName
 
 ```ts
 /**
@@ -440,7 +710,7 @@ $(program).type.getEncodedName(type: Type & {
 $(program).type.getPlausibleName(type: Model | Union | Enum | Scalar): string;
 ```
 
-### getSummary
+### type.getSummary
 
 ```ts
 /**
@@ -451,7 +721,7 @@ $(program).type.getPlausibleName(type: Model | Union | Enum | Scalar): string;
 $(program).type.getSummary(type: Type): string | undefined;
 ```
 
-### inNamespace
+### type.inNamespace
 
 ```ts
 /**
@@ -466,7 +736,7 @@ $(program).type.getSummary(type: Type): string | undefined;
 $(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
 ```
 
-### is
+### type.is
 
 ```ts
 /**
@@ -477,7 +747,7 @@ $(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
 $(program).type.is(entity: Entity): entity is Type;
 ```
 
-### isAssignableTo
+### type.isAssignableTo
 
 ```ts
 /**
@@ -492,7 +762,7 @@ $(program).type.is(entity: Entity): entity is Type;
 $(program).type.isAssignableTo: Diagnosable<(source: Type, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
 ```
 
-### isError
+### type.isError
 
 ```ts
 /**
@@ -503,7 +773,7 @@ $(program).type.isAssignableTo: Diagnosable<(source: Type, target: Entity, diagn
 $(program).type.isError(type: Type): type is Model;
 ```
 
-### isNever
+### type.isNever
 
 ```ts
 /**
@@ -512,7 +782,7 @@ $(program).type.isError(type: Type): type is Model;
 $(program).type.isNever(type: Type): boolean;
 ```
 
-### isUserDefined
+### type.isUserDefined
 
 ```ts
 /**
@@ -525,7 +795,7 @@ $(program).type.isNever(type: Type): boolean;
 $(program).type.isUserDefined(type: Type): boolean;
 ```
 
-### maxItems
+### type.maxItems
 
 ```ts
 /**
@@ -536,7 +806,7 @@ $(program).type.isUserDefined(type: Type): boolean;
 $(program).type.maxItems(type: Type): number | undefined;
 ```
 
-### maxLength
+### type.maxLength
 
 ```ts
 /**
@@ -547,7 +817,7 @@ $(program).type.maxItems(type: Type): number | undefined;
 $(program).type.maxLength(type: Type): number | undefined;
 ```
 
-### maxValue
+### type.maxValue
 
 ```ts
 /**
@@ -558,7 +828,7 @@ $(program).type.maxLength(type: Type): number | undefined;
 $(program).type.maxValue(type: Type): number | undefined;
 ```
 
-### maxValueExclusive
+### type.maxValueExclusive
 
 ```ts
 /**
@@ -569,7 +839,7 @@ $(program).type.maxValue(type: Type): number | undefined;
 $(program).type.maxValueExclusive(type: Type): number | undefined;
 ```
 
-### minItems
+### type.minItems
 
 ```ts
 /**
@@ -580,7 +850,7 @@ $(program).type.maxValueExclusive(type: Type): number | undefined;
 $(program).type.minItems(type: Type): number | undefined;
 ```
 
-### minLength
+### type.minLength
 
 ```ts
 /**
@@ -591,7 +861,7 @@ $(program).type.minItems(type: Type): number | undefined;
 $(program).type.minLength(type: Type): number | undefined;
 ```
 
-### minValue
+### type.minValue
 
 ```ts
 /**
@@ -602,7 +872,7 @@ $(program).type.minLength(type: Type): number | undefined;
 $(program).type.minValue(type: Type): number | undefined;
 ```
 
-### minValueExclusive
+### type.minValueExclusive
 
 ```ts
 /**
@@ -613,7 +883,7 @@ $(program).type.minValue(type: Type): number | undefined;
 $(program).type.minValueExclusive(type: Type): number | undefined;
 ```
 
-### resolve
+### type.resolve
 
 ```ts
 /**
@@ -632,7 +902,7 @@ $(program).type.resolve: Diagnosable<(<K extends Type["kind"] | undefined>(refer
 
 Utilities for working with unions.
 
-### create
+### union.create
 
 ```ts
 /**
@@ -647,7 +917,7 @@ Utilities for working with unions.
 $(program).union.create(children: Type[]): Union;
 ```
 
-### createFromEnum
+### union.createFromEnum
 
 ```ts
 /**
@@ -666,7 +936,7 @@ $(program).union.create(children: Type[]): Union;
 $(program).union.createFromEnum(type: Enum): Union;
 ```
 
-### filter
+### union.filter
 
 ```ts
 /**
@@ -677,7 +947,7 @@ $(program).union.createFromEnum(type: Enum): Union;
 $(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
 ```
 
-### getDiscriminatedUnion
+### union.getDiscriminatedUnion
 
 ```ts
 /**
@@ -688,7 +958,7 @@ $(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boole
 $(program).union.getDiscriminatedUnion: Diagnosable<(type: Union) => DiscriminatedUnion | undefined>;
 ```
 
-### is
+### union.is
 
 ```ts
 /**
@@ -699,7 +969,7 @@ $(program).union.getDiscriminatedUnion: Diagnosable<(type: Union) => Discriminat
 $(program).union.is(type: Entity): type is Union;
 ```
 
-### isExpression
+### union.isExpression
 
 ```ts
 /**
@@ -710,7 +980,7 @@ $(program).union.is(type: Entity): type is Union;
 $(program).union.isExpression(type: Union): boolean;
 ```
 
-### isExtensible
+### union.isExtensible
 
 ```ts
 /**
@@ -721,7 +991,7 @@ $(program).union.isExpression(type: Union): boolean;
 $(program).union.isExtensible(type: Union): boolean;
 ```
 
-### isValidEnum
+### union.isValidEnum
 
 ```ts
 /**
@@ -738,7 +1008,7 @@ Utilities for working with union variants.
 
 Union variants are types that represent a single value within a union that can be one of several types.
 
-### create
+### unionVariant.create
 
 ```ts
 /**
@@ -749,7 +1019,7 @@ Union variants are types that represent a single value within a union that can b
 $(program).unionVariant.create(desc: UnionVariantDescriptor): UnionVariant;
 ```
 
-### is
+### unionVariant.is
 
 ```ts
 /**
@@ -762,7 +1032,7 @@ $(program).unionVariant.is(type: Entity): type is UnionVariant;
 
 ## ValueKit
 
-### create
+### value.create
 
 ```ts
 /**
@@ -773,7 +1043,7 @@ $(program).unionVariant.is(type: Entity): type is UnionVariant;
 $(program).value.create(value: string | number | boolean): Value;
 ```
 
-### createBoolean
+### value.createBoolean
 
 ```ts
 /**
@@ -784,7 +1054,7 @@ $(program).value.create(value: string | number | boolean): Value;
 $(program).value.createBoolean(value: boolean): BooleanValue;
 ```
 
-### createNumeric
+### value.createNumeric
 
 ```ts
 /**
@@ -795,7 +1065,7 @@ $(program).value.createBoolean(value: boolean): BooleanValue;
 $(program).value.createNumeric(value: number): NumericValue;
 ```
 
-### createString
+### value.createString
 
 ```ts
 /**
@@ -806,7 +1076,7 @@ $(program).value.createNumeric(value: number): NumericValue;
 $(program).value.createString(value: string): StringValue;
 ```
 
-### is
+### value.is
 
 ```ts
 /**
@@ -817,7 +1087,7 @@ $(program).value.createString(value: string): StringValue;
 $(program).value.is(type: Entity): type is Value;
 ```
 
-### isArray
+### value.isArray
 
 ```ts
 /**
@@ -828,7 +1098,7 @@ $(program).value.is(type: Entity): type is Value;
 $(program).value.isArray(type: Entity): type is ArrayValue;
 ```
 
-### isAssignableTo
+### value.isAssignableTo
 
 ```ts
 /**
@@ -843,7 +1113,7 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
 $(program).value.isAssignableTo: Diagnosable<(source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
 ```
 
-### isBoolean
+### value.isBoolean
 
 ```ts
 /**
@@ -854,7 +1124,7 @@ $(program).value.isAssignableTo: Diagnosable<(source: Value, target: Entity, dia
 $(program).value.isBoolean(type: Entity): type is BooleanValue;
 ```
 
-### isEnum
+### value.isEnum
 
 ```ts
 /**
@@ -865,7 +1135,7 @@ $(program).value.isBoolean(type: Entity): type is BooleanValue;
 $(program).value.isEnum(type: Entity): type is EnumValue;
 ```
 
-### isNull
+### value.isNull
 
 ```ts
 /**
@@ -876,7 +1146,7 @@ $(program).value.isEnum(type: Entity): type is EnumValue;
 $(program).value.isNull(type: Entity): type is NullValue;
 ```
 
-### isNumeric
+### value.isNumeric
 
 ```ts
 /**
@@ -887,7 +1157,7 @@ $(program).value.isNull(type: Entity): type is NullValue;
 $(program).value.isNumeric(type: Entity): type is NumericValue;
 ```
 
-### isObject
+### value.isObject
 
 ```ts
 /**
@@ -898,7 +1168,7 @@ $(program).value.isNumeric(type: Entity): type is NumericValue;
 $(program).value.isObject(type: Entity): type is ObjectValue;
 ```
 
-### isScalar
+### value.isScalar
 
 ```ts
 /**
@@ -909,7 +1179,7 @@ $(program).value.isObject(type: Entity): type is ObjectValue;
 $(program).value.isScalar(type: Entity): type is ScalarValue;
 ```
 
-### isString
+### value.isString
 
 ```ts
 /**
@@ -920,7 +1190,7 @@ $(program).value.isScalar(type: Entity): type is ScalarValue;
 $(program).value.isString(type: Entity): type is StringValue;
 ```
 
-### resolve
+### value.resolve
 
 ```ts
 /**
