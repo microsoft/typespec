@@ -1,5 +1,15 @@
 import { isArrayModelType, Model, ModelProperty, Program, Type, Value } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import { HttpStateKeys } from "../../lib.js";
+
+export const [getMergePatchSource, setMergePatchSource] = useStateMap<Model, Model>(
+  HttpStateKeys.mergePatchModel,
+);
+
+export const [getMergePatchPropertySource, setMergePatchPropertySource] = useStateMap<
+  ModelProperty,
+  ModelProperty
+>(HttpStateKeys.mergePatchProperty);
 
 /**
  * Determines if the given model is part of a mergePatch transform
@@ -8,30 +18,7 @@ import { HttpStateKeys } from "../../lib.js";
  * @returns true if the model was generated using a mergePatch template, otherwise false
  */
 export function isMergePatch(program: Program, model: Model): boolean {
-  return program.stateMap(HttpStateKeys.mergePatchModel).has(model);
-}
-
-/**
- * If the given model is part of a mergePatch transform, return s alink to the source model
- * @param program The compiled TypeSpec program
- * @param model The model to check
- * @returns If this model was created by a mergePatch transform, returns the corresponding model that was transformed. Otherwise returns undefined.
- */
-export function getMergePatchSource(program: Program, model: Model): Model | undefined {
-  return program.stateMap(HttpStateKeys.mergePatchModel).get(model);
-}
-
-/**
- * If the given property was created as part of a mergePatch transform, return s alink to the source model
- * @param program The compiled TypeSpec program
- * @param property The property to check
- * @returns If this property was created by a mergePatch transform, returns the corresponding source property that was transformed. Otherwise returns undefined.
- */
-export function getMergePatchPropertySource(
-  program: Program,
-  property: ModelProperty,
-): ModelProperty | undefined {
-  return program.stateMap(HttpStateKeys.mergePatchProperty).get(property);
+  return getMergePatchSource(program, model) !== undefined;
 }
 
 /** The characteristics of the property as part of a mergePatch request body */

@@ -35,6 +35,10 @@ import {
   MergePatchModelDecorator,
   MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
+import {
+  setMergePatchPropertySource,
+  setMergePatchSource,
+} from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
 
@@ -43,7 +47,7 @@ export const $mergePatchModel: MergePatchModelDecorator = (
   target: Model,
   source: Model,
 ) => {
-  ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
+  setMergePatchSource(ctx.program, target, source);
 };
 
 export const $mergePatchProperty: MergePatchPropertyDecorator = (
@@ -51,7 +55,7 @@ export const $mergePatchProperty: MergePatchPropertyDecorator = (
   target: ModelProperty,
   source: ModelProperty,
 ) => {
-  ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(target, source);
+  setMergePatchPropertySource(ctx.program, target, source);
 };
 
 export const $applyMergePatch: ApplyMergePatchDecorator = (
@@ -61,6 +65,7 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
   nameTemplate: string,
   options: ApplyMergePatchOptions,
 ) => {
+  setMergePatchSource(ctx.program, target, source);
   let reported = false;
   navigateType(
     source,
