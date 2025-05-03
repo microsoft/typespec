@@ -45,7 +45,13 @@ import {
   VisibilityFilter,
 } from "../core/visibility/core.js";
 import { getLifecycleVisibilityEnum } from "../core/visibility/lifecycle.js";
-import { MutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
+import {
+  MutableType,
+  mutateSubgraph,
+  Mutator,
+  MutatorFlow,
+  setAlwaysMutate,
+} from "../experimental/mutators.js";
 import { useStateMap } from "../utils/index.js";
 import { mutate } from "../utils/misc.js";
 import { isKey } from "./key.js";
@@ -394,8 +400,87 @@ interface VisibilityFilterMutatorCache {
 }
 
 interface VisibilityFilterMutatorCacheByNameTemplate {
-  byVisibilityFilter?: WeakMap<VisibilityFilter, Mutator>;
+  byVisibilityFilter?: Map<string, Mutator>;
   lifecycleUpdate?: Mutator;
+}
+
+const ENUM_INTERN_TABLE = Symbol.for("TypeSpec.Core.enumInternTable");
+
+interface EnumInternTable {
+  [ENUM_INTERN_TABLE]?: {
+    idx: number;
+    map: WeakMap<Enum, number>;
+  };
+}
+
+function internEnum(program: Program, enumType: Enum): number {
+  const enumInternTable = ((program as EnumInternTable)[ENUM_INTERN_TABLE] ??= {
+    idx: 0,
+    map: new WeakMap(),
+  });
+
+  let idx = enumInternTable.map.get(enumType);
+  if (idx === undefined) {
+    idx = enumInternTable.idx++;
+    enumInternTable.map.set(enumType, idx);
+  }
+
+  return idx;
+}
+
+const VISIBILITY_FILTER_TO_STRING_CACHE = Symbol.for("TypeSpec.Core.visibilityFilterToStringCache");
+
+interface VisibilityFilterToStringCache {
+  [VISIBILITY_FILTER_TO_STRING_CACHE]?: WeakMap<VisibilityFilter, string>;
+}
+
+/**
+ * Converts a visibility filter into a stable string representation.
+ *
+ * @param program - the program in which the filter is defined
+ * @param filter - the visibility filter to convert
+ * @returns a string representation of the visibility filter to use as a cache key
+ */
+function visibilityFilterToCacheKey(program: Program, filter: VisibilityFilter): string {
+  const visibilityFilterToStringCache = ((program as VisibilityFilterToStringCache)[
+    VISIBILITY_FILTER_TO_STRING_CACHE
+  ] ??= new WeakMap());
+
+  let str = visibilityFilterToStringCache.get(filter);
+
+  if (str) {
+    return str;
+  }
+
+  str = "{";
+
+  for (const [key, modifierSet] of Object.entries(filter).sort(([keyA], [keyB]) =>
+    keyA.localeCompare(keyB),
+  ) as [keyof VisibilityFilter, VisibilityFilter[keyof VisibilityFilter]][]) {
+    if (!modifierSet) continue;
+    str += `${key}:[`;
+    const values: Array<{ _enum: number; modifier: string }> = [];
+    for (const modifier of modifierSet) {
+      const enumType = internEnum(program, modifier.enum);
+      values.push({ _enum: enumType, modifier: modifier.name });
+    }
+
+    str +=
+      values
+        .sort(function sortByEnumThenModifier(a, b) {
+          if (a._enum !== b._enum) {
+            return a._enum - b._enum;
+          }
+          return a.modifier.localeCompare(b.modifier);
+        })
+        .join(",") + "]";
+  }
+
+  str += "}";
+
+  visibilityFilterToStringCache.set(filter, str);
+
+  return str;
 }
 
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
@@ -417,20 +502,28 @@ export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
       ? (mutatorCache.unnamed ??= {})
       : (byNameTemplate[nameTemplate] ??= {});
 
-  const mutatorCacheByVisibilityFilter = (mutatorCacheByNameTemplate.byVisibilityFilter ??=
-    new WeakMap());
+  const mutatorCacheByVisibilityFilter = (mutatorCacheByNameTemplate.byVisibilityFilter ??= new Map<
+    string,
+    Mutator
+  >());
 
-  let mutator = mutatorCacheByVisibilityFilter.get(filter);
+  const vfKey = visibilityFilterToCacheKey(context.program, filter);
+
+  let mutator = mutatorCacheByVisibilityFilter.get(vfKey);
 
   if (!mutator) {
     mutator = createVisibilityFilterMutator(filter, {
       decoratorFn: $withVisibilityFilter,
       nameTemplate,
     });
-    mutatorCacheByVisibilityFilter.set(filter, mutator);
+    mutatorCacheByVisibilityFilter.set(vfKey, mutator);
   }
 
+  setAlwaysMutate(context.program, target);
+
   const { type } = cachedMutateSubgraph(context.program, mutator, target);
+
+  setAlwaysMutate(context.program, target, false);
 
   target.properties = (type as Model).properties;
 };
@@ -476,7 +569,11 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
     mutatorCacheByNameTemplate.lifecycleUpdate = mutator;
   }
 
+  setAlwaysMutate(context.program, target);
+
   const { type } = cachedMutateSubgraph(context.program, mutator, target);
+
+  setAlwaysMutate(context.program, target, false);
 
   target.properties = (type as Model).properties;
 };
