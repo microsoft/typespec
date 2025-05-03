@@ -56,6 +56,7 @@ export interface ModelDescriptor {
 /**
  * Utilities for working with models.
  * @experimental
+ * @typekit model
  */
 export interface ModelKit {
   /**

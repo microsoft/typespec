@@ -2,6 +2,9 @@ import type { Entity, Node } from "../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * @typekit entity
+ */
 export interface EntityKit {
   /**
    * Check if the source type can be assigned to the target.

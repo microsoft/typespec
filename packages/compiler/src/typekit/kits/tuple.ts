@@ -3,6 +3,7 @@ import { defineKit } from "../define-kit.js";
 
 /**
  * @experimental
+ * @typekit tuple
  */
 export interface TupleKit {
   /**

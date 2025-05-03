@@ -5,6 +5,7 @@ import { defineKit } from "../define-kit.js";
 /**
  * RecordKit provides utilities for working with Record Model types.
  * @experimental
+ * @typekit record
  */
 export interface RecordKit {
   /**

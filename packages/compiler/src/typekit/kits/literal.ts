@@ -1,3 +1,6 @@
+/**
+ * @typekit literal
+ */
 import { Numeric } from "../../core/numeric.js";
 import type { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";

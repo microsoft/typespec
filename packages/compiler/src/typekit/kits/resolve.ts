@@ -2,6 +2,9 @@ import { Entity } from "../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * @experimental
+ */
 export type ResolveKit = Diagnosable<(reference: string) => Entity | undefined>;
 
 interface TypekitExtension {

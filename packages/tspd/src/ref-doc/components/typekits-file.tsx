@@ -8,6 +8,13 @@ export function createTypekitDocs(typekit: TypekitApi) {
   const jsxContent = (
     <ay.Output>
       <md.SourceFile path={`typekits.md`}>
+        <>
+          {ay.code`
+        ---
+        title: [API] Typekits
+        ---
+        `}
+        </>
         <md.Section heading={"Typekits"}>
           <ay.For each={Object.values(typekit.entries)}>
             {(x) => <TypekitSection typekit={x as any} />}

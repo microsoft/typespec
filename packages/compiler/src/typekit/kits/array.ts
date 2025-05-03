@@ -2,6 +2,9 @@ import { isArrayModelType } from "../../core/type-utils.js";
 import { Model, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * @typekit array
+ */
 export interface ArrayKit {
   /**
    * Check if a type is an array.

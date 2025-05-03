@@ -27,7 +27,10 @@ import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
-/**  @experimental */
+/**
+ * @typekit type
+ * @experimental
+ */
 export interface TypeTypekit {
   /**
    * Clones a type and adds it to the typekit's realm.

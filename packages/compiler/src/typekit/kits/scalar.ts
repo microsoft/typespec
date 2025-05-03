@@ -1,3 +1,6 @@
+/**
+ * @typekit scalar
+ */
 import { isIntrinsicType } from "../../core/decorator-utils.js";
 import type { IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
 import { type EncodeData, getEncode, getFormat } from "../../lib/decorators.js";

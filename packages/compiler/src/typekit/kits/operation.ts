@@ -27,6 +27,7 @@ export interface OperationDescriptor {
 /**
  * Utilities for working with operation properties.
  * @experimental
+ * @typekit operation
  */
 export interface OperationKit {
   /**

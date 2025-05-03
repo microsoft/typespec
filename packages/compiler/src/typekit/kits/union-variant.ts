@@ -36,6 +36,7 @@ export interface UnionVariantDescriptor {
  * several types.
  *
  * @experimental
+ * @typekit unionVariant
  */
 export interface UnionVariantKit {
   /**

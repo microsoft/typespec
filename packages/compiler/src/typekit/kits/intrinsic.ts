@@ -1,3 +1,7 @@
+/**
+ * @experimental
+ * @typekit intrinsic
+ */
 import type { ErrorType, NeverType, NullType, UnknownType, VoidType } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 

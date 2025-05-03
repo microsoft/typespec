@@ -37,6 +37,7 @@ export interface ModelPropertyDescriptor {
  * these operations will return the metadata from the model property if it
  * exists, or the type of the model property if it exists.
  * @experimental
+ * @typekit modelProperty
  */
 export interface ModelPropertyKit {
   /**

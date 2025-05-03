@@ -17,6 +17,9 @@ import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /** @experimental */
+/**
+ * @typekit value
+ */
 export interface ValueKit {
   /**
    * Create a Value type from a JavaScript value.
