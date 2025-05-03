@@ -13,3 +13,22 @@ describe("getters", () => {
     expect(tk.intrinsic.void).toBe(program.checker.voidType);
   });
 });
+
+describe("is", () => {
+  it("should validate intrinsics", async () => {
+    const { program } = await createContextMock();
+    const tk = $(program);
+
+    // All known intrinsics
+    expect(tk.intrinsic.is(tk.intrinsic.any)).toBe(true);
+    expect(tk.intrinsic.is(tk.intrinsic.error)).toBe(true);
+    expect(tk.intrinsic.is(tk.intrinsic.never)).toBe(true);
+    expect(tk.intrinsic.is(tk.intrinsic.null)).toBe(true);
+    expect(tk.intrinsic.is(tk.intrinsic.void)).toBe(true);
+
+    // Entities that are not intrinsics should fail
+    expect(tk.intrinsic.is(tk.builtin.string)).toBe(false);
+    expect(tk.intrinsic.is(tk.literal.create("test"))).toBe(false);
+    expect(tk.intrinsic.is(tk.value.create("test"))).toBe(false);
+  });
+});

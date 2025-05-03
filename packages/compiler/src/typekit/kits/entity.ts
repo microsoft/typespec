@@ -15,10 +15,17 @@ export interface EntityKit {
   isAssignableTo: Diagnosable<
     (source: Entity, target: Entity, diagnosticTarget?: Entity | Node) => boolean
   >;
+
+  /**
+   * Resolve a type reference string to a TypeSpec type.
+   * By default any diagnostics are ignored.
+   *
+   * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
+   */
+  resolve: Diagnosable<(reference: string) => Entity | undefined>;
 }
 
 interface TypekitExtension {
-  /** @experimental */
   entity: EntityKit;
 }
 
@@ -30,6 +37,9 @@ defineKit<TypekitExtension>({
   entity: {
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
       return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
+    resolve: createDiagnosable(function (reference) {
+      return this.program.resolveTypeOrValueReference(reference);
     }),
   },
 });

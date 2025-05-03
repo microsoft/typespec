@@ -5,12 +5,12 @@ import {
 } from "../../core/helpers/discriminator-utils.js";
 import { getDiscriminator } from "../../core/intrinsic-type-state.js";
 import type {
+  Entity,
   Model,
   ModelIndexer,
   ModelProperty,
   RekeyableMap,
   SourceModel,
-  Type,
 } from "../../core/types.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
@@ -19,7 +19,6 @@ import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /**
  * A descriptor for creating a model.
- * @experimental
  */
 export interface ModelDescriptor {
   /**
@@ -55,7 +54,6 @@ export interface ModelDescriptor {
 
 /**
  * Utilities for working with models.
- * @experimental
  * @typekit model
  */
 export interface ModelKit {
@@ -71,7 +69,7 @@ export interface ModelKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is Model;
+  is(type: Entity): type is Model;
 
   /**
    * Check this is an anonyous model. Specifically, this checks if the
@@ -135,7 +133,6 @@ export interface ModelKit {
 interface TypekitExtension {
   /**
    * Utilities for working with models.
-   * @experimental
    */
   model: ModelKit;
 }
@@ -164,7 +161,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return type.kind === "Model";
+      return type.entityKind === "Type" && type.kind === "Model";
     },
 
     isExpresion(type) {

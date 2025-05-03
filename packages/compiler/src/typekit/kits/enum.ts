@@ -1,4 +1,4 @@
-import type { Enum, EnumMember, Type, Union } from "../../core/types.js";
+import type { Entity, Enum, EnumMember, Union } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
@@ -8,7 +8,6 @@ import { type UnionKit } from "./union.js";
 
 /**
  * Describes an enum type for creation.
- * @experimental
  */
 interface EnumDescriptor {
   /**
@@ -30,7 +29,6 @@ interface EnumDescriptor {
 
 /**
  * A kit for working with enum types.
- * @experimental
  * @typekit enum
  */
 export interface EnumKit {
@@ -61,11 +59,10 @@ export interface EnumKit {
    *
    * @param type the type to check.
    */
-  is(type: Type): type is Enum;
+  is(type: Entity): type is Enum;
 }
 
 interface TypekitExtension {
-  /** @experimental */
   enum: EnumKit;
 }
 
@@ -99,7 +96,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return type.kind === "Enum";
+      return type.entityKind === "Type" && type.kind === "Enum";
     },
 
     createFromUnion(type) {

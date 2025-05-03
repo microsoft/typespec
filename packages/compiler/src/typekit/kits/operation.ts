@@ -1,11 +1,10 @@
-import { ModelProperty, Operation, Type } from "../../core/types.js";
+import { Entity, ModelProperty, Operation, Type } from "../../core/types.js";
 import { getPagingOperation, PagingOperation } from "../../lib/paging.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**
  * A descriptor for an operation.
- * @experimental
  */
 export interface OperationDescriptor {
   /**
@@ -26,7 +25,6 @@ export interface OperationDescriptor {
 
 /**
  * Utilities for working with operation properties.
- * @experimental
  * @typekit operation
  */
 export interface OperationKit {
@@ -40,7 +38,7 @@ export interface OperationKit {
    * Check if the type is an operation.
    * @param type type to check
    */
-  is(type: Type): type is Operation;
+  is(type: Entity): type is Operation;
   /**
    * Get the paging operation's metadata for an operation.
    * @param operation operation to get the paging operation for
@@ -51,7 +49,6 @@ export interface OperationKit {
 interface TypekitExtension {
   /**
    * Utilities for working with operation properties.
-   * @experimental
    */
   operation: OperationKit;
 }
@@ -62,8 +59,8 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   operation: {
-    is(type: Type) {
-      return type.kind === "Operation";
+    is(type) {
+      return type.entityKind === "Type" && type.kind === "Operation";
     },
     getPagingMetadata: createDiagnosable(function (operation) {
       return getPagingOperation(this.program, operation);

@@ -16,7 +16,6 @@ import type {
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
-/** @experimental */
 /**
  * @typekit value
  */
@@ -54,53 +53,57 @@ export interface ValueKit {
    *
    * @param type The type to check.
    */
-  isString(type: Value): type is StringValue;
+  isString(type: Entity): type is StringValue;
 
   /**
    * Check if `type` is a numeric Value type.
    *
    * @param type The type to check.
    */
-  isNumeric(type: Value): type is NumericValue;
+  isNumeric(type: Entity): type is NumericValue;
 
   /**
    * Check if `type` is a scalar value type
    * @param type The type to check.
    */
-  isScalar(type: Value): type is ScalarValue;
+  isScalar(type: Entity): type is ScalarValue;
 
   /**
    * Check if `type` is an object value type
    * @param type The type to check.
    */
-  isObject(type: Value): type is ObjectValue;
+  isObject(type: Entity): type is ObjectValue;
 
   /**
    * Check if `type` is an array value type
    * @param type The type to check.
    */
-  isArray(type: Value): type is ArrayValue;
+  isArray(type: Entity): type is ArrayValue;
 
   /**
    * Check if `type` is an enum value type
    * @param type The type to check.
    */
-  isEnum(type: Value): type is EnumValue;
+  isEnum(type: Entity): type is EnumValue;
 
   /**
    * Check if `type` is a null value Type.
    * @param type The type to check.
    */
-  isNull(type: Value): type is NullValue;
+  isNull(type: Entity): type is NullValue;
 
   /**
    * Check if `type` is a boolean Value type.
    *
    * @param type The type to check.
    */
-  isBoolean(type: Value): type is BooleanValue;
+  isBoolean(type: Entity): type is BooleanValue;
 
-  is(type: { valueKind: string }): type is Value;
+  /**
+   * Check if `type` is a Value type.
+   * @param type The type to check.
+   */
+  is(type: Entity): type is Value;
 
   /**
    * Check if the source type can be assigned to the target.
@@ -130,7 +133,6 @@ export interface ValueKit {
 }
 
 interface TypekitExtension {
-  /** @experimental */
   value: ValueKit;
 }
 
@@ -141,17 +143,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   value: {
     is(value) {
-      const type = value as any;
-      return (
-        this.value.isString(type) ||
-        this.value.isNumeric(type) ||
-        this.value.isBoolean(type) ||
-        this.value.isArray(type) ||
-        this.value.isObject(type) ||
-        this.value.isEnum(type) ||
-        this.value.isNull(type) ||
-        this.value.isScalar(type)
-      );
+      return value.entityKind === "Value";
     },
     create(value) {
       if (typeof value === "string") {
@@ -195,28 +187,28 @@ defineKit<TypekitExtension>({
     },
 
     isBoolean(type) {
-      return type.valueKind === "BooleanValue";
+      return this.value.is(type) && type.valueKind === "BooleanValue";
     },
     isString(type) {
-      return type.valueKind === "StringValue";
+      return this.value.is(type) && type.valueKind === "StringValue";
     },
     isNumeric(type) {
-      return type.valueKind === "NumericValue";
+      return this.value.is(type) && type.valueKind === "NumericValue";
     },
     isArray(type) {
-      return type.valueKind === "ArrayValue";
+      return this.value.is(type) && type.valueKind === "ArrayValue";
     },
     isObject(type) {
-      return type.valueKind === "ObjectValue";
+      return this.value.is(type) && type.valueKind === "ObjectValue";
     },
     isEnum(type) {
-      return type.valueKind === "EnumValue";
+      return this.value.is(type) && type.valueKind === "EnumValue";
     },
     isNull(type) {
-      return type.valueKind === "NullValue";
+      return this.value.is(type) && type.valueKind === "NullValue";
     },
     isScalar(type) {
-      return type.valueKind === "ScalarValue";
+      return this.value.is(type) && type.valueKind === "ScalarValue";
     },
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
       return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);

@@ -63,4 +63,6 @@ it("can check if a type is a tuple", async () => {
   );
 
   expect($(program).tuple.is(Foo)).toBe(true);
+
+  expect($(program).tuple.is($(program).value.createBoolean(true))).toBe(false);
 });

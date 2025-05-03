@@ -1,10 +1,9 @@
 import { isRecordModelType } from "../../core/type-utils.js";
-import { Model, Type } from "../../core/types.js";
+import { Entity, Model, RecordModelType, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
  * RecordKit provides utilities for working with Record Model types.
- * @experimental
  * @typekit record
  */
 export interface RecordKit {
@@ -13,7 +12,7 @@ export interface RecordKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): boolean;
+  is(type: Entity): type is RecordModelType;
   /**
    *  Get the element type of a Record
    * @param type a Record Model type
@@ -23,11 +22,10 @@ export interface RecordKit {
    * Create a Record Model type
    * @param elementType The type of the elements in the record
    */
-  create(elementType: Type): Model;
+  create(elementType: Type): RecordModelType;
 }
 
 interface TypekitExtension {
-  /** @experimental */
   record: RecordKit;
 }
 
@@ -39,7 +37,10 @@ defineKit<TypekitExtension>({
   record: {
     is(type) {
       return (
-        type.kind === "Model" && isRecordModelType(this.program, type) && type.properties.size === 0
+        type.entityKind === "Type" &&
+        type.kind === "Model" &&
+        isRecordModelType(this.program, type) &&
+        type.properties.size === 0
       );
     },
     getElementType(type) {
@@ -56,7 +57,7 @@ defineKit<TypekitExtension>({
           key: this.builtin.string,
           value: elementType,
         },
-      });
+      }) as RecordModelType;
     },
   },
 });

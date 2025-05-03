@@ -1,10 +1,9 @@
-import type { Type, Union, UnionVariant } from "../../core/types.js";
+import type { Entity, Type, Union, UnionVariant } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /**
  * A descriptor for a union variant.
- * @experimental
  */
 export interface UnionVariantDescriptor {
   /**
@@ -35,7 +34,6 @@ export interface UnionVariantDescriptor {
  * Union variants are types that represent a single value within a union that can be one of
  * several types.
  *
- * @experimental
  * @typekit unionVariant
  */
 export interface UnionVariantKit {
@@ -51,13 +49,12 @@ export interface UnionVariantKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is UnionVariant;
+  is(type: Entity): type is UnionVariant;
 }
 
 interface TypekitExtension {
   /**
    * Utilities for working with union variants.
-   * @experimental
    */
   unionVariant: UnionVariantKit;
 }
@@ -81,7 +78,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return type.kind === "UnionVariant";
+      return type.entityKind === "Type" && type.kind === "UnionVariant";
     },
   },
 });

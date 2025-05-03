@@ -29,9 +29,13 @@ import { getPlausibleName } from "../utils/get-plausible-name.js";
 
 /**
  * @typekit type
- * @experimental
  */
 export interface TypeTypekit {
+  /**
+   * Checks if `entity` is a Type.
+   * @param entity The entity to check.
+   */
+  is(entity: Entity): entity is Type;
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -165,7 +169,6 @@ export interface TypeTypekit {
 interface TypekitExtension {
   /**
    * Utilities for working with general types.
-   * @experimental
    */
   type: TypeTypekit;
 }
@@ -176,6 +179,9 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   type: {
+    is(entity) {
+      return entity.entityKind === "Type";
+    },
     finishType(type: Type) {
       this.program.checker.finishType(type);
     },

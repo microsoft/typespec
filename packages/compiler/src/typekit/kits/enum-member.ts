@@ -1,4 +1,4 @@
-import type { Enum, EnumMember, Type } from "../../core/types.js";
+import type { Entity, Enum, EnumMember } from "../../core/types.js";
 
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
@@ -46,11 +46,10 @@ export interface EnumMemberKit {
    *
    * @param type the type to check.
    */
-  is(type: Type): type is EnumMember;
+  is(type: Entity): type is EnumMember;
 }
 
 interface TypekitExtension {
-  /** @experimental */
   enumMember: EnumMemberKit;
 }
 
@@ -73,7 +72,7 @@ defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return type.kind === "EnumMember";
+      return type.entityKind === "Type" && type.kind === "EnumMember";
     },
   },
 });

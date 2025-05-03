@@ -1,8 +1,12 @@
-/**
- * @experimental
- * @typekit intrinsic
- */
-import type { ErrorType, NeverType, NullType, UnknownType, VoidType } from "../../core/types.js";
+import type {
+  Entity,
+  ErrorType,
+  IntrinsicType,
+  NeverType,
+  NullType,
+  UnknownType,
+  VoidType,
+} from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface IntrinsicKit {
@@ -16,6 +20,11 @@ export interface IntrinsicKit {
   get null(): NullType;
   /** The intrinsic 'void' type. */
   get void(): VoidType;
+  /**
+   * Check if `entity` is an intrinsic type.
+   * @param entity The `entity` to check.
+   */
+  is(entity: Entity): entity is IntrinsicType;
 }
 
 interface TypekitExtension {
@@ -42,6 +51,9 @@ defineKit<TypekitExtension>({
     },
     get void(): VoidType {
       return this.program.checker.voidType;
+    },
+    is(entity) {
+      return entity.entityKind === "Type" && entity.kind === "Intrinsic";
     },
   },
 });

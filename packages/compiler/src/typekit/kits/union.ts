@@ -3,7 +3,7 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../core/helpers/discriminator-utils.js";
-import type { Enum, Type, Union, UnionVariant } from "../../core/types.js";
+import type { Entity, Enum, Type, Union, UnionVariant } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
@@ -12,7 +12,6 @@ import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /**
  * A descriptor for a union type.
- * @experimental
  */
 export interface UnionDescriptor {
   /**
@@ -35,7 +34,6 @@ export interface UnionDescriptor {
 
 /**
  * Utilities for working with unions.
- * @experimental
  * @typekit union
  */
 export interface UnionKit {
@@ -81,7 +79,7 @@ export interface UnionKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is Union;
+  is(type: Entity): type is Union;
 
   /**
    * Check if the union is a valid enum. Specifically, this checks if the
@@ -115,7 +113,6 @@ export interface UnionKit {
 interface TypekitExtension {
   /**
    * Utilities for working with unions.
-   * @experimental
    */
   union: UnionKit;
 }
@@ -196,7 +193,7 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     is(type) {
-      return type.kind === "Union";
+      return type.entityKind === "Type" && type.kind === "Union";
     },
 
     isValidEnum(type) {
