@@ -102,7 +102,7 @@ async function getTypekitApi(
               name: member.displayName,
               docComment: member.tsdocComment,
               path: [...path, member.displayName],
-              excerpt: member.excerpt,
+              excerpt: member.propertyTypeExcerpt,
             };
           } else {
             throw new Error(

@@ -266,6 +266,8 @@ $(program).builtin.utcDateTime;
 
 ### entity.isAssignableTo
 
+Diagnosable API
+
 ```ts
 /**
  * Check if the source type can be assigned to the target.
@@ -276,10 +278,13 @@ $(program).builtin.utcDateTime;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).entity.isAssignableTo: Diagnosable<(source: Entity, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
+$(program).entity.isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).entity.isAssignableTo.withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### entity.resolve
+
+Diagnosable API
 
 ```ts
 /**
@@ -287,7 +292,8 @@ $(program).entity.isAssignableTo: Diagnosable<(source: Entity, target: Entity, d
  *
  * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
  */
-$(program).entity.resolve: Diagnosable<(reference: string) => Entity | undefined>;
+$(program).entity.resolve(): reference: stringEntity | undefined;
+$(program).entity.resolve.withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnosable[]];
 ```
 
 ## EnumKit
@@ -441,13 +447,16 @@ $(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
 
 ### model.getDiscriminatedUnion
 
+Diagnosable API
+
 ```ts
 /**
  * Resolves a discriminated union for the given model from inheritance.
  *
  * @param type - Model to resolve the discriminated union for.
  */
-$(program).model.getDiscriminatedUnion: Diagnosable<(model: Model) => DiscriminatedUnionLegacy | undefined>;
+$(program).model.getDiscriminatedUnion(model: Model): DiscriminatedUnionLegacy | undefined;
+$(program).model.getDiscriminatedUnion.withDiagnostics(model: Model): [DiscriminatedUnionLegacy | undefined, readonly Diagnosable[]];
 ```
 
 ### model.getEffectiveModel
@@ -576,13 +585,16 @@ $(program).operation.create(desc: OperationDescriptor): Operation;
 
 ### operation.getPagingMetadata
 
+Diagnosable API
+
 ```ts
 /**
  * Get the paging operation's metadata for an operation.
  *
  * @param operation - operation to get the paging operation for
  */
-$(program).operation.getPagingMetadata: Diagnosable<(operation: Operation) => PagingOperation | undefined>;
+$(program).operation.getPagingMetadata(operation: Operation): PagingOperation | undefined;
+$(program).operation.getPagingMetadata.withDiagnostics(operation: Operation): [PagingOperation | undefined, readonly Diagnosable[]];
 ```
 
 ### operation.is
@@ -749,6 +761,8 @@ $(program).type.is(entity: Entity): entity is Type;
 
 ### type.isAssignableTo
 
+Diagnosable API
+
 ```ts
 /**
  * Check if the source type can be assigned to the target.
@@ -759,7 +773,8 @@ $(program).type.is(entity: Entity): entity is Type;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).type.isAssignableTo: Diagnosable<(source: Type, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
+$(program).type.isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).type.isAssignableTo.withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### type.isError
@@ -885,6 +900,8 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
 
 ### type.resolve
 
+Diagnosable API
+
 ```ts
 /**
  * Resolve a type reference to a TypeSpec type. By default any diagnostics are ignored.
@@ -893,9 +910,12 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  *
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
  */
-$(program).type.resolve: Diagnosable<(<K extends Type["kind"] | undefined>(reference: string, kind?: K) => K extends Type["kind"] ? Extract<Type, {
+$(program).type.resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
-    }> : undefined)>;
+    }> : undefined);
+$(program).type.resolve.withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+        kind: K;
+    }> : undefined), readonly Diagnosable[]];
 ```
 
 ## UnionKit
@@ -949,13 +969,16 @@ $(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boole
 
 ### union.getDiscriminatedUnion
 
+Diagnosable API
+
 ```ts
 /**
  * Resolves a discriminated union for the given union.
  *
  * @param type - Union to resolve the discriminated union for.
  */
-$(program).union.getDiscriminatedUnion: Diagnosable<(type: Union) => DiscriminatedUnion | undefined>;
+$(program).union.getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
+$(program).union.getDiscriminatedUnion.withDiagnostics(type: Union): [DiscriminatedUnion | undefined, readonly Diagnosable[]];
 ```
 
 ### union.is
@@ -1100,6 +1123,8 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
 
 ### value.isAssignableTo
 
+Diagnosable API
+
 ```ts
 /**
  * Check if the source type can be assigned to the target.
@@ -1110,7 +1135,8 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).value.isAssignableTo: Diagnosable<(source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
+$(program).value.isAssignableTo(source: Value, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).value.isAssignableTo.withDiagnostics(source: Value, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### value.isBoolean
@@ -1192,6 +1218,8 @@ $(program).value.isString(type: Entity): type is StringValue;
 
 ### value.resolve
 
+Diagnosable API
+
 ```ts
 /**
  * Resolve a value reference to a TypeSpec value. By default any diagnostics are ignored.
@@ -1200,7 +1228,10 @@ $(program).value.isString(type: Entity): type is StringValue;
  *
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
  */
-$(program).value.resolve: Diagnosable<(<K extends Value["valueKind"] | undefined>(reference: string, kind?: K) => K extends Value["valueKind"] ? Extract<Value, {
+$(program).value.resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
-    }> : undefined)>;
+    }> : undefined);
+$(program).value.resolve.withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+        valueKind: K;
+    }> : undefined), readonly Diagnosable[]];
 ```

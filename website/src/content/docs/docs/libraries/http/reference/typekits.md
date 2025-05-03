@@ -128,13 +128,16 @@ $(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[]
 
 ### httpOperation.get
 
+Diagnosable API
+
 ```ts
 /**
  * Get the corresponding HTTP operation for the given TypeSpec operation. The same TypeSpec operation will always return the exact same HttpOperation object.
  *
  * @param op - The TypeSpec operation to get the HTTP operation metadata for.
  */
-$(program).httpOperation.get: Diagnosable<(op: Operation) => HttpOperation>;
+$(program).httpOperation.get(op: Operation): HttpOperation;
+$(program).httpOperation.get.withDiagnostics(op: Operation): [HttpOperation, readonly Diagnosable[]];
 ```
 
 ### httpOperation.getReturnType

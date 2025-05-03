@@ -1,6 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import { TypekitApi, TypekitFunctionDoc } from "../typekit-docs.js";
+import { DiagnosableTypekitFunction } from "./diagnosable-typekit-function.jsx";
 import { TsDoc } from "./tsdoc.jsx";
 
 export interface TypekitSectionProps {
@@ -23,6 +24,9 @@ export interface TypekitFunctionProps {
 }
 
 export function TypekitFunction(props: TypekitFunctionProps) {
+  if (props.typekit.kind === "diagnosable") {
+    return <DiagnosableTypekitFunction typekit={props.typekit} />;
+  }
   const path = [`$(program)`, ...props.typekit.path.slice(0, -1)];
   const sig = props.typekit.kind === "getter" ? props.typekit.name : props.typekit.excerpt.text;
   return (
