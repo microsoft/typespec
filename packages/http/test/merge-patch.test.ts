@@ -14,7 +14,7 @@ import {
 } from "../src/experimental/merge-patch/helpers.js";
 import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
-import { createHttpTestRunner, getOperationsWithServiceNamespace } from "./test-host.js";
+import { createHttpTestRunner, diagnoseOperations, getOperationsWithServiceNamespace } from "./test-host.js";
 
 function checkNullableUnion(program: Program, union: Type): boolean {
   return (
@@ -49,6 +49,37 @@ async function compileAndDiagnoseWithRunner(
   return [services[0].operations, runner.program.diagnostics];
 }
 
+describe ("merge-patch: metadata tests", () => {
+  async function testMetadata(prop: string, metadataType: string, propValue: string = "string"): Promise<void> {
+    const diag = await diagnoseOperations(`
+      model Foo {
+        ${metadataType} ${prop}: ${propValue};
+        name: string;
+        description?: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<Foo>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-contains-metadata",
+      message:
+        `The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${metadataType}' decorating property '${prop}'`,
+    })
+  }
+  it("emits a diagnostic when mergePatch target contains @path metadata", async () => {
+    await testMetadata("id", "@path");
+  });
+  it("emits a diagnostic when mergePatch target contains @query metadata", async () => {
+    await testMetadata("id", "@query");
+  });
+  it("emits a diagnostic when mergePatch target contains @header metadata", async () => {
+    await testMetadata("id", "@header");
+  });
+  it("emits a diagnostic when mergePatch target contains @cookie metadata", async () => {
+    await testMetadata("id", "@cookie");
+  });
+  it("emits a disgnostic when mergePatch target contains @statusCode metadata", async () => {
+    await testMetadata("code", "@statusCode", "200");
+  });
+});
 describe("merge-patch: http operation support", () => {
   it("uses the merge-patch content type for explicit body", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
@@ -89,7 +120,7 @@ describe("merge-patch: http operation support", () => {
   it("uses the merge-patch content type for spread", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
       model Foo {
-        @path id: string;
+        id: string;
         name: string;
         description?: string;
       }

@@ -208,6 +208,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type '${"contentType"}'.`,
       },
     },
+    "merge-patch-contains-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${"metadataType"}' decorating property '${"propertyName"}'`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },

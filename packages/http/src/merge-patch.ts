@@ -9,6 +9,7 @@ import {
   EnumValue,
   getLifecycleVisibilityEnum,
   isVisible,
+  logDiagnostics,
   Model,
   ModelProperty,
   navigateType,
@@ -41,6 +42,7 @@ import {
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
+import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -255,6 +257,21 @@ function createMergePatchMutator(
               const mutatedProp = mutated.type as ModelProperty;
               mutatedProp.model = clone;
               clone.properties.set(key, mutatedProp);
+            }
+            else {
+              const decorator: string | undefined = 
+              isPathParam(program, prop)? "@path":
+              isHeader(program, prop)? "@header":
+              isCookieParam(program, prop)? "@cookie":
+              isQueryParam(program, prop)? "@query":
+              isStatusCode(program, prop)? "@statusCode": undefined;
+              if (decorator) {
+                reportDiagnostic(program, {
+                  code: "merge-patch-contains-metadata",
+                  target: prop,
+                  format: {metadataType: decorator, propertyName: prop.name}
+                });
+              }
             }
           }
 
