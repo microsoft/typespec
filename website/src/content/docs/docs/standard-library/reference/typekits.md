@@ -12,7 +12,7 @@ title: "[API] Typekits"
 /**
  * Create an array type.
  */
-$(program).array.create(elementType: Type): Model;
+$(program).array.create(elementType: Type): ArrayModelType;
 ```
 
 ### getElementType
@@ -30,7 +30,7 @@ $(program).array.getElementType(type: Model): Type;
 /**
  * Check if a type is an array.
  */
-$(program).array.is(type: Type): boolean;
+$(program).array.is(type: Entity): type is ArrayModelType;
 ```
 
 ## BuiltinKit
@@ -52,6 +52,17 @@ A kit of built-in types.
  * @param diagnosticTarget - Target for the diagnostic
  */
 $(program).entity.isAssignableTo: Diagnosable<(source: Entity, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
+```
+
+### resolve
+
+```ts
+/**
+ * Resolve a type reference string to a TypeSpec type. By default any diagnostics are ignored.
+ *
+ * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
+ */
+$(program).entity.resolve: Diagnosable<(reference: string) => Entity | undefined>;
 ```
 
 ## EnumKit
@@ -90,7 +101,7 @@ $(program).enum.createFromUnion(type: Union): Enum;
  *
  * @param type - the type to check.
  */
-$(program).enum.is(type: Type): type is Enum;
+$(program).enum.is(type: Entity): type is Enum;
 ```
 
 ## EnumMemberKit
@@ -114,7 +125,20 @@ $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
  *
  * @param type - the type to check.
  */
-$(program).enumMember.is(type: Type): type is EnumMember;
+$(program).enumMember.is(type: Entity): type is EnumMember;
+```
+
+## IntrinsicKit
+
+### is
+
+```ts
+/**
+ * Check if `entity` is an intrinsic type.
+ *
+ * @param entity - The `entity` to check.
+ */
+$(program).intrinsic.is(entity: Entity): entity is IntrinsicType;
 ```
 
 ## ModelKit
@@ -192,7 +216,7 @@ $(program).model.getProperties(model: Model, options?: {
  *
  * @param type - The type to check.
  */
-$(program).model.is(type: Type): type is Model;
+$(program).model.is(type: Entity): type is Model;
 ```
 
 ### isExpresion
@@ -262,7 +286,7 @@ $(program).modelProperty.getVisibilityForClass(property: ModelProperty, visibili
  *
  * @param type - The type to check.
  */
-$(program).modelProperty.is(type: Type): type is ModelProperty;
+$(program).modelProperty.is(type: Entity): type is ModelProperty;
 ```
 
 ## OperationKit
@@ -299,7 +323,7 @@ $(program).operation.getPagingMetadata: Diagnosable<(operation: Operation) => Pa
  *
  * @param type - type to check
  */
-$(program).operation.is(type: Type): type is Operation;
+$(program).operation.is(type: Entity): type is Operation;
 ```
 
 ## RecordKit
@@ -314,7 +338,7 @@ RecordKit provides utilities for working with Record Model types.
  *
  * @param elementType - The type of the elements in the record
  */
-$(program).record.create(elementType: Type): Model;
+$(program).record.create(elementType: Type): RecordModelType;
 ```
 
 ### getElementType
@@ -336,7 +360,7 @@ $(program).record.getElementType(type: Model): Type;
  *
  * @param type - The type to check.
  */
-$(program).record.is(type: Type): boolean;
+$(program).record.is(type: Entity): type is RecordModelType;
 ```
 
 ## TupleKit
@@ -358,7 +382,7 @@ $(program).tuple.create(values?: Type[]): Tuple;
 /**
  * Check if a type is a tuple.
  */
-$(program).tuple.is(type: Type): type is Tuple;
+$(program).tuple.is(type: Entity): type is Tuple;
 ```
 
 ## TypeTypekit
@@ -440,6 +464,17 @@ $(program).type.getSummary(type: Type): string | undefined;
  * @returns True if the type is in the namespace, false otherwise.
  */
 $(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
+```
+
+### is
+
+```ts
+/**
+ * Checks if `entity` is a Type.
+ *
+ * @param entity - The entity to check.
+ */
+$(program).type.is(entity: Entity): entity is Type;
 ```
 
 ### isAssignableTo
@@ -661,7 +696,7 @@ $(program).union.getDiscriminatedUnion: Diagnosable<(type: Union) => Discriminat
  *
  * @param type - The type to check.
  */
-$(program).union.is(type: Type): type is Union;
+$(program).union.is(type: Entity): type is Union;
 ```
 
 ### isExpression
@@ -722,7 +757,7 @@ $(program).unionVariant.create(desc: UnionVariantDescriptor): UnionVariant;
  *
  * @param type - The type to check.
  */
-$(program).unionVariant.is(type: Type): type is UnionVariant;
+$(program).unionVariant.is(type: Entity): type is UnionVariant;
 ```
 
 ## ValueKit
@@ -774,9 +809,12 @@ $(program).value.createString(value: string): StringValue;
 ### is
 
 ```ts
-$(program).value.is(type: {
-        valueKind: string;
-    }): type is Value;
+/**
+ * Check if `type` is a Value type.
+ *
+ * @param type - The type to check.
+ */
+$(program).value.is(type: Entity): type is Value;
 ```
 
 ### isArray
@@ -787,7 +825,7 @@ $(program).value.is(type: {
  *
  * @param type - The type to check.
  */
-$(program).value.isArray(type: Value): type is ArrayValue;
+$(program).value.isArray(type: Entity): type is ArrayValue;
 ```
 
 ### isAssignableTo
@@ -813,7 +851,7 @@ $(program).value.isAssignableTo: Diagnosable<(source: Value, target: Entity, dia
  *
  * @param type - The type to check.
  */
-$(program).value.isBoolean(type: Value): type is BooleanValue;
+$(program).value.isBoolean(type: Entity): type is BooleanValue;
 ```
 
 ### isEnum
@@ -824,7 +862,7 @@ $(program).value.isBoolean(type: Value): type is BooleanValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isEnum(type: Value): type is EnumValue;
+$(program).value.isEnum(type: Entity): type is EnumValue;
 ```
 
 ### isNull
@@ -835,7 +873,7 @@ $(program).value.isEnum(type: Value): type is EnumValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isNull(type: Value): type is NullValue;
+$(program).value.isNull(type: Entity): type is NullValue;
 ```
 
 ### isNumeric
@@ -846,7 +884,7 @@ $(program).value.isNull(type: Value): type is NullValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isNumeric(type: Value): type is NumericValue;
+$(program).value.isNumeric(type: Entity): type is NumericValue;
 ```
 
 ### isObject
@@ -857,7 +895,7 @@ $(program).value.isNumeric(type: Value): type is NumericValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isObject(type: Value): type is ObjectValue;
+$(program).value.isObject(type: Entity): type is ObjectValue;
 ```
 
 ### isScalar
@@ -868,7 +906,7 @@ $(program).value.isObject(type: Value): type is ObjectValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isScalar(type: Value): type is ScalarValue;
+$(program).value.isScalar(type: Entity): type is ScalarValue;
 ```
 
 ### isString
@@ -879,7 +917,7 @@ $(program).value.isScalar(type: Value): type is ScalarValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isString(type: Value): type is StringValue;
+$(program).value.isString(type: Entity): type is StringValue;
 ```
 
 ### resolve
