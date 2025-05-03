@@ -9,7 +9,6 @@ import {
   EnumValue,
   getLifecycleVisibilityEnum,
   isVisible,
-  logDiagnostics,
   Model,
   ModelProperty,
   navigateType,
