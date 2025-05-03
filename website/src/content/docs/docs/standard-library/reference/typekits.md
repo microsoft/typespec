@@ -1,5 +1,5 @@
 ---
-title: [API] Typekits
+title: "[API] Typekits"
 ---
 
 # Typekits
@@ -31,6 +31,90 @@ $(program).array.getElementType(type: Model): Type;
  * Check if a type is an array.
  */
 $(program).array.is(type: Type): boolean;
+```
+
+## BuiltinKit
+
+A kit of built-in types.
+
+## EntityKit
+
+### isAssignableTo
+
+```ts
+/**
+ * Check if the source type can be assigned to the target.
+ *
+ * @param source - Source type
+ *
+ * @param target - Target type
+ *
+ * @param diagnosticTarget - Target for the diagnostic
+ */
+$(program).entity.isAssignableTo: Diagnosable<(source: Entity, target: Entity, diagnosticTarget?: Entity | Node) => boolean>;
+```
+
+## EnumKit
+
+A kit for working with enum types.
+
+### create
+
+```ts
+/**
+ * Build an enum type. The enum type will be finished (i.e. decorators are run).
+ */
+$(program).enum.create(desc: EnumDescriptor): Enum;
+```
+
+### createFromUnion
+
+```ts
+/**
+ * Build an equivalent enum from the given union.
+ *
+ * @remarks
+ *
+ * Union variants which are not valid enum members are skipped. You can check if a union is a valid enum with {@link UnionKit.union}'s `isEnumValue`.
+ *
+ * Any API documentation will be rendered and preserved in the resulting enum. - No other decorators are copied from the union to the enum
+ */
+$(program).enum.createFromUnion(type: Union): Enum;
+```
+
+### is
+
+```ts
+/**
+ * Check if `type` is an enum type.
+ *
+ * @param type - the type to check.
+ */
+$(program).enum.is(type: Type): type is Enum;
+```
+
+## EnumMemberKit
+
+A kit for working with enum members.
+
+### create
+
+```ts
+/**
+ * Create an enum member. The enum member will be finished (i.e. decorators are run).
+ */
+$(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
+```
+
+### is
+
+```ts
+/**
+ * Check if `type` is an enum member type.
+ *
+ * @param type - the type to check.
+ */
+$(program).enumMember.is(type: Type): type is EnumMember;
 ```
 
 ## ModelKit

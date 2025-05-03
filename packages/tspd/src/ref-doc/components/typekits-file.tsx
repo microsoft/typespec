@@ -11,7 +11,7 @@ export function createTypekitDocs(typekit: TypekitApi) {
         <>
           {ay.code`
         ---
-        title: [API] Typekits
+        title: "[API] Typekits"
         ---
         `}
         </>
