@@ -16,6 +16,7 @@ import { TypeSpecRefDocBase } from "./types.js";
 import { readPackageJson } from "./utils/misc.js";
 
 export interface GenerateLibraryDocsOptions {
+  typekits?: boolean;
   skipJSApi?: boolean;
 }
 /**
@@ -43,7 +44,9 @@ export async function generateLibraryDocs(
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
   if (!options.skipJSApi) {
-    await writeTypekitDocs(libraryPath, outputDir);
+    if (options.typekits) {
+      await writeTypekitDocs(libraryPath, outputDir);
+    }
     if (pkgJson.main) {
       await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
     }

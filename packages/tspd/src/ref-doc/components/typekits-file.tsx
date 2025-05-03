@@ -7,12 +7,13 @@ import { TypekitSection } from "./typekit-section.js";
 export function createTypekitDocs(typekit: TypekitApi) {
   const jsxContent = (
     <ay.Output>
-      <md.SourceFile path={`typekits.md`}>
+      <md.SourceFile path={`typekits.mdx`}>
         <>
           {ay.code`
         ---
         title: "[API] Typekits"
         ---
+        import { Badge } from '@astrojs/starlight/components';
         `}
         </>
         <md.Section heading={"Typekits"}>

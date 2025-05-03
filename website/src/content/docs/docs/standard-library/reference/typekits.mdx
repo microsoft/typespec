@@ -2,6 +2,8 @@
 title: "[API] Typekits"
 ---
 
+import { Badge } from '@astrojs/starlight/components';
+
 # Typekits
 
 ## ArrayKit
@@ -264,9 +266,7 @@ $(program).builtin.utcDateTime;
 
 ## EntityKit
 
-### entity.isAssignableTo
-
-Diagnosable API
+### entity.isAssignableTo <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -282,9 +282,7 @@ $(program).entity.isAssignableTo(source: Entity, target: Entity, diagnosticTarge
 $(program).entity.isAssignableTo.withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
-### entity.resolve
-
-Diagnosable API
+### entity.resolve <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -445,9 +443,7 @@ $(program).model.create(desc: ModelDescriptor): Model;
 $(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
 ```
 
-### model.getDiscriminatedUnion
-
-Diagnosable API
+### model.getDiscriminatedUnion <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -583,9 +579,7 @@ Utilities for working with operation properties.
 $(program).operation.create(desc: OperationDescriptor): Operation;
 ```
 
-### operation.getPagingMetadata
-
-Diagnosable API
+### operation.getPagingMetadata <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -759,9 +753,7 @@ $(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
 $(program).type.is(entity: Entity): entity is Type;
 ```
 
-### type.isAssignableTo
-
-Diagnosable API
+### type.isAssignableTo <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -898,9 +890,7 @@ $(program).type.minValue(type: Type): number | undefined;
 $(program).type.minValueExclusive(type: Type): number | undefined;
 ```
 
-### type.resolve
-
-Diagnosable API
+### type.resolve <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -967,9 +957,7 @@ $(program).union.createFromEnum(type: Enum): Union;
 $(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
 ```
 
-### union.getDiscriminatedUnion
-
-Diagnosable API
+### union.getDiscriminatedUnion <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -1121,9 +1109,7 @@ $(program).value.is(type: Entity): type is Value;
 $(program).value.isArray(type: Entity): type is ArrayValue;
 ```
 
-### value.isAssignableTo
-
-Diagnosable API
+### value.isAssignableTo <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -1216,9 +1202,7 @@ $(program).value.isScalar(type: Entity): type is ScalarValue;
 $(program).value.isString(type: Entity): type is StringValue;
 ```
 
-### value.resolve
-
-Diagnosable API
+### value.resolve <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**

@@ -14,9 +14,10 @@ export function DiagnosableTypekitFunction(props: DiagnosableTypekitFunctionProp
   const fnSig = `${accessor}(${renderTokens(parameters)}): ${renderTokens(returnType)};`;
   const fnDiagSig = `${accessor}.withDiagnostics(${renderTokens(parameters)}): [${renderTokens(returnType)}, readonly Diagnosable[]];`;
   return (
-    <md.Section heading={props.typekit.path.join(".")}>
+    <md.Section
+      heading={`${props.typekit.path.join(".")} <Badge variant="note" text="Diagnosable" />`}
+    >
       <ay.List>
-        <>Diagnosable API</>
         {"```ts"}
         {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
         {fnSig}
@@ -62,7 +63,6 @@ function parseDiagnosableExcerpt(excerpt: Excerpt): {
       };
     }
   } else {
-    console.error("Cannot parse Diagnosable function signature", excerpt.spannedTokens);
     throw new Error(`Cannot parse Diagnosable function signature: ${excerpt.text}.`);
   }
 }

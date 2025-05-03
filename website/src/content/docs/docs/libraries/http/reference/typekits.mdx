@@ -2,6 +2,8 @@
 title: "[API] Typekits"
 ---
 
+import { Badge } from '@astrojs/starlight/components';
+
 # Typekits
 
 ## HttpModel
@@ -126,9 +128,7 @@ Utilities for working with HTTP operations.
 $(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[];
 ```
 
-### httpOperation.get
-
-Diagnosable API
+### httpOperation.get <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
