@@ -24,7 +24,7 @@ const FirstResponseTokenInBody = {
   status: 200,
   body: json({
     pets: FirstPage,
-    nextToken: "page2",
+    token: "page2",
   }),
 };
 
@@ -41,7 +41,7 @@ const FirstResponseTokenInHeader = {
     pets: FirstPage,
   }),
   headers: {
-    "next-token": "page2",
+    token: "page2",
     foo: "foo",
   },
 };
