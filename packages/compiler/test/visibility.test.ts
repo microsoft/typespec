@@ -11,6 +11,7 @@ import {
   Diagnostic,
   EmptyVisibilityProvider,
   Enum,
+  getFriendlyName,
   getLifecycleVisibilityEnum,
   getParameterVisibilityFilter,
   getVisibilityForClass,
@@ -1054,12 +1055,9 @@ describe("compiler: visibility core", () => {
         c: string;
       }
 
-      model ReadA is Read<A>;
-      model ReadB is Read<B>;
-
       @test model Out {
-        a: ReadA;
-        b: ReadB;
+        a: Read<A>;
+        b: Read<B>;
       }
     `)) as { Out: Model };
 
@@ -1077,8 +1075,8 @@ describe("compiler: visibility core", () => {
     const A = a.type as Model;
     const B = b.type as Model;
 
-    ok(A.name === "ReadA");
-    ok(B.name === "ReadB");
+    ok(getFriendlyName(runner.program, A) === "ReadA");
+    ok(getFriendlyName(runner.program, B) === "ReadB");
 
     ok(A.properties.has("a"));
     ok(!A.properties.has("invis"));
