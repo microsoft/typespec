@@ -1032,7 +1032,7 @@ describe("compiler: visibility core", () => {
         a: string;
 
         @visibility(Lifecycle.Create)
-        invis: string;
+        invisible: string;
 
         c: C;
       }
@@ -1042,14 +1042,14 @@ describe("compiler: visibility core", () => {
         b: string;
 
         @visibility(Lifecycle.Create)
-        invis: string;
+        invisible: string;
 
         c: C;
       }
 
       model C {
         @visibility(Lifecycle.Create)
-        invis: string;
+        invisible: string;
 
         @visibility(Lifecycle.Read)
         c: string;
@@ -1079,10 +1079,10 @@ describe("compiler: visibility core", () => {
     ok(getFriendlyName(runner.program, B) === "ReadB");
 
     ok(A.properties.has("a"));
-    ok(!A.properties.has("invis"));
+    ok(!A.properties.has("invisible"));
 
     ok(B.properties.has("b"));
-    ok(!B.properties.has("invis"));
+    ok(!B.properties.has("invisible"));
 
     const aC = A.properties.get("c");
     const bC = B.properties.get("c");
@@ -1097,7 +1097,7 @@ describe("compiler: visibility core", () => {
     ok(C.kind === "Model");
     ok(C.name === "ReadC");
 
-    ok(!C.properties.has("invis"));
+    ok(!C.properties.has("invisible"));
     ok(C.properties.has("c"));
 
     C = bC.type as Model;
@@ -1105,7 +1105,7 @@ describe("compiler: visibility core", () => {
     ok(C.kind === "Model");
     ok(C.name === "ReadC");
 
-    ok(!C.properties.has("invis"));
+    ok(!C.properties.has("invisible"));
     ok(C.properties.has("c"));
   });
 
@@ -1116,7 +1116,7 @@ describe("compiler: visibility core", () => {
         a: string;
 
         @visibility(Lifecycle.Create)
-        invis: string;
+        invisible: string;
       }
 
       @withVisibilityFilter(#{ any: #[Lifecycle.Read] }, "{name}Transform")
@@ -1152,7 +1152,7 @@ describe("compiler: visibility core", () => {
     ok(arrayA === recordA);
 
     ok(arrayA.properties.has("a"));
-    ok(!arrayA.properties.has("invis"));
+    ok(!arrayA.properties.has("invisible"));
   });
 });
 
