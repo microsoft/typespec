@@ -5,7 +5,7 @@ import { HttpStateKeys } from "../../lib.js";
 export interface MergePatchPropertyOverrides {
   optional?: boolean;
   erasable?: boolean;
-  updateBehavior?: "merge" | "replace"; 
+  updateBehavior?: "merge" | "replace";
 }
 export const [getMergePatchSource, setMergePatchSource] = useStateMap<Model, Model>(
   HttpStateKeys.mergePatchModel,
