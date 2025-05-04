@@ -458,6 +458,32 @@ describe("merge-patch: emitter apis", () => {
   });
 });
 describe("merge-patch: visibility transforms", () => {
+  it("allows invisible metadata in MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        @visibility(Lifecycle.Create, Lifecycle.Read)
+        @path id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    isNullableUnion(checkProperty(envelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(envelope, "updateOnly", true, "Union"));
+    expect(envelope.properties.size).toBe(2);
+  });
   it("handles basic visibility for MergePatchUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
       runner,
