@@ -1,5 +1,4 @@
 import {
-  $friendlyName,
   $invisible,
   $removeVisibility,
   $visibility,
@@ -16,6 +15,7 @@ import {
   navigateType,
   Program,
   resetVisibilityModifiersForClass,
+  Tuple,
   Type,
   Union,
   UnionVariant,
@@ -23,7 +23,7 @@ import {
 } from "@typespec/compiler";
 
 import {
-  unsafe_isMutableType as isMutableType,
+  unsafe_MutableType as MutableType,
   unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
@@ -64,6 +64,39 @@ export const $mergePatchProperty: MergePatchPropertyDecorator = (
   setMergePatchPropertySource(ctx.program, target, source);
 };
 
+const MUTATOR_RESULT_CACHE = Symbol.for("TypeSpec.Http.MutatorResultCache");
+
+interface MutatorResultCache {
+  [MUTATOR_RESULT_CACHE]?: WeakMap<MutableType, ReturnType<typeof mutateSubgraph>>;
+}
+
+function cachedMutateSubgraph(
+  program: Program,
+  mutator: Mutator,
+  type: MutableType,
+): ReturnType<typeof mutateSubgraph> {
+  const cache = ((mutator as MutatorResultCache)[MUTATOR_RESULT_CACHE] ??= new WeakMap());
+
+  let cached = cache.get(type);
+
+  if (cached) return cached;
+
+  cached = mutateSubgraph(program, [mutator], type);
+
+  cache.set(type, cached);
+  return cached;
+}
+
+const MERGE_PATCH_MUTATOR_CACHE = Symbol.for("TypeSpec.Http.MergePatchMutatorCache");
+
+interface MergePatchMutatorCache {
+  [MERGE_PATCH_MUTATOR_CACHE]?: {
+    [nameTemplate: string]: Partial<Record<MergePatchVisibilityMode, Mutator>>;
+  };
+}
+
+type MergePatchVisibilityMode = "Update" | "CreateOrUpdate";
+
 export const $applyMergePatch: ApplyMergePatchDecorator = (
   ctx: DecoratorContext,
   target: Model,
@@ -89,11 +122,18 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
     { visitDerivedTypes: false, includeTemplateDeclaration: false },
   );
 
-  const mutated = mutateSubgraph(
-    ctx.program,
-    [createMergePatchMutator(ctx, nameTemplate, options)],
-    source,
-  );
+  const mutatorCache = ((ctx.program as MergePatchMutatorCache)[MERGE_PATCH_MUTATOR_CACHE] ??= {});
+
+  const visibilityMode = (options.visibilityMode as EnumValue).value
+    .name as MergePatchVisibilityMode;
+
+  const mutator = ((mutatorCache[nameTemplate] ??= {})[visibilityMode] ??= createMergePatchMutator(
+    ctx,
+    nameTemplate,
+    visibilityMode,
+  ));
+
+  const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
 
   target.properties = (mutated.type as Model).properties;
   ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
@@ -162,25 +202,23 @@ function setPropertyOverride(
 function createMergePatchMutator(
   ctx: DecoratorContext,
   nameTemplate: string,
-  options: ApplyMergePatchOptions,
+  visibilityMode: MergePatchVisibilityMode,
 ): Mutator {
   const Lifecycle = getLifecycleVisibilityEnum(ctx.program);
-  const visibilityMode = (options.visibilityMode as EnumValue).value.name as
-    | "Update"
-    | "CreateOrUpdate";
 
   const [primaryFilter, optionalFilter, replaceFilter] = visibilityModeToFilters(
     ctx.program,
     visibilityMode,
   );
 
-  const replaceMutator = bindMutator(replaceFilter);
-  const optionalMutator = bindMutator(optionalFilter, replaceMutator);
+  const replaceMutator = bindMutator(replaceFilter, nameTemplate + "ReplaceOnly");
+  const optionalMutator = bindMutator(optionalFilter, nameTemplate + "OrCreate", replaceMutator);
 
-  return bindMutator(primaryFilter, replaceMutator, optionalMutator);
+  return bindMutator(primaryFilter, nameTemplate, replaceMutator, optionalMutator);
 
   function bindMutator(
     visibilityFilter: VisibilityFilter,
+    nameTemplate: string,
     _replaceInteriorMutator?: Mutator,
     _optionalInteriorMutator?: Mutator,
   ): Mutator {
@@ -228,12 +266,12 @@ function createMergePatchMutator(
                 : true);
           clone.defaultValue = isReplaceMutator() ? prop.defaultValue : undefined;
 
-          if (isMutableType(prop.type)) {
+          if (isMergePatchSubject(prop.type)) {
             const mutated = prop.optional
               ? // Optional property --> Transition to interior mutator
-                mutateSubgraph(program, [_optionalInteriorMutator ?? self], prop.type)
+                cachedMutateSubgraph(program, _optionalInteriorMutator ?? self, prop.type)
               : // Required property --> Recur on this mutator.
-                mutateSubgraph(program, [self], prop.type);
+                cachedMutateSubgraph(program, self, prop.type);
 
             clone.type = mutated.type;
           }
@@ -255,29 +293,32 @@ function createMergePatchMutator(
         mutate: (union, clone, program) => {
           for (const [key, member] of union.variants) {
             overrideDiscriminatedUnionProperty(program, member);
-            if (isMutableType(member.type)) {
+            if (isMergePatchSubject(member.type)) {
               const variant: UnionVariant = {
                 ...member,
-                type: mutateSubgraph(program, [_optionalInteriorMutator ?? self], member.type).type,
+                type: cachedMutateSubgraph(program, _optionalInteriorMutator ?? self, member.type)
+                  .type,
               };
               clone.variants.set(key, variant);
             }
           }
+
+          rename(clone, nameTemplate);
         },
       },
       Model: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (model, clone, program, realm) => {
-          if ($(realm).array.is(model) && isMutableType(model.indexer!.value)) {
+          if ($(realm).array.is(model) && isMergePatchSubject(model.indexer!.value)) {
             clone.indexer = {
               key: model.indexer!.key,
-              value: mutateSubgraph(
+              value: cachedMutateSubgraph(
                 program,
-                [_replaceInteriorMutator ?? self],
+                _replaceInteriorMutator ?? self,
                 model.indexer!.value,
               ).type,
             };
-          } else if ($(realm).record.is(model) && isMutableType(model.indexer!.value)) {
+          } else if ($(realm).record.is(model) && isMergePatchSubject(model.indexer!.value)) {
             clone.indexer = {
               key: model.indexer!.key,
               value: mutateSubgraph(
@@ -322,16 +363,17 @@ function createMergePatchMutator(
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
-          ctx.call($friendlyName, clone, nameTemplate, clone);
+          // ctx.call($friendlyName, clone, nameTemplate, clone);
+          rename(clone, nameTemplate);
         },
       },
       ModelProperty: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (prop, clone, program) => {
-          if (isMutableType(prop.type)) {
-            clone.type = mutateSubgraph(
+          if (isMergePatchSubject(prop.type)) {
+            clone.type = cachedMutateSubgraph(
               program,
-              [prop.optional ? (_optionalInteriorMutator ?? self) : self],
+              prop.optional ? (_optionalInteriorMutator ?? self) : self,
               prop.type,
             ).type;
           }
@@ -341,10 +383,10 @@ function createMergePatchMutator(
       UnionVariant: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (variant, clone, program) => {
-          if (isMutableType(variant.type)) {
-            const mutated = mutateSubgraph(
+          if (isMergePatchSubject(variant.type)) {
+            const mutated = cachedMutateSubgraph(
               program,
-              [_optionalInteriorMutator || self],
+              _optionalInteriorMutator || self,
               variant.type,
             );
             clone.type = mutated.type;
@@ -355,8 +397,12 @@ function createMergePatchMutator(
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (tuple, clone, program) => {
           for (const [index, element] of tuple.values.entries()) {
-            if (isMutableType(element)) {
-              clone.values[index] = mutateSubgraph(program, [self], element).type;
+            if (isMergePatchSubject(element)) {
+              clone.values[index] = cachedMutateSubgraph(
+                program,
+                _replaceInteriorMutator ?? self,
+                element,
+              ).type;
             }
           }
         },
@@ -378,4 +424,33 @@ function createMergePatchMutator(
       ],
     });
   }
+}
+
+type MergePatchSubject = Model | Union | ModelProperty | UnionVariant | Tuple;
+
+function isMergePatchSubject(type: Type): type is MergePatchSubject {
+  return (
+    type.kind === "Model" ||
+    type.kind === "Union" ||
+    type.kind === "ModelProperty" ||
+    type.kind === "UnionVariant" ||
+    type.kind === "Tuple"
+  );
+}
+
+function rename(type: Extract<MergePatchSubject, { name?: string }>, nameTemplate: string) {
+  if (type.name && nameTemplate) {
+    type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
+  }
+}
+
+function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+  // Template parameters are not valid source objects, just skip them
+  if (sourceObject.kind === "TemplateParameter") {
+    return formatString;
+  }
+
+  return formatString.replace(/{(\w+)}/g, (_, propName) => {
+    return (sourceObject as any)[propName];
+  });
 }
