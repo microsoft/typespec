@@ -258,7 +258,8 @@ public class SchemaUtil {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
                     if (Objects.equals(name, "Error")
                         || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
-                            "Azure.Core.Foundations.Error"))) {
+                            "Azure.Core.Foundations.Error"))
+                        || Objects.equals(name, "ErrorResponse")) {
                         classType = ClassType.RESPONSE_ERROR;
                     }
                     /*

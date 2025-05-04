@@ -65,6 +65,9 @@ public class ClientModelUtil {
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
+    public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
+    public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
+        = "ClientCoreOperationLocationPollingStrategy";
 
     private ClientModelUtil() {
     }

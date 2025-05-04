@@ -1333,11 +1333,18 @@ public class JavaSettings {
             = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
                 "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
 
+        public static final String DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT
+            = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
+                "    .setRequestContext({context})", "    .setServiceVersion({serviceVersion}))");
+
         private static final String DEFAULT_POLLING_CODE
             = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
 
         private static final String DEFAULT_SYNC_POLLING_CODE
             = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
+
+        private static final String DEFAULT_CLIENTCORE_POLLING_CODE
+            = String.format(DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
 
         /**
          * Gets the strategy for polling.
@@ -1365,6 +1372,9 @@ public class JavaSettings {
          */
         public String getSyncStrategy() {
             if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
+                if (JavaSettings.getInstance().isAzureV2()) {
+                    return DEFAULT_CLIENTCORE_POLLING_CODE;
+                }
                 return DEFAULT_SYNC_POLLING_CODE;
             } else {
                 return syncStrategy;

@@ -35,7 +35,7 @@ public final class ConditionalRequestClient {
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -50,7 +50,7 @@ public final class ConditionalRequestClient {
      * 
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +62,7 @@ public final class ConditionalRequestClient {
     /**
      * Check when only If-Match in header is defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +77,7 @@ public final class ConditionalRequestClient {
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -92,7 +92,7 @@ public final class ConditionalRequestClient {
      * 
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -104,7 +104,7 @@ public final class ConditionalRequestClient {
     /**
      * Check when only If-None-Match in header is defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -121,7 +121,7 @@ public final class ConditionalRequestClient {
      * been modified since the specified time.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -139,7 +139,7 @@ public final class ConditionalRequestClient {
      * client. The operation will be performed only if the resource on the service has
      * been modified since the specified time.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -151,7 +151,7 @@ public final class ConditionalRequestClient {
     /**
      * Check when only If-Modified-Since in header is defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -168,7 +168,7 @@ public final class ConditionalRequestClient {
      * not been modified since the specified time.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -186,7 +186,7 @@ public final class ConditionalRequestClient {
      * client. The operation will be performed only if the resource on the service has
      * not been modified since the specified time.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -198,7 +198,7 @@ public final class ConditionalRequestClient {
     /**
      * Check when only If-Unmodified-Since in header is defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

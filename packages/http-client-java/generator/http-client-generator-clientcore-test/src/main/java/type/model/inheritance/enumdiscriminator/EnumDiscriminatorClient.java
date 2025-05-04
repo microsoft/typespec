@@ -33,7 +33,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test extensible enum type for discriminator.
      */
@@ -46,7 +46,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Receive model with extensible enum discriminator type.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test extensible enum type for discriminator.
      */
@@ -62,7 +62,7 @@ public final class EnumDiscriminatorClient {
      * @param input Dog to create.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -77,7 +77,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param input Dog to create.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -91,7 +91,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
@@ -104,7 +104,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Get a model omitting the discriminator.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
@@ -119,7 +119,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */
@@ -132,7 +132,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Get a model containing discriminator value never defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */
@@ -147,7 +147,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test fixed enum type for discriminator.
      */
@@ -160,7 +160,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Receive model with fixed enum discriminator type.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test fixed enum type for discriminator.
      */
@@ -176,7 +176,7 @@ public final class EnumDiscriminatorClient {
      * @param input Snake to create.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -191,7 +191,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param input Snake to create.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -205,7 +205,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
@@ -218,7 +218,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Get a model omitting the discriminator.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
@@ -233,7 +233,7 @@ public final class EnumDiscriminatorClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */
@@ -246,7 +246,7 @@ public final class EnumDiscriminatorClient {
     /**
      * Get a model containing discriminator value never defined.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */

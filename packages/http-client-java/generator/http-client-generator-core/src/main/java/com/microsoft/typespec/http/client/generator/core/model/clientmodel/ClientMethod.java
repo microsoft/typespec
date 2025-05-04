@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.UrlBuilder;
-import com.azure.core.util.polling.PollingStrategyOptions;
 import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -450,13 +449,19 @@ public class ClientMethod {
                     }
 
                     imports.add("java.time.Duration");
-                    imports.add(PollingStrategyOptions.class.getName());
+
+                    ClassType.POLLING_STRATEGY_OPTIONS.addImportsTo(imports, false);
 
                     if (getMethodPollingDetails() != null) {
                         for (String pollingStrategy : KNOWN_POLLING_STRATEGIES) {
                             if (getMethodPollingDetails().getPollingStrategy().contains(pollingStrategy)
                                 || getMethodPollingDetails().getSyncPollingStrategy().contains(pollingStrategy)) {
-                                imports.add("com.azure.core.util.polling." + pollingStrategy);
+
+                                if (JavaSettings.getInstance().isAzureV2()) {
+                                    imports.add("com.azure.v2.core.http.polling." + pollingStrategy);
+                                } else {
+                                    imports.add("com.azure.core.util.polling." + pollingStrategy);
+                                }
                             }
                         }
                     }

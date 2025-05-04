@@ -33,7 +33,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -46,7 +46,7 @@ public final class OperationsClient {
     /**
      * The and operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +60,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -73,7 +73,7 @@ public final class OperationsClient {
     /**
      * The as operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -87,7 +87,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -100,7 +100,7 @@ public final class OperationsClient {
     /**
      * The assertMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -114,7 +114,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -127,7 +127,7 @@ public final class OperationsClient {
     /**
      * The async operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -141,7 +141,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -154,7 +154,7 @@ public final class OperationsClient {
     /**
      * The await operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -168,7 +168,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -181,7 +181,7 @@ public final class OperationsClient {
     /**
      * The breakMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -195,7 +195,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -208,7 +208,7 @@ public final class OperationsClient {
     /**
      * The classMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -222,7 +222,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -235,7 +235,7 @@ public final class OperationsClient {
     /**
      * The constructor operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -249,7 +249,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -262,7 +262,7 @@ public final class OperationsClient {
     /**
      * The continueMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -276,7 +276,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -289,7 +289,7 @@ public final class OperationsClient {
     /**
      * The def operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -303,7 +303,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -316,7 +316,7 @@ public final class OperationsClient {
     /**
      * The del operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -330,7 +330,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -343,7 +343,7 @@ public final class OperationsClient {
     /**
      * The elif operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -357,7 +357,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -370,7 +370,7 @@ public final class OperationsClient {
     /**
      * The elseMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -384,7 +384,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -397,7 +397,7 @@ public final class OperationsClient {
     /**
      * The except operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -411,7 +411,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -424,7 +424,7 @@ public final class OperationsClient {
     /**
      * The exec operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -438,7 +438,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -451,7 +451,7 @@ public final class OperationsClient {
     /**
      * The finallyMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -465,7 +465,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -478,7 +478,7 @@ public final class OperationsClient {
     /**
      * The forMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -492,7 +492,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -505,7 +505,7 @@ public final class OperationsClient {
     /**
      * The from operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -519,7 +519,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -532,7 +532,7 @@ public final class OperationsClient {
     /**
      * The global operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -546,7 +546,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -559,7 +559,7 @@ public final class OperationsClient {
     /**
      * The ifMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -573,7 +573,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -586,7 +586,7 @@ public final class OperationsClient {
     /**
      * The importMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -600,7 +600,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -613,7 +613,7 @@ public final class OperationsClient {
     /**
      * The in operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -627,7 +627,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -640,7 +640,7 @@ public final class OperationsClient {
     /**
      * The is operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -654,7 +654,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -667,7 +667,7 @@ public final class OperationsClient {
     /**
      * The lambda operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -681,7 +681,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -694,7 +694,7 @@ public final class OperationsClient {
     /**
      * The not operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -708,7 +708,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -721,7 +721,7 @@ public final class OperationsClient {
     /**
      * The or operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -735,7 +735,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -748,7 +748,7 @@ public final class OperationsClient {
     /**
      * The pass operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -762,7 +762,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -775,7 +775,7 @@ public final class OperationsClient {
     /**
      * The raise operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -789,7 +789,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -802,7 +802,7 @@ public final class OperationsClient {
     /**
      * The returnMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -816,7 +816,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -829,7 +829,7 @@ public final class OperationsClient {
     /**
      * The tryMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -843,7 +843,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -856,7 +856,7 @@ public final class OperationsClient {
     /**
      * The whileMethod operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -870,7 +870,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -883,7 +883,7 @@ public final class OperationsClient {
     /**
      * The with operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -897,7 +897,7 @@ public final class OperationsClient {
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -910,7 +910,7 @@ public final class OperationsClient {
     /**
      * The yield operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

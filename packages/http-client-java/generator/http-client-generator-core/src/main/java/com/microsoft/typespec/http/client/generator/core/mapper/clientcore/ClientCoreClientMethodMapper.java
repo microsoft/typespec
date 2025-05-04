@@ -333,14 +333,9 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     && !returnTypeHolder.syncReturnType.equals(ClassType.INPUT_STREAM)) {
                     // temporary skip InputStream, no idea how to do this in PollerFlux
                     // Skip sync ProxyMethods for polling as sync polling isn't ready yet.
-                    if (proxyMethod.isSync()) {
-                        continue;
-                    }
-
-                    JavaVisibility simpleAsyncMethodVisibility = methodVisibility(
-                        ClientMethodType.SimpleAsyncRestResponse, defaultOverloadType, false, isProtocolMethod);
-                    JavaVisibility simpleAsyncMethodVisibilityWithContext = methodVisibility(
-                        ClientMethodType.SimpleAsyncRestResponse, defaultOverloadType, true, isProtocolMethod);
+//                    if (proxyMethod.isSync()) {
+//                        continue;
+//                    }
 
                     JavaVisibility simpleSyncMethodVisibility = methodVisibility(
                         ClientMethodType.SimpleSyncRestResponse, defaultOverloadType, false, isProtocolMethod);
@@ -348,21 +343,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                         ClientMethodType.SimpleSyncRestResponse, defaultOverloadType, true, isProtocolMethod);
                     // for vanilla and fluent, the SimpleAsyncRestResponse is VISIBLE, so that they can be used for
                     // possible customization on LRO
-
-                    // WithResponseAsync, with required and optional parameters
-                    methods.add(builder
-                        .returnValue(createSimpleAsyncRestResponseReturnValue(operation,
-                            returnTypeHolder.asyncRestResponseReturnType, returnTypeHolder.syncReturnType))
-                        .name(proxyMethod.getSimpleAsyncRestResponseMethodName())
-                        .onlyRequiredParameters(false)
-                        .type(ClientMethodType.SimpleAsyncRestResponse)
-                        .groupedParameterRequired(false)
-                        .methodVisibility(simpleAsyncMethodVisibility)
-                        .hasWithContextOverload(simpleAsyncMethodVisibilityWithContext != NOT_GENERATE)
-                        .build());
-
-                    builder.methodVisibility(simpleAsyncMethodVisibilityWithContext);
-                    addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                     if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
                         // WithResponseAsync, with required and optional parameters
@@ -378,18 +358,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                             .build());
 
                         builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
+                        builder.methodVisibilityInWrapperClient(NOT_GENERATE);
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
-
-                        // reset builder
-                        builder
-                            .returnValue(createSimpleAsyncRestResponseReturnValue(operation,
-                                returnTypeHolder.asyncRestResponseReturnType, returnTypeHolder.syncReturnType))
-                            .name(proxyMethod.getSimpleAsyncRestResponseMethodName())
-                            .onlyRequiredParameters(false)
-                            .type(ClientMethodType.SimpleAsyncRestResponse)
-                            .groupedParameterRequired(false)
-                            .proxyMethod(proxyMethod)
-                            .methodVisibility(simpleAsyncMethodVisibility);
                     }
 
                     JavaSettings.PollingDetails pollingDetails
@@ -509,41 +479,17 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         ProxyMethod proxyMethod, List<ClientMethodParameter> parameters,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
-        // fluent provides the simple wrapper API for LRO
-        // the difference is that it does not have a RestResponse overload, as Response data is not included in an LRO
-        // API
-
-        // async
-        methods.add(builder.returnValue(createLongRunningAsyncReturnValue(operation, asyncReturnType, syncReturnType))
-            .name(proxyMethod.getSimpleAsyncMethodName())
-            .onlyRequiredParameters(false)
-            .type(ClientMethodType.LongRunningAsync)
-            .groupedParameterRequired(false)
-            .methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, false, isProtocolMethod))
-            .build());
-
-        if (generateClientMethodWithOnlyRequiredParameters) {
-            methods.add(builder.onlyRequiredParameters(true)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningAsync,
-                    MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                .build());
-        }
-
-        addClientMethodWithContext(methods,
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningAsync, defaultOverloadType, true, isProtocolMethod)),
-            parameters, getContextParameter(isProtocolMethod));
-
         // sync
+        JavaVisibility methodVisibility
+            = methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, false, isProtocolMethod);
         methods.add(builder.returnValue(createLongRunningSyncReturnValue(operation, syncReturnType))
             .name(proxyMethod.getName())
             .onlyRequiredParameters(false)
             .type(ClientMethodType.LongRunningSync)
             .groupedParameterRequired(false)
             .onlyRequiredParameters(true)
-            .methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, false, isProtocolMethod))
+            .methodVisibility(methodVisibility)
+            .methodVisibilityInWrapperClient(methodVisibility)
             .build());
 
         if (generateClientMethodWithOnlyRequiredParameters) {
@@ -554,8 +500,11 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         }
 
         addClientMethodWithContext(methods,
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod)),
+            builder
+                .methodVisibility(
+                    methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod))
+                .methodVisibilityInWrapperClient(
+                    methodVisibility(ClientMethodType.LongRunningSync, defaultOverloadType, true, isProtocolMethod)),
             parameters, getContextParameter(isProtocolMethod));
     }
 
@@ -959,66 +908,33 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType,
         ProxyMethod proxyMethod) {
 
-        boolean proxyMethodUsesFluxByteBuffer = proxyMethod.getParameters()
-            .stream()
-            .anyMatch(proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
-
         builder.methodPollingDetails(methodPollingDetails);
-        if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
-            // begin method async
-            methods.add(builder
-                .returnValue(createLongRunningBeginAsyncReturnValue(operation, syncReturnType, methodPollingDetails))
-                .name(asyncMethodName)
-                .onlyRequiredParameters(false)
-                .type(ClientMethodType.LongRunningBeginAsync)
-                .groupedParameterRequired(false)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginAsync, defaultOverloadType, false,
-                    isProtocolMethod))
-                .build());
-
-            // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
-
-            if (generateClientMethodWithOnlyRequiredParameters) {
-                methods.add(builder.onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginAsync,
-                        ClientMethodMapper.MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build());
-            }
-
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningBeginAsync, defaultOverloadType, true, isProtocolMethod));
-            addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
-        }
-
-        if (!proxyMethodUsesFluxByteBuffer
-            && (JavaSettings.getInstance().isGenerateSyncMethods()
-                || JavaSettings.getInstance().isSyncStackEnabled())) {
-            // begin method sync
-            methods.add(builder
-                .returnValue(createLongRunningBeginSyncReturnValue(operation, syncReturnType, methodPollingDetails))
+        // begin method sync
+        JavaVisibility methodVisibility
+            = methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, false, isProtocolMethod);
+        methods.add(
+            builder.returnValue(createLongRunningBeginSyncReturnValue(operation, syncReturnType, methodPollingDetails))
                 .name(syncMethodName)
                 .onlyRequiredParameters(false)
                 .type(ClientMethodType.LongRunningBeginSync)
                 .groupedParameterRequired(false)
-                .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, false,
-                    isProtocolMethod))
+                .methodVisibility(methodVisibility)
+                .methodVisibilityInWrapperClient(methodVisibility)
                 .build());
 
-            // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
+        // overload for versioning
+        createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
 
-            if (generateClientMethodWithOnlyRequiredParameters) {
-                methods.add(builder.onlyRequiredParameters(true)
-                    .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginSync,
-                        ClientMethodMapper.MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
-                    .build());
-            }
-
-            builder.methodVisibility(
-                methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, true, isProtocolMethod));
-            addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
+        if (generateClientMethodWithOnlyRequiredParameters) {
+            methods.add(builder.onlyRequiredParameters(true)
+                .methodVisibility(methodVisibility(ClientMethodType.LongRunningBeginSync,
+                    ClientMethodMapper.MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod))
+                .build());
         }
+
+        builder.methodVisibility(
+            methodVisibility(ClientMethodType.LongRunningBeginSync, defaultOverloadType, true, isProtocolMethod));
+        addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
     }
 
     private ClientMethodParameter getContextParameter() {
@@ -1164,7 +1080,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         return new ReturnValue(returnTypeDescription(operation, asyncReturnType, syncReturnType), asyncReturnType);
     }
 
-    private ReturnValue createLongRunningBeginSyncReturnValue(Operation operation, IType syncReturnType,
+    protected ReturnValue createLongRunningBeginSyncReturnValue(Operation operation, IType syncReturnType,
         MethodPollingDetails pollingDetails) {
         if (JavaSettings.getInstance().isFluent()) {
             IType returnType = GenericType.SyncPoller(GenericType.PollResult(syncReturnType.asNullable()),
@@ -1172,7 +1088,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             return new ReturnValue(returnTypeDescription(operation, returnType, syncReturnType), returnType);
         } else {
             IType returnType
-                = GenericType.SyncPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
+                = GenericType.AzureVNextPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
             return new ReturnValue(returnTypeDescription(operation, returnType, pollingDetails.getFinalType()),
                 returnType);
         }

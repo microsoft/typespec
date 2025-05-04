@@ -57,6 +57,7 @@ import com.azure.core.util.ExpandableStringEnum;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.logging.LogLevel;
 import com.azure.core.util.polling.PollOperationDetails;
+import com.azure.core.util.polling.PollingStrategyOptions;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.JsonSerializer;
 import com.azure.core.util.serializer.SerializerAdapter;
@@ -205,15 +206,25 @@ public class ClassType implements IType {
                 new ClassDetails(MatchConditions.class, "io.clientcore.core.http.models.HttpMatchConditions"));
             put(RequestConditions.class,
                 new ClassDetails(RequestConditions.class, "io.clientcore.core.http.models.HttpRequestConditions"));
+            put(ResponseError.class, new ClassDetails(ResponseError.class, "io.clientcore.core.Error",
+                "com.azure.v2.core.models.AzureResponseError"));
+            put(SyncPoller.class, new ClassDetails(SyncPoller.class, "io.clientcore.core.Poller",
+                "com.azure.v2.core.http.polling.Poller"));
+            put(PollingStrategyOptions.class, new ClassDetails(PollingStrategyOptions.class,
+                "io.clientcore.core.PollingStrategyOptions", "com.azure.v2.core.http.polling.PollingStrategyOptions"));
         }
     };
 
     private static ClassType.Builder getClassTypeBuilder(Class<?> classKey) {
+        return getClassTypeBuilder(classKey, false);
+    }
+
+    private static ClassType.Builder getClassTypeBuilder(Class<?> classKey, boolean isSwaggerType) {
         if (JavaSettings.getInstance().isAzureV2()) {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
                 return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureVNextClass());
             } else {
-                return new Builder(false)
+                return new Builder(isSwaggerType)
                     .packageName(classKey.getPackage()
                         .getName()
                         .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
@@ -223,9 +234,13 @@ public class ClassType implements IType {
             }
         } else if (!JavaSettings.getInstance().isAzureV1()) {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
-                return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getGenericClass());
+                String genericClass = CLASS_TYPE_MAPPING.get(classKey).getGenericClass();
+                if (CoreUtils.isNullOrEmpty(genericClass)) {
+                    return null;
+                }
+                return new ClassType.Builder(false).knownClass(genericClass);
             } else {
-                return new Builder(false)
+                return new Builder(isSwaggerType)
                     .packageName(classKey.getPackage()
                         .getName()
                         .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
@@ -235,9 +250,11 @@ public class ClassType implements IType {
             }
         } else {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
-                return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureClass());
+                return new ClassType.Builder(isSwaggerType)
+                    .knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureClass());
             } else {
-                return new Builder(false).packageName(classKey.getPackage().getName()).name(classKey.getSimpleName());
+                return new Builder(isSwaggerType).packageName(classKey.getPackage().getName())
+                    .name(classKey.getSimpleName());
             }
         }
     }
@@ -580,7 +597,7 @@ public class ClassType implements IType {
     public static final ClassType TOO_MANY_REDIRECTS_EXCEPTION
         = getClassTypeBuilder(TooManyRedirectsException.class).build();
     public static final ClassType RESPONSE_ERROR
-        = new Builder().knownClass(ResponseError.class).jsonToken("JsonToken.START_OBJECT").build();
+        = getClassTypeBuilder(ResponseError.class, true).jsonToken("JsonToken.START_OBJECT").build();
     public static final ClassType RESPONSE_INNER_ERROR = new Builder().packageName("com.azure.core.models")
         .name("ResponseInnerError")
         .jsonToken("JsonToken.START_OBJECT")
@@ -588,7 +605,8 @@ public class ClassType implements IType {
     public static final ClassType SYNC_POLLER_FACTORY
         = new Builder().packageName("com.azure.core.management.polling").name("SyncPollerFactory").build();
 
-    public static final ClassType SYNC_POLLER = new Builder().knownClass(SyncPoller.class).build();
+    public static final ClassType SYNC_POLLER = getClassTypeBuilder(SyncPoller.class).build();
+    public static final ClassType POLLING_STRATEGY_OPTIONS = getClassTypeBuilder(PollingStrategyOptions.class).build();
 
     private final String fullName;
     private final String packageName;

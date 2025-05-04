@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     private static final ClientCoreClientMethodTemplate INSTANCE = new ClientCoreClientMethodTemplate();
 
-    private ClientCoreClientMethodTemplate() {
+    protected ClientCoreClientMethodTemplate() {
 
     }
 

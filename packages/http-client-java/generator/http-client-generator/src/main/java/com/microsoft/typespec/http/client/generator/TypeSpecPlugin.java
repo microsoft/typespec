@@ -174,12 +174,21 @@ public class TypeSpecPlugin extends Javagen {
 
         // OperationLocationPollingStrategy
         if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.POLLING_UTILS);
+            if (JavaSettings.getInstance().isAzureV2()) {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_POLLING_UTILS, ClientModelUtil.POLLING_UTILS);
+            } else {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.POLLING_UTILS);
+            }
+
         }
     }
 
