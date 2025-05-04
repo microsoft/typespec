@@ -628,12 +628,6 @@ interface CreateVisibilityFilterMutatorOptions {
   nameTemplate?: string;
 }
 
-const MODIFIED = Symbol.for("TypeSpec.Core.VisibilityFilter.Modified");
-
-interface VisibilityFilterEntity {
-  [MODIFIED]?: boolean;
-}
-
 /**
  * Create a mutator that applies a visibility filter to a type.
  *
