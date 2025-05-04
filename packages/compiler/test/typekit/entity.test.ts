@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { Model } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { createTestHost } from "../../src/testing/test-host.js";
+import { createTestWrapper } from "../../src/testing/test-utils.js";
+import { BasicTestRunner } from "../../src/testing/types.js";
 import { $ } from "../../src/typekit/index.js";
 import { getAssignables } from "./utils.js";
 
@@ -152,5 +155,49 @@ describe("$.entity.isAssignableTo", () => {
     );
     expect(validTest[0]).toBe(true);
     expectDiagnosticEmpty(validTest[1]);
+  });
+});
+
+describe("$.entity.resolve", () => {
+  let runner: BasicTestRunner;
+  beforeEach(async () => {
+    runner = createTestWrapper(await createTestHost());
+  });
+
+  it("resolve resolves existing types", async () => {
+    await runner.compile("");
+    const tk = $(runner.program);
+    const stringType = tk.entity.resolve("TypeSpec.string");
+    expect(stringType).toBeDefined();
+    expect(tk.builtin.string).toBe(stringType);
+
+    const [stringTypeDiag, diagnostics] = tk.entity.resolve.withDiagnostics("TypeSpec.string");
+    expect(stringTypeDiag).toBe(stringType);
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("resolve resolves existing values", async () => {
+    await runner.compile(`const stringValue = "test";`);
+    const tk = $(runner.program);
+    const stringValue = tk.entity.resolve("stringValue");
+    expect(stringValue).toBeDefined();
+    expect(tk.value.is(stringValue!)).toBe(true);
+
+    const [stringValueDiag, diagnostics] = tk.entity.resolve.withDiagnostics("stringValue");
+    expect(tk.value.is(stringValueDiag!)).toBe(true);
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("resolve returns undefined and diagnostics for invalid references", async () => {
+    await runner.compile("");
+    const unknownType = $(runner.program).entity.resolve("UnknownModel");
+    expect(unknownType).toBeUndefined();
+
+    const [unknownTypeDiag, diagnostics] = $(runner.program).entity.resolve.withDiagnostics(
+      "UnknownModel",
+    );
+    expect(unknownTypeDiag).toBeUndefined();
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].code).toBe("invalid-ref");
   });
 });

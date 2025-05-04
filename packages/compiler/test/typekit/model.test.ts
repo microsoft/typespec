@@ -32,6 +32,7 @@ it("returns false whe the type is not a model", async () => {
   );
 
   expect($(program).model.is(Foo)).toBe(false);
+  expect($(program).model.is($(program).value.create("foo"))).toBe(false);
 });
 
 it("creates a new Model", async () => {

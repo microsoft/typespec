@@ -5,6 +5,22 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expe
 import { $ } from "../../src/typekit/index.js";
 import { getAssignables, getTypes } from "./utils.js";
 
+describe("is", () => {
+  it("checks if an entity is a type", async () => {
+    const { sourceProp, program } = await getAssignables({ source: "string" });
+
+    const tk = $(program);
+    // 'true' cases where the entity is a type
+    expect(tk.type.is(tk.builtin.string)).toBe(true);
+    expect(tk.type.is(tk.literal.create("type"))).toBe(true);
+    expect(tk.type.is(tk.intrinsic.any)).toBe(true);
+
+    // 'false' cases where the entity is not a type
+    expect(tk.type.is(sourceProp)).toBe(false);
+    expect(tk.type.is(tk.value.create("value"))).toBe(false);
+  });
+});
+
 it("should clone a model", async () => {
   const {
     Foo,

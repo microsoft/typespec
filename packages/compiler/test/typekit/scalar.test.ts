@@ -18,6 +18,7 @@ it("can check for a string", async () => {
 
   expect($(program).scalar.isString(foo)).toBe(true);
   expect($(program).scalar.isString(bar)).toBe(false);
+  expect($(program).scalar.isString($(program).value.create("value"))).toBe(false);
 });
 
 it("can check for a numeric", async () => {
