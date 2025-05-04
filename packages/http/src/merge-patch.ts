@@ -239,13 +239,9 @@ function createMergePatchMutator(
           }
 
           // If the property is _effectively_ optional, we need to make this nullable.
-          const isEffectivelyOptional =
-            !isReplaceMutator() && (prop.optional || prop.defaultValue !== undefined);
+          const isEffectivelyOptional = prop.optional || prop.defaultValue !== undefined;
 
-          if (
-            overrides?.erasable === true ||
-            (overrides?.erasable === undefined && isEffectivelyOptional)
-          )
+          if (!isReplaceMutator() && overrides?.erasable !== false && isEffectivelyOptional)
             clone.type = nullable(realm, clone.type);
           ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
