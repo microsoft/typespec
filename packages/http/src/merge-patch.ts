@@ -7,6 +7,8 @@ import {
   DecoratorApplication,
   DecoratorContext,
   EnumValue,
+  getDiscriminatedUnion,
+  getDiscriminator,
   getLifecycleVisibilityEnum,
   isVisible,
   Model,
@@ -35,13 +37,16 @@ import {
   MergePatchModelDecorator,
   MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
+import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import {
+  getMergePatchPropertyOverrides,
+  MergePatchPropertyOverrides,
+  setMergePatchPropertyOverrides,
   setMergePatchPropertySource,
   setMergePatchSource,
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
-import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -117,6 +122,36 @@ function visibilityModeToFilters(
   }
 }
 
+function isDiscriminatedProperty(program: Program, property: ModelProperty): boolean {
+  if (property.model === undefined) return false;
+  const discriminator = getDiscriminator(program, property.model);
+  if (discriminator === undefined) return false;
+  if (discriminator.propertyName !== property.name) return false;
+  return true;
+}
+
+function overrideDiscriminatedUnionProperty(program: Program, variant: UnionVariant) {
+  const [discriminated, _] = getDiscriminatedUnion(program, variant.union);
+  if (!discriminated || variant.type.kind !== "Model") return;
+  for (const [name, property] of variant.type.properties) {
+    if (name === discriminated.options.discriminatorPropertyName) {
+      setPropertyOverride(program, property, { optional: false, erasable: false });
+    }
+  }
+}
+
+function setPropertyOverride(
+  program: Program,
+  property: ModelProperty,
+  values: MergePatchPropertyOverrides,
+): void {
+  const override = getMergePatchPropertyOverrides(program, property) ?? {};
+  if (values.optional !== undefined) override.optional = values.optional;
+  if (values.erasable !== undefined) override.erasable = values.erasable;
+  if (values.updateBehavior !== undefined) override.updateBehavior = values.updateBehavior;
+  setMergePatchPropertyOverrides(program, property, override);
+}
+
 /**
  * Create a mutator that applies a visibility filter to a type.
  *
@@ -158,7 +193,7 @@ function createMergePatchMutator(
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (prop, clone, program, realm) => {
           const decorators: DecoratorApplication[] = [];
-
+          const overrides = getMergePatchPropertyOverrides(program, prop);
           for (const decorator of prop.decorators) {
             const decFn = decorator.decorator;
             if (decFn === $visibility || decFn === $removeVisibility) {
@@ -184,7 +219,13 @@ function createMergePatchMutator(
 
           clone.decorators = decorators;
           resetVisibilityModifiersForClass(program, clone, Lifecycle);
-          clone.optional = isReplaceMutator() ? prop.optional : true;
+          clone.optional =
+            overrides?.optional ??
+            (isDiscriminatedProperty(program, prop)
+              ? false
+              : isReplaceMutator()
+                ? prop.optional
+                : true);
           clone.defaultValue = isReplaceMutator() ? prop.defaultValue : undefined;
 
           if (isMutableType(prop.type)) {
@@ -201,7 +242,11 @@ function createMergePatchMutator(
           const isEffectivelyOptional =
             !isReplaceMutator() && (prop.optional || prop.defaultValue !== undefined);
 
-          if (isEffectivelyOptional) clone.type = nullable(realm, clone.type);
+          if (
+            overrides?.erasable === true ||
+            (overrides?.erasable === undefined && isEffectivelyOptional)
+          )
+            clone.type = nullable(realm, clone.type);
           ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
       },
@@ -213,6 +258,7 @@ function createMergePatchMutator(
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (union, clone, program) => {
           for (const [key, member] of union.variants) {
+            overrideDiscriminatedUnionProperty(program, member);
             if (isMutableType(member.type)) {
               const variant: UnionVariant = {
                 ...member,
@@ -256,19 +302,23 @@ function createMergePatchMutator(
               const mutatedProp = mutated.type as ModelProperty;
               mutatedProp.model = clone;
               clone.properties.set(key, mutatedProp);
-            }
-            else {
-              const decorator: string | undefined = 
-              isPathParam(program, prop)? "@path":
-              isHeader(program, prop)? "@header":
-              isCookieParam(program, prop)? "@cookie":
-              isQueryParam(program, prop)? "@query":
-              isStatusCode(program, prop)? "@statusCode": undefined;
+            } else {
+              const decorator: string | undefined = isPathParam(program, prop)
+                ? "@path"
+                : isHeader(program, prop)
+                  ? "@header"
+                  : isCookieParam(program, prop)
+                    ? "@cookie"
+                    : isQueryParam(program, prop)
+                      ? "@query"
+                      : isStatusCode(program, prop)
+                        ? "@statusCode"
+                        : undefined;
               if (decorator) {
                 reportDiagnostic(program, {
                   code: "merge-patch-contains-metadata",
                   target: prop,
-                  format: {metadataType: decorator, propertyName: prop.name}
+                  format: { metadataType: decorator, propertyName: prop.name },
                 });
               }
             }

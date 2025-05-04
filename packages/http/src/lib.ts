@@ -244,6 +244,9 @@ export const $lib = createTypeSpecLibrary({
     httpPart: { description: "State for the @Private.httpPart decorator" },
     mergePatchModel: { description: "State marking mergePatch models " },
     mergePatchProperty: { description: "State marking merge path model property source" },
+    mergePatchPropertyOptions: {
+      description: "Override options for a property in a merge patch transform",
+    },
   },
 });
 

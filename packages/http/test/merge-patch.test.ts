@@ -14,13 +14,19 @@ import {
 } from "../src/experimental/merge-patch/helpers.js";
 import { getAllHttpServices } from "../src/operations.js";
 import { HttpOperation, RouteResolutionOptions } from "../src/types.js";
-import { createHttpTestRunner, diagnoseOperations, getOperationsWithServiceNamespace } from "./test-host.js";
+import {
+  createHttpTestRunner,
+  diagnoseOperations,
+  getOperationsWithServiceNamespace,
+} from "./test-host.js";
 
 function checkNullableUnion(program: Program, union: Type): boolean {
   return (
     $(program).union.is(union) &&
     union.variants.size === 2 &&
-    [...union.variants.values()].some((v) => v.type === $(program).intrinsic.null)
+    [...union.variants.values()].some(
+      (v) => $(program).intrinsic.is(v.type) && v.type.name === $(program).intrinsic.null.name,
+    )
   );
 }
 
@@ -49,8 +55,12 @@ async function compileAndDiagnoseWithRunner(
   return [services[0].operations, runner.program.diagnostics];
 }
 
-describe ("merge-patch: metadata tests", () => {
-  async function testMetadata(prop: string, metadataType: string, propValue: string = "string"): Promise<void> {
+describe("merge-patch: metadata tests", () => {
+  async function testMetadata(
+    prop: string,
+    metadataType: string,
+    propValue: string = "string",
+  ): Promise<void> {
     const diag = await diagnoseOperations(`
       model Foo {
         ${metadataType} ${prop}: ${propValue};
@@ -60,9 +70,8 @@ describe ("merge-patch: metadata tests", () => {
       @patch op update(@body body: MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
       code: "@typespec/http/merge-patch-contains-metadata",
-      message:
-        `The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${metadataType}' decorating property '${prop}'`,
-    })
+      message: `The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${metadataType}' decorating property '${prop}'`,
+    });
   }
   it("emits a diagnostic when mergePatch target contains @path metadata", async () => {
     await testMetadata("id", "@path");
@@ -324,6 +333,83 @@ describe("merge-patch: mutator validation", () => {
     deepStrictEqual(arraySchema.kind, "Model");
     checkProperty(arraySchema, "name", false, "Scalar", "string");
     checkProperty(arraySchema, "description", true, "Scalar", "string");
+  });
+  it("handles inherited discriminators", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      @discriminator("kind")
+      model BaseResource {
+        kind: string;
+        name: string;
+        description?: string;
+      }
+
+      model Resource extends BaseResource {
+       kind: "Resource";
+       id: string;
+       quantity?: safeint;
+     }
+      @patch op update(@body body: MergePatchUpdate<BaseResource>): BaseResource;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    checkProperty(bodyType, "kind", false, "Scalar", "string");
+    checkProperty(bodyType, "name", true, "Scalar", "string");
+    isNullableUnion(checkProperty(bodyType, "description", true, "Union"));
+  });
+
+  it("handles union discriminators", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      enum WidgetKind {
+        Heavy,
+        Light,
+      }
+
+      model HeavyWidget {
+        kind: WidgetKind.Heavy;
+        id: string;
+        weight: int32 = 10;
+        color: "red" | "blue";
+      }
+
+      model LightWidget {
+        kind: WidgetKind.Light;
+        id: string;
+        weight: int32 = 10;
+        color: "red" | "blue";
+      }
+
+      @discriminated
+      union Widget {
+        heavy: HeavyWidget,
+        light: LightWidget,
+      }
+      
+      model Entity {
+        widget: Widget;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Entity>): Entity;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const bodyType = checkProperty(envelope, "widget", true, "Union").type;
+    deepStrictEqual(bodyType.kind, "Union");
+    deepStrictEqual(bodyType.variants.size, 2);
+    for (const [_, variant] of bodyType.variants) {
+      deepStrictEqual(variant.type.kind, "Model");
+      checkProperty(variant.type, "kind", false, "EnumMember");
+      checkProperty(variant.type, "id", true, "Scalar", "string");
+      isNullableUnion(checkProperty(variant.type, "weight", true, "Union"));
+      checkProperty(variant.type, "color", true, "Union");
+    }
   });
 });
 describe("merge-patch: emitter apis", () => {

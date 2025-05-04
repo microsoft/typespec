@@ -2,6 +2,11 @@ import { isArrayModelType, Model, ModelProperty, Program, Type, Value } from "@t
 import { useStateMap } from "@typespec/compiler/utils";
 import { HttpStateKeys } from "../../lib.js";
 
+export interface MergePatchPropertyOverrides {
+  optional?: boolean;
+  erasable?: boolean;
+  updateBehavior?: "merge" | "replace"; 
+}
 export const [getMergePatchSource, setMergePatchSource] = useStateMap<Model, Model>(
   HttpStateKeys.mergePatchModel,
 );
@@ -10,6 +15,11 @@ export const [getMergePatchPropertySource, setMergePatchPropertySource] = useSta
   ModelProperty,
   ModelProperty
 >(HttpStateKeys.mergePatchProperty);
+
+export const [getMergePatchPropertyOverrides, setMergePatchPropertyOverrides] = useStateMap<
+  ModelProperty,
+  MergePatchPropertyOverrides
+>(HttpStateKeys.mergePatchPropertyOptions);
 
 /**
  * Determines if the given model is part of a mergePatch transform
