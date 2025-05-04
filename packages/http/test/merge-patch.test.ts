@@ -20,6 +20,11 @@ import {
   getOperationsWithServiceNamespace,
 } from "./test-host.js";
 
+let runner: BasicTestRunner;
+beforeEach(async () => {
+  runner = await createHttpTestRunner();
+});
+
 function checkNullableUnion(program: Program, union: Type): boolean {
   return (
     $(program).union.is(union) &&
@@ -30,7 +35,8 @@ function checkNullableUnion(program: Program, union: Type): boolean {
   );
 }
 
-function getNonNullableType(program: Program, union: Type): Type | undefined {
+function getNonNullableType(union: Type): Type | undefined {
+  const program: Program = runner.program;
   if (!$(program).union.is(union)) return undefined;
   const values = [...union.variants.values()]
     .filter((v) => v.type !== $(program).intrinsic.null)
@@ -39,6 +45,29 @@ function getNonNullableType(program: Program, union: Type): Type | undefined {
   return values[0];
 }
 
+function checkProperty(
+  model: Model,
+  name: string,
+  optional: boolean,
+  kind: TypeKind,
+  typeName?: string,
+): ModelProperty {
+  const prop = model.properties.get(name);
+  ok(prop);
+  expect(prop.optional).toBe(optional);
+  deepStrictEqual(prop.type.kind, kind);
+  if (typeName && (prop.type.kind === "Model" || prop.type.kind === "Scalar")) {
+    expect(prop.type.name).toStrictEqual(typeName);
+  }
+  return prop;
+}
+
+function isNullableUnion(property: ModelProperty) {
+  const program: Program = runner.program;
+  deepStrictEqual(property.type.kind, "Union");
+  expect(checkNullableUnion(program, property.type)).toBe(true);
+  return property;
+}
 async function compileAndDiagnoseWithRunner(
   runner: BasicTestRunner,
   code: string,
@@ -222,11 +251,6 @@ describe("merge-patch: http operation support", () => {
   });
 });
 describe("merge-patch: mutator validation", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
   it("handles optional and required properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,
@@ -249,29 +273,6 @@ describe("merge-patch: mutator validation", () => {
     expect(description.optional).toBe(true);
     expect(checkNullableUnion(runner.program, description!.type)).toBe(true);
   });
-
-  function checkProperty(
-    model: Model,
-    name: string,
-    optional: boolean,
-    kind: TypeKind,
-    typeName?: string,
-  ): ModelProperty {
-    const prop = model.properties.get(name);
-    ok(prop);
-    expect(prop.optional).toBe(optional);
-    deepStrictEqual(prop.type.kind, kind);
-    if (typeName && (prop.type.kind === "Model" || prop.type.kind === "Scalar")) {
-      expect(prop.type.name).toStrictEqual(typeName);
-    }
-    return prop;
-  }
-
-  function isNullableUnion(property: ModelProperty) {
-    deepStrictEqual(property.type.kind, "Union");
-    expect(checkNullableUnion(runner.program, property.type)).toBe(true);
-    return property;
-  }
 
   function validateResource(model: Model): void {
     checkProperty(model, "id", true, "Scalar", "string");
@@ -314,7 +315,7 @@ describe("merge-patch: mutator validation", () => {
     const related = checkProperty(bodyType, "related", true, "Union");
     ok(related);
     expect(checkNullableUnion(runner.program, related.type)).toBe(true);
-    const resource = getNonNullableType(runner.program, related.type);
+    const resource = getNonNullableType(related.type);
     ok(resource);
     deepStrictEqual(resource.kind, "Model");
     const valueResource = $(runner.program).record.getElementType(resource);
@@ -324,7 +325,7 @@ describe("merge-patch: mutator validation", () => {
     const array = checkProperty(bodyType, "children", true, "Union");
     ok(array);
     deepStrictEqual(array.type.kind, "Union");
-    const realArray = getNonNullableType(runner.program, array.type);
+    const realArray = getNonNullableType(array.type);
     ok(realArray);
     deepStrictEqual(realArray.kind, "Model");
     expect($(runner.program).array.is(realArray)).toBe(true);
@@ -413,11 +414,6 @@ describe("merge-patch: mutator validation", () => {
   });
 });
 describe("merge-patch: emitter apis", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
   it("recognizes mergePatch models and properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,
@@ -459,5 +455,443 @@ describe("merge-patch: emitter apis", () => {
     expect(mpProps.erasable).toBe(true);
     expect(mpProps.updateBehavior).toStrictEqual("replace");
     deepStrictEqual(mpProps.sourceProperty, sourceModel.properties.get("description"));
+  });
+});
+describe("merge-patch: visibility transforms", () => {
+  it("handles basic visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    checkProperty(envelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(envelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(envelope, "updateOnly", true, "Union"));
+    expect(envelope.properties.size).toBe(3);
+  });
+  it("handles complex array property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar[];
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const array = checkProperty(envelope, "subject", true, "Model").type;
+    deepStrictEqual(array.kind, "Model");
+    const innerEnvelope = array.indexer?.value;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", false, "Scalar", "string");
+    checkProperty(innerEnvelope, "description", true, "Scalar", "string");
+    checkProperty(innerEnvelope, "createOnly", true, "Scalar", "string");
+    expect(innerEnvelope.properties.size).toBe(3);
+  });
+  it("handles complex record property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Record<Bar>;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const record = checkProperty(envelope, "subject", true, "Model").type;
+    deepStrictEqual(record.kind, "Model");
+    const innerEnvelope = record.indexer?.value;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(4);
+  });
+  it("handles complex (required) model property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const innerEnvelope = checkProperty(envelope, "subject", true, "Model").type;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(3);
+  });
+  it("handles complex (optional) model property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject?: Bar;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const union = isNullableUnion(checkProperty(envelope, "subject", true, "Union")).type;
+    ok(union);
+    deepStrictEqual(union.kind, "Union");
+    const innerEnvelope = getNonNullableType(union);
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(4);
+  });
+  it("handles complex union property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+
+      model Baz {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar | Baz;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const union = checkProperty(envelope, "subject", true, "Union").type;
+    ok(union);
+    deepStrictEqual(union.kind, "Union");
+    for (const [_, variant] of union.variants) {
+      const innerEnvelope = variant.type;
+      ok(innerEnvelope);
+      deepStrictEqual(innerEnvelope.kind, "Model");
+      checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+      isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+      isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+      isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+      expect(innerEnvelope.properties.size).toBe(4);
+    }
+  });
+  it("handles basic visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    checkProperty(envelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(envelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(envelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(envelope, "updateOnly", true, "Union"));
+    expect(envelope.properties.size).toBe(4);
+  });
+  it("handles complex array property visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar[];
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const array = checkProperty(envelope, "subject", true, "Model").type;
+    deepStrictEqual(array.kind, "Model");
+    const innerEnvelope = array.indexer?.value;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", false, "Scalar", "string");
+    checkProperty(innerEnvelope, "description", true, "Scalar", "string");
+    checkProperty(innerEnvelope, "createOnly", true, "Scalar", "string");
+    expect(innerEnvelope.properties.size).toBe(3);
+  });
+  it("handles complex record property visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Record<Bar>;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const record = checkProperty(envelope, "subject", true, "Model").type;
+    deepStrictEqual(record.kind, "Model");
+    const innerEnvelope = record.indexer?.value;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(4);
+  });
+  it("handles complex (required) model property visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const innerEnvelope = checkProperty(envelope, "subject", true, "Model").type;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(4);
+  });
+  it("handles complex (optional) model property visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject?: Bar;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const union = isNullableUnion(checkProperty(envelope, "subject", true, "Union")).type;
+    ok(union);
+    deepStrictEqual(union.kind, "Union");
+    const innerEnvelope = getNonNullableType(union);
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+    isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+    isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+    expect(innerEnvelope.properties.size).toBe(4);
+  });
+  it("handles complex union property visibility for MergePatchCreateOrUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+
+      model Baz {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar | Baz;
+      }
+
+      @patch op update(@body body: MergePatchCreateOrUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const union = checkProperty(envelope, "subject", true, "Union").type;
+    ok(union);
+    deepStrictEqual(union.kind, "Union");
+    for (const [_, variant] of union.variants) {
+      const innerEnvelope = variant.type;
+      ok(innerEnvelope);
+      deepStrictEqual(innerEnvelope.kind, "Model");
+      checkProperty(innerEnvelope, "id", true, "Scalar", "string");
+      isNullableUnion(checkProperty(innerEnvelope, "description", true, "Union"));
+      isNullableUnion(checkProperty(innerEnvelope, "createOnly", true, "Union"));
+      isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
+      expect(innerEnvelope.properties.size).toBe(4);
+    }
   });
 });

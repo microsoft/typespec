@@ -258,7 +258,7 @@ function createMergePatchMutator(
             if (isMutableType(member.type)) {
               const variant: UnionVariant = {
                 ...member,
-                type: mutateSubgraph(program, [self], member.type).type,
+                type: mutateSubgraph(program, [_optionalInteriorMutator ?? self], member.type).type,
               };
               clone.variants.set(key, variant);
             }
