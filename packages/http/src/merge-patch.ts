@@ -257,14 +257,6 @@ function createMergePatchMutator(
 
           clone.decorators = decorators;
           resetVisibilityModifiersForClass(program, clone, Lifecycle);
-          clone.optional =
-            overrides?.optional ??
-            (isDiscriminatedProperty(program, prop)
-              ? false
-              : isReplaceMutator()
-                ? prop.optional
-                : true);
-          clone.defaultValue = isReplaceMutator() ? prop.defaultValue : undefined;
 
           if (isMergePatchSubject(prop.type)) {
             const mutated = prop.optional
@@ -276,11 +268,19 @@ function createMergePatchMutator(
             clone.type = mutated.type;
           }
 
-          // If the property is _effectively_ optional, we need to make this nullable.
-          const isEffectivelyOptional = prop.optional || prop.defaultValue !== undefined;
+          if (!isReplaceMutator()) {
+            // perform the mergePatch transform of the ModelProeprty
+            if (
+              overrides?.erasable !== false &&
+              (prop.optional || prop.defaultValue !== undefined)
+            ) {
+              clone.type = nullable(realm, clone.type);
+            }
+            clone.optional =
+              overrides?.optional ?? (isDiscriminatedProperty(program, prop) ? false : true);
+            clone.defaultValue = undefined;
+          }
 
-          if (!isReplaceMutator() && overrides?.erasable !== false && isEffectivelyOptional)
-            clone.type = nullable(realm, clone.type);
           ctx.program.stateMap(HttpStateKeys.mergePatchProperty).set(clone, prop);
         },
       },
@@ -332,8 +332,11 @@ function createMergePatchMutator(
           for (const [key, prop] of model.properties) {
             if (!isVisible(program, prop, visibilityFilter)) {
               // Property is not visible, remove it
-              clone.properties.delete(key);
-              realm.remove(clone);
+              const clonedProp = clone.properties.get(key);
+              if (clonedProp) {
+                clone.properties.delete(key);
+                realm.remove(clonedProp);
+              }
             } else if (!isMetadata(program, prop)) {
               const mutated = mutateSubgraph(program, [mpMutator], prop);
               const mutatedProp = mutated.type as ModelProperty;
@@ -398,11 +401,7 @@ function createMergePatchMutator(
         mutate: (tuple, clone, program) => {
           for (const [index, element] of tuple.values.entries()) {
             if (isMergePatchSubject(element)) {
-              clone.values[index] = cachedMutateSubgraph(
-                program,
-                _replaceInteriorMutator ?? self,
-                element,
-              ).type;
+              clone.values[index] = cachedMutateSubgraph(program, self, element).type;
             }
           }
         },
