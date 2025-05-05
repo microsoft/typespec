@@ -17,7 +17,6 @@ import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
 import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-
 import java.util.Objects;
 
 /**
@@ -70,10 +69,10 @@ public class OAuthBearerTokenAuthenticationPolicy extends HttpCredentialPolicy {
 
     @Override
     public Response<BinaryData> process(HttpRequest httpRequest, HttpPipelineNextPolicy next) {
-        //        if (!"https".equals(httpRequest.getUri().getScheme())) {
-        //            throw LOGGER.logThrowableAsError(
-        //                new RuntimeException("Token credentials require a URL using the HTTPS protocol scheme"));
-        //        }
+        // if (!"https".equals(httpRequest.getUri().getScheme())) {
+        // throw LOGGER.logThrowableAsError(
+        // new RuntimeException("Token credentials require a URL using the HTTPS protocol scheme"));
+        // }
 
         HttpPipelineNextPolicy nextPolicy = next.copy();
 

@@ -11,7 +11,7 @@
   <artifactId>http-client-generator-clientcore-test</artifactId>
   <packaging>jar</packaging>
 
-  <name>http-client-generator-test</name>
+  <name>http-client-generator-clientcore-test</name>
   <url>http://maven.apache.org</url>
 
   <properties>
