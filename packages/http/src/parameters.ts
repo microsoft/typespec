@@ -5,8 +5,10 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb, getPathOptions } from "./decorators.js";
-import { resolveRequestVisibilityWithDiagnostics } from "./metadata.js";
+import { getOperationVerb, getPatchOptions, getPathOptions } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
+import { createDiagnostic } from "./lib.js";
+import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
   HttpOperation,
@@ -59,9 +61,7 @@ function getOperationParametersForVerb(
   partialUriTemplate: string,
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = diagnostics.pipe(
-    resolveRequestVisibilityWithDiagnostics(program, operation, verb),
-  );
+  const visibility = resolveRequestVisibility(program, operation, verb);
   const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
   const parameters: HttpOperationParameter[] = [];
@@ -116,6 +116,22 @@ function getOperationParametersForVerb(
       },
     }),
   );
+  const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
+
+  // TODO: remove in 6month after 1.0.0. (November 2025)
+  if (
+    verb === "patch" &&
+    resolvedBody &&
+    implicitOptionality === undefined &&
+    !isMergePatchBody(program, resolvedBody?.type)
+  ) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "patch-implicit-optional",
+        target: operation,
+      }),
+    );
+  }
 
   for (const item of metadata) {
     switch (item.kind) {
