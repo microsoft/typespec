@@ -540,6 +540,12 @@ export interface VisibilityFilter {
   none?: Set<EnumMember>;
 }
 
+const VISIBILITY_FILTER = Symbol.for("TypeSpec.Core.VisibilityFilter");
+
+interface VisibilityFilterCache {
+  [VISIBILITY_FILTER]?: VisibilityFilter;
+}
+
 export const VisibilityFilter = {
   /**
    * Convert a TypeSpec `GeneratedVisibilityFilter` value to a `VisibilityFilter`.
@@ -548,11 +554,11 @@ export const VisibilityFilter = {
    * @returns a `VisibilityFilter` object that can be consumed by the visibility APIs
    */
   fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
-    return {
+    return ((filter as VisibilityFilterCache)[VISIBILITY_FILTER] ??= {
       all: filter.all && new Set(filter.all.map((v) => v.value)),
       any: filter.any && new Set(filter.any.map((v) => v.value)),
       none: filter.none && new Set(filter.none.map((v) => v.value)),
-    };
+    });
   },
   /**
    * Extracts the unique visibility classes referred to by the modifiers in a
