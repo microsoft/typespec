@@ -87,7 +87,7 @@ using Http;
 @route("/todoitems")
 interface TodoItems {
   @get getTodoItems(): TodoItem[];
-  @post createTodoItem(@body body: CreateTodoItem): Http.CreatedResponse & TodoItem;
+  @post createTodoItem(@body body: CreateTodoItem): CreatedResponse & TodoItem;
 }
 
 model TodoItem {
