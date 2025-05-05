@@ -44,34 +44,34 @@ try {
                 Pop-Location
             }
 
-            # $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
-            # Push-Location $generatorTestDir
-            # try {
-            #     & ./Setup.ps1
-            #     & ./Spector-Tests.ps1
-            # }
-            # finally {
-            #     Pop-Location
-            # }
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./Spector-Tests.ps1
+            }
+            finally {
+                Pop-Location
+            }
 
             Write-Host "Spector tests passed"
         } 
         catch {
             Write-Error "Spector tests failed: $_"
         }
-        # Copy coverage report to artifacts directory
-        # try {
-        #     $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
-        #     if (!(Test-Path $coverageReportDir)) {
-        #         New-Item -ItemType Directory -Path $coverageReportDir
+        Copy coverage report to artifacts directory
+        try {
+            $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
+            if (!(Test-Path $coverageReportDir)) {
+                New-Item -ItemType Directory -Path $coverageReportDir
 
-        #         $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
-        #         $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
-        #         Copy-Item $sourceFile -Destination $targetFile
-        #     }
-        # } catch {
-        #     Write-Error "Failed to copy coverage report file: $_"
-        # }
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
+                $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
+                Copy-Item $sourceFile -Destination $targetFile
+            }
+        } catch {
+            Write-Error "Failed to copy coverage report file: $_"
+        }
     }
     if ($GenerationChecks) {
         try {
