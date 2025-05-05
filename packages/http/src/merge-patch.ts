@@ -269,7 +269,7 @@ function createMergePatchMutator(
           }
 
           if (!isReplaceMutator()) {
-            // perform the mergePatch transform of the ModelProeprty
+            // perform the mergePatch transform of the ModelProperty
             if (
               overrides?.erasable !== false &&
               (prop.optional || prop.defaultValue !== undefined)
