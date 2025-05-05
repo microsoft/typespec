@@ -53,35 +53,52 @@ export class CSharpType implements CSharpTypeMetadata {
 
   isNamespaceInScope(scope?: Scope<string>, visited?: Set<Scope<string>>): boolean {
     if (this.isBuiltIn) return true;
-    if (scope === undefined) return false;
-    if (!visited) visited = new Set<Scope<string>>();
-    if (visited.has(scope)) return false;
-    visited.add(scope);
-
-    switch (scope.kind) {
-      case "namespace": {
-        if (scope.namespace.startsWith(this.namespace)) return true;
-        return this.isNamespaceInScope(scope.parentScope, visited);
-      }
-
-      case "sourceFile": {
-        for (const entry of scope.sourceFile.imports.keys()) {
-          if (entry === this.namespace) {
-            return true;
-          }
-        }
-        return this.isNamespaceInScope(scope.sourceFile.globalScope, visited);
-      }
-      default:
-        return false;
-    }
+    return checkOrAddNamespaceToScope(this.namespace, scope, visited);
   }
   public getTypeReference(scope?: Scope<string>): string {
-    return `${this.isNamespaceInScope(scope) ? "" : this.namespace + "."}${this.name}`;
+    return this.isNamespaceInScope(scope) ? this.name : `${this.namespace}.${this.name}`;
   }
 
   public equals(other: CSharpType | undefined): boolean {
     return this.name === other?.name && this.namespace === other?.namespace;
+  }
+}
+
+export function checkOrAddNamespaceToScope(
+  ns: string,
+  scope?: Scope<string>,
+  visited?: Set<Scope<string>>,
+): boolean {
+  if (!ns) return false;
+  if (scope === undefined) return false;
+  if (!visited) visited = new Set<Scope<string>>();
+  if (visited.has(scope)) return false;
+  visited.add(scope);
+
+  switch (scope.kind) {
+    case "namespace": {
+      if (scope.namespace.startsWith(ns)) return true;
+      return checkOrAddNamespaceToScope(ns, scope.parentScope, visited);
+    }
+
+    case "sourceFile": {
+      const fileNameSpace = scope.sourceFile.meta["ResolvedNamespace"];
+      if (fileNameSpace && fileNameSpace.startsWith(ns)) return true;
+      for (const entry of scope.sourceFile.imports.keys()) {
+        if (entry === ns) {
+          return true;
+        }
+      }
+      const added: string | undefined = scope.sourceFile.meta["AddedScope"];
+      if (added === undefined) {
+        scope.sourceFile.imports.set(ns, [ns]);
+        scope.sourceFile.meta["AddedScope"] = ns;
+        return true;
+      }
+      return false;
+    }
+    default:
+      return false;
   }
 }
 
@@ -256,7 +273,7 @@ export class CSharpController extends CSharpDeclaration {
   }
 }
 export interface ControllerContext extends Context {
-  file: SourceFile<string>;
+  namespace: string;
   resourceName: string;
   resourceType?: Model;
   scope: Scope<string>;

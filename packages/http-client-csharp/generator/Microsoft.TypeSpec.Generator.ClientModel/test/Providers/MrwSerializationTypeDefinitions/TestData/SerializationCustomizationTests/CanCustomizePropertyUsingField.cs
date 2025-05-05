@@ -127,7 +127,7 @@ namespace Sample.Models
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
         /// <param name="mockInputModel"> The <see cref="global::Sample.Models.MockInputModel"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Sample.Models.MockInputModel mockInputModel)
         {
             if ((mockInputModel == null))
             {

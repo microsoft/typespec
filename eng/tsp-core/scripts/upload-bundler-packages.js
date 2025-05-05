@@ -6,7 +6,7 @@ await bundleAndUploadPackages({
   repoRoot: repoRoot,
   indexName: "typespec",
   // indexVersion: await getPackageVersion(repoRoot, "@typespec/compiler"),
-  indexVersion: "1.0.0-rc.0", // During RC we can't use the 1.0.x version scheme
+  indexVersion: "1.0.0-rc.1", // During RC we can't use the 1.0.x version scheme
   packages: [
     "@typespec/compiler",
     "@typespec/http",

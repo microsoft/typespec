@@ -153,7 +153,7 @@ namespace Sample.Models
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
         /// <param name="model"> The <see cref="global::Sample.Models.Model"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(global::Sample.Models.Model model)
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Sample.Models.Model model)
         {
             if ((model == null))
             {

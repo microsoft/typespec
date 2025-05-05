@@ -107,7 +107,7 @@ namespace Sample.Models
         string global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.GetFormatFromOptions(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
 
         /// <param name="tree"> The <see cref="global::Sample.Models.Tree"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(global::Sample.Models.Tree tree)
+        public static implicit operator global::System.ClientModel.BinaryContent(global::Sample.Models.Tree tree)
         {
             if ((tree == null))
             {
