@@ -401,7 +401,11 @@ function createMergePatchMutator(
         mutate: (tuple, clone, program) => {
           for (const [index, element] of tuple.values.entries()) {
             if (isMergePatchSubject(element)) {
-              clone.values[index] = cachedMutateSubgraph(program, self, element).type;
+              clone.values[index] = cachedMutateSubgraph(
+                program,
+                _replaceInteriorMutator ?? self,
+                element,
+              ).type;
             }
           }
         },
