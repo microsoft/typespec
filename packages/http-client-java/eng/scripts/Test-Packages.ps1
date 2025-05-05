@@ -59,7 +59,7 @@ try {
         catch {
             Write-Error "Spector tests failed: $_"
         }
-        Copy coverage report to artifacts directory
+        # Copy coverage report to artifacts directory
         try {
             $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
             if (!(Test-Path $coverageReportDir)) {
