@@ -159,36 +159,6 @@ export async function oapiForModel(
   };
 }
 
-export async function oapiForModelRequest(
-  name: string,
-  modelDef: string,
-  contentType: string,
-  options: OpenAPI3EmitterOptions = {},
-) {
-  const oapi = await openApiFor(
-    `
-    @service(#{title: "Testing model"})
-    @route("/")
-    namespace root {
-      ${modelDef};
-      @patch op update(@body body: ${name}): void;
-    }
-  `,
-    undefined,
-    options,
-  );
-
-  const content = oapi.paths["/"].patch.requestBody.content[contentType];
-  const useSchema = content.schema;
-
-  return {
-    isRef: !!useSchema.$ref,
-    useSchema,
-    schemas: oapi.components.schemas || {},
-    requestContent: content,
-  };
-}
-
 export async function openapiWithOptions(
   code: string,
   options: OpenAPI3EmitterOptions,
