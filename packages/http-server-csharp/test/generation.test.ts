@@ -559,7 +559,7 @@ it("generates standard scalar array for uniqueItems properties", async () => {
         arrUniqueColors: Array<string>;
       }
         
-     @patch @route("/Foo") op update(...Foo): Foo;
+     @patch(#{implicitOptionality: true}) @route("/Foo") op update(...Foo): Foo;
 
       `,
     [
@@ -607,7 +607,7 @@ it("generates standard array properties", async () => {
         arrColors: Array<string>;
       }
         
-     @patch @route("/Foo") op update(...Foo): Foo[];
+     @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): Foo[];
 
       `,
     [
@@ -639,7 +639,7 @@ it("generates bytes array properties", async () => {
         arrSBytes: int8[];
       }
         
-     @patch @route("/Foo") op update(...Foo): int8[];
+     @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): int8[];
 
       `,
     [
