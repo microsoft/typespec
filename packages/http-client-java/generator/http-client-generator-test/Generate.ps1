@@ -40,6 +40,8 @@ $generateScript = {
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
     # override examples-dir
     $tspOptions += " --option ""@typespec/http-client-java.examples-dir={project-root}/specs/azure/example/basic/examples"""
+  } elseif ($tspFile -match "azure[\\/]client-generator-core[\\/]client-initialization[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]old\.tsp") {
     # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
@@ -130,6 +132,9 @@ if (Test-Path ./src/main) {
 }
 if (Test-Path ./src/samples) {
   Remove-Item ./src/samples -Recurse -Force
+}
+if (Test-Path ./src/test) {
+  Get-ChildItem -Path ./src/test -Recurse -Directory | Where-Object {$_.Name -match "^generated$"} | Remove-Item -Recurse -Force
 }
 if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force

@@ -151,12 +151,12 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
-  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
+import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -621,7 +621,7 @@ export class CodeModelBuilder {
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
     // versioning
-    const versions = client.apiVersions;
+    const versions = getServiceApiVersions(this.program, client);
     if (versions && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1];
@@ -637,7 +637,7 @@ export class CodeModelBuilder {
       }
 
       codeModelClient.apiVersions = [];
-      for (const version of this.getFilteredApiVersions(
+      for (const version of getFilteredApiVersions(
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],
@@ -798,30 +798,6 @@ export class CodeModelBuilder {
       }
     }
     return subClients;
-  }
-
-  /**
-   * Filter api-versions for "ServiceVersion".
-   * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/965
-   *
-   * @param pinnedApiVersion the api-version to use as filter base
-   * @param versions api-versions to filter
-   * @returns filtered api-versions
-   */
-  private getFilteredApiVersions(
-    pinnedApiVersion: string | undefined,
-    versions: string[],
-    excludePreview: boolean = false,
-  ): string[] {
-    if (!pinnedApiVersion) {
-      return versions;
-    }
-    return versions
-      .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter(
-        (version) =>
-          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
-      );
   }
 
   private needToSkipProcessingOperation(

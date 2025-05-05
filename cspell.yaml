@@ -59,7 +59,9 @@ words:
   - Dorg
   - Dosgi
   - dotenv
+  - duplicative
   - Dskip
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -148,6 +150,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -158,6 +161,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA

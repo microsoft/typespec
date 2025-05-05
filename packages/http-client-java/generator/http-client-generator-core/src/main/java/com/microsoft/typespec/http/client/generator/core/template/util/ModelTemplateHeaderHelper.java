@@ -247,8 +247,11 @@ public final class ModelTemplateHeaderHelper {
 
         // String is special as the setter is null safe for it, unlike other nullable types.
         if (needsNullGuarding) {
-            javaBlock.ifBlock(property.getName() + " != null",
-                ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"));
+            javaBlock
+                .ifBlock(property.getName() + " != null",
+                    ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"))
+                .elseBlock(elseBlock -> elseBlock.line(
+                    "this." + property.getName() + " = " + property.getClientType().defaultValueExpression() + ";"));
         } else {
             javaBlock.line("this." + property.getName() + " = " + setter + ";");
         }

@@ -1,7 +1,6 @@
 import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
 import { Program } from "@typespec/compiler";
-import { unsafe_$ } from "@typespec/compiler/experimental";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { $, type Typekit } from "@typespec/compiler/typekit";
 
 export type TspContext = {
   program: Program;
@@ -23,7 +22,7 @@ export function useTsp() {
   }
 
   if (!context.$) {
-    context.$ = unsafe_$(context.program);
+    context.$ = $(context.program);
   }
 
   return context as TspContext;

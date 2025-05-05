@@ -19,6 +19,7 @@
     "types": ["node"],
     "lib": ["es2024", "DOM"],
     "experimentalDecorators": true,
-    "newLine": "LF"
+    "newLine": "LF",
+    "skipLibCheck": true
   }
 }

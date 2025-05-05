@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.11.2
+
+### Other Changes
+
+- Bump typespec and typespec-azure to latest version
+
+
 ## 0.11.1
 
 ### Bug Fixes

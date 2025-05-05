@@ -1,13 +1,14 @@
 ---
-slug: 2025-03-31-typespec-1-0-release
+slug: typespec-1-0-RC-release
+redirect_slug: 2025-03-31-typespec-1-0-release
 title: "TypeSpec 1.0-RC: Design Faster Today, Scale Easier Tomorrow"
 image: ./TypeSpec_1_0_RC.png
 description: "The TypeSpec 1.0 Release Candidate is here! This open-source project, created by Microsoft and released to the community, brings a powerful yet concise API modeling language that supports API-first development, streamlining the generation of server code, client libraries, schemas, and documentation from a single source of truth."
 publishDate: 2025-04-02
-author:
-  name: Mario Guerra
-  title: Senior Product Manager @ Microsoft
-authorAvatar: assets/img/authors/mario_guerra.png
+authors:
+  - name: Mario Guerra
+    title: Senior Product Manager @ Microsoft
+    avatar: assets/img/authors/mario_guerra.png
 tags:
   - release
   - announcement
