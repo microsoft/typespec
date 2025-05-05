@@ -174,6 +174,7 @@ describe("http operation support", () => {
         name: string;
         description?: string;
       }
+        
       @patch op update(@header("Content-type") contentType: "application/json", @body body: MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
       code: "@typespec/http/merge-patch-content-type",
@@ -231,6 +232,7 @@ describe("http operation support", () => {
         name: string;
         description?: string;
       }
+      #suppress "@typespec/http/patch-implicit-optional" "For test only ignore correct merge patch"
       @patch op update(@header("Content-type") contentType: "application/json", ...MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
       code: "@typespec/http/merge-patch-content-type",

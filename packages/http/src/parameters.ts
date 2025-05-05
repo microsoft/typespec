@@ -117,13 +117,13 @@ function getOperationParametersForVerb(
     }),
   );
   const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
-
   // TODO: remove in 6month after 1.0.0. (November 2025)
   if (
     verb === "patch" &&
     resolvedBody &&
     implicitOptionality === undefined &&
-    !isMergePatchBody(program, resolvedBody?.type)
+    !isMergePatchBody(program, resolvedBody?.type) &&
+    !resolvedBody.contentTypes.includes("application/merge-patch+json") // Above statement doesn't detect Spread merge patch
   ) {
     diagnostics.add(
       createDiagnostic({
