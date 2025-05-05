@@ -303,7 +303,7 @@ function createMergePatchMutator(
             }
           }
 
-          rename(clone, nameTemplate);
+          rename(ctx.program, clone, nameTemplate);
         },
       },
       Model: {
@@ -367,7 +367,7 @@ function createMergePatchMutator(
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
           // ctx.call($friendlyName, clone, nameTemplate, clone);
-          rename(clone, nameTemplate);
+          rename(ctx.program, clone, nameTemplate);
         },
       },
       ModelProperty: {
@@ -437,7 +437,13 @@ function isMergePatchSubject(type: Type): type is MergePatchSubject {
   );
 }
 
-function rename(type: Extract<MergePatchSubject, { name?: string }>, nameTemplate: string) {
+function rename(
+  program: Program,
+  type: Extract<MergePatchSubject, { name?: string }>,
+  nameTemplate: string,
+) {
+  // workaround for openapi3/asset-emitter issue that does not recognize renamed array literals
+  if ($(program).array.is(type) && type.name === "Array") return;
   if (type.name && nameTemplate) {
     type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
   }

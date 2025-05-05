@@ -545,6 +545,43 @@ describe("merge-patch: visibility transforms", () => {
     checkProperty(innerEnvelope, "createOnly", true, "Scalar", "string");
     expect(innerEnvelope.properties.size).toBe(3);
   });
+  it("handles model is with MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: Bar[];
+      }
+      
+      model Baz is MergePatchUpdate<Foo>;
+
+      @patch op update(@body body: Baz): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const array = checkProperty(envelope, "subject", true, "Model").type;
+    deepStrictEqual(array.kind, "Model");
+    const innerEnvelope = array.indexer?.value;
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", false, "Scalar", "string");
+    checkProperty(innerEnvelope, "description", true, "Scalar", "string");
+    checkProperty(innerEnvelope, "createOnly", true, "Scalar", "string");
+    expect(innerEnvelope.properties.size).toBe(3);
+  });
   it("handles complex record property visibility for MergePatchUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
       runner,
