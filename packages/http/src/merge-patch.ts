@@ -211,10 +211,18 @@ function createMergePatchMutator(
     visibilityMode,
   );
 
-  const replaceMutator = bindMutator(replaceFilter, nameTemplate + "ReplaceOnly");
-  const optionalMutator = bindMutator(optionalFilter, nameTemplate + "OrCreate", replaceMutator);
+  const replaceNameTemplate = nameTemplate + "ReplaceOnly";
+  const optionalNameTemplate =
+    visibilityMode === "CreateOrUpdate" ? nameTemplate : nameTemplate + "OrCreate";
 
-  return bindMutator(primaryFilter, nameTemplate, replaceMutator, optionalMutator);
+  const replaceMutator = bindMutator(replaceFilter, replaceNameTemplate);
+  const optionalMutator = bindMutator(optionalFilter, optionalNameTemplate, replaceMutator);
+
+  if (visibilityMode === "CreateOrUpdate") {
+    return optionalMutator;
+  } else {
+    return bindMutator(primaryFilter, nameTemplate, replaceMutator, optionalMutator);
+  }
 
   function bindMutator(
     visibilityFilter: VisibilityFilter,
