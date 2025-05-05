@@ -30,13 +30,11 @@ export function DiagnosableTypekitFunction(props: DiagnosableTypekitFunctionProp
         <ts.MemberExpression.Part id="withDiagnostics" />
         <ts.MemberExpression.Part args={[renderTokens(parameters)]} />
       </ts.MemberExpression>
-      {`: [${renderTokens(returnType)}, readonly Diagnosable[]];`}
+      {`: [${renderTokens(returnType)}, readonly Diagnostic[]];`}
     </>
   );
   return (
-    <md.Section
-      heading={`${props.typekit.path.join(".")} <Badge variant="note" text="Diagnosable" />`}
-    >
+    <md.Section heading={`${props.typekit.name} <Badge variant="note" text="Diagnosable" />`}>
       <ay.List>
         {"```ts"}
         {props.typekit.docComment?.emitAsTsdoc().trimEnd()}

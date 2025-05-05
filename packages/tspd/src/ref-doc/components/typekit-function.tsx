@@ -22,7 +22,7 @@ export function TypekitFunction(props: TypekitFunctionProps) {
       />
     );
   return (
-    <md.Section heading={props.typekit.path.join(".")}>
+    <md.Section heading={props.typekit.name}>
       <ay.List>
         {"```ts"}
         {props.typekit.docComment?.emitAsTsdoc().trimEnd()}

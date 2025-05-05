@@ -4,13 +4,11 @@ title: "[API] Typekits"
 
 import { Badge } from '@astrojs/starlight/components';
 
-# Typekits
-
 ## model
 
 Utilities for working with Models in the context of Http.
 
-### model.isHttpFile
+### isHttpFile
 
 ```ts
 /**
@@ -25,7 +23,7 @@ $(program).model.isHttpFile(model: Model): boolean;
 
 Utilities for working with model properties in the context of Http.
 
-### modelProperty.getHttpHeaderOptions
+### getHttpHeaderOptions
 
 ```ts
 /**
@@ -37,7 +35,7 @@ $(program).modelProperty
   .getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
 ```
 
-### modelProperty.getHttpParamOptions
+### getHttpParamOptions
 
 ```ts
 /**
@@ -49,7 +47,7 @@ $(program).modelProperty
   .getHttpParamOptions(prop: ModelProperty): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
 ```
 
-### modelProperty.getHttpPathOptions
+### getHttpPathOptions
 
 ```ts
 /**
@@ -61,7 +59,7 @@ $(program).modelProperty
   .getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
 ```
 
-### modelProperty.getHttpQueryOptions
+### getHttpQueryOptions
 
 ```ts
 /**
@@ -73,7 +71,7 @@ $(program).modelProperty
   .getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
 ```
 
-### modelProperty.isHttpHeader
+### isHttpHeader
 
 ```ts
 /**
@@ -84,7 +82,7 @@ $(program).modelProperty
 $(program).modelProperty.isHttpHeader(prop: ModelProperty): boolean;
 ```
 
-### modelProperty.isHttpMultipartBody
+### isHttpMultipartBody
 
 ```ts
 /**
@@ -95,7 +93,7 @@ $(program).modelProperty.isHttpHeader(prop: ModelProperty): boolean;
 $(program).modelProperty.isHttpMultipartBody(prop: ModelProperty): boolean;
 ```
 
-### modelProperty.isHttpPathParam
+### isHttpPathParam
 
 ```ts
 /**
@@ -106,7 +104,7 @@ $(program).modelProperty.isHttpMultipartBody(prop: ModelProperty): boolean;
 $(program).modelProperty.isHttpPathParam(prop: ModelProperty): boolean;
 ```
 
-### modelProperty.isHttpQueryParam
+### isHttpQueryParam
 
 ```ts
 /**
@@ -121,7 +119,7 @@ $(program).modelProperty.isHttpQueryParam(prop: ModelProperty): boolean;
 
 Utilities for working with HTTP operations.
 
-### httpOperation.flattenResponses
+### flattenResponses
 
 ```ts
 /**
@@ -133,7 +131,7 @@ $(program).httpOperation
   .flattenResponses(op: HttpOperation): FlatHttpResponse[];
 ```
 
-### httpOperation.get <Badge variant="note" text="Diagnosable" />
+### get <Badge variant="note" text="Diagnosable" />
 
 ```ts
 /**
@@ -143,10 +141,10 @@ $(program).httpOperation
  */
 $(program).httpOperation.get(op: Operation): HttpOperation;
 $(program).httpOperation.get
-  .withDiagnostics(op: Operation): [HttpOperation, readonly Diagnosable[]];
+  .withDiagnostics(op: Operation): [HttpOperation, readonly Diagnostic[]];
 ```
 
-### httpOperation.getReturnType
+### getReturnType
 
 ```ts
 /**
@@ -164,13 +162,13 @@ options: {
 
 Utilities for working with HTTP Parts.
 
-### httpPart.get
+### get
 
 ```ts
 $(program).httpPart.get(type: Type): HttpPart | undefined;
 ```
 
-### httpPart.is
+### is
 
 ```ts
 /**
@@ -181,7 +179,7 @@ $(program).httpPart.get(type: Type): HttpPart | undefined;
 $(program).httpPart.is(type: Type): boolean;
 ```
 
-### httpPart.unpack
+### unpack
 
 ```ts
 /**
@@ -196,7 +194,7 @@ $(program).httpPart.unpack(type: Type): Type;
 
 Utilities for working with HTTP responses.
 
-### httpResponse.isErrorResponse
+### isErrorResponse
 
 ```ts
 /**

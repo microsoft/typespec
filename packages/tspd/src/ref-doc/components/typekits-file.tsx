@@ -16,7 +16,7 @@ export function createTypekitDocs(typekit: TypekitCollection) {
         import { Badge } from '@astrojs/starlight/components';
         `}
         </>
-        <md.Section heading={"Typekits"}>
+        <md.Section>
           <ay.For each={Object.values(typekit.namespaces)}>
             {(x) => <TypekitSection typekit={x} />}
           </ay.For>
