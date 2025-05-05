@@ -67,9 +67,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/merge-patch+json:
             schema:
-              $ref: '#/components/schemas/PersonUpdate'
+              $ref: '#/components/schemas/PersonMergePatchUpdate'
   /hello/{id}:
     get:
       operationId: Hello_read
@@ -174,6 +174,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
+    PersonMergePatchUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeMergePatchUpdateReplaceOnly'
+      description: |-
+        Create a MergePatch Request body for updating the given resource Model.
+        The MergePatch request created by this template provides a TypeSpec description of a
+        JSON MergePatch request that can successfully update the given resource.
+        The transformation follows the definition of JSON MergePatch requests in
+        rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+        applying the merge-patch transform recursively to keyed types in the resource Model.
+
+        Using this template in a PATCH request body overrides the `implicitOptionality`
+        setting for PATCH operations and sets `application/merge-patch+json` as the request
+        content-type.
+    PersonMergePatchUpdateReplaceOnly:
+      type: object
+      required:
+        - secret
+        - name
+        - test
+        - relatives
+      properties:
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeMergePatchUpdateReplaceOnly'
     PersonReadOrCreateOrUpdateOrDeleteOrQueryItem:
       type: object
       required:
@@ -229,6 +269,16 @@ components:
           $ref: '#/components/schemas/PersonCreateOrUpdateItem'
         relationship:
           type: string
+    PersonRelativeMergePatchUpdateReplaceOnly:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonMergePatchUpdateReplaceOnly'
+        relationship:
+          type: string
     PersonRelativeReadOrCreateOrUpdateOrDeleteOrQueryItem:
       type: object
       required:
@@ -239,42 +289,6 @@ components:
           $ref: '#/components/schemas/PersonReadOrCreateOrUpdateOrDeleteOrQueryItem'
         relationship:
           type: string
-    PersonRelativeUpdateItem:
-      type: object
-      required:
-        - person
-        - relationship
-      properties:
-        person:
-          $ref: '#/components/schemas/PersonUpdateItem'
-        relationship:
-          type: string
-    PersonUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelativeUpdateItem'
-    PersonUpdateItem:
-      type: object
-      required:
-        - name
-        - other
-        - relatives
-      properties:
-        name:
-          type: string
-        other:
-          type: string
-        relatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonRelativeUpdateItem'
     ReadablePerson:
       type: object
       required:
