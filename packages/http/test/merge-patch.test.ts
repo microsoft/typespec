@@ -84,7 +84,7 @@ async function compileAndDiagnoseWithRunner(
   return [services[0].operations, runner.program.diagnostics];
 }
 
-describe("merge-patch: metadata tests", () => {
+describe("metadata tests", () => {
   async function testMetadata(
     prop: string,
     metadataType: string,
@@ -118,7 +118,7 @@ describe("merge-patch: metadata tests", () => {
     await testMetadata("code", "@statusCode", "200");
   });
 });
-describe("merge-patch: http operation support", () => {
+describe("http operation support", () => {
   it("uses the merge-patch content type for explicit body", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
       model Foo {
@@ -250,7 +250,7 @@ describe("merge-patch: http operation support", () => {
     expectDiagnosticEmpty(diag);
   });
 });
-describe("merge-patch: mutator validation", () => {
+describe("mutator validation", () => {
   it("handles optional and required properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,
@@ -413,7 +413,7 @@ describe("merge-patch: mutator validation", () => {
     }
   });
 });
-describe("merge-patch: emitter apis", () => {
+describe("emitter apis", () => {
   it("recognizes mergePatch models and properties", async () => {
     const [program, diag] = await compileAndDiagnoseWithRunner(
       runner,
@@ -457,7 +457,7 @@ describe("merge-patch: emitter apis", () => {
     deepStrictEqual(mpProps.sourceProperty, sourceModel.properties.get("description"));
   });
 });
-describe("merge-patch: visibility transforms", () => {
+describe("visibility transforms", () => {
   it("allows invisible metadata in MergePatchUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
       runner,

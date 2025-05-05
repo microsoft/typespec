@@ -7,7 +7,6 @@ export {
   MutatorRecord as unsafe_MutatorRecord,
   MutatorReplaceFn as unsafe_MutatorReplaceFn,
   MutatorWithNamespace as unsafe_MutatorWithNamespace,
-  isMutableType as unsafe_isMutableType,
   mutateSubgraph as unsafe_mutateSubgraph,
   mutateSubgraphWithNamespace as unsafe_mutateSubgraphWithNamespace,
 } from "./mutators.js";

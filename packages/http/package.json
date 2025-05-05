@@ -44,8 +44,7 @@
       "default": "./dist/src/experimental/typekit/index.js"
     },
     "./experimental/merge-patch": {
-      "types": "./dist/src/experimental/merge-patch/index.d.ts",
-      "default": "./dist/src/experimental/merge-patch/index.js"
+      "import": "./dist/src/experimental/merge-patch/index.js"
     }
   },
   "engines": {

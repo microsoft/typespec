@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok } from "assert";
-import { describe, expect, it } from "vitest";
+import { expect, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { openApiFor } from "./test-host.js";
 
@@ -32,11 +32,10 @@ export async function oapiForPatchRequest(
   };
 }
 
-describe("merge-patch: MergePatch schema tests", () => {
-  it("emits correct schema for MergePatchUpdateReplaceOnly", async () => {
-    const req = await oapiForPatchRequest(
-      "@body body: Foo",
-      `
+it("emits correct schema for MergePatchUpdateReplaceOnly", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -53,33 +52,30 @@ describe("merge-patch: MergePatch schema tests", () => {
       }
 
       model Foo is MergePatchUpdate<Baz>`,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.Foo, "expected definition named Foo");
-    ok(req.schemas.Foo.properties, "expected Foo to be an object");
-    ok(req.schemas.Foo.properties.subject, "expected Foo.subject to be a property");
-    deepStrictEqual(req.schemas.Foo.properties.subject, {
-      type: "array",
-      items: { $ref: "#/components/schemas/BarMergePatchUpdateReplaceOnly" },
-    });
-    ok(req.schemas.BarMergePatchUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchUpdateReplaceOnly;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    ok(innerEnvelope.required);
-    deepStrictEqual(innerEnvelope.required, ["id"]);
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string" },
-      createOnly: { type: "string" },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.Foo.properties.subject, {
+    type: "array",
+    items: { $ref: "#/components/schemas/BarMergePatchUpdateReplaceOnly" },
   });
-  it("emits correct schema for spread using MergePatchUpdateReplaceOnly", async () => {
-    const req = await oapiForPatchRequest(
-      "...MergePatchUpdate<Baz>",
-      `
+  ok(req.schemas.BarMergePatchUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchUpdateReplaceOnly;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  ok(innerEnvelope.required);
+  deepStrictEqual(innerEnvelope.required, ["id"]);
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string" },
+    createOnly: { type: "string" },
+  });
+});
+it("emits correct schema for spread using MergePatchUpdateReplaceOnly", async () => {
+  const req = await oapiForPatchRequest(
+    "...MergePatchUpdate<Baz>",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -95,36 +91,30 @@ describe("merge-patch: MergePatch schema tests", () => {
         subject: Bar[];
       }
 `,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.BazMergePatchUpdate, "expected definition named BazMergePatchUpdate");
-    ok(req.schemas.BazMergePatchUpdate.properties, "expected BazMergePatchUpdate to be an object");
-    ok(
-      req.schemas.BazMergePatchUpdate.properties.subject,
-      "expected BazMergePatchUpdate.subject to be a property",
-    );
-    deepStrictEqual(req.schemas.BazMergePatchUpdate.properties.subject, {
-      type: "array",
-      items: { $ref: "#/components/schemas/BarMergePatchUpdateReplaceOnly" },
-    });
-    ok(req.schemas.BarMergePatchUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchUpdateReplaceOnly;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    ok(innerEnvelope.required);
-    deepStrictEqual(innerEnvelope.required, ["id"]);
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string" },
-      createOnly: { type: "string" },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.BazMergePatchUpdate.properties.subject, {
+    type: "array",
+    items: { $ref: "#/components/schemas/BarMergePatchUpdateReplaceOnly" },
   });
-  it("emits correct schema for MergePatchUpdate", async () => {
-    const req = await oapiForPatchRequest(
-      "@body body: Foo",
-      `
+  ok(req.schemas.BarMergePatchUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchUpdateReplaceOnly;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  ok(innerEnvelope.required);
+  deepStrictEqual(innerEnvelope.required, ["id"]);
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string" },
+    createOnly: { type: "string" },
+  });
+});
+it("emits correct schema for MergePatchUpdate", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -141,32 +131,29 @@ describe("merge-patch: MergePatch schema tests", () => {
       }
 
       model Foo is MergePatchUpdate<Baz>`,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.Foo, "expected definition named Foo");
-    ok(req.schemas.Foo.properties, "expected Foo to be an object");
-    ok(req.schemas.Foo.properties.subject, "expected Foo.subject to be a property");
-    deepStrictEqual(req.schemas.Foo.properties.subject, {
-      $ref: "#/components/schemas/BarMergePatchUpdate",
-    });
-    ok(req.schemas.BarMergePatchUpdate, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchUpdate;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    expect(innerEnvelope.required).toBeUndefined();
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string", nullable: true },
-      updateOnly: { type: "string", nullable: true },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.Foo.properties.subject, {
+    $ref: "#/components/schemas/BarMergePatchUpdate",
   });
+  ok(req.schemas.BarMergePatchUpdate, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchUpdate;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  expect(innerEnvelope.required).toBeUndefined();
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string", nullable: true },
+    updateOnly: { type: "string", nullable: true },
+  });
+});
 
-  it("emits correct schema for MergePatchUpdateOrCreate", async () => {
-    const req = await oapiForPatchRequest(
-      "@body body: Foo",
-      `
+it("emits correct schema for MergePatchUpdateOrCreate", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -183,34 +170,31 @@ describe("merge-patch: MergePatch schema tests", () => {
       }
 
       model Foo is MergePatchUpdate<Baz>`,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.Foo, "expected definition named Foo");
-    ok(req.schemas.Foo.properties, "expected Foo to be an object");
-    ok(req.schemas.Foo.properties.subject, "expected Foo.subject to be a property");
-    deepStrictEqual(req.schemas.Foo.properties.subject, {
-      allOf: [{ $ref: "#/components/schemas/BarMergePatchUpdateOrCreate" }],
-      nullable: true,
-      type: "object",
-    });
-    ok(req.schemas.BarMergePatchUpdateOrCreate, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchUpdateOrCreate;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    expect(innerEnvelope.required).toBeUndefined();
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string", nullable: true },
-      createOnly: { type: "string", nullable: true },
-      updateOnly: { type: "string", nullable: true },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.Foo.properties.subject, {
+    allOf: [{ $ref: "#/components/schemas/BarMergePatchUpdateOrCreate" }],
+    nullable: true,
+    type: "object",
   });
-  it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
-    const req = await oapiForPatchRequest(
-      "@body body: Foo",
-      `
+  ok(req.schemas.BarMergePatchUpdateOrCreate, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchUpdateOrCreate;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  expect(innerEnvelope.required).toBeUndefined();
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string", nullable: true },
+    createOnly: { type: "string", nullable: true },
+    updateOnly: { type: "string", nullable: true },
+  });
+});
+it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -227,33 +211,30 @@ describe("merge-patch: MergePatch schema tests", () => {
       }
 
       model Foo is MergePatchCreateOrUpdate<Baz>`,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.Foo, "expected definition named Foo");
-    ok(req.schemas.Foo.properties, "expected Foo to be an object");
-    ok(req.schemas.Foo.properties.subject, "expected Foo.subject to be a property");
-    deepStrictEqual(req.schemas.Foo.properties.subject, {
-      type: "array",
-      items: { $ref: "#/components/schemas/BarMergePatchCreateOrUpdateReplaceOnly" },
-    });
-    ok(req.schemas.BarMergePatchCreateOrUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchCreateOrUpdateReplaceOnly;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    ok(innerEnvelope.required);
-    deepStrictEqual(innerEnvelope.required, ["id"]);
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string" },
-      createOnly: { type: "string" },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.Foo.properties.subject, {
+    type: "array",
+    items: { $ref: "#/components/schemas/BarMergePatchCreateOrUpdateReplaceOnly" },
   });
-  it("emits correct schema for MergePatchCreateOrUpdate", async () => {
-    const req = await oapiForPatchRequest(
-      "@body body: Foo",
-      `
+  ok(req.schemas.BarMergePatchCreateOrUpdateReplaceOnly, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchCreateOrUpdateReplaceOnly;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  ok(innerEnvelope.required);
+  deepStrictEqual(innerEnvelope.required, ["id"]);
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string" },
+    createOnly: { type: "string" },
+  });
+});
+it("emits correct schema for MergePatchCreateOrUpdate", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
       model Bar {
         id: string;
         description?: string;
@@ -270,26 +251,22 @@ describe("merge-patch: MergePatch schema tests", () => {
       }
 
       model Foo is MergePatchCreateOrUpdate<Baz>`,
-      "application/merge-patch+json",
-    );
+    "application/merge-patch+json",
+  );
 
-    ok(req.isRef);
-    ok(req.schemas.Foo, "expected definition named Foo");
-    ok(req.schemas.Foo.properties, "expected Foo to be an object");
-    ok(req.schemas.Foo.properties.subject, "expected Foo.subject to be a property");
-    deepStrictEqual(req.schemas.Foo.properties.subject, {
-      $ref: "#/components/schemas/BarMergePatchCreateOrUpdate",
-    });
-    ok(req.schemas.BarMergePatchCreateOrUpdate, "Expected a replaceOnly schema for Bar");
-    const innerEnvelope = req.schemas.BarMergePatchCreateOrUpdate;
-    ok(innerEnvelope);
-    ok(innerEnvelope.properties);
-    expect(innerEnvelope.required).toBeUndefined();
-    deepStrictEqual(innerEnvelope.properties, {
-      id: { type: "string" },
-      description: { type: "string", nullable: true },
-      updateOnly: { type: "string", nullable: true },
-      createOnly: { type: "string", nullable: true },
-    });
+  ok(req.isRef);
+  deepStrictEqual(req.schemas.Foo.properties.subject, {
+    $ref: "#/components/schemas/BarMergePatchCreateOrUpdate",
+  });
+  ok(req.schemas.BarMergePatchCreateOrUpdate, "Expected a replaceOnly schema for Bar");
+  const innerEnvelope = req.schemas.BarMergePatchCreateOrUpdate;
+  ok(innerEnvelope);
+  ok(innerEnvelope.properties);
+  expect(innerEnvelope.required).toBeUndefined();
+  deepStrictEqual(innerEnvelope.properties, {
+    id: { type: "string" },
+    description: { type: "string", nullable: true },
+    updateOnly: { type: "string", nullable: true },
+    createOnly: { type: "string", nullable: true },
   });
 });
