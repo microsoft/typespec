@@ -195,6 +195,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
       },
     },
+    "patch-implicit-optional": {
+      severity: "warning",
+      messages: {
+        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptional: false}) to restore the old behavior.`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },

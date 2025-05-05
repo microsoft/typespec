@@ -1,5 +1,6 @@
 import {
   compilerAssert,
+  Diagnostic,
   EnumMember,
   getEffectiveModelType,
   getLifecycleVisibilityEnum,
@@ -34,6 +35,7 @@ import { HttpVerb, OperationParameterOptions } from "./types.js";
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
+import { createDiagnostic } from "./lib.js";
 import { includeInapplicableMetadataInPayload } from "./private.decorators.js";
 
 /**
@@ -366,6 +368,14 @@ export function resolveRequestVisibility(
   operation: Operation,
   verb: HttpVerb,
 ): Visibility {
+  return resolveRequestVisibilityWithDiagnostics(program, operation, verb)[0];
+}
+
+export function resolveRequestVisibilityWithDiagnostics(
+  program: Program,
+  operation: Operation,
+  verb: HttpVerb,
+): [Visibility, readonly Diagnostic[]] {
   // WARNING: This is the only place where we call HttpVisibilityProvider _WITHIN_ the HTTP implementation itself. We
   // _must_ provide the verb directly to the function as the first argument. If the verb is not provided directly, the
   // provider calls getHttpOperation to resolve the verb. Since the current function is called from getHttpOperation, it
@@ -376,18 +386,28 @@ export function resolveRequestVisibility(
     HttpVisibilityProvider(verb),
   );
 
+  const diagnostics = [];
   let visibility = filterToVisibility(program, parameterVisibilityFilter);
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+    const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
+    if (implicitOptionality === undefined) {
+      diagnostics.push(
+        createDiagnostic({
+          code: "patch-implicit-optional",
+          target: operation,
+        }),
+      );
+    }
+    const patchOptionality = implicitOptionality ?? false;
 
     if (patchOptionality) {
       visibility |= Visibility.Patch;
     }
   }
 
-  return visibility;
+  return [visibility, diagnostics];
 }
 
 /**
