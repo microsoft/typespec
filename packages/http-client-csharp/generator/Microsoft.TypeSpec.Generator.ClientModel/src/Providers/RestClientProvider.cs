@@ -128,7 +128,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
-                this);
+                this,
+                xmlDocProvider: XmlDocProvider.Empty);
         }
 
         private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
