@@ -144,7 +144,7 @@
       "request": "launch",
       "name": "Debug Docs Generation",
       "program": "${workspaceFolder}/packages/tspd/dist/src/cli.js",
-      "args": ["--enable-experimental", "doc", "."],
+      "args": ["--enable-experimental", "doc", "--typekits", "."],
       "cwd": "${workspaceFolder}/packages/http",
       "smartStep": true,
       "sourceMaps": true,

@@ -16,7 +16,7 @@ Typekits for working with array types(Model with number indexer).
 /**
  * Create an array type.
  */
-$(program).array.create(elementType: Type): ArrayModelType;
+$(program).array.create(elementType: Type):ArrayModelType
 ```
 
 ### array.getElementType
@@ -25,7 +25,7 @@ $(program).array.create(elementType: Type): ArrayModelType;
 /**
  * Get the element type of an array.
  */
-$(program).array.getElementType(type: Model): Type;
+$(program).array.getElementType(type: Model):Type
 ```
 
 ### array.is
@@ -34,7 +34,7 @@ $(program).array.getElementType(type: Model): Type;
 /**
  * Check if a type is an array.
  */
-$(program).array.is(type: Entity): type is ArrayModelType;
+$(program).array.is(type: Entity):type is ArrayModelType
 ```
 
 ## builtin
@@ -47,7 +47,7 @@ A kit of built-in types.
 /**
  * Accessor for the boolean builtin type.
  */
-$(program).builtin.boolean;
+$(program).builtin.boolean:Scalar
 ```
 
 ### builtin.bytes
@@ -56,7 +56,7 @@ $(program).builtin.boolean;
 /**
  * Accessor for the bytes builtin type, representing binary data.
  */
-$(program).builtin.bytes;
+$(program).builtin.bytes:Scalar
 ```
 
 ### builtin.decimal
@@ -65,7 +65,7 @@ $(program).builtin.bytes;
 /**
  * Accessor for the decimal builtin type for high-precision decimal values.
  */
-$(program).builtin.decimal;
+$(program).builtin.decimal:Scalar
 ```
 
 ### builtin.decimal128
@@ -74,7 +74,7 @@ $(program).builtin.decimal;
 /**
  * Accessor for the decimal128 builtin type, a 128-bit decimal value.
  */
-$(program).builtin.decimal128;
+$(program).builtin.decimal128:Scalar
 ```
 
 ### builtin.duration
@@ -83,7 +83,7 @@ $(program).builtin.decimal128;
 /**
  * Accessor for the duration builtin type, representing a span of time.
  */
-$(program).builtin.duration;
+$(program).builtin.duration:Scalar
 ```
 
 ### builtin.float
@@ -92,7 +92,7 @@ $(program).builtin.duration;
 /**
  * Accessor for the float builtin type, representing a double-precision floating-point number.
  */
-$(program).builtin.float;
+$(program).builtin.float:Scalar
 ```
 
 ### builtin.float32
@@ -101,7 +101,7 @@ $(program).builtin.float;
 /**
  * Accessor for the float32 builtin type, representing a single-precision floating-point number.
  */
-$(program).builtin.float32;
+$(program).builtin.float32:Scalar
 ```
 
 ### builtin.float64
@@ -110,7 +110,7 @@ $(program).builtin.float32;
 /**
  * Accessor for the float64 builtin type, representing a double-precision floating-point number.
  */
-$(program).builtin.float64;
+$(program).builtin.float64:Scalar
 ```
 
 ### builtin.int16
@@ -119,7 +119,7 @@ $(program).builtin.float64;
 /**
  * Accessor for the int16 builtin type, representing a 16-bit signed integer.
  */
-$(program).builtin.int16;
+$(program).builtin.int16:Scalar
 ```
 
 ### builtin.int32
@@ -128,7 +128,7 @@ $(program).builtin.int16;
 /**
  * Accessor for the int32 builtin type, representing a 32-bit signed integer.
  */
-$(program).builtin.int32;
+$(program).builtin.int32:Scalar
 ```
 
 ### builtin.int64
@@ -137,7 +137,7 @@ $(program).builtin.int32;
 /**
  * Accessor for the int64 builtin type, representing a 64-bit signed integer.
  */
-$(program).builtin.int64;
+$(program).builtin.int64:Scalar
 ```
 
 ### builtin.int8
@@ -146,7 +146,7 @@ $(program).builtin.int64;
 /**
  * Accessor for the int8 builtin type, representing an 8-bit signed integer.
  */
-$(program).builtin.int8;
+$(program).builtin.int8:Scalar
 ```
 
 ### builtin.integer
@@ -155,7 +155,7 @@ $(program).builtin.int8;
 /**
  * Accessor for the integer builtin type, representing an arbitrary-precision integer.
  */
-$(program).builtin.integer;
+$(program).builtin.integer:Scalar
 ```
 
 ### builtin.numeric
@@ -164,7 +164,7 @@ $(program).builtin.integer;
 /**
  * Accessor for the numeric builtin type, representing a numeric value.
  */
-$(program).builtin.numeric;
+$(program).builtin.numeric:Scalar
 ```
 
 ### builtin.offsetDateTime
@@ -173,7 +173,7 @@ $(program).builtin.numeric;
 /**
  * Accessor for the offsetDateTime builtin type, representing a date and time with an offset.
  */
-$(program).builtin.offsetDateTime;
+$(program).builtin.offsetDateTime:Scalar
 ```
 
 ### builtin.plainDate
@@ -182,7 +182,7 @@ $(program).builtin.offsetDateTime;
 /**
  * Accessor for the plainDate builtin type, representing a date without time or offset.
  */
-$(program).builtin.plainDate;
+$(program).builtin.plainDate:Scalar
 ```
 
 ### builtin.plainTime
@@ -191,7 +191,7 @@ $(program).builtin.plainDate;
 /**
  * Accessor for the plainTime builtin type, representing a time without date or offset.
  */
-$(program).builtin.plainTime;
+$(program).builtin.plainTime:Scalar
 ```
 
 ### builtin.safeInt
@@ -200,7 +200,7 @@ $(program).builtin.plainTime;
 /**
  * Accessor for the safeInt builtin type, representing an integer within the safe range for JavaScript.
  */
-$(program).builtin.safeInt;
+$(program).builtin.safeInt:Scalar
 ```
 
 ### builtin.string
@@ -209,7 +209,7 @@ $(program).builtin.safeInt;
 /**
  * Accessor for the string builtin type.
  */
-$(program).builtin.string;
+$(program).builtin.string:Scalar
 ```
 
 ### builtin.uint16
@@ -218,7 +218,7 @@ $(program).builtin.string;
 /**
  * Accessor for the uint16 builtin type, representing a 16-bit unsigned integer.
  */
-$(program).builtin.uint16;
+$(program).builtin.uint16:Scalar
 ```
 
 ### builtin.uint32
@@ -227,7 +227,7 @@ $(program).builtin.uint16;
 /**
  * Accessor for the uint32 builtin type, representing a 32-bit unsigned integer.
  */
-$(program).builtin.uint32;
+$(program).builtin.uint32:Scalar
 ```
 
 ### builtin.uint64
@@ -236,7 +236,7 @@ $(program).builtin.uint32;
 /**
  * Accessor for the uint64 builtin type, representing a 64-bit unsigned integer.
  */
-$(program).builtin.uint64;
+$(program).builtin.uint64:Scalar
 ```
 
 ### builtin.uint8
@@ -245,7 +245,7 @@ $(program).builtin.uint64;
 /**
  * Accessor for the uint8 builtin type, representing an 8-bit unsigned integer.
  */
-$(program).builtin.uint8;
+$(program).builtin.uint8:Scalar
 ```
 
 ### builtin.url
@@ -254,7 +254,7 @@ $(program).builtin.uint8;
 /**
  * Accessor for the url builtin type, representing a valid URL string.
  */
-$(program).builtin.url;
+$(program).builtin.url:Scalar
 ```
 
 ### builtin.utcDateTime
@@ -263,7 +263,7 @@ $(program).builtin.url;
 /**
  * Accessor for the utcDateTime builtin type, representing a date and time in UTC.
  */
-$(program).builtin.utcDateTime;
+$(program).builtin.utcDateTime:Scalar
 ```
 
 ## entity
@@ -282,8 +282,10 @@ Typekits for working with the top level entity.
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).entity.isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): boolean;
-$(program).entity.isAssignableTo.withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
+$(program).entity
+  .isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).entity.isAssignableTo
+  .withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### entity.resolve <Badge variant="note" text="Diagnosable" />
@@ -295,7 +297,8 @@ $(program).entity.isAssignableTo.withDiagnostics(source: Entity, target: Entity,
  * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
  */
 $(program).entity.resolve(): reference: stringEntity | undefined;
-$(program).entity.resolve.withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnosable[]];
+$(program).entity.resolve
+  .withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnosable[]];
 ```
 
 ## enum
@@ -308,7 +311,7 @@ A kit for working with enum types.
 /**
  * Build an enum type. The enum type will be finished (i.e. decorators are run).
  */
-$(program).enum.create(desc: EnumDescriptor): Enum;
+$(program).enum.create(desc: EnumDescriptor):Enum
 ```
 
 ### enum.createFromUnion
@@ -323,7 +326,7 @@ $(program).enum.create(desc: EnumDescriptor): Enum;
  *
  * Any API documentation will be rendered and preserved in the resulting enum. - No other decorators are copied from the union to the enum
  */
-$(program).enum.createFromUnion(type: Union): Enum;
+$(program).enum.createFromUnion(type: Union):Enum
 ```
 
 ### enum.is
@@ -334,7 +337,7 @@ $(program).enum.createFromUnion(type: Union): Enum;
  *
  * @param type - the type to check.
  */
-$(program).enum.is(type: Entity): type is Enum;
+$(program).enum.is(type: Entity):type is Enum
 ```
 
 ## enumMember
@@ -347,7 +350,7 @@ A kit for working with enum members.
 /**
  * Create an enum member. The enum member will be finished (i.e. decorators are run).
  */
-$(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
+$(program).enumMember.create(desc: EnumMemberDescriptor):EnumMember
 ```
 
 ### enumMember.is
@@ -358,7 +361,7 @@ $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
  *
  * @param type - the type to check.
  */
-$(program).enumMember.is(type: Entity): type is EnumMember;
+$(program).enumMember.is(type: Entity):type is EnumMember
 ```
 
 ## intrinsic
@@ -369,7 +372,7 @@ $(program).enumMember.is(type: Entity): type is EnumMember;
 /**
  * The intrinsic 'any' type.
  */
-$(program).intrinsic.any;
+$(program).intrinsic.any:UnknownType
 ```
 
 ### intrinsic.error
@@ -378,7 +381,7 @@ $(program).intrinsic.any;
 /**
  * The intrinsic 'error' type.
  */
-$(program).intrinsic.error;
+$(program).intrinsic.error:ErrorType
 ```
 
 ### intrinsic.is
@@ -389,7 +392,7 @@ $(program).intrinsic.error;
  *
  * @param entity - The `entity` to check.
  */
-$(program).intrinsic.is(entity: Entity): entity is IntrinsicType;
+$(program).intrinsic.is(entity: Entity):entity is IntrinsicType
 ```
 
 ### intrinsic.never
@@ -398,7 +401,7 @@ $(program).intrinsic.is(entity: Entity): entity is IntrinsicType;
 /**
  * The intrinsic 'never' type.
  */
-$(program).intrinsic.never;
+$(program).intrinsic.never:NeverType
 ```
 
 ### intrinsic.null
@@ -407,7 +410,7 @@ $(program).intrinsic.never;
 /**
  * The intrinsic 'null' type.
  */
-$(program).intrinsic.null;
+$(program).intrinsic.null:NullType
 ```
 
 ### intrinsic.void
@@ -416,7 +419,7 @@ $(program).intrinsic.null;
 /**
  * The intrinsic 'void' type.
  */
-$(program).intrinsic.void;
+$(program).intrinsic.void:VoidType
 ```
 
 ## model
@@ -431,7 +434,7 @@ Utilities for working with models.
  *
  * @param desc - The descriptor of the model.
  */
-$(program).model.create(desc: ModelDescriptor): Model;
+$(program).model.create(desc: ModelDescriptor):Model
 ```
 
 ### model.getAdditionalPropertiesRecord
@@ -444,7 +447,7 @@ $(program).model.create(desc: ModelDescriptor): Model;
  *
  * @returns The record representing additional properties, or undefined if there are none.
  */
-$(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
+$(program).model.getAdditionalPropertiesRecord(model: Model):Model | undefined
 ```
 
 ### model.getDiscriminatedUnion <Badge variant="note" text="Diagnosable" />
@@ -455,8 +458,10 @@ $(program).model.getAdditionalPropertiesRecord(model: Model): Model | undefined;
  *
  * @param type - Model to resolve the discriminated union for.
  */
-$(program).model.getDiscriminatedUnion(model: Model): DiscriminatedUnionLegacy | undefined;
-$(program).model.getDiscriminatedUnion.withDiagnostics(model: Model): [DiscriminatedUnionLegacy | undefined, readonly Diagnosable[]];
+$(program).model
+  .getDiscriminatedUnion(model: Model): DiscriminatedUnionLegacy | undefined;
+$(program).model.getDiscriminatedUnion
+  .withDiagnostics(model: Model): [DiscriminatedUnionLegacy | undefined, readonly Diagnosable[]];
 ```
 
 ### model.getEffectiveModel
@@ -471,7 +476,8 @@ $(program).model.getDiscriminatedUnion.withDiagnostics(model: Model): [Discrimin
  *
  * @param filter - An optional filter to apply to the input model's properties.
  */
-$(program).model.getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
+$(program).model.getEffectiveModel(model: Model,
+filter: (property: ModelProperty) => boolean):Model
 ```
 
 ### model.getProperties
@@ -482,9 +488,10 @@ $(program).model.getEffectiveModel(model: Model, filter?: (property: ModelProper
  *
  * @param model - model to get the properties from
  */
-$(program).model.getProperties(model: Model, options?: {
+$(program).model.getProperties(model: Model,
+options: {
         includeExtended?: boolean;
-    }): RekeyableMap<string, ModelProperty>;
+    }):RekeyableMap<string, ModelProperty>
 ```
 
 ### model.is
@@ -495,7 +502,7 @@ $(program).model.getProperties(model: Model, options?: {
  *
  * @param type - The type to check.
  */
-$(program).model.is(type: Entity): type is Model;
+$(program).model.is(type: Entity):type is Model
 ```
 
 ### model.isExpresion
@@ -506,7 +513,7 @@ $(program).model.is(type: Entity): type is Model;
  *
  * @param type - The model to check.
  */
-$(program).model.isExpresion(type: Model): boolean;
+$(program).model.isExpresion(type: Model):boolean
 ```
 
 ## modelProperty
@@ -523,7 +530,7 @@ For many reflection operations, the metadata being asked for may be found on the
  *
  * @param desc - The descriptor of the model property.
  */
-$(program).modelProperty.create(desc: ModelPropertyDescriptor): ModelProperty;
+$(program).modelProperty.create(desc: ModelPropertyDescriptor):ModelProperty
 ```
 
 ### modelProperty.getEncoding
@@ -534,7 +541,8 @@ $(program).modelProperty.create(desc: ModelPropertyDescriptor): ModelProperty;
  *
  * @param property - The model property to get the encoding for.
  */
-$(program).modelProperty.getEncoding(property: ModelProperty): EncodeData | undefined;
+$(program).modelProperty
+  .getEncoding(property: ModelProperty):EncodeData | undefined
 ```
 
 ### modelProperty.getFormat
@@ -545,7 +553,7 @@ $(program).modelProperty.getEncoding(property: ModelProperty): EncodeData | unde
  *
  * @param property - The model property to get the format for.
  */
-$(program).modelProperty.getFormat(property: ModelProperty): string | undefined;
+$(program).modelProperty.getFormat(property: ModelProperty):string | undefined
 ```
 
 ### modelProperty.getVisibilityForClass
@@ -554,7 +562,8 @@ $(program).modelProperty.getFormat(property: ModelProperty): string | undefined;
 /**
  * Get the visibility of the model property.
  */
-$(program).modelProperty.getVisibilityForClass(property: ModelProperty, visibilityClass: Enum): Set<EnumMember>;
+$(program).modelProperty.getVisibilityForClass(property: ModelProperty,
+visibilityClass: Enum):Set<EnumMember>
 ```
 
 ### modelProperty.is
@@ -565,7 +574,7 @@ $(program).modelProperty.getVisibilityForClass(property: ModelProperty, visibili
  *
  * @param type - The type to check.
  */
-$(program).modelProperty.is(type: Entity): type is ModelProperty;
+$(program).modelProperty.is(type: Entity):type is ModelProperty
 ```
 
 ## operation
@@ -580,7 +589,7 @@ Utilities for working with operation properties.
  *
  * @param desc - The descriptor of the operation.
  */
-$(program).operation.create(desc: OperationDescriptor): Operation;
+$(program).operation.create(desc: OperationDescriptor):Operation
 ```
 
 ### operation.getPagingMetadata <Badge variant="note" text="Diagnosable" />
@@ -591,8 +600,10 @@ $(program).operation.create(desc: OperationDescriptor): Operation;
  *
  * @param operation - operation to get the paging operation for
  */
-$(program).operation.getPagingMetadata(operation: Operation): PagingOperation | undefined;
-$(program).operation.getPagingMetadata.withDiagnostics(operation: Operation): [PagingOperation | undefined, readonly Diagnosable[]];
+$(program).operation
+  .getPagingMetadata(operation: Operation): PagingOperation | undefined;
+$(program).operation.getPagingMetadata
+  .withDiagnostics(operation: Operation): [PagingOperation | undefined, readonly Diagnosable[]];
 ```
 
 ### operation.is
@@ -603,7 +614,7 @@ $(program).operation.getPagingMetadata.withDiagnostics(operation: Operation): [P
  *
  * @param type - type to check
  */
-$(program).operation.is(type: Entity): type is Operation;
+$(program).operation.is(type: Entity):type is Operation
 ```
 
 ## record
@@ -618,7 +629,7 @@ RecordKit provides utilities for working with Record Model types.
  *
  * @param elementType - The type of the elements in the record
  */
-$(program).record.create(elementType: Type): RecordModelType;
+$(program).record.create(elementType: Type):RecordModelType
 ```
 
 ### record.getElementType
@@ -629,7 +640,7 @@ $(program).record.create(elementType: Type): RecordModelType;
  *
  * @param type - a Record Model type
  */
-$(program).record.getElementType(type: Model): Type;
+$(program).record.getElementType(type: Model):Type
 ```
 
 ### record.is
@@ -640,7 +651,7 @@ $(program).record.getElementType(type: Model): Type;
  *
  * @param type - The type to check.
  */
-$(program).record.is(type: Entity): type is RecordModelType;
+$(program).record.is(type: Entity):type is RecordModelType
 ```
 
 ## tuple
@@ -653,7 +664,7 @@ $(program).record.is(type: Entity): type is RecordModelType;
  *
  * @param values - The tuple values, if any.
  */
-$(program).tuple.create(values?: Type[]): Tuple;
+$(program).tuple.create(values: Type[]):Tuple
 ```
 
 ### tuple.is
@@ -662,7 +673,7 @@ $(program).tuple.create(values?: Type[]): Tuple;
 /**
  * Check if a type is a tuple.
  */
-$(program).tuple.is(type: Entity): type is Tuple;
+$(program).tuple.is(type: Entity):type is Tuple
 ```
 
 ## type
@@ -675,7 +686,7 @@ $(program).tuple.is(type: Entity): type is Tuple;
  *
  * @param type - Type to clone
  */
-$(program).type.clone<T extends Type>(type: T): T;
+$(program).type.clone(type: T):T
 ```
 
 ### type.finishType
@@ -684,7 +695,7 @@ $(program).type.clone<T extends Type>(type: T): T;
 /**
  * Finishes a type, applying all the decorators.
  */
-$(program).type.finishType(type: Type): void;
+$(program).type.finishType(type: Type):void
 ```
 
 ### type.getDoc
@@ -695,7 +706,7 @@ $(program).type.finishType(type: Type): void;
  *
  * @param type - The type to get the documentation for.
  */
-$(program).type.getDoc(type: Type): string | undefined;
+$(program).type.getDoc(type: Type):string | undefined
 ```
 
 ### type.getEncodedName
@@ -706,7 +717,8 @@ $(program).type.getDoc(type: Type): string | undefined;
  */
 $(program).type.getEncodedName(type: Type & {
         name: string;
-    }, encoding: string): string;
+    },
+encoding: string):string
 ```
 
 ### type.getPlausibleName
@@ -717,7 +729,7 @@ $(program).type.getEncodedName(type: Type & {
  *
  * @param type - The scalar to get the name of.z
  */
-$(program).type.getPlausibleName(type: Model | Union | Enum | Scalar): string;
+$(program).type.getPlausibleName(type: Model | Union | Enum | Scalar):string
 ```
 
 ### type.getSummary
@@ -728,7 +740,7 @@ $(program).type.getPlausibleName(type: Model | Union | Enum | Scalar): string;
  *
  * @param type - The type to get the summary for.
  */
-$(program).type.getSummary(type: Type): string | undefined;
+$(program).type.getSummary(type: Type):string | undefined
 ```
 
 ### type.inNamespace
@@ -743,7 +755,7 @@ $(program).type.getSummary(type: Type): string | undefined;
  *
  * @returns True if the type is in the namespace, false otherwise.
  */
-$(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
+$(program).type.inNamespace(type: Type, namespace: Namespace):boolean
 ```
 
 ### type.is
@@ -754,7 +766,7 @@ $(program).type.inNamespace(type: Type, namespace: Namespace): boolean;
  *
  * @param entity - The entity to check.
  */
-$(program).type.is(entity: Entity): entity is Type;
+$(program).type.is(entity: Entity):entity is Type
 ```
 
 ### type.isAssignableTo <Badge variant="note" text="Diagnosable" />
@@ -769,8 +781,10 @@ $(program).type.is(entity: Entity): entity is Type;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).type.isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Entity | Node): boolean;
-$(program).type.isAssignableTo.withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
+$(program).type
+  .isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).type.isAssignableTo
+  .withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### type.isError
@@ -781,7 +795,7 @@ $(program).type.isAssignableTo.withDiagnostics(source: Type, target: Entity, dia
  *
  * @param type - The type to check.
  */
-$(program).type.isError(type: Type): type is Model;
+$(program).type.isError(type: Type):type is Model
 ```
 
 ### type.isNever
@@ -790,7 +804,7 @@ $(program).type.isError(type: Type): type is Model;
 /**
  * Checks if the given type is a never type.
  */
-$(program).type.isNever(type: Type): boolean;
+$(program).type.isNever(type: Type):boolean
 ```
 
 ### type.isUserDefined
@@ -803,7 +817,7 @@ $(program).type.isNever(type: Type): boolean;
  *
  * @returns True if the type is a user defined type, false otherwise.
  */
-$(program).type.isUserDefined(type: Type): boolean;
+$(program).type.isUserDefined(type: Type):boolean
 ```
 
 ### type.maxItems
@@ -814,7 +828,7 @@ $(program).type.isUserDefined(type: Type): boolean;
  *
  * @param type - type to get the maximum number of items for
  */
-$(program).type.maxItems(type: Type): number | undefined;
+$(program).type.maxItems(type: Type):number | undefined
 ```
 
 ### type.maxLength
@@ -825,7 +839,7 @@ $(program).type.maxItems(type: Type): number | undefined;
  *
  * @param type - type to get the maximum length for
  */
-$(program).type.maxLength(type: Type): number | undefined;
+$(program).type.maxLength(type: Type):number | undefined
 ```
 
 ### type.maxValue
@@ -836,7 +850,7 @@ $(program).type.maxLength(type: Type): number | undefined;
  *
  * @param type - type to get the maximum value for
  */
-$(program).type.maxValue(type: Type): number | undefined;
+$(program).type.maxValue(type: Type):number | undefined
 ```
 
 ### type.maxValueExclusive
@@ -847,7 +861,7 @@ $(program).type.maxValue(type: Type): number | undefined;
  *
  * @param type -
  */
-$(program).type.maxValueExclusive(type: Type): number | undefined;
+$(program).type.maxValueExclusive(type: Type):number | undefined
 ```
 
 ### type.minItems
@@ -858,7 +872,7 @@ $(program).type.maxValueExclusive(type: Type): number | undefined;
  *
  * @param type - type to get the minimum number of items for
  */
-$(program).type.minItems(type: Type): number | undefined;
+$(program).type.minItems(type: Type):number | undefined
 ```
 
 ### type.minLength
@@ -869,7 +883,7 @@ $(program).type.minItems(type: Type): number | undefined;
  *
  * @param type - type to get the minimum length for
  */
-$(program).type.minLength(type: Type): number | undefined;
+$(program).type.minLength(type: Type):number | undefined
 ```
 
 ### type.minValue
@@ -880,7 +894,7 @@ $(program).type.minLength(type: Type): number | undefined;
  *
  * @param type - type to get the minimum value for
  */
-$(program).type.minValue(type: Type): number | undefined;
+$(program).type.minValue(type: Type):number | undefined
 ```
 
 ### type.minValueExclusive
@@ -891,7 +905,7 @@ $(program).type.minValue(type: Type): number | undefined;
  *
  * @param type - type to get the minimum value for
  */
-$(program).type.minValueExclusive(type: Type): number | undefined;
+$(program).type.minValueExclusive(type: Type):number | undefined
 ```
 
 ### type.resolve <Badge variant="note" text="Diagnosable" />
@@ -904,10 +918,12 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  *
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
  */
-$(program).type.resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+$(program).type
+  .resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
     }> : undefined);
-$(program).type.resolve.withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+$(program).type.resolve
+  .withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
     }> : undefined), readonly Diagnosable[]];
 ```
@@ -928,7 +944,7 @@ Utilities for working with unions.
  *
  * No other decorators are copied from the enum to the union.
  */
-$(program).union.create(children: Type[]): Union;
+$(program).union.create(children: Type[]):Union
 ```
 
 ### union.createFromEnum
@@ -947,7 +963,7 @@ $(program).union.create(children: Type[]): Union;
  *
  * No other decorators are copied from the enum to the union.
  */
-$(program).union.createFromEnum(type: Enum): Union;
+$(program).union.createFromEnum(type: Enum):Union
 ```
 
 ### union.filter
@@ -958,7 +974,8 @@ $(program).union.createFromEnum(type: Enum): Union;
  *
  * @param filterFn - Function to filter the union variants
  */
-$(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
+$(program).union.filter(union: Union,
+filterFn: (variant: UnionVariant) => boolean):Union
 ```
 
 ### union.getDiscriminatedUnion <Badge variant="note" text="Diagnosable" />
@@ -969,8 +986,10 @@ $(program).union.filter(union: Union, filterFn: (variant: UnionVariant) => boole
  *
  * @param type - Union to resolve the discriminated union for.
  */
-$(program).union.getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
-$(program).union.getDiscriminatedUnion.withDiagnostics(type: Union): [DiscriminatedUnion | undefined, readonly Diagnosable[]];
+$(program).union
+  .getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
+$(program).union.getDiscriminatedUnion
+  .withDiagnostics(type: Union): [DiscriminatedUnion | undefined, readonly Diagnosable[]];
 ```
 
 ### union.is
@@ -981,7 +1000,7 @@ $(program).union.getDiscriminatedUnion.withDiagnostics(type: Union): [Discrimina
  *
  * @param type - The type to check.
  */
-$(program).union.is(type: Entity): type is Union;
+$(program).union.is(type: Entity):type is Union
 ```
 
 ### union.isExpression
@@ -992,7 +1011,7 @@ $(program).union.is(type: Entity): type is Union;
  *
  * @param type - Uniton to check if it is an expression
  */
-$(program).union.isExpression(type: Union): boolean;
+$(program).union.isExpression(type: Union):boolean
 ```
 
 ### union.isExtensible
@@ -1003,7 +1022,7 @@ $(program).union.isExpression(type: Union): boolean;
  *
  * @param type - The union to check.
  */
-$(program).union.isExtensible(type: Union): boolean;
+$(program).union.isExtensible(type: Union):boolean
 ```
 
 ### union.isValidEnum
@@ -1014,7 +1033,7 @@ $(program).union.isExtensible(type: Union): boolean;
  *
  * @param type - The union to check.
  */
-$(program).union.isValidEnum(type: Union): boolean;
+$(program).union.isValidEnum(type: Union):boolean
 ```
 
 ## unionVariant
@@ -1031,7 +1050,7 @@ Union variants are types that represent a single value within a union that can b
  *
  * @param desc - The descriptor of the union variant.
  */
-$(program).unionVariant.create(desc: UnionVariantDescriptor): UnionVariant;
+$(program).unionVariant.create(desc: UnionVariantDescriptor):UnionVariant
 ```
 
 ### unionVariant.is
@@ -1042,7 +1061,7 @@ $(program).unionVariant.create(desc: UnionVariantDescriptor): UnionVariant;
  *
  * @param type - The type to check.
  */
-$(program).unionVariant.is(type: Entity): type is UnionVariant;
+$(program).unionVariant.is(type: Entity):type is UnionVariant
 ```
 
 ## value
@@ -1055,7 +1074,7 @@ $(program).unionVariant.is(type: Entity): type is UnionVariant;
  *
  * @param value - The JavaScript value to turn into a TypeSpec Value type.
  */
-$(program).value.create(value: string | number | boolean): Value;
+$(program).value.create(value: string | number | boolean):Value
 ```
 
 ### value.createBoolean
@@ -1066,7 +1085,7 @@ $(program).value.create(value: string | number | boolean): Value;
  *
  * @param value - The boolean value.
  */
-$(program).value.createBoolean(value: boolean): BooleanValue;
+$(program).value.createBoolean(value: boolean):BooleanValue
 ```
 
 ### value.createNumeric
@@ -1077,7 +1096,7 @@ $(program).value.createBoolean(value: boolean): BooleanValue;
  *
  * @param value - The numeric value.
  */
-$(program).value.createNumeric(value: number): NumericValue;
+$(program).value.createNumeric(value: number):NumericValue
 ```
 
 ### value.createString
@@ -1088,7 +1107,7 @@ $(program).value.createNumeric(value: number): NumericValue;
  *
  * @param value - The string value.
  */
-$(program).value.createString(value: string): StringValue;
+$(program).value.createString(value: string):StringValue
 ```
 
 ### value.is
@@ -1099,7 +1118,7 @@ $(program).value.createString(value: string): StringValue;
  *
  * @param type - The type to check.
  */
-$(program).value.is(type: Entity): type is Value;
+$(program).value.is(type: Entity):type is Value
 ```
 
 ### value.isArray
@@ -1110,7 +1129,7 @@ $(program).value.is(type: Entity): type is Value;
  *
  * @param type - The type to check.
  */
-$(program).value.isArray(type: Entity): type is ArrayValue;
+$(program).value.isArray(type: Entity):type is ArrayValue
 ```
 
 ### value.isAssignableTo <Badge variant="note" text="Diagnosable" />
@@ -1125,8 +1144,10 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).value.isAssignableTo(source: Value, target: Entity, diagnosticTarget?: Entity | Node): boolean;
-$(program).value.isAssignableTo.withDiagnostics(source: Value, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
+$(program).value
+  .isAssignableTo(source: Value, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+$(program).value.isAssignableTo
+  .withDiagnostics(source: Value, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnosable[]];
 ```
 
 ### value.isBoolean
@@ -1137,7 +1158,7 @@ $(program).value.isAssignableTo.withDiagnostics(source: Value, target: Entity, d
  *
  * @param type - The type to check.
  */
-$(program).value.isBoolean(type: Entity): type is BooleanValue;
+$(program).value.isBoolean(type: Entity):type is BooleanValue
 ```
 
 ### value.isEnum
@@ -1148,7 +1169,7 @@ $(program).value.isBoolean(type: Entity): type is BooleanValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isEnum(type: Entity): type is EnumValue;
+$(program).value.isEnum(type: Entity):type is EnumValue
 ```
 
 ### value.isNull
@@ -1159,7 +1180,7 @@ $(program).value.isEnum(type: Entity): type is EnumValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isNull(type: Entity): type is NullValue;
+$(program).value.isNull(type: Entity):type is NullValue
 ```
 
 ### value.isNumeric
@@ -1170,7 +1191,7 @@ $(program).value.isNull(type: Entity): type is NullValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isNumeric(type: Entity): type is NumericValue;
+$(program).value.isNumeric(type: Entity):type is NumericValue
 ```
 
 ### value.isObject
@@ -1181,7 +1202,7 @@ $(program).value.isNumeric(type: Entity): type is NumericValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isObject(type: Entity): type is ObjectValue;
+$(program).value.isObject(type: Entity):type is ObjectValue
 ```
 
 ### value.isScalar
@@ -1192,7 +1213,7 @@ $(program).value.isObject(type: Entity): type is ObjectValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isScalar(type: Entity): type is ScalarValue;
+$(program).value.isScalar(type: Entity):type is ScalarValue
 ```
 
 ### value.isString
@@ -1203,7 +1224,7 @@ $(program).value.isScalar(type: Entity): type is ScalarValue;
  *
  * @param type - The type to check.
  */
-$(program).value.isString(type: Entity): type is StringValue;
+$(program).value.isString(type: Entity):type is StringValue
 ```
 
 ### value.resolve <Badge variant="note" text="Diagnosable" />
@@ -1216,10 +1237,12 @@ $(program).value.isString(type: Entity): type is StringValue;
  *
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
  */
-$(program).value.resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+$(program).value
+  .resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
     }> : undefined);
-$(program).value.resolve.withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+$(program).value.resolve
+  .withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
     }> : undefined), readonly Diagnosable[]];
 ```

@@ -29,12 +29,14 @@ export interface TypekitFunctionDoc {
   parameters?: TsFunctionParameter[];
   docComment?: DocComment;
   excerpt: Excerpt;
+  returnTypeExcerpt: Excerpt;
 }
 
 export interface TsFunctionParameter {
   name: string;
-  type: string;
   doc: string;
+  optional: boolean;
+  typeExcerpt: Excerpt;
 }
 
 export async function writeTypekitDocs(libraryPath: string, outputDir: string): Promise<void> {
@@ -106,6 +108,7 @@ async function getTypekitApi(
               docComment: member.tsdocComment,
               path: [...path, member.displayName],
               excerpt: member.propertyTypeExcerpt,
+              returnTypeExcerpt: member.propertyTypeExcerpt,
             };
           } else {
             throw new Error(
@@ -120,11 +123,13 @@ async function getTypekitApi(
           docComment: member.tsdocComment,
           path: [...path, member.displayName],
           parameters: member.parameters.map((param) => ({
-            type: "TODO",
             doc: "TODO doc",
             name: param.name,
+            optional: param.isOptional,
+            typeExcerpt: param.parameterTypeExcerpt,
           })),
           excerpt: member.excerpt,
+          returnTypeExcerpt: member.returnTypeExcerpt,
         };
       } else if (member instanceof ApiProperty) {
         typekit.entries[member.displayName] = {
@@ -134,6 +139,7 @@ async function getTypekitApi(
           path: [...path, member.displayName],
           parameters: [],
           excerpt: member.excerpt,
+          returnTypeExcerpt: member.propertyTypeExcerpt,
         };
       } else {
         // eslint-disable-next-line no-console

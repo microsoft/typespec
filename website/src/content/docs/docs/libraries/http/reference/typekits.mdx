@@ -33,7 +33,8 @@ Utilities for working with model properties in the context of Http.
  *
  * @param prop - a TypeSpec ModelProperty
  */
-$(program).modelProperty.getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
+$(program).modelProperty
+  .getHttpHeaderOptions(prop: ModelProperty): HeaderFieldOptions | undefined;
 ```
 
 ### modelProperty.getHttpParamOptions
@@ -44,7 +45,8 @@ $(program).modelProperty.getHttpHeaderOptions(prop: ModelProperty): HeaderFieldO
  *
  * @param prop - a TypeSpec ModelProperty
  */
-$(program).modelProperty.getHttpParamOptions(prop: ModelProperty): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
+$(program).modelProperty
+  .getHttpParamOptions(prop: ModelProperty): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
 ```
 
 ### modelProperty.getHttpPathOptions
@@ -55,7 +57,8 @@ $(program).modelProperty.getHttpParamOptions(prop: ModelProperty): HeaderFieldOp
  *
  * @param prop - a TypeSpec ModelProperty
  */
-$(program).modelProperty.getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
+$(program).modelProperty
+  .getHttpPathOptions(prop: ModelProperty): PathParameterOptions | undefined;
 ```
 
 ### modelProperty.getHttpQueryOptions
@@ -66,7 +69,8 @@ $(program).modelProperty.getHttpPathOptions(prop: ModelProperty): PathParameterO
  *
  * @param prop - a TypeSpec ModelProperty
  */
-$(program).modelProperty.getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
+$(program).modelProperty
+  .getHttpQueryOptions(prop: ModelProperty): QueryParameterOptions | undefined;
 ```
 
 ### modelProperty.isHttpHeader
@@ -125,7 +129,8 @@ Utilities for working with HTTP operations.
  *
  * @param op - operation to extract the HttpResponse from
  */
-$(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[];
+$(program).httpOperation
+  .flattenResponses(op: HttpOperation): FlatHttpResponse[];
 ```
 
 ### httpOperation.get <Badge variant="note" text="Diagnosable" />
@@ -137,7 +142,8 @@ $(program).httpOperation.flattenResponses(op: HttpOperation): FlatHttpResponse[]
  * @param op - The TypeSpec operation to get the HTTP operation metadata for.
  */
 $(program).httpOperation.get(op: Operation): HttpOperation;
-$(program).httpOperation.get.withDiagnostics(op: Operation): [HttpOperation, readonly Diagnosable[]];
+$(program).httpOperation.get
+  .withDiagnostics(op: Operation): [HttpOperation, readonly Diagnosable[]];
 ```
 
 ### httpOperation.getReturnType
@@ -148,7 +154,8 @@ $(program).httpOperation.get.withDiagnostics(op: Operation): [HttpOperation, rea
  *
  * @param op - operation to get the return type for
  */
-$(program).httpOperation.getReturnType(op: HttpOperation, options?: {
+$(program).httpOperation.getReturnType(op: HttpOperation,
+options: {
         includeErrors?: boolean;
     }): Type;
 ```

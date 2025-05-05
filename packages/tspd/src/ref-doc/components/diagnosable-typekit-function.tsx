@@ -1,5 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
+import * as ts from "@alloy-js/typescript";
 import { Excerpt, ExcerptToken } from "@microsoft/api-extractor-model";
 import { TypekitFunctionDoc } from "../typekit-docs.js";
 
@@ -10,9 +11,28 @@ export interface DiagnosableTypekitFunctionProps {
 export function DiagnosableTypekitFunction(props: DiagnosableTypekitFunctionProps) {
   const path = [`$(program)`, ...props.typekit.path];
   const { parameters, returnType } = parseDiagnosableExcerpt(props.typekit.excerpt);
-  const accessor = path.join(".");
-  const fnSig = `${accessor}(${renderTokens(parameters)}): ${renderTokens(returnType)};`;
-  const fnDiagSig = `${accessor}.withDiagnostics(${renderTokens(parameters)}): [${renderTokens(returnType)}, readonly Diagnosable[]];`;
+
+  const accessorParts = path.map((x) => <ts.MemberExpression.Part id={x} />);
+
+  const fnSig = (
+    <>
+      <ts.MemberExpression>
+        {accessorParts}
+        <ts.MemberExpression.Part args={[renderTokens(parameters)]} />
+      </ts.MemberExpression>
+      {`: ${renderTokens(returnType)};`}
+    </>
+  );
+  const fnDiagSig = (
+    <>
+      <ts.MemberExpression>
+        {accessorParts}
+        <ts.MemberExpression.Part id="withDiagnostics" />
+        <ts.MemberExpression.Part args={[renderTokens(parameters)]} />
+      </ts.MemberExpression>
+      {`: [${renderTokens(returnType)}, readonly Diagnosable[]];`}
+    </>
+  );
   return (
     <md.Section
       heading={`${props.typekit.path.join(".")} <Badge variant="note" text="Diagnosable" />`}
