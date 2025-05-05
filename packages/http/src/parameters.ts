@@ -6,7 +6,7 @@ import {
   Program,
 } from "@typespec/compiler";
 import { getOperationVerb, getPathOptions } from "./decorators.js";
-import { resolveRequestVisibility } from "./metadata.js";
+import { resolveRequestVisibilityWithDiagnostics } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
   HttpOperation,
@@ -59,7 +59,9 @@ function getOperationParametersForVerb(
   partialUriTemplate: string,
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = resolveRequestVisibility(program, operation, verb);
+  const visibility = diagnostics.pipe(
+    resolveRequestVisibilityWithDiagnostics(program, operation, verb),
+  );
   const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
   const parameters: HttpOperationParameter[] = [];
