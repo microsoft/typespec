@@ -1,10 +1,10 @@
 import * as ay from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import { format as prettierFormat } from "prettier";
-import { TypekitApi } from "../typekit-docs.js";
+import { TypekitCollection } from "../typekit-docs.js";
 import { TypekitSection } from "./typekit-section.js";
 
-export function createTypekitDocs(typekit: TypekitApi) {
+export function createTypekitDocs(typekit: TypekitCollection) {
   const jsxContent = (
     <ay.Output>
       <md.SourceFile path={`typekits.mdx`}>
@@ -17,8 +17,8 @@ export function createTypekitDocs(typekit: TypekitApi) {
         `}
         </>
         <md.Section heading={"Typekits"}>
-          <ay.For each={Object.values(typekit.entries)}>
-            {(x) => <TypekitSection typekit={x as any} />}
+          <ay.For each={Object.values(typekit.namespaces)}>
+            {(x) => <TypekitSection typekit={x} />}
           </ay.For>
         </md.Section>
       </md.SourceFile>
