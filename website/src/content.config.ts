@@ -27,6 +27,8 @@ export const collections = {
     type: "content",
     // Type-check frontmatter using a schema
     schema: z.object({
+      slug: z.string().optional(),
+      redirect_slug: z.string().optional(),
       title: z.string(),
       description: z.string(),
       image: z.string().optional(),

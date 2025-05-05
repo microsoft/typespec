@@ -3,12 +3,11 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./base-layout.astro";
 import { resolveBlogImagePath } from "../pages/blog/resolve-image";
 import { resolveAuthorAvatar } from "../utils/resolve-author-avatar";
-import { format } from "date-fns/format";
 import { Image } from "astro:assets";
 import BlogAuthor from "../components/BlogAuthor.astro";
 
 type Props = CollectionEntry<"blog">["data"];
-const { title, image: relativeImage, publishDate, author, authorAvatar, authors } = Astro.props;
+const { title, image: relativeImage, author, authorAvatar, authors } = Astro.props;
 const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage));
 // Fixed height value for all images
 const fixedHeight = 360;
@@ -62,12 +61,6 @@ const authorsWithAvatars = await Promise.all(
   .title h1 {
     margin: 0 0 0.5em 0;
   }
-  .date {
-    display: block;
-    padding: 1rem;
-    font-size: var(--fontSizeBase400);
-    color: var(--colorNeutralForeground1);
-  }
   .last-updated-on {
     font-style: italic;
   }
@@ -85,9 +78,6 @@ const authorsWithAvatars = await Promise.all(
     </div>
     <div class="prose">
       <div class="title">
-        <time class="date" datetime={publishDate.toISOString()}>
-          {format(publishDate, "MMMM d, yyyy")}
-        </time>
         <h1>{title}</h1>
         <hr />
       </div>

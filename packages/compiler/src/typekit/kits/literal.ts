@@ -1,8 +1,7 @@
 import { Numeric } from "../../core/numeric.js";
-import type { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../core/types.js";
+import type { BooleanLiteral, Entity, NumericLiteral, StringLiteral } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
-/** @experimental */
 export interface LiteralKit {
   /**
    * Create a literal type from a JavaScript value.
@@ -37,28 +36,28 @@ export interface LiteralKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral;
+  is(type: Entity): type is StringLiteral | NumericLiteral | BooleanLiteral;
 
   /**
    * Check if `type` is a string literal type.
    *
    * @param type The type to check.
    */
-  isString(type: Type): type is StringLiteral;
+  isString(type: Entity): type is StringLiteral;
 
   /**
    * Check if `type` is a numeric literal type.
    *
    * @param type The type to check.
    */
-  isNumeric(type: Type): type is NumericLiteral;
+  isNumeric(type: Entity): type is NumericLiteral;
 
   /**
    * Check if `type` is a boolean literal type.
    *
    * @param type The type to check.
    */
-  isBoolean(type: Type): type is BooleanLiteral;
+  isBoolean(type: Entity): type is BooleanLiteral;
 }
 
 interface TypekitExtension {
@@ -67,8 +66,6 @@ interface TypekitExtension {
    *
    * Literal types are types that represent a single value, such as a string,
    * number, or boolean.
-   *
-   * @experimental
    */
   literal: LiteralKit;
 }
@@ -114,13 +111,13 @@ defineKit<TypekitExtension>({
     },
 
     isBoolean(type) {
-      return type.kind === "Boolean";
+      return type.entityKind === "Type" && type.kind === "Boolean";
     },
     isString(type) {
-      return type.kind === "String";
+      return type.entityKind === "Type" && type.kind === "String";
     },
     isNumeric(type) {
-      return type.kind === "Number";
+      return type.entityKind === "Type" && type.kind === "Number";
     },
     is(type) {
       return (
