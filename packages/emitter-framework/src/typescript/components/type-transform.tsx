@@ -9,7 +9,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -35,9 +35,12 @@ export interface UnionTransformProps {
 }
 function UnionTransformExpression(props: UnionTransformProps) {
   const { $ } = useTsp();
-  const discriminator = $.type.getDiscriminator(props.type);
+  const discriminator = $.union.getDiscriminatedUnion(props.type);
+  const discriminatorProperty = discriminator?.options.discriminatorPropertyName && {
+    propertyName: discriminator.options.discriminatorPropertyName,
+  };
 
-  if (!discriminator) {
+  if (!discriminatorProperty) {
     // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
@@ -47,7 +50,11 @@ function UnionTransformExpression(props: UnionTransformProps) {
   }
 
   return (
-    <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />
+    <DiscriminateExpression
+      type={props.type}
+      discriminator={discriminatorProperty}
+      target={props.target}
+    />
   );
 }
 
@@ -122,7 +129,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
 
   let transformExpression: Children;
   if ($.model.is(props.type)) {
-    const discriminator = $.type.getDiscriminator(props.type);
+    const discriminator = $.model.getDiscriminatedUnion(props.type);
 
     transformExpression = discriminator ? (
       <DiscriminateExpression
@@ -191,7 +198,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
     });
   }
 
-  if ($.model.getSpreadType(props.type)) {
+  if ($.model.getIndexType(props.type)) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-spread-model-transformation-nyi",
       target: props.type,

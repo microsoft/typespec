@@ -16,7 +16,6 @@ import type {
 
 export interface ServiceOptions {
   readonly title?: string;
-  readonly version?: string;
 }
 
 export interface DiscriminatedOptions {

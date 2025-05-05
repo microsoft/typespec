@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal string? OriginalName { get; init; }
+        public string? OriginalName { get; internal init; }
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
