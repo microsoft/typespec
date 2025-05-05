@@ -651,6 +651,42 @@ describe("merge-patch: visibility transforms", () => {
     isNullableUnion(checkProperty(innerEnvelope, "updateOnly", true, "Union"));
     expect(innerEnvelope.properties.size).toBe(3);
   });
+  it("handles complex tuple model property visibility for MergePatchUpdate", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Bar {
+        id: string;
+        description?: string;
+        @visibility(Lifecycle.Create)
+        createOnly?: string;
+        @visibility(Lifecycle.Update)
+        updateOnly?: string;
+        @visibility(Lifecycle.Read)
+        readOnly?: string;
+      }
+      
+      model Foo {
+        subject: [Bar];
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Foo>): Foo;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const envelope = typeGraph[0].parameters?.body?.type;
+    ok(envelope);
+    deepStrictEqual(envelope.kind, "Model");
+    const tuple = checkProperty(envelope, "subject", true, "Tuple").type;
+    ok(tuple);
+    deepStrictEqual(tuple.kind, "Tuple");
+    const innerEnvelope = tuple.values[0];
+    ok(innerEnvelope);
+    deepStrictEqual(innerEnvelope.kind, "Model");
+    checkProperty(innerEnvelope, "id", false, "Scalar", "string");
+    checkProperty(innerEnvelope, "description", true, "Scalar", "string");
+    checkProperty(innerEnvelope, "createOnly", true, "Scalar", "string");
+    expect(innerEnvelope.properties.size).toBe(3);
+  });
   it("handles complex (optional) model property visibility for MergePatchUpdate", async () => {
     const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
       runner,
