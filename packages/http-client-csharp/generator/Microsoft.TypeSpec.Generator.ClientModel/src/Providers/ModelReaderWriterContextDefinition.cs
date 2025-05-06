@@ -23,12 +23,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override XmlDocProvider BuildXmlDocs()
         {
-            var xmlDocs = new XmlDocProvider();
-            xmlDocs.Summary = new Statements.XmlDocSummaryStatement(
+            var summary = new Statements.XmlDocSummaryStatement(
             [
                 $"Context class which will be filled in by the System.ClientModel.SourceGeneration.",
-                $"For more information see 'https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md'"
+                $"For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />"
             ]);
+            var xmlDocs = new XmlDocProvider(summary: summary);
             return xmlDocs;
         }
     }
