@@ -45,6 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         {
             if (!IsCallingBaseCtor(constructor) &&
                 !IsEffectivelyPublic(constructor.Signature.Modifiers) &&
+                !IsParameterlessInternalCtorOnMrwSerializationType(constructor) &&
                 (constructor.EnclosingType is not ModelProvider model || model.DerivedModels.Count == 0))
                 return null;
 
@@ -54,6 +55,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 xmlDocs: XmlDocProvider.Empty);
 
             return constructor;
+        }
+
+        private static bool IsParameterlessInternalCtorOnMrwSerializationType(ConstructorProvider constructor)
+        {
+            if (constructor.Signature.Parameters.Count != 0)
+                return false;
+
+            if (!constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                return false;
+
+            return constructor.EnclosingType is MrwSerializationTypeDefinition;
         }
 
         private static bool IsCallingBaseCtor(ConstructorProvider constructor)
