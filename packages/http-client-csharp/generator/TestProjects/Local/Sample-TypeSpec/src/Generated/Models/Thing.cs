@@ -39,6 +39,23 @@ namespace SampleTypeSpec
             Rename = rename;
         }
 
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredNullableString"> required nullable string. </param>
+        /// <param name="optionalNullableString"> required optional string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="rename"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal Thing(BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, string optionalNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string rename, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             RequiredUnion = requiredUnion;

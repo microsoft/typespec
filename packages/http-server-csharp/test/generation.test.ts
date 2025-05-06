@@ -807,6 +807,9 @@ it("handles extensible enums and discriminators for inheritance", async () => {
       /** A fixed string union */
       union AnimalType {/** Wolf */ Wolf: "wolf", /** Bear */ Bear: "bear"}
 
+      /** another extensible string union */
+      union WolfBreed {string, red: "red", timber: "timber", dire: "dire"}
+
       /** base discriminated type */
       @discriminator("kind")
       model Pet {
@@ -846,7 +849,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
       /** A leaf animal */
       model Wolf extends Animal {
         kind: AnimalType.Wolf;
-        variety: "dire" | "timber" | "red";
+        variety: WolfBreed = WolfBreed.dire;
       }
 
       /** A leaf animal */
@@ -904,7 +907,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         [
           "public partial class Wolf : Animal {",
           `public new AnimalType Kind { get; } = AnimalType.Wolf;`,
-          `public string Variety { get; set; }`,
+          `public WolfBreed Variety { get; set; } = WolfBreed.Dire`,
         ],
       ],
       [
@@ -1712,6 +1715,7 @@ it("handles implicit request body models correctly", async () => {
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+      ["ContosoOperationsFooRequest.cs", ["namespace Microsoft.Contoso {"]],
     ],
   );
 });
@@ -2113,6 +2117,7 @@ it("Handles spread parameters", async () => {
           "public Task<Widget> CreateAsync( string id, string color, string? kind)",
         ],
       ],
+      ["ContosoOperationsCreateRequest.cs", ["namespace Microsoft.Contoso {"]],
       [
         "ContosoOperationsController.cs",
         [
@@ -2817,6 +2822,20 @@ describe("emit correct code for `@error` models", () => {
         `public string TargetSiteProp { get; set; }`,
         `public string HelpLinkProp { get; set; }`,
       ],
+    );
+  });
+
+  it("generates standard scalar array for uniqueItems model", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `    
+        /** A simple test model*/
+        model Foo is Array<string>;
+        @get @route("/Foo") op list(): Foo[];
+        @route("/Foo/{id}") @get op get(@path id: string): Foo;
+        `,
+      "IContosoOperations.cs",
+      ["Task<string[][]> ListAsync( )", "Task<string[]> GetNameAsync( string id)"],
     );
   });
 });

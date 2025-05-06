@@ -502,11 +502,30 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelDeclarationContext(model: Model, name: string): Context {
+      function getSourceModels(source: Model, visited: Set<Model> = new Set<Model>()): Model[] {
+        const result: Model[] = [];
+        if (visited.has(source)) return [];
+        result.push(source);
+        visited.add(source);
+        for (const candidate of source.sourceModels) {
+          result.push(...getSourceModels(candidate.model, visited));
+        }
+        return result;
+      }
+      function getModelNamespace(model: Model): Namespace | undefined {
+        const sourceModels = getSourceModels(model);
+        if (sourceModels.length === 0) return undefined;
+        return sourceModels
+          .filter((m) => m.namespace !== undefined)
+          .flatMap((s) => s.namespace)
+          .reduce((c, n) => (c === n ? c : undefined));
+      }
       if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-      const modelNamespace = this.#getOrAddNamespace(model.namespace);
+      const ns = model.namespace ?? getModelNamespace(model);
+      const modelNamespace = this.#getOrAddNamespace(ns);
       return this.#createModelContext(modelNamespace, modelFile, modelName);
     }
 
@@ -651,9 +670,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const attr = getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!;
         if (!attributes.has(attr.type.name)) attributes.set(attr.type.name, attr);
       }
-      const defaultValue = property.defaultValue
-        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
-        : typeDefault;
+      const defaultValue =
+        this.#opHelpers.getDefaultValue(
+          this.emitter.getProgram(),
+          property.type,
+          property.defaultValue,
+        ) ?? typeDefault;
       const attributeList = [...attributes.values()];
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${

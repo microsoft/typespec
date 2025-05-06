@@ -12,6 +12,7 @@ import {
   StringTemplateSpan,
   Type,
   Union,
+  Value,
   getFriendlyName,
   getMinValue,
   isArrayModelType,
@@ -23,6 +24,7 @@ import {
   isVoidType,
   resolveCompilerOptions,
   resolvePath,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
@@ -1392,6 +1394,50 @@ export class CSharpOperationHelpers {
     }
 
     return result;
+  }
+
+  getDefaultValue(
+    program: Program,
+    tsType: Type,
+    defaultValue: Value | undefined,
+  ): string | number | undefined {
+    if (defaultValue === undefined) return undefined;
+    switch (tsType.kind) {
+      case "Enum":
+        if (defaultValue.valueKind === "EnumValue") {
+          const retVal = this.getTypeInfo(program, tsType);
+          return `${retVal.typeReference}.${ensureCSharpIdentifier(program, defaultValue.value, defaultValue.value.name, NameCasingType.Property)}`;
+        }
+        return JSON.stringify(
+          serializeValueAsJson(this.emitter.getProgram(), defaultValue, tsType),
+        );
+      case "Union":
+        const { typeReference: typeRef } = this.getUnionInfo(program, tsType);
+        if (defaultValue.valueKind === "StringValue" && isStringEnumType(program, tsType)) {
+          const matches = [...tsType.variants].filter(
+            (v) =>
+              typeof v[0] === "string" &&
+              v[1].type.kind === "String" &&
+              v[1].type.value === defaultValue.value,
+          );
+          if (matches.length === 1) {
+            return `${typeRef}.${ensureCSharpIdentifier(program, matches[0][1], matches[0][0] as string, NameCasingType.Property)}`;
+          }
+
+          return undefined;
+        }
+        if (defaultValue.valueKind === "StringValue") {
+          return JSON.stringify(
+            serializeValueAsJson(this.emitter.getProgram(), defaultValue, tsType),
+          );
+        }
+
+        return undefined;
+      default:
+        return JSON.stringify(
+          serializeValueAsJson(this.emitter.getProgram(), defaultValue, tsType),
+        );
+    }
   }
   getTypeInfo(program: Program, tsType: Type, modelProperty?: ModelProperty): EmittedTypeInfo {
     const myEmitter = this.emitter;

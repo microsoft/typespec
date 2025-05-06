@@ -56,9 +56,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement(
-                [$"A factory class for creating instances of the models for mocking."]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement(
+                [$"A factory class for creating instances of the models for mocking."]));
+
             return docs;
         }
 
@@ -115,13 +115,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"A new {modelProvider.Type:C} instance for mocking.",
                     GetParameters(modelProvider, fullConstructor));
 
-                var docs = new XmlDocProvider();
-                docs.Summary = modelProvider.XmlDocs?.Summary;
-                docs.Returns = new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking.");
+                var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)
                 {
-                    docs.Params.Add(new XmlDocParamStatement(param));
+                    parameters.Add(new XmlDocParamStatement(param));
                 }
+
+                var docs = new XmlDocProvider(
+                    modelProvider.XmlDocs.Summary,
+                    parameters,
+                    returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
                 var statements = new MethodBodyStatements(
                 [
