@@ -89,6 +89,8 @@
     "@typespec/rest": "~0.69.0",
     "@typespec/versioning": "~0.69.0",
     "@typespec/events": "~0.69.0",
+    "@typespec/spector": "0.1.0-alpha.13",
+    "@typespec/spec-api": "0.1.0-alpha.5",
     "@typespec/sse": "~0.69.0",
     "@typespec/streams": "~0.69.0",
     "@typespec/xml": "~0.69.0",
