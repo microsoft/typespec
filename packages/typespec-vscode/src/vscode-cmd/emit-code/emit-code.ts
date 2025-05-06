@@ -438,11 +438,14 @@ async function doEmit(
             return createHash("sha256").update(packageName).digest("hex");
           }
         };
-        emitters.forEach((e) => {
+        emitters.forEach(async (e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             emitterName: generatePackageNameForTelemetry(e.package),
-            emitterVersion: e.version,
+            emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
+        });
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
         });
         const compileResult = await compile(
           cli,
@@ -487,6 +490,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );

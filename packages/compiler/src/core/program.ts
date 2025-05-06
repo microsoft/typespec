@@ -1,6 +1,5 @@
 import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
-import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -119,6 +118,9 @@ export interface Program {
 
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
+  /** @internal */
+  resolveTypeOrValueReference(reference: string): [Entity | undefined, readonly Diagnostic[]];
+
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
@@ -234,6 +236,8 @@ async function createProgram(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    /** @internal */
+    resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
@@ -268,7 +272,6 @@ async function createProgram(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-  setCurrentProgram(program);
 
   const resolver = createResolver(program);
   resolver.resolveProgram();
@@ -908,6 +911,20 @@ async function createProgram(
     mutate(node).parent = resolver.symbols.global.declarations[0];
     resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
+  }
+
+  function resolveTypeOrValueReference(
+    reference: string,
+  ): [Entity | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return program.checker.resolveTypeOrValueReference(node);
   }
 }
 

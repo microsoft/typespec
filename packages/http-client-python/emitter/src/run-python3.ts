@@ -11,7 +11,7 @@ import { patchPythonPath } from "./system-requirements.js";
 
 export async function runPython3(...args: string[]) {
   const command = await patchPythonPath(["python", ...args], {
-    version: ">=3.8",
+    version: ">=3.9",
     environmentVariable: "AUTOREST_PYTHON_EXE",
   });
   cp.execSync(command.join(" "), {

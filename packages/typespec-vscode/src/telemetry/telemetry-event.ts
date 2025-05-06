@@ -39,6 +39,8 @@ export enum OperationDetailPropertyName {
   emitResult,
   compilerLocation,
   compilerVersion,
+  CompileStartTime,
+  CompileEndTime,
 }
 
 export function generateActivityId() {

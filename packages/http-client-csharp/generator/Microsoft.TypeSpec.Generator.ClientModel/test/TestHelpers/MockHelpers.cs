@@ -58,7 +58,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
-            Func<InputAuth>? auth = null)
+            RequestContentApi? requestContentApi = null,
+            Func<InputAuth>? auth = null,
+            bool includeXmlDocs = false)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
@@ -107,6 +109,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var clientModelInstance = typeof(ScmCodeModelGenerator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
+            if (includeXmlDocs)
+            {
+                configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
+            }
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
@@ -126,6 +132,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (httpMessageApi is not null)
             {
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
+            }
+
+            if (requestContentApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.RequestContentApi).Returns(requestContentApi);
             }
 
             if (createInputLibrary is not null)

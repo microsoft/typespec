@@ -6,7 +6,6 @@ using System;
 
 namespace Sample
 {
-    /// <summary></summary>
     [global::System.ObsoleteAttribute]
     [global::System.ObsoleteAttribute("This is obsolete")]
     [global::System.ObsoleteAttribute("This is obsolete", true)]

@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { JsonAdditionalPropertiesTransform } from "./json-model-additional-properties-transform.jsx";
 import { JsonModelPropertyTransform } from "./json-model-property-transform.jsx";
 import { JsonRecordTransformDeclaration } from "./json-record-transform.jsx";
@@ -18,12 +18,13 @@ export interface JsonModelTransformProps {
 }
 
 export function JsonModelTransform(props: JsonModelTransformProps) {
+  const { $ } = useTsp();
   // Need to skip never properties
   const properties = Array.from(
     $.model.getProperties(props.type, { includeExtended: true }).values(),
   ).filter((p) => !$.type.isNever(p.type));
 
-  const discriminator = $.type.getDiscriminator(props.type);
+  const discriminator = $.model.getDiscriminatedUnion(props.type);
 
   const discriminate = getJsonTransformDiscriminatorRefkey(props.type, props.target);
 
@@ -69,6 +70,7 @@ export interface JsonModelTransformDeclarationProps {
 export function JsonModelTransformDeclaration(
   props: JsonModelTransformDeclarationProps,
 ): ay.Children {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const transformName = namePolicy.getName(
     `json_${props.type.name}_to_${props.target}_transform`,
@@ -79,19 +81,19 @@ export function JsonModelTransformDeclaration(
   const inputType = props.target === "transport" ? <>{ay.refkey(props.type)} | null</> : "any";
   const inputRef = ay.refkey();
 
-  const parameters: Record<string, ts.ParameterDescriptor> = {
+  const parameters: ts.ParameterDescriptor[] = [
     // Make the input optional to make the transform more robust and check against null and undefined
-    input_: { type: inputType, refkey: inputRef, optional: true },
-  };
+    { name: "input_", type: inputType, refkey: inputRef, optional: true },
+  ];
 
-  const spread = $.model.getSpreadType(props.type);
-  const hasAdditionalProperties = spread && $.model.is(spread) && $.record.is(spread);
+  const indexType = $.model.getIndexType(props.type);
+  const hasAdditionalProperties = indexType && $.record.is(indexType);
 
   const declarationRefkey = getJsonModelTransformRefkey(props.type, props.target);
   return (
     <>
       {hasAdditionalProperties ? (
-        <JsonRecordTransformDeclaration target={props.target} type={spread} />
+        <JsonRecordTransformDeclaration target={props.target} type={indexType} />
       ) : null}
       <JsonTransformDiscriminatorDeclaration type={props.type} target={props.target} />
       <ts.FunctionDeclaration

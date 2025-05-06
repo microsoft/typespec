@@ -128,6 +128,7 @@ function main() {
   connection.onCodeAction(profile(s.getCodeActions));
   connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
+  connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
   connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));

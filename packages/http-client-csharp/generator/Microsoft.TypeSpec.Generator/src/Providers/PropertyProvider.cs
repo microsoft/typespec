@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
 
-        internal string? OriginalName { get; init; }
+        public string? OriginalName { get; internal init; }
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
@@ -89,14 +89,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
-            XmlDocs = new XmlDocProvider
+            XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
+                inputProperty,
+                propertyType,
+                serializationFormat,
+                Description))
             {
                 // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-                Summary = PropertyDescriptionBuilder.BuildPropertyDescription(
-                    inputProperty,
-                    propertyType,
-                    serializationFormat,
-                    Description)
             };
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
@@ -119,7 +118,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (Description != null)
             {
-                XmlDocs = new XmlDocProvider { Summary = new XmlDocSummaryStatement([Description]) };
+                XmlDocs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
             }
 
             Modifiers = modifiers;

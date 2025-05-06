@@ -14,6 +14,34 @@ if (-not $LaunchOnly) {
     Refresh-Build
 
     if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+
+        Write-Host "Building logging plugin" -ForegroundColor Cyan
+        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+        Invoke "dotnet build" $pluginDir
+
+        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+
+        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+       
+        Invoke "npm install" $sampleDir
+
+        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+  
+        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+  
+        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+  
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+
         Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
@@ -35,26 +63,6 @@ if (-not $LaunchOnly) {
             exit $LASTEXITCODE
         }
     }
-
-    # if ($null -eq $filter -or $filter -eq "Sample-Service") {
-    #   Write-Host "Generating SampleService" -ForegroundColor Cyan
-    #   $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-      
-    #   Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir)
-
-    #   # exit if the generation failed
-    #   if ($LASTEXITCODE -ne 0) {
-    #     exit $LASTEXITCODE
-    #   }
-
-    #   Write-Host "Building SampleService" -ForegroundColor Cyan
-    #   Invoke "dotnet build $sampleDir/src/SampleService.csproj"
-
-    #   # exit if the generation failed
-    #   if ($LASTEXITCODE -ne 0) {
-    #     exit $LASTEXITCODE
-    #   }
-    # }
 }
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
@@ -165,12 +173,12 @@ foreach ($directory in $directories) {
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
-    $unbrandedSpec = "TestProjects/Local/Sample-TypeSpec"
+    $sampleSpec = "TestProjects/Local/Sample-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
     $launchSettings["profiles"].Add("Sample-TypeSpec", @{})
-    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
+    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$sampleSpec -g ScmCodeModelGenerator")
     $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Sample-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Sample-Service", @{})

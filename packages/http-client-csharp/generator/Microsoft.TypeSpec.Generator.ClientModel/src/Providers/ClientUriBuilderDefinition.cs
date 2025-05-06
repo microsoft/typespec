@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: Array.Empty<ParameterProvider>(),
                 Description: null);
-            return [new ConstructorProvider(signature, MethodBodyStatement.Empty, this)];
+            return [new ConstructorProvider(signature, MethodBodyStatement.Empty, this, XmlDocProvider.Empty)];
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _queryBuilderField.Assign(New.Instance(_queryBuilderField.Type, UriBuilderQuery)).Terminate()
             };
 
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider[] BuildAppendPathMethods()
@@ -162,7 +162,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return
                 [
-                new(signature, body, this),
+                new(signature, body, this, XmlDocProvider.Empty),
                 BuildAppendPathMethod(typeof(bool), false, false),
                 BuildAppendPathMethod(typeof(float), true, false),
                 BuildAppendPathMethod(typeof(double), true, false),
@@ -193,7 +193,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendPathMethodName, [convertToStringExpression, escapeParameter]);
 
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider[] BuildAppendQueryMethods()
@@ -230,7 +230,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return
                 [
-                new MethodProvider(signature, body, this),
+                new MethodProvider(signature, body, this, XmlDocProvider.Empty),
                 BuildAppendQueryMethod(typeof(bool), false, false),
                 BuildAppendQueryMethod(typeof(float), true, false),
                 BuildAppendQueryMethod(typeof(DateTimeOffset), true, true),
@@ -264,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider[] BuildAppendQueryDelimitedMethods()
@@ -322,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : new InvokeMethodExpression(null, appendMethodName, [StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
                     .Terminate()
             };
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildToUriMethod()
@@ -351,7 +351,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(new MemberExpression(UriBuilderProperty, nameof(UriBuilder.Uri)))
             };
 
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
     }
 }

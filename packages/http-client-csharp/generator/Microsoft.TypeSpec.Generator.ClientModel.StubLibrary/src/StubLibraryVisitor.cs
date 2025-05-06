@@ -15,7 +15,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
     internal class StubLibraryVisitor : ScmLibraryVisitor
     {
         private readonly ValueExpression _throwNull = ThrowExpression(Null);
-        private readonly XmlDocProvider _emptyDocs = new();
 
         protected override TypeProvider? VisitType(TypeProvider type)
         {
@@ -24,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 !type.Name.Equals("MultiPartFormDataBinaryContent", StringComparison.Ordinal))
                 return null;
 
-            type.Update(xmlDocs: _emptyDocs);
+            type.Update(xmlDocs: XmlDocProvider.Empty);
             return type;
         }
 
@@ -52,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
             constructor.Update(
                 bodyStatements: null,
                 bodyExpression: _throwNull,
-                xmlDocs: _emptyDocs);
+                xmlDocs: XmlDocProvider.Empty);
 
             return constructor;
         }
@@ -82,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
             method.Update(
                 bodyStatements: null,
                 bodyExpression: _throwNull,
-                xmlDocProvider: _emptyDocs);
+                xmlDocProvider: XmlDocProvider.Empty);
 
             return method;
         }
@@ -96,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
 
             property.Update(
                 body: propertyBody,
-                xmlDocs: _emptyDocs);
+                xmlDocs: XmlDocProvider.Empty);
 
             return property;
         }

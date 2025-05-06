@@ -1,6 +1,7 @@
-import { Enum, Model, Namespace, Union } from "@typespec/compiler";
+import { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
+import { HttpOperation } from "@typespec/http";
 import { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
@@ -8,15 +9,17 @@ import { collectDataTypes } from "./utils/type-collector.js";
 export interface ClientLibrary {
   topLevel: Client[];
   dataTypes: Array<Model | Union | Enum>;
+  getClientForOperation(operation: HttpOperation): Client | undefined;
 }
 
 export interface CreateClientLibraryOptions {
   operationMutators?: unsafe_Mutator[];
 }
 
-function hasGlobalOperations(namespace: Namespace): boolean {
+function hasGlobalOperations(program: Program, namespace: Namespace): boolean {
+  const tk = $(program);
   for (const operation of namespace.operations.values()) {
-    if ($.type.isUserDefined(operation)) {
+    if (tk.type.isUserDefined(operation)) {
       return true;
     }
   }
@@ -24,14 +27,15 @@ function hasGlobalOperations(namespace: Namespace): boolean {
   return false;
 }
 
-function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
+function getUserDefinedSubClients(program: Program, namespace: Namespace): InternalClient[] {
+  const tk = $(program);
   const clients: InternalClient[] = [];
 
   for (const subNs of namespace.namespaces.values()) {
-    if (!$.type.isUserDefined(subNs)) {
+    if (!tk.type.isUserDefined(subNs)) {
       continue;
     }
-    const client = getEffectiveClient(subNs);
+    const client = getEffectiveClient(program, subNs);
     if (client) {
       clients.push(client);
     }
@@ -40,17 +44,18 @@ function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
   return clients;
 }
 
-function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
+function getEffectiveClient(program: Program, namespace: Namespace): InternalClient | undefined {
+  const tk = $(program);
   if (namespace.operations.size > 0 || namespace.interfaces.size > 0) {
     // It has content so it should be a client
-    return $.client.getClient(namespace);
+    return tk.client.getClient(namespace);
   }
 
   const effectiveClients: InternalClient[] = [];
 
   // It has no content so we need to check its children
   for (const subNs of namespace.namespaces.values()) {
-    const client = getEffectiveClient(subNs);
+    const client = getEffectiveClient(program, subNs);
     if (client) {
       effectiveClients.push(client);
     }
@@ -58,7 +63,7 @@ function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
 
   if (effectiveClients.length > 1) {
     // If there are more than one sub client we can't collapse so we need to create a client for this namespace
-    return $.client.getClient(namespace);
+    return tk.client.getClient(namespace);
   }
 
   if (effectiveClients.length === 1) {
@@ -68,17 +73,28 @@ function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
   return undefined;
 }
 
-export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
+const operationClientMap = new Map<Program, Map<HttpOperation, Client>>();
+
+export function createClientLibrary(
+  program: Program,
+  options: CreateClientLibraryOptions = {},
+): ClientLibrary {
+  const tk = $(program);
+
+  if (!operationClientMap.has(program)) {
+    operationClientMap.set(program, new Map<HttpOperation, Client>());
+  }
+
   let topLevel: InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
 
   // Need to find out if we need to create a client for the global namespace.
-  const globalNs = $.program.getGlobalNamespaceType();
+  const globalNs = tk.program.getGlobalNamespaceType();
 
-  const userDefinedTopLevelClients = getUserDefinedSubClients(globalNs);
-  if (hasGlobalOperations(globalNs)) {
+  const userDefinedTopLevelClients = getUserDefinedSubClients(program, globalNs);
+  if (hasGlobalOperations(program, globalNs)) {
     // We need to start with the global namespace
-    const globalClient = $.client.getClient(globalNs);
+    const globalClient = tk.client.getClient(globalNs);
     topLevel = [globalClient];
   } else if (userDefinedTopLevelClients.length > 0) {
     for (const client of userDefinedTopLevelClients) {
@@ -89,17 +105,22 @@ export function createClientLibrary(options: CreateClientLibraryOptions = {}): C
   const topLevelClients: Client[] = [];
 
   if (topLevel.length === 0) {
-    reportDiagnostic($.program, { code: "cant-find-client", target: globalNs });
+    reportDiagnostic(tk.program, { code: "cant-find-client", target: globalNs });
   }
 
   for (const c of topLevel) {
-    const client = visitClient(c, dataTypes, { operationMutators: options.operationMutators });
+    const client = visitClient(program, c, dataTypes, {
+      operationMutators: options.operationMutators,
+    });
     topLevelClients.push(client);
   }
 
   return {
     topLevel: topLevelClients,
     dataTypes: Array.from(dataTypes),
+    getClientForOperation(operation: HttpOperation) {
+      return operationClientMap.get(program)?.get(operation);
+    },
   };
 }
 
@@ -108,10 +129,12 @@ interface VisitClientOptions {
   parentClient?: Client;
 }
 function visitClient(
+  program: Program,
   client: InternalClient,
   dataTypes: Set<Model | Union | Enum>,
   options?: VisitClientOptions,
 ): Client {
+  const tk = $(program);
   // First create a partial `Client` object.
   // We’ll fill in subClients *after* we have `c`.
   const currentClient: Client = {
@@ -122,15 +145,17 @@ function visitClient(
   };
 
   // Recurse into sub-clients, passing `currentClient` as the parent
-  currentClient.subClients = $.clientLibrary.listClients(client).map((childClient) =>
-    visitClient(childClient, dataTypes, {
+  currentClient.subClients = tk.clientLibrary.listClients(client).map((childClient) =>
+    visitClient(program, childClient, dataTypes, {
       parentClient: currentClient,
       operationMutators: options?.operationMutators,
     }),
   );
 
   // Now store the prepared operations
-  currentClient.operations = $.client.listHttpOperations(client).map((o) => {
+  currentClient.operations = tk.client.listHttpOperations(client).map((o) => {
+    operationClientMap.get(program)?.set(o, currentClient);
+
     return {
       client: currentClient,
       httpOperation: o,
@@ -139,18 +164,18 @@ function visitClient(
     };
   });
 
-  $.client
+  tk.client
     .getConstructor(currentClient)
-    .parameters.properties.forEach((p) => collectDataTypes(p.type, dataTypes));
+    .parameters.properties.forEach((p) => collectDataTypes(tk, p.type, dataTypes));
 
   // Collect data types
   for (const clientOperation of currentClient.operations) {
     // Collect operation parameters
-    collectDataTypes(clientOperation.httpOperation.operation.parameters, dataTypes);
+    collectDataTypes(tk, clientOperation.httpOperation.operation.parameters, dataTypes);
 
     // Collect http operation return type
-    const responseType = $.httpOperation.getReturnType(clientOperation.httpOperation);
-    collectDataTypes(responseType, dataTypes);
+    const responseType = tk.httpOperation.getReturnType(clientOperation.httpOperation);
+    collectDataTypes(tk, responseType, dataTypes);
   }
 
   return currentClient;

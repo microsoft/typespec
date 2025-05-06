@@ -54,7 +54,7 @@ export function getTypeSignature(type: Type): string {
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
     case "TemplateParameter":
-      return type.node.id.sv;
+      return (type.node! as any).id.sv;
     case "UnionVariant":
       return `(union variant) ${getUnionVariantSignature(type)}`;
     case "Tuple":
@@ -87,7 +87,7 @@ function getDecoratorSignature(type: Decorator) {
 function getInterfaceSignature(type: Interface) {
   const ns = getQualifier(type.namespace);
 
-  const templateParams = type.node.templateParameters
+  const templateParams = type.node?.templateParameters
     ? getTemplateParameters(type.node.templateParameters)
     : "";
   return `interface ${ns}${type.name}${templateParams}`;

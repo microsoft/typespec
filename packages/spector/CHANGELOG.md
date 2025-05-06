@@ -1,5 +1,19 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.13
+
+### Features
+
+- [#7066](https://github.com/microsoft/typespec/pull/7066) Add dynamic value resolution in spector mock apis with a new `dyn` string template builder
+
+
+## 0.1.0-alpha.12
+
+### Features
+
+- [#6926](https://github.com/microsoft/typespec/pull/6926) Upgrade to express v5
+
+
 ## 0.1.0-alpha.10
 
 No changes, version bump only.

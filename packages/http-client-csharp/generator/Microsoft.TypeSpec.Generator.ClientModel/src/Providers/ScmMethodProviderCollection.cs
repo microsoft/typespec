@@ -19,40 +19,39 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class ScmMethodProviderCollection : MethodProviderCollection
+    public class ScmMethodProviderCollection : MethodProviderCollection<ScmMethodProvider>
     {
-        private string _cleanOperationName;
+        private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
+        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
         private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
 
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private readonly bool _isPageable;
-        private readonly InputOperationPaging? _paging;
+        private readonly InputPagingServiceMethod? _pagingServiceMethod;
 
         private ClientProvider Client { get; }
 
-        public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
-            : base(operation, enclosingType)
+        public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+            : base(serviceMethod, enclosingType)
         {
-            _cleanOperationName = operation.Name.ToCleanName();
+            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
-            _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _isPageable = operation.Paging != null;
-            if (_isPageable)
+            _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
+
+            if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
-                _paging = operation.Paging;
+                _pagingServiceMethod = pagingServiceMethod;
             }
         }
 
-        protected override IReadOnlyList<MethodProvider> BuildMethods()
+        protected override IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
 
-            if (Operation.GenerateConvenienceMethod && !Operation.IsMultipartFormData)
+            if (ServiceMethod.Operation.GenerateConvenienceMethod && !ServiceMethod.Operation.IsMultipartFormData)
             {
                 return
                 [
@@ -77,25 +76,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
-            {
-                methodModifier |= MethodSignatureModifiers.Async;
-            }
-
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc) ?? FormattableStringHelpers.FromString(Operation.Name),
-                methodModifier,
-                GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
+                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                protocolMethod.Signature.Modifiers,
+                GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
                 [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, responseBodyType, isAsync);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
                 methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
             }
             else if (responseBodyType is null)
@@ -103,7 +96,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, declarations)], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync))
                 ];
             }
             else
@@ -111,15 +104,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
-            // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+
+            if (convenienceMethod.XmlDocs != null)
+            {
+                var exceptions = new List<XmlDocExceptionStatement>(convenienceMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                convenienceMethod.XmlDocs.Update(exceptions: exceptions);
+            }
+
             return convenienceMethod;
         }
 
@@ -127,31 +126,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             declarations = new Dictionary<string, ValueExpression>();
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+
             foreach (var parameter in convenienceMethodParameters)
             {
-                if (parameter.SpreadSource is not null)
+                if (parameter.SpreadSource != null)
                     continue;
 
                 if (parameter.Location == ParameterLocation.Body)
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
-                        var bdExpression = Operation.RequestMediaTypes?.Contains("application/json") == true
+                        var bdExpression = ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true
                             ? BinaryDataSnippets.FromObjectAsJson(parameter)
                             : BinaryDataSnippets.FromString(parameter);
                         statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
@@ -159,14 +160,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    // else rely on implicit operator to convert to BinaryContent
                 }
             }
 
             // add spread parameter model variable declaration
-            var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource is not null)?.SpreadSource;
+            var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource != null)?.SpreadSource;
             if (spreadSource is not null)
             {
                 statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
@@ -316,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return response.Content().ToObjectFromJson(responseBodyType.OutputType);
                 }
             }
-            if (responseBodyType.Equals(typeof(string)) && Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
+            if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
             {
                 return response.Content().InvokeToString();
             }
@@ -331,25 +333,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(
-            IReadOnlyList<ParameterProvider> convenienceMethodParameters,
-            Dictionary<string, ValueExpression> declarations)
+        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
 
-            foreach (var param in convenienceMethodParameters)
+            ModelProvider? bodyModel = null;
+            InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+            if (methodBodyParameter?.Type is InputModelType model)
             {
+                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+            }
+
+            foreach (var param in ConvenienceMethodParameters)
+            {
+                // handle spread
                 if (param.SpreadSource is not null)
                 {
-                    if (!addedSpreadSource)
+                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
                     {
-                        conversions.Add(declarations["spread"]);
+                        conversions.Add(spread);
                         addedSpreadSource = true;
                     }
                 }
                 else if (param.Location == ParameterLocation.Body)
                 {
+                    // Add any non-body parameters that may have been declared within the request body model
+                    List<ValueExpression>? requiredParameters = null;
+                    List<ValueExpression>? optionalParameters = null;
+
+                    if (param.Type.Equals(bodyModel?.Type) == true)
+                    {
+                        var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
+                        if (parameterConversions != null)
+                        {
+                            requiredParameters = parameterConversions.Value.RequiredParameters;
+                            optionalParameters = parameterConversions.Value.OptionalParameters;
+                        }
+                    }
+
+                    // Add required non-body parameters
+                    if (requiredParameters != null)
+                    {
+                        conversions.AddRange(requiredParameters);
+                    }
+
                     if (param.Type.IsReadOnlyMemory || param.Type.IsList)
                     {
                         conversions.Add(declarations["content"]);
@@ -370,6 +398,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         conversions.Add(param);
                     }
+
+                    // Add optional non-body parameters
+                    if (optionalParameters != null)
+                    {
+                        conversions.AddRange(optionalParameters);
+                    }
                 }
                 else if (param.Type.IsEnum)
                 {
@@ -387,6 +421,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
+        private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
+            GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, ModelProvider bodyModel)
+        {
+            // Extract non-body properties from the body model
+            var nonBodyProperties = bodyModel.CanonicalView.Properties
+                .Where(p => p.WireInfo != null &&
+                          p.WireInfo.Location != PropertyLocation.Unknown &&
+                          p.WireInfo.Location != PropertyLocation.Body)
+                .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
+
+            if (nonBodyProperties.Count == 0)
+                return null;
+
+            List<ValueExpression> required = [];
+            List<ValueExpression> optional = [];
+
+            // Add properties for matching protocol parameters
+            foreach (var protocolParameter in ProtocolMethodParameters)
+            {
+                if (protocolParameter.Location != ParameterLocation.Body &&
+                    nonBodyProperties.TryGetValue(protocolParameter.WireInfo.SerializedName, out var nonBodyProperty))
+                {
+                    var conversion = bodyParam.Property(nonBodyProperty.Name);
+                    if (protocolParameter.DefaultValue != null)
+                    {
+                        optional.Add(conversion);
+                    }
+                    else
+                    {
+                        required.Add(conversion);
+                    }
+                }
+            }
+
+            return (required, optional);
+        }
+
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
             if (EnclosingType is not ClientProvider client)
@@ -394,10 +465,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
+            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+                MethodSignatureModifiers.Public :
+                MethodSignatureModifiers.Internal;
+
+            methodModifiers |= MethodSignatureModifiers.Virtual;
+
+            if (isAsync && _pagingServiceMethod == null)
             {
-                methodModifier |= MethodSignatureModifiers.Async;
+                methodModifiers |= MethodSignatureModifiers.Async;
             }
 
             var requiredParameters = new List<ParameterProvider>();
@@ -436,17 +512,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc) ?? FormattableStringHelpers.FromString(Operation.Name),
-                methodModifier,
-                GetResponseType(Operation.Responses, false, isAsync, out _),
+                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                methodModifiers,
+                GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
                 parameters);
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, null, isAsync);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
                 methodBody = GetPagingMethodBody(collection, parameters, false);
             }
             else
@@ -463,19 +539,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, isProtocolMethod: true);
 
-            // XmlDocs will be null if the method isn't public
             if (protocolMethod.XmlDocs != null)
             {
-                protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                var exceptions = new List<XmlDocExceptionStatement>(protocolMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
                 ];
                 XmlDocStatement listXmlDoc = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: [.. listItems]);
-                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(Operation.Summary, Operation.Doc) ?? Operation.Name}"], listXmlDoc);
+                var summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
+
+                protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
         }
@@ -485,7 +563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
-            return (_paging!.NextLink, isConvenience) switch
+            return (_pagingServiceMethod!.PagingMetadata.NextLink, isConvenience) switch
             {
                 (not null, true) =>
                 [
@@ -539,7 +617,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
             }
 
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 return isAsync
                     ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType
@@ -554,10 +632,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
-                    p.SerializedName == Operation.Paging!.ItemPropertySegments[0]);
+                    p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
                 responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
 

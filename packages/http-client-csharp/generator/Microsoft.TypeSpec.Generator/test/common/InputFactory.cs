@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
@@ -67,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 defaultValue: Constant.String(contentType),
                 nameInRequest: "Content-Type",
                 isContentType: true,
-                kind: InputOperationParameterKind.Constant);
+                kind: InputParameterKind.Constant);
 
         public static InputParameter Parameter(
             string name,
@@ -76,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputConstant? defaultValue = null,
             InputRequestLocation location = InputRequestLocation.Body,
             bool isRequired = false,
-            InputOperationParameterKind kind = InputOperationParameterKind.Method,
+            InputParameterKind kind = InputParameterKind.Method,
             bool isEndpoint = false,
             bool isContentType = false,
             bool isApiVersion = false,
@@ -148,19 +149,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDiscriminator = false,
             string? wireName = null,
             string? summary = null,
-            string? doc = null)
+            string? serializedName = null,
+            string? doc = null,
+            InputModelPropertyKind kind = InputModelPropertyKind.Property)
         {
             return new InputModelProperty(
                 name,
+                kind,
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
+                serializedName,
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
+        // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
+        private static MethodInfo _addDerivedModelMethod = typeof(InputModelType).GetMethod("AddDerivedModel", BindingFlags.NonPublic | BindingFlags.Instance)!;
         public static InputModelType Model(
             string name,
             string @namespace = "Sample.Models",
@@ -175,7 +182,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelType>? derivedModels = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
-            return new InputModelType(
+
+            var model = new InputModelType(
                 name,
                 @namespace,
                 name,
@@ -193,6 +201,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 new());
+            if (baseModel is not null)
+            {
+                _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
+            }
+            return model;
         }
 
         public static InputType Array(InputType elementType)
@@ -210,6 +223,61 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputUnionType("union", [.. types]);
         }
 
+        public static InputBasicServiceMethod BasicServiceMethod(
+            string name,
+            InputOperation operation,
+            string access = "public",
+            IReadOnlyList<InputParameter>? parameters = null,
+            InputServiceMethodResponse? response = null,
+            InputServiceMethodResponse? exception = null)
+        {
+            return new InputBasicServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty);
+        }
+
+        public static InputPagingServiceMethod PagingServiceMethod(
+           string name,
+           InputOperation operation,
+           string access = "public",
+           IReadOnlyList<InputParameter>? parameters = null,
+           InputServiceMethodResponse? response = null,
+           InputServiceMethodResponse? exception = null,
+           InputPagingServiceMetadata? pagingMetadata = null)
+        {
+            return new InputPagingServiceMethod(
+                name,
+                access,
+                [],
+                null,
+                null,
+                operation,
+                parameters ?? [],
+                response ?? ServiceMethodResponse(null, null),
+                exception,
+                false,
+                true,
+                true,
+                string.Empty,
+                pagingMetadata ?? PagingMetadata([], null, null));
+        }
+
+        public static InputPagingServiceMetadata PagingMetadata(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken)
+        {
+            return new InputPagingServiceMetadata(itemPropertySegments, nextLink, continuationToken);
+        }
+
         public static InputOperation Operation(
             string name,
             string access = "public",
@@ -218,8 +286,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
-            string httpMethod = "GET",
-            InputOperationPaging? paging = null)
+            string httpMethod = "GET")
         {
             return new InputOperation(
                 name,
@@ -236,42 +303,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
-                null,
-                paging,
                 true,
                 true,
                 name);
         }
 
-        public static InputOperationPaging NextLinkOperationPaging(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
+        public static InputPagingServiceMetadata NextLinkPagingMetadata(string itemPropertyName, string nextLinkName, InputResponseLocation nextLinkLocation)
         {
-            return new InputOperationPaging(
+            return PagingMetadata(
                 [itemPropertyName],
                 new InputNextLink(null, [nextLinkName], nextLinkLocation),
                 null);
         }
 
-        public static InputOperationPaging ContinuationTokenOperationPaging(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
         {
-            return new InputOperationPaging(
+            return new InputPagingServiceMetadata(
                 [itemPropertyName],
                 null,
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                [],
+                headers ?? [],
                 false,
                 ["application/json"]);
         }
 
+        public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
+        {
+            return new InputServiceMethodResponse(type, resultSegments);
+        }
+
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -281,7 +351,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
-                operations is null ? [] : [.. operations],
+                methods is null ? [] : [.. methods],
                 parameters is null ? [] : [.. parameters],
                 parent,
                 clientChildren);
