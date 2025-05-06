@@ -66,9 +66,18 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       CodeActionCommand.NpmInstallImportPackage,
-      async (projectFolder: string) => {
+      async (projectFolder: string, hasPackageFile: boolean = true) => {
         try {
-          await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
+          if (hasPackageFile) {
+            await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
+          } else {
+            vscode.window.showErrorMessage(
+              "No package.json file was found, and the dependency package could not be installed",
+            );
+            logger.debug(
+              "No package.json file was found, and the dependency package could not be installed",
+            );
+          }
         } catch (error) {
           vscode.window.showErrorMessage(
             "Failed to execute npm install. Please check the output for details.",

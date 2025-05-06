@@ -61,6 +61,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   ): Promise<vscode.CodeAction[]> {
     // When the corresponding node dependency package is not installed,
     // consider generating a quick fix to install via npm command
+    const actions: vscode.CodeAction[] = [];
     for (const diagnostic of context.diagnostics) {
       if (
         diagnostic.source === "TypeSpec" &&
@@ -85,16 +86,8 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
         );
 
         if (packageJsonFolder === undefined) {
-          vscode.window.showErrorMessage(
-            "No package.json file was found, and the dependency package could not be installed",
-          );
-          logger.debug(
-            "No package.json file was found, and the dependency package could not be installed",
-          );
-          continue;
-        }
-
-        if (
+          actions.push(this.createInstallPackageCodeAction(diagnostic, "", false));
+        } else if (
           !targetPackage.startsWith("./") &&
           !targetPackage.startsWith("../") &&
           !isPathAbsolute(targetPackage) &&
@@ -103,16 +96,17 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
             (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
             (packageJson.devDependencies && targetPackage in packageJson.devDependencies))
         ) {
-          return [this.createInstallPackageCodeAction(diagnostic, packageJsonFolder)];
+          actions.push(this.createInstallPackageCodeAction(diagnostic, packageJsonFolder));
         }
       }
     }
-    return [];
+    return actions;
   }
 
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
     projectFolder: string,
+    hasPackageFile: boolean = true,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
       "Install package by `npm install` for unrecognized import",
@@ -121,7 +115,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     action.command = {
       command: CodeActionCommand.NpmInstallImportPackage,
       title: diagnostic.message,
-      arguments: [projectFolder],
+      arguments: [projectFolder, hasPackageFile],
     };
     action.diagnostics = [diagnostic];
     return action;
