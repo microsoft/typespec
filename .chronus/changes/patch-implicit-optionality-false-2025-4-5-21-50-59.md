@@ -11,7 +11,7 @@ Changed `@patch` so that it does not apply the "implicit optionality" transform 
 @patch op update(@body pet: Pet): void;
 ```
 
-Replace with either the following to respect json merge patch:
+To use JSON Merge-Patch to update resources, replace the body property with an instance of `MergePatchUpdate` as follows:
 
 ```tsp
 @patch op update(@body pet: MergePatchUpdate<Pet>): void;
