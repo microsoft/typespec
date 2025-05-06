@@ -20,5 +20,5 @@ Replace with either the following to respect json merge patch:
 or keep the old behavior
 
 ```tsp
-@patch(#{ implicitOptional: true }) op update(@body pet: Pet): void;
+@patch(#{ implicitOptionality: true }) op update(@body pet: Pet): void;
 ```
