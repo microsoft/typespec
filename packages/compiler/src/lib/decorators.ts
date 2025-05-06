@@ -96,7 +96,11 @@ import {
 import { Realm } from "../experimental/realm.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
-import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
+import {
+  createStateSymbol,
+  filterModelPropertiesInPlace,
+  replaceTemplatedStringFromProperties,
+} from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -106,17 +110,6 @@ export * from "./visibility.js";
 export { ExampleOptions };
 
 export const namespace = "TypeSpec";
-
-function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
-  // Template parameters are not valid source objects, just skip them
-  if (sourceObject.kind === "TemplateParameter") {
-    return formatString;
-  }
-
-  return formatString.replace(/{(\w+)}/g, (_, propName) => {
-    return (sourceObject as any)[propName];
-  });
-}
 
 const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));
 /**
@@ -368,12 +361,6 @@ export const $mediaTypeHint: MediaTypeHintDecorator = (
     reportDiagnostic(context.program, {
       code: "invalid-mime-type",
       format: { mimeType: mediaType },
-      target: context.getArgumentTarget(0)!,
-    });
-  } else if (mimeTypeObj.suffix) {
-    reportDiagnostic(context.program, {
-      code: "no-mime-type-suffix",
-      format: { mimeType: mediaType, suffix: mimeTypeObj.suffix },
       target: context.getArgumentTarget(0)!,
     });
   }
