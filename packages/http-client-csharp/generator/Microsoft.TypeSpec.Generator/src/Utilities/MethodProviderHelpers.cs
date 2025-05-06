@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.ArgumentSnippets;
 
@@ -13,17 +12,6 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class MethodProviderHelpers
     {
-        public static bool IsMethodPublic(TypeSignatureModifiers typeModifiers, MethodSignatureModifiers methodModifiers)
-        {
-            if (!typeModifiers.HasFlag(TypeSignatureModifiers.Public))
-                return false;
-
-            if (methodModifiers.HasFlag(MethodSignatureModifiers.Public) || (methodModifiers.HasFlag(MethodSignatureModifiers.Protected) && !methodModifiers.HasFlag(MethodSignatureModifiers.Private)))
-                return true;
-
-            return false;
-        }
-
         public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(IEnumerable<ParameterProvider> parameters, bool skipParamValidation)
         {
             Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
@@ -79,25 +67,26 @@ namespace Microsoft.TypeSpec.Generator
 
         public static XmlDocProvider? BuildXmlDocs(IEnumerable<ParameterProvider> parameters, FormattableString? description, FormattableString? returnDescription, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
-            var docs = new XmlDocProvider();
-            if (description is not null)
-                docs.Summary = new XmlDocSummaryStatement([description]);
-
+            var parametersList = new List<XmlDocParamStatement>();
             foreach (var parameter in parameters)
             {
-                docs.Params.Add(new XmlDocParamStatement(parameter));
+                parametersList.Add(new XmlDocParamStatement(parameter));
             }
 
+            var exceptions = new List<XmlDocExceptionStatement>();
             if (paramHash is not null)
             {
                 foreach (var kvp in paramHash)
                 {
-                    docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
+                    exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
                 }
             }
 
-            if (returnDescription is not null)
-                docs.Returns = new XmlDocReturnsStatement(returnDescription);
+            var docs = new XmlDocProvider(
+                description is null ? null : new XmlDocSummaryStatement([description]),
+                parametersList,
+                exceptions,
+                returnDescription is null ? null : new XmlDocReturnsStatement(returnDescription));
 
             return docs;
         }
