@@ -22,7 +22,7 @@ export function OperationOptionsDeclaration(props: OperationOptionsProps) {
     .filter((p) => p.property.optional || hasDefaultValue(p));
 
   return (
-    <ts.InterfaceDeclaration
+    <ef.InterfaceDeclaration
       export
       name={interfaceName}
       extends={getOperationOptionsInterfaceRefkey()}
@@ -37,6 +37,6 @@ export function OperationOptionsDeclaration(props: OperationOptionsProps) {
           />
         )}
       </ay.For>
-    </ts.InterfaceDeclaration>
+    </ef.InterfaceDeclaration>
   );
 }

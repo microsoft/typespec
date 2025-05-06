@@ -34,6 +34,7 @@ import { HttpVerb, OperationParameterOptions } from "./types.js";
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import { includeInapplicableMetadataInPayload } from "./private.decorators.js";
 
 /**
@@ -380,7 +381,9 @@ export function resolveRequestVisibility(
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+    const patchOptionality = isMergePatchBody(program, operation.parameters)
+      ? false
+      : (getPatchOptions(program, operation)?.implicitOptionality ?? true);
 
     if (patchOptionality) {
       visibility |= Visibility.Patch;
