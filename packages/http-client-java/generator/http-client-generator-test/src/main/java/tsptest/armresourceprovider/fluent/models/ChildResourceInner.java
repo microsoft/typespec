@@ -5,6 +5,7 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -22,31 +23,37 @@ public final class ChildResourceInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
+    @Generated
     private ChildResourceProperties innerProperties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
+    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
+    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
+    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
+    @Generated
     private String id;
 
     /**
      * Creates an instance of ChildResourceInner class.
      */
+    @Generated
     public ChildResourceInner() {
     }
 
@@ -55,6 +62,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private ChildResourceProperties innerProperties() {
         return this.innerProperties;
     }
@@ -64,6 +72,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the systemData value.
      */
+    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -73,6 +82,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the type value.
      */
+    @Generated
     @Override
     public String type() {
         return this.type;
@@ -83,6 +93,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the name value.
      */
+    @Generated
     @Override
     public String name() {
         return this.name;
@@ -93,6 +104,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the id value.
      */
+    @Generated
     @Override
     public String id() {
         return this.id;
@@ -101,6 +113,7 @@ public final class ChildResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public ChildResourceInner withLocation(String location) {
         super.withLocation(location);
@@ -110,6 +123,7 @@ public final class ChildResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public ChildResourceInner withTags(Map<String, String> tags) {
         super.withTags(tags);
@@ -121,6 +135,7 @@ public final class ChildResourceInner extends Resource {
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.innerProperties() == null ? null : this.innerProperties().provisioningState();
     }

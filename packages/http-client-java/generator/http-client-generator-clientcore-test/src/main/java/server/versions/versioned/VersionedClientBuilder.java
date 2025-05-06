@@ -1,6 +1,7 @@
 package server.versions.versioned;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -13,7 +14,6 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
@@ -31,52 +31,33 @@ import server.versions.versioned.implementation.VersionedClientImpl;
 public final class VersionedClientBuilder
     implements HttpTrait<VersionedClientBuilder>, ProxyTrait<VersionedClientBuilder>,
     ConfigurationTrait<VersionedClientBuilder>, EndpointTrait<VersionedClientBuilder> {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the VersionedClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public VersionedClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public VersionedClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -84,31 +65,15 @@ public final class VersionedClientBuilder
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public VersionedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -118,7 +83,7 @@ public final class VersionedClientBuilder
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -129,13 +94,13 @@ public final class VersionedClientBuilder
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -143,15 +108,31 @@ public final class VersionedClientBuilder
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public VersionedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -161,13 +142,13 @@ public final class VersionedClientBuilder
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -177,13 +158,13 @@ public final class VersionedClientBuilder
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public VersionedClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -193,7 +174,7 @@ public final class VersionedClientBuilder
     /*
      * Service version
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private VersionedServiceVersion serviceVersion;
 
     /**
@@ -202,7 +183,7 @@ public final class VersionedClientBuilder
      * @param serviceVersion the serviceVersion value.
      * @return the VersionedClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public VersionedClientBuilder serviceVersion(VersionedServiceVersion serviceVersion) {
         this.serviceVersion = serviceVersion;
         return this;
@@ -213,24 +194,23 @@ public final class VersionedClientBuilder
      * 
      * @return an instance of VersionedClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private VersionedClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         VersionedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : VersionedServiceVersion.getLatest();
-        VersionedClientImpl client = new VersionedClientImpl(localPipeline, this.endpoint, localServiceVersion);
+        VersionedClientImpl client = new VersionedClientImpl(createHttpPipeline(), this.endpoint, localServiceVersion);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -244,7 +224,7 @@ public final class VersionedClientBuilder
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -252,10 +232,8 @@ public final class VersionedClientBuilder
      * 
      * @return an instance of VersionedClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public VersionedClient buildClient() {
         return new VersionedClient(buildInnerClient());
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(VersionedClientBuilder.class);
 }

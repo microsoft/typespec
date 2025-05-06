@@ -64,6 +64,22 @@ public final class WireTypeClientBuilder implements HttpTrait<WireTypeClientBuil
     }
 
     /*
+     * The HTTP client used to send the request.
+     */
+    @Generated
+    private HttpClient httpClient;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public WireTypeClientBuilder httpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /*
      * The HTTP pipeline to send requests through.
      */
     @Generated
@@ -79,22 +95,6 @@ public final class WireTypeClientBuilder implements HttpTrait<WireTypeClientBuil
             LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
         }
         this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
-     * The HTTP client used to send the request.
-     */
-    @Generated
-    private HttpClient httpClient;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public WireTypeClientBuilder httpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
         return this;
     }
 
