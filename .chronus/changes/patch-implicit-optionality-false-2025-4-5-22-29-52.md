@@ -3,6 +3,7 @@
 changeKind: fix
 packages:
   - "@typespec/rest"
+  - "@typespec/http-specs"
 ---
 
 Handle new behavior of `@patch` keeping old behavior
