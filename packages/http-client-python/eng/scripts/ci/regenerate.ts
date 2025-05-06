@@ -263,6 +263,7 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   }
   const execFileAsync = promisify(execFile);
   try {
+    console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
@@ -405,17 +406,22 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 
 async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
   let currentIndex = 0;
+  let mutex = Promise.resolve();
 
   async function worker() {
     while (true) {
-      // Atomically get the next task index
-      const index = currentIndex;
-      currentIndex++;
+      let index: number = -1;
+      mutex = mutex.then(() => {
+        index = currentIndex;
+        if (index < tasks.length) {
+          currentIndex++;
+        }
+        return;
+      });
+      await mutex;
 
-      // Exit condition
       if (index >= tasks.length) break;
 
-      // Execute the task
       await tasks[index]();
     }
   }
