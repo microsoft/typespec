@@ -11,6 +11,8 @@ namespace Versioning.RenamedFrom
 {
     public partial class NewModel : IJsonModel<NewModel>
     {
+        internal NewModel() => throw null;
+
         void IJsonModel<NewModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
