@@ -1,5 +1,12 @@
 # Changelog - @typespec/tspd
 
+## 0.70.0
+
+### Features
+
+- [#7083](https://github.com/microsoft/typespec/pull/7083) Migrate internal decorator signature generation to alloy
+
+
 
 
 ## 0.69.0
