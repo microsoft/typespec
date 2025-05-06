@@ -17,7 +17,7 @@ To use JSON Merge-Patch to update resources, replace the body property with an i
 @patch op update(@body pet: MergePatchUpdate<Pet>): void;
 ```
 
-or keep the old behavior
+Or, keep the old behavior by explicitly enabling `implicitOptionality` in the `@patch` options:
 
 ```tsp
 @patch(#{ implicitOptionality: true }) op update(@body pet: Pet): void;
