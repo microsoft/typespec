@@ -2,10 +2,6 @@
 
 ## 0.1.0-alpha.13
 
-No changes, version bump only.
-
-## 0.1.0-alpha.13
-
 ### Features
 
 - [#7066](https://github.com/microsoft/typespec/pull/7066) Add dynamic value resolution in spector mock apis with a new `dyn` string template builder

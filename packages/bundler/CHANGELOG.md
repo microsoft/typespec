@@ -2,10 +2,6 @@
 
 ## 0.4.1
 
-No changes, version bump only.
-
-## 0.4.1
-
 ### Bug Fixes
 
 - [#6839](https://github.com/microsoft/typespec/pull/6839) Fix bundler on windows
