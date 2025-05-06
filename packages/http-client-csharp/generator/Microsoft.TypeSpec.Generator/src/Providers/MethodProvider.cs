@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamhash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             _xmlDocs = xmlDocProvider;
             EnclosingType = enclosingType;
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Signature.Description,
                 Signature.ReturnDescription,
                 BodyStatements != null ?
-                    MethodProviderHelpers.GetParamhash(
+                    MethodProviderHelpers.GetParamHash(
                         Signature.Parameters,
                         !Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) :
                     null);
