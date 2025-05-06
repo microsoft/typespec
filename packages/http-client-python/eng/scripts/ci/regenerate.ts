@@ -407,8 +407,15 @@ async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number)
   let currentIndex = 0;
 
   async function worker() {
-    while (currentIndex < tasks.length) {
-      const index = currentIndex++;
+    while (true) {
+      // Atomically get the next task index
+      const index = currentIndex;
+      currentIndex++;
+
+      // Exit condition
+      if (index >= tasks.length) break;
+
+      // Execute the task
       await tasks[index]();
     }
   }
