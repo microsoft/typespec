@@ -1,7 +1,8 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { CharCode } from "../src/core/charcode.js";
-import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { logVerboseTestOutput } from "../src/core/diagnostics.js";
+import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
@@ -21,6 +22,35 @@ import {
 import { dumpAST } from "./ast-test-utils.js";
 
 describe("compiler: parser", () => {
+  describe("future reserved keywords", () => {
+    const reserved = ["statemachine"];
+    // Allowed as members
+    parseEach(reserved.map((x) => `model Foo { ${x}: string}`));
+    parseEach(reserved.map((x) => `enum Foo { ${x} }`));
+    parseEach(reserved.map((x) => `union Foo { ${x}: string }`));
+    parseEach(reserved.map((x) => `const a = #{ ${x}: string };`));
+
+    // Allowed in decorator calls
+    parseEach(reserved.map((x) => `@${x} model Foo {}`));
+    parseEach(reserved.map((x) => `@@${x}(Foo);`));
+
+    // Allowed in member reference
+    parseEach(reserved.map((x) => `alias T = Base.${x};`));
+
+    // Error when used in declaration name
+    parseErrorEach(
+      reserved.map((x) => [`model ${x} {}`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+
+    // Error when used as base or identifier reference
+    parseErrorEach(
+      reserved.map((x) => [`alias T = ${x};`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+    parseErrorEach(
+      reserved.map((x) => [`alias T = ${x}.prop;`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+  });
+
   describe("import statements", () => {
     parseEach(['import "x";']);
 

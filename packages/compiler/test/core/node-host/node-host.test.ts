@@ -3,7 +3,8 @@ import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { beforeAll, describe, it } from "vitest";
-import { InvalidEncodingError, NodeHost } from "../../../src/core/node-host.js";
+import { NodeHost } from "../../../src/core/node-host.js";
+import { InvalidEncodingError } from "../../../src/core/node-system-host.js";
 import { getDirectoryPath, resolvePath } from "../../../src/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

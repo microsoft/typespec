@@ -10,6 +10,7 @@
 -e ./generated/encode-numeric
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
+-e ./generated/parameters-path
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined
@@ -18,6 +19,7 @@
 -e ./generated/server-versions-versioned
 -e ./generated/server-versions-not-versioned
 -e ./generated/special-words
+-e ./generated/streaming-jsonl
 -e ./generated/typetest-array
 -e ./generated/typetest-dictionary
 -e ./generated/typetest-enum-extensible

@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createCSharpSdkContext,
@@ -53,9 +55,9 @@ describe("Test auth", () => {
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
-    ok(root.Auth);
-    strictEqual(root.Auth?.ApiKey, undefined);
-    strictEqual(root.Auth?.OAuth2, undefined);
+    ok(root.auth);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("query header is not supported", async () => {
@@ -95,9 +97,9 @@ describe("Test auth", () => {
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
-    ok(root.Auth);
-    strictEqual(root.Auth?.ApiKey, undefined);
-    strictEqual(root.Auth?.OAuth2, undefined);
+    ok(root.auth);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("query header and cookie header are not supported", async () => {
@@ -135,9 +137,9 @@ describe("Test auth", () => {
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
-    ok(root.Auth);
-    strictEqual(root.Auth?.ApiKey, undefined);
-    strictEqual(root.Auth?.OAuth2, undefined);
+    ok(root.auth);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("apikey header auth", async () => {
@@ -164,8 +166,8 @@ describe("Test auth", () => {
       (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
     );
     strictEqual(noSupportedAuthDiagnostic, undefined);
-    ok(root.Auth?.ApiKey);
-    strictEqual(root.Auth?.OAuth2, undefined);
+    ok(root.auth?.apiKey);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("at least one supported auth", async () => {
@@ -199,7 +201,7 @@ describe("Test auth", () => {
     );
 
     strictEqual(noSupportedAuthDiagnostic, undefined);
-    ok(root.Auth?.ApiKey);
+    ok(root.auth?.apiKey);
   });
 
   it("no auth", async () => {
@@ -224,6 +226,6 @@ describe("Test auth", () => {
     );
 
     strictEqual(noAuthDiagnostics.length, 0);
-    strictEqual(root.Auth, undefined);
+    strictEqual(root.auth, undefined);
   });
 });

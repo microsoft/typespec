@@ -8,7 +8,12 @@ const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
-    "package-name": { type: "string", nullable: true, default: "test-package" },
+    "package-name": {
+      type: "string",
+      nullable: true,
+      default: "test-package",
+      description: "Name of the package as it will be in package.json",
+    },
   },
   required: [],
 };
@@ -100,6 +105,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: "Unexpected non-scalar type when trying to extract Scalar data",
+      },
+    },
+    "client-not-found": {
+      severity: "error",
+      messages: {
+        default: "Client for operation not found",
       },
     },
   },

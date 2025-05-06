@@ -153,7 +153,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
@@ -197,9 +197,13 @@ class JinjaSerializer(ReaderAndWriter):
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
                 undefined=StrictUndefined,
+                trim_blocks=True,
+                lstrip_blocks=True,
             )
 
             package_files = _PACKAGE_FILES
+            if not self.code_model.license_description:
+                package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package_mode"]).exists():
             env = Environment(
                 loader=FileSystemLoader(str(Path(self.code_model.options["package_mode"]))),
@@ -271,7 +275,7 @@ class JinjaSerializer(ReaderAndWriter):
         if not "" in group_names:
             self.write_file(
                 rest_path / Path("__init__.py"),
-                self.code_model.options["license_header"],
+                self.code_model.license_header,
             )
 
     def _serialize_and_write_single_rest_layer(
@@ -400,25 +404,41 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_config_file(clients),
                 )
 
-                # sometimes we need define additional Mixin class for client in _vendor.py
-                self._serialize_and_write_vendor_file(env, namespace)
+                # sometimes we need define additional Mixin class for client in _utils.py
+                self._serialize_and_write_utils_folder(env, namespace)
 
-    def _serialize_and_write_vendor_file(self, env: Environment, namespace: str) -> None:
+    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
-        # write _vendor.py
-        for async_mode, async_path in self.serialize_loop:
-            if self.code_model.need_vendored_code(async_mode=async_mode, client_namespace=namespace):
-                self.write_file(
-                    exec_path / Path(f"{async_path}_vendor.py"),
-                    GeneralSerializer(
-                        code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace
-                    ).serialize_vendor_file(),
-                )
+        general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
+        utils_folder_path = exec_path / Path("_utils")
+        if self.code_model.need_utils_folder(async_mode=False, client_namespace=namespace):
+            self.write_file(
+                utils_folder_path / Path("__init__.py"),
+                self.code_model.license_header,
+            )
+        if self.code_model.need_utils_utils(async_mode=False, client_namespace=namespace):
+            self.write_file(
+                utils_folder_path / Path("utils.py"),
+                general_serializer.need_utils_utils_file(),
+            )
+        # write _utils/serialization.py
+        if self.code_model.need_utils_serialization:
+            self.write_file(
+                utils_folder_path / Path("serialization.py"),
+                general_serializer.serialize_serialization_file(),
+            )
+
+        # write _model_base.py
+        if self.code_model.options["models_mode"] == "dpg":
+            self.write_file(
+                utils_folder_path / Path("model_base.py"),
+                general_serializer.serialize_model_base_file(),
+            )
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
-        # write _vendor.py
-        self._serialize_and_write_vendor_file(env, namespace)
+        # write _utils folder
+        self._serialize_and_write_utils_folder(env, namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
@@ -427,20 +447,6 @@ class JinjaSerializer(ReaderAndWriter):
 
         # write the empty py.typed file
         self.write_file(exec_path / Path("py.typed"), "# Marker file for PEP 561.")
-
-        # write _serialization.py
-        if not self.code_model.options["client_side_validation"] and not self.code_model.options["multiapi"]:
-            self.write_file(
-                exec_path / Path("_serialization.py"),
-                general_serializer.serialize_serialization_file(),
-            )
-
-        # write _model_base.py
-        if self.code_model.options["models_mode"] == "dpg":
-            self.write_file(
-                exec_path / Path("_model_base.py"),
-                general_serializer.serialize_model_base_file(),
-            )
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
@@ -461,20 +467,10 @@ class JinjaSerializer(ReaderAndWriter):
         self.write_file(self.exec_path(namespace) / Path("_metadata.json"), metadata_serializer.serialize())
 
     @property
-    def _namespace_from_package_name(self) -> str:
-        return get_namespace_from_package_name(self.code_model.options["package_name"])
-
-    def _name_space(self) -> str:
-        if self.code_model.namespace.count(".") >= self._namespace_from_package_name.count("."):
-            return self.code_model.namespace
-
-        return self._namespace_from_package_name
-
-    @property
     def exec_path_compensation(self) -> Path:
         """Assume the process is running in the root folder of the package. If not, we need the path compensation."""
         return (
-            Path("../" * (self._name_space().count(".") + 1))
+            Path("../" * (self.code_model.namespace.count(".") + 1))
             if self.code_model.options["no_namespace_folders"]
             else Path(".")
         )
@@ -482,16 +478,28 @@ class JinjaSerializer(ReaderAndWriter):
     def exec_path_for_test_sample(self, namespace: str) -> Path:
         return self.exec_path_compensation / Path(*namespace.split("."))
 
+    # pylint: disable=line-too-long
     def exec_path(self, namespace: str) -> Path:
         if self.code_model.options["no_namespace_folders"] and not self.code_model.options["multiapi"]:
+            # when output folder contains parts different from the namespace, we fall back to current folder directly.
+            # (e.g. https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/communication/azure-communication-callautomation/swagger/SWAGGER.md)
             return Path(".")
         return self.exec_path_compensation / Path(*namespace.split("."))
 
+    # pylint: disable=line-too-long
     @property
-    def _additional_folder(self) -> Path:
+    def sample_additional_folder(self) -> Path:
+        # For special package, we need to additional folder when generate samples.
+        # For example, azure-mgmt-resource is combined by multiple modules, and each module is multiapi package.
+        # one of namespace is "azure.mgmt.resource.resources.v2020_01_01", then additional folder is "resources"
+        # so that we could avoid conflict when generate samples.
+        # python config: https://github.com/Azure/azure-rest-api-specs/blob/main/specification/resources/resource-manager/readme.python.md
+        # generated SDK: https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/resources/azure-mgmt-resource/generated_samples
         namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
         num_of_namespace = namespace_config.count(".") + 1
-        num_of_package_namespace = self._namespace_from_package_name.count(".") + 1
+        num_of_package_namespace = (
+            get_namespace_from_package_name(self.code_model.options["package_name"]).count(".") + 1
+        )
         if num_of_namespace > num_of_package_namespace:
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
         return Path("")
@@ -514,7 +522,7 @@ class JinjaSerializer(ReaderAndWriter):
                         file_name = to_snake_case(extract_sample_name(file)) + ".py"
                         try:
                             self.write_file(
-                                out_path / self._additional_folder / _sample_output_path(file) / file_name,
+                                out_path / self.sample_additional_folder / _sample_output_path(file) / file_name,
                                 SampleSerializer(
                                     code_model=self.code_model,
                                     env=env,

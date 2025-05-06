@@ -8,7 +8,7 @@ try {
 
 import yargs from "yargs";
 import { installTypeSpecDependencies } from "../../install/install.js";
-import { typespecVersion } from "../../utils/misc.js";
+import { typespecVersion } from "../../manifest.js";
 import { getTypeSpecEngine } from "../engine.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
@@ -37,9 +37,14 @@ async function main() {
       "greedy-arrays": false,
       "boolean-negation": false,
     })
+    .option("trace", {
+      type: "array",
+      string: true,
+      describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
+    })
     .option("debug", {
       type: "boolean",
-      description: "Output debug log messages.",
+      description: `Enable all tracing. Same as --trace='*'`,
       default: false,
     })
     .option("pretty", {
@@ -96,11 +101,7 @@ async function main() {
             default: false,
             describe: "List paths of emitted files.",
           })
-          .option("trace", {
-            type: "array",
-            string: true,
-            describe: "List of areas that should have the trace shown. e.g. `import-resolution.*`",
-          })
+
           .option("config", {
             type: "string",
             describe:
@@ -112,7 +113,12 @@ async function main() {
           })
           .option("no-emit", {
             type: "boolean",
-            describe: "Run emitters but do not emit any output.",
+            describe: "Do not run any emitters.",
+          })
+          .option("dry-run", {
+            type: "boolean",
+            describe:
+              "Run emitters but do not emit any output. (Only run emitters supporting this feature)",
           })
           .option("ignore-deprecated", {
             type: "boolean",

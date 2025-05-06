@@ -1,4 +1,13 @@
-import { MockApiDefinition, MockRequest, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import {
+  expandDyns,
+  MockApiDefinition,
+  MockBody,
+  MockMultipartBody,
+  MockRequest,
+  RequestExt,
+  ResolverConfig,
+  ScenarioMockApi,
+} from "@typespec/spec-api";
 import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
@@ -19,10 +28,14 @@ export class MockApiApp {
   private router = Router();
   private server: MockApiServer;
   private coverageTracker: CoverageTracker;
+  private resolverConfig: ResolverConfig;
 
   constructor(private config: ApiMockAppConfig) {
     this.server = new MockApiServer({ port: config.port });
     this.coverageTracker = new CoverageTracker(config.coverageFile);
+    this.resolverConfig = {
+      baseUrl: `http://localhost:${config.port}`,
+    };
   }
 
   public async start(): Promise<void> {
@@ -59,74 +72,68 @@ export class MockApiApp {
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {
     for (const endpoint of scenario.apis) {
-      if (endpoint.kind !== "MockApiDefinition") {
-        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-          processRequest(
-            this.coverageTracker,
-            name,
-            endpoint.uri,
-            req,
-            res,
-            endpoint.handler,
-          ).catch((e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          });
+      if (!endpoint.handler) {
+        endpoint.handler = createHandler(endpoint, this.resolverConfig);
+      }
+      this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
+        processRequest(
+          this.coverageTracker,
+          name,
+          endpoint.uri,
+          req,
+          res,
+          endpoint.handler!,
+          this.resolverConfig,
+        ).catch((e) => {
+          logger.error("Unexpected request error", e);
+          res.status(500).end();
         });
-      } else {
-        if (!endpoint.handler) {
-          endpoint.handler = createHandler(endpoint);
-        }
-        this.router.route(endpoint.uri)[endpoint.method]((req: RequestExt, res: Response) => {
-          processRequest(
-            this.coverageTracker,
-            name,
-            endpoint.uri,
-            req,
-            res,
-            endpoint.handler!,
-          ).catch((e) => {
-            logger.error("Unexpected request error", e);
-            res.status(500).end();
-          });
-        });
+      });
+    }
+  }
+}
+
+function validateBody(
+  req: MockRequest,
+  body: MockBody | MockMultipartBody,
+  config: ResolverConfig,
+) {
+  if ("kind" in body) {
+    // custom handler for now.
+  } else {
+    if (Buffer.isBuffer(body.rawContent)) {
+      req.expect.rawBodyEquals(body.rawContent);
+    } else {
+      const raw =
+        typeof body.rawContent === "string" ? body.rawContent : body.rawContent?.serialize(config);
+      switch (body.contentType) {
+        case "application/json":
+          req.expect.coercedBodyEquals(JSON.parse(raw as any));
+          break;
+        case "application/xml":
+          req.expect.xmlBodyEquals(
+            (raw as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
+          );
+          break;
+        default:
+          req.expect.rawBodyEquals(raw);
       }
     }
   }
 }
 
-function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function createHandler(apiDefinition: MockApiDefinition) {
+function createHandler(apiDefinition: MockApiDefinition, config: ResolverConfig) {
   return (req: MockRequest) => {
+    const body = apiDefinition.request?.body;
     // Validate body if present in the request
-    if (apiDefinition.request.body) {
-      if (
-        apiDefinition.request.headers &&
-        apiDefinition.request.headers["Content-Type"] === "application/xml"
-      ) {
-        req.expect.xmlBodyEquals(
-          apiDefinition.request.body.rawContent.replace(
-            `<?xml version='1.0' encoding='UTF-8'?>`,
-            "",
-          ),
-        );
-      } else {
-        if (isObject(apiDefinition.request.body)) {
-          Object.entries(apiDefinition.request.body).forEach(([key, value]) => {
-            req.expect.deepEqual(req.body[key], value);
-          });
-        } else {
-          req.expect.coercedBodyEquals(apiDefinition.request.body);
-        }
-      }
+    if (body) {
+      validateBody(req, body, config);
     }
 
     // Validate headers if present in the request
-    if (apiDefinition.request.headers) {
-      Object.entries(apiDefinition.request.headers).forEach(([key, value]) => {
+    if (apiDefinition.request?.headers) {
+      const headers = expandDyns(apiDefinition.request.headers, config);
+      Object.entries(headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
           if (Array.isArray(value)) {
             req.expect.deepEqual(req.headers[key], value);
@@ -137,21 +144,12 @@ function createHandler(apiDefinition: MockApiDefinition) {
       });
     }
 
-    // Validate query params if present in the request
-    if (apiDefinition.request.params) {
-      Object.entries(apiDefinition.request.params).forEach(([key, value]) => {
-        if (!req.query[key]) {
-          if (Array.isArray(value)) {
-            req.expect.deepEqual(req.params[key], value);
-          } else {
-            req.expect.deepEqual(req.params[key], String(value));
-          }
+    if (apiDefinition.request?.query) {
+      Object.entries(apiDefinition.request.query).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          req.expect.deepEqual(req.query[key], value);
         } else {
-          if (Array.isArray(value)) {
-            req.expect.deepEqual(req.query[key], value);
-          } else {
-            req.expect.containsQueryParam(key, String(value));
-          }
+          req.expect.containsQueryParam(key, String(value));
         }
       });
     }

@@ -10,7 +10,7 @@ const config: PlaywrightTestConfig = {
   timeout: 120 * 1000,
   expect: { timeout: 10_000 },
   webServer: {
-    command: "npm run watch",
+    command: "pnpm watch",
     port: 5173,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
@@ -24,10 +24,10 @@ const config: PlaywrightTestConfig = {
       name: "chromium",
       use: { browserName: "chromium" },
     },
-    {
-      name: "firefox",
-      use: { browserName: "firefox" },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { browserName: "firefox" },
+    // },
   ],
   testMatch: "*.e2e.ts",
 };

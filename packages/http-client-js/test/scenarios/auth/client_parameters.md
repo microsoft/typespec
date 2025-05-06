@@ -7,9 +7,7 @@ This test validates that the emitter can generate the correct client signature w
 The spec contains 2 Schemas Bearer and ApiKey
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 @useAuth(BearerAuth | ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
 namespace Test;
 
@@ -28,7 +26,12 @@ TODO: Revisit if we need additional types since it will be difficult at runtime 
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-  constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
+
+  constructor(
+    endpoint: string,
+    credential: BearerTokenCredential | ApiKeyCredential,
+    options?: TestClientOptions,
+  ) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {
@@ -44,7 +47,7 @@ The client context should setup the pipeline to use the credential in the Author
 ```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
-  credential: KeyCredential,
+  credential: BearerTokenCredential | ApiKeyCredential,
   options?: TestClientOptions,
 ): TestClientContext {
   const params: Record<string, any> = {
@@ -57,11 +60,20 @@ export function createTestClientContext(
           throw new Error(`Missing parameter: ${key}`);
         })(),
   );
-  return getClient(resolvedEndpoint, credential, {
+  return getClient(resolvedEndpoint, {
     ...options,
-    credentials: {
-      apiKeyHeaderName: "Authorization",
-    },
+    credential,
+    authSchemes: [
+      {
+        kind: "http",
+        scheme: "bearer",
+      },
+      {
+        kind: "apiKey",
+        apiKeyLocation: "header",
+        name: "X-API-KEY",
+      },
+    ],
   });
 }
 ```

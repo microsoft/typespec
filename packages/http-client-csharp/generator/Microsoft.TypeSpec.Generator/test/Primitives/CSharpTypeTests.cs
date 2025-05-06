@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
     {
         public CSharpTypeTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [TestCase(typeof(int))]
@@ -97,6 +97,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             var cst1 = new CSharpType(type);
             var cst2 = new CSharpType(type);
             Assert.AreEqual(cst1.GetHashCode(), cst2.GetHashCode());
+        }
+
+        [Test]
+        public void TypesWithDifferentDeclaringTypesAreNotEqual()
+        {
+            var declaringType1 = new CSharpType(
+                "type1",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+            var declaringType2 = new CSharpType(
+                "type2",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+
+            var nested1 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType1,
+                [],
+                true,
+                false);
+            var nested2 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType2,
+                [],
+                true,
+                false);
+
+            Assert.IsFalse(nested1.Equals(nested2));
         }
 
         [TestCase(typeof(IList<>), new[] { typeof(int) })]
@@ -351,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             CSharpType[] arguments = [typeof(int)];
             var cSharpType = new CSharpType(listType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(arguments);
+            var expected = CodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(arguments);
 
             Assert.AreEqual(expected, actual);
         }
@@ -363,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             CSharpType[] arguments = [typeof(string), typeof(int)];
             var cSharpType = new CSharpType(dictionaryType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(arguments);
+            var expected = CodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(arguments);
 
             Assert.AreEqual(expected, actual);
         }

@@ -1,8 +1,9 @@
-import { Output, render } from "@alloy-js/core";
+import { render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
+import { Output } from "../../../src/core/components/output.jsx";
 import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.js";
 import { UnionExpression } from "../../../src/typescript/components/union-expression.js";
 import { getProgram } from "../test-host.js";
@@ -10,8 +11,9 @@ import { getProgram } from "../test-host.js";
 describe("Typescript Union Declaration", () => {
   describe("Union not bound to Typespec Types", () => {
     it("creates a union declaration", async () => {
+      const program = await getProgram("");
       const res = render(
-        <Output>
+        <Output program={program}>
           <SourceFile path="test.ts">
             <UnionDeclaration name="MyUnion">"red" | "blue"</UnionDeclaration>
           </SourceFile>
@@ -43,7 +45,7 @@ describe("Typescript Union Declaration", () => {
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />
             </SourceFile>
@@ -72,7 +74,7 @@ describe("Typescript Union Declaration", () => {
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <UnionDeclaration export type={union} name="MyUnion" />
             </SourceFile>
@@ -101,7 +103,7 @@ describe("Typescript Union Declaration", () => {
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union}>"three"</UnionDeclaration>
             </SourceFile>
@@ -130,7 +132,7 @@ describe("Typescript Union Declaration", () => {
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               let x: <UnionExpression type={union} /> = "one";
             </SourceFile>
@@ -161,7 +163,7 @@ describe("Typescript Union Declaration", () => {
         const union = Array.from((namespace as Namespace).enums.values())[0];
 
         const res = render(
-          <Output>
+          <Output program={program}>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />
             </SourceFile>

@@ -35,7 +35,6 @@ setup(
         "Development Status :: 4 - Beta",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -50,10 +49,9 @@ setup(
     install_requires=[
         "black==24.8.0",
         "docutils>=0.20.1",
-        "Jinja2==3.1.3",
-        "m2r2==0.3.3.post2",
+        "Jinja2==3.1.6",
         "PyYAML==6.0.1",
         "tomli==2.0.1",
-        "setuptools==69.5.1",
+        "setuptools==70.0.0",
     ],
 )

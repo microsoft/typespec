@@ -154,21 +154,11 @@ async function processFile(file, options) {
       "compile",
       fullPath,
       "--emit",
-      "@typespec/http-client-js",
+      resolve(import.meta.dirname, "../.."),
       "--config",
       tspConfig,
       "--output-dir",
       outputDir,
-    ]);
-
-    if (spinner) spinner.text = `Transpiling with Babel: ${relativePath}`;
-    await runCommand("npx", [
-      "babel",
-      outputDir,
-      "-d",
-      `dist/${outputDir}`,
-      "--extensions",
-      ".ts,.tsx",
     ]);
 
     if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;

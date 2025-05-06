@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createCSharpSdkContext,
@@ -49,7 +51,7 @@ op test(@body input: Pet): Pet;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const petModel = models.find((m) => m.name === "Pet");
     const catModel = models.find((m) => m.name === "Cat");
     const dogModel = models.find((m) => m.name === "Dog");
@@ -131,7 +133,7 @@ op test(@body input: Pet): Pet;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
@@ -223,7 +225,7 @@ op test(@body input: Pet): Pet;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
     // assert the discriminator property name
@@ -342,7 +344,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const extendsUnknownModel = models.find((m) => m.name === "ExtendsUnknown");
     const extendsStringModel = models.find((m) => m.name === "ExtendsString");
     const extendsInt32Model = models.find((m) => m.name === "ExtendsInt32");
@@ -434,7 +436,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const isUnknownModel = models.find((m) => m.name === "IsUnknown");
     const isStringModel = models.find((m) => m.name === "IsString");
     const isInt32Model = models.find((m) => m.name === "IsInt32");
@@ -485,9 +487,143 @@ op op1(): void;
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
     ok(isEmptyModel);
+  });
+});
+
+describe("Header property", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Header property should be included in the model", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
+  });
+
+  it("Header property should be included in the model if it's read-only", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @visibility(Lifecycle.Read)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, true);
+  });
+
+  it("Header property should not be included in the model if visibility is none", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @invisible(Lifecycle)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    strictEqual(undefined, headerProperty);
+  });
+
+  it("Header property should be included in the model if it has a default value", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: "cat";
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "constant");
+    strictEqual(headerProperty.type.value, "cat");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
   });
 });
 
@@ -514,7 +650,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const models = root.Models;
+    const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
       {

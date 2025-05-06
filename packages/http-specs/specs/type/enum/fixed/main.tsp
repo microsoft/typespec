@@ -40,7 +40,13 @@ interface String {
   @get
   @route("/known-value")
   @doc("getKnownValue")
-  getKnownValue(): DaysOfWeekEnum;
+  getKnownValue(): {
+    @header
+    contentType: "application/json";
+
+    @body
+    body: DaysOfWeekEnum;
+  };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
@@ -48,7 +54,10 @@ interface String {
   @put
   @route("/known-value")
   @doc("putKnownValue")
-  putKnownValue(@body @doc("_") body: DaysOfWeekEnum): void;
+  putKnownValue(
+    @header contentType: "application/json",
+    @body @doc("_") body: DaysOfWeekEnum,
+  ): void;
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
@@ -56,5 +65,8 @@ interface String {
   @put
   @route("/unknown-value")
   @doc("putUnknownValue")
-  putUnknownValue(@body @doc("_") body: DaysOfWeekEnum): void;
+  putUnknownValue(
+    @header contentType: "application/json",
+    @body @doc("_") body: DaysOfWeekEnum,
+  ): void;
 }

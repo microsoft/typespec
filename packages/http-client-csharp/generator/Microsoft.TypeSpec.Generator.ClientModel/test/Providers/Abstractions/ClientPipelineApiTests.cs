@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -32,11 +35,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
+        [Test]
+        public void ProcessMessageIsOverridden()
+        {
+            CreateTestClient();
+            var clientPipelineExtensions = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.
+                FirstOrDefault(x => x.Name == "ClientPipelineExtensions");
+            Assert.NotNull(clientPipelineExtensions);
+            var method = clientPipelineExtensions!.Methods.FirstOrDefault(m => m.Signature.Name == "ProcessMessage");
+            Assert.NotNull(method);
+            Assert.NotNull(method!.BodyStatements);
+            Assert.IsTrue(method.BodyStatements!.ToDisplayString().Contains("GetFakeProcessMessage"));
+
+            method = clientPipelineExtensions!.Methods.FirstOrDefault(m => m.Signature.Name == "ProcessMessageAsync");
+            Assert.NotNull(method);
+            Assert.NotNull(method!.BodyStatements);
+            Assert.IsTrue(method.BodyStatements!.ToDisplayString().Contains("GetFakeProcessMessageAsync"));
+        }
+
         private static ClientProvider CreateTestClient()
         {
-            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
-            MockHelpers.LoadMockPlugin(clientPipelineApi: TestClientPipelineApi.Instance);
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", InputFactory.Operation("foo"));
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(clientPipelineApi: TestClientPipelineApi.Instance);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
             return clientProvider!;
         }

@@ -1,3 +1,4 @@
+import { normalizePath } from "@typespec/compiler";
 import { TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
@@ -26,7 +27,8 @@ const filterPaths = args.filter
     : [args.filter]
   : undefined;
 
-const SCENARIOS_UPDATE = process.env["SCENARIOS_UPDATE"] === "true";
+const SCENARIOS_UPDATE =
+  process.env["RECORD"] === "true" || process.env["SCENARIOS_UPDATE"] === "true";
 
 type EmitterFunction = (tsp: string, namedArgs: Record<string, string>) => Promise<string>;
 
@@ -52,7 +54,8 @@ async function assertGetEmittedFile(
     throw new Error(`Error compiling code:\n ${errors.map((x) => x.message).join("\n")}`);
   }
 
-  const sourceFile = emittedFiles.find((x) => x.path === file);
+  const normalizedTarget = normalizePath(file);
+  const sourceFile = emittedFiles.find((x) => normalizePath(x.path) === normalizedTarget);
 
   if (!sourceFile) {
     throw new Error(

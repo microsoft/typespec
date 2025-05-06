@@ -246,12 +246,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
                 if (IsList)
                 {
-                    return CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(Arguments);
+                    return CodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(Arguments);
+                    return CodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(Arguments);
                 }
             }
 
@@ -430,6 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsStruct == other.IsStruct &&
                 IsPublic == other.IsPublic &&
                 _underlyingType == other._underlyingType &&
+                Equals(DeclaringType, other.DeclaringType) &&
                 (ignoreNullable || IsNullable == other.IsNullable);
 
         [EditorBrowsable(EditorBrowsableState.Never)]

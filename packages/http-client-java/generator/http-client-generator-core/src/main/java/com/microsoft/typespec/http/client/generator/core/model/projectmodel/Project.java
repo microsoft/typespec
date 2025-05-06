@@ -46,6 +46,8 @@ public class Project {
     protected String groupId = AZURE_GROUP_ID;
     protected String artifactId;
     protected String version = "1.0.0-beta.1";
+    protected String licenseName;
+    protected String licenseUrl;
     protected final List<String> pomDependencyIdentifiers = new ArrayList<>();
     protected String sdkRepositoryPath;
 
@@ -56,12 +58,12 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.55.2"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.16.2"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.10"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.7"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.3"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.59"),
+        AZURE_CORE("com.azure", "azure-core", "1.55.3"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.17.0"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.11"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.8"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.4"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.60"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.5");
 
@@ -366,6 +368,19 @@ public class Project {
 
     public boolean isGenerateSamples() {
         return JavaSettings.getInstance().isGenerateSamples();
+    }
+
+    public void setLicenseInfo(String name, String url) {
+        this.licenseName = name;
+        this.licenseUrl = url;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public String getLicenseUrl() {
+        return licenseUrl;
     }
 
     static List<String> findPomDependencies(Path pomPath) {

@@ -23,8 +23,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public OptionalDefinition()
         {
-            _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
-            _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
+            _genericChangeTrackingList = CodeModelGenerator.Instance.TypeFactory.ListInitializationType;
+            _genericChangeTrackingDictionary = CodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType;
             _tKey = _genericChangeTrackingDictionary.Arguments[0];
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(valueParam.NotEqual(Null))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider IsObjectDefined()
@@ -89,7 +90,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(valueParam.NotEqual(Null))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider IsStructDefined()
@@ -100,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(new MemberExpression(valueParam, "HasValue"))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsReadOnlyDictionaryDefined()
@@ -115,7 +118,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsDictionaryDefined()
@@ -130,7 +134,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsListDefined()
@@ -145,7 +150,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
     }
 }

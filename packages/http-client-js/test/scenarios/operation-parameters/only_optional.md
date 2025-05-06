@@ -52,6 +52,7 @@ export interface GetWithParamsOptions extends OperationOptions {
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
+
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }

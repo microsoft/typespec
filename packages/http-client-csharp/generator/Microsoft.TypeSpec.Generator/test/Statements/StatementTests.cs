@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
     {
         public StatementTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]
@@ -488,6 +488,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
+        }
+
+        [Test]
+        public void TestWhileStatement()
+        {
+            var condition = True;
+            var whileStatement = new WhileStatement(condition) { Return(True) };
+
+            Assert.NotNull(Helpers.GetExpectedFromFile(), whileStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestDoWhileStatement()
+        {
+            var condition = True;
+            var whileStatement = new DoWhileStatement(condition) { Return(True) };
+
+            Assert.NotNull(Helpers.GetExpectedFromFile(), whileStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestYieldReturnStatement()
+        {
+            var yieldReturnStatement = YieldReturn(Literal(5));
+            Assert.AreEqual("yield return 5;\n", yieldReturnStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestYieldBreakStatement()
+        {
+            var yieldBreakStatement = YieldBreak();
+            Assert.AreEqual("yield break;\n", yieldBreakStatement.ToDisplayString());
         }
 
         [Test]

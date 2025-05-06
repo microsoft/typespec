@@ -6,6 +6,7 @@ import { JsContext, Module, PathCursor } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { getAllProperties } from "../util/extends.js";
 import { bifilter, indent } from "../util/iter.js";
+import { keywordSafe } from "../util/keywords.js";
 import { emitDocumentation } from "./documentation.js";
 import { emitTypeReference, isValueLiteralType } from "./reference.js";
 import { emitUnionType } from "./union.js";
@@ -75,7 +76,7 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
     if (param.optional || isValueLiteralType(param.type)) continue;
 
     const paramNameCase = parseCase(param.name);
-    const paramName = paramNameCase.camelCase;
+    const paramName = keywordSafe(paramNameCase.camelCase);
 
     const outputTypeReference = emitTypeReference(ctx, param.type, param, module, {
       altName: opNameCase.pascalCase + paramNameCase.pascalCase,
@@ -129,7 +130,7 @@ export function emitOptionsType(
   ctx.syntheticModule.declarations.push([
     `export interface ${optionsTypeName} {`,
     ...options.flatMap((p) => [
-      `  ${parseCase(p.name).camelCase}?: ${emitTypeReference(ctx, p.type, p, module, {
+      `  ${keywordSafe(parseCase(p.name).camelCase)}?: ${emitTypeReference(ctx, p.type, p, module, {
         altName: optionsTypeName + parseCase(p.name).pascalCase,
       })};`,
     ]),

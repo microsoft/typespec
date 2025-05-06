@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Represents the per-protocol metadata on a given aspect.
  */
-public class Protocol implements JsonSerializable<Protocol> {
+public class Protocol {
     private RequestParameterLocation in;
     private String path;
     private String uri;
@@ -228,59 +223,5 @@ public class Protocol implements JsonSerializable<Protocol> {
      */
     public void setExplode(boolean explode) {
         this.explode = explode;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("in", in == null ? null : in.toString())
-            .writeStringField("path", path)
-            .writeStringField("uri", uri)
-            .writeStringField("method", method)
-            .writeStringField("knownMediaType", knownMediaType == null ? null : knownMediaType.toString())
-            .writeStringField("style", style == null ? null : style.toString())
-            .writeBooleanField("explode", explode)
-            .writeArrayField("mediaTypes", mediaTypes, JsonWriter::writeString)
-            .writeArrayField("servers", servers, JsonWriter::writeJson)
-            .writeArrayField("statusCodes", statusCodes, JsonWriter::writeString)
-            .writeArrayField("headers", headers, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Protocol instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Protocol instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Protocol fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Protocol::new, (protocol, fieldName, reader) -> {
-            if ("in".equals(fieldName)) {
-                protocol.in = RequestParameterLocation.fromValue(reader.getString());
-            } else if ("path".equals(fieldName)) {
-                protocol.path = reader.getString();
-            } else if ("uri".equals(fieldName)) {
-                protocol.uri = reader.getString();
-            } else if ("method".equals(fieldName)) {
-                protocol.method = reader.getString();
-            } else if ("knownMediaType".equals(fieldName)) {
-                protocol.knownMediaType = KnownMediaType.fromValue(reader.getString());
-            } else if ("style".equals(fieldName)) {
-                protocol.style = SerializationStyle.fromValue(reader.getString());
-            } else if ("explode".equals(fieldName)) {
-                protocol.explode = reader.getBoolean();
-            } else if ("mediaTypes".equals(fieldName)) {
-                protocol.mediaTypes = reader.readArray(JsonReader::getString);
-            } else if ("servers".equals(fieldName)) {
-                protocol.servers = reader.readArray(Server::fromJson);
-            } else if ("statusCodes".equals(fieldName)) {
-                protocol.statusCodes = reader.readArray(JsonReader::getString);
-            } else if ("headers".equals(fieldName)) {
-                protocol.headers = reader.readArray(Header::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

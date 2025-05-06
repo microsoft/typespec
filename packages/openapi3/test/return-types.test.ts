@@ -221,6 +221,32 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
     });
   });
 
+  it("defines single responses for a discriminated union return type", async () => {
+    const res = await openApiFor(
+      `
+      model HeavyWidget {
+        heavy: string;
+      }
+
+      model LightWidget {
+        light: string;
+      }
+
+      @discriminated
+      union Widget {
+        heavy: HeavyWidget,
+        light: LightWidget,
+      }
+      @get op read(): Widget;
+      `,
+    );
+    ok(res.paths["/"].get.responses["200"]);
+    ok(res.components.schemas.Widget);
+    deepStrictEqual(res.paths["/"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Widget",
+    });
+  });
+
   it("defines the response media type from the content-type header if present", async () => {
     const res = await openApiFor(
       `
@@ -270,10 +296,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
       `);
     ok(res.paths["/"].get.responses["200"]);
     ok(res.paths["/"].get.responses["200"].content);
-    strictEqual(
-      res.paths["/"].get.responses["200"].content["application/json"].schema.type,
-      "string",
-    );
+    strictEqual(res.paths["/"].get.responses["200"].content["text/plain"].schema.type, "string");
   });
 
   it("defines responses with top-level array type", async () => {
@@ -376,7 +399,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
     });
     ok(responses["default"]);
     ok(responses["default"].content);
-    deepStrictEqual(responses["default"].content["application/json"].schema, {
+    deepStrictEqual(responses["default"].content["text/plain"].schema, {
       type: "string",
     });
   });
@@ -688,7 +711,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
 
 worksFor(["3.0.0"], ({ openApiFor }) => {
   describe("open api 3.0.0 binary responses", () => {
-    it("bytes responses should default to application/json with byte format", async () => {
+    it("bytes responses should default to application/octet-stream with binary format", async () => {
       const res = await openApiFor(`
         @get op read(): bytes;
       `);
@@ -696,11 +719,11 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
+      strictEqual(response.content["application/octet-stream"].schema.type, "string");
+      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
     });
 
-    it("@body body: bytes responses default to application/json with bytes format", async () => {
+    it("@body body: bytes responses default to application/octet-stream with binary format", async () => {
       const res = await openApiFor(`
         @get op read(): {@body body: bytes};
       `);
@@ -708,8 +731,8 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
+      strictEqual(response.content["application/octet-stream"].schema.type, "string");
+      strictEqual(response.content["application/octet-stream"].schema.format, "binary");
     });
 
     it("@header contentType text/plain should keep format to byte", async () => {
@@ -740,7 +763,7 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
 
 worksFor(["3.1.0"], ({ openApiFor }) => {
   describe("open api 3.1.0 binary responses", () => {
-    it("bytes responses should default to application/json with base64 contentEncoding", async () => {
+    it("bytes responses should default to application/octet-stream with the same contentMediaType", async () => {
       const res = await openApiFor(`
         @get op read(): bytes;
       `);
@@ -748,13 +771,12 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
-      deepStrictEqual(response.content["application/json"].schema, {
-        type: "string",
-        contentEncoding: "base64",
+      deepStrictEqual(response.content["application/octet-stream"].schema, {
+        contentMediaType: "application/octet-stream",
       });
     });
 
-    it("@body body: bytes responses default to application/json with base64 contentEncoding", async () => {
+    it("@body body: bytes responses default to application/octet-stream with the same contentMediaType", async () => {
       const res = await openApiFor(`
         @get op read(): {@body body: bytes};
       `);
@@ -762,9 +784,42 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       const response = res.paths["/"].get.responses["200"];
       ok(response);
       ok(response.content);
+      deepStrictEqual(response.content["application/octet-stream"].schema, {
+        contentMediaType: "application/octet-stream",
+      });
+    });
+
+    it("@bodyRoot body: bytes responses can be overridden to application/json", async () => {
+      const res = await openApiFor(`
+        @get op read(): {
+          @header contentType: "application/json";
+          @bodyRoot body: bytes;
+        };
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
       deepStrictEqual(response.content["application/json"].schema, {
-        type: "string",
         contentEncoding: "base64",
+        type: "string",
+      });
+    });
+
+    it("@body body: bytes responses can be overridden to application/json", async () => {
+      const res = await openApiFor(`
+        @get op read(): {
+          @header contentType: "application/json";
+          @body body: bytes;
+        };
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["application/json"].schema, {
+        contentEncoding: "base64",
+        type: "string",
       });
     });
 

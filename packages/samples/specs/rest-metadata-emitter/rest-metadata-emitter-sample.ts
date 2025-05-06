@@ -17,9 +17,8 @@ import {
   getHttpService,
   getVisibilitySuffix,
   HttpOperation,
-  HttpOperationBody,
-  HttpOperationMultipartBody,
   HttpOperationResponse,
+  HttpPayloadBody,
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
@@ -148,7 +147,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     function emitResponses(responses: HttpOperationResponse[]) {
       for (const response of responses) {
         for (const content of response.responses) {
-          writeLine(`response: ${response.statusCode}${getContentTypeRemark(content.body)}`);
+          writeLine(`response: ${response.statusCodes}${getContentTypeRemark(content.body)}`);
           indent();
 
           // NOTE: For response data, the visibility to apply is always Read.
@@ -258,9 +257,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
       return remarks.length === 0 ? "" : ` (${remarks.join(", ")})`;
     }
 
-    function getContentTypeRemark(
-      body: HttpOperationBody | HttpOperationMultipartBody | undefined,
-    ) {
+    function getContentTypeRemark(body: HttpPayloadBody | undefined) {
       const ct = body?.contentTypes;
       if (!ct || ct.length === 0 || (ct.length === 1 && ct[0] === "application/json")) {
         return "";

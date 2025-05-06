@@ -17,14 +17,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         [Test]
         public async Task SharedSourceFilesAreReduced()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new SharedSourceOutputLibrary(),
                 typesToKeep: ["TypeUsingSharedSourceType"],
                 sharedSourceDirectories: new[] { Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false), "Shared") });
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            var content = await File.ReadAllTextAsync(Path.Combine(plugin.Object.Configuration.OutputDirectory, "TypeUsingSharedSourceType.cs"));
+            var content = await File.ReadAllTextAsync(Path.Combine(mockGenerator.Object.Configuration.OutputDirectory, "TypeUsingSharedSourceType.cs"));
             var expected = Helpers.GetExpectedFromFile();
             Assert.AreEqual(expected, content);
         }

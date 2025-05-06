@@ -1,4 +1,18 @@
 import {
+  CodeTypeEmitter,
+  Context,
+  Declaration,
+  EmitEntity,
+  EmittedSourceFile,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+  StringBuilder,
+  TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
+} from "@typespec/asset-emitter";
+import {
   BooleanLiteral,
   EmitContext,
   Enum,
@@ -23,61 +37,59 @@ import {
   isErrorModel,
   isNeverType,
   isNullType,
+  isNumericType,
   isTemplateDeclaration,
   isVoidType,
+  resolvePath,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  CodeTypeEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  Scope,
-  SourceFile,
-  StringBuilder,
-  TypeSpecDeclaration,
-  code,
-  createAssetEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationResponse,
+  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
+  isHeader,
   isStatusCode,
 } from "@typespec/http";
+import { getUniqueItems } from "@typespec/json-schema";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
+import path from "path";
 import { getEncodedNameAttribute } from "./attributes.js";
 import {
   GeneratedFileHeader,
   GeneratedFileHeaderWithNullable,
   getSerializationSourceFiles,
 } from "./boilerplate.js";
+import { getProjectDocs } from "./doc.js";
 import {
+  Attribute,
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
+  CollectionType,
   ControllerContext,
-  LibrarySourceFile,
   NameCasingType,
   ResponseInfo,
+  checkOrAddNamespaceToScope,
 } from "./interfaces.js";
-import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
+import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
   BusinessLogicMethod,
   BusinessLogicRegistrations,
   getBusinessLogicImplementations,
+  getScaffoldingHelpers,
 } from "./scaffolding.js";
-import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
+import { getEnumType, getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
   HttpMetadata,
+  ModelInfo,
   UnknownType,
   coalesceTypes,
   coalesceUnionTypes,
@@ -91,49 +103,151 @@ import {
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getFreePort,
   getHttpDeclParameters,
+  getImports,
   getModelAttributes,
   getModelDeclarationName,
   getModelInstantiationName,
+  getOpenApiConfig,
   getOperationVerbDecorator,
+  getStatusCode,
   isEmptyResponseModel,
+  isRecord,
+  isStringEnumType,
   isValueType,
 } from "./utils.js";
+
+type FileExists = (path: string) => Promise<boolean>;
 
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
-  const doNotEmit: boolean = context.program.compilerOptions.noEmit || false;
+  const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
+  CSharpServiceOptions.getInstance().initialize(context.options);
 
+  function getFileWriter(program: Program): FileExists {
+    return async (path: string) =>
+      !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+  }
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
     #generatedFileHeaderWithNullable: string = GeneratedFileHeaderWithNullable;
     #generatedFileHeader: string = GeneratedFileHeader;
     #sourceTypeKey: string = "sourceType";
-    #libraryFiles: LibrarySourceFile[] = getSerializationSourceFiles(this.emitter);
-    #baseNamespace: string | undefined = undefined;
+    #nsKey = "ResolvedNamespace";
+    #namespaces: Map<Namespace, string> = new Map<Namespace, string>();
     #emitterOutputType = context.options["output-type"];
     #emitMocks: string | undefined = context.options["emit-mocks"];
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
-    #mockFiles: LibrarySourceFile[] = [];
     #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
+    #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
+
+    #getOrAddNamespaceForType(type: Type): string | undefined {
+      const program = this.emitter.getProgram();
+      switch (type.kind) {
+        case "Boolean":
+        case "String":
+        case "StringTemplate":
+        case "Number":
+        case "Scalar":
+        case "Intrinsic":
+        case "FunctionParameter":
+        case "ScalarConstructor":
+        case "StringTemplateSpan":
+        case "TemplateParameter":
+        case "Tuple":
+          return undefined;
+        case "EnumMember":
+          return this.#getOrAddNamespaceForType(type.enum);
+        case "ModelProperty":
+        case "UnionVariant":
+          return this.#getOrAddNamespaceForType(type.type);
+        case "Model":
+          if (isRecord(type) && type.indexer)
+            return this.#getOrAddNamespaceForType(type.indexer.value);
+          if (type.indexer !== undefined && isNumericType(program, type.indexer?.key))
+            return this.#getOrAddNamespaceForType(type.indexer.value);
+          return this.#getOrAddNamespace(type.namespace);
+        case "Union":
+          if (isStringEnumType(program, type)) return this.#getOrAddNamespace(type.namespace);
+          const unionType = this.#coalesceTsUnion(type);
+          if (unionType === undefined) return undefined;
+          return this.#getOrAddNamespaceForType(unionType);
+        default:
+          return this.#getOrAddNamespace(type.namespace);
+      }
+    }
+    #coalesceTsUnion(union: Union): Type | undefined {
+      let result: Type | undefined = undefined;
+      for (const [_, variant] of union.variants) {
+        if (!isNullType(variant.type)) {
+          if (result !== undefined && result !== variant.type) return undefined;
+          result = variant.type;
+        }
+      }
+
+      return result;
+    }
+    #getOrAddNamespace(typespecNamespace?: Namespace): string {
+      if (!typespecNamespace?.name) return this.#getDefaultNamespace();
+      let resolvedNamespace: string | undefined = this.#namespaces.get(typespecNamespace);
+      if (resolvedNamespace !== undefined) return resolvedNamespace;
+      const nsName = getNamespaceFullName(typespecNamespace);
+      resolvedNamespace = ensureCSharpIdentifier(
+        this.emitter.getProgram(),
+        typespecNamespace,
+        nsName,
+        NameCasingType.Namespace,
+      );
+      this.#namespaces.set(typespecNamespace, resolvedNamespace);
+      return resolvedNamespace;
+    }
+
+    #getDefaultNamespace(): string {
+      return "TypeSpec.Service";
+    }
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.declaration(
-        ensureCSharpIdentifier(this.emitter.getProgram(), array, name),
-        code`${this.emitter.emitTypeReference(elementType)}[]`,
-      );
+      return this.collectionDeclaration(elementType, array);
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(elementType)}[]`);
+      this.emitter.emitType(elementType, this.emitter.getContext());
+      const csType = getCSharpType(
+        this.emitter.getProgram(),
+        array,
+        this.#getOrAddNamespaceForType(elementType),
+      );
+      if (csType?.type) {
+        return code`${csType.type.getTypeReference(this.emitter.getContext()?.scope)}`;
+      }
+
+      return this.collectionDeclaration(elementType, array);
+    }
+
+    collectionDeclaration(elementType: Type, array: Model): EmitterOutput<string> {
+      const isUniqueItems = getUniqueItems(this.emitter.getProgram(), array);
+      const collectionType = isUniqueItems
+        ? CollectionType.ISet
+        : CSharpServiceOptions.getInstance().collectionType;
+
+      switch (collectionType) {
+        case CollectionType.ISet:
+          return code`ISet<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
+        case CollectionType.IEnumerable:
+          return code`IEnumerable<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
+        case CollectionType.Array:
+        default:
+          return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
+      }
     }
 
     booleanLiteral(boolean: BooleanLiteral): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${boolean.value === true ? "true" : "false"}`);
+      return code`${boolean.value === true ? "true" : "false"}`;
     }
 
     unionLiteral(union: Union): EmitterOutput<string> {
@@ -171,6 +285,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclaration(en: Enum, name: string): EmitterOutput<string> {
+      if (getEnumType(en) === "double") return "";
       const program = this.emitter.getProgram();
       const enumName = ensureCSharpIdentifier(program, en, name);
       const namespace = this.emitter.getContext().namespace;
@@ -179,10 +294,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       this.#metadateMap.set(en, new CSharpType({ name: enumName, namespace: namespace }));
       return this.emitter.result.declaration(
         enumName,
-        code`${this.#generatedFileHeader}
-        
-        ${this.#emitUsings()}
-        
+        code`
         namespace ${namespace}
         {
 
@@ -197,26 +309,36 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclarationContext(en: Enum): Context {
+      if (getEnumType(en) === "double") return this.emitter.getContext();
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
-      const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
+      const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-      const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
+      const enumNamespace = this.#getOrAddNamespace(en.namespace);
       return this.#createEnumContext(enumNamespace, enumFile, enumName);
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
+      const enumType = getEnumType(en);
       const result = new StringBuilder();
       let i = 0;
       for (const [name, member] of en.members) {
         i++;
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
-        result.push(
-          code`
+        if (enumType === "string") {
+          result.push(
+            code`
           [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
           ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
-        );
-        if (i < en.members.size) result.pushLiteralSegment(",\n");
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        } else if (member.value !== undefined) {
+          result.push(
+            code`
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = ${member.value.toString()}`,
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        }
       }
 
       return this.emitter.result.rawCode(result.reduce());
@@ -225,9 +347,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<string> {
       switch (intrinsic.name) {
         case "unknown":
-          return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
         case "null":
-          return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
+          return this.emitter.result.rawCode(
+            code`${UnknownType.getTypeReference(this.emitter.getContext().scope)}`,
+          );
         case "ErrorType":
         case "never":
           reportDiagnostic(this.emitter.getProgram(), {
@@ -238,7 +361,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           return "";
         case "void":
           const type = getCSharpTypeForIntrinsic(this.emitter.getProgram(), intrinsic);
-          return this.emitter.result.rawCode(`${type?.type.getTypeReference()}`);
+          return this.emitter.result.rawCode(
+            `${type?.type.getTypeReference(this.emitter.getContext().scope)}`,
+          );
       }
     }
 
@@ -257,23 +382,32 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         parts.forEach((p) => this.emitter.emitType(p));
         return "";
       }
-      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
+      const isErrorType = isErrorModel(this.emitter.getProgram(), model);
+      if (model.baseModel && model.baseModel.namespace !== model.namespace) {
+        const resolvedNs = this.#getOrAddNamespaceForType(model.baseModel);
+        if (resolvedNs) checkOrAddNamespaceToScope(resolvedNs, this.emitter.getContext().scope);
+      }
+      const baseModelRef = model.baseModel
+        ? code`: ${this.emitter.emitTypeReference(model.baseModel, this.emitter.getContext())}`
+        : "";
+      const baseClass = baseModelRef || (isErrorType ? ": HttpServiceException" : "");
+
       const namespace = this.emitter.getContext().namespace;
+      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
+      const exceptionConstructor = isErrorType
+        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, name, className)
+        : "";
+
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
         className,
-        code`${this.#generatedFileHeader}
-
-      ${this.#emitUsings()}
-      
+        code`
       namespace ${namespace} {
 
-      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${
-        model.baseModel ? code`: ${this.emitter.emitTypeReference(model.baseModel)}` : ""
-      } {
-      ${this.emitter.emitModelProperties(model)}
+      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
+      ${exceptionConstructor ? `${exceptionConstructor}\n` : ""}${this.emitter.emitModelProperties(model)}
     }
    } `,
       );
@@ -281,25 +415,130 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return decl;
     }
 
+    getModelExceptionConstructor(
+      program: Program,
+      model: Model,
+      modelName: string,
+      className: string,
+    ): string | undefined {
+      if (!isErrorModel(program, model)) return undefined;
+      const constructor = this.getExceptionConstructorData(program, model, modelName);
+      const isParent = !!model.derivedModels?.length;
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+    }
+
+    isDuplicateExceptionName(name: string): boolean {
+      const exceptionPropertyNames: string[] = [
+        "value",
+        "headers",
+        "stacktrace",
+        "source",
+        "message",
+        "innerexception",
+        "hresult",
+        "data",
+        "targetsite",
+        "helplink",
+      ];
+      return exceptionPropertyNames.includes(name.toLowerCase());
+    }
+
+    getExceptionConstructorData(program: Program, model: Model, modelName: string) {
+      const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
+      const propertiesWithDefaults = allProperties.map((prop) => {
+        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
+        const defaultValue = prop.defaultValue
+          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
+          : typeDefault;
+        return { prop, defaultValue };
+      });
+
+      const sortedProperties = propertiesWithDefaults
+        .filter(({ prop }) => !isStatusCode(program, prop))
+        .sort(({ prop: a, defaultValue: aDefault }, { prop: b, defaultValue: bDefault }) => {
+          if (!a.optional && !aDefault && (b.optional || bDefault)) return -1;
+          if (!b.optional && !bDefault && (a.optional || aDefault)) return 1;
+          return 0;
+        });
+
+      const properties: string[] = [];
+      const body: string[] = [];
+      const header: string[] = [];
+      const value: string[] = [];
+
+      const statusCode = getStatusCode(program, model);
+      if (statusCode?.requiresConstructorArgument) {
+        properties.push(`int ${statusCode.value}`);
+      }
+
+      for (const { prop, defaultValue } of sortedProperties) {
+        let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
+        if (modelName === propertyName || this.isDuplicateExceptionName(propertyName)) {
+          propertyName = `${propertyName}Prop`;
+        }
+
+        const type = getCSharpType(program, prop.type);
+        properties.push(
+          `${type?.type.name} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
+        );
+        body.push(`\t\t${propertyName} = ${prop.name};`);
+
+        if (isHeader(program, prop)) {
+          const headerName = getHeaderFieldName(program, prop);
+          header.push(`{"${headerName}", ${prop.name}}`);
+        } else {
+          value.push(`${prop.name} = ${prop.name}`);
+        }
+      }
+
+      return {
+        properties: properties.join(", "),
+        body: body.join("\n"),
+        header: header.join(", "),
+        value: value.join(","),
+        statusCode: statusCode,
+      };
+    }
+
     modelDeclarationContext(model: Model, name: string): Context {
-      if (this.#isMultipartModel(model)) return {};
+      function getSourceModels(source: Model, visited: Set<Model> = new Set<Model>()): Model[] {
+        const result: Model[] = [];
+        if (visited.has(source)) return [];
+        result.push(source);
+        visited.add(source);
+        for (const candidate of source.sourceModels) {
+          result.push(...getSourceModels(candidate.model, visited));
+        }
+        return result;
+      }
+      function getModelNamespace(model: Model): Namespace | undefined {
+        const sourceModels = getSourceModels(model);
+        if (sourceModels.length === 0) return undefined;
+        return sourceModels
+          .filter((m) => m.namespace !== undefined)
+          .flatMap((s) => s.namespace)
+          .reduce((c, n) => (c === n ? c : undefined));
+      }
+      if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
-      const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-      const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
+      const ns = model.namespace ?? getModelNamespace(model);
+      const modelNamespace = this.#getOrAddNamespace(ns);
       return this.#createModelContext(modelNamespace, modelFile, modelName);
     }
 
     modelInstantiationContext(model: Model): Context {
-      if (this.#isMultipartModel(model)) return {};
+      if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName: string = getModelInstantiationName(
         this.emitter.getProgram(),
         model,
         model.name,
       );
-      const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-      const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
+      const modelNamespace = this.#getOrAddNamespace(model.namespace);
       const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
       context.instantiationName = modelName;
       return context;
@@ -314,12 +553,33 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const program = this.emitter.getProgram();
       const recordType = getRecordType(program, model);
       if (recordType !== undefined) {
-        return code`Dictionary<string, ${this.emitter.emitTypeReference(recordType)}>`;
+        const valueType = this.#getSimpleType(recordType);
+        return code`Dictionary<string, ${valueType ? valueType?.getTypeReference() : this.emitter.emitTypeReference(recordType)}>`;
       }
 
       const context = this.emitter.getContext();
       const className = context.instantiationName ?? name;
       return this.modelDeclaration(model, className);
+    }
+
+    #getSimpleType(type: Type): CSharpType | undefined {
+      switch (type.kind) {
+        case "Model":
+          if (!isRecord(type)) return undefined;
+          return getCSharpType(this.emitter.getProgram(), type)?.type;
+        case "Boolean":
+        case "Intrinsic":
+        case "ModelProperty":
+        case "Number":
+        case "Scalar":
+        case "String":
+        case "StringTemplate":
+        case "StringTemplateSpan":
+        case "Tuple":
+          return getCSharpType(this.emitter.getProgram(), type)?.type;
+        default:
+          return undefined;
+      }
     }
 
     #getMultipartParts(model: Model): Type[] {
@@ -393,19 +653,32 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         nullableType: nullable,
       } = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
-      const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
+      const attributes = new Map<string, Attribute>(
+        getModelAttributes(this.emitter.getProgram(), property, propertyName).map((a) => [
+          a.type.name,
+          a,
+        ]),
+      );
       const modelName: string | undefined = this.emitter.getContext()["name"];
-      if (modelName === propertyName) {
+      if (
+        modelName === propertyName ||
+        (this.isDuplicateExceptionName(propertyName) &&
+          property.model &&
+          isErrorModel(this.emitter.getProgram(), property.model))
+      ) {
         propertyName = `${propertyName}Prop`;
-        attributes.push(
-          getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
-        );
+        const attr = getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!;
+        if (!attributes.has(attr.type.name)) attributes.set(attr.type.name, attr);
       }
-      const defaultValue = property.defaultValue
-        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
-        : typeDefault;
+      const defaultValue =
+        this.#opHelpers.getDefaultValue(
+          this.emitter.getProgram(),
+          property.type,
+          property.defaultValue,
+        ) ?? typeDefault;
+      const attributeList = [...attributes.values()];
       return this.emitter.result
-        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
+        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
         isValueType(this.emitter.getProgram(), property.type) && (property.optional || nullable)
           ? "?"
           : ""
@@ -416,7 +689,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #findPropertyType(property: ModelProperty): EmittedTypeInfo {
-      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type, property);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {
@@ -456,10 +729,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       this.#metadateMap.set(iface, new CSharpType({ name: ifaceName, namespace: namespace }));
       const decl = this.emitter.result.declaration(
         ifaceName,
-        code`${this.#generatedFileHeaderWithNullable}
-
-      ${this.#emitUsings()}
-
+        code`
       namespace ${namespace} {
 
       ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public interface ${ifaceName} {
@@ -474,32 +744,27 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     interfaceDeclarationContext(iface: Interface, name: string): Context {
       // set up interfaces file for declaration
       const ifaceName: string = `I${ensureCSharpIdentifier(this.emitter.getProgram(), iface, name, NameCasingType.Class)}`;
-      const sourceFile = this.emitter.createSourceFile(`operations/${ifaceName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/operations/${ifaceName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
-      const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
-      const modelNamespace = `${ifaceNamespace}.Models`;
-      const context = this.#createModelContext(ifaceNamespace, sourceFile, ifaceName);
-      context.file.imports.set("System", ["System"]);
-      context.file.imports.set("System.Net", ["System.Net"]);
-      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
-      context.file.imports.set("System.Text.Json.Serialization", [
-        "System.Text.Json.Serialization",
-      ]);
-      context.file.imports.set("System.Threading.Tasks", ["System.Threading.Tasks"]);
-      context.file.imports.set("Microsoft.AspNetCore.Mvc", ["Microsoft.AspNetCore.Mvc"]);
+      sourceFile.meta["nullable"] = true;
+      const ifaceNamespace = this.#getOrAddNamespace(iface.namespace);
+      sourceFile.imports.set("System", ["System"]);
+      sourceFile.imports.set("System.Net", ["System.Net"]);
+      sourceFile.imports.set("System.Text.Json", ["System.Text.Json"]);
+      sourceFile.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+      sourceFile.imports.set("System.Threading.Tasks", ["System.Threading.Tasks"]);
+      sourceFile.imports.set("Microsoft.AspNetCore.Mvc", ["Microsoft.AspNetCore.Mvc"]);
       if (this.#hasMultipartOperation(iface)) {
-        context.file.imports.set("Microsoft.AspNetCore.WebUtilities", [
+        sourceFile.imports.set("Microsoft.AspNetCore.WebUtilities", [
           "Microsoft.AspNetCore.WebUtilities",
         ]);
       }
-      context.file.imports.set(modelNamespace, [modelNamespace]);
-      return context;
+      return this.#createModelContext(ifaceNamespace, sourceFile, ifaceName);
     }
 
     interfaceDeclarationOperations(iface: Interface): EmitterOutput<string> {
       // add in operations
       const builder: StringBuilder = new StringBuilder();
-      const metadata = new HttpMetadata();
       const context = this.emitter.getContext();
       const name = `${ensureCSharpIdentifier(
         this.emitter.getProgram(),
@@ -507,14 +772,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         iface.name,
         NameCasingType.Class,
       )}`;
-      const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
-      const namespace = `${ifaceNamespace}`;
+      const ifaceNamespace = this.#getOrAddNamespace(iface.namespace);
+      const namespace = ifaceNamespace;
       const mock: BusinessLogicImplementation = {
         className: name,
         interfaceName: `I${name}`,
         methods: [],
         namespace: namespace,
-        usings: [`${ifaceNamespace}.Models`],
+        usings: [],
       };
       for (const [name, operation] of iface.operations) {
         const doc = getDoc(this.emitter.getProgram(), operation);
@@ -523,11 +788,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         for (const response of httpOp.responses.filter(
           (r) => !isErrorModel(this.emitter.getProgram(), r.type),
         )) {
-          returnTypes.push(
-            metadata.resolveLogicalResponseType(this.emitter.getProgram(), response),
-          );
+          const [_, responseType] = this.#resolveOperationResponse(response, httpOp.operation);
+          returnTypes.push(responseType);
         }
-        const returnInfo = coalesceTypes(this.emitter.getProgram(), returnTypes, context.namespace);
+        const returnInfo = coalesceTypes(this.emitter.getProgram(), returnTypes, namespace);
         const returnType: CSharpType = returnInfo?.type || UnknownType;
         const opName = ensureCSharpIdentifier(
           this.emitter.getProgram(),
@@ -556,6 +820,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         builder.push(code`${opDecl.value}\n`);
         this.emitter.emitInterfaceOperation(operation);
       }
+      mock.usings.push(...getImports(context.scope));
       this.#mockRegistrations.set(mock.interfaceName, mock);
       return builder.reduce();
     }
@@ -718,6 +983,32 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.emitter.result.rawCode(stringTemplate.stringValue || "");
     }
 
+    #resolveOperationResponse(
+      response: HttpOperationResponse,
+      operation: Operation,
+    ): [CSharpType, Type] {
+      function getName(sourceType: Model, part: string): string {
+        return ensureCSharpIdentifier(emitter.getProgram(), sourceType, part, NameCasingType.Class);
+      }
+      let responseType = new HttpMetadata().resolveLogicalResponseType(
+        this.emitter.getProgram(),
+        response,
+      );
+
+      if (responseType.kind === "Model" && !responseType.name) {
+        const modelName = `${getName(responseType, operation.interface!.name)}${getName(responseType, operation.name)}Response}`;
+        const returnedType = this.emitter
+          .getProgram()
+          .checker.cloneType(responseType, { name: modelName });
+        responseType = returnedType;
+      }
+      this.emitter.emitType(responseType);
+
+      const context = this.emitter.getContext();
+      const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
+      return [result?.type || UnknownType, responseType];
+    }
+
     #getOperationResponse(operation: HttpOperation): ResponseInfo | undefined {
       const validResponses = operation.responses.filter(
         (r) =>
@@ -742,51 +1033,41 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       };
     }
     #emitOperationResponses(operation: HttpOperation): EmitterOutput<string> {
-      const builder: StringBuilder = new StringBuilder();
-      let i = 0;
-      const validResponses = operation.responses.filter(
-        (r) =>
-          !isErrorModel(this.emitter.getProgram(), r.type) &&
-          getCSharpStatusCode(r.statusCodes) !== undefined,
-      );
-      for (const response of validResponses) {
-        i++;
-        builder.push(code`${this.#emitOperationResponseDecorator(response)}`);
-        if (i < validResponses.length) {
-          builder.pushLiteralSegment("\n");
-        }
+      function isValid(program: Program, response: HttpOperationResponse) {
+        return (
+          !isErrorModel(program, response.type) &&
+          getCSharpStatusCode(response.statusCodes) !== undefined
+        );
       }
-
+      const builder: StringBuilder = new StringBuilder();
       for (const response of operation.responses) {
-        if (!isEmptyResponseModel(this.emitter.getProgram(), response.type))
-          this.emitter.emitType(response.type);
+        const [responseType, _] = this.#resolveOperationResponse(response, operation.operation);
+        if (isValid(this.emitter.getProgram(), response)) {
+          builder.push(
+            code`${builder.segments.length > 0 ? "\n" : ""}${this.#emitOperationResponseDecorator(response, responseType)}`,
+          );
+        }
       }
 
       return builder.reduce();
     }
 
-    #emitOperationResponseDecorator(response: HttpOperationResponse) {
-      const responseType = new HttpMetadata().resolveLogicalResponseType(
-        this.emitter.getProgram(),
-        response,
-      );
+    #emitOperationResponseDecorator(response: HttpOperationResponse, result: CSharpType) {
       return this.emitter.result.rawCode(
         code`[ProducesResponseType((int)${getCSharpStatusCode(
           response.statusCodes,
-        )!}, Type = typeof(${this.#emitResponseType(responseType)}))]`,
+        )!}, Type = typeof(${this.#emitResponseType(result)}))]`,
       );
     }
 
-    #emitResponseType(type: Type) {
+    #emitResponseType(type: CSharpType) {
       const context = this.emitter.getContext();
-      const result = getCSharpType(this.emitter.getProgram(), type, context.namespace);
-      const resultType = result?.type || UnknownType;
-      return resultType.getTypeReference(context.scope);
+      return type.getTypeReference(context.scope);
     }
 
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {
       const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      if (baseType.isBuiltIn && baseType.name === "string") {
+      if (isStringEnumType(this.emitter.getProgram(), union)) {
         const program = this.emitter.getProgram();
         const unionName = ensureCSharpIdentifier(program, union, name);
         const namespace = this.emitter.getContext().namespace;
@@ -795,10 +1076,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         this.#metadateMap.set(union, new CSharpType({ name: unionName, namespace: namespace }));
         return this.emitter.result.declaration(
           unionName,
-          code`${this.#generatedFileHeader}
-        
-        ${this.#emitUsings()}
-        
+          code`
         namespace ${namespace}
         {
 
@@ -806,31 +1084,30 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             ${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}
             public enum ${unionName}
             {
-              ${this.emitter.emitUnionVariants(union)};
+              ${this.emitter.emitUnionVariants(union)}
             }
         } `,
         );
       }
 
-      return this.emitter.result.rawCode(code`${baseType.getTypeReference()}`);
+      return this.emitter.result.rawCode(
+        code`${baseType.getTypeReference(this.emitter.getContext().scope)}`,
+      );
     }
 
     unionDeclarationContext(union: Union): Context {
-      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      if (baseType.isBuiltIn && baseType.name === "string") {
+      if (isStringEnumType(this.emitter.getProgram(), union)) {
         const unionName = ensureCSharpIdentifier(
           this.emitter.getProgram(),
           union,
           union.name || "Union",
         );
-        const unionFile = this.emitter.createSourceFile(`models/${unionName}.cs`);
+
+        const unionFile = this.emitter.createSourceFile(`generated/models/${unionName}.cs`);
+
         unionFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-        const unionNamespace = `${this.#getOrSetBaseNamespace(union)}.Models`;
-        return {
-          namespace: unionNamespace,
-          file: unionFile,
-          scope: unionFile.globalScope,
-        };
+        const unionNamespace = this.#getOrAddNamespace(union.namespace);
+        return this.#createEnumContext(unionNamespace, unionFile, unionName);
       } else {
         return this.emitter.getContext();
       }
@@ -858,7 +1135,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           );
           this.#metadateMap.set(variant, { name: memberName });
           result.push(
-            code`${ensureCSharpIdentifier(this.emitter.getProgram(), variant, nameHint)} = "${variant.type.value}"`,
+            code`
+            [JsonStringEnumMemberName("${variant.type.value}")]
+            ${ensureCSharpIdentifier(this.emitter.getProgram(), variant, nameHint, NameCasingType.Property)}`,
           );
           if (i < union.variants.size) result.pushLiteralSegment(", ");
         }
@@ -872,35 +1151,32 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #createModelContext(namespace: string, file: SourceFile<string>, name: string): Context {
+      file.imports.set("System", ["System"]);
+      file.imports.set("System.Text.Json", ["System.Text.Json"]);
+      file.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+      file.imports.set("TypeSpec.Helpers.JsonConverters", ["TypeSpec.Helpers.JsonConverters"]);
+      file.imports.set("TypeSpec.Helpers", ["TypeSpec.Helpers"]);
+      file.meta[this.#nsKey] = namespace;
       const context = {
         namespace: namespace,
         name: name,
         file: file,
         scope: file.globalScope,
       };
-      context.file.imports.set("System", ["System"]);
-      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
-      context.file.imports.set("System.Text.Json.Serialization", [
-        "System.Text.Json.Serialization",
-      ]);
-      context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
-        "TypeSpec.Helpers.JsonConverters",
-      ]);
+
       return context;
     }
 
     #createEnumContext(namespace: string, file: SourceFile<string>, name: string): Context {
-      const context = {
+      file.imports.set("System.Text.Json", ["System.Text.Json"]);
+      file.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+
+      return {
         namespace: namespace,
         name: name,
         file: file,
         scope: file.globalScope,
       };
-      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
-      context.file.imports.set("System.Text.Json.Serialization", [
-        "System.Text.Json.Serialization",
-      ]);
-      return context;
     }
 
     #createOrGetResourceContext(
@@ -914,36 +1190,33 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         name,
         NameCasingType.Class,
       );
-      let context: ControllerContext | undefined = controllers.get(name);
+      const namespace = this.#getOrAddNamespace(operation.namespace);
+      let context: ControllerContext | undefined = controllers.get(`${namespace}.${name}`);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
-        `controllers/${name}Controller.cs`,
+        `generated/controllers/${name}Controller.cs`,
       );
 
-      const namespace = this.#getOrSetBaseNamespace(operation);
-      const modelNamespace = `${namespace}.Models`;
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Controller;
       sourceFile.meta["resourceName"] = name;
       sourceFile.meta["resource"] = `${name}Controller`;
       sourceFile.meta["namespace"] = namespace;
+      sourceFile.imports.set("System", ["System"]);
+      sourceFile.imports.set("System.Net", ["System.Net"]);
+      sourceFile.imports.set("System.Threading.Tasks", ["System.Threading.Tasks"]);
+      sourceFile.imports.set("System.Text.Json", ["System.Text.Json"]);
+      sourceFile.imports.set("System.Text.Json.Serialization", ["System.Text.Json.Serialization"]);
+      sourceFile.imports.set("Microsoft.AspNetCore.Mvc", ["Microsoft.AspNetCore.Mvc"]);
+      sourceFile.imports.set(namespace, [namespace]);
+      sourceFile.meta[this.#nsKey] = namespace;
       context = {
-        namespace: sourceFile.meta["namespace"],
+        namespace: namespace,
         file: sourceFile,
         resourceName: name,
         scope: sourceFile.globalScope,
         resourceType: resource,
       };
-      context.file.imports.set("System", ["System"]);
-      context.file.imports.set("System.Net", ["System.Net"]);
-      context.file.imports.set("System.Threading.Tasks", ["System.Threading.Tasks"]);
-      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
-      context.file.imports.set("System.Text.Json.Serialization", [
-        "System.Text.Json.Serialization",
-      ]);
-      context.file.imports.set("Microsoft.AspNetCore.Mvc", ["Microsoft.AspNetCore.Mvc"]);
-      context.file.imports.set(modelNamespace, [modelNamespace]);
-      context.file.imports.set(namespace, [namespace]);
-      controllers.set(name, context);
+      controllers.set(`${namespace}.${name}`, context);
       return context;
     }
 
@@ -978,13 +1251,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
-      for (const libFile of this.#libraryFiles) {
-        if (sourceFile === libFile.source) return libFile.emitted;
-      }
-      if (this.#mockFiles.length > 0) {
-        for (const mock of this.#mockFiles) {
-          if (sourceFile === mock.source) return mock.emitted;
-        }
+      if (sourceFile.meta.emitted) {
+        return sourceFile.meta.emitted;
       }
 
       const emittedSourceFile: EmittedSourceFile = {
@@ -1006,8 +1274,19 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #emitCodeContents(file: SourceFile<string>): string {
       const contents: StringBuilder = new StringBuilder();
+      contents.pushLiteralSegment(`${file.meta["nullable"] ? this.#generatedFileHeaderWithNullable : this.#generatedFileHeader}
+        
+        ${this.#emitUsings(file)}
+        `);
       for (const decl of file.globalScope.declarations) {
         contents.push(decl.value);
+      }
+      for (const child of file.globalScope.childScopes) {
+        if (child.declarations) {
+          for (const decl of child.declarations) {
+            contents.push(decl.value);
+          }
+        }
       }
 
       return contents.segments.join("\n") + "\n";
@@ -1088,12 +1367,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return "";
     }
 
-    writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
-      for (const source of this.#libraryFiles) {
-        sourceFiles.push(source.source);
-      }
+    async writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
+      sourceFiles.push(...getSerializationSourceFiles(this.emitter).flatMap((l) => l.source));
+      sourceFiles.push(
+        ...getProjectDocs(this.emitter, this.#useSwagger, this.#mockRegistrations).flatMap(
+          (l) => l.source,
+        ),
+      );
 
-      if (this.#emitMocks === "all") {
+      if (this.#emitMocks === "mocks-and-project-files" || this.#emitMocks === "mocks-only") {
         if (this.#mockRegistrations.size > 0) {
           const mocks = getBusinessLogicImplementations(
             this.emitter,
@@ -1101,11 +1383,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             this.#useSwagger,
             this.#openapiPath,
           );
-          this.#mockFiles.push(...mocks);
+
           sourceFiles.push(...mocks.flatMap((l) => l.source));
         }
       }
-
+      async function shouldWrite(source: SourceFile<string>, exists: FileExists): Promise<boolean> {
+        return (
+          !source.meta.conditional || options.overwrite === true || !(await exists(source.path))
+        );
+      }
       const emittedSourceFiles: SourceFile<string>[] = [];
       for (const source of sourceFiles) {
         switch (this.#emitterOutputType) {
@@ -1116,36 +1402,21 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   // do nothing
                   break;
                 default:
-                  emittedSourceFiles.push(source);
+                  if (await shouldWrite(source, this.#fileExists)) {
+                    emittedSourceFiles.push(source);
+                  }
                   break;
               }
             }
             break;
           default:
-            emittedSourceFiles.push(source);
+            if (await shouldWrite(source, this.#fileExists)) {
+              emittedSourceFiles.push(source);
+            }
             break;
         }
       }
       return super.writeOutput(emittedSourceFiles);
-    }
-
-    #getOrSetBaseNamespace(type: Type & { namespace?: Namespace }): string {
-      if (this.#baseNamespace === undefined) {
-        if (type.namespace !== undefined) {
-          this.#baseNamespace = `${
-            type.namespace
-              ? ensureCSharpIdentifier(
-                  this.emitter.getProgram(),
-                  type.namespace,
-                  getNamespaceFullName(type.namespace),
-                )
-              : "TypeSpec"
-          }.Service`;
-        } else {
-          this.#baseNamespace = "TypeSpec.Service";
-        }
-      }
-      return this.#baseNamespace;
     }
   }
 
@@ -1178,7 +1449,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           }
         }
         const iface: Interface = program.checker.createAndFinishType({
-          node: undefined as any,
           sourceInterfaces: [],
           decorators: [],
           operations: createRekeyableMap(nsOps),
@@ -1217,17 +1487,84 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     CSharpCodeEmitter,
     context,
   );
-  const ns = context.program.checker.getGlobalNamespaceType();
+  const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
+
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
-    await ensureCleanDirectory(context.program, options.emitterOutputDir);
+    const outputDir = options.emitterOutputDir;
+    const generatedDir = path.join(outputDir, "generated");
+    await ensureCleanDirectory(context.program, generatedDir);
+
+    function normalizeSlashes(path: string) {
+      return path.replaceAll("\\", "/");
+    }
+
+    async function getOpenApiPath(): Promise<string> {
+      if (options["openapi-path"]) return options["openapi-path"];
+      const openApiSettings = await getOpenApiConfig(context.program);
+      const projectDir = resolvePath(context.program.projectRoot, outputDir);
+      if (openApiSettings.outputDir) {
+        const openApiPath = resolvePath(
+          openApiSettings.outputDir,
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      if (openApiSettings.emitted) {
+        const baseDir =
+          context.program.compilerOptions.outputDir ||
+          resolvePath(context.program.projectRoot, "tsp-output");
+        const openApiPath = resolvePath(
+          baseDir,
+          "@typespec",
+          "openapi3",
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      return "";
+    }
+    const openApiPath = await getOpenApiPath();
+    const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
+    let httpPort: number | undefined;
+    let httpsPort: number | undefined;
+
+    if (options["emit-mocks"] !== "none") {
+      getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
+    }
+    if (options["emit-mocks"] === "mocks-and-project-files") {
+      httpPort = options["http-port"] || (await getFreePort(5000, 5999));
+      httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
+
+      getProjectHelpers(
+        emitter,
+        options["project-name"] || "ServiceProject",
+        options["use-swaggerui"] || false,
+        httpPort,
+        httpsPort,
+      );
+    }
+
     await emitter.writeOutput();
+    const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
+
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
+    if (options["use-swaggerui"] === true && httpsPort) {
+      trace(
+        `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
+      );
+    }
+
     if (options["skip-format"] === undefined || options["skip-format"] === false) {
       await execFile("dotnet", [
         "format",
         "whitespace",
-        emitter.getOptions().emitterOutputDir,
+        outputDir,
         "--include-generated",
         "--folder",
       ]);

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
@@ -36,9 +39,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateTestClient()
         {
-            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
-            MockHelpers.LoadMockPlugin(httpMessageApi: TestHttpMessageApi.Instance);
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", InputFactory.Operation("foo"));
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(httpMessageApi: TestHttpMessageApi.Instance);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
             return clientProvider!;
         }

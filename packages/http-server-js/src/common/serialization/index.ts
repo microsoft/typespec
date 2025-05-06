@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Model, NoTarget, Scalar, Type, Union } from "@typespec/compiler";
+import { Enum, Model, NoTarget, Type, Union } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
-import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
 import { createOrGetModuleForNamespace } from "../namespace.js";
 import { emitTypeReference } from "../reference.js";
 import { emitJsonSerialization, requiresJsonSerialization } from "./json.js";
 
-export type SerializableType = Model | Scalar | Union;
+export type SerializableType = Model | Union | Enum;
 
 export function isSerializableType(t: Type): t is SerializableType {
-  return t.kind === "Model" || t.kind === "Scalar" || t.kind === "Union";
+  return t.kind === "Model" || t.kind === "Union" || t.kind === "Intrinsic" || t.kind === "Enum";
 }
 
 export type SerializationContentType = "application/json";
@@ -24,8 +24,11 @@ export function requireSerialization(
   type: Type,
   contentType: SerializationContentType,
 ): void {
-  if (!isSerializableType(type)) {
-    throw new UnimplementedError(`no implementation of JSON serialization for type '${type.kind}'`);
+  if (!isSerializableType(type)) return;
+
+  // Ignore array and record types
+  if ($(ctx.program).array.is(type) || $(ctx.program).record.is(type)) {
+    return requireSerialization(ctx, (type as Model).indexer!.value, contentType);
   }
 
   let serializationsForType = _SERIALIZATIONS_MAP.get(type);
@@ -55,9 +58,15 @@ export function emitSerialization(ctx: JsContext): void {
     const serializations = _SERIALIZATIONS_MAP.get(type)!;
 
     const requiredSerializations = new Set<SerializationContentType>(
-      [...serializations].filter((serialization) =>
-        isSerializationRequired(ctx, type, serialization),
-      ),
+      [...serializations].filter((serialization) => {
+        const isSynthetic = ctx.syntheticNames.has(type) || !type.namespace;
+
+        const module = isSynthetic
+          ? ctx.syntheticModule
+          : createOrGetModuleForNamespace(ctx, type.namespace!);
+
+        return isSerializationRequired(ctx, module, type, serialization);
+      }),
     );
 
     if (requiredSerializations.size > 0) {
@@ -68,12 +77,13 @@ export function emitSerialization(ctx: JsContext): void {
 
 export function isSerializationRequired(
   ctx: JsContext,
+  module: Module,
   type: Type,
   serialization: SerializationContentType,
 ): boolean {
   switch (serialization) {
     case "application/json": {
-      return requiresJsonSerialization(ctx, type);
+      return requiresJsonSerialization(ctx, module, type);
     }
     default:
       throw new Error(`Unreachable: serialization content type ${serialization satisfies never}`);

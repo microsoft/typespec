@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
@@ -174,12 +174,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 objParameter
                     .Is(new DeclarationExpression(Type, "other", out var other))
                     .And(This.Invoke(nameof(Equals), [other])),
-                this));
+                this,
+                XmlDocProvider.InheritDocs));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
                 Modifiers: MethodSignatureModifiers.Public,
@@ -195,11 +196,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var equalsExpressionBody = IsStringValueType
                             ? Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
                             : Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue]);
-            methods.Add(new(equalsSignature, equalsExpressionBody, this));
+            methods.Add(new(equalsSignature, equalsExpressionBody, this, XmlDocProvider.InheritDocs));
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
                 ReturnDescription: null,
@@ -221,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(string),
                 ReturnDescription: null,
@@ -241,7 +242,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
+            return CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
     }

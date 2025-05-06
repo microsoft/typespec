@@ -5,9 +5,7 @@
 This spec defines a server that has a host template and and endpoint to fill it out.
 
 ```tsp
-@service({
-  title: "Parametrized Endpoint",
-})
+@service(#{ title: "Parametrized Endpoint" })
 @server(
   "{endpoint}/server/path/multiple/{apiVersion}",
   "Test server with path parameters.",
@@ -26,7 +24,7 @@ op noOperationParams(): NoContentResponse;
 The client context should use the parameters to build the baseUrl using the template.
 
 ```ts src/api/testClientContext.ts
-import { Client, ClientOptions, getClient } from "@typespec/ts-http-runtime";
+import { type Client, type ClientOptions, getClient } from "@typespec/ts-http-runtime";
 
 export interface TestClientContext extends Client {}
 export interface TestClientOptions extends ClientOptions {

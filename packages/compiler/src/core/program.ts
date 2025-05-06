@@ -1,6 +1,5 @@
 import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
-import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
@@ -12,7 +11,8 @@ import {
   resolveModule,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
+import { findProjectRoot } from "../utils/io.js";
+import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
@@ -74,22 +74,32 @@ import {
 
 export interface Program {
   compilerOptions: CompilerOptions;
+  /** @internal */
   mainFile?: TypeSpecScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, TypeSpecScriptNode>;
   jsSourceFiles: Map<string, JsSourceFileNode>;
+
+  /** @internal */
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
+  /**
+   * **DANGER** Using the checker is reserved for advanced usage and should be used with caution.
+   * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
+   */
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
+  /** @internal */
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
+  /** @internal */
   onValidate(
     cb: (program: Program) => void | Promise<void>,
     LibraryMetadata: LibraryMetadata,
   ): void;
+  /** @internal */
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   /** @internal */
@@ -100,10 +110,16 @@ export interface Program {
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
+
+  /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
 
   getGlobalNamespaceType(): Namespace;
+
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /** @internal */
+  resolveTypeOrValueReference(reference: string): [Entity | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
@@ -120,6 +136,7 @@ interface EmitterRef {
   metadata: LibraryMetadata;
   emitterOutputDir: string;
   options: Record<string, unknown>;
+  readonly library: LibraryInstance;
 }
 
 interface Validator {
@@ -159,6 +176,10 @@ export async function compile(
 
   // Emitter stage
   for (const emitter of program.emitters) {
+    // If in dry mode run and an emitter doesn't support it we have to skip it.
+    if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
+      continue;
+    }
     await emit(emitter, program);
 
     if (options.listFiles) {
@@ -215,6 +236,8 @@ async function createProgram(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    /** @internal */
+    resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
@@ -234,10 +257,10 @@ async function createProgram(
 
   await loadSources(resolvedMain);
 
-  const emit = options.emit;
+  const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
 
-  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
+  await loadEmitters(basedir, emit, emitterOptions ?? {});
 
   if (
     oldProgram &&
@@ -249,7 +272,6 @@ async function createProgram(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-  setCurrentProgram(program);
 
   const resolver = createResolver(program);
   resolver.resolveProgram();
@@ -530,6 +552,7 @@ async function createProgram(
         metadata,
         emitterOutputDir,
         options: emitterOptions,
+        library,
       };
     } else {
       program.trace(
@@ -888,6 +911,20 @@ async function createProgram(
     mutate(node).parent = resolver.symbols.global.declarations[0];
     resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
+  }
+
+  function resolveTypeOrValueReference(
+    reference: string,
+  ): [Entity | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return program.checker.resolveTypeOrValueReference(node);
   }
 }
 

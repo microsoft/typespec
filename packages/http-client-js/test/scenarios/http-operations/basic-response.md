@@ -5,9 +5,7 @@ This test verifies that a response with status `204` and no body is correctly ha
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -48,9 +46,7 @@ This test verifies that a response with a body containing a `Widget` model is co
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -72,7 +68,7 @@ interface Widgets {
 
 This function converts the received JSON response into a `Widget` instance.
 
-```ts src/models/serializers.ts function jsonWidgetToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonWidgetToApplicationTransform
 export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;
@@ -115,9 +111,7 @@ This test verifies that a response with multiple status codes (`200` and `204`) 
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -172,9 +166,7 @@ This test verifies that a response with multiple content types is correctly hand
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 model Widget {

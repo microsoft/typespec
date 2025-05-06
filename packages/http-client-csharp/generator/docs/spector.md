@@ -41,7 +41,7 @@ The `SpectorTest` attribute will dynamically determine if the library is stubbed
 
 ## Testing Spector scenarios
 
-All of this is automated into a script called `./eng/scripts/Test-Spector.ps1`. This script will find all generated Spector projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test which will cause tests using the `SpectorTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
+All of this is automated into a script called `./eng/scripts/Test-Spector.ps1`. This script will find all generated Spector projects and regenerate each of them without using the `StubLibraryGenerator`. It will then run dotnet test which will cause tests using the `SpectorTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
 
 <details>
 <Summary>Here is an example output for one library</Summary>
@@ -75,7 +75,7 @@ Regenerating authentication\api-key
 TypeSpec compiler v0.64.0
 
 trace @typespec/http-client-csharp.info: Checking if C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key/src/Authentication.ApiKey.csproj exists
-trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/repos/typespec/packages/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key -p ScmCodeModelPlugin
+trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/repos/typespec/packages/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key -p ScmCodeModelGenerator
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenTypeAttribute.cs
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenMemberAttribute.cs
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenSuppressAttribute.cs
@@ -186,11 +186,11 @@ Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Gener
 
 ## Debugging generation of a Spector library
 
-If you want to debug the generation of one of the Spector libraries you can do this with the `StubLibraryPlugin`. There are launch settings for each Spector test which are already configured to use this plugin.
+If you want to debug the generation of one of the Spector libraries you can do this with the `StubLibraryGenerator`. There are launch settings for each Spector test which are already configured to use this generator.
 
 ![alt text](launch-settings.png)
 
-The plugin does not skip generating the methods bodies and xml docs it simply removes them before saving the files to disk. Therefore you can break at any point and debug any part of the full generation without needing to constantly flip the plugin being used back and forth.
+The generator does not skip generating the methods bodies and xml docs it simply removes them before saving the files to disk. Therefore you can break at any point and debug any part of the full generation without needing to constantly flip the generator being used back and forth.
 
 ## Debugging Spector tests
 

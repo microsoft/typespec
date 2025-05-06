@@ -3,9 +3,7 @@
 ## Typespec
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 namespace Test;
 alias MultipleRequestParameters = {
   @path
@@ -33,7 +31,7 @@ op spreadWithMultipleParameters(...MultipleRequestParameters): NoContentResponse
 
 ## Typescript
 
-When spreading a model an anonymous model created in the type graph, the emitted operation should have the serializer expression inline. No serializer function for this operation is expected in src/models/serializers.ts
+When spreading a model an anonymous model created in the type graph, the emitted operation should have the serializer expression inline. No serializer function for this operation is expected in src/models/internal/serializers.ts
 
 ```ts src/api/testClientOperations.ts function spreadWithMultipleParameters
 export async function spreadWithMultipleParameters(

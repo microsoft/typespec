@@ -1,4 +1,3 @@
-import { formatLog } from "./logger/console-sink.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -33,26 +32,8 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
   }
 }
 
-export interface FormatDiagnosticOptions {
-  readonly pretty?: boolean;
-  readonly pathRelativeTo?: string;
-}
-
-export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
-  return formatLog(
-    {
-      code: diagnostic.code,
-      level: diagnostic.severity,
-      message: diagnostic.message,
-      url: diagnostic.url,
-      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
-      related: getRelatedLocations(diagnostic),
-    },
-    { pretty: options?.pretty ?? false, pathRelativeTo: options?.pathRelativeTo },
-  );
-}
-
-function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
+/** @internal */
+export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
   return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
     return {
       message: "occurred while instantiating template",
@@ -294,6 +275,13 @@ export interface DiagnosticCollector {
    * @example return diagnostics.wrap(routes);
    */
   wrap<T>(value: T): DiagnosticResult<T>;
+
+  /**
+   * Join the given result with the diagnostics in this collector.
+   * @param result - result to join with the diagnostics
+   * @returns - the result with the combined diagnostics
+   */
+  join<T>(result: DiagnosticResult<T>): DiagnosticResult<T>;
 }
 
 /**
@@ -307,6 +295,7 @@ export function createDiagnosticCollector(): DiagnosticCollector {
     add,
     pipe,
     wrap,
+    join,
   };
 
   function add(diagnostic: Diagnostic) {
@@ -322,6 +311,14 @@ export function createDiagnosticCollector(): DiagnosticCollector {
   }
 
   function wrap<T>(value: T): DiagnosticResult<T> {
+    return [value, diagnostics];
+  }
+
+  function join<T>(result: DiagnosticResult<T>): DiagnosticResult<T> {
+    const [value, diags] = result;
+    for (const diag of diags) {
+      diagnostics.push(diag);
+    }
     return [value, diagnostics];
   }
 }

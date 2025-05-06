@@ -20,7 +20,7 @@ export interface Foo {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -31,7 +31,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
@@ -74,7 +74,7 @@ export interface Bar {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -85,7 +85,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;

@@ -6,7 +6,8 @@ import {
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
+import { doIO } from "../utils/io.js";
+import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
@@ -382,8 +383,11 @@ export async function loadJsFile(
 export function moduleResolutionErrorToDiagnostic(
   e: ResolveModuleError,
   specifier: string,
-  target: DiagnosticTarget | typeof NoTarget,
+  sourceTarget: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
+  const target: DiagnosticTarget | typeof NoTarget = e.pkgJson
+    ? { file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path), pos: 0, end: 0 }
+    : sourceTarget;
   switch (e.code) {
     case "MODULE_NOT_FOUND":
       return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });

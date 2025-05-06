@@ -98,7 +98,7 @@ const recordNonDiscriminatedUnion3Body = {
     end: "2021-01-02T00:00:00Z",
   },
 };
-function createServerTests(url: string, value: any) {
+function createServerTests(url: string, value: unknown) {
   return {
     get: passOnSuccess({
       uri: url,
@@ -114,7 +114,7 @@ function createServerTests(url: string, value: any) {
       uri: url,
       method: `put`,
       request: {
-        body: value,
+        body: json(value),
       },
       response: {
         status: 204,
@@ -432,14 +432,14 @@ Scenarios.Type_Property_AdditionalProperties_SpreadRecordUnion_get =
 Scenarios.Type_Property_AdditionalProperties_SpreadRecordUnion_put =
   Type_Property_Additional_Properties_Spread_Record_Union.put;
 
-const Type_Property_Additional_Properties_Spread_Record_Discriminated_Union = createServerTests(
-  `/type/property/additionalProperties/spreadRecordDiscriminatedUnion`,
-  recordDiscriminatedUnionBody,
-);
-Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get =
-  Type_Property_Additional_Properties_Spread_Record_Discriminated_Union.get;
-Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put =
-  Type_Property_Additional_Properties_Spread_Record_Discriminated_Union.put;
+// const Type_Property_Additional_Properties_Spread_Record_Discriminated_Union = createServerTests(
+//   `/type/property/additionalProperties/spreadRecordDiscriminatedUnion`,
+//   recordDiscriminatedUnionBody,
+// );
+// Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get =
+//   Type_Property_Additional_Properties_Spread_Record_Discriminated_Union.get;
+// Scenarios.Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put =
+//   Type_Property_Additional_Properties_Spread_Record_Discriminated_Union.put;
 
 const Type_Property_Additional_Properties_Spread_Record_Non_Discriminated_Union = createServerTests(
   `/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion`,

@@ -1,3 +1,7 @@
+// import "./pre-extension-activate" first for the code that needs to run before others
+// sort-imports-ignore
+import "./pre-extension-activate.js";
+
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
@@ -6,11 +10,16 @@ import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listen
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { createTaskProvider } from "./task-provider.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
+import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
+  RestartServerCommandResult,
+  Result,
+  ResultCode,
   SettingName,
 } from "./types.js";
 import { isWhitespaceStringOrUndefined } from "./utils.js";
@@ -30,6 +39,8 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
+  telemetryClient.Initialize(stateManager);
+  context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());
 
@@ -53,14 +64,21 @@ export async function activate(context: ExtensionContext) {
 
   /* emit command. */
   context.subscriptions.push(
-    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+    commands.registerCommand(CommandName.EmitCode, async (uri: vscode.Uri) => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: "Generate from TypeSpec...",
+          title: "Emit from TypeSpec...",
           cancellable: false,
         },
-        async () => await emitCode(context, uri),
+        async () => {
+          await telemetryClient.doOperationWithTelemetry<ResultCode>(
+            TelemetryEventName.EmitCode,
+            async (tel): Promise<ResultCode> => {
+              return await emitCode(context, uri, tel);
+            },
+          );
+        },
       );
     }),
   );
@@ -68,26 +86,35 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       CommandName.RestartServer,
-      async (args: RestartServerCommandArgs | undefined): Promise<TspLanguageClient> => {
+      async (args: RestartServerCommandArgs | undefined): Promise<RestartServerCommandResult> => {
         return vscode.window.withProgress(
           {
             title: args?.notificationMessage ?? "Restarting TypeSpec language service...",
             location: vscode.ProgressLocation.Notification,
           },
           async () => {
-            if (args?.forceRecreate === true) {
-              logger.info("Forcing to recreate TypeSpec LSP server...");
-              return await recreateLSPClient(context);
-            }
-            if (client && client.state === State.Running) {
-              await client.restart();
-              return client;
-            } else {
-              logger.info(
-                "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
-              );
-              return recreateLSPClient(context);
-            }
+            return await telemetryClient.doOperationWithTelemetry(
+              TelemetryEventName.RestartServer,
+              async (tel) => {
+                if (args?.forceRecreate === true) {
+                  logger.info("Forcing to recreate TypeSpec LSP server...");
+                  tel.lastStep = "Recreate LSP client in force";
+                  return await recreateLSPClient(context, tel.activityId);
+                }
+                if (client && client.state === State.Running) {
+                  tel.lastStep = "Restart LSP client";
+                  await client.restart();
+                  return { code: ResultCode.Success, value: client };
+                } else {
+                  logger.info(
+                    "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
+                  );
+                  tel.lastStep = "Recreate LSP client";
+                  return await recreateLSPClient(context, tel.activityId);
+                }
+              },
+              args?.activityId,
+            );
           },
         );
       },
@@ -105,7 +132,7 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
-      await createTypeSpecProject(client, stateManager);
+      await createTypeSpecProject(context, stateManager);
     }),
   );
 
@@ -117,7 +144,12 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.ShowOpenApi3, async (uri: vscode.Uri) => {
-      await showOpenApi3(uri, context, client!);
+      await telemetryClient.doOperationWithTelemetry(
+        TelemetryEventName.PreviewOpenApi3,
+        async (tel): Promise<ResultCode> => {
+          return await showOpenApi3(uri, context, client!, tel);
+        },
+      );
     }),
   );
 
@@ -125,7 +157,12 @@ export async function activate(context: ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(async (e: vscode.ConfigurationChangeEvent) => {
       if (e.affectsConfiguration(SettingName.TspServerPath)) {
         logger.info("TypeSpec server path changed, restarting server...");
-        await recreateLSPClient(context);
+        await telemetryClient.doOperationWithTelemetry(
+          TelemetryEventName.ServerPathSettingChanged,
+          async (tel) => {
+            return await recreateLSPClient(context, tel.activityId);
+          },
+        );
       }
     }),
   );
@@ -167,13 +204,20 @@ export async function activate(context: ExtensionContext) {
         location: vscode.ProgressLocation.Notification,
       },
       async () => {
-        await recreateLSPClient(context);
+        await telemetryClient.doOperationWithTelemetry(
+          TelemetryEventName.StartExtension,
+          async (tel: OperationTelemetryEvent) => {
+            tel.lastStep = "Create LSP client";
+            return await recreateLSPClient(context, tel.activityId);
+          },
+        );
       },
     );
   } else {
     logger.info("No workspace opened, Skip starting TypeSpec language service.");
   }
   showStartUpMessages(stateManager);
+  telemetryClient.sendDelayedTelemetryEvents();
 }
 
 export async function deactivate() {
@@ -181,13 +225,23 @@ export async function deactivate() {
   await clearOpenApi3PreviewTempFolders();
 }
 
-async function recreateLSPClient(context: ExtensionContext) {
+async function recreateLSPClient(
+  context: ExtensionContext,
+  activityId: string,
+): Promise<Result<TspLanguageClient>> {
   logger.info("Recreating TypeSpec LSP server...");
   const oldClient = client;
-  client = await TspLanguageClient.create(context, outputChannel);
+  client = await TspLanguageClient.create(activityId, context, outputChannel);
   await oldClient?.stop();
-  await client.start();
-  return client;
+  await client.start(activityId);
+  if (client.state === State.Running) {
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      compilerVersion: client.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+    });
+    return { code: ResultCode.Success, value: client };
+  } else {
+    return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+  }
 }
 
 function showStartUpMessages(stateManager: ExtensionStateManager) {
@@ -198,6 +252,7 @@ function showStartUpMessages(stateManager: ExtensionStateManager) {
       if (isWhitespaceStringOrUndefined(msg.detail)) {
         logger.log(msg.level, msg.popupMessage, [], {
           showPopup: true,
+          popupButtonText: "",
         });
       } else {
         const SHOW_DETAIL = "View Details in Output";

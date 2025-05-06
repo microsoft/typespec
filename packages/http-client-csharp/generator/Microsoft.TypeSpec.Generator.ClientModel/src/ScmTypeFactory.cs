@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private ExtensibleEnumSerializationProvider[] CreateExtensibleEnumSerializations(InputEnumType inputEnumType, TypeProvider typeProvider)
         {
             // if the underlying type is string, we don't need to generate serialization methods as we use ToString
-            if (ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType == typeof(string))
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType == typeof(string))
             {
                 return [];
             }
@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             client = CreateClientCore(inputClient);
 
-            foreach (var visitor in ScmCodeModelPlugin.Instance.Visitors)
+            foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
@@ -105,23 +105,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
+        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
         /// </summary>
-        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="serviceMethod">The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
-        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {
-            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
-            var visitors = ScmCodeModelPlugin.Instance.Visitors;
+            ScmMethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
+            var visitors = ScmCodeModelGenerator.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
-                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                    methods = scmVisitor.Visit(serviceMethod, enclosingType, methods);
                 }
             }
             return methods;

@@ -5,7 +5,7 @@ import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { resolvePath } from "../core/path-utils.js";
 import type { Type } from "../core/types.js";
-import { findProjectRoot } from "../utils/misc.js";
+import { findProjectRoot } from "../utils/io.js";
 import {
   BasicTestRunner,
   TestHost,

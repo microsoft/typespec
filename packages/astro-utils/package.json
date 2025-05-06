@@ -22,14 +22,14 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.11",
-    "astro": "^5.4.2"
+    "astro": "^5.5.6"
   },
   "peerDependencies": {
-    "astro": "^5.4.2"
+    "astro": "^5.5.6"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/starlight": "^0.32.2",
+    "@astrojs/starlight": "^0.32.4",
     "@expressive-code/core": "^0.40.2",
     "@typespec/playground": "workspace:^",
     "astro-expressive-code": "^0.40.2",

@@ -28,9 +28,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            var span = CodeModelPlugin.Instance.Configuration.PackageName.AsSpan();
+            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
             if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelPlugin.Instance.Configuration.PackageName, ModelFactorySuffix);
+                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
 
             Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
             int j = 0;
@@ -52,13 +52,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+        protected override string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
         protected override XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement(
-                [$"A factory class for creating instances of the models for mocking."]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement(
+                [$"A factory class for creating instances of the models for mocking."]));
+
             return docs;
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
                     continue;
@@ -115,13 +115,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"A new {modelProvider.Type:C} instance for mocking.",
                     GetParameters(modelProvider, fullConstructor));
 
-                var docs = new XmlDocProvider();
-                docs.Summary = modelProvider.XmlDocs?.Summary;
-                docs.Returns = new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking.");
+                var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)
                 {
-                    docs.Params.Add(new XmlDocParamStatement(param));
+                    parameters.Add(new XmlDocParamStatement(param));
                 }
+
+                var docs = new XmlDocProvider(
+                    modelProvider.XmlDocs.Summary,
+                    parameters,
+                    returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
                 var statements = new MethodBodyStatements(
                 [

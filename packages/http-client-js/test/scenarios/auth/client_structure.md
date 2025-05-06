@@ -3,9 +3,7 @@
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "My API",
-})
+@service(#{ title: "My API" })
 @useAuth(BearerAuth)
 namespace MyApi;
 
@@ -29,7 +27,7 @@ export class MyApiClient {
   #context: MyApiClientContext;
   fooClient: FooClient;
   barClient: BarClient;
-  constructor(endpoint: string, credential: KeyCredential, options?: MyApiClientOptions) {
+  constructor(endpoint: string, credential: BasicCredential, options?: MyApiClientOptions) {
     this.#context = createMyApiClientContext(endpoint, credential, options);
     this.fooClient = new FooClient(endpoint, credential, options);
     this.barClient = new BarClient(endpoint, credential, options);

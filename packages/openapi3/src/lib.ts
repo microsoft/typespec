@@ -184,8 +184,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   required: [],
 };
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
+  capabilities: {
+    dryRun: true,
+  },
   diagnostics: {
     "oneof-union": {
       severity: "error",
@@ -216,6 +219,7 @@ export const libDef = {
       severity: "warning",
       messages: {
         default: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to style 'simple'.`,
+        optionalPath: paramMessage`Style '${"style"}' is not supported in OpenAPI3 ${"paramType"} parameters. The style ${"style"} could be introduced by an optional parameter. Defaulting to style 'simple'.`,
       },
     },
     "path-reserved-expansion": {
@@ -327,9 +331,7 @@ export const libDef = {
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
-} as const;
-
-export const $lib = createTypeSpecLibrary(libDef);
+});
 export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

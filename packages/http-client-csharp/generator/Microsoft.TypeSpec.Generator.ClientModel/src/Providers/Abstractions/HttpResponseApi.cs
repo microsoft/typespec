@@ -21,6 +21,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract ScopedApi<bool> IsError();
 
+        public abstract ScopedApi<bool> TryGetHeader(string name, out ScopedApi<string>? value);
+
         public abstract CSharpType HttpResponseType { get; }
 
         public abstract HttpResponseApi FromExpression(ValueExpression original);

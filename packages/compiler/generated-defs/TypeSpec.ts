@@ -16,7 +16,6 @@ import type {
 
 export interface ServiceOptions {
   readonly title?: string;
-  readonly version?: string;
 }
 
 export interface DiscriminatedOptions {
@@ -40,6 +39,37 @@ export interface VisibilityFilter {
   readonly all?: readonly EnumValue[];
   readonly none?: readonly EnumValue[];
 }
+
+/**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+export type MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  mediaType: string,
+) => void;
 
 /**
  * Specify how to encode the target type.
@@ -591,7 +621,7 @@ export type DiscriminatedDecorator = (
  */
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
-  target: Model | Union,
+  target: Model,
   propertyName: string,
 ) => void;
 
@@ -1002,8 +1032,13 @@ export type DefaultVisibilityDecorator = (
  * This transformation is recursive, so it will also apply the filter to any nested
  * or referenced models that are the types of any properties in the `target`.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the visibility filter to.
  * @param filter The visibility filter to apply to the properties of the target model.
+ * @param nameTemplate The name template to use when renaming new model instances.
  * @example
  * ```typespec
  * model Dog {
@@ -1023,6 +1058,7 @@ export type WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
   filter: VisibilityFilter,
+  nameTemplate?: string,
 ) => void;
 
 /**
@@ -1033,7 +1069,12 @@ export type WithVisibilityFilterDecorator = (
  * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
  * fully updated.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the transformation to.
+ * @param nameTemplate The name template to use when renaming new model instances.
  * @example
  * ```typespec
  * model Dog {
@@ -1052,9 +1093,14 @@ export type WithVisibilityFilterDecorator = (
  * }
  * ```
  */
-export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
+export type WithLifecycleUpdateDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  nameTemplate?: string,
+) => void;
 
 export type TypeSpecDecorators = {
+  mediaTypeHint: MediaTypeHintDecorator;
   encode: EncodeDecorator;
   doc: DocDecorator;
   withOptionalProperties: WithOptionalPropertiesDecorator;

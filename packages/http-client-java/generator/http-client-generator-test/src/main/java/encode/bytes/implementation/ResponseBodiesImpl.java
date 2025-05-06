@@ -154,7 +154,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -163,11 +163,11 @@ public final class ResponseBodiesImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return represent a byte array along with {@link Response} on successful completion of {@link Mono}.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> defaultMethodWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "application/octet-stream";
         return FluxUtil
             .withContext(context -> service.defaultMethod(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -178,7 +178,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -187,11 +187,11 @@ public final class ResponseBodiesImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return represent a byte array along with {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> defaultMethodWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "application/octet-stream";
         return service.defaultMethodSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 

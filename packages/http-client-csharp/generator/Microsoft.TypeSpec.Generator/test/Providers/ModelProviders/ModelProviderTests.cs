@@ -18,14 +18,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [SetUp]
         public void Setup()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
+        {
+            var baseProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [baseProp1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var derivedProp1 = InputFactory.Property("prop1", new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "TypeSpec.string"));
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [derivedProp1], baseModel: derivedModel1);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithNew()
+        {
+            var stringProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [stringProp1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var intProp1 = InputFactory.Property("prop1", InputPrimitiveType.Int32);
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [intProp1], baseModel: derivedModel1);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.New, derivedModel2Provider.Properties[0].Modifiers);
+            var baseModelProvider = new ModelProvider(baseModel);
+            var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.NotNull(prop1Field);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
         }
 
         // Validates that the property body's setter is correctly set based on the property type
         [TestCaseSource(nameof(BuildProperties_ValidatePropertySettersTestCases))]
         public void TestBuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => type);
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => type);
 
             var props = new[]
             {
@@ -67,8 +100,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties: baseProperties,
                 additionalProperties: additionalProperties);
 
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
             Assert.NotNull(baseModel);
             Assert.NotNull(derivedModel);
@@ -99,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 usage: InputModelTypeUsage.Input,
                 properties: properties);
 
-            var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
 
             Assert.NotNull(model);
             Assert.IsNotNull(model);
@@ -189,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputFactory.Property("optionalUnknown", InputPrimitiveType.Any)
              };
 
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
@@ -243,8 +276,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 derivedModels: [inputDerived],
                 additionalProperties: additionalProperties);
 
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
             Assert.NotNull(baseModel);
             var baseCtors = baseModel!.Constructors;
@@ -343,8 +376,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inputDerived = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Input, properties: []);
             var inputBase = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Input, properties: [], derivedModels: [inputDerived]);
 
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputBase);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputDerived);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputBase);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputDerived);
 
             Assert.AreEqual(baseModel!.Type, derivedModel!.Type.BaseType);
         }
@@ -358,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputFactory.Property("OptionalInt", InputPrimitiveType.Int32)
             };
 
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (InputType inputType) =>
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
@@ -525,11 +558,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void DuplicatePropertyHasVirtualAndOverrideKeyword()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -551,11 +584,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void OptionalityChangeNarrowPropertyHasNewKeyword()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -577,11 +610,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void TypeChangeNarrowPropertyHasNewKeyWord()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int64)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -602,11 +635,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void BaseHasFieldWhenPropertyIsNarrowed()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int64)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -620,11 +653,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void DerivedUsesExpressionBodyPropertyWhenNarrowed()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int64)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -641,11 +674,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void DerivedExpressionBodyDoesNotHaveSetterWhenNarrowed()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32, isReadOnly: true)]);
             var baseInputModel = InputFactory.Model("baseModel", usage: InputModelTypeUsage.Output, properties: [InputFactory.Property("prop1", InputPrimitiveType.Int64, isReadOnly: true)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -662,12 +695,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void InitCtorShouldAssignBaseFieldDerivedRequired()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -693,12 +726,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void SerializationCtorShouldNotAssignBaseFieldDerivedRequired()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -721,12 +754,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void InitCtorShouldNotAssignBaseFieldBothRequired()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -746,12 +779,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void SerializationCtorShouldNotAssignBaseField()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -770,12 +803,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void SerializationCtorShouldNotDuplicateBaseProperties()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -788,12 +821,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void SerializationCtorInitializerHasToStringForEnumParam()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -809,7 +842,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public void InitCtorInitializerShouldHaveCorrectParamName()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.Int32, isRequired: true)]);
             var baseInputModel = InputFactory.Model(
                 "baseModel",
@@ -819,8 +852,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     InputFactory.Property("prop1", InputPrimitiveType.Int64)
                 ],
                 derivedModels: [derivedInputModel]);
-            var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(baseInputModel);
+            var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
+            var baseModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
 
             Assert.IsNotNull(derivedModel);
             Assert.IsNotNull(baseModel);
@@ -832,6 +865,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
             Assert.AreEqual("baseOnlyProp", initializer.Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void TestBuildModelWithNonBodyPropertyKinds()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model(
+               "ModelWithNonBodyPropertyKinds",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
+                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
+                    InputFactory.Property("snake", InputFactory.Enum("snake", InputPrimitiveType.String, isExtensible: true), isRequired: true, isReadOnly: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+               ]);
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+
+            var primaryCtor = modelProvider!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(primaryCtor);
+            Assert.AreEqual(4, primaryCtor!.Signature.Parameters.Count);
+
+            var properties = modelProvider.Properties;
+            Assert.IsNotNull(properties);
+            Assert.AreEqual(5, properties.Count);
+
+            // validate snake
+            var snake = properties.FirstOrDefault(p => p.Name.Equals("Snake"));
+            Assert.IsNotNull(snake);
+            var snakeBody = snake!.Body;
+            Assert.IsNotNull(snakeBody);
+            Assert.IsFalse(snakeBody!.HasSetter);
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String, doc: "This is prop1")]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var writer = new TypeProviderWriter(modelTypeProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

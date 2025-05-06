@@ -94,12 +94,22 @@ export async function initTypeSpecProjectWorker(
     await host.logSink.trackAction!(
       "Installing dependencies",
       "Dependencies installed",
-      async () =>
-        await installTypeSpecDependencies(host, {
+      async (task) => {
+        const diagnostics = await installTypeSpecDependencies(host, {
           directory,
           stdio: "pipe",
           savePackageManager: true,
-        }),
+        });
+
+        if (diagnostics.length > 0) {
+          if (diagnostics.some((d) => d.severity === "error")) {
+            task.fail();
+          } else {
+            task.warn();
+          }
+          logDiagnostics(diagnostics);
+        }
+      },
     );
   }
 
@@ -107,7 +117,7 @@ export async function initTypeSpecProjectWorker(
   success("Project initialized!");
 
   // eslint-disable-next-line no-console
-  console.log(`Run ${pc.cyan(`tsp compile .`)} to run TypeSpec.`);
+  console.log(`Run ${pc.cyan(`tsp compile .`)} to build the project.`);
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console

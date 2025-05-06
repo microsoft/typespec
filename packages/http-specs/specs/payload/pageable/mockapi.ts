@@ -1,4 +1,6 @@
 import {
+  dyn,
+  dynItem,
   json,
   MockRequest,
   passOnSuccess,
@@ -45,11 +47,11 @@ const FirstResponseTokenInHeader = {
 };
 
 const RequestTokenInQuery = {
-  params: { token: "page2", bar: "bar" },
+  query: { token: "page2", bar: "bar" },
   headers: { foo: "foo" },
 };
 
-const RequestTokenInHeader = { headers: { token: "page2", foo: "foo" }, params: { bar: "bar" } };
+const RequestTokenInHeader = { headers: { token: "page2", foo: "foo" }, query: { bar: "bar" } };
 
 function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
   const uri = `/payload/pageable/server-driven-pagination/continuationtoken/request-${reqInfo}-response-${resInfo}`;
@@ -77,7 +79,7 @@ function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
     {
       uri: uri,
       method: "get",
-      request: { headers: { foo: "foo" }, params: { bar: "bar" } },
+      request: { headers: { foo: "foo" }, query: { bar: "bar" } },
       response: resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody,
       handler: createHandler(),
       kind: "MockApiDefinition",
@@ -102,17 +104,8 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
       status: 200,
       body: json({
         pets: FirstPage,
-        next: "/payload/pageable/server-driven-pagination/link/nextPage",
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
       }),
-    },
-    handler: (req: MockRequest) => {
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-          next: `${req.baseUrl}/payload/pageable/server-driven-pagination/link/nextPage`,
-        }),
-      };
     },
     kind: "MockApiDefinition",
   },

@@ -1,5 +1,38 @@
 # Change Log - @typespec/bundler
 
+## 0.4.1
+
+### Bug Fixes
+
+- [#6839](https://github.com/microsoft/typespec/pull/6839) Fix bundler on windows
+
+
+## 0.4.0
+
+### Features
+
+- [#6733](https://github.com/microsoft/typespec/pull/6733) Migrate bundler build system to esbuild
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
+## 0.3.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6302](https://github.com/microsoft/typespec/pull/6302) Bundler respect `import` exports
+
+
 ## 0.2.1
 
 No changes, version bump only.

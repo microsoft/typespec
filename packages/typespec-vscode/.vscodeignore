@@ -6,12 +6,12 @@
 
 # Then explicitly include what we want to ship in VSIX
 !dist/**/*.tmLanguage
-!dist/**/*.js
-!dist/**/*.cjs
-!dist/**/*.js.map
+!dist/src/**/*.js
+!dist/src/**/*.cjs
+!dist/src/**/*.js.map
+!dist/swagger-ui*.js
 !dist/**/*.css
 !dist/**/language-configuration.json
-dist/test/
 
 !markdown-typespec.json
 !README.md
@@ -20,3 +20,4 @@ dist/test/
 !icons/
 !snippets.json
 !swagger-ui/
+!templates/

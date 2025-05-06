@@ -1,4 +1,5 @@
-import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
+import { doIO, loadFile } from "../utils/io.js";
+import { resolveTspMain } from "../utils/misc.js";
 import { DiagnosticHandler } from "./diagnostics.js";
 import { resolvePath } from "./path-utils.js";
 import { CompilerHost } from "./types.js";

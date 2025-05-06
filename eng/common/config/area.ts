@@ -16,6 +16,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "meta:website": ["website/"],
   tspd: ["packages/tspd/"],
   "emitter:client:all": [],
+  "emitter:client:js": ["packages/http-client-js/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:client:java": ["packages/http-client-java/"],
   "emitter:client:python": ["packages/http-client-python/"],
@@ -36,7 +37,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 /**
  * Path that should trigger every CI build.
  */
-const all = ["eng/common/", "vitest.config.ts"];
+const all = ["eng/common/", "vitest.config.ts", "tsconfig.base.json"];
 
 /**
  * Path that should trigger all isolated emitter builds

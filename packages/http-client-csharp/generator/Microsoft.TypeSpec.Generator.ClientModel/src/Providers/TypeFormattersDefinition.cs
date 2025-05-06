@@ -64,7 +64,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var toStringBool = new MethodProvider(
                 boolSignature,
                 new TernaryConditionalExpression(boolValueParameter, Literal("true"), Literal("false")),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var dateTimeParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
@@ -85,7 +86,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), TypeFormattersSnippets.ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), formatParameter)),
                     SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(new FormattableStringExpression($"DateTime {{0}} has a Kind of {{1}}. {sdkName} it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.", [dateTimeValue, dateTimeValueKind]))))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var dateTimeOffsetParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
             var dateTimeOffsetSignature = new MethodSignature(
@@ -107,7 +109,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("R"), dateTimeOffsetValue.InvokeToString(Literal("r"), _invariantCultureExpression)),
                     SwitchCaseExpression.Default(dateTimeOffsetValue.InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var timeSpanParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
             var timeSpanSignature = new MethodSignature(
@@ -124,7 +127,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("P"), Static<XmlConvert>().Invoke(nameof(XmlConvert.ToString), [timeSpanParameter])),
                     SwitchCaseExpression.Default(timeSpanParameter.As<TimeSpan>().InvokeToString(formatParameter, _invariantCultureExpression))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var byteArrayParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
             var byteArraySignature = new MethodSignature(
@@ -142,7 +146,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("D"), Static(typeof(Convert)).Invoke(nameof(Convert.ToBase64String), [byteArrayValue])),
                     SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(formatParameter, new FormattableStringExpression("Format is not supported: '{0}'", [formatParameter]))))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             return
             [
@@ -202,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(New.Instance(typeof(string), output, Int(0), i))
             });
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildFromBase64UrlString()
@@ -252,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(Static(typeof(Convert)).Invoke(nameof(Convert.FromBase64CharArray), [output, Int(0), outputLength]))
             });
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildParseDateTimeOffsetMethodProvider()
@@ -274,7 +279,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("U"), DateTimeOffsetSnippets.FromUnixTimeSeconds(LongSnippets.Parse(valueParameter, invariantCulture))),
                     SwitchCaseExpression.Default(DateTimeOffsetSnippets.Parse(valueParameter, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildParseTimeSpanMethodProvider()
@@ -295,7 +301,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new(Literal("P"), Static(typeof(XmlConvert)).Invoke(nameof(XmlConvert.ToTimeSpan), [valueParameter])),
                     SwitchCaseExpression.Default(TimeSpanSnippets.ParseExact(valueParameter, formatParameter, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
                 ]),
-                this);
+                this,
+                XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildConvertToStringMethodProvider()
@@ -328,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SwitchCaseExpression.Default(value.InvokeToString())
             ]);
 
-            return new(signature, body, this);
+            return new(signature, body, this, XmlDocProvider.Empty);
         }
 
         private static ValueExpression GetTypePattern(IReadOnlyList<CSharpType> types)

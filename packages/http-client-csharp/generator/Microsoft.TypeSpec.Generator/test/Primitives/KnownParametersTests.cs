@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
     {
         public KnownParametersTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

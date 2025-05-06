@@ -90,7 +90,7 @@ describe("rest: routes", () => {
   it("automatically generates routes for operations in various scopes when specified", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       @route("/api")
       namespace Things {
@@ -575,12 +575,13 @@ describe("uri template", () => {
   describe("build uriTemplate from parameter", () => {
     it.each([
       ["@path one: string", "/foo/{one}"],
+      ["@path one?: string", "/foo{/one}"],
       ["@path(#{allowReserved: true}) one: string", "/foo/{+one}"],
       ["@path(#{explode: true}) one: string", "/foo/{one*}"],
       [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
       [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
       [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
-      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
       // cspell:ignore Atwo

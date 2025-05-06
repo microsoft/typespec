@@ -5,9 +5,7 @@ A typical request with path, query header and body parameters. The body is model
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -70,6 +68,7 @@ It should generate the client class with the read operation that calls the opera
 ```ts src/demoServiceClient.ts class WidgetsClient
 export class WidgetsClient {
   #context: WidgetsClientContext;
+
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }

@@ -15,10 +15,11 @@ import {
   Type,
   TypeMapper,
 } from "../core/types.js";
-import { CustomKeyMap } from "../emitter-framework/custom-key-map.js";
+import { $ } from "../typekit/index.js";
+import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
+import { useStateMap } from "../utils/state-accessor.js";
 import { Realm } from "./realm.js";
-import { $ } from "./typekit/index.js";
 
 // #region Types
 
@@ -357,6 +358,21 @@ interface MutatorWithOptions<T extends MutableTypeWithNamespace> {
   replaceFn: MutatorReplaceFn<T> | null;
 }
 
+const [getAlwaysMutate, _setAlwaysMutate] = useStateMap<Type, boolean>(
+  Symbol.for("TypeSpec.Mutators.alwaysMutate"),
+);
+
+/**
+ * Set to true to always mutate a type, even if filtering logic would exclude it.
+ *
+ * This is a hack to allow core types to be mutated when they are unfinished template instances.
+ *
+ * @internal
+ */
+export function setAlwaysMutate(program: Program, type: Type, alwaysMutate: boolean = true) {
+  _setAlwaysMutate(program, type, alwaysMutate);
+}
+
 function createMutatorEngine(
   program: Program,
   mutators: MutatorAll[],
@@ -487,7 +503,12 @@ function createMutatorEngine(
       return existing as T;
     }
     // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
-    if (getLocationContext(program, type).type === "compiler" && !isTemplateInstance(type)) {
+    const alwaysMutate = getAlwaysMutate(program, type);
+    if (
+      !alwaysMutate &&
+      getLocationContext(program, type).type === "compiler" &&
+      !isTemplateInstance(type)
+    ) {
       return type;
     }
     let clone: MutableTypeWithNamespace | null = null;
@@ -701,6 +722,7 @@ function createMutatorEngine(
       for (const arg of dec.args) {
         const jsValue =
           typeof arg.jsValue === "object" &&
+          arg.jsValue !== null &&
           isType(arg.jsValue as any) &&
           isMutableTypeWithNamespace(arg.jsValue as any)
             ? mutateSubgraphWorker(arg.jsValue as any, newMutators)

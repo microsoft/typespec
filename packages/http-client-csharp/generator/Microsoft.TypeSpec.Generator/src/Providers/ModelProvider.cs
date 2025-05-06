@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputModel.BaseModel is not null)
             {
-                _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
+                _baseTypeProvider = new(() => CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
         }
@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add discriminated subtypes
             foreach (var subtype in _inputModel.DiscriminatedSubtypes)
             {
-                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(subtype.Value);
                 if (model != null)
                 {
                     derivedModels.Add(model);
@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add derived models
             foreach (var derivedModel in _inputModel.DerivedModels)
             {
-                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedModel);
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel);
                 if (model != null)
                 {
                     derivedModels.Add(model);
@@ -123,8 +123,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
             // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
-            CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace :
-            CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
+            CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace :
+            CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
         protected override CSharpType? GetBaseType()
         {
@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputModel, this)];
+            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputModel, this)];
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -214,11 +214,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
                 {
-                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    if (!DomainEqual(property, derivedProperty))
                     {
                         fields.Add(new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.Protected,
-                            CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type)!,
+                            CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(property.Type)!,
                             $"_{property.Name.ToVariableName()}",
                             this));
                     }
@@ -233,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (_inputModel.AdditionalProperties != null)
             {
-                var valueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
+                var valueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
                 if (valueType != null)
                 {
                     if (valueType.IsUnion)
@@ -304,7 +304,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return properties;
             }
 
-            var apValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
+            var apValueType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties);
             if (apValueType == null)
             {
                 return properties;
@@ -350,7 +350,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
         {
             Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
-            foreach (var derivedModel in _inputModel.DerivedModels)
+            var derivedModels = new List<InputModelType>();
+            EnumerateDerivedModels(_inputModel, derivedModels);
+            foreach (var derivedModel in derivedModels)
             {
                 var derivedModelProperties = derivedModel.Properties;
                 if (derivedModelProperties.Count > 0)
@@ -361,12 +363,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return derivedProperties;
         }
 
+        private void EnumerateDerivedModels(InputModelType inputModel, List<InputModelType> derivedModels)
+        {
+            foreach (var derivedModel in inputModel.DerivedModels)
+            {
+                derivedModels.Add(derivedModel);
+                EnumerateDerivedModels(derivedModel, derivedModels);
+            }
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-
-            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -375,7 +385,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (property.IsDiscriminator && property.Name == baseModelDiscriminator?.Name)
                     continue;
 
-                var outputProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(property, this);
+                var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
                     continue;
 
@@ -384,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                     if (derivedProperty is not null)
                     {
-                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                        if (DomainEqual(property, derivedProperty))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
@@ -392,7 +402,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
-                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
@@ -405,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                                 outputProperty.Body.HasSetter ? This.Property(fieldName).Assign(Value) : null);
                             outputProperty.BackingField = BaseModelProvider?.Fields.FirstOrDefault(f => f.Name == fieldName);
                         }
-                        outputProperty.BaseProperty = CodeModelPlugin.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
+                        outputProperty.BaseProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(baseProperty, BaseModelProvider!);
                     }
                 }
                 properties.Add(outputProperty);
@@ -419,8 +429,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. properties];
         }
 
+        private IEnumerable<InputModelType> EnumerateBaseModels()
+        {
+            var model = _inputModel;
+            while (model.BaseModel != null)
+            {
+                yield return model.BaseModel;
+                model = model.BaseModel;
+            }
+        }
+
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
         {
+            if (baseProperty.Type.Name != derivedProperty.Type.Name)
+                return false;
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
             var baseNullable = baseProperty.Type is InputNullableType;
@@ -619,7 +641,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         if (_inputModel.BaseModel.DiscriminatorProperty!.Type is InputEnumType inputEnumType)
                         {
-                            var discriminatorProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
+                            var discriminatorProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
 
                             var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
                                              ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");

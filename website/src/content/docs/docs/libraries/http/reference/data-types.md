@@ -110,7 +110,7 @@ model TypeSpec.Http.BasicAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"basic"`                     | basic auth scheme   |
+| scheme | `"Basic"`                     | basic auth scheme   |
 
 ### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
@@ -131,7 +131,7 @@ model TypeSpec.Http.BearerAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"bearer"`                    | bearer auth scheme  |
+| scheme | `"Bearer"`                    | bearer auth scheme  |
 
 ### `Body` {#TypeSpec.Http.Body}
 
@@ -217,25 +217,133 @@ model TypeSpec.Http.CreatedResponse
 
 ### `File` {#TypeSpec.Http.File}
 
-```typespec
-model TypeSpec.Http.File
+A file in an HTTP request, response, or multipart payload.
+
+Files have a special meaning that the HTTP library understands. When the body of an HTTP request, response,
+or multipart payload is _effectively_ an instance of `TypeSpec.Http.File` or any type that extends it, the
+operation is treated as a file upload or download.
+
+When using file bodies, the fields of the file model are defined to come from particular locations by default:
+
+- `contentType`: The `Content-Type` header of the request, response, or multipart payload (CANNOT be overridden or changed).
+- `contents`: The body of the request, response, or multipart payload (CANNOT be overridden or changed).
+- `filename`: The `filename` parameter value of the `Content-Disposition` header of the response or multipart payload
+  (MAY be overridden or changed).
+
+A File may be used as a normal structured JSON object in a request or response, if the request specifies an explicit
+`Content-Type` header. In this case, the entire File model is serialized as if it were any other model. In a JSON payload,
+it will have a structure like:
+
+```
+{
+  "contentType": <string?>,
+  "filename": <string?>,
+  "contents": <string, base64>
+}
 ```
 
-#### Properties
+The `contentType` _within_ the file defines what media types the data inside the file can be, but if the specification
+defines a `Content-Type` for the payload as HTTP metadata, that `Content-Type` metadata defines _how the file is
+serialized_. See the examples below for more information.
 
-| Name         | Type     | Description |
-| ------------ | -------- | ----------- |
-| contentType? | `string` |             |
-| filename?    | `string` |             |
-| contents     | `bytes`  |             |
+NOTE: The `filename` and `contentType` fields are optional. Furthermore, the default location of `filename`
+(`Content-Disposition: <disposition>; filename=<filename>`) is only valid in HTTP responses and multipart payloads. If
+you wish to send the `filename` in a request, you must use HTTP metadata decorators to describe the location of the
+`filename` field. You can combine the metadata decorators with `@visibility` to control when the `filename` location
+is overridden, as shown in the examples below.
+
+```typespec
+model TypeSpec.Http.File<ContentType, Contents>
+```
+
+#### Template Parameters
+
+| Name        | Description                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| ContentType | The allowed media (MIME) types of the file contents.                                           |
+| Contents    | The type of the file contents. This can be `string`, `bytes`, or any scalar that extends them. |
+
+#### Examples
+
+```tsp
+// Download a file
+@get op download(): File;
+
+// Upload a file
+@post op upload(@bodyRoot file: File): void;
+```
+
+```tsp
+// Upload and download files in a multipart payload
+op multipartFormDataUpload(
+  @multipartBody fields: {
+    files: HttpPart<File>[];
+  },
+): void;
+
+op multipartFormDataDownload(): {
+  @multipartBody formFields: {
+    files: HttpPart<File>[];
+  };
+};
+```
+
+```tsp
+// Declare a custom type of text file, where the filename goes in the path
+// in requests.
+model SpecFile extends File<"application/json" | "application/yaml", string> {
+  // Provide a header that contains the name of the file when created or updated
+  @header("x-filename")
+  @path
+  filename: string;
+}
+
+@get op downloadSpec(@path name: string): SpecFile;
+
+@post op uploadSpec(@bodyRoot spec: SpecFile): void;
+```
+
+```tsp
+// Declare a custom type of binary file
+model ImageFile extends File {
+  contentType: "image/png" | "image/jpeg";
+  @path filename: string;
+}
+
+@get op downloadImage(@path name: string): ImageFile;
+
+@post op uploadImage(@bodyRoot image: ImageFile): void;
+```
+
+````tsp
+// Use a File as a structured JSON object. The HTTP library will warn you that the File will be serialized as JSON,
+// so you should suppress the warning if it's really what you want instead of a binary file upload/download.
+
+// The response body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<string>}`
+@get op downloadTextFileJson(): {
+  @header contentType: "application/json",
+  @body file: File<"text/plain", string>,
+};
+
+// The request body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<base64>}`
+@post op uploadBinaryFileJson(
+  @header contentType: "application/json",
+  @body file: File<"image/png", bytes>,
+): void;
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| contentType? | `ContentType` | The allowed media (MIME) types of the file contents.<br /><br />In file bodies, this value comes from the `Content-Type` header of the request or response. In JSON bodies,<br />this value is serialized as a field in the response.<br /><br />NOTE: this is not _necessarily_ the same as the `Content-Type` header of the request or response, but<br />it will be for file bodies. It may be different if the file is serialized as a JSON object. It always refers to the<br />_contents_ of the file, and not necessarily the way the file itself is transmitted or serialized. |
+| filename? | `string` | The name of the file, if any.<br /><br />In file bodies, this value comes from the `filename` parameter of the `Content-Disposition` header of the response<br />or multipart payload. In JSON bodies, this value is serialized as a field in the response.<br /><br />NOTE: By default, `filename` cannot be sent in request payloads and can only be sent in responses and multipart<br />payloads, as the `Content-Disposition` header is not valid in requests. If you want to send the `filename` in a request,<br />you must extend the `File` model and override the `filename` property with a different location defined by HTTP metadata<br />decorators. |
+| contents | `Contents` | The contents of the file.<br /><br />In file bodies, this value comes from the body of the request, response, or multipart payload. In JSON bodies,<br />this value is serialized as a field in the response. |
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
 Access is forbidden.
-
 ```typespec
 model TypeSpec.Http.ForbiddenResponse
-```
+````
 
 #### Properties
 
@@ -253,11 +361,10 @@ model TypeSpec.Http.HeaderOptions
 
 #### Properties
 
-| Name     | Type                                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| -------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name?    | `string`                                                              | Name of the header when sent over HTTP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| explode? | `boolean`                                                             | Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Primitive value = 5 \| Array = [3, 4, 5] \| Object = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| ------------------- \| ----------------- \| ----------------------------------------------- \|<br />\| simple \| false \| `5   ` \| `3,4,5` \| `role,admin,firstName,Alex` \|<br />\| simple \| true \| `5` \| `3,4,5` \| `role=admin,firstName=Alex` \| |
-| format?  | `"csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used.<br />**DEPRECATED**: use explode: true instead of `csv` or `@encode`                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Name     | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?    | `string`  | Name of the header when sent over HTTP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| explode? | `boolean` | Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Primitive value = 5 \| Array = [3, 4, 5] \| Object = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| ------------------- \| ----------------- \| ----------------------------------------------- \|<br />\| simple \| false \| `5   ` \| `3,4,5` \| `role,admin,firstName,Alex` \|<br />\| simple \| true \| `5` \| `3,4,5` \| `role=admin,firstName=Alex` \| |
 
 ### `HttpPart` {#TypeSpec.Http.HttpPart}
 
@@ -332,6 +439,96 @@ model TypeSpec.Http.LocationHeader
 | Name     | Type     | Description                                                                                         |
 | -------- | -------- | --------------------------------------------------------------------------------------------------- |
 | location | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
+
+### `MergePatchCreateOrUpdate` {#TypeSpec.Http.MergePatchCreateOrUpdate}
+
+Create a MergePatch Request body for creating or updating the given resource Model.
+The MergePatch request created by this template provides a TypeSpec description of a
+JSON MergePatch request that can successfully create or update the given resource.
+The transformation follows the definition of JSON MergePatch requests in
+rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+applying the merge-patch transform recursively to keyed types in the resource Model.
+
+Using this template in a PATCH request body overrides the `implicitOptionality`
+setting for PATCH operations and sets `application/merge-patch+json` as the request
+content-type.
+
+```typespec
+model TypeSpec.Http.MergePatchCreateOrUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description                                                                                                                                                                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| T            | The type of the resource to create a MergePatch update request body for.                                                                                                                                                                                                             |
+| NameTemplate | A StringTemplate used to name any models created by applying<br />the merge-patch transform to the resource. The default name template is `{name}MergePatchCreateOrUpdate`,<br />for example, the merge patch transform of model `Widget` is named `WidgetMergePatchCreateOrUpdate`. |
+
+#### Examples
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@body request: MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@bodyRoot request: MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(...MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+#### Properties
+
+None
+
+### `MergePatchUpdate` {#TypeSpec.Http.MergePatchUpdate}
+
+Create a MergePatch Request body for updating the given resource Model.
+The MergePatch request created by this template provides a TypeSpec description of a
+JSON MergePatch request that can successfully update the given resource.
+The transformation follows the definition of JSON MergePatch requests in
+rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+applying the merge-patch transform recursively to keyed types in the resource Model.
+
+Using this template in a PATCH request body overrides the `implicitOptionality`
+setting for PATCH operations and sets `application/merge-patch+json` as the request
+content-type.
+
+```typespec
+model TypeSpec.Http.MergePatchUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description                                                                                                                                                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T            | The type of the resource to create a MergePatch update request body for.                                                                                                                                                                                             |
+| NameTemplate | A StringTemplate used to name any models created by applying<br />the merge-patch transform to the resource. The default name template is `{name}MergePatchUpdate`,<br />for example, the merge patch transform of model `Widget` is named `WidgetMergePatchUpdate`. |
+
+#### Examples
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@body request: MergePatchUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@bodyRoot request: MergePatchUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(...MergePatchUpdate<Widget>): Widget;
+```
+
+#### Properties
+
+None
 
 ### `MovedResponse` {#TypeSpec.Http.MovedResponse}
 
@@ -549,11 +746,10 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name     | Type                                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| -------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| name?    | `string`                                                              | Name of the query when included in the url.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| explode? | `boolean`                                                             | If true send each value in the array/object as a separate query parameter.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| -------------- \| ---------------------- \| ----------------------- \| -------------------------------------------------- \|<br />\| simple \| false \| `/users{?id}` \| `/users?id=5` \| `/users?id=3,4,5` \| `/users?id=role,admin,firstName,Alex` \|<br />\| simple \| true \| `/users{?id*}` \| `/users?id=5` \| `/users?id=3&id=4&id=5` \| `/users?role=admin&firstName=Alex` \| |
-| format?  | `"multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used.<br />**DEPRECATED**: use explode: true instead of `multi` or `@encode`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Name     | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| name?    | `string`  | Name of the query when included in the url.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| explode? | `boolean` | If true send each value in the array/object as a separate query parameter.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| -------------- \| ---------------------- \| ----------------------- \| -------------------------------------------------- \|<br />\| simple \| false \| `/users{?id}` \| `/users?id=5` \| `/users?id=3,4,5` \| `/users?id=role,admin,firstName,Alex` \|<br />\| simple \| true \| `/users{?id*}` \| `/users?id=5` \| `/users?id=3&id=4&id=5` \| `/users?role=admin&firstName=Alex` \| |
 
 ### `Response` {#TypeSpec.Http.Response}
 

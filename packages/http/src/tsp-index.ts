@@ -1,4 +1,5 @@
 import { TypeSpecHttpDecorators } from "../generated-defs/TypeSpec.Http.js";
+import { TypeSpecHttpPrivateDecorators } from "../generated-defs/TypeSpec.Http.Private.js";
 import {
   $body,
   $bodyIgnore,
@@ -8,7 +9,6 @@ import {
   $get,
   $head,
   $header,
-  $includeInapplicableMetadataInPayload,
   $multipartBody,
   $patch,
   $path,
@@ -21,6 +21,13 @@ import {
   $statusCode,
   $useAuth,
 } from "./decorators.js";
+import { $applyMergePatch, $mergePatchModel, $mergePatchProperty } from "./merge-patch.js";
+import {
+  $httpFile,
+  $httpPart,
+  $includeInapplicableMetadataInPayload,
+  $plainData,
+} from "./private.decorators.js";
 
 export { $lib } from "./lib.js";
 export { $onValidate } from "./validate.js";
@@ -36,7 +43,6 @@ export const $decorators = {
     get: $get,
     header: $header,
     head: $head,
-    includeInapplicableMetadataInPayload: $includeInapplicableMetadataInPayload,
     multipartBody: $multipartBody,
     patch: $patch,
     path: $path,
@@ -49,4 +55,13 @@ export const $decorators = {
     statusCode: $statusCode,
     useAuth: $useAuth,
   } satisfies TypeSpecHttpDecorators,
+  "TypeSpec.Http.Private": {
+    httpFile: $httpFile,
+    httpPart: $httpPart,
+    plainData: $plainData,
+    includeInapplicableMetadataInPayload: $includeInapplicableMetadataInPayload,
+    applyMergePatch: $applyMergePatch,
+    mergePatchModel: $mergePatchModel,
+    mergePatchProperty: $mergePatchProperty,
+  } satisfies TypeSpecHttpPrivateDecorators,
 };

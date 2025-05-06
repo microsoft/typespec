@@ -18,13 +18,13 @@ We understand that change can be challenging, and we appreciate your patience an
 
   - Package names
 
-| Old Package Name    | Old Namespace        | New Package Name   | New Namespace            |
-| ------------------- | -------------------- | ------------------ | ------------------------ |
-| @cadl-lang/compiler | using Cadl;          | @typespec/compiler | using TypeSpec;          |
-| @cadl-lang/rest     | using Cadl.Http;     | @typespec/http;    | using TypeSpec.Http;     |
-| @cadl-lang/rest     | using Cadl.Rest;     | @typespec/rest     | using TypeSpec.Rest;     |
-| @cadl-lang/openapi  | using Cadl.OpenApi;  | @typespec/openapi  | using TypeSpec.OpenApi;  |
-| @cadl-lang/openapi3 | using Cadl.OpenApi3; | @typespec/openapi3 | using TypeSpec.OpenApi3; |
+| Old Package Name    | Old Namespace        | New Package Name   | New Namespace   |
+| ------------------- | -------------------- | ------------------ | --------------- |
+| @cadl-lang/compiler | using Cadl;          | @typespec/compiler | using TypeSpec; |
+| @cadl-lang/rest     | using Cadl.Http;     | @typespec/http;    | using Http;     |
+| @cadl-lang/rest     | using Cadl.Rest;     | @typespec/rest     | using Rest;     |
+| @cadl-lang/openapi  | using Cadl.OpenApi;  | @typespec/openapi  | using OpenAPI;  |
+| @cadl-lang/openapi3 | using Cadl.OpenApi3; | @typespec/openapi3 | using OpenAPI3; |
 
 - File extension:
 

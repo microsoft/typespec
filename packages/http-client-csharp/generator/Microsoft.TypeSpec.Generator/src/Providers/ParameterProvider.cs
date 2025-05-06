@@ -54,17 +54,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
-            var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
-            if (!inputParameter.IsRequired && !type.IsCollection)
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
+            if (!inputParameter.IsRequired)
             {
-                type = type.WithNullable(true);
-                DefaultValue = Snippet.Null;
+                type = !type.IsCollection ? type.WithNullable(true) : type;
+                DefaultValue = Snippet.Default;
             }
             Type = type;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
                 ? ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
-            WireInfo = new WireInformation(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
+            WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();
         }
 

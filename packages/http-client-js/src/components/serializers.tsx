@@ -1,4 +1,7 @@
 import * as ts from "@alloy-js/typescript";
+import { Type } from "@typespec/compiler";
+import { type Typekit } from "@typespec/compiler/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import {
   DateDeserializer,
   DateRfc3339Serializer,
@@ -18,6 +21,7 @@ export interface ModelSerializersProps {
 }
 
 export function ModelSerializers(props: ModelSerializersProps) {
+  const { $ } = useTsp();
   const clientLibrary = useClientLibrary();
   const dataTypes = clientLibrary.dataTypes;
   const flatClients = clientLibrary.topLevel.flatMap((c) => flattenClients(c));
@@ -40,12 +44,31 @@ export function ModelSerializers(props: ModelSerializersProps) {
       ))}
       {dataTypes
         .filter((m) => m.kind === "Model" || m.kind === "Union")
-        .map((type) => (
-          <EncodingProvider defaults={{ bytes: "base64" }}>
-            <JsonTransformDeclaration type={type} target="transport" />
-            <JsonTransformDeclaration type={type} target="application" />
-          </EncodingProvider>
-        ))}
+        .map((type) => {
+          let bytesDefaultEncoding: "base64" | "none" = "base64";
+          if (isOrExtendsFile($, type)) {
+            bytesDefaultEncoding = "none";
+          }
+
+          return (
+            <EncodingProvider defaults={{ bytes: bytesDefaultEncoding }}>
+              <JsonTransformDeclaration type={type} target="transport" />
+              <JsonTransformDeclaration type={type} target="application" />
+            </EncodingProvider>
+          );
+        })}
     </ts.SourceFile>
   );
+}
+
+function isOrExtendsFile($: Typekit, type: Type): boolean {
+  if (!$.model.is(type)) {
+    return false;
+  }
+
+  if ($.model.isHttpFile(type)) {
+    return true;
+  }
+
+  return type.baseModel ? isOrExtendsFile($, type.baseModel) : false;
 }

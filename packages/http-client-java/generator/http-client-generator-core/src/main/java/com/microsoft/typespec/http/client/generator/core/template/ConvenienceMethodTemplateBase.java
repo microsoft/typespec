@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -24,9 +23,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -112,10 +112,16 @@ abstract class ConvenienceMethodTemplateBase {
         methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
 
         // parameter transformation
-        if (!CoreUtils.isNullOrEmpty(convenienceMethod.getMethodTransformationDetails())) {
-            convenienceMethod.getMethodTransformationDetails()
-                .forEach(d -> writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock,
-                    parametersMap));
+        final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
+        if (!transformations.isEmpty()) {
+            transformations.asStream().forEach(d -> {
+                ClientMethodParameter requestBodyClientParameter
+                    = writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock, parametersMap);
+                if (requestBodyClientParameter != null && !requestBodyClientParameter.isRequired()) {
+                    // protocol method parameter does not exist, set the parameter via RequestOptions
+                    methodBlock.line("requestOptions.setBody(" + requestBodyClientParameter.getName() + ");");
+                }
+            });
         }
 
         writeValidationForVersioning(convenienceMethod, parametersMap.keySet(), methodBlock);
@@ -138,7 +144,7 @@ abstract class ConvenienceMethodTemplateBase {
                     protocolMethod.getProxyMethod().getRequestContentType());
                 parameterExpressionsMap.put(protocolParameter.getName(), expression);
             } else if (parameter.getProxyMethodParameter() != null) {
-                // protocol method parameter not exist, set the parameter via RequestOptions
+                // protocol method parameter does not exist, set the parameter via RequestOptions
                 switch (parameter.getProxyMethodParameter().getRequestParameterLocation()) {
                     case HEADER:
                         writeHeader(parameter, methodBlock);
@@ -233,19 +239,31 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-    private static boolean isGroupByTransformation(MethodTransformationDetail detail) {
-        return !CoreUtils.isNullOrEmpty(detail.getParameterMappings())
-            && detail.getParameterMappings().iterator().next().getOutputParameterPropertyName() == null;
-    }
+    /**
+     * Writes the code for parameter transformation.
+     * Return the client parameter of the request body, if the BinaryData of the object is written.
+     *
+     * @param transformation the parameter transformation
+     * @param convenienceMethod the convenience method
+     * @param protocolMethod the protocol method
+     * @param methodBlock the block to write code
+     * @param parametersMap the map of matched parameters from convenience method to protocol method
+     * @return the client parameter of request body, if the BinaryData of the object is written.
+     */
+    private static ClientMethodParameter writeParameterTransformation(ParameterTransformation transformation,
+        ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
+        Map<MethodParameter, MethodParameter> parametersMap) {
 
-    private static void writeParameterTransformation(MethodTransformationDetail detail, ClientMethod convenienceMethod,
-        ClientMethod protocolMethod, JavaBlock methodBlock, Map<MethodParameter, MethodParameter> parametersMap) {
+        ClientMethodParameter requestBodyClientParameter = null;
 
-        if (isGroupByTransformation(detail)) {
-            // grouping
-
-            ParameterMapping mapping = detail.getParameterMappings().iterator().next();
-            ClientMethodParameter sourceParameter = mapping.getInputParameter();
+        if (transformation.isGroupBy()) {
+            // parameter grouping
+            /*
+             * sample code:
+             * String id = options.getId();
+             * String header = options.getHeader();
+             */
+            final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
 
             boolean sourceParameterInMethod = false;
             for (MethodParameter parameter : parametersMap.keySet()) {
@@ -264,12 +282,12 @@ abstract class ConvenienceMethodTemplateBase {
                     assignmentExpression = "%1$s %2$s = %3$s == null ? null : %3$s.%4$s();";
                 }
 
-                methodBlock.line(String.format(assignmentExpression, detail.getOutParameter().getClientType(),
-                    detail.getOutParameter().getName(), sourceParameter.getName(),
-                    CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInputParameterProperty())));
+                methodBlock.line(String.format(assignmentExpression, transformation.getOutParameter().getClientType(),
+                    transformation.getOutParameter().getName(), sourceParameter.getName(),
+                    CodeNamer.getModelNamer().modelPropertyGetterName(transformation.getGroupByInParameterProperty())));
 
-                if (detail.getOutParameter().getRequestParameterLocation() != null) {
-                    ClientMethodParameter clientMethodParameter = detail.getOutParameter();
+                if (transformation.getOutParameter().getRequestParameterLocation() != null) {
+                    ClientMethodParameter clientMethodParameter = transformation.getOutParameter();
                     ProxyMethodParameter proxyMethodParameter = convenienceMethod.getProxyMethod()
                         .getAllParameters()
                         .stream()
@@ -286,24 +304,34 @@ abstract class ConvenienceMethodTemplateBase {
                 }
             }
         } else {
-            // flatten (possible with grouping)
-            ClientMethodParameter targetParameter = detail.getOutParameter();
-            if (targetParameter.getWireType() == ClassType.BINARY_DATA) {
+            // request body flatten (possible with parameter grouping, handled in "mapping.getInParameterProperty()")
+            /*
+             * sample code:
+             * Body bodyObj = new Body(name).setProperty(options.getProperty());
+             * BinaryData body = BinaryData.fromObject(bodyObj);
+             */
+            ClientMethodParameter targetParameter = transformation.getOutParameter();
+
+            // if the request body is optional, when this client method overload contains only required parameters,
+            // body expression is not needed (as there is no property in this overload for the request body)
+            final boolean noBodyPropertyForOptionalBody
+                = !targetParameter.isRequired() && convenienceMethod.getOnlyRequiredParameters();
+            if (!noBodyPropertyForOptionalBody && targetParameter.getWireType() == ClassType.BINARY_DATA) {
                 IType targetType = targetParameter.getRawType();
 
                 StringBuilder ctorExpression = new StringBuilder();
                 StringBuilder setterExpression = new StringBuilder();
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
-                for (ParameterMapping mapping : detail.getParameterMappings()) {
-                    String parameterName = mapping.getInputParameter().getName();
+                for (ParameterMapping mapping : transformation.getMappings()) {
+                    String parameterName = mapping.getInParameter().getName();
 
                     String inputPath = parameterName;
-                    boolean propertyRequired = mapping.getInputParameter().isRequired();
-                    if (mapping.getInputParameterProperty() != null) {
-                        inputPath = String.format("%s.%s()", mapping.getInputParameter().getName(),
-                            CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInputParameterProperty()));
-                        propertyRequired = mapping.getInputParameterProperty().isRequired();
+                    boolean propertyRequired = mapping.getInParameter().isRequired();
+                    if (mapping.getInParameterProperty() != null) {
+                        inputPath = String.format("%s.%s()", mapping.getInParameter().getName(),
+                            CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInParameterProperty()));
+                        propertyRequired = mapping.getInParameterProperty().isRequired();
                     }
                     if (propertyRequired) {
                         // required
@@ -314,7 +342,7 @@ abstract class ConvenienceMethodTemplateBase {
                             ctorExpression.append(inputPath);
                         } else {
                             setterExpression.append(".")
-                                .append(mapping.getOutputParameterProperty().getSetterName())
+                                .append(mapping.getOutParameterProperty().getSetterName())
                                 .append("(")
                                 .append(inputPath)
                                 .append(")");
@@ -322,7 +350,7 @@ abstract class ConvenienceMethodTemplateBase {
                     } else if (!convenienceMethod.getOnlyRequiredParameters()) {
                         // optional
                         setterExpression.append(".")
-                            .append(mapping.getOutputParameterProperty().getSetterName())
+                            .append(mapping.getOutParameterProperty().getSetterName())
                             .append("(")
                             .append(inputPath)
                             .append(")");
@@ -344,21 +372,22 @@ abstract class ConvenienceMethodTemplateBase {
                         protocolMethod.getProxyMethod().getRequestContentType());
                 }
                 methodBlock.line(String.format("BinaryData %1$s = %2$s;", targetParameterName, expression));
+
+                requestBodyClientParameter = targetParameter;
             }
         }
+        return requestBodyClientParameter;
     }
 
     protected void addImports(Set<String> imports, List<ConvenienceMethod> convenienceMethods) {
         // methods
         JavaSettings settings = JavaSettings.getInstance();
         convenienceMethods.stream().flatMap(m -> m.getConvenienceMethods().stream()).forEach(m -> {
-            m.addImportsTo(imports, false, settings);
-            // hack, add wire type of parameters, as they are not added in ClientMethod, even when
-            // includeImplementationImports=true
-            for (ClientMethodParameter p : m.getParameters()) {
-                p.getWireType().addImportsTo(imports, false);
+            // we need classes many of its parameters and models, hence "includeImplementationImports=true"
+            m.addImportsTo(imports, true, settings);
 
-                // add imports from models, as some convenience API need to process model properties
+            // add imports from models, as some convenience API need to process model properties
+            for (ClientMethodParameter p : m.getParameters()) {
                 if (p.getWireType() instanceof ClassType) {
                     ClientModel model = ClientModelUtil.getClientModel(p.getWireType().toString());
                     if (model != null) {

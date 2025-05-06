@@ -144,26 +144,7 @@ interface FlattenOp {
     @body response: TodoItem;
   };
 
-  @route("upload/{name}")
+  @route("optional-body")
   @post
-  uploadFile(
-    @path name: string,
-    @header contentType: "multipart/form-data",
-    file_data: bytes,
-
-    // this field should not be serialized to form-data
-    @visibility(Lifecycle.Read) readOnly: string,
-
-    constant: "constant",
-  ): OkResponse;
-
-  @route("upload-todo")
-  @post
-  uploadTodo(
-    @header contentType: "multipart/form-data",
-    ...TodoItem,
-    prop1?: string,
-    prop2?: string,
-    prop3?: string,
-  ): OkResponse;
+  sendOptionalBody(name?: string): OkResponse;
 }

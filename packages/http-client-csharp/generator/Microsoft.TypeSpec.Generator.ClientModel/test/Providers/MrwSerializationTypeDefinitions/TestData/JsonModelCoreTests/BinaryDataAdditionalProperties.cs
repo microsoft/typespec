@@ -8,11 +8,8 @@ using System.Text.Json;
 
 namespace Sample.Models
 {
-    /// <summary></summary>
     public partial class TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.TestModel>
     {
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.TestModel>)this).GetFormatFromOptions(options) : options.Format;

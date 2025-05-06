@@ -8,11 +8,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
 {
     public class CSharpGenTests
     {
-        // Validates that a valid plugin implementation is accepted
+        // Validates that a valid generator implementation is accepted
         [Test]
-        public void TestCSharpGen_ValidPlugin()
+        public void TestCSharpGen_ValidGenerator()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
@@ -23,13 +23,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockVisitor = new Mock<LibraryVisitor>();
 
-            var mockPlugin = MockHelpers.LoadMockPlugin();
-            mockPlugin.Object.AddVisitor(mockVisitor.Object);
+            var mockGenerator = MockHelpers.LoadMockGenerator();
+            mockGenerator.Object.AddVisitor(mockVisitor.Object);
 
             var csharpGen = new CSharpGen();
 
             Assert.DoesNotThrowAsync(async () => await csharpGen.ExecuteAsync());
-            mockVisitor.Verify(m => m.Visit(mockPlugin.Object.OutputLibrary), Times.Once);
+            mockVisitor.Verify(m => m.Visit(mockGenerator.Object.OutputLibrary), Times.Once);
         }
     }
 }

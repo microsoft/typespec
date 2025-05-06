@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
-            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
+            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
             _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
@@ -172,10 +172,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var result = new ParameterProvider("result", $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
@@ -191,22 +191,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 deserialize
             };
             return new MethodProvider(
-                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                new MethodSignature(Type.Name, null, modifiers, Type, null, [result]),
                 methodBody,
                 this);
         }
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {requestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                new MethodSignature(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, requestContentType, null, [model]),
                 new MethodBodyStatement[]
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
-                    ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                    ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
                 },
                 this);
         }
@@ -794,8 +795,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
 
-                    // By default, we should only deserialize properties with wire info. Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo == null)
+                    // By default, we should only deserialize properties with wire info that are payload properties.
+                    // Those properties without wire info indicate they are not spec properties.
+                    if (wireInfo?.Location != PropertyLocation.Body)
                     {
                         continue;
                     }
@@ -841,7 +843,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(
+                var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -849,7 +851,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1266,11 +1268,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1369,10 +1371,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
             List<MethodBodyStatement> propertyStatements = new();
+
+            // we should only write those properties with wire info and are payload properties.
+            // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (property.WireInfo == null)
+                if (property.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }
@@ -1382,8 +1386,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (field.WireInfo == null)
+                if (field.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }
@@ -1561,7 +1564,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // now we just need to focus on how we serialize a value
             if (type.IsFrameworkType)
-                return ScmCodeModelPlugin.Instance.TypeFactory.SerializeJsonValue(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+                return ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);

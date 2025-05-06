@@ -11,7 +11,6 @@ import {
   SdkEnumType,
   SdkEnumValueType,
   SdkModelType,
-  SdkServiceOperation,
   SdkType,
   SdkUnionType,
   UsageFlags,
@@ -70,8 +69,8 @@ export function getSimpleTypeResult(result: Record<string, any>): Record<string,
   return result;
 }
 
-export function getType<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function getType(
+  context: PythonSdkContext,
   type: CredentialType | CredentialTypeUnion | Type | SdkType | MultiPartFileType,
 ): Record<string, any> {
   switch (type.kind) {
@@ -93,7 +92,7 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
     case "enumvalue":
       return emitEnumMember(type, emitEnum(context, type.enumType));
     case "credential":
-      return emitCredential(type);
+      return emitCredential(context, type);
     case "bytes":
     case "boolean":
     case "plainDate":
@@ -128,8 +127,8 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
   }
 }
 
-function emitMultiPartFile<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+function emitMultiPartFile(
+  context: PythonSdkContext,
   type: MultiPartFileType,
 ): Record<string, any> {
   if (type.type.kind === "array") {
@@ -144,7 +143,10 @@ function emitMultiPartFile<TServiceOperation extends SdkServiceOperation>(
   });
 }
 
-function emitCredential(credential: SdkCredentialType): Record<string, any> {
+function emitCredential(
+  context: PythonSdkContext,
+  credential: SdkCredentialType,
+): Record<string, any> {
   let credential_type: Record<string, any> = {};
   const scheme = credential.scheme;
   if (scheme.type === "oauth2") {
@@ -153,6 +155,7 @@ function emitCredential(credential: SdkCredentialType): Record<string, any> {
       policy: {
         type: "BearerTokenCredentialPolicy",
         credentialScopes: [],
+        flows: (context.emitContext.options as any).flavor === "azure" ? [] : scheme.flows,
       },
     };
     for (const flow of scheme.flows) {
@@ -218,12 +221,12 @@ function addDisableGenerationMap(type: SdkType): void {
   }
 }
 
-function emitProperty<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+function emitProperty(
+  context: PythonSdkContext,
   model: SdkModelType,
   property: SdkBodyModelPropertyType,
 ): Record<string, any> {
-  const isMultipartFileInput = property.multipartOptions?.isFilePart;
+  const isMultipartFileInput = property.serializationOptions?.multipart?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
@@ -254,10 +257,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
   };
 }
 
-function emitModel<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  type: SdkModelType,
-): Record<string, any> {
+function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string, any> {
   if (isEmptyModel(type)) {
     return KnownTypes.any;
   }
@@ -294,7 +294,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
     usage: type.usage,
     isXml: type.usage & UsageFlags.Xml ? true : false,
     xmlMetadata: getXmlMetadata(type),
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   };
 
   typesMap.set(type, newValue);
@@ -320,10 +320,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
   return newValue;
 }
 
-function emitEnum<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  type: SdkEnumType,
-): Record<string, any> {
+function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, any> {
   if (typesMap.has(type)) {
     return typesMap.get(type)!;
   }
@@ -341,13 +338,16 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
     }
-    return {
+
+    const newValue = {
       description: "",
       internal: true,
       type: "combined",
       types,
       xmlMetadata: {},
     };
+    typesMap.set(type, newValue);
+    return newValue;
   }
   const values: Record<string, any>[] = [];
   const name = type.name;
@@ -361,7 +361,7 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     values,
     xmlMetadata: {},
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   };
   for (const value of type.values) {
     newValue.values.push(emitEnumMember(value, newValue));
@@ -398,8 +398,8 @@ function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record
   });
 }
 
-function emitArrayOrDict<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+function emitArrayOrDict(
+  context: PythonSdkContext,
   type: SdkArrayType | SdkDictionaryType,
 ): Record<string, any> {
   const kind = type.kind === "array" ? "list" : type.kind;
@@ -467,10 +467,7 @@ function emitBuiltInType(
   });
 }
 
-function emitUnion<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  type: SdkUnionType,
-): Record<string, any> {
+function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string, any> {
   return getSimpleTypeResult({
     name: type.isGeneratedName ? undefined : type.name,
     snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
@@ -479,7 +476,7 @@ function emitUnion<TServiceOperation extends SdkServiceOperation>(
     type: "combined",
     types: type.variantTypes.map((x) => getType(context, x)),
     xmlMetadata: {},
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   });
 }
 
@@ -505,8 +502,8 @@ export const KnownTypes = {
   any: { type: "any" },
 };
 
-export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function emitEndpointType(
+  context: PythonSdkContext,
   type: SdkEndpointType,
 ): Record<string, any>[] {
   const params: Record<string, any>[] = [];
@@ -520,7 +517,7 @@ export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
       location: "endpointPath",
       implementation: getImplementation(context, param),
       clientDefaultValue: param.clientDefaultValue,
-      skipUrlEncoding: param.urlEncode === false,
+      skipUrlEncoding: param.allowReserved,
     });
     context.__endpointPathParameters!.push(params.at(-1)!);
   }

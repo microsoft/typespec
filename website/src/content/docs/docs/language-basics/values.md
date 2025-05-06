@@ -9,7 +9,7 @@ Values cannot be used as types, and types cannot be used as values, they are com
 
 ## Value kinds
 
-There are four kinds of values: objects, arrays, scalars. and null. These values can be created with object values, array values, scalar values and initializers, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
+There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and initializers, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
 
 ### Object values
 
@@ -23,10 +23,12 @@ The object value's properties must refer to other values. It is an error to refe
 
 ```typespec
 const example = #{
-  prop1: #{ nested: true }; // ok
-  prop2: { nested: true }; // error: values can't reference a type
-  prop3: string; // error: values can't reference a type
-}
+  prop1: #{ nested: true }, // ok
+  prop2: {
+    nested: true,
+  }, // error: values can't reference a type
+  prop3: string, // error: values can't reference a type
+};
 ```
 
 ### Array values
@@ -59,6 +61,7 @@ There are two ways to create scalar values: with a literal syntax like `"string 
 The literal syntax for strings, numerics, booleans and null can evaluate to either a type or a value depending on the surrounding context of the literal. When the literal is in _type context_ (a model property type, operation return type, alias definition, etc.) the literal becomes a literal type. When the literal is in _value context_ (a default value, property of an object value, const definition, etc.), the literal becomes a value. When the literal is in an _ambiguous context_ (e.g. an argument to a template or decorator that can accept either a type or a value) the literal becomes a value. The `typeof` operator can be used to convert the literal to a type in such ambiguous contexts.
 
 ```typespec
+// Sample decorator signatures. They have no backing implementation and shown here for demonstration purposes.
 extern dec setNumberValue(target: unknown, color: valueof numeric);
 extern dec setNumberType(target: unknown, color: numeric);
 extern dec setNumberTypeOrValue(target: unknown, color: numeric | (valueof numeric));
@@ -122,7 +125,7 @@ const stringValue: string = "hello";
 // typeof stringValue returns `string`.
 
 const oneValue = 1;
-// typeof stringValue returns `1`
+// typeof oneValue returns `1`
 
 const stringOrOneValue: string | 1 = 1;
 // typeof stringOrOneValue returns `string | 1`
