@@ -35,19 +35,15 @@ namespace SampleTypeSpec
             _queryBuilder = new StringBuilder(UriBuilder.Query);
         }
 
-        public void AppendPath(string value, bool escape, bool prependWithPathSeparator = false)
+        public void AppendPath(string value, bool escape)
         {
             if (escape)
             {
                 value = Uri.EscapeDataString(value);
             }
-            if (!prependWithPathSeparator && PathBuilder.Length > 0 && PathBuilder[PathBuilder.Length - 1] == '/' && value[0] == '/')
+            if (PathBuilder.Length > 0 && PathBuilder[PathBuilder.Length - 1] == '/' && value[0] == '/')
             {
                 PathBuilder.Remove(PathBuilder.Length - 1, 1);
-            }
-            if (prependWithPathSeparator)
-            {
-                PathBuilder.Append('/');
             }
             PathBuilder.Append(value);
             UriBuilder.Path = PathBuilder.ToString();

@@ -384,7 +384,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
                 }
 
-                statements.Add(uri.AppendPath(Literal(pathSpan.Slice(0, paramIndex).ToString()), false).Terminate());
+                var path = pathSpan.Slice(0, paramIndex);
+                statements.Add(uri.AppendPath(Literal(path.ToString()), false).Terminate());
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
@@ -427,10 +428,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement statement;
                     if (inputParam?.IsRequired == false)
                     {
+                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                        ValueExpression pathToAppend = shouldPrependWithPathSeparator
+                            ? new BinaryOperatorExpression("+", Literal("/"), valueExpression)
+                            : valueExpression;
+
                         statement = BuildQueryOrHeaderOrPathParameterNullCheck(
                             type,
                             valueExpression,
-                            uri.AppendPath(valueExpression, escape, true).Terminate());
+                            uri.AppendPath(pathToAppend, escape).Terminate());
                     }
                     else
                     {

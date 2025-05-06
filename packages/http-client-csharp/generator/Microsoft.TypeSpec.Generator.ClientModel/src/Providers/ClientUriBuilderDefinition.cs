@@ -135,11 +135,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
             var escapeParameter = new ParameterProvider("escape", $"The escape", typeof(bool));
-            var prependWithPathSeparatorParameter = new ParameterProvider("prependWithPathSeparator", $"The prepend with path separator.", typeof(bool), Bool(false));
             var signature = new MethodSignature(
                 Name: AppendPathMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
-                Parameters: [valueParameter, escapeParameter, prependWithPathSeparatorParameter],
+                Parameters: [valueParameter, escapeParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
@@ -152,13 +151,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueParameter.Assign(Static<Uri>().Invoke(nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                new IfStatement(Not(prependWithPathSeparatorParameter).And(pathBuilder.Length().GreaterThan(Int(0))).And(pathBuilder.Index(pathBuilder.Length().Minus(Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
+                new IfStatement(pathBuilder.Length().GreaterThan(Int(0)).And(pathBuilder.Index(pathBuilder.Length().Minus(Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
                 {
                     pathBuilder.Remove(pathBuilder.Length().Minus(Int(1)), Int(1)).Terminate()
-                },
-                new IfStatement(prependWithPathSeparatorParameter)
-                {
-                    pathBuilder.Append(Literal('/')).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 pathBuilder.Append(valueParameter).Terminate(),
