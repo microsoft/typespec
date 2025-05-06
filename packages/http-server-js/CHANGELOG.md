@@ -1,5 +1,13 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.14
+
+### Bug Fixes
+
+- [#7234](https://github.com/microsoft/typespec/pull/7234) Fixed a few bugs with output directory resolution logic in `hsjs-scaffolding`, improving robustness of the scaffolding script by re-using existing compiler logic to resolve emitter options.
+- [#7225](https://github.com/microsoft/typespec/pull/7225) Added a missing shebang line to `hsjs-scaffold` for better platform compatibility.
+
+
 ## 0.58.0-alpha.13
 
 ### Features

@@ -185,17 +185,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeMergePatchUpdateReplaceOnly'
-      description: |-
-        Create a MergePatch Request body for updating the given resource Model.
-        The MergePatch request created by this template provides a TypeSpec description of a
-        JSON MergePatch request that can successfully update the given resource.
-        The transformation follows the definition of JSON MergePatch requests in
-        rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
-        applying the merge-patch transform recursively to keyed types in the resource Model.
-
-        Using this template in a PATCH request body overrides the `implicitOptionality`
-        setting for PATCH operations and sets `application/merge-patch+json` as the request
-        content-type.
+      description: ''
     PersonMergePatchUpdateReplaceOnly:
       type: object
       required:
