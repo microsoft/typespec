@@ -1,4 +1,5 @@
 import vscode from "vscode";
+import logger from "./log/logger.js";
 import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";
 import { CodeActionCommand } from "./types.js";
 import { searchAndLoadPackageJson } from "./utils.js";
@@ -50,29 +51,21 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       }
     });
 
-    actions.push(...(await this.createInstallPackageByNpm(context, actions)));
+    actions.push(...(await this.createInstallPackageByNpm(context)));
 
     return actions;
   }
 
   private async createInstallPackageByNpm(
     context: vscode.CodeActionContext,
-    actions: vscode.CodeAction[],
   ): Promise<vscode.CodeAction[]> {
     // When the corresponding node dependency package is not installed,
     // consider generating a quick fix to install via npm command
-    const diagnostics = context.diagnostics.filter(
-      (diagnostic) =>
+    for (const diagnostic of context.diagnostics) {
+      if (
         diagnostic.source === "TypeSpec" &&
         diagnostic.code &&
-        diagnostic.code === "import-not-found",
-    );
-    if (diagnostics.length === 0) {
-      return [];
-    }
-
-    for (const diagnostic of diagnostics) {
-      if (
+        diagnostic.code === "import-not-found" &&
         "data" in diagnostic &&
         diagnostic.data &&
         typeof diagnostic.data === "object" &&
@@ -80,42 +73,37 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       ) {
         // The message content is `Couldn't resolve import "@typespec/http"`.
         // The compiler's diagnostics do not provide a specific attribute to obtain the package name,
-        // so a regular expression is used to extract the package name within the double quotes
+        // so a regular expression is used to extract the package name within the double quotes,
+        // if no match is reached, the original string is returned
         const targetPackage = diagnostic.message.replace(/.*"([^"]+)".*/, "$1");
+        logger.debug(`The target package name is '${targetPackage}'.`);
+
         const packageFile = diagnostic.data.file as string;
         const packageFileUri = vscode.Uri.parse(packageFile);
         const { packageJsonFolder, packageJson } = await searchAndLoadPackageJson(
           getDirectoryPath(packageFileUri.fsPath),
         );
 
-        let packageName: string = "";
-        let projectFolder: string | undefined;
         if (packageJsonFolder === undefined) {
-          // If the package.json file is not found, install the specified `targetPackage` directly
-          packageName = targetPackage;
-          projectFolder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-        } else if (
+          vscode.window.showErrorMessage(
+            "No package.json file was found, and the dependency package could not be installed",
+          );
+          logger.debug(
+            "No package.json file was found, and the dependency package could not be installed",
+          );
+          continue;
+        }
+
+        if (
           !targetPackage.startsWith("./") &&
+          !targetPackage.startsWith("../") &&
           !isPathAbsolute(targetPackage) &&
           packageJson &&
           ((packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
             (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
             (packageJson.devDependencies && targetPackage in packageJson.devDependencies))
         ) {
-          // If the package.json file is found, and the file contains the specified package,
-          // it is installed according to the package name in the package.json file.
-          projectFolder = packageJsonFolder;
-        }
-
-        if (projectFolder) {
-          const action = this.createInstallPackageCodeAction(
-            diagnostic,
-            projectFolder,
-            packageName,
-          );
-          if (!actions.some((item) => item.title === action.title)) {
-            return [action];
-          }
+          return [this.createInstallPackageCodeAction(diagnostic, packageJsonFolder)];
         }
       }
     }
@@ -125,7 +113,6 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
     projectFolder: string,
-    packageName: string = "",
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
       "Install package by `npm install` for unrecognized import",
@@ -134,7 +121,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     action.command = {
       command: CodeActionCommand.NpmInstallImportPackage,
       title: diagnostic.message,
-      arguments: [projectFolder, packageName],
+      arguments: [projectFolder],
     };
     action.diagnostics = [diagnostic];
     return action;

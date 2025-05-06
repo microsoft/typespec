@@ -66,13 +66,9 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       CodeActionCommand.NpmInstallImportPackage,
-      async (projectFolder: string, packageName: string = "") => {
+      async (projectFolder: string) => {
         try {
-          await spawnExecutionAndLogToOutput(
-            "npm",
-            packageName === "" ? ["install"] : ["install", packageName],
-            projectFolder,
-          );
+          await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
         } catch (error) {
           vscode.window.showErrorMessage(
             "Failed to execute npm install. Please check the output for details.",
