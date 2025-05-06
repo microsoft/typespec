@@ -2,7 +2,7 @@
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API service.",
-    "compilerVersion": "1.0.0-rc.2",
+    "compilerVersion": "1.0.0",
     "libraries": [
       "@typespec/http",
       "@typespec/rest",
@@ -69,7 +69,7 @@
   "library-ts": {
     "title": "TypeSpec library",
     "description": "Build your own TypeSpec library with custom types, decorators or linters.",
-    "compilerVersion": "1.0.0-rc.2",
+    "compilerVersion": "1.0.0",
     "libraries": [],
     "files": [
       {
@@ -145,7 +145,7 @@
   "emitter-ts": {
     "title": "TypeSpec emitter",
     "description": "Create a new package that emits artifacts from TypeSpec.",
-    "compilerVersion": "1.0.0-rc.2",
+    "compilerVersion": "1.0.0",
     "libraries": [],
     "files": [
       {

@@ -1,6 +1,6 @@
 # Change Log - @typespec/compiler
 
-## 1.0.0-rc.2
+## 1.0.0
 
 ### Features
 

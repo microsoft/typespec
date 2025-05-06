@@ -1,6 +1,6 @@
 # Change Log - @typespec/json-schema
 
-## 1.0.0-rc.2
+## 1.0.0
 
 No changes, version bump only.
 
