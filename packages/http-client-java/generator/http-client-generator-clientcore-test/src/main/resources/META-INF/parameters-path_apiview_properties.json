@@ -2,10 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "parameters.path.PathClient": "Parameters.Path",
-    "parameters.path.PathClient.normal": "Parameters.Path.normal",
-    "parameters.path.PathClient.normalWithResponse": "Parameters.Path.normal",
-    "parameters.path.PathClient.optional": "Parameters.Path.optional",
-    "parameters.path.PathClient.optionalWithResponse": "Parameters.Path.optional",
     "parameters.path.PathClientBuilder": "Parameters.Path"
   }
 }

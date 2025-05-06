@@ -5,6 +5,7 @@
 package azure.resourcemanager.operationtemplates.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,11 +21,13 @@ public final class ExportRequest implements JsonSerializable<ExportRequest> {
     /*
      * Format of the exported order.
      */
+    @Generated
     private String format;
 
     /**
      * Creates an instance of ExportRequest class.
      */
+    @Generated
     public ExportRequest() {
     }
 
@@ -33,6 +36,7 @@ public final class ExportRequest implements JsonSerializable<ExportRequest> {
      * 
      * @return the format value.
      */
+    @Generated
     public String format() {
         return this.format;
     }
@@ -43,6 +47,7 @@ public final class ExportRequest implements JsonSerializable<ExportRequest> {
      * @param format the format value to set.
      * @return the ExportRequest object itself.
      */
+    @Generated
     public ExportRequest withFormat(String format) {
         this.format = format;
         return this;

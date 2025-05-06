@@ -1,16 +1,19 @@
 package parameters.path.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the PathClient type.
@@ -66,42 +69,99 @@ public final class PathClientImpl {
      */
     @ServiceInterface(name = "PathClient", host = "{endpoint}")
     public interface PathClientService {
+        static PathClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.path.implementation.PathClientServiceImpl");
+                return (PathClientService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/parameters/path/normal/{name}",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> normalSync(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            RequestOptions requestOptions);
+        Response<Void> normal(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/parameters/path/optional{name}",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> optionalSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> optional(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
+            RequestContext requestContext);
     }
 
     /**
      * The normal operation.
      * 
      * @param name The name parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> normalWithResponse(String name, RequestOptions requestOptions) {
-        return service.normalSync(this.getEndpoint(), name, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
+        return service.normal(this.getEndpoint(), name, requestContext);
+    }
+
+    /**
+     * The normal operation.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void normal(String name) {
+        normalWithResponse(name, RequestContext.none());
     }
 
     /**
      * The optional operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> optionalWithResponse(RequestOptions requestOptions) {
-        return service.optionalSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
+        return service.optional(this.getEndpoint(), name, requestContext);
+    }
+
+    /**
+     * The optional operation.
+     * 
+     * @param name The name parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optional(String name) {
+        optionalWithResponse(name, RequestContext.none());
+    }
+
+    /**
+     * The optional operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void optional() {
+        final String name = null;
+        optionalWithResponse(name, RequestContext.none());
     }
 }

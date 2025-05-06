@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class ClientParameterMapper implements IMapper<Parameter, ClientMethodParameter> {
     private static final ClientParameterMapper INSTANCE = new ClientParameterMapper();
 
-    private ClientParameterMapper() {
+    protected ClientParameterMapper() {
     }
 
     /**

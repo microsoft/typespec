@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.implementation.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -23,16 +24,19 @@ public final class OperationListResult implements JsonSerializable<OperationList
     /*
      * The Operation items on this page
      */
+    @Generated
     private List<OperationInner> value;
 
     /*
      * The link to the next page of items
      */
+    @Generated
     private String nextLink;
 
     /**
      * Creates an instance of OperationListResult class.
      */
+    @Generated
     private OperationListResult() {
     }
 
@@ -41,6 +45,7 @@ public final class OperationListResult implements JsonSerializable<OperationList
      * 
      * @return the value value.
      */
+    @Generated
     public List<OperationInner> value() {
         return this.value;
     }
@@ -50,6 +55,7 @@ public final class OperationListResult implements JsonSerializable<OperationList
      * 
      * @return the nextLink value.
      */
+    @Generated
     public String nextLink() {
         return this.nextLink;
     }

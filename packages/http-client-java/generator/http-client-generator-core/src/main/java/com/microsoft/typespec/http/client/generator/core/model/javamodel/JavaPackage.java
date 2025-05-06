@@ -296,7 +296,7 @@ public class JavaPackage {
 
             final String classNameSuffix = "Tests";
             String className = model.getName() + classNameSuffix;
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
                     // a hack to count "Tests" suffix into the length of the full path
                     + classNameSuffix, packageName, className);

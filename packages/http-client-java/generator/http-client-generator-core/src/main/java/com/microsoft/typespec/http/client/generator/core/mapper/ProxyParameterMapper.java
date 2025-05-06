@@ -127,7 +127,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             String caller = (operationGroupName == null || operationGroupName.isEmpty()) ? "this" : "this.client";
             String clientPropertyName = parameter.getLanguage().getJava().getName();
             boolean isServiceVersion = false;
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(parameter.getOrigin())
                     == ParameterSynthesizedOrigin.API_VERSION) {
                 isServiceVersion = true;

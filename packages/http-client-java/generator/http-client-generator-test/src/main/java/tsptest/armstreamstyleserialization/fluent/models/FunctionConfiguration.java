@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,16 +20,19 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
     /*
      * The input property.
      */
+    @Generated
     private String input;
 
     /*
      * The output property.
      */
+    @Generated
     private String output;
 
     /**
      * Creates an instance of FunctionConfiguration class.
      */
+    @Generated
     public FunctionConfiguration() {
     }
 
@@ -37,6 +41,7 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * 
      * @return the input value.
      */
+    @Generated
     public String input() {
         return this.input;
     }
@@ -47,6 +52,7 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * @param input the input value to set.
      * @return the FunctionConfiguration object itself.
      */
+    @Generated
     public FunctionConfiguration withInput(String input) {
         this.input = input;
         return this;
@@ -57,6 +63,7 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * 
      * @return the output value.
      */
+    @Generated
     public String output() {
         return this.output;
     }
@@ -67,6 +74,7 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
      * @param output the output value to set.
      * @return the FunctionConfiguration object itself.
      */
+    @Generated
     public FunctionConfiguration withOutput(String output) {
         this.output = output;
         return this;

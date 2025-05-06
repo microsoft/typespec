@@ -458,6 +458,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void TryCatchFinallyUpdate()
+        {
+            var tryCatchFinally = new TryCatchFinallyStatement(new TryStatement(), new CatchStatement(null), new FinallyStatement());
+
+            var tryStatement = new TryStatement();
+            var catchStatement = new CatchStatement(null);
+            var finallyStatement = new FinallyStatement();
+
+            tryCatchFinally.Update(
+                @try: tryStatement,
+                catches: [catchStatement],
+                @finally: finallyStatement);
+
+            Assert.AreEqual(tryStatement, tryCatchFinally.Try);
+            Assert.AreEqual(1, tryCatchFinally.Catches.Count);
+            Assert.AreEqual(catchStatement, tryCatchFinally.Catches[0]);
+            Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
+        }
+
+        [Test]
         public void TestIfElsePreprocessorStatement()
         {
             // Set up test conditions and variables

@@ -40,7 +40,7 @@ public class GenericType implements IType {
     }
 
     public GenericType(String packageKeyword, String name, String jsonToken, IType... typeArguments) {
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             if (Objects.equals(packageKeyword + "." + name, com.azure.core.http.rest.Response.class.getName())) {
                 packageKeyword = "io.clientcore.core.http";
             } else {
@@ -84,10 +84,10 @@ public class GenericType implements IType {
     }
 
     public static GenericType PagedResponse(IType bodyType) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             return new GenericType("com.azure.core.http.rest", "PagedResponse", bodyType);
         } else {
-            return new GenericType("io.clientcore.core.http.models", "PagedResponse", bodyType);
+            return new GenericType("io.clientcore.core.http.paging", "PagedResponse", bodyType);
         }
     }
 
@@ -96,10 +96,10 @@ public class GenericType implements IType {
     }
 
     public static GenericType PagedIterable(IType bodyType) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             return new GenericType("com.azure.core.http.rest", "PagedIterable", bodyType);
         } else {
-            return new GenericType("io.clientcore.core.http.models", "PagedIterable", bodyType);
+            return new GenericType("io.clientcore.core.http.paging", "PagedIterable", bodyType);
         }
     }
 
@@ -113,6 +113,10 @@ public class GenericType implements IType {
 
     public static GenericType SyncPoller(IType pollResultType, IType finalResultType) {
         return new GenericType("com.azure.core.util.polling", "SyncPoller", pollResultType, finalResultType);
+    }
+
+    public static GenericType AzureVNextPoller(IType pollResultType, IType finalResultType) {
+        return new GenericType("com.azure.v2.core.http.polling", "Poller", pollResultType, finalResultType);
     }
 
     public static GenericType PollResult(IType pollResultType) {

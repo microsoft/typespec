@@ -195,6 +195,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         for (Request request : requests) {
             List<ProxyMethod> proxyMethods = proxyMethodsMap.get(request);
             for (ProxyMethod proxyMethod : proxyMethods) {
+                if (proxyMethod.getImplementation() != null) {
+                    continue;
+                }
                 ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
                 builder.proxyMethod(proxyMethod);
@@ -1053,7 +1056,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         ReturnValue returnValue, MethodPageDetails details, ClientMethodParameter contextParameter) {
 
         List<ClientMethodParameter> updatedParams = new ArrayList<>(parameters);
-        if (JavaSettings.getInstance().isBranded()
+        if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
             updatedParams.add(contextParameter);
         }
@@ -1091,7 +1094,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     protected static void addClientMethodWithContext(List<ClientMethod> methods, Builder builder,
         List<ClientMethodParameter> parameters, ClientMethodParameter contextParameter) {
         List<ClientMethodParameter> updatedParams = new ArrayList<>(parameters);
-        if (JavaSettings.getInstance().isBranded()
+        if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
             updatedParams.add(contextParameter);
         }

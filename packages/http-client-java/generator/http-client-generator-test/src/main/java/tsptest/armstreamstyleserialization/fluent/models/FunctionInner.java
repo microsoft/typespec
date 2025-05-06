@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,11 +22,13 @@ public final class FunctionInner implements JsonSerializable<FunctionInner> {
     /*
      * The properties property.
      */
+    @Generated
     private FunctionProperties properties;
 
     /**
      * Creates an instance of FunctionInner class.
      */
+    @Generated
     public FunctionInner() {
     }
 
@@ -34,6 +37,7 @@ public final class FunctionInner implements JsonSerializable<FunctionInner> {
      * 
      * @return the properties value.
      */
+    @Generated
     public FunctionProperties properties() {
         return this.properties;
     }
@@ -44,6 +48,7 @@ public final class FunctionInner implements JsonSerializable<FunctionInner> {
      * @param properties the properties value to set.
      * @return the FunctionInner object itself.
      */
+    @Generated
     public FunctionInner withProperties(FunctionProperties properties) {
         this.properties = properties;
         return this;

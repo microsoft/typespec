@@ -1,17 +1,20 @@
 package type.property.valuetypes.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import type.property.valuetypes.FloatLiteralProperty;
 
 /**
@@ -44,63 +47,88 @@ public final class FloatLiteralsImpl {
      */
     @ServiceInterface(name = "ValueTypesClientFloa", host = "{endpoint}")
     public interface FloatLiteralsService {
+        static FloatLiteralsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.property.valuetypes.implementation.FloatLiteralsServiceImpl");
+                return (FloatLiteralsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/property/value-types/float/literal",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<FloatLiteralProperty> getSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<FloatLiteralProperty> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/property/value-types/float/literal",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") FloatLiteralProperty body, RequestContext requestContext);
     }
 
     /**
      * Get call.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: double (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    public Response<FloatLiteralProperty> getWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatLiteralProperty> getWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.get(this.client.getEndpoint(), accept, requestContext);
+    }
+
+    /**
+     * Get call.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return call.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatLiteralProperty get() {
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * Put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: double (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body body.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(FloatLiteralProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Put operation.
+     * 
+     * @param body body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void put(FloatLiteralProperty body) {
+        putWithResponse(body, RequestContext.none());
     }
 }
