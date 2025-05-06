@@ -98,7 +98,7 @@ public class ClientBuilderTrait {
     }
 
     private static ClientBuilderTrait createHttpTrait() {
-        boolean isBranded = JavaSettings.getInstance().isAzureV1();
+        boolean isAzureV1 = JavaSettings.getInstance().isAzureV1();
 
         ClientBuilderTrait httpTrait = new ClientBuilderTrait();
         httpTrait.setTraitInterfaceName("HttpTrait");
@@ -108,8 +108,21 @@ public class ClientBuilderTrait {
         List<ClientBuilderTraitMethod> httpClientBuilderTraitMethods = new ArrayList<>();
         httpTrait.setTraitMethods(httpClientBuilderTraitMethods);
 
-        // pipeline
-        if (isBranded) {
+        // httpClient
+        ServiceClientProperty httpClientProperty = new ServiceClientProperty(
+            "The HTTP client used to send the request.", ClassType.HTTP_CLIENT, "httpClient", false, null);
+        Consumer<JavaBlock> httpClientMethodImpl = function -> {
+            function.line(String.format("this.%1$s = %2$s;", "httpClient", "httpClient"));
+            function.methodReturn("this");
+        };
+        ClientBuilderTraitMethod httpClientMethod = createTraitMethod("httpClient", "httpClient", ClassType.HTTP_CLIENT,
+            httpClientProperty, "{@inheritDoc}", httpClientMethodImpl);
+        importPackages.add(ClassType.HTTP_CLIENT.getFullName());
+
+        httpClientBuilderTraitMethods.add(httpClientMethod);
+
+        if (isAzureV1) {
+            // pipeline
             String pipelineMethodName = "pipeline";
             ServiceClientProperty pipelineProperty = new ServiceClientProperty(
                 "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
@@ -133,23 +146,8 @@ public class ClientBuilderTrait {
             importPackages.add(ClassType.HTTP_PIPELINE.getFullName());
 
             httpClientBuilderTraitMethods.add(pipelineMethod);
-        }
 
-        // httpClient
-        ServiceClientProperty httpClientProperty = new ServiceClientProperty(
-            "The HTTP client used to send the request.", ClassType.HTTP_CLIENT, "httpClient", false, null);
-        Consumer<JavaBlock> httpClientMethodImpl = function -> {
-            function.line(String.format("this.%1$s = %2$s;", "httpClient", "httpClient"));
-            function.methodReturn("this");
-        };
-        ClientBuilderTraitMethod httpClientMethod = createTraitMethod("httpClient", "httpClient", ClassType.HTTP_CLIENT,
-            httpClientProperty, "{@inheritDoc}", httpClientMethodImpl);
-        importPackages.add(ClassType.HTTP_CLIENT.getFullName());
-
-        httpClientBuilderTraitMethods.add(httpClientMethod);
-
-        // httpLogOptions
-        if (isBranded) {
+            // httpLogOptions
             ServiceClientProperty httpLogOptionsProperty
                 = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
                     ClassType.HTTP_LOG_OPTIONS, "httpLogOptions", false, null);
@@ -162,10 +160,8 @@ public class ClientBuilderTrait {
             importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
 
             httpClientBuilderTraitMethods.add(httpLogOptionsMethod);
-        }
 
-        // clientOptions
-        if (isBranded) {
+            // clientOptions
             ServiceClientProperty clientOptionsProperty = new ServiceClientProperty(
                 "The client options such as application ID and custom headers to set on a request.",
                 ClassType.CLIENT_OPTIONS, "clientOptions", false, null);
@@ -188,7 +184,7 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", "retryOptions", "retryOptions"));
             function.methodReturn("this");
         };
-        String retryOptionsMethodName = isBranded ? "retryOptions" : "httpRetryOptions";
+        String retryOptionsMethodName = isAzureV1 ? "retryOptions" : "httpRetryOptions";
         ClientBuilderTraitMethod retryOptionsMethod = createTraitMethod(retryOptionsMethodName, "retryOptions",
             ClassType.RETRY_OPTIONS, retryOptionsProperty, "{@inheritDoc}", retryOptionsMethodImpl);
         importPackages.add(ClassType.RETRY_OPTIONS.getFullName());
@@ -200,13 +196,13 @@ public class ClientBuilderTrait {
             function.line("pipelinePolicies.add(customPolicy);");
             function.methodReturn("this");
         };
-        String addPolicyMethodName = isBranded ? "addPolicy" : "addHttpPipelinePolicy";
+        String addPolicyMethodName = isAzureV1 ? "addPolicy" : "addHttpPipelinePolicy";
         ClientBuilderTraitMethod addPolicyMethod = createTraitMethod(addPolicyMethodName, "customPolicy",
             ClassType.HTTP_PIPELINE_POLICY, null, "{@inheritDoc}", addPolicyMethodImpl);
         importPackages.add(ClassType.HTTP_PIPELINE_POLICY.getFullName());
         httpClientBuilderTraitMethods.add(addPolicyMethod);
 
-        if (!isBranded || JavaSettings.getInstance().isAzureV2()) {
+        if (!isAzureV1 || JavaSettings.getInstance().isAzureV2()) {
             // redirectOptions
             ServiceClientProperty redirectOptionsProperty
                 = new ServiceClientProperty("The redirect options to configure redirect policy",

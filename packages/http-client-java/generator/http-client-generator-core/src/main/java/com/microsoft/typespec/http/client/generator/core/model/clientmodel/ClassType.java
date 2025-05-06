@@ -238,7 +238,7 @@ public class ClassType implements IType {
                 if (CoreUtils.isNullOrEmpty(genericClass)) {
                     return null;
                 }
-                return new ClassType.Builder(false).knownClass(genericClass);
+                return new ClassType.Builder(isSwaggerType).knownClass(genericClass);
             } else {
                 return new Builder(isSwaggerType)
                     .packageName(classKey.getPackage()

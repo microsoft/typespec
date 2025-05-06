@@ -130,10 +130,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .collect(Collectors.toList()));
         }
 
-        List<ProxyMethodParameter> commonParams = new ArrayList<>(); // extractCommonParams(restAPIMethods);
-
         proxyBuilder.methods(restAPIMethods);
-        proxyBuilder.commonParams(commonParams);
         Proxy proxy = proxyBuilder.build();
         builder.proxy(proxy);
         List<ClientMethod> clientMethods = operations.stream()
@@ -147,56 +144,6 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         }
         builder.clientMethods(clientMethods);
         return proxy;
-    }
-
-    private List<ProxyMethodParameter> extractCommonParams(List<ProxyMethod> allProxyMethods) {
-        List<ProxyMethodParameter> commonParams = new ArrayList<>();
-        List<ProxyMethod> proxyMethods
-            = allProxyMethods.stream().filter(ProxyMethod::isSync).collect(Collectors.toUnmodifiableList());
-
-        if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
-            List<ProxyMethodParameter> allParameters = proxyMethods.get(0).getAllParameters();
-            allParameters.forEach(parameter -> {
-                boolean isCommon = true;
-                for (ProxyMethod proxyMethod : proxyMethods) {
-                    boolean found = false;
-                    for (ProxyMethodParameter param : proxyMethod.getAllParameters()) {
-                        if (param.getName().equals(parameter.getName())
-                            && param.getClientType() == parameter.getClientType()) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        isCommon = false;
-                        break;
-                    }
-                }
-                if (isCommon) {
-                    commonParams.add(parameter);
-                }
-            });
-
-            proxyMethods.forEach(proxyMethod -> {
-                List<ProxyMethodParameter> allParams = proxyMethod.getAllParameters();
-                allParams.removeIf(allParam -> commonParams.stream()
-                    .anyMatch(commonParam -> commonParam.getName().equals(allParam.getName())));
-
-                List<ProxyMethodParameter> params = proxyMethod.getParameters();
-                params.removeIf(param -> commonParams.stream()
-                    .anyMatch(commonParam -> commonParam.getName().equals(param.getName())));
-
-                if (proxyMethod.getImplementation() != null) {
-                    commonParams.stream().forEach(commonParam -> {
-                        String updatedImplementation = proxyMethod.getImplementation()
-                            .replace(commonParam.getName() + ",", "")
-                            .replace(", " + commonParam.getName() + ")", ")");
-                        proxyMethod.updateImplementation(updatedImplementation);
-                    });
-                }
-            });
-        }
-        return commonParams;
     }
 
     protected List<ServiceClientProperty> processClientProperties(Client client, String serviceVersionClassName) {

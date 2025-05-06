@@ -60,8 +60,6 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             classBlock.interfaceBlock(visibility, restAPI.getName(), interfaceBlock -> {
 
                 if (settings.isAzureV2() || !settings.isAzureV1()) {
-                    List<ProxyMethodParameter> commonParams = restAPI.getCommonParams();
-
                     StringBuilder params = new StringBuilder();
                     params.append("HttpPipeline pipeline");
 
@@ -70,17 +68,6 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
 
                     StringBuilder reflectionParams = new StringBuilder();
                     reflectionParams.append("pipeline");
-
-                    for (ProxyMethodParameter commonParam : commonParams) {
-                        params.append(", ");
-                        params.append(buildParameterDeclaration(null, commonParam));
-
-                        paramTypes.append(", ");
-                        paramTypes.append(commonParam.getClientType()).append(".class");
-
-                        reflectionParams.append(", ");
-                        reflectionParams.append(commonParam.getName());
-                    }
 
                     interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
                         restAPI.getName() + " getNewInstance(" + params + ")", javaBlock -> {

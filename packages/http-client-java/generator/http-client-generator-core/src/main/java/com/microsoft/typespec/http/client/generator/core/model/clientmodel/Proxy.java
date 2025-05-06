@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +11,6 @@ import java.util.Set;
  * Details that describe the dynamic proxy.
  */
 public class Proxy {
-    private List<ProxyMethodParameter> commonParams;
     /**
      * Get the name of the REST API interface.
      */
@@ -38,13 +36,11 @@ public class Proxy {
      * @param baseURL The base URL that will be used for each REST API method.
      * @param methods The methods of this REST API.
      */
-    protected Proxy(String name, String clientTypeName, String baseURL, List<ProxyMethod> methods,
-        List<ProxyMethodParameter> commonParams) {
+    protected Proxy(String name, String clientTypeName, String baseURL, List<ProxyMethod> methods) {
         this.name = name;
         this.clientTypeName = clientTypeName;
         this.baseURL = baseURL;
         this.methods = methods;
-        this.commonParams = commonParams == null ? Collections.emptyList() : commonParams;
     }
 
     public final String getName() {
@@ -63,10 +59,6 @@ public class Proxy {
         return methods;
     }
 
-    public List<ProxyMethodParameter> getCommonParams() {
-        return commonParams;
-    }
-
     /**
      * Add this property's imports to the provided set of imports.
      * 
@@ -83,10 +75,6 @@ public class Proxy {
         for (ProxyMethod method : getMethods()) {
             method.addImportsTo(imports, includeImplementationImports, settings);
         }
-
-        for (ProxyMethodParameter parameter : commonParams) {
-            parameter.addImportsTo(imports, includeImplementationImports, settings);
-        }
     }
 
     public static class Builder {
@@ -94,7 +82,6 @@ public class Proxy {
         protected String clientTypeName;
         protected String baseURL;
         protected List<ProxyMethod> methods;
-        protected List<ProxyMethodParameter> commonParams;
 
         /**
          * Sets the name of the REST API interface.
@@ -141,12 +128,7 @@ public class Proxy {
         }
 
         public Proxy build() {
-            return new Proxy(name, clientTypeName, baseURL, methods, commonParams);
-        }
-
-        public Builder commonParams(List<ProxyMethodParameter> commonParams) {
-            this.commonParams = commonParams;
-            return this;
+            return new Proxy(name, clientTypeName, baseURL, methods);
         }
     }
 }
