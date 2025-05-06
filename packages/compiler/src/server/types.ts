@@ -25,6 +25,7 @@ import {
   PublishDiagnosticsParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensParams,
@@ -64,7 +65,7 @@ export interface ServerHost {
 
 export interface CompileResult {
   readonly program: Program;
-  readonly document: TextDocument;
+  readonly document: TextDocument | undefined;
   readonly script: TypeSpecScriptNode;
   readonly optionsFromConfig: CompilerOptions;
 }
@@ -92,6 +93,7 @@ export interface Server {
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
