@@ -3,7 +3,6 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
 import { client } from "../../extension.js";
@@ -19,13 +18,7 @@ import {
   GetVscodeUriFromPath,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
-import {
-  ExecOutput,
-  isFile,
-  spawnExecutionAndLogToOutput,
-  tryParseYaml,
-  tryReadFile,
-} from "../../utils.js";
+import { ExecOutput, isFile, tryParseYaml, tryReadFile } from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -588,7 +581,6 @@ export async function emitCode(
       tspProjectFile = selectedProjectFile.path;
     }
   } else {
-    const doc = uri.toString();
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
       logger.info(`No entrypoint file (${StartFileName}). Invalid TypeSpec project.`, [], {
@@ -801,33 +793,4 @@ export async function emitCode(
       return ResultCode.Cancelled;
     }
   }
-}
-
-async function compile(
-  cli: Executable,
-  startFile: string,
-  emitters: { name: string; options: Record<string, string> }[],
-  logPretty?: boolean,
-): Promise<ExecOutput> {
-  const args: string[] = cli.args ?? [];
-  args.push("compile");
-  args.push(startFile);
-  if (emitters) {
-    for (const emitter of emitters) {
-      args.push("--emit", emitter.name);
-      if (emitter.options) {
-        for (const [key, value] of Object.entries(emitter.options)) {
-          args.push("--option", `${emitter.name}.${key}=${value}`);
-        }
-      }
-    }
-  }
-  if (logPretty !== undefined) {
-    args.push("--pretty");
-    args.push(logPretty ? "true" : "false");
-  }
-
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
-    NO_COLOR: "true",
-  });
 }

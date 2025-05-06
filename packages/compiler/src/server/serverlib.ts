@@ -335,7 +335,6 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getInitProjectContext(): Promise<InitProjectContext> {
-    log({ level: "info", message: "crystal->Get init project context" });
     return {
       coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
     };
