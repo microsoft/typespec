@@ -429,14 +429,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (inputParam?.IsRequired == false)
                     {
                         bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
-                        ValueExpression pathToAppend = shouldPrependWithPathSeparator
-                            ? new BinaryOperatorExpression("+", Literal("/"), valueExpression)
-                            : valueExpression;
-
+                        List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
+                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
+                            : [uri.AppendPath(valueExpression, escape).Terminate()];
                         statement = BuildQueryOrHeaderOrPathParameterNullCheck(
                             type,
                             valueExpression,
-                            uri.AppendPath(pathToAppend, escape).Terminate());
+                            appendPathStatements);
                     }
                     else
                     {
