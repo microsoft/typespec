@@ -5,6 +5,7 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -27,36 +28,43 @@ public final class CustomTemplateResourceInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
+    @Generated
     private CustomTemplateResourceProperties innerProperties;
 
     /*
      * Managed identity.
      */
+    @Generated
     private ManagedServiceIdentity identity;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
+    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
+    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
+    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
+    @Generated
     private String id;
 
     /**
      * Creates an instance of CustomTemplateResourceInner class.
      */
+    @Generated
     public CustomTemplateResourceInner() {
     }
 
@@ -65,6 +73,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private CustomTemplateResourceProperties innerProperties() {
         return this.innerProperties;
     }
@@ -74,6 +83,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the identity value.
      */
+    @Generated
     public ManagedServiceIdentity identity() {
         return this.identity;
     }
@@ -84,6 +94,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param identity the identity value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
+    @Generated
     public CustomTemplateResourceInner withIdentity(ManagedServiceIdentity identity) {
         this.identity = identity;
         return this;
@@ -94,6 +105,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the systemData value.
      */
+    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -103,6 +115,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the type value.
      */
+    @Generated
     @Override
     public String type() {
         return this.type;
@@ -113,6 +126,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the name value.
      */
+    @Generated
     @Override
     public String name() {
         return this.name;
@@ -123,6 +137,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the id value.
      */
+    @Generated
     @Override
     public String id() {
         return this.id;
@@ -131,6 +146,7 @@ public final class CustomTemplateResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public CustomTemplateResourceInner withLocation(String location) {
         super.withLocation(location);
@@ -140,6 +156,7 @@ public final class CustomTemplateResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public CustomTemplateResourceInner withTags(Map<String, String> tags) {
         super.withTags(tags);
@@ -151,6 +168,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.innerProperties() == null ? null : this.innerProperties().provisioningState();
     }
@@ -160,6 +178,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the dog value.
      */
+    @Generated
     public Dog dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }
@@ -170,6 +189,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param dog the dog value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
+    @Generated
     public CustomTemplateResourceInner withDog(Dog dog) {
         if (this.innerProperties() == null) {
             this.innerProperties = new CustomTemplateResourceProperties();
@@ -183,6 +203,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the namedEmptyModel value.
      */
+    @Generated
     public EmptyModel namedEmptyModel() {
         return this.innerProperties() == null ? null : this.innerProperties().namedEmptyModel();
     }
@@ -193,6 +214,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param namedEmptyModel the namedEmptyModel value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
+    @Generated
     public CustomTemplateResourceInner withNamedEmptyModel(EmptyModel namedEmptyModel) {
         if (this.innerProperties() == null) {
             this.innerProperties = new CustomTemplateResourceProperties();
@@ -206,6 +228,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the anonymousEmptyModel value.
      */
+    @Generated
     public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
         return this.innerProperties() == null ? null : this.innerProperties().anonymousEmptyModel();
     }
@@ -216,6 +239,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param anonymousEmptyModel the anonymousEmptyModel value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
+    @Generated
     public CustomTemplateResourceInner
         withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
         if (this.innerProperties() == null) {
@@ -230,6 +254,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * 
      * @return the priority value.
      */
+    @Generated
     public PriorityModel priority() {
         return this.innerProperties() == null ? null : this.innerProperties().priority();
     }
@@ -240,6 +265,7 @@ public final class CustomTemplateResourceInner extends Resource {
      * @param priority the priority value to set.
      * @return the CustomTemplateResourceInner object itself.
      */
+    @Generated
     public CustomTemplateResourceInner withPriority(PriorityModel priority) {
         if (this.innerProperties() == null) {
             this.innerProperties = new CustomTemplateResourceProperties();

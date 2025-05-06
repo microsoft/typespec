@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Name = name;
             Description = description;
             InitializationValue = initializationValue;
-            XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
+            XmlDocs = Description is not null ? new XmlDocProvider(new XmlDocSummaryStatement([Description])) : null;
             EnclosingType = enclosingType;
             WireInfo = wireInfo;
 

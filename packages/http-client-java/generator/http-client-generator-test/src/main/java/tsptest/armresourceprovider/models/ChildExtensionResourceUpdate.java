@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -19,6 +20,7 @@ public final class ChildExtensionResourceUpdate implements JsonSerializable<Chil
     /**
      * Creates an instance of ChildExtensionResourceUpdate class.
      */
+    @Generated
     public ChildExtensionResourceUpdate() {
     }
 

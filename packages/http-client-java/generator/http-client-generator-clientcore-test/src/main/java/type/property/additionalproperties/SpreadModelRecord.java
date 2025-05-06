@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,18 +13,18 @@ import java.util.Map;
 /**
  * The model spread Record&lt;ModelForRecord&gt; with the same known property type.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadModelRecord implements JsonSerializable<SpreadModelRecord> {
     /*
      * The knownProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelForRecord knownProp;
 
     /*
      * The model spread Record<ModelForRecord> with the same known property type
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, ModelForRecord> additionalProperties;
 
     /**
@@ -32,7 +32,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
      * 
      * @param knownProp the knownProp value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadModelRecord(ModelForRecord knownProp) {
         this.knownProp = knownProp;
     }
@@ -42,7 +42,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
      * 
      * @return the knownProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ModelForRecord getKnownProp() {
         return this.knownProp;
     }
@@ -53,7 +53,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
      * 
      * @return the additionalProperties value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, ModelForRecord> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -65,7 +65,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadModelRecord object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadModelRecord setAdditionalProperties(Map<String, ModelForRecord> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
@@ -74,7 +74,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -96,7 +96,7 @@ public final class SpreadModelRecord implements JsonSerializable<SpreadModelReco
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SpreadModelRecord.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SpreadModelRecord fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             ModelForRecord knownProp = null;

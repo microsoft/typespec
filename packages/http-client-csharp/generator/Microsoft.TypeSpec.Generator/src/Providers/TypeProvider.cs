@@ -319,8 +319,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement([Description]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+
             return docs;
         }
 

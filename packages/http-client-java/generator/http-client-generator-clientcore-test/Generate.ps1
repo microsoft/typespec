@@ -62,6 +62,8 @@ $generateScript = {
 
 ./Setup.ps1
 
+Write-Host "Setup Complete"
+
 if (Test-Path ./src/main) {
   Remove-Item ./src/main -Recurse -Force
 }
@@ -72,8 +74,13 @@ if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force
 }
 
+Write-Host "Removed src/main, src/samples and tsp-output directories"
+
 # generate for http-specs/azure-http-specs test sources
 Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
+
+Write-Host "Copied http-specs to current directory"
+
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
 

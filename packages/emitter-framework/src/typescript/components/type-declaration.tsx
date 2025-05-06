@@ -1,5 +1,6 @@
 import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
+import { declarationRefkeys } from "../utils/refkey.js";
 import { EnumDeclaration } from "./enum-declaration.js";
 import { InterfaceDeclaration } from "./interface-declaration.jsx";
 import { TypeAliasDeclaration } from "./type-alias-declaration.jsx";
@@ -14,7 +15,14 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 export function TypeDeclaration(props: TypeDeclarationProps) {
   if (!props.type) {
-    return <ts.TypeDeclaration {...(props as WithRequired<ts.TypeDeclarationProps, "name">)} />;
+    const refkeys = declarationRefkeys(props.refkey, props.name);
+
+    return (
+      <ts.TypeDeclaration
+        {...(props as WithRequired<ts.TypeDeclarationProps, "name">)}
+        refkey={refkeys}
+      />
+    );
   }
 
   const { type, ...restProps } = props;

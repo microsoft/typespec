@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var parameter = new ParameterProvider("originalName", FormattableStringHelpers.Empty, typeof(string));
+            var parameter = new ParameterProvider("originalName", $"The original name of the type.", typeof(string));
 
             return
             [

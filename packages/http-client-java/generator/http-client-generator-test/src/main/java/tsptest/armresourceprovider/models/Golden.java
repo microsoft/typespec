@@ -5,6 +5,7 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
@@ -18,11 +19,13 @@ public final class Golden extends Dog {
     /*
      * discriminator property
      */
+    @Generated
     private DogKind kind = DogKind.GOLDEN;
 
     /**
      * Creates an instance of Golden class.
      */
+    @Generated
     public Golden() {
     }
 
@@ -31,6 +34,7 @@ public final class Golden extends Dog {
      * 
      * @return the kind value.
      */
+    @Generated
     @Override
     public DogKind kind() {
         return this.kind;
@@ -39,6 +43,7 @@ public final class Golden extends Dog {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public Golden withWeight(int weight) {
         super.withWeight(weight);

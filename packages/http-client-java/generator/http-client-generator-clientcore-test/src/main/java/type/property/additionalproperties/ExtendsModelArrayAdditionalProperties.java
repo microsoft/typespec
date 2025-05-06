@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -14,19 +14,19 @@ import java.util.Map;
 /**
  * The model extends from Record&lt;ModelForRecord[]&gt; type.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class ExtendsModelArrayAdditionalProperties
     implements JsonSerializable<ExtendsModelArrayAdditionalProperties> {
     /*
      * The knownProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<ModelForRecord> knownProp;
 
     /*
      * The model extends from Record<ModelForRecord[]> type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, List<ModelForRecord>> additionalProperties;
 
     /**
@@ -34,7 +34,7 @@ public final class ExtendsModelArrayAdditionalProperties
      * 
      * @param knownProp the knownProp value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsModelArrayAdditionalProperties(List<ModelForRecord> knownProp) {
         this.knownProp = knownProp;
     }
@@ -44,7 +44,7 @@ public final class ExtendsModelArrayAdditionalProperties
      * 
      * @return the knownProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<ModelForRecord> getKnownProp() {
         return this.knownProp;
     }
@@ -54,7 +54,7 @@ public final class ExtendsModelArrayAdditionalProperties
      * 
      * @return the additionalProperties value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, List<ModelForRecord>> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -65,7 +65,7 @@ public final class ExtendsModelArrayAdditionalProperties
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsModelArrayAdditionalProperties object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ExtendsModelArrayAdditionalProperties
         setAdditionalProperties(Map<String, List<ModelForRecord>> additionalProperties) {
         this.additionalProperties = additionalProperties;
@@ -75,7 +75,7 @@ public final class ExtendsModelArrayAdditionalProperties
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -97,7 +97,7 @@ public final class ExtendsModelArrayAdditionalProperties
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the ExtendsModelArrayAdditionalProperties.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static ExtendsModelArrayAdditionalProperties fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             List<ModelForRecord> knownProp = null;

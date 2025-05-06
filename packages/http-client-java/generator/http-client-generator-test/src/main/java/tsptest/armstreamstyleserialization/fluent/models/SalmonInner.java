@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
@@ -22,41 +23,49 @@ public final class SalmonInner extends FishInner {
     /*
      * Discriminator property for Fish.
      */
+    @Generated
     private String kind = "salmon";
 
     /*
      * The friends property.
      */
+    @Generated
     private List<FishInner> friends;
 
     /*
      * The hate property.
      */
+    @Generated
     private Map<String, FishInner> hate;
 
     /*
      * The partner property.
      */
+    @Generated
     private FishInner partner;
 
     /*
      * The anotherProperties property.
      */
+    @Generated
     private AnotherFishProperties innerAnotherProperties = new AnotherFishProperties();
 
     /*
      * The properties property.
      */
+    @Generated
     private FishProperties innerProperties = new FishProperties();
 
     /*
      * The dna property.
      */
+    @Generated
     private String dna;
 
     /**
      * Creates an instance of SalmonInner class.
      */
+    @Generated
     public SalmonInner() {
     }
 
@@ -65,6 +74,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the kind value.
      */
+    @Generated
     @Override
     public String kind() {
         return this.kind;
@@ -75,6 +85,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the friends value.
      */
+    @Generated
     public List<FishInner> friends() {
         return this.friends;
     }
@@ -85,6 +96,7 @@ public final class SalmonInner extends FishInner {
      * @param friends the friends value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withFriends(List<FishInner> friends) {
         this.friends = friends;
         return this;
@@ -95,6 +107,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the hate value.
      */
+    @Generated
     public Map<String, FishInner> hate() {
         return this.hate;
     }
@@ -105,6 +118,7 @@ public final class SalmonInner extends FishInner {
      * @param hate the hate value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withHate(Map<String, FishInner> hate) {
         this.hate = hate;
         return this;
@@ -115,6 +129,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the partner value.
      */
+    @Generated
     public FishInner partner() {
         return this.partner;
     }
@@ -125,6 +140,7 @@ public final class SalmonInner extends FishInner {
      * @param partner the partner value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withPartner(FishInner partner) {
         this.partner = partner;
         return this;
@@ -135,6 +151,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the innerAnotherProperties value.
      */
+    @Generated
     private AnotherFishProperties innerAnotherProperties() {
         return this.innerAnotherProperties;
     }
@@ -144,6 +161,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private FishProperties innerProperties() {
         return this.innerProperties;
     }
@@ -153,6 +171,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the dna value.
      */
+    @Generated
     @Override
     public String dna() {
         return this.dna;
@@ -161,6 +180,7 @@ public final class SalmonInner extends FishInner {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public SalmonInner withAge(int age) {
         super.withAge(age);
@@ -172,6 +192,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the length value.
      */
+    @Generated
     public double length() {
         return this.innerProperties() == null ? 0.0 : this.innerProperties().length();
     }
@@ -182,6 +203,7 @@ public final class SalmonInner extends FishInner {
      * @param length the length value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withLength(double length) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -195,6 +217,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the patten value.
      */
+    @Generated
     public String patten() {
         return this.innerProperties() == null ? null : this.innerProperties().patten();
     }
@@ -204,6 +227,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredString() {
         return this.innerProperties() == null ? null : this.innerProperties().requiredString();
     }
@@ -214,6 +238,7 @@ public final class SalmonInner extends FishInner {
      * @param requiredString the requiredString value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withRequiredString(String requiredString) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -227,6 +252,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the length value.
      */
+    @Generated
     public double lengthAnotherPropertiesLength() {
         return this.innerAnotherProperties() == null ? 0.0 : this.innerAnotherProperties().length();
     }
@@ -237,6 +263,7 @@ public final class SalmonInner extends FishInner {
      * @param length the length value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withLengthAnotherPropertiesLength(double length) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();
@@ -250,6 +277,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the patten value.
      */
+    @Generated
     public String pattenAnotherPropertiesPatten() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().patten();
     }
@@ -259,6 +287,7 @@ public final class SalmonInner extends FishInner {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredStringAnotherPropertiesRequiredString() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().requiredString();
     }
@@ -269,6 +298,7 @@ public final class SalmonInner extends FishInner {
      * @param requiredString the requiredString value to set.
      * @return the SalmonInner object itself.
      */
+    @Generated
     public SalmonInner withRequiredStringAnotherPropertiesRequiredString(String requiredString) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();

@@ -5,6 +5,7 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -21,16 +22,19 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
     /*
      * Resource tags.
      */
+    @Generated
     private Map<String, String> tags;
 
     /*
      * The resource-specific properties for this resource.
      */
+    @Generated
     private TopLevelArmResourceUpdateProperties innerProperties;
 
     /**
      * Creates an instance of TopLevelArmResourceUpdate class.
      */
+    @Generated
     public TopLevelArmResourceUpdate() {
     }
 
@@ -39,6 +43,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * 
      * @return the tags value.
      */
+    @Generated
     public Map<String, String> tags() {
         return this.tags;
     }
@@ -49,6 +54,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * @param tags the tags value to set.
      * @return the TopLevelArmResourceUpdate object itself.
      */
+    @Generated
     public TopLevelArmResourceUpdate withTags(Map<String, String> tags) {
         this.tags = tags;
         return this;
@@ -59,6 +65,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private TopLevelArmResourceUpdateProperties innerProperties() {
         return this.innerProperties;
     }
@@ -68,6 +75,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * 
      * @return the userName value.
      */
+    @Generated
     public String userName() {
         return this.innerProperties() == null ? null : this.innerProperties().userName();
     }
@@ -78,6 +86,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * @param userName the userName value to set.
      * @return the TopLevelArmResourceUpdate object itself.
      */
+    @Generated
     public TopLevelArmResourceUpdate withUserName(String userName) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceUpdateProperties();
@@ -91,6 +100,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * 
      * @return the userNames value.
      */
+    @Generated
     public String userNames() {
         return this.innerProperties() == null ? null : this.innerProperties().userNames();
     }
@@ -101,6 +111,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * @param userNames the userNames value to set.
      * @return the TopLevelArmResourceUpdate object itself.
      */
+    @Generated
     public TopLevelArmResourceUpdate withUserNames(String userNames) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceUpdateProperties();
@@ -114,6 +125,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * 
      * @return the accuserName value.
      */
+    @Generated
     public String accuserName() {
         return this.innerProperties() == null ? null : this.innerProperties().accuserName();
     }
@@ -124,6 +136,7 @@ public final class TopLevelArmResourceUpdate implements JsonSerializable<TopLeve
      * @param accuserName the accuserName value to set.
      * @return the TopLevelArmResourceUpdate object itself.
      */
+    @Generated
     public TopLevelArmResourceUpdate withAccuserName(String accuserName) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceUpdateProperties();

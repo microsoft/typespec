@@ -1,4 +1,4 @@
-import { Children, code, For, mapJoin, Refkey, refkey } from "@alloy-js/core";
+import { Children, code, For, mapJoin, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Discriminator,
@@ -14,6 +14,7 @@ import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import {
   ArraySerializerRefkey,
   DateDeserializerRefkey,
@@ -125,7 +126,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";
   const functionName = props.name ? props.name : `${baseName}${functionSuffix}`;
   const itemType =
-    props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
+    props.target === "application" ? "any" : <ts.Reference refkey={efRefkey(props.type)} />;
 
   let transformExpression: Children;
   if ($.model.is(props.type)) {
@@ -152,7 +153,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
     });
   }
 
-  const returnType = props.target === "application" ? refkey(props.type) : "any";
+  const returnType = props.target === "application" ? efRefkey(props.type) : "any";
 
   const ref = props.refkey ?? getTypeTransformerRefkey(props.type, props.target);
 
@@ -176,7 +177,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
  * @returns the refkey for the TypeTransformer function
  */
 export function getTypeTransformerRefkey(type: Type, target: "application" | "transport") {
-  return refkey(type, target);
+  return efRefkey(type, target);
 }
 
 export interface ModelTransformExpressionProps {
@@ -363,7 +364,7 @@ export function TypeTransformCall(props: TypeTransformCallProps): Children {
   }
   let itemName: Children = itemPath.join(".");
   if (props.castInput) {
-    itemName = code`${itemName} as ${refkey(props.type)}`;
+    itemName = code`${itemName} as ${efRefkey(props.type)}`;
   }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.model.is(transformType) && $.array.is(transformType)) {
