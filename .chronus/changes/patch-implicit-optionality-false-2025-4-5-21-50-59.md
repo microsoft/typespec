@@ -5,7 +5,7 @@ packages:
   - "@typespec/http"
 ---
 
-Make patch not apply optionality transform by default anymore. 
+Changed `@patch` so that it does not apply the "implicit optionality" transform by default anymore.
 
 ```diff lang=tsp
 @patch op update(@body pet: Pet): void;
