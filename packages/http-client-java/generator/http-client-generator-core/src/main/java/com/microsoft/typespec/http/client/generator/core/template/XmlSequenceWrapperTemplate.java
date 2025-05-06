@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.XmlSequenceWrapper;
@@ -45,6 +46,7 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
             ClassType.XML_SERIALIZABLE.addImportsTo(imports, false);
             ClassType.XML_TOKEN.addImportsTo(imports, false);
             ClassType.XML_WRITER.addImportsTo(imports, false);
+            Annotation.GENERATED.addImportsTo(imports);
 
             javaFile.declareImport(ArrayList.class.getName(), ClassType.CORE_UTILS.getFullName(), QName.class.getName(),
                 XMLStreamException.class.getName());
