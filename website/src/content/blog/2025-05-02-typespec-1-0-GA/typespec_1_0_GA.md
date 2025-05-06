@@ -108,7 +108,7 @@ model CreateTodoItem {
 
 From this definition, TypeSpec generates everything you need to implement and consume your API:
 
-![TypeSpec Workflow Diagram](..\2025-03-31-typespec-1-0-release\workflow-diagram-full.png)
+![TypeSpec Workflow Diagram](../2025-03-31-typespec-1-0-release/workflow-diagram-full.png)
 
 ## Looking ahead
 
