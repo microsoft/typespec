@@ -2,6 +2,10 @@
 
 ## 0.8.1
 
+No changes, version bump only.
+
+## 0.8.1
+
 ### Bump dependencies
 
 - [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies

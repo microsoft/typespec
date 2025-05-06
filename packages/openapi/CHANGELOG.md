@@ -1,5 +1,9 @@
 # Change Log - @typespec/openapi
 
+## 1.0.0-rc.2
+
+No changes, version bump only.
+
 ## 1.0.0-rc.1
 
 ### Bug Fixes

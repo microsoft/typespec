@@ -2,6 +2,14 @@
 
 ## 0.11.2
 
+### Bug Fixes
+
+- [#7119](https://github.com/microsoft/typespec/pull/7119) Fix typing for generic `PipelineClient`
+- [#7152](https://github.com/microsoft/typespec/pull/7152) Add support for legacy parameterized next links
+
+
+## 0.11.2
+
 ### Other Changes
 
 - Bump typespec and typespec-azure to latest version

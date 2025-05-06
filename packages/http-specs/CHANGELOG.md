@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.22
+
+### Bug Fixes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Handle new behavior of `@patch` keeping old behavior
+
+
 ## 0.1.0-alpha.21
 
 ### Bug Fixes
