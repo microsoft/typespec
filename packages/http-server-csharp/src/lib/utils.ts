@@ -1,4 +1,12 @@
-import { AssetEmitter, EmitterOutput, Scope, StringBuilder, code } from "@typespec/asset-emitter";
+import {
+  AssetEmitter,
+  Declaration,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+  StringBuilder,
+  code,
+} from "@typespec/asset-emitter";
 import {
   IntrinsicScalarName,
   IntrinsicType,
@@ -61,6 +69,7 @@ import {
   NullValue,
   NumericValue,
   StringValue,
+  checkOrAddNamespaceToScope,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
 import { getDoubleType, getEnumType } from "./type-helpers.js";
@@ -227,6 +236,37 @@ export function getCSharpType(
     default:
       return undefined;
   }
+}
+
+export function resolveReferenceFromScopes(
+  targetDeclaration: Declaration<string>,
+  declarationScopes: Scope<string>[],
+  referenceScopes: Scope<string>[],
+): string | undefined {
+  function getSourceFile(
+    scopes: Scope<string>[],
+  ): { scope: Scope<string>; file: SourceFile<string> } | undefined {
+    for (const scope of scopes) {
+      if (scope.kind === "sourceFile") {
+        return { scope: scope, file: scope.sourceFile };
+      }
+    }
+
+    return undefined;
+  }
+  const decl = getSourceFile(declarationScopes);
+  const ref = getSourceFile(referenceScopes);
+  if (targetDeclaration.name && decl) {
+    const declNs = decl.file.meta["ResolvedNamespace"];
+    if (!ref) return declNs ? `${declNs}.${targetDeclaration.name} ` : undefined;
+    if (checkOrAddNamespaceToScope(declNs, ref.scope)) {
+      return targetDeclaration.name;
+    }
+
+    return declNs ? `${declNs}.${targetDeclaration.name} ` : undefined;
+  }
+
+  return undefined;
 }
 
 export function coalesceTypes(
