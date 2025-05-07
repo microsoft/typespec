@@ -116,7 +116,9 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> TypesToKeep { get; } = new();
+        internal HashSet<string> TypesToKeep { get; } = [];
+
+        internal HashSet<string> TypesToKeepPublic { get; } = [];
 
         /// <summary>
         /// Adds a type to the list of types to keep.
@@ -132,5 +134,11 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="type">The type provider representing the type.</param>
         public void AddTypeToKeep(TypeProvider type) => AddTypeToKeep(type.Type.FullyQualifiedName);
+
+        /// <summary>
+        /// Adds a type to the list of types to keep as public.
+        /// </summary>
+        /// <param name="typeName">The type provider representing the type.</param>
+        public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
     }
 }

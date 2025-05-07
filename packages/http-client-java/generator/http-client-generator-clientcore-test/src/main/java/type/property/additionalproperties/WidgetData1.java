@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,24 +13,24 @@ import java.time.format.DateTimeFormatter;
 /**
  * The WidgetData1 model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class WidgetData1 implements JsonSerializable<WidgetData1> {
     /*
      * The kind property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String kind = "kind1";
 
     /*
      * The start property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final OffsetDateTime start;
 
     /*
      * The end property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OffsetDateTime end;
 
     /**
@@ -38,7 +38,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * 
      * @param start the start value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public WidgetData1(OffsetDateTime start) {
         this.start = start;
     }
@@ -48,7 +48,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * 
      * @return the kind value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getKind() {
         return this.kind;
     }
@@ -58,7 +58,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * 
      * @return the start value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getStart() {
         return this.start;
     }
@@ -68,7 +68,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * 
      * @return the end value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getEnd() {
         return this.end;
     }
@@ -79,7 +79,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * @param end the end value to set.
      * @return the WidgetData1 object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public WidgetData1 setEnd(OffsetDateTime end) {
         this.end = end;
         return this;
@@ -88,7 +88,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -109,7 +109,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the WidgetData1.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static WidgetData1 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             OffsetDateTime start = null;

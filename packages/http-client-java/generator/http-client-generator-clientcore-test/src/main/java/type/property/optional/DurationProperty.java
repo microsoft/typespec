@@ -1,7 +1,7 @@
 package type.property.optional;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,18 +13,18 @@ import java.util.Objects;
 /**
  * Model with a duration property.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class DurationProperty implements JsonSerializable<DurationProperty> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Duration property;
 
     /**
      * Creates an instance of DurationProperty class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationProperty() {
     }
 
@@ -33,7 +33,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Duration getProperty() {
         return this.property;
     }
@@ -44,7 +44,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
      * @param property the property value to set.
      * @return the DurationProperty object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationProperty setProperty(Duration property) {
         this.property = property;
         return this;
@@ -53,7 +53,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -69,7 +69,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the DurationProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DurationProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             DurationProperty deserializedDurationProperty = new DurationProperty();

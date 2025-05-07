@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class MethodProviderHelpers
     {
-        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(IEnumerable<ParameterProvider> parameters, bool skipParamValidation)
+        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamHash(IEnumerable<ParameterProvider> parameters, bool skipParamValidation)
         {
             Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
             if (!skipParamValidation)

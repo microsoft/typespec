@@ -14,11 +14,17 @@ import java.util.stream.Collectors;
 
 public class PomMapper implements IMapper<Project, Pom> {
 
+    private static final PomMapper INSTANCE = new PomMapper();
+
+    public static PomMapper getInstance() {
+        return INSTANCE;
+    }
+
     protected static final String TEST_SUFFIX = ":test";
 
     @Override
     public Pom map(Project project) {
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return createGenericPom(project);
         } else {
             return createAzurePom(project);

@@ -85,7 +85,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
 
             // Response body
             IType responseBodyType;
-            if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1()) {
                 // special handling for paging method
                 if (clientMethod.getType().isPaging()) {
                     String itemName = clientMethod.getMethodPageDetails().getItemName();
@@ -151,7 +151,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
     protected static void generateJavadocExceptions(ClientMethod clientMethod, JavaJavadocComment commentBlock,
         boolean useFullClassName) {
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             if (restAPIMethod != null && restAPIMethod.getUnexpectedResponseExceptionType() != null) {
                 commentBlock.methodThrows(
                     useFullClassName
