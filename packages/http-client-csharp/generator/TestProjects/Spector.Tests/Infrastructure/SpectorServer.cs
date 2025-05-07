@@ -9,7 +9,7 @@ namespace TestProjects.Spector.Tests
 {
     public class SpectorServer : TestServerBase
     {
-        public SpectorServer() : base(GetProcessPath(), $"serve {string.Join(" ", GetScenariosPaths())} --port 443 --coverageFile {GetCoverageFilePath()}")
+        public SpectorServer() : base(GetProcessPath(), $"serve {string.Join(" ", GetScenariosPaths())} --port 0 --coverageFile {GetCoverageFilePath()}")
         {
         }
 
