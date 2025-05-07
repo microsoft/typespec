@@ -440,6 +440,96 @@ model TypeSpec.Http.LocationHeader
 | -------- | -------- | --------------------------------------------------------------------------------------------------- |
 | location | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
 
+### `MergePatchCreateOrUpdate` {#TypeSpec.Http.MergePatchCreateOrUpdate}
+
+Create a MergePatch Request body for creating or updating the given resource Model.
+The MergePatch request created by this template provides a TypeSpec description of a
+JSON MergePatch request that can successfully create or update the given resource.
+The transformation follows the definition of JSON MergePatch requests in
+rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+applying the merge-patch transform recursively to keyed types in the resource Model.
+
+Using this template in a PATCH request body overrides the `implicitOptionality`
+setting for PATCH operations and sets `application/merge-patch+json` as the request
+content-type.
+
+```typespec
+model TypeSpec.Http.MergePatchCreateOrUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description                                                                                                                                                                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| T            | The type of the resource to create a MergePatch update request body for.                                                                                                                                                                                                             |
+| NameTemplate | A StringTemplate used to name any models created by applying<br />the merge-patch transform to the resource. The default name template is `{name}MergePatchCreateOrUpdate`,<br />for example, the merge patch transform of model `Widget` is named `WidgetMergePatchCreateOrUpdate`. |
+
+#### Examples
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@body request: MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@bodyRoot request: MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(...MergePatchCreateOrUpdate<Widget>): Widget;
+```
+
+#### Properties
+
+None
+
+### `MergePatchUpdate` {#TypeSpec.Http.MergePatchUpdate}
+
+Create a MergePatch Request body for updating the given resource Model.
+The MergePatch request created by this template provides a TypeSpec description of a
+JSON MergePatch request that can successfully update the given resource.
+The transformation follows the definition of JSON MergePatch requests in
+rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+applying the merge-patch transform recursively to keyed types in the resource Model.
+
+Using this template in a PATCH request body overrides the `implicitOptionality`
+setting for PATCH operations and sets `application/merge-patch+json` as the request
+content-type.
+
+```typespec
+model TypeSpec.Http.MergePatchUpdate<T, NameTemplate>
+```
+
+#### Template Parameters
+
+| Name         | Description                                                                                                                                                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T            | The type of the resource to create a MergePatch update request body for.                                                                                                                                                                                             |
+| NameTemplate | A StringTemplate used to name any models created by applying<br />the merge-patch transform to the resource. The default name template is `{name}MergePatchUpdate`,<br />for example, the merge patch transform of model `Widget` is named `WidgetMergePatchUpdate`. |
+
+#### Examples
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@body request: MergePatchUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(@bodyRoot request: MergePatchUpdate<Widget>): Widget;
+```
+
+```tsp
+// An operation updating a 'Widget' using merge-patch
+@patch op update(...MergePatchUpdate<Widget>): Widget;
+```
+
+#### Properties
+
+None
+
 ### `MovedResponse` {#TypeSpec.Http.MovedResponse}
 
 The URL of the requested resource has been changed permanently. The new URL is given in the response.

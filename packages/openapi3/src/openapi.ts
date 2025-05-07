@@ -46,7 +46,7 @@ import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,

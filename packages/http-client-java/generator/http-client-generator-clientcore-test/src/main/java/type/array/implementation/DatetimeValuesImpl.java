@@ -1,17 +1,20 @@
 package type.array.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -45,61 +48,86 @@ public final class DatetimeValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientDatetimeV", host = "{endpoint}")
     public interface DatetimeValuesService {
+        static DatetimeValuesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.array.implementation.DatetimeValuesServiceImpl");
+                return (DatetimeValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/array/datetime",
             expectedStatusCodes = { 200 },
             returnValueWireType = OffsetDateTime.class)
         @UnexpectedResponseExceptionDetail
-        Response<List<OffsetDateTime>> getSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<List<OffsetDateTime>> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/array/datetime", expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") List<OffsetDateTime> body, RequestContext requestContext);
     }
 
     /**
      * The get operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * [
-     *     OffsetDateTime (Required)
-     * ]
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<List<OffsetDateTime>> getWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<List<OffsetDateTime>> getWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), accept, requestOptions);
+        return service.get(this.client.getEndpoint(), accept, requestContext);
+    }
+
+    /**
+     * The get operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<OffsetDateTime> get() {
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
      * The put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * [
-     *     OffsetDateTime (Required)
-     * ]
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(List<OffsetDateTime> body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.put(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * The put operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void put(List<OffsetDateTime> body) {
+        putWithResponse(body, RequestContext.none());
     }
 }

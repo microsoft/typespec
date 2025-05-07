@@ -41,9 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModel()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
-
             var inputModel = InputFactory.Model("TestModel", properties: properties);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -58,9 +57,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModelAsStruct()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
-
             var inputModel = InputFactory.Model("TestModel", properties: properties, modelAsStruct: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -71,44 +69,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(expected, result);
         }
 
-        private CSharpType GetCSharpType(InputType type) => type switch
-        {
-            InputPrimitiveType primitiveType => primitiveType.Kind switch
-            {
-                InputPrimitiveTypeKind.String => typeof(string),
-                InputPrimitiveTypeKind.Int32 => typeof(int),
-                InputPrimitiveTypeKind.Unknown => typeof(BinaryData),
-                _ => throw new ArgumentException("Unsupported input type.")
-            },
-            InputArrayType => typeof(IList<string>),
-            InputDictionaryType => typeof(IDictionary<string, string>),
-            _ => throw new ArgumentException("Unsupported input type.")
-        };
-
-        private Func<InputType, CSharpType> MockGeneratorSetValue(List<InputModelProperty> properties)
-        {
-            return (InputType inputType) =>
-            {
-                // Lookup the inputType in the list and return the corresponding CSharpType
-                var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
-                if (inputModelProperty != null)
-                {
-                    return GetCSharpType(inputModelProperty.Type);
-                }
-                else
-                {
-                    throw new ArgumentException("Unsupported input type.");
-                }
-            };
-        }
-
         // common usages definitions
         internal static readonly InputModelProperty RequiredStringProperty = InputFactory.Property("requiredString", InputPrimitiveType.String, isRequired: true);
 
         internal static readonly InputModelProperty RequiredIntProperty = InputFactory.Property("requiredInt", InputPrimitiveType.Int32, isRequired: true);
-
-        internal static readonly InputModelProperty RequiredStringListProperty = InputFactory.Property("requiredStringList", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
-
-        internal static readonly InputModelProperty RequiredIntListProperty = InputFactory.Property("requiredIntList", InputFactory.Array(InputPrimitiveType.Int32), isRequired: true);
     }
 }

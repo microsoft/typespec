@@ -3,13 +3,15 @@
 
 package authentication.union;
 
+import authentication.utils.OAuthBearerTokenAuthenticationPolicy;
 import io.clientcore.core.credentials.KeyCredential;
-import org.junit.jupiter.api.Disabled;
+import io.clientcore.core.credentials.oauth.AccessToken;
+import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 
 class UnionClientTest {
 
-    @Disabled("No TokenCredential exists in clientcore. It becomes KeyCredential and overrides this.")
     @Test
     void validKey() {
         UnionClient client = new UnionClientBuilder().credential(new KeyCredential("valid-key")).buildClient();
@@ -18,9 +20,10 @@ class UnionClientTest {
 
     @Test
     void validToken() {
-        UnionClient client
-            = new UnionClientBuilder().credential(new KeyCredential("https://security.microsoft.com/.default"))
-                .buildClient();
+        UnionClient client = new UnionClientBuilder().addHttpPipelinePolicy(new OAuthBearerTokenAuthenticationPolicy(
+            tokenRequestContext -> new AccessToken("https://security.microsoft.com/.default",
+                OffsetDateTime.now().plusHours(1)),
+            new OAuthTokenRequestContext().addScopes("https://security.microsoft.com/.default"))).buildClient();
         client.validToken();
     }
 }

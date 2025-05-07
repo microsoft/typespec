@@ -17,6 +17,7 @@ public class PomMapperTests {
             serviceDescription = "Mock Service";
             namespace = "com.azure.mock";
             artifactId = "azure-mock";
+            groupId = "com.azure";
 
             pomDependencyIdentifiers.add("com.azure:azure-core-test:1.15.0");
         }

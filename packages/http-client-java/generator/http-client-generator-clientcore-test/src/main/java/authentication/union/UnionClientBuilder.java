@@ -2,8 +2,11 @@ package authentication.union;
 
 import authentication.union.implementation.UnionClientImpl;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.credentials.KeyCredential;
+import io.clientcore.core.credentials.oauth.OAuthTokenCredential;
+import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
 import io.clientcore.core.http.pipeline.HttpInstrumentationOptions;
@@ -16,11 +19,12 @@ import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
 import io.clientcore.core.http.pipeline.KeyCredentialPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.KeyCredentialTrait;
+import io.clientcore.core.traits.OAuthTokenCredentialTrait;
 import io.clientcore.core.traits.ProxyTrait;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
@@ -32,53 +36,38 @@ import java.util.Objects;
  */
 @ServiceClientBuilder(serviceClients = { UnionClient.class })
 public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, ProxyTrait<UnionClientBuilder>,
-    ConfigurationTrait<UnionClientBuilder>, KeyCredentialTrait<UnionClientBuilder>, EndpointTrait<UnionClientBuilder> {
-    @Metadata(generated = true)
+    ConfigurationTrait<UnionClientBuilder>, OAuthTokenCredentialTrait<UnionClientBuilder>,
+    KeyCredentialTrait<UnionClientBuilder>, EndpointTrait<UnionClientBuilder> {
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final String[] DEFAULT_SCOPES = new String[] { "https://security.microsoft.com/.default" };
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the UnionClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public UnionClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -86,31 +75,15 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public UnionClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -120,7 +93,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -131,13 +104,13 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -145,15 +118,31 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public UnionClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -163,13 +152,13 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -177,15 +166,31 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     }
 
     /*
+     * The TokenCredential used for authentication.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private OAuthTokenCredential tokenCredential;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public UnionClientBuilder credential(OAuthTokenCredential tokenCredential) {
+        this.tokenCredential = tokenCredential;
+        return this;
+    }
+
+    /*
      * The KeyCredential used for authentication.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private KeyCredential keyCredential;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder credential(KeyCredential keyCredential) {
         this.keyCredential = keyCredential;
@@ -195,13 +200,13 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public UnionClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -213,22 +218,21 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      * 
      * @return an instance of UnionClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private UnionClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        UnionClientImpl client = new UnionClientImpl(localPipeline, localEndpoint);
+        UnionClientImpl client = new UnionClientImpl(createHttpPipeline(), localEndpoint);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -241,11 +245,16 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
         policies.add(retryOptions == null ? new HttpRetryPolicy() : new HttpRetryPolicy(retryOptions));
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         if (keyCredential != null) {
-            policies.add(new KeyCredentialPolicy("authorization", keyCredential, "Bearer"));
+            policies.add(new KeyCredentialPolicy("x-ms-api-key", keyCredential, null));
+        }
+        if (tokenCredential != null) {
+            policies.add(new OAuthBearerTokenAuthenticationPolicy(tokenCredential,
+                new OAuthTokenRequestContext().setParam("auth_flows",
+                    "[{\"type\":\"implicit\",\"authorizationUrl\":\"https://login.microsoftonline.com/common/oauth2/authorize\",\"scopes\":[{\"value\":\"https://security.microsoft.com/.default\"}]}]")));
         }
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -253,10 +262,8 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      * 
      * @return an instance of UnionClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionClient buildClient() {
         return new UnionClient(buildInnerClient());
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(UnionClientBuilder.class);
 }

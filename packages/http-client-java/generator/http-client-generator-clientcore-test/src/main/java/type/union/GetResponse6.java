@@ -1,7 +1,7 @@
 package type.union;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The GetResponse6 model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class GetResponse6 implements JsonSerializable<GetResponse6> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumsOnlyCases prop;
 
     /**
@@ -24,7 +24,7 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private GetResponse6(EnumsOnlyCases prop) {
         this.prop = prop;
     }
@@ -34,7 +34,7 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EnumsOnlyCases getProp() {
         return this.prop;
     }
@@ -42,7 +42,7 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the GetResponse6.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static GetResponse6 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             EnumsOnlyCases prop = null;
