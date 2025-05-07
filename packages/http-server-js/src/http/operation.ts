@@ -129,12 +129,35 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
 
     const visibilitySuffix = getVisibilitySuffix(httpVisibility, CANONICAL_VISIBILITY);
 
-    const self: Mutator = {
+    const primaryMutator: Mutator = {
       name: "CanonicalizeHttpOperation",
       Model: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (model, clone, program, realm) => {
+        replace: (model, clone, program, realm) => {
           let modified = false;
+
+          const indexer = model.indexer;
+
+          if (indexer) {
+            if ($(realm).array.is(model)) {
+              // Array items have a bit of a special visibility concern
+
+              const { type: mutated } = isCanonicalizationSubject(indexer.value)
+                ? cachedMutateSubgraph(program, arrayItemMutator, indexer.value)
+                : { type: indexer.value };
+
+              clone.indexer = { key: indexer.key, value: mutated };
+            } else {
+              const { type: mutated } = isCanonicalizationSubject(indexer.value)
+                ? cachedMutateSubgraph(program, primaryMutator, indexer.value)
+                : { type: indexer.value };
+
+              clone.indexer = { key: indexer.key, value: mutated };
+            }
+
+            modified ||= indexer.value !== clone.indexer.value;
+          }
+
           for (const [name, property] of model.properties) {
             if (isVisible(program, property, visibilityFilter)) {
               const mutated = cachedMutateSubgraph(program, mpMutator, property)
@@ -157,11 +180,11 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
       Union: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (union, clone, program, realm) => {
+        replace: (union, clone, program, realm) => {
           let modified = false;
           for (const [name, variant] of union.variants) {
             const { type: mutated } = isCanonicalizationSubject(variant.type)
-              ? cachedMutateSubgraph(program, self, variant.type)
+              ? cachedMutateSubgraph(program, primaryMutator, variant.type)
               : variant;
 
             clone.variants.set(
@@ -183,7 +206,7 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
       ModelProperty: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (modelProperty, clone, program, realm) => {
+        replace: (modelProperty, clone, program, realm) => {
           // Passthrough -- but with encoding decay.
           const encoders = resolveEncodingChain(ctx, NoModule, modelProperty, modelProperty.type);
 
@@ -196,9 +219,9 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
       UnionVariant: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (variant, clone, program, realm) => {
+        replace: (variant, clone, program, realm) => {
           const { type: mutated } = isCanonicalizationSubject(variant.type)
-            ? cachedMutateSubgraph(program, self, variant.type)
+            ? cachedMutateSubgraph(program, primaryMutator, variant.type)
             : variant;
 
           clone.type = mutated;
@@ -208,12 +231,12 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
       Tuple: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (tuple, clone, program, realm) => {
+        replace: (tuple, clone, program, realm) => {
           let modified = false;
           clone.values = [...tuple.values];
           for (const [idx, value] of tuple.values.map((v, idx) => [idx, v] as const)) {
             const { type: mutated } = isCanonicalizationSubject(value)
-              ? cachedMutateSubgraph(program, self, value)
+              ? cachedMutateSubgraph(program, primaryMutator, value)
               : { type: value };
 
             clone.values[idx] = mutated;
@@ -226,7 +249,7 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
       Scalar: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (scalar, clone, program, realm) => {
+        replace: (scalar, clone, program, realm) => {
           // Passthrough -- but with encoding decay.
           const encoders = resolveEncodingChain(ctx, NoModule, scalar, scalar);
 
@@ -235,14 +258,19 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
     };
 
+    const arrayItemMutator =
+      httpVisibility & Visibility.Item
+        ? primaryMutator
+        : bindMutator(httpVisibility | Visibility.Item, visibilityFilter);
+
     const mpMutator: Mutator = {
-      name: self.name + "ModelProperty",
+      name: primaryMutator.name + "ModelProperty",
       ModelProperty: {
         filter: () => MutatorFlow.DoNotRecur,
-        mutate: (modelProperty, clone, program, realm) => {
+        replace: (modelProperty, clone, program, realm) => {
           let modified = false;
           const { type: originalCanonicalType } = isCanonicalizationSubject(modelProperty.type)
-            ? cachedMutateSubgraph(ctx.program, self, modelProperty.type)
+            ? cachedMutateSubgraph(ctx.program, primaryMutator, modelProperty.type)
             : { type: modelProperty.type };
 
           const encodingChain = resolveEncodingChain(
@@ -270,7 +298,7 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
       },
     };
 
-    return (ctx.canonicalizationCache[cacheKey] = self);
+    return (ctx.canonicalizationCache[cacheKey] = primaryMutator);
   }
 }
 
