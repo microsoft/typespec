@@ -2,5 +2,11 @@
   "reportUnnecessaryCast": "warning",
   "reportTypeCommentUsage": true,
   "reportMissingImports": false,
-  "pythonVersion": "3.9"
+  "pythonVersion": "3.9",
+  "exclude": [
+    "**/clientinitialization/**",
+    "**/node_modules/**",
+    "**/temp/**",
+    "**/.venv/**"
+  ]
 }
