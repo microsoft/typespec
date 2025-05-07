@@ -610,8 +610,9 @@ function getAllExternalDependencies(ctx: JsContext): Set<string> {
     for (const _import of module.imports) {
       if (
         typeof _import.from === "string" &&
-        !_import.from.startsWith(".") &&
-        !_import.from.startsWith("/")
+        !_import.from.startsWith(".") && // is a relative path
+        !_import.from.startsWith("/") && // is an absolute path
+        !_import.from.startsWith("node:") // is node builtin
       ) {
         externalDependencies.add(_import.from);
       } else if (typeof _import.from !== "string") {
