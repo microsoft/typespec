@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the classes for DeserializeEmptyStringAsNull.
+ * Package containing the implementations for DeserializeEmptyStringAsNull.
  * Test decorator &#064;deserializeEmptyStringAsNull.
  * <!-- end generated doc -->
  */
-package _specs_.azure.clientgenerator.core.deserializeemptystringasnull;
+package azure.clientgenerator.core.deserialize.emptystringnull.implementation;
