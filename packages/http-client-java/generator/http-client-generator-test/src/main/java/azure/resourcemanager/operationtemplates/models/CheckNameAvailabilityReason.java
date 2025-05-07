@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.operationtemplates.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableStringEnum;
 import java.util.Collection;
 
@@ -14,11 +15,13 @@ public final class CheckNameAvailabilityReason extends ExpandableStringEnum<Chec
     /**
      * Name is invalid.
      */
+    @Generated
     public static final CheckNameAvailabilityReason INVALID = fromString("Invalid");
 
     /**
      * Name already exists.
      */
+    @Generated
     public static final CheckNameAvailabilityReason ALREADY_EXISTS = fromString("AlreadyExists");
 
     /**
@@ -26,6 +29,7 @@ public final class CheckNameAvailabilityReason extends ExpandableStringEnum<Chec
      * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
+    @Generated
     @Deprecated
     public CheckNameAvailabilityReason() {
     }
@@ -36,6 +40,7 @@ public final class CheckNameAvailabilityReason extends ExpandableStringEnum<Chec
      * @param name a name to look for.
      * @return the corresponding CheckNameAvailabilityReason.
      */
+    @Generated
     public static CheckNameAvailabilityReason fromString(String name) {
         return fromString(name, CheckNameAvailabilityReason.class);
     }
@@ -45,6 +50,7 @@ public final class CheckNameAvailabilityReason extends ExpandableStringEnum<Chec
      * 
      * @return known CheckNameAvailabilityReason values.
      */
+    @Generated
     public static Collection<CheckNameAvailabilityReason> values() {
         return values(CheckNameAvailabilityReason.class);
     }

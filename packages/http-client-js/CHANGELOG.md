@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client-js
 
+## 0.5.0
+
+### Bump dependencies
+
+- [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
+
+
 ## 0.4.0
 
 ### Features

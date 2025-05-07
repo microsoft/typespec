@@ -125,7 +125,7 @@ public final class MapperUtils {
         }
     }
 
-    static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
+    public static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
         final Schema responseSchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
         if (responseSchema != null && responseSchema.isXmlWrapped()) {
             // Create and return type for the XML wrapped schema.

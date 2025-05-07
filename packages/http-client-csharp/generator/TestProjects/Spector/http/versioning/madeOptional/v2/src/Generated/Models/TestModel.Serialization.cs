@@ -11,6 +11,8 @@ namespace Versioning.MadeOptional
 {
     public partial class TestModel : IJsonModel<TestModel>
     {
+        internal TestModel() => throw null;
+
         void IJsonModel<TestModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

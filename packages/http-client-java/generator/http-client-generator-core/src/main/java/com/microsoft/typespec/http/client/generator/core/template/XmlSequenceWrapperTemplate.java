@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.xml.XmlReader;
-import com.azure.xml.XmlSerializable;
-import com.azure.xml.XmlToken;
-import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -15,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
+import java.util.Set;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -41,13 +38,19 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
 
         IType sequenceType = xmlSequenceWrapper.getSequenceType();
 
-        javaFile.declareImport(xmlSequenceWrapper.getImports());
+        Set<String> imports = xmlSequenceWrapper.getImports();
 
         if (settings.isStreamStyleSerialization()) {
+            ClassType.XML_READER.addImportsTo(imports, false);
+            ClassType.XML_SERIALIZABLE.addImportsTo(imports, false);
+            ClassType.XML_TOKEN.addImportsTo(imports, false);
+            ClassType.XML_WRITER.addImportsTo(imports, false);
+
             javaFile.declareImport(ArrayList.class.getName(), ClassType.CORE_UTILS.getFullName(), QName.class.getName(),
-                XmlReader.class.getName(), XmlSerializable.class.getName(), XMLStreamException.class.getName(),
-                XmlToken.class.getName(), XmlWriter.class.getName());
+                XMLStreamException.class.getName());
         }
+
+        javaFile.declareImport(imports);
 
         javaFile.javadocComment(comment -> comment
             .description("A wrapper around " + sequenceType + " which provides top-level metadata for serialization."));

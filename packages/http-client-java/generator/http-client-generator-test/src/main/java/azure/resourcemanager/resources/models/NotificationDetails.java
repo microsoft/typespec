@@ -5,6 +5,7 @@
 package azure.resourcemanager.resources.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,16 +21,19 @@ public final class NotificationDetails implements JsonSerializable<NotificationD
     /*
      * The notification message.
      */
+    @Generated
     private String message;
 
     /*
      * If true, the notification is urgent.
      */
+    @Generated
     private boolean urgent;
 
     /**
      * Creates an instance of NotificationDetails class.
      */
+    @Generated
     public NotificationDetails() {
     }
 
@@ -38,6 +42,7 @@ public final class NotificationDetails implements JsonSerializable<NotificationD
      * 
      * @return the message value.
      */
+    @Generated
     public String message() {
         return this.message;
     }
@@ -48,6 +53,7 @@ public final class NotificationDetails implements JsonSerializable<NotificationD
      * @param message the message value to set.
      * @return the NotificationDetails object itself.
      */
+    @Generated
     public NotificationDetails withMessage(String message) {
         this.message = message;
         return this;
@@ -58,6 +64,7 @@ public final class NotificationDetails implements JsonSerializable<NotificationD
      * 
      * @return the urgent value.
      */
+    @Generated
     public boolean urgent() {
         return this.urgent;
     }
@@ -68,6 +75,7 @@ public final class NotificationDetails implements JsonSerializable<NotificationD
      * @param urgent the urgent value to set.
      * @return the NotificationDetails object itself.
      */
+    @Generated
     public NotificationDetails withUrgent(boolean urgent) {
         this.urgent = urgent;
         return this;

@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,21 +21,25 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
     /*
      * The length property.
      */
+    @Generated
     private double length;
 
     /*
      * The patten property.
      */
+    @Generated
     private String patten;
 
     /*
      * The requiredString property.
      */
+    @Generated
     private String requiredString;
 
     /**
      * Creates an instance of EyeProperties class.
      */
+    @Generated
     public EyeProperties() {
     }
 
@@ -43,6 +48,7 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
      * 
      * @return the length value.
      */
+    @Generated
     public double length() {
         return this.length;
     }
@@ -53,6 +59,7 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
      * @param length the length value to set.
      * @return the EyeProperties object itself.
      */
+    @Generated
     public EyeProperties withLength(double length) {
         this.length = length;
         return this;
@@ -63,6 +70,7 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
      * 
      * @return the patten value.
      */
+    @Generated
     public String patten() {
         return this.patten;
     }
@@ -72,6 +80,7 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredString() {
         return this.requiredString;
     }
@@ -82,6 +91,7 @@ public final class EyeProperties implements JsonSerializable<EyeProperties> {
      * @param requiredString the requiredString value to set.
      * @return the EyeProperties object itself.
      */
+    @Generated
     public EyeProperties withRequiredString(String requiredString) {
         this.requiredString = requiredString;
         return this;

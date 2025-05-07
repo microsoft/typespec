@@ -7,6 +7,7 @@ package azure.resourcemanager.commonproperties.fluent.models;
 import azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResourceProperties;
 import azure.resourcemanager.commonproperties.models.ManagedServiceIdentity;
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -23,36 +24,43 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
+    @Generated
     private ManagedIdentityTrackedResourceProperties properties;
 
     /*
      * The managed service identities assigned to this resource.
      */
+    @Generated
     private ManagedServiceIdentity identity;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
+    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
+    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
+    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
+    @Generated
     private String id;
 
     /**
      * Creates an instance of ManagedIdentityTrackedResourceInner class.
      */
+    @Generated
     public ManagedIdentityTrackedResourceInner() {
     }
 
@@ -61,6 +69,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the properties value.
      */
+    @Generated
     public ManagedIdentityTrackedResourceProperties properties() {
         return this.properties;
     }
@@ -71,6 +80,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * @param properties the properties value to set.
      * @return the ManagedIdentityTrackedResourceInner object itself.
      */
+    @Generated
     public ManagedIdentityTrackedResourceInner withProperties(ManagedIdentityTrackedResourceProperties properties) {
         this.properties = properties;
         return this;
@@ -81,6 +91,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the identity value.
      */
+    @Generated
     public ManagedServiceIdentity identity() {
         return this.identity;
     }
@@ -91,6 +102,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * @param identity the identity value to set.
      * @return the ManagedIdentityTrackedResourceInner object itself.
      */
+    @Generated
     public ManagedIdentityTrackedResourceInner withIdentity(ManagedServiceIdentity identity) {
         this.identity = identity;
         return this;
@@ -101,6 +113,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the systemData value.
      */
+    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -110,6 +123,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the type value.
      */
+    @Generated
     @Override
     public String type() {
         return this.type;
@@ -120,6 +134,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the name value.
      */
+    @Generated
     @Override
     public String name() {
         return this.name;
@@ -130,6 +145,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
      * 
      * @return the id value.
      */
+    @Generated
     @Override
     public String id() {
         return this.id;
@@ -138,6 +154,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public ManagedIdentityTrackedResourceInner withLocation(String location) {
         super.withLocation(location);
@@ -147,6 +164,7 @@ public final class ManagedIdentityTrackedResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
+    @Generated
     @Override
     public ManagedIdentityTrackedResourceInner withTags(Map<String, String> tags) {
         super.withTags(tags);

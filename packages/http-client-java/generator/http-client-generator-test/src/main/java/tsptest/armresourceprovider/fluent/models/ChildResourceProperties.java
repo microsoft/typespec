@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,11 +21,13 @@ public final class ChildResourceProperties implements JsonSerializable<ChildReso
     /*
      * Provisioning State of Top Level Arm Resource
      */
+    @Generated
     private ProvisioningState provisioningState;
 
     /**
      * Creates an instance of ChildResourceProperties class.
      */
+    @Generated
     public ChildResourceProperties() {
     }
 
@@ -33,6 +36,7 @@ public final class ChildResourceProperties implements JsonSerializable<ChildReso
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }

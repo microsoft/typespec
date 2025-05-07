@@ -55,7 +55,7 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
         IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
         boolean isStringEnum = elementType == ClassType.STRING;
         JavaSettings javaSettings = JavaSettings.getInstance();
-        if (isStringEnum && javaSettings.isBranded()) {
+        if (isStringEnum && javaSettings.isAzureV1()) {
             // for branded string enum, will generate ExpandableStringEnum subclass
             return MapperUtils.createEnumType(enumType, true, useCodeModelNameForEnumMember());
         } else {

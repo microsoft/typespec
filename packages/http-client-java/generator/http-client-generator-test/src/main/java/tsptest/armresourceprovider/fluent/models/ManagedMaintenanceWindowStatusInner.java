@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
@@ -21,31 +22,37 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
+    @Generated
     private ManagedMaintenanceWindowStatusContentProperties innerProperties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
+    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
+    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
+    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
+    @Generated
     private String id;
 
     /**
      * Creates an instance of ManagedMaintenanceWindowStatusInner class.
      */
+    @Generated
     private ManagedMaintenanceWindowStatusInner() {
     }
 
@@ -54,6 +61,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private ManagedMaintenanceWindowStatusContentProperties innerProperties() {
         return this.innerProperties;
     }
@@ -63,6 +71,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the systemData value.
      */
+    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -72,6 +81,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the type value.
      */
+    @Generated
     @Override
     public String type() {
         return this.type;
@@ -82,6 +92,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the name value.
      */
+    @Generated
     @Override
     public String name() {
         return this.name;
@@ -92,6 +103,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the id value.
      */
+    @Generated
     @Override
     public String id() {
         return this.id;
@@ -102,6 +114,7 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public String provisioningState() {
         return this.innerProperties() == null ? null : this.innerProperties().provisioningState();
     }
