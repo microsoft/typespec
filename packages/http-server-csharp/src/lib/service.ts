@@ -116,6 +116,7 @@ import {
   isRecord,
   isStringEnumType,
   isValueType,
+  resolveReferenceFromScopes,
 } from "./utils.js";
 
 type FileExists = (path: string) => Promise<boolean>;
@@ -1236,8 +1237,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       pathDown: Scope<string>[],
       commonScope: Scope<string> | null,
     ): string | EmitEntity<string> {
-      //if (targetDeclaration.name) return targetDeclaration.name;
-      return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
+      const resolved = resolveReferenceFromScopes(targetDeclaration, pathDown, pathUp);
+      return resolved ?? super.reference(targetDeclaration, pathUp, pathDown, commonScope);
     }
 
     scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<string> {
