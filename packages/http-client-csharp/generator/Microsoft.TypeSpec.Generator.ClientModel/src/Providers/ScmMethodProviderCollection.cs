@@ -338,11 +338,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
 
-            ModelProvider? bodyModel = null;
+            TypeProvider? bodyModel = null;
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
             if (methodBodyParameter?.Type is InputModelType model)
             {
-                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model) as ModelProvider;
+                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
             foreach (var param in ConvenienceMethodParameters)
@@ -422,7 +422,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
-            GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, ModelProvider bodyModel)
+            GetNonBodyModelPropertiesConversions(ParameterProvider bodyParam, TypeProvider bodyModel)
         {
             // Extract non-body properties from the body model
             var nonBodyProperties = bodyModel.CanonicalView.Properties

@@ -534,12 +534,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // For convenience methods, use the service method parameters
             var inputParameters = methodType is MethodType.Convenience ? serviceMethod.Parameters : operation.Parameters;
 
-            ModelProvider? spreadSource = null;
+            TypeProvider? spreadSource = null;
             if (methodType == MethodType.Convenience)
             {
                 InputParameter? inputOperationSpreadParameter = operation.Parameters.FirstOrDefault(p => p.Kind.HasFlag(InputParameterKind.Spread));
                 spreadSource = inputOperationSpreadParameter != null
-                    ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(GetSpreadParameterModel(inputOperationSpreadParameter)) as ModelProvider
+                    ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(GetSpreadParameterModel(inputOperationSpreadParameter))
                     : null;
             }
 
