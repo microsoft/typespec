@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -143,7 +144,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         for (Request request : requests) {
             final List<ProxyMethod> proxyMethods = proxyMethodsMap.get(request);
             for (ProxyMethod proxyMethod : proxyMethods) {
-
+                if (proxyMethod.getImplementation() != null) {
+                    continue;
+                }
                 final List<Parameter> codeModelParameters
                     = getCodeModelParameters(request, operation, isProtocolMethod);
                 final ClientMethodParameterProcessor.Result result = ClientMethodParameterProcessor.process(request,
@@ -900,7 +903,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             if (isProtocolMethod) {
                 /*
                  * Rule for DPG protocol method
-                 * 
+                 *
                  * 1. Only generate "WithResponse" method for simple API (hence exclude SimpleAsync and SimpleSync).
                  * 2. For sync method, Context is included in "RequestOptions", hence do not generate method with
                  * Context parameter.
@@ -966,7 +969,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         JavaVisibility visibility, boolean isProtocolMethod) {
         final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
-        if (JavaSettings.getInstance().isBranded()
+        if (JavaSettings.getInstance().isAzureV1()
             || contextParameter.getClientType().equals(ClassType.REQUEST_OPTIONS)) {
             // update parameters to include Context.
             parameters.add(contextParameter);
@@ -990,6 +993,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
             return new MethodNamer(proxyMethod.getName());
         }
+    }
+
+    protected static MethodPageDetails.ContinuationToken fromContinuationToken(XmsPageable xmsPageable,
+        IType responseBodyType) {
+        // TODO: anu remove this method once ClientCoreClientMethodMapper is refactored similar to ClientMethodMapper
+        return PagingMetadata.getContinuationToken(xmsPageable, responseBodyType);
     }
 
     /**

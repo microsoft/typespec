@@ -64,6 +64,13 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
             = String.format(INSTANTIATE_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
     }
 
+    public static final String DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT
+        = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
+            "    .setRequestContext({context})", "    .setServiceVersion({serviceVersion}))");
+
+    private static final String DEFAULT_CLIENTCORE_POLLING_CODE
+        = String.format(DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
+
     /**
      * Gets the strategy for polling.
      * <p>
@@ -90,6 +97,9 @@ public final class PollingSettings implements JsonSerializable<PollingSettings> 
      */
     public String getSyncPollingStrategy() {
         if (syncPollingStrategy == null || "default".equalsIgnoreCase(syncPollingStrategy)) {
+            if (JavaSettings.getInstance().isAzureV2()) {
+                return DEFAULT_CLIENTCORE_POLLING_CODE;
+            }
             return INSTANTIATE_DEFAULT_SYNC_POLLING_STRATEGY;
         } else {
             return syncPollingStrategy;

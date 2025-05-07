@@ -138,8 +138,8 @@ final class PagingMetadata {
         return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
     }
 
-    private static MethodPageDetails.ContinuationToken getContinuationToken(XmsPageable xmsPageable,
-        IType responseBodyType) {
+    static MethodPageDetails.ContinuationToken getContinuationToken(XmsPageable xmsPageable, IType responseBodyType) {
+        // TODO: anu change this method to 'private' once ClientCoreClientMethodMapper is refactored.
         final PageableContinuationToken rawContinuationToken = xmsPageable.getContinuationToken();
         if (rawContinuationToken == null) {
             return null;
