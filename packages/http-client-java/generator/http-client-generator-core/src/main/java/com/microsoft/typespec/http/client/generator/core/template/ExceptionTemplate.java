@@ -23,7 +23,8 @@ public class ExceptionTemplate implements IJavaTemplate<ClientException, JavaFil
         return INSTANCE;
     }
 
-    public final void write(ClientException exception, JavaFile javaFile) {
+    @Override
+    public void write(ClientException exception, JavaFile javaFile) {
         Set<String> imports = new HashSet<>();
         imports.add(ClassType.HTTP_RESPONSE.getFullName());
         exception.getParentType().addImportsTo(imports, false);

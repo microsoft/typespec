@@ -8,7 +8,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { JsContext, Module } from "../../ctx.js";
 import { isUnspeakable, parseCase } from "../../util/case.js";
 

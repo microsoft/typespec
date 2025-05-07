@@ -5,6 +5,7 @@
 package azure.resourcemanager.operationtemplates.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,16 +20,19 @@ public final class CheckNameAvailabilityRequest implements JsonSerializable<Chec
     /*
      * The name of the resource for which availability needs to be checked.
      */
+    @Generated
     private String name;
 
     /*
      * The resource type.
      */
+    @Generated
     private String type;
 
     /**
      * Creates an instance of CheckNameAvailabilityRequest class.
      */
+    @Generated
     public CheckNameAvailabilityRequest() {
     }
 
@@ -37,6 +41,7 @@ public final class CheckNameAvailabilityRequest implements JsonSerializable<Chec
      * 
      * @return the name value.
      */
+    @Generated
     public String name() {
         return this.name;
     }
@@ -47,6 +52,7 @@ public final class CheckNameAvailabilityRequest implements JsonSerializable<Chec
      * @param name the name value to set.
      * @return the CheckNameAvailabilityRequest object itself.
      */
+    @Generated
     public CheckNameAvailabilityRequest withName(String name) {
         this.name = name;
         return this;
@@ -57,6 +63,7 @@ public final class CheckNameAvailabilityRequest implements JsonSerializable<Chec
      * 
      * @return the type value.
      */
+    @Generated
     public String type() {
         return this.type;
     }
@@ -67,6 +74,7 @@ public final class CheckNameAvailabilityRequest implements JsonSerializable<Chec
      * @param type the type value to set.
      * @return the CheckNameAvailabilityRequest object itself.
      */
+    @Generated
     public CheckNameAvailabilityRequest withType(String type) {
         this.type = type;
         return this;

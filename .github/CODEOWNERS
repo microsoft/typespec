@@ -1,8 +1,9 @@
 # Catch all
 *                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
 
-# This folder is not important and can be modified by anyone
+# Those files/folders can be modified by anyone
 .chronus/changes/
+cspell.yaml
 
 ######################
 # Emiter Shared

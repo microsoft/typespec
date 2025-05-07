@@ -10,8 +10,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import type { Typekit } from "@typespec/compiler/experimental/typekit";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit, type Typekit } from "@typespec/compiler/typekit";
 import { HttpOperation, isHttpFile } from "@typespec/http";
 import { InternalClient } from "../../interfaces.js";
 
@@ -54,7 +53,7 @@ interface TypekitExtension {
   clientLibrary: ClientLibraryKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

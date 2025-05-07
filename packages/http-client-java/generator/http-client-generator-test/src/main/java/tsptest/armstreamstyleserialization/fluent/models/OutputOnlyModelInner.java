@@ -4,6 +4,7 @@
 
 package tsptest.armstreamstyleserialization.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -22,26 +23,31 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
     /*
      * Discriminator property for OutputOnlyModel.
      */
+    @Generated
     private String kind = "OutputOnlyModel";
 
     /*
      * The name property.
      */
+    @Generated
     private String name;
 
     /*
      * The id property.
      */
+    @Generated
     private String id;
 
     /*
      * The properties property.
      */
+    @Generated
     private OutputOnlyModelProperties innerProperties;
 
     /**
      * Creates an instance of OutputOnlyModelInner class.
      */
+    @Generated
     protected OutputOnlyModelInner() {
     }
 
@@ -50,6 +56,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the kind value.
      */
+    @Generated
     public String kind() {
         return this.kind;
     }
@@ -59,6 +66,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the name value.
      */
+    @Generated
     public String name() {
         return this.name;
     }
@@ -69,6 +77,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * @param name the name value to set.
      * @return the OutputOnlyModelInner object itself.
      */
+    @Generated
     OutputOnlyModelInner withName(String name) {
         this.name = name;
         return this;
@@ -79,6 +88,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the id value.
      */
+    @Generated
     public String id() {
         return this.id;
     }
@@ -89,6 +99,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * @param id the id value to set.
      * @return the OutputOnlyModelInner object itself.
      */
+    @Generated
     OutputOnlyModelInner withId(String id) {
         this.id = id;
         return this;
@@ -99,6 +110,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private OutputOnlyModelProperties innerProperties() {
         return this.innerProperties;
     }
@@ -109,6 +121,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * @param innerProperties the innerProperties value to set.
      * @return the OutputOnlyModelInner object itself.
      */
+    @Generated
     OutputOnlyModelInner withInnerProperties(OutputOnlyModelProperties innerProperties) {
         this.innerProperties = innerProperties;
         return this;
@@ -119,6 +132,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the title value.
      */
+    @Generated
     public String title() {
         return this.innerProperties() == null ? null : this.innerProperties().title();
     }
@@ -128,6 +142,7 @@ public class OutputOnlyModelInner implements JsonSerializable<OutputOnlyModelInn
      * 
      * @return the dog value.
      */
+    @Generated
     public Dog dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }

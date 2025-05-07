@@ -17,11 +17,16 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
+        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/>. </summary>
+        /// <param name="things"></param>
         internal ListWithContinuationTokenHeaderResponseResponse(IEnumerable<Thing> things)
         {
             Things = things.ToList();
         }
 
+        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/>. </summary>
+        /// <param name="things"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal ListWithContinuationTokenHeaderResponseResponse(IList<Thing> things, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Things = things;

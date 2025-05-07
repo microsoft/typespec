@@ -319,8 +319,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement([Description]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+
             return docs;
         }
 
@@ -374,6 +374,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _relativeFilePath = relativeFilePath;
             }
+
+            // Rebuild the canonical view
+            _canonicalView = new(BuildCanonicalView);
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 

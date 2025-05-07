@@ -1,10 +1,5 @@
-import type { Program } from "../../core/program.js";
+import { type Typekit, TypekitPrototype } from "../../typekit/define-kit.js";
 import { Realm } from "../realm.js";
-import { Typekit, TypekitPrototype } from "./define-kit.js";
-
-export * from "./create-diagnosable.js";
-export * from "./define-kit.js";
-export * from "./kits/index.js";
 
 /**
  * Create a new Typekit that operates in the given realm.
@@ -81,63 +76,3 @@ export function createTypekit(realm: Realm): Typekit {
   const proxy = new Proxy(tk, handler);
   return proxy;
 }
-
-// #region Default Typekit
-
-const DEFAULT_REALM = Symbol.for("TypeSpec.Typekit.DEFAULT_TYPEKIT_REALM");
-
-interface DefaultRealmStore {
-  [DEFAULT_REALM]?: Realm;
-}
-
-function _$(realm: Realm): Typekit;
-function _$(program: Program): Typekit;
-function _$(arg: Realm | Program): Typekit {
-  let realm: Realm;
-  if (Object.hasOwn(arg, "projectRoot")) {
-    // arg is a Program
-    realm = (arg as DefaultRealmStore)[DEFAULT_REALM] ??= new Realm(
-      arg as Program,
-      "default typekit realm",
-    );
-  } else {
-    // arg is a Realm
-    realm = arg as Realm;
-  }
-
-  return realm.typekit;
-}
-
-/**
- * Typekit - Utilities for working with TypeSpec types.
- *
- * Each typekit is associated with a Realm in which it operates.
- *
- * You can get the typekit associated with that realm by calling
- * `$` with the realm as an argument, or by calling `$` with a program
- * as an argument (in this case, it will use that program's default
- * typekit realm or create one if it does not already exist).
- *
- * @example
- * ```ts
- * import { unsafe_$ as $, Realm } from "@typespec/compiler/experimental";
- *
- * const realm = new Realm(program, "my custom realm");
- *
- * const clone = $(realm).type.clone(inputType);
- * ```
- *
- * @example
- * ```ts
- * import { unsafe_$ as $ } from "@typespec/compiler/experimental";
- *
- * const clone = $(program).type.clone(inputType);
- * ```
- *
- * @see {@link Realm}
- *
- * @experimental
- */
-export const $ = _$;
-
-// #endregion

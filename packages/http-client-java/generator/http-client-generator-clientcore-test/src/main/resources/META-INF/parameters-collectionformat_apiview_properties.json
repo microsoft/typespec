@@ -3,16 +3,6 @@
   "CrossLanguageDefinitionId": {
     "parameters.collectionformat.CollectionFormatClientBuilder": "Parameters.CollectionFormat",
     "parameters.collectionformat.HeaderClient": "Parameters.CollectionFormat.Header",
-    "parameters.collectionformat.HeaderClient.csv": "Parameters.CollectionFormat.Header.csv",
-    "parameters.collectionformat.HeaderClient.csvWithResponse": "Parameters.CollectionFormat.Header.csv",
-    "parameters.collectionformat.QueryClient": "Parameters.CollectionFormat.Query",
-    "parameters.collectionformat.QueryClient.csv": "Parameters.CollectionFormat.Query.csv",
-    "parameters.collectionformat.QueryClient.csvWithResponse": "Parameters.CollectionFormat.Query.csv",
-    "parameters.collectionformat.QueryClient.multi": "Parameters.CollectionFormat.Query.multi",
-    "parameters.collectionformat.QueryClient.multiWithResponse": "Parameters.CollectionFormat.Query.multi",
-    "parameters.collectionformat.QueryClient.pipes": "Parameters.CollectionFormat.Query.pipes",
-    "parameters.collectionformat.QueryClient.pipesWithResponse": "Parameters.CollectionFormat.Query.pipes",
-    "parameters.collectionformat.QueryClient.ssv": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv"
+    "parameters.collectionformat.QueryClient": "Parameters.CollectionFormat.Query"
   }
 }

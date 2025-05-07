@@ -4,6 +4,7 @@
 
 package tsptest.armstreamstyleserialization.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -19,11 +20,13 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     /*
      * The description property.
      */
+    @Generated
     private String description;
 
     /**
      * Creates an instance of TopLevelArmResourceProperties class.
      */
+    @Generated
     private TopLevelArmResourceProperties() {
     }
 
@@ -32,6 +35,7 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the description value.
      */
+    @Generated
     public String description() {
         return this.description;
     }
