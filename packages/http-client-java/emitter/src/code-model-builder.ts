@@ -712,7 +712,7 @@ export class CodeModelBuilder {
         );
         const parentAccessorPublic = Boolean(
           subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
-            subClient.clientInitialization.initializedBy & InitializedByFlags.Default,
+            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
         );
         codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
