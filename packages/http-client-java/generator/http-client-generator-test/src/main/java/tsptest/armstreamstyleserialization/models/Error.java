@@ -4,7 +4,6 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.management.exception.AdditionalInfo;
 import com.azure.core.management.exception.ManagementError;
@@ -22,43 +21,36 @@ public final class Error extends ManagementError {
     /*
      * The details property.
      */
-    @Generated
     private List<Error> details;
 
     /*
      * The additionalProperty property.
      */
-    @Generated
     private String additionalProperty;
 
     /*
      * Additional info for the error.
      */
-    @Generated
     private List<AdditionalInfo> additionalInfo;
 
     /*
      * The target of the error.
      */
-    @Generated
     private String target;
 
     /*
      * The error message parsed from the body of the http error response.
      */
-    @Generated
     private String message;
 
     /*
      * The error code parsed from the body of the http error response.
      */
-    @Generated
     private String code;
 
     /**
      * Creates an instance of Error class.
      */
-    @Generated
     private Error() {
     }
 
@@ -67,7 +59,6 @@ public final class Error extends ManagementError {
      * 
      * @return the details value.
      */
-    @Generated
     @Override
     public List<Error> getDetails() {
         return this.details;
@@ -78,7 +69,6 @@ public final class Error extends ManagementError {
      * 
      * @return the additionalProperty value.
      */
-    @Generated
     public String getAdditionalProperty() {
         return this.additionalProperty;
     }
@@ -88,7 +78,6 @@ public final class Error extends ManagementError {
      * 
      * @return the additionalInfo value.
      */
-    @Generated
     @Override
     public List<AdditionalInfo> getAdditionalInfo() {
         return this.additionalInfo;
@@ -99,7 +88,6 @@ public final class Error extends ManagementError {
      * 
      * @return the target value.
      */
-    @Generated
     @Override
     public String getTarget() {
         return this.target;
@@ -110,7 +98,6 @@ public final class Error extends ManagementError {
      * 
      * @return the message value.
      */
-    @Generated
     @Override
     public String getMessage() {
         return this.message;
@@ -121,7 +108,6 @@ public final class Error extends ManagementError {
      * 
      * @return the code value.
      */
-    @Generated
     @Override
     public String getCode() {
         return this.code;

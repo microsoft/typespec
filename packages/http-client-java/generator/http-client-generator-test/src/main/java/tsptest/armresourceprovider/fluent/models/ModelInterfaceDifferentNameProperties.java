@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,13 +20,11 @@ public final class ModelInterfaceDifferentNameProperties
     /*
      * The status of the last operation.
      */
-    @Generated
     private String provisioningState;
 
     /**
      * Creates an instance of ModelInterfaceDifferentNameProperties class.
      */
-    @Generated
     private ModelInterfaceDifferentNameProperties() {
     }
 
@@ -36,7 +33,6 @@ public final class ModelInterfaceDifferentNameProperties
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public String provisioningState() {
         return this.provisioningState;
     }
