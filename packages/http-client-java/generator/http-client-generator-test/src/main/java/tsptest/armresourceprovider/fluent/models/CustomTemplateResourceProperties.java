@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -26,37 +25,31 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
     /*
      * The status of the last operation.
      */
-    @Generated
     private ProvisioningState provisioningState;
 
     /*
      * The dog property.
      */
-    @Generated
     private Dog dog;
 
     /*
      * The namedEmptyModel property.
      */
-    @Generated
     private EmptyModel namedEmptyModel;
 
     /*
      * The anonymousEmptyModel property.
      */
-    @Generated
     private CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel;
 
     /*
      * The priority property.
      */
-    @Generated
     private PriorityModel priority;
 
     /**
      * Creates an instance of CustomTemplateResourceProperties class.
      */
-    @Generated
     public CustomTemplateResourceProperties() {
     }
 
@@ -65,7 +58,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }
@@ -75,7 +67,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the dog value.
      */
-    @Generated
     public Dog dog() {
         return this.dog;
     }
@@ -86,7 +77,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param dog the dog value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    @Generated
     public CustomTemplateResourceProperties withDog(Dog dog) {
         this.dog = dog;
         return this;
@@ -97,7 +87,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the namedEmptyModel value.
      */
-    @Generated
     public EmptyModel namedEmptyModel() {
         return this.namedEmptyModel;
     }
@@ -108,7 +97,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param namedEmptyModel the namedEmptyModel value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    @Generated
     public CustomTemplateResourceProperties withNamedEmptyModel(EmptyModel namedEmptyModel) {
         this.namedEmptyModel = namedEmptyModel;
         return this;
@@ -119,7 +107,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the anonymousEmptyModel value.
      */
-    @Generated
     public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
         return this.anonymousEmptyModel;
     }
@@ -130,7 +117,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param anonymousEmptyModel the anonymousEmptyModel value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    @Generated
     public CustomTemplateResourceProperties
         withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
         this.anonymousEmptyModel = anonymousEmptyModel;
@@ -142,7 +128,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * 
      * @return the priority value.
      */
-    @Generated
     public PriorityModel priority() {
         return this.priority;
     }
@@ -153,7 +138,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
      * @param priority the priority value to set.
      * @return the CustomTemplateResourceProperties object itself.
      */
-    @Generated
     public CustomTemplateResourceProperties withPriority(PriorityModel priority) {
         this.priority = priority;
         return this;

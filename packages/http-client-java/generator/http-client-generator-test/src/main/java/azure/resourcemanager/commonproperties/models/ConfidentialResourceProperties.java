@@ -5,7 +5,6 @@
 package azure.resourcemanager.commonproperties.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,19 +20,16 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
     /*
      * The status of the last operation.
      */
-    @Generated
     private String provisioningState;
 
     /*
      * The username property.
      */
-    @Generated
     private String username;
 
     /**
      * Creates an instance of ConfidentialResourceProperties class.
      */
-    @Generated
     public ConfidentialResourceProperties() {
     }
 
@@ -42,7 +38,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public String provisioningState() {
         return this.provisioningState;
     }
@@ -52,7 +47,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
      * 
      * @return the username value.
      */
-    @Generated
     public String username() {
         return this.username;
     }
@@ -63,7 +57,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
      * @param username the username value to set.
      * @return the ConfidentialResourceProperties object itself.
      */
-    @Generated
     public ConfidentialResourceProperties withUsername(String username) {
         this.username = username;
         return this;

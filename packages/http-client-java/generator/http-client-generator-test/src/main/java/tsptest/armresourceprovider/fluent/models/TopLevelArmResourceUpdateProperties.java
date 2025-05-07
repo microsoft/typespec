@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -21,25 +20,21 @@ public final class TopLevelArmResourceUpdateProperties
     /*
      * The userName property.
      */
-    @Generated
     private String userName;
 
     /*
      * The userNames property.
      */
-    @Generated
     private String userNames;
 
     /*
      * The accuserName property.
      */
-    @Generated
     private String accuserName;
 
     /**
      * Creates an instance of TopLevelArmResourceUpdateProperties class.
      */
-    @Generated
     public TopLevelArmResourceUpdateProperties() {
     }
 
@@ -48,7 +43,6 @@ public final class TopLevelArmResourceUpdateProperties
      * 
      * @return the userName value.
      */
-    @Generated
     public String userName() {
         return this.userName;
     }
@@ -59,7 +53,6 @@ public final class TopLevelArmResourceUpdateProperties
      * @param userName the userName value to set.
      * @return the TopLevelArmResourceUpdateProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceUpdateProperties withUserName(String userName) {
         this.userName = userName;
         return this;
@@ -70,7 +63,6 @@ public final class TopLevelArmResourceUpdateProperties
      * 
      * @return the userNames value.
      */
-    @Generated
     public String userNames() {
         return this.userNames;
     }
@@ -81,7 +73,6 @@ public final class TopLevelArmResourceUpdateProperties
      * @param userNames the userNames value to set.
      * @return the TopLevelArmResourceUpdateProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceUpdateProperties withUserNames(String userNames) {
         this.userNames = userNames;
         return this;
@@ -92,7 +83,6 @@ public final class TopLevelArmResourceUpdateProperties
      * 
      * @return the accuserName value.
      */
-    @Generated
     public String accuserName() {
         return this.accuserName;
     }
@@ -103,7 +93,6 @@ public final class TopLevelArmResourceUpdateProperties
      * @param accuserName the accuserName value to set.
      * @return the TopLevelArmResourceUpdateProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceUpdateProperties withAccuserName(String accuserName) {
         this.accuserName = accuserName;
         return this;

@@ -146,9 +146,6 @@ public class JavaSettings {
         this.modelerSettings = new ModelerSettings(
             host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
 
-        // Whether to generate the Azure.
-        this.azure = getBooleanValue(host, "azure-arm", false);
-
         // Whether to generate the SDK integration.
         this.sdkIntegration = getBooleanValue(host, "sdk-integration", false);
 
@@ -459,17 +456,6 @@ public class JavaSettings {
         return credentialScopes;
     }
 
-    private final boolean azure;
-
-    /**
-     * Whether to generate the Azure.
-     *
-     * @return Whether to generate the Azure.
-     */
-    public final boolean isAzure() {
-        return azure;
-    }
-
     private final String artifactId;
 
     /**
@@ -591,15 +577,6 @@ public class JavaSettings {
      */
     public final boolean isFluentPremium() {
         return fluent == Fluent.PREMIUM;
-    }
-
-    /**
-     * Whether to generate the Azure or Fluent.
-     *
-     * @return Whether to generate the Azure or Fluent.
-     */
-    public final boolean isAzureOrFluent() {
-        return isAzure() || isFluent();
     }
 
     // configure for model flatten in client
