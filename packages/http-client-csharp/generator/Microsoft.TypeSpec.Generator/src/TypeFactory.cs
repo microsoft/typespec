@@ -141,23 +141,23 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public ModelProvider? CreateModel(InputModelType model)
+        public TypeProvider? CreateModel(InputModelType model)
         {
             if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
-            modelProvider = CreateModelCore(model);
+            modelProvider = CreateModelCore(model) as ModelProvider;
 
             foreach (var visitor in Visitors)
             {
-                modelProvider = visitor.PreVisitModel(model, modelProvider);
+                modelProvider = visitor.PreVisitModel(model, modelProvider as ModelProvider);
             }
 
             CSharpToModelProvider.Add(model, modelProvider);
             return modelProvider;
         }
 
-        protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
+        protected virtual TypeProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.

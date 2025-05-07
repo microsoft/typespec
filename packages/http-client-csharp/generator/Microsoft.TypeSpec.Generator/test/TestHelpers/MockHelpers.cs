@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             if (createModelCore != null)
             {
-                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns((InputModelType inputModel) => createModelCore.Invoke(inputModel));
+                mockTypeFactory.Protected().Setup<TypeProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns((InputModelType inputModel) => createModelCore.Invoke(inputModel));
             }
 
             if (createEnumCore != null)

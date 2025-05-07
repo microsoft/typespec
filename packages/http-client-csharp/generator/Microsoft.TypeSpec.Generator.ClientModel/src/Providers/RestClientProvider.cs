@@ -539,7 +539,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 InputParameter? inputOperationSpreadParameter = operation.Parameters.FirstOrDefault(p => p.Kind.HasFlag(InputParameterKind.Spread));
                 spreadSource = inputOperationSpreadParameter != null
-                    ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(GetSpreadParameterModel(inputOperationSpreadParameter))
+                    ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(GetSpreadParameterModel(inputOperationSpreadParameter)) as ModelProvider
                     : null;
             }
 

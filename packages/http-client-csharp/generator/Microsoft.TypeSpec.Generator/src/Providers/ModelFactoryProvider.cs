@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model) as ModelProvider;
 
                 if (modelProvider is null)
                     continue;

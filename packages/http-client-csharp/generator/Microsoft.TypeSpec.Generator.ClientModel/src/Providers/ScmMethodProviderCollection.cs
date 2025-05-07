@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
             if (methodBodyParameter?.Type is InputModelType model)
             {
-                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model) as ModelProvider;
             }
 
             foreach (var param in ConvenienceMethodParameters)

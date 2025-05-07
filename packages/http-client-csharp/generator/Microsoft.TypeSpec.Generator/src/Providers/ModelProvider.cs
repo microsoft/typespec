@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add discriminated subtypes
             foreach (var subtype in _inputModel.DiscriminatedSubtypes)
             {
-                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(subtype.Value);
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(subtype.Value) as ModelProvider;
                 if (model != null)
                 {
                     derivedModels.Add(model);
@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add derived models
             foreach (var derivedModel in _inputModel.DerivedModels)
             {
-                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel);
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ModelProvider;
                 if (model != null)
                 {
                     derivedModels.Add(model);
