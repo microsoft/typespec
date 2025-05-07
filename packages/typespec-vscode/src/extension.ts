@@ -66,9 +66,9 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       CodeActionCommand.NpmInstallImportPackage,
-      async (projectFolder: string, hasPackageFile: boolean = true) => {
+      async (projectFolder: string | undefined) => {
         try {
-          if (hasPackageFile) {
+          if (projectFolder !== undefined) {
             await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
           } else {
             vscode.window.showErrorMessage(

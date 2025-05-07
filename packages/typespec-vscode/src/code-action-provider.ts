@@ -86,7 +86,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
         );
 
         if (packageJsonFolder === undefined) {
-          actions.push(this.createInstallPackageCodeAction(diagnostic, "", false));
+          actions.push(this.createInstallPackageCodeAction(diagnostic, packageJsonFolder));
         } else if (
           !targetPackage.startsWith("./") &&
           !targetPackage.startsWith("../") &&
@@ -105,8 +105,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
 
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
-    projectFolder: string,
-    hasPackageFile: boolean = true,
+    projectFolder: string | undefined,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
       "Install package by `npm install` for unrecognized import",
@@ -115,7 +114,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     action.command = {
       command: CodeActionCommand.NpmInstallImportPackage,
       title: diagnostic.message,
-      arguments: [projectFolder, hasPackageFile],
+      arguments: [projectFolder],
     };
     action.diagnostics = [diagnostic];
     return action;
