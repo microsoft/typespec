@@ -8,4 +8,4 @@
  * Test decorator &#064;deserializeEmptyStringAsNull.
  * <!-- end generated doc -->
  */
-package _specs_.azure.clientgenerator.core.deserializeemptystringasnull.models;
+package azure.clientgenerator.core.deserialize.emptystringnull.models;
