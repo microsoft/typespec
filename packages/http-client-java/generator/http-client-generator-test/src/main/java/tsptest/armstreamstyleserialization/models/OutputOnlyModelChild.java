@@ -4,7 +4,6 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -22,37 +21,31 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
     /*
      * Discriminator property for OutputOnlyModel.
      */
-    @Generated
     private String kind = "child";
 
     /*
      * The childName property.
      */
-    @Generated
     private String childName;
 
     /*
      * The properties property.
      */
-    @Generated
     private OutputOnlyModelProperties innerProperties;
 
     /*
      * The id property.
      */
-    @Generated
     private String id;
 
     /*
      * The name property.
      */
-    @Generated
     private String name;
 
     /**
      * Creates an instance of OutputOnlyModelChild class.
      */
-    @Generated
     private OutputOnlyModelChild() {
     }
 
@@ -61,7 +54,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the kind value.
      */
-    @Generated
     @Override
     public String kind() {
         return this.kind;
@@ -72,7 +64,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the childName value.
      */
-    @Generated
     public String childName() {
         return this.childName;
     }
@@ -82,7 +73,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the innerProperties value.
      */
-    @Generated
     private OutputOnlyModelProperties innerProperties() {
         return this.innerProperties;
     }
@@ -92,7 +82,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the id value.
      */
-    @Generated
     @Override
     public String id() {
         return this.id;
@@ -103,7 +92,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the name value.
      */
-    @Generated
     @Override
     public String name() {
         return this.name;
@@ -114,7 +102,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the title value.
      */
-    @Generated
     public String title() {
         return this.innerProperties() == null ? null : this.innerProperties().title();
     }
@@ -124,7 +111,6 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
      * 
      * @return the dog value.
      */
-    @Generated
     public Dog dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }

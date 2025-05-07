@@ -5,7 +5,6 @@
 package azure.resourcemanager.operationtemplates.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,25 +20,21 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
     /*
      * The product ID of the order.
      */
-    @Generated
     private String productId;
 
     /*
      * Amount of the product.
      */
-    @Generated
     private int amount;
 
     /*
      * The provisioning state of the product.
      */
-    @Generated
     private String provisioningState;
 
     /**
      * Creates an instance of OrderProperties class.
      */
-    @Generated
     public OrderProperties() {
     }
 
@@ -48,7 +43,6 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
      * 
      * @return the productId value.
      */
-    @Generated
     public String productId() {
         return this.productId;
     }
@@ -59,7 +53,6 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
      * @param productId the productId value to set.
      * @return the OrderProperties object itself.
      */
-    @Generated
     public OrderProperties withProductId(String productId) {
         this.productId = productId;
         return this;
@@ -70,7 +63,6 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
      * 
      * @return the amount value.
      */
-    @Generated
     public int amount() {
         return this.amount;
     }
@@ -81,7 +73,6 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
      * @param amount the amount value to set.
      * @return the OrderProperties object itself.
      */
-    @Generated
     public OrderProperties withAmount(int amount) {
         this.amount = amount;
         return this;
@@ -92,7 +83,6 @@ public final class OrderProperties implements JsonSerializable<OrderProperties> 
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public String provisioningState() {
         return this.provisioningState;
     }

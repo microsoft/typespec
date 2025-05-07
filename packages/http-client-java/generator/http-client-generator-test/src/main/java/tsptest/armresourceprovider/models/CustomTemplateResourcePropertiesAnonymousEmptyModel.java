@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,7 +20,6 @@ public final class CustomTemplateResourcePropertiesAnonymousEmptyModel
     /**
      * Creates an instance of CustomTemplateResourcePropertiesAnonymousEmptyModel class.
      */
-    @Generated
     public CustomTemplateResourcePropertiesAnonymousEmptyModel() {
     }
 
