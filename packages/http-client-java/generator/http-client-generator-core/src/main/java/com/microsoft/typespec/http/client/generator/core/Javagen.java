@@ -282,7 +282,7 @@ public class Javagen extends NewPlugin {
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
 
-                if (settings.isBranded()) {
+                if (settings.isAzureV1() || settings.isAzureV2()) {
                     if (generateSwaggerMarkdown) {
                         javaPackage.addSwaggerReadmeMarkdown(project);
                     }
