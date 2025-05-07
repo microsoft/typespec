@@ -1,12 +1,12 @@
 import type {
   CompilerOptions,
-  CustomCompileResult,
   CustomRequestName,
   InitProjectConfig,
   InitProjectContext,
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { CustomCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import {
