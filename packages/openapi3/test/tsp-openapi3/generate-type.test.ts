@@ -144,10 +144,7 @@ const testScenarios: TestScenario[] = [
   // allOf
   {
     schema: {
-      allOf: [
-        { $ref: "#/Path/To/BaseModel" },
-        { $ref: "#/Path/To/MixinModel" },
-      ],
+      allOf: [{ $ref: "#/Path/To/BaseModel" }, { $ref: "#/Path/To/MixinModel" }],
     },
     expected: "BaseModel & MixinModel",
   },
@@ -155,16 +152,17 @@ const testScenarios: TestScenario[] = [
     schema: {
       allOf: [
         { $ref: "#/Path/To/BaseModel" },
+        { $ref: "#/Path/To/MixinModel" },
         {
           type: "object",
           properties: {
             foo: { type: "string" },
             bar: { type: "boolean" },
-          }
+          },
         },
       ],
     },
-    expected: "BaseModel & {foo?: string; bar?: boolean}",
+    expected: "BaseModel & MixinModel & {foo?: string; bar?: boolean}",
   },
   {
     schema: {
@@ -176,7 +174,7 @@ const testScenarios: TestScenario[] = [
           properties: {
             foo: { type: "string" },
             bar: { type: "boolean" },
-          }
+          },
         },
       ],
     },
@@ -187,40 +185,20 @@ const testScenarios: TestScenario[] = [
       allOf: [
         {
           type: "object",
-          properties: {
-            prop1: { type: "string" },
-          }
-        },
-        {
-          type: "object",
-          properties: {
-            prop2: { type: "number" },
-          }
-        },
-      ],
-    },
-    expected: "{prop1?: string; prop2?: numeric}",
-  },
-  {
-    schema: {
-      allOf: [
-        {
-          type: "object",
           required: ["prop1"],
           properties: {
             prop1: { type: "string" },
-          }
+          },
         },
         {
           type: "object",
-          required: ["prop2"],
           properties: {
             prop2: { type: "number" },
-          }
+          },
         },
       ],
     },
-    expected: "{prop1: string; prop2: numeric}",
+    expected: "{prop1: string; prop2?: numeric}",
   },
   // fallthrough
   { schema: {}, expected: "unknown" },
