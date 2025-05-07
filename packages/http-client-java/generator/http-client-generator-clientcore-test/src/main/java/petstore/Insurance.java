@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,24 +11,24 @@ import java.io.IOException;
 /**
  * The Insurance model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Insurance implements JsonSerializable<Insurance> {
     /*
      * The provider property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String provider;
 
     /*
      * The premium property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int premium;
 
     /*
      * The deductible property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int deductible;
 
     /**
@@ -38,7 +38,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
      * @param premium the premium value to set.
      * @param deductible the deductible value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Insurance(String provider, int premium, int deductible) {
         this.provider = provider;
         this.premium = premium;
@@ -50,7 +50,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
      * 
      * @return the provider value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProvider() {
         return this.provider;
     }
@@ -60,7 +60,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
      * 
      * @return the premium value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getPremium() {
         return this.premium;
     }
@@ -70,7 +70,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
      * 
      * @return the deductible value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getDeductible() {
         return this.deductible;
     }
@@ -78,7 +78,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -97,7 +97,7 @@ public final class Insurance implements JsonSerializable<Insurance> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Insurance.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Insurance fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String provider = null;

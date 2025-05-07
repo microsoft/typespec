@@ -1,7 +1,7 @@
 package todo.todoitems;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -15,42 +15,42 @@ import todo.implementation.JsonMergePatchHelper;
 /**
  * The TodoItemPatch model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
     /*
      * The item's title
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String title;
 
     /*
      * User that the todo is assigned to
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Long assignedTo;
 
     /*
      * A longer description of the todo item in markdown format
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String description;
 
     /*
      * The status of the todo item
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private TodoItemPatchStatus status;
 
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private boolean jsonMergePatch;
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
         this.jsonMergePatch = jsonMergePatch;
     }
@@ -73,7 +73,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
     /**
      * Creates an instance of TodoItemPatch class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatch() {
     }
 
@@ -82,7 +82,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * 
      * @return the title value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getTitle() {
         return this.title;
     }
@@ -93,7 +93,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * @param title the title value to set.
      * @return the TodoItemPatch object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatch setTitle(String title) {
         this.title = title;
         this.updatedProperties.add("title");
@@ -105,7 +105,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * 
      * @return the assignedTo value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Long getAssignedTo() {
         return this.assignedTo;
     }
@@ -116,7 +116,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * @param assignedTo the assignedTo value to set.
      * @return the TodoItemPatch object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatch setAssignedTo(Long assignedTo) {
         this.assignedTo = assignedTo;
         this.updatedProperties.add("assignedTo");
@@ -128,7 +128,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * 
      * @return the description value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getDescription() {
         return this.description;
     }
@@ -139,7 +139,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * @param description the description value to set.
      * @return the TodoItemPatch object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatch setDescription(String description) {
         this.description = description;
         this.updatedProperties.add("description");
@@ -151,7 +151,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * 
      * @return the status value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatchStatus getStatus() {
         return this.status;
     }
@@ -162,7 +162,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * @param status the status value to set.
      * @return the TodoItemPatch object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemPatch setStatus(TodoItemPatchStatus status) {
         this.status = status;
         this.updatedProperties.add("status");
@@ -172,7 +172,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         if (jsonMergePatch) {
@@ -187,7 +187,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
         }
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private JsonWriter toJsonMergePatch(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         if (updatedProperties.contains("title")) {
@@ -229,7 +229,7 @@ public final class TodoItemPatch implements JsonSerializable<TodoItemPatch> {
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the TodoItemPatch.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static TodoItemPatch fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             TodoItemPatch deserializedTodoItemPatch = new TodoItemPatch();

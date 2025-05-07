@@ -1,7 +1,7 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
@@ -13,72 +13,72 @@ import java.time.OffsetDateTime;
 /**
  * The TodoItem model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class TodoItem implements JsonSerializable<TodoItem> {
     /*
      * The item's unique id
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private long id;
 
     /*
      * The item's title
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String title;
 
     /*
      * User that created the todo
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private long createdBy;
 
     /*
      * User that the todo is assigned to
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Long assignedTo;
 
     /*
      * A longer description of the todo item in markdown format
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String description;
 
     /*
      * The status of the todo item
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final TodoItemStatus status;
 
     /*
      * When the todo item was created.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OffsetDateTime createdAt;
 
     /*
      * When the todo item was last updated
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OffsetDateTime updatedAt;
 
     /*
      * When the todo item was marked as completed
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OffsetDateTime completedAt;
 
     /*
      * The labels property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private BinaryData labels;
 
     /*
      * The _dummy property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String dummy;
 
     /**
@@ -87,7 +87,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @param title the title value to set.
      * @param status the status value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem(String title, TodoItemStatus status) {
         this.title = title;
         this.status = status;
@@ -98,7 +98,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the id value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public long getId() {
         return this.id;
     }
@@ -108,7 +108,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the title value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getTitle() {
         return this.title;
     }
@@ -118,7 +118,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the createdBy value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public long getCreatedBy() {
         return this.createdBy;
     }
@@ -128,7 +128,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the assignedTo value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Long getAssignedTo() {
         return this.assignedTo;
     }
@@ -139,7 +139,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @param assignedTo the assignedTo value to set.
      * @return the TodoItem object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem setAssignedTo(Long assignedTo) {
         this.assignedTo = assignedTo;
         return this;
@@ -150,7 +150,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the description value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getDescription() {
         return this.description;
     }
@@ -161,7 +161,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @param description the description value to set.
      * @return the TodoItem object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem setDescription(String description) {
         this.description = description;
         return this;
@@ -172,7 +172,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the status value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItemStatus getStatus() {
         return this.status;
     }
@@ -182,7 +182,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the createdAt value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getCreatedAt() {
         return this.createdAt;
     }
@@ -192,7 +192,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the updatedAt value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getUpdatedAt() {
         return this.updatedAt;
     }
@@ -202,7 +202,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the completedAt value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getCompletedAt() {
         return this.completedAt;
     }
@@ -212,7 +212,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the labels value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getLabels() {
         return this.labels;
     }
@@ -223,7 +223,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @param labels the labels value to set.
      * @return the TodoItem object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem setLabels(BinaryData labels) {
         this.labels = labels;
         return this;
@@ -234,7 +234,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * 
      * @return the dummy value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getDummy() {
         return this.dummy;
     }
@@ -245,7 +245,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @param dummy the dummy value to set.
      * @return the TodoItem object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem setDummy(String dummy) {
         this.dummy = dummy;
         return this;
@@ -254,7 +254,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -279,7 +279,7 @@ public final class TodoItem implements JsonSerializable<TodoItem> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the TodoItem.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static TodoItem fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             long id = 0L;

@@ -1,7 +1,7 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
@@ -47,24 +47,24 @@ import io.clientcore.core.models.binarydata.BinaryData;
  * location
  * is overridden, as shown in the examples below.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class FileDetails {
     /*
      * The content of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final BinaryData content;
 
     /*
      * The filename of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String filename;
 
     /*
      * The content-type of the file.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String contentType = "application/octet-stream";
 
     /**
@@ -72,7 +72,7 @@ public final class FileDetails {
      * 
      * @param content the content value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileDetails(BinaryData content) {
         this.content = content;
     }
@@ -82,7 +82,7 @@ public final class FileDetails {
      * 
      * @return the content value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryData getContent() {
         return this.content;
     }
@@ -92,7 +92,7 @@ public final class FileDetails {
      * 
      * @return the filename value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getFilename() {
         return this.filename;
     }
@@ -103,7 +103,7 @@ public final class FileDetails {
      * @param filename the filename value to set.
      * @return the FileDetails object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileDetails setFilename(String filename) {
         this.filename = filename;
         return this;
@@ -114,7 +114,7 @@ public final class FileDetails {
      * 
      * @return the contentType value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getContentType() {
         return this.contentType;
     }
@@ -125,7 +125,7 @@ public final class FileDetails {
      * @param contentType the contentType value to set.
      * @return the FileDetails object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileDetails setContentType(String contentType) {
         this.contentType = contentType;
         return this;

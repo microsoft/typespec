@@ -1,6 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -13,7 +14,6 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
@@ -40,52 +40,33 @@ import petstore.implementation.PetStoreClientImpl;
         OwnerInsuranceClient.class })
 public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuilder>, ProxyTrait<PetStoreClientBuilder>,
     ConfigurationTrait<PetStoreClientBuilder>, EndpointTrait<PetStoreClientBuilder> {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
      * Create an instance of the PetStoreClientBuilder.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetStoreClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
     /*
-     * The HTTP pipeline to send requests through.
-     */
-    @Metadata(generated = true)
-    private HttpPipeline pipeline;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public PetStoreClientBuilder httpPipeline(HttpPipeline pipeline) {
-        if (this.pipeline != null && pipeline == null) {
-            LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
-        }
-        this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpClient httpClient;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -93,31 +74,15 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     }
 
     /*
-     * The logging configuration for HTTP requests and responses.
-     */
-    @Metadata(generated = true)
-    private HttpInstrumentationOptions httpInstrumentationOptions;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Metadata(generated = true)
-    @Override
-    public PetStoreClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
-        this.httpInstrumentationOptions = httpInstrumentationOptions;
-        return this;
-    }
-
-    /*
      * The retry options to configure retry policy for failed requests.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRetryOptions retryOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
@@ -127,7 +92,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
@@ -138,13 +103,13 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     /*
      * The redirect options to configure redirect policy
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpRedirectOptions redirectOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
@@ -152,15 +117,31 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     }
 
     /*
+     * The instrumentation configuration for HTTP requests and responses.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private HttpInstrumentationOptions httpInstrumentationOptions;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @Override
+    public PetStoreClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
+        return this;
+    }
+
+    /*
      * The proxy options used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private ProxyOptions proxyOptions;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
@@ -170,13 +151,13 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     /*
      * The configuration store that is used during construction of the service client.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Configuration configuration;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
@@ -186,13 +167,13 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
     /*
      * The service endpoint
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String endpoint;
 
     /**
      * {@inheritDoc}.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public PetStoreClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -204,22 +185,21 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of PetStoreClientImpl.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private PetStoreClientImpl buildInnerClient() {
         this.validateClient();
-        HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
-        PetStoreClientImpl client = new PetStoreClientImpl(localPipeline, this.endpoint);
+        PetStoreClientImpl client = new PetStoreClientImpl(createHttpPipeline(), this.endpoint);
         return client;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
@@ -233,7 +213,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
-        return httpPipelineBuilder.build();
+        return httpPipelineBuilder.httpClient(httpClient).build();
     }
 
     /**
@@ -241,7 +221,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of PetsClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetsClient buildPetsClient() {
         return new PetsClient(buildInnerClient().getPets());
     }
@@ -251,7 +231,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of PetCheckupsClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetCheckupsClient buildPetCheckupsClient() {
         return new PetCheckupsClient(buildInnerClient().getPetCheckups());
     }
@@ -261,7 +241,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of PetInsuranceClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetInsuranceClient buildPetInsuranceClient() {
         return new PetInsuranceClient(buildInnerClient().getPetInsurances());
     }
@@ -271,7 +251,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of ToysClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ToysClient buildToysClient() {
         return new ToysClient(buildInnerClient().getToys());
     }
@@ -281,7 +261,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of ToyInsuranceClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ToyInsuranceClient buildToyInsuranceClient() {
         return new ToyInsuranceClient(buildInnerClient().getToyInsurances());
     }
@@ -291,7 +271,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of CheckupsClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CheckupsClient buildCheckupsClient() {
         return new CheckupsClient(buildInnerClient().getCheckups());
     }
@@ -301,7 +281,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of OwnersClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnersClient buildOwnersClient() {
         return new OwnersClient(buildInnerClient().getOwners());
     }
@@ -311,7 +291,7 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of OwnerCheckupsClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnerCheckupsClient buildOwnerCheckupsClient() {
         return new OwnerCheckupsClient(buildInnerClient().getOwnerCheckups());
     }
@@ -321,10 +301,8 @@ public final class PetStoreClientBuilder implements HttpTrait<PetStoreClientBuil
      * 
      * @return an instance of OwnerInsuranceClient.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnerInsuranceClient buildOwnerInsuranceClient() {
         return new OwnerInsuranceClient(buildInnerClient().getOwnerInsurances());
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(PetStoreClientBuilder.class);
 }

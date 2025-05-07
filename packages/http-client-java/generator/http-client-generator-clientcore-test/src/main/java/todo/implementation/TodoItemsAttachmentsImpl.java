@@ -1,6 +1,8 @@
 package todo.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
@@ -8,14 +10,15 @@ import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.PagedResponse;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.http.paging.PagedResponse;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
+import todo.FileAttachmentMultipartRequest;
 import todo.Standard4XXResponse;
 import todo.Standard5XXResponse;
 import todo.TodoAttachment;
@@ -52,6 +55,18 @@ public final class TodoItemsAttachmentsImpl {
      */
     @ServiceInterface(name = "TodoClientTodoItemsA", host = "{endpoint}")
     public interface TodoItemsAttachmentsService {
+        static TodoItemsAttachmentsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("todo.implementation.TodoItemsAttachmentsServiceImpl");
+                return (TodoItemsAttachmentsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/items/{itemId}/attachments",
@@ -263,8 +278,8 @@ public final class TodoItemsAttachmentsImpl {
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundErrorResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<PageTodoAttachment> listSync(@HostParam("endpoint") String endpoint, @PathParam("itemId") long itemId,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<PageTodoAttachment> list(@HostParam("endpoint") String endpoint, @PathParam("itemId") long itemId,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
@@ -477,10 +492,10 @@ public final class TodoItemsAttachmentsImpl {
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundErrorResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> createJsonAttachmentSync(@HostParam("endpoint") String endpoint,
+        Response<Void> createJsonAttachment(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @PathParam("itemId") long itemId,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData contents,
-            RequestOptions requestOptions);
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") TodoAttachment contents,
+            RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -694,113 +709,109 @@ public final class TodoItemsAttachmentsImpl {
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundErrorResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> createFileAttachmentSync(@HostParam("endpoint") String endpoint,
+        Response<Void> createFileAttachment(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @PathParam("itemId") long itemId,
-            @HeaderParam("Accept") String accept, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+            @HeaderParam("Accept") String accept, @BodyParam("multipart/form-data") FileAttachmentMultipartRequest body,
+            RequestContext requestContext);
     }
 
     /**
      * The list operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             filename: String (Required)
-     *             mediaType: String (Required)
-     *             contents: byte[] (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param itemId The itemId parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<TodoAttachment> listSinglePage(long itemId, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoAttachment> listSinglePage(long itemId) {
         final String accept = "application/json";
-        Response<PageTodoAttachment> res = service.listSync(this.client.getEndpoint(), itemId, accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getItems(), null, null, null, null, null);
+        Response<PageTodoAttachment> res
+            = service.list(this.client.getEndpoint(), itemId, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, null, null, null, null);
     }
 
     /**
      * The list operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             filename: String (Required)
-     *             mediaType: String (Required)
-     *             contents: byte[] (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param itemId The itemId parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<TodoAttachment> list(long itemId, RequestOptions requestOptions) {
-        return new PagedIterable<>(pagingOptions -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'list'."));
-            }
-            return listSinglePage(itemId, requestOptions);
-        });
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoAttachment> listSinglePage(long itemId, RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<PageTodoAttachment> res = service.list(this.client.getEndpoint(), itemId, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, null, null, null, null);
+    }
+
+    /**
+     * The list operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TodoAttachment> list(long itemId) {
+        return new PagedIterable<>((pagingOptions) -> listSinglePage(itemId));
+    }
+
+    /**
+     * The list operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TodoAttachment> list(long itemId, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> listSinglePage(itemId, requestContext));
     }
 
     /**
      * The createJsonAttachment operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     filename: String (Required)
-     *     mediaType: String (Required)
-     *     contents: byte[] (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param itemId The itemId parameter.
      * @param contents The contents parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> createJsonAttachmentWithResponse(long itemId, BinaryData contents,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> createJsonAttachmentWithResponse(long itemId, TodoAttachment contents,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createJsonAttachmentSync(this.client.getEndpoint(), contentType, itemId, accept, contents,
-            requestOptions);
+        return service.createJsonAttachment(this.client.getEndpoint(), contentType, itemId, accept, contents,
+            requestContext);
+    }
+
+    /**
+     * The createJsonAttachment operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @param contents The contents parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void createJsonAttachment(long itemId, TodoAttachment contents) {
+        createJsonAttachmentWithResponse(itemId, contents, RequestContext.none());
     }
 
     /**
@@ -808,17 +819,32 @@ public final class TodoItemsAttachmentsImpl {
      * 
      * @param itemId The itemId parameter.
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> createFileAttachmentWithResponse(long itemId, BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> createFileAttachmentWithResponse(long itemId, FileAttachmentMultipartRequest body,
+        RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         final String accept = "application/json";
-        return service.createFileAttachmentSync(this.client.getEndpoint(), contentType, itemId, accept, body,
-            requestOptions);
+        return service.createFileAttachment(this.client.getEndpoint(), contentType, itemId, accept, body,
+            requestContext);
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(TodoItemsAttachmentsImpl.class);
+    /**
+     * The createFileAttachment operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void createFileAttachment(long itemId, FileAttachmentMultipartRequest body) {
+        createFileAttachmentWithResponse(itemId, body, RequestContext.none());
+    }
 }

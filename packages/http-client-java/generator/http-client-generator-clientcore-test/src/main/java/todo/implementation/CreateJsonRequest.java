@@ -1,7 +1,7 @@
 package todo.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -14,18 +14,18 @@ import todo.TodoItem;
 /**
  * The CreateJsonRequest model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class CreateJsonRequest implements JsonSerializable<CreateJsonRequest> {
     /*
      * The item property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final TodoItem item;
 
     /*
      * The attachments property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private List<TodoAttachment> attachments;
 
     /**
@@ -33,7 +33,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
      * 
      * @param item the item value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CreateJsonRequest(TodoItem item) {
         this.item = item;
     }
@@ -43,7 +43,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
      * 
      * @return the item value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem getItem() {
         return this.item;
     }
@@ -53,7 +53,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
      * 
      * @return the attachments value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<TodoAttachment> getAttachments() {
         return this.attachments;
     }
@@ -64,7 +64,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
      * @param attachments the attachments value to set.
      * @return the CreateJsonRequest object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CreateJsonRequest setAttachments(List<TodoAttachment> attachments) {
         this.attachments = attachments;
         return this;
@@ -73,7 +73,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -91,7 +91,7 @@ public final class CreateJsonRequest implements JsonSerializable<CreateJsonReque
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the CreateJsonRequest.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static CreateJsonRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             TodoItem item = null;

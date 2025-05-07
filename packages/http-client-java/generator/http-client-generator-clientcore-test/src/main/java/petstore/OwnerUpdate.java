@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,24 +11,24 @@ import java.io.IOException;
 /**
  * Resource create or update operation model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
     /*
      * The name property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String name;
 
     /*
      * The age property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Integer age;
 
     /**
      * Creates an instance of OwnerUpdate class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnerUpdate() {
     }
 
@@ -37,7 +37,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -48,7 +48,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
      * @param name the name value to set.
      * @return the OwnerUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnerUpdate setName(String name) {
         this.name = name;
         return this;
@@ -59,7 +59,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
      * 
      * @return the age value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Integer getAge() {
         return this.age;
     }
@@ -70,7 +70,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
      * @param age the age value to set.
      * @return the OwnerUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OwnerUpdate setAge(Integer age) {
         this.age = age;
         return this;
@@ -79,7 +79,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -96,7 +96,7 @@ public final class OwnerUpdate implements JsonSerializable<OwnerUpdate> {
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the OwnerUpdate.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static OwnerUpdate fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             OwnerUpdate deserializedOwnerUpdate = new OwnerUpdate();

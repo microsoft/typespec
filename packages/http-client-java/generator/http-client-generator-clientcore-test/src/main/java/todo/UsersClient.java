@@ -1,11 +1,13 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import todo.implementation.UsersImpl;
 import todo.users.UserCreatedResponse;
 
@@ -14,7 +16,7 @@ import todo.users.UserCreatedResponse;
  */
 @ServiceClient(builder = TodoClientBuilder.class)
 public final class UsersClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final UsersImpl serviceClient;
 
     /**
@@ -22,48 +24,25 @@ public final class UsersClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     UsersClient(UsersImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The create operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     username: String (Required)
-     *     email: String (Required)
-     *     password: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     username: String (Required)
-     *     email: String (Required)
-     *     password: String (Required)
-     *     token: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param user The user parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<UserCreatedResponse> createWithResponse(BinaryData user, RequestOptions requestOptions) {
-        return this.serviceClient.createWithResponse(user, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<UserCreatedResponse> createWithResponse(User user, RequestContext requestContext) {
+        return this.serviceClient.createWithResponse(user, requestContext);
     }
 
     /**
@@ -75,10 +54,9 @@ public final class UsersClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public UserCreatedResponse create(User user) {
-        // Generated convenience method for createWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return createWithResponse(BinaryData.fromObject(user), requestOptions).getValue();
+        return this.serviceClient.create(user);
     }
 }

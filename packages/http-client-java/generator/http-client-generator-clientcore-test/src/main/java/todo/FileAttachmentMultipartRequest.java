@@ -1,17 +1,17 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 
 /**
  * The FileAttachmentMultipartRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FileAttachmentMultipartRequest {
     /*
      * The contents property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final FileDetails contents;
 
     /**
@@ -19,7 +19,7 @@ public final class FileAttachmentMultipartRequest {
      * 
      * @param contents the contents value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileAttachmentMultipartRequest(FileDetails contents) {
         this.contents = contents;
     }
@@ -29,7 +29,7 @@ public final class FileAttachmentMultipartRequest {
      * 
      * @return the contents value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FileDetails getContents() {
         return this.contents;
     }

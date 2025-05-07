@@ -1,7 +1,7 @@
 package todo.todoitems;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -11,7 +11,7 @@ import todo.ApiError;
 /**
  * The InvalidTodoItem model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class InvalidTodoItem extends ApiError {
     /**
      * Creates an instance of InvalidTodoItem class.
@@ -19,7 +19,7 @@ public final class InvalidTodoItem extends ApiError {
      * @param code the code value to set.
      * @param message the message value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private InvalidTodoItem(String code, String message) {
         super(code, message);
     }
@@ -27,7 +27,7 @@ public final class InvalidTodoItem extends ApiError {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -45,7 +45,7 @@ public final class InvalidTodoItem extends ApiError {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the InvalidTodoItem.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InvalidTodoItem fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String code = null;

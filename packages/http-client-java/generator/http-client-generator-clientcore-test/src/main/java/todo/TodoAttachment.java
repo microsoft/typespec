@@ -1,7 +1,7 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,24 +11,24 @@ import java.io.IOException;
 /**
  * The TodoAttachment model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
     /*
      * The file name of the attachment
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String filename;
 
     /*
      * The media type of the attachment
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String mediaType;
 
     /*
      * The contents of the file
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final byte[] contents;
 
     /**
@@ -38,7 +38,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
      * @param mediaType the mediaType value to set.
      * @param contents the contents value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoAttachment(String filename, String mediaType, byte[] contents) {
         this.filename = filename;
         this.mediaType = mediaType;
@@ -50,7 +50,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
      * 
      * @return the filename value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getFilename() {
         return this.filename;
     }
@@ -60,7 +60,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
      * 
      * @return the mediaType value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getMediaType() {
         return this.mediaType;
     }
@@ -70,7 +70,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
      * 
      * @return the contents value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public byte[] getContents() {
         return this.contents;
     }
@@ -78,7 +78,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -97,7 +97,7 @@ public final class TodoAttachment implements JsonSerializable<TodoAttachment> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the TodoAttachment.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static TodoAttachment fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String filename = null;

@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,18 +12,18 @@ import java.util.List;
 /**
  * Paged response of Owner items.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class OwnerCollectionWithNextLink implements JsonSerializable<OwnerCollectionWithNextLink> {
     /*
      * The items on this page
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<Owner> value;
 
     /*
      * The link to the next page of items
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String nextLink;
 
     /**
@@ -31,7 +31,7 @@ public final class OwnerCollectionWithNextLink implements JsonSerializable<Owner
      * 
      * @param value the value value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OwnerCollectionWithNextLink(List<Owner> value) {
         this.value = value;
     }
@@ -41,7 +41,7 @@ public final class OwnerCollectionWithNextLink implements JsonSerializable<Owner
      * 
      * @return the value value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<Owner> getValue() {
         return this.value;
     }
@@ -51,7 +51,7 @@ public final class OwnerCollectionWithNextLink implements JsonSerializable<Owner
      * 
      * @return the nextLink value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNextLink() {
         return this.nextLink;
     }
@@ -59,7 +59,7 @@ public final class OwnerCollectionWithNextLink implements JsonSerializable<Owner
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -77,7 +77,7 @@ public final class OwnerCollectionWithNextLink implements JsonSerializable<Owner
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the OwnerCollectionWithNextLink.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static OwnerCollectionWithNextLink fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             List<Owner> value = null;

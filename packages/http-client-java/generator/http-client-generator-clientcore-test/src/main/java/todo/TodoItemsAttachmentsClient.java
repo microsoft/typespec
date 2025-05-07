@@ -1,15 +1,14 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
-import todo.implementation.MultipartFormDataHelper;
+import io.clientcore.core.http.paging.PagedIterable;
 import todo.implementation.TodoItemsAttachmentsImpl;
 
 /**
@@ -17,7 +16,7 @@ import todo.implementation.TodoItemsAttachmentsImpl;
  */
 @ServiceClient(builder = TodoClientBuilder.class)
 public final class TodoItemsAttachmentsClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final TodoItemsAttachmentsImpl serviceClient;
 
     /**
@@ -25,97 +24,58 @@ public final class TodoItemsAttachmentsClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     TodoItemsAttachmentsClient(TodoItemsAttachmentsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The list operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             filename: String (Required)
-     *             mediaType: String (Required)
-     *             contents: byte[] (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
      * 
      * @param itemId The itemId parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<TodoAttachment> list(long itemId, RequestOptions requestOptions) {
-        return this.serviceClient.list(itemId, requestOptions);
-    }
-
-    /**
-     * The createJsonAttachment operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     filename: String (Required)
-     *     mediaType: String (Required)
-     *     contents: byte[] (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param itemId The itemId parameter.
-     * @param contents The contents parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> createJsonAttachmentWithResponse(long itemId, BinaryData contents,
-        RequestOptions requestOptions) {
-        return this.serviceClient.createJsonAttachmentWithResponse(itemId, contents, requestOptions);
-    }
-
-    /**
-     * The createFileAttachment operation.
-     * 
-     * @param itemId The itemId parameter.
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    Response<Void> createFileAttachmentWithResponse(long itemId, BinaryData body, RequestOptions requestOptions) {
-        // Operation 'createFileAttachment' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
-        return this.serviceClient.createFileAttachmentWithResponse(itemId, body, requestOptions);
+    public PagedIterable<TodoAttachment> list(long itemId) {
+        return this.serviceClient.list(itemId);
     }
 
     /**
      * The list operation.
      * 
      * @param itemId The itemId parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<TodoAttachment> list(long itemId) {
-        // Generated convenience method for list
-        RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(itemId, requestOptions);
+    public PagedIterable<TodoAttachment> list(long itemId, RequestContext requestContext) {
+        return this.serviceClient.list(itemId, requestContext);
+    }
+
+    /**
+     * The createJsonAttachment operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @param contents The contents parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> createJsonAttachmentWithResponse(long itemId, TodoAttachment contents,
+        RequestContext requestContext) {
+        return this.serviceClient.createJsonAttachmentWithResponse(itemId, contents, requestContext);
     }
 
     /**
@@ -127,11 +87,30 @@ public final class TodoItemsAttachmentsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void createJsonAttachment(long itemId, TodoAttachment contents) {
-        // Generated convenience method for createJsonAttachmentWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        createJsonAttachmentWithResponse(itemId, BinaryData.fromObject(contents), requestOptions).getValue();
+        this.serviceClient.createJsonAttachment(itemId, contents);
+    }
+
+    /**
+     * The createFileAttachment operation.
+     * 
+     * @param itemId The itemId parameter.
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> createFileAttachmentWithResponse(long itemId, FileAttachmentMultipartRequest body,
+        RequestContext requestContext) {
+        // Operation 'createFileAttachment' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
+        return this.serviceClient.createFileAttachmentWithResponse(itemId, body, requestContext);
     }
 
     /**
@@ -143,13 +122,11 @@ public final class TodoItemsAttachmentsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void createFileAttachment(long itemId, FileAttachmentMultipartRequest body) {
-        // Generated convenience method for createFileAttachmentWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        createFileAttachmentWithResponse(itemId,
-            new MultipartFormDataHelper(requestOptions).serializeFileField("contents", body.getContents().getContent(),
-                body.getContents().getContentType(), body.getContents().getFilename()).end().getRequestBody(),
-            requestOptions).getValue();
+        // Operation 'createFileAttachment' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
+        this.serviceClient.createFileAttachment(itemId, body);
     }
 }

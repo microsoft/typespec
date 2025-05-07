@@ -1,24 +1,24 @@
 package todo;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import java.util.List;
 
 /**
  * The ToDoItemMultipartRequest model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class ToDoItemMultipartRequest {
     /*
      * The item property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final TodoItem item;
 
     /*
      * The attachments property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private List<FileDetails> attachments;
 
     /**
@@ -26,7 +26,7 @@ public final class ToDoItemMultipartRequest {
      * 
      * @param item the item value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ToDoItemMultipartRequest(TodoItem item) {
         this.item = item;
     }
@@ -36,7 +36,7 @@ public final class ToDoItemMultipartRequest {
      * 
      * @return the item value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TodoItem getItem() {
         return this.item;
     }
@@ -46,7 +46,7 @@ public final class ToDoItemMultipartRequest {
      * 
      * @return the attachments value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<FileDetails> getAttachments() {
         return this.attachments;
     }
@@ -57,7 +57,7 @@ public final class ToDoItemMultipartRequest {
      * @param attachments the attachments value to set.
      * @return the ToDoItemMultipartRequest object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ToDoItemMultipartRequest setAttachments(List<FileDetails> attachments) {
         this.attachments = attachments;
         return this;

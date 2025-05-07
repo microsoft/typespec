@@ -1,27 +1,33 @@
 package todo.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
+import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.PagedResponse;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.utils.Context;
+import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.http.paging.PagedResponse;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import todo.Standard4XXResponse;
 import todo.Standard5XXResponse;
+import todo.ToDoItemMultipartRequest;
+import todo.TodoAttachment;
 import todo.TodoItem;
 import todo.todoitems.InvalidTodoItem;
 import todo.todoitems.NotFoundErrorResponse;
+import todo.todoitems.TodoItemPatch;
 import todo.todoitems.implementation.TodoPage;
 
 /**
@@ -54,6 +60,17 @@ public final class TodoItemsImpl {
      */
     @ServiceInterface(name = "TodoClientTodoItems", host = "{endpoint}")
     public interface TodoItemsService {
+        static TodoItemsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("todo.implementation.TodoItemsServiceImpl");
+                return (TodoItemsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.GET, path = "/items", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail(
             statusCode = {
@@ -262,8 +279,8 @@ public final class TodoItemsImpl {
                 499 },
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<TodoPage> listSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<TodoPage> list(@HostParam("endpoint") String endpoint, @QueryParam("limit") Integer limit,
+            @QueryParam("offset") Integer offset, @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/items", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail(
@@ -473,9 +490,9 @@ public final class TodoItemsImpl {
                 499 },
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<TodoItem> createJsonSync(@HostParam("endpoint") String endpoint,
+        Response<TodoItem> createJson(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData createJsonRequest, RequestOptions requestOptions);
+            @BodyParam("application/json") CreateJsonRequest createJsonRequest, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(method = HttpMethod.POST, path = "/items", expectedStatusCodes = { 200 })
@@ -686,22 +703,22 @@ public final class TodoItemsImpl {
                 499 },
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<TodoItem> createFormSync(@HostParam("endpoint") String endpoint,
+        Response<TodoItem> createForm(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("multipart/form-data") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("multipart/form-data") ToDoItemMultipartRequest body, RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/items/{id}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundErrorResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<TodoItem> getSync(@HostParam("endpoint") String endpoint, @PathParam("id") long id,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<TodoItem> get(@HostParam("endpoint") String endpoint, @PathParam("id") long id,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.PATCH, path = "/items/{id}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<TodoItem> updateSync(@HostParam("endpoint") String endpoint,
+        Response<TodoItem> update(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @PathParam("id") long id,
-            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") BinaryData patch,
-            RequestOptions requestOptions);
+            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") TodoItemPatch patch,
+            RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.DELETE, path = "/items/{id}", expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail(
@@ -911,8 +928,8 @@ public final class TodoItemsImpl {
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundErrorResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @PathParam("id") long id,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Void> delete(@HostParam("endpoint") String endpoint, @PathParam("id") long id,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail(
@@ -1122,375 +1139,303 @@ public final class TodoItemsImpl {
                 499 },
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<TodoPage> listNextSync(@PathParam(value = "nextLink", encoded = true) String nextLink,
+        Response<TodoPage> listNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+            RequestContext requestContext);
     }
 
     /**
      * The list operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>limit</td><td>Integer</td><td>No</td><td>The limit to the number of items</td></tr>
-     * <tr><td>offset</td><td>Integer</td><td>No</td><td>The offset to start paginating at</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             id: long (Required)
-     *             title: String (Required)
-     *             createdBy: long (Required)
-     *             assignedTo: Long (Optional)
-     *             description: String (Optional)
-     *             status: String(NotStarted/InProgress/Completed) (Required)
-     *             createdAt: OffsetDateTime (Required)
-     *             updatedAt: OffsetDateTime (Required)
-     *             completedAt: OffsetDateTime (Optional)
-     *             labels: BinaryData (Optional)
-     *             _dummy: String (Optional)
-     *         }
-     *     ]
-     *     pageSize: int (Required)
-     *     totalSize: int (Required)
-     *     prevLink: String (Optional)
-     *     nextLink: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param limit The limit to the number of items.
+     * @param offset The offset to start paginating at.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<TodoItem> listSinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoItem> listSinglePage(Integer limit, Integer offset) {
         final String accept = "application/json";
-        Response<TodoPage> res = service.listSync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getItems(), null, res.getValue().getNextLink(), null, null, null);
+        Response<TodoPage> res = service.list(this.client.getEndpoint(), limit, offset, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, res.getValue().getNextLink(), null, null, null);
     }
 
     /**
      * The list operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>limit</td><td>Integer</td><td>No</td><td>The limit to the number of items</td></tr>
-     * <tr><td>offset</td><td>Integer</td><td>No</td><td>The offset to start paginating at</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             id: long (Required)
-     *             title: String (Required)
-     *             createdBy: long (Required)
-     *             assignedTo: Long (Optional)
-     *             description: String (Optional)
-     *             status: String(NotStarted/InProgress/Completed) (Required)
-     *             createdAt: OffsetDateTime (Required)
-     *             updatedAt: OffsetDateTime (Required)
-     *             completedAt: OffsetDateTime (Optional)
-     *             labels: BinaryData (Optional)
-     *             _dummy: String (Optional)
-     *         }
-     *     ]
-     *     pageSize: int (Required)
-     *     totalSize: int (Required)
-     *     prevLink: String (Optional)
-     *     nextLink: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param limit The limit to the number of items.
+     * @param offset The offset to start paginating at.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<TodoItem> list(RequestOptions requestOptions) {
-        RequestOptions requestOptionsForNextPage = new RequestOptions();
-        requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null
-            ? requestOptions.getContext()
-            : Context.none());
-        return new PagedIterable<>(pagingOptions -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'list'."));
-            }
-            return listSinglePage(requestOptions);
-        }, (pagingOptions, nextLink) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'list'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'list'."));
-            }
-            return listNextSinglePage(nextLink, requestOptionsForNextPage);
-        });
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoItem> listSinglePage(Integer limit, Integer offset, RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<TodoPage> res = service.list(this.client.getEndpoint(), limit, offset, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, res.getValue().getNextLink(), null, null, null);
+    }
+
+    /**
+     * The list operation.
+     * 
+     * @param limit The limit to the number of items.
+     * @param offset The offset to start paginating at.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TodoItem> list(Integer limit, Integer offset) {
+        return new PagedIterable<>((pagingOptions) -> listSinglePage(limit, offset),
+            (pagingOptions, nextLink) -> listNextSinglePage(nextLink));
+    }
+
+    /**
+     * The list operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TodoItem> list() {
+        final Integer limit = null;
+        final Integer offset = null;
+        return new PagedIterable<>((pagingOptions) -> listSinglePage(limit, offset),
+            (pagingOptions, nextLink) -> listNextSinglePage(nextLink));
+    }
+
+    /**
+     * The list operation.
+     * 
+     * @param limit The limit to the number of items.
+     * @param offset The offset to start paginating at.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TodoItem> list(Integer limit, Integer offset, RequestContext requestContext) {
+        RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
+        return new PagedIterable<>((pagingOptions) -> listSinglePage(limit, offset, requestContext),
+            (pagingOptions, nextLink) -> listNextSinglePage(nextLink, requestContextForNextPage));
     }
 
     /**
      * The createJson operation.
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     item (Required): {
-     *         id: long (Required)
-     *         title: String (Required)
-     *         createdBy: long (Required)
-     *         assignedTo: Long (Optional)
-     *         description: String (Optional)
-     *         status: String(NotStarted/InProgress/Completed) (Required)
-     *         createdAt: OffsetDateTime (Required)
-     *         updatedAt: OffsetDateTime (Required)
-     *         completedAt: OffsetDateTime (Optional)
-     *         labels: BinaryData (Optional)
-     *         _dummy: String (Optional)
-     *     }
-     *     attachments (Optional): [
-     *          (Optional){
-     *             filename: String (Required)
-     *             mediaType: String (Required)
-     *             contents: byte[] (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     title: String (Required)
-     *     createdBy: long (Required)
-     *     assignedTo: Long (Optional)
-     *     description: String (Optional)
-     *     status: String(NotStarted/InProgress/Completed) (Required)
-     *     createdAt: OffsetDateTime (Required)
-     *     updatedAt: OffsetDateTime (Required)
-     *     completedAt: OffsetDateTime (Optional)
-     *     labels: BinaryData (Optional)
-     *     _dummy: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param createJsonRequest The createJsonRequest parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param item The item parameter.
+     * @param attachments The attachments parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<TodoItem> createJsonWithResponse(BinaryData createJsonRequest, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TodoItem> createJsonWithResponse(TodoItem item, List<TodoAttachment> attachments,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createJsonSync(this.client.getEndpoint(), contentType, accept, createJsonRequest,
-            requestOptions);
+        CreateJsonRequest createJsonRequest = new CreateJsonRequest(item);
+        createJsonRequest.setAttachments(attachments);
+        return service.createJson(this.client.getEndpoint(), contentType, accept, createJsonRequest, requestContext);
+    }
+
+    /**
+     * The createJson operation.
+     * 
+     * @param item The item parameter.
+     * @param attachments The attachments parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TodoItem createJson(TodoItem item, List<TodoAttachment> attachments) {
+        return createJsonWithResponse(item, attachments, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The createJson operation.
+     * 
+     * @param item The item parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TodoItem createJson(TodoItem item) {
+        final List<TodoAttachment> attachments = null;
+        return createJsonWithResponse(item, attachments, RequestContext.none()).getValue();
     }
 
     /**
      * The createForm operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     title: String (Required)
-     *     createdBy: long (Required)
-     *     assignedTo: Long (Optional)
-     *     description: String (Optional)
-     *     status: String(NotStarted/InProgress/Completed) (Required)
-     *     createdAt: OffsetDateTime (Required)
-     *     updatedAt: OffsetDateTime (Required)
-     *     completedAt: OffsetDateTime (Optional)
-     *     labels: BinaryData (Optional)
-     *     _dummy: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<TodoItem> createFormWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TodoItem> createFormWithResponse(ToDoItemMultipartRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         final String accept = "application/json";
-        return service.createFormSync(this.client.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.createForm(this.client.getEndpoint(), contentType, accept, body, requestContext);
+    }
+
+    /**
+     * The createForm operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TodoItem createForm(ToDoItemMultipartRequest body) {
+        return createFormWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
      * The get operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     title: String (Required)
-     *     createdBy: long (Required)
-     *     assignedTo: Long (Optional)
-     *     description: String (Optional)
-     *     status: String(NotStarted/InProgress/Completed) (Required)
-     *     createdAt: OffsetDateTime (Required)
-     *     updatedAt: OffsetDateTime (Required)
-     *     completedAt: OffsetDateTime (Optional)
-     *     labels: BinaryData (Optional)
-     *     _dummy: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param id The id parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<TodoItem> getWithResponse(long id, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TodoItem> getWithResponse(long id, RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), id, accept, requestOptions);
+        return service.get(this.client.getEndpoint(), id, accept, requestContext);
+    }
+
+    /**
+     * The get operation.
+     * 
+     * @param id The id parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TodoItem get(long id) {
+        return getWithResponse(id, RequestContext.none()).getValue();
     }
 
     /**
      * The update operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     title: String (Optional)
-     *     assignedTo: Long (Optional)
-     *     description: String (Optional)
-     *     status: String(NotStarted/InProgress/Completed) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     title: String (Required)
-     *     createdBy: long (Required)
-     *     assignedTo: Long (Optional)
-     *     description: String (Optional)
-     *     status: String(NotStarted/InProgress/Completed) (Required)
-     *     createdAt: OffsetDateTime (Required)
-     *     updatedAt: OffsetDateTime (Required)
-     *     completedAt: OffsetDateTime (Optional)
-     *     labels: BinaryData (Optional)
-     *     _dummy: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param id The id parameter.
      * @param patch The patch parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<TodoItem> updateWithResponse(long id, BinaryData patch, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<TodoItem> updateWithResponse(long id, TodoItemPatch patch, RequestContext requestContext) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
-        return service.updateSync(this.client.getEndpoint(), contentType, id, accept, patch, requestOptions);
+        return service.update(this.client.getEndpoint(), contentType, id, accept, patch, requestContext);
+    }
+
+    /**
+     * The update operation.
+     * 
+     * @param id The id parameter.
+     * @param patch The patch parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TodoItem update(long id, TodoItemPatch patch) {
+        return updateWithResponse(id, patch, RequestContext.none()).getValue();
     }
 
     /**
      * The delete operation.
      * 
      * @param id The id parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> deleteWithResponse(long id, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteWithResponse(long id, RequestContext requestContext) {
         final String accept = "application/json";
-        return service.deleteSync(this.client.getEndpoint(), id, accept, requestOptions);
+        return service.delete(this.client.getEndpoint(), id, accept, requestContext);
+    }
+
+    /**
+     * The delete operation.
+     * 
+     * @param id The id parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void delete(long id) {
+        deleteWithResponse(id, RequestContext.none());
     }
 
     /**
      * Get the next page of items.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     items (Required): [
-     *          (Required){
-     *             id: long (Required)
-     *             title: String (Required)
-     *             createdBy: long (Required)
-     *             assignedTo: Long (Optional)
-     *             description: String (Optional)
-     *             status: String(NotStarted/InProgress/Completed) (Required)
-     *             createdAt: OffsetDateTime (Required)
-     *             updatedAt: OffsetDateTime (Required)
-     *             completedAt: OffsetDateTime (Optional)
-     *             labels: BinaryData (Optional)
-     *             _dummy: String (Optional)
-     *         }
-     *     ]
-     *     pageSize: int (Required)
-     *     totalSize: int (Required)
-     *     prevLink: String (Optional)
-     *     nextLink: String (Optional)
-     * }
-     * }
-     * </pre>
      * 
      * @param nextLink The URL to get the next list of items.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<TodoItem> listNextSinglePage(String nextLink, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoItem> listNextSinglePage(String nextLink) {
         final String accept = "application/json";
-        Response<TodoPage> res = service.listNextSync(nextLink, this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getItems(), null, res.getValue().getNextLink(), null, null, null);
+        Response<TodoPage> res = service.listNext(nextLink, this.client.getEndpoint(), accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, res.getValue().getNextLink(), null, null, null);
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(TodoItemsImpl.class);
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<TodoItem> listNextSinglePage(String nextLink, RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<TodoPage> res = service.listNext(nextLink, this.client.getEndpoint(), accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getItems(),
+            null, res.getValue().getNextLink(), null, null, null);
+    }
 }

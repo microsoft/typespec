@@ -1,7 +1,7 @@
 package todo.todoitems;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * The NotFoundErrorResponse model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NotFoundErrorResponse implements JsonSerializable<NotFoundErrorResponse> {
     /*
      * The code property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String code = "not-found";
 
     /**
      * Creates an instance of NotFoundErrorResponse class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private NotFoundErrorResponse() {
     }
 
@@ -31,7 +31,7 @@ public final class NotFoundErrorResponse implements JsonSerializable<NotFoundErr
      * 
      * @return the code value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getCode() {
         return this.code;
     }
@@ -39,7 +39,7 @@ public final class NotFoundErrorResponse implements JsonSerializable<NotFoundErr
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -56,7 +56,7 @@ public final class NotFoundErrorResponse implements JsonSerializable<NotFoundErr
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the NotFoundErrorResponse.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static NotFoundErrorResponse fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             NotFoundErrorResponse deserializedNotFoundErrorResponse = new NotFoundErrorResponse();

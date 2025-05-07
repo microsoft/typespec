@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,36 +11,36 @@ import java.io.IOException;
 /**
  * Resource create or update operation model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class PetUpdate implements JsonSerializable<PetUpdate> {
     /*
      * The name property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String name;
 
     /*
      * The tag property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String tag;
 
     /*
      * The age property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Integer age;
 
     /*
      * The ownerId property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Long ownerId;
 
     /**
      * Creates an instance of PetUpdate class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetUpdate() {
     }
 
@@ -49,7 +49,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -60,7 +60,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * @param name the name value to set.
      * @return the PetUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetUpdate setName(String name) {
         this.name = name;
         return this;
@@ -71,7 +71,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * 
      * @return the tag value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getTag() {
         return this.tag;
     }
@@ -82,7 +82,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * @param tag the tag value to set.
      * @return the PetUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetUpdate setTag(String tag) {
         this.tag = tag;
         return this;
@@ -93,7 +93,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * 
      * @return the age value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Integer getAge() {
         return this.age;
     }
@@ -104,7 +104,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * @param age the age value to set.
      * @return the PetUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetUpdate setAge(Integer age) {
         this.age = age;
         return this;
@@ -115,7 +115,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * 
      * @return the ownerId value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Long getOwnerId() {
         return this.ownerId;
     }
@@ -126,7 +126,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * @param ownerId the ownerId value to set.
      * @return the PetUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PetUpdate setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
         return this;
@@ -135,7 +135,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -154,7 +154,7 @@ public final class PetUpdate implements JsonSerializable<PetUpdate> {
      * to JSON null.
      * @throws IOException If an error occurs while reading the PetUpdate.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static PetUpdate fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             PetUpdate deserializedPetUpdate = new PetUpdate();

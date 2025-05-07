@@ -1,19 +1,23 @@
 package todo.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import todo.Standard4XXResponse;
 import todo.Standard5XXResponse;
+import todo.User;
 import todo.users.InvalidUserResponse;
 import todo.users.UserCreatedResponse;
 import todo.users.UserExistsResponse;
@@ -48,6 +52,17 @@ public final class UsersImpl {
      */
     @ServiceInterface(name = "TodoClientUsers", host = "{endpoint}")
     public interface UsersService {
+        static UsersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("todo.implementation.UsersServiceImpl");
+                return (UsersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(method = HttpMethod.POST, path = "/users", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail(
             statusCode = {
@@ -256,48 +271,39 @@ public final class UsersImpl {
                 499 },
             exceptionBodyClass = Standard4XXResponse.class)
         @UnexpectedResponseExceptionDetail
-        Response<UserCreatedResponse> createSync(@HostParam("endpoint") String endpoint,
+        Response<UserCreatedResponse> create(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData user, RequestOptions requestOptions);
+            @BodyParam("application/json") User user, RequestContext requestContext);
     }
 
     /**
      * The create operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     username: String (Required)
-     *     email: String (Required)
-     *     password: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: long (Required)
-     *     username: String (Required)
-     *     email: String (Required)
-     *     password: String (Required)
-     *     token: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param user The user parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<UserCreatedResponse> createWithResponse(BinaryData user, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<UserCreatedResponse> createWithResponse(User user, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.createSync(this.client.getEndpoint(), contentType, accept, user, requestOptions);
+        return service.create(this.client.getEndpoint(), contentType, accept, user, requestContext);
+    }
+
+    /**
+     * The create operation.
+     * 
+     * @param user The user parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public UserCreatedResponse create(User user) {
+        return createWithResponse(user, RequestContext.none()).getValue();
     }
 }

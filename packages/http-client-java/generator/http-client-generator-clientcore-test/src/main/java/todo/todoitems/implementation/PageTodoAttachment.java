@@ -1,7 +1,7 @@
 package todo.todoitems.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,12 +13,12 @@ import todo.TodoAttachment;
 /**
  * The PageTodoAttachment model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class PageTodoAttachment implements JsonSerializable<PageTodoAttachment> {
     /*
      * The items property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<TodoAttachment> items;
 
     /**
@@ -26,7 +26,7 @@ public final class PageTodoAttachment implements JsonSerializable<PageTodoAttach
      * 
      * @param items the items value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private PageTodoAttachment(List<TodoAttachment> items) {
         this.items = items;
     }
@@ -36,7 +36,7 @@ public final class PageTodoAttachment implements JsonSerializable<PageTodoAttach
      * 
      * @return the items value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<TodoAttachment> getItems() {
         return this.items;
     }
@@ -44,7 +44,7 @@ public final class PageTodoAttachment implements JsonSerializable<PageTodoAttach
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -61,7 +61,7 @@ public final class PageTodoAttachment implements JsonSerializable<PageTodoAttach
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the PageTodoAttachment.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static PageTodoAttachment fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             List<TodoAttachment> items = null;

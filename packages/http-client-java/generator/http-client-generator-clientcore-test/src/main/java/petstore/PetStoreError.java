@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * The PetStoreError model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class PetStoreError implements JsonSerializable<PetStoreError> {
     /*
      * The code property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int code;
 
     /*
      * The message property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String message;
 
     /**
@@ -31,7 +31,7 @@ public final class PetStoreError implements JsonSerializable<PetStoreError> {
      * @param code the code value to set.
      * @param message the message value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private PetStoreError(int code, String message) {
         this.code = code;
         this.message = message;
@@ -42,7 +42,7 @@ public final class PetStoreError implements JsonSerializable<PetStoreError> {
      * 
      * @return the code value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getCode() {
         return this.code;
     }
@@ -52,7 +52,7 @@ public final class PetStoreError implements JsonSerializable<PetStoreError> {
      * 
      * @return the message value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getMessage() {
         return this.message;
     }
@@ -60,7 +60,7 @@ public final class PetStoreError implements JsonSerializable<PetStoreError> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -78,7 +78,7 @@ public final class PetStoreError implements JsonSerializable<PetStoreError> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the PetStoreError.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static PetStoreError fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             int code = 0;

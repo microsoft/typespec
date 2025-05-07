@@ -1,7 +1,7 @@
 package petstore;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,24 +11,24 @@ import java.io.IOException;
 /**
  * Resource create or update operation model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
     /*
      * The vetName property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String vetName;
 
     /*
      * The notes property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String notes;
 
     /**
      * Creates an instance of CheckupUpdate class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CheckupUpdate() {
     }
 
@@ -37,7 +37,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
      * 
      * @return the vetName value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getVetName() {
         return this.vetName;
     }
@@ -48,7 +48,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
      * @param vetName the vetName value to set.
      * @return the CheckupUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CheckupUpdate setVetName(String vetName) {
         this.vetName = vetName;
         return this;
@@ -59,7 +59,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
      * 
      * @return the notes value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNotes() {
         return this.notes;
     }
@@ -70,7 +70,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
      * @param notes the notes value to set.
      * @return the CheckupUpdate object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CheckupUpdate setNotes(String notes) {
         this.notes = notes;
         return this;
@@ -79,7 +79,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -96,7 +96,7 @@ public final class CheckupUpdate implements JsonSerializable<CheckupUpdate> {
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the CheckupUpdate.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static CheckupUpdate fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             CheckupUpdate deserializedCheckupUpdate = new CheckupUpdate();

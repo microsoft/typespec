@@ -1,7 +1,7 @@
 package todo.todoitems.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,36 +13,36 @@ import todo.TodoItem;
 /**
  * The TodoPage model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class TodoPage implements JsonSerializable<TodoPage> {
     /*
      * The items in the page
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<TodoItem> items;
 
     /*
      * The number of items returned in this page
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int pageSize;
 
     /*
      * The total number of items
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int totalSize;
 
     /*
      * A link to the previous page, if it exists
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String prevLink;
 
     /*
      * A link to the next page, if it exists
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String nextLink;
 
     /**
@@ -52,7 +52,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * @param pageSize the pageSize value to set.
      * @param totalSize the totalSize value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private TodoPage(List<TodoItem> items, int pageSize, int totalSize) {
         this.items = items;
         this.pageSize = pageSize;
@@ -64,7 +64,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * 
      * @return the items value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<TodoItem> getItems() {
         return this.items;
     }
@@ -74,7 +74,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * 
      * @return the pageSize value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getPageSize() {
         return this.pageSize;
     }
@@ -84,7 +84,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * 
      * @return the totalSize value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getTotalSize() {
         return this.totalSize;
     }
@@ -94,7 +94,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * 
      * @return the prevLink value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getPrevLink() {
         return this.prevLink;
     }
@@ -104,7 +104,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * 
      * @return the nextLink value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getNextLink() {
         return this.nextLink;
     }
@@ -112,7 +112,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -133,7 +133,7 @@ public final class TodoPage implements JsonSerializable<TodoPage> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the TodoPage.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static TodoPage fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             List<TodoItem> items = null;

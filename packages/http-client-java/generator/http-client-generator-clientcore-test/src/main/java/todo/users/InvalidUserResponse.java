@@ -1,7 +1,7 @@
 package todo.users;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -11,12 +11,12 @@ import todo.ApiError;
 /**
  * The user is invalid (e.g. forgot to enter email address).
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class InvalidUserResponse extends ApiError {
     /*
      * The code property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String code = "invalid-user";
 
     /**
@@ -25,7 +25,7 @@ public final class InvalidUserResponse extends ApiError {
      * @param code the code value to set.
      * @param message the message value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private InvalidUserResponse(String code, String message) {
         super(code, message);
     }
@@ -35,7 +35,7 @@ public final class InvalidUserResponse extends ApiError {
      * 
      * @return the code value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getCode() {
         return this.code;
     }
@@ -43,7 +43,7 @@ public final class InvalidUserResponse extends ApiError {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -62,7 +62,7 @@ public final class InvalidUserResponse extends ApiError {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the InvalidUserResponse.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InvalidUserResponse fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String code = null;
