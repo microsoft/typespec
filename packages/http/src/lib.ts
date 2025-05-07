@@ -198,7 +198,7 @@ export const $lib = createTypeSpecLibrary({
     "patch-implicit-optional": {
       severity: "warning",
       messages: {
-        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptionality: false}) to restore the old behavior.`,
+        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptionality: true}) to restore the old behavior.`,
       },
     },
     "merge-patch-contains-null": {
