@@ -5,7 +5,6 @@
 package azure.resourcemanager.resources.implementation.models;
 
 import azure.resourcemanager.resources.fluent.models.NestedProxyResourceInner;
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -23,19 +22,16 @@ public final class NestedProxyResourceListResult implements JsonSerializable<Nes
     /*
      * The NestedProxyResource items on this page
      */
-    @Generated
     private List<NestedProxyResourceInner> value;
 
     /*
      * The link to the next page of items
      */
-    @Generated
     private String nextLink;
 
     /**
      * Creates an instance of NestedProxyResourceListResult class.
      */
-    @Generated
     private NestedProxyResourceListResult() {
     }
 
@@ -44,7 +40,6 @@ public final class NestedProxyResourceListResult implements JsonSerializable<Nes
      * 
      * @return the value value.
      */
-    @Generated
     public List<NestedProxyResourceInner> value() {
         return this.value;
     }
@@ -54,7 +49,6 @@ public final class NestedProxyResourceListResult implements JsonSerializable<Nes
      * 
      * @return the nextLink value.
      */
-    @Generated
     public String nextLink() {
         return this.nextLink;
     }

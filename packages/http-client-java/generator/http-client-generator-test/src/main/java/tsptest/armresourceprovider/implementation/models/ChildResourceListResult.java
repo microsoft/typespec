@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.implementation.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -23,19 +22,16 @@ public final class ChildResourceListResult implements JsonSerializable<ChildReso
     /*
      * The ChildResource items on this page
      */
-    @Generated
     private List<ChildResourceInner> value;
 
     /*
      * The link to the next page of items
      */
-    @Generated
     private String nextLink;
 
     /**
      * Creates an instance of ChildResourceListResult class.
      */
-    @Generated
     private ChildResourceListResult() {
     }
 
@@ -44,7 +40,6 @@ public final class ChildResourceListResult implements JsonSerializable<ChildReso
      * 
      * @return the value value.
      */
-    @Generated
     public List<ChildResourceInner> value() {
         return this.value;
     }
@@ -54,7 +49,6 @@ public final class ChildResourceListResult implements JsonSerializable<ChildReso
      * 
      * @return the nextLink value.
      */
-    @Generated
     public String nextLink() {
         return this.nextLink;
     }

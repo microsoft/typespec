@@ -4,7 +4,6 @@
 
 package tsptest.armstreamstyleserialization.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
@@ -19,13 +18,11 @@ public final class Golden extends Dog {
     /*
      * discriminator property
      */
-    @Generated
     private DogKind kind = DogKind.GOLDEN;
 
     /**
      * Creates an instance of Golden class.
      */
-    @Generated
     private Golden() {
     }
 
@@ -34,7 +31,6 @@ public final class Golden extends Dog {
      * 
      * @return the kind value.
      */
-    @Generated
     @Override
     public DogKind kind() {
         return this.kind;
