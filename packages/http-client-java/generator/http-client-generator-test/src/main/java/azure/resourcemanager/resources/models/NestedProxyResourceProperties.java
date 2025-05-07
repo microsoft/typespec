@@ -5,6 +5,7 @@
 package azure.resourcemanager.resources.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,16 +20,19 @@ public final class NestedProxyResourceProperties implements JsonSerializable<Nes
     /*
      * Provisioning State of the nested child Resource
      */
+    @Generated
     private ProvisioningState provisioningState;
 
     /*
      * Nested resource description.
      */
+    @Generated
     private String description;
 
     /**
      * Creates an instance of NestedProxyResourceProperties class.
      */
+    @Generated
     public NestedProxyResourceProperties() {
     }
 
@@ -37,6 +41,7 @@ public final class NestedProxyResourceProperties implements JsonSerializable<Nes
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }
@@ -46,6 +51,7 @@ public final class NestedProxyResourceProperties implements JsonSerializable<Nes
      * 
      * @return the description value.
      */
+    @Generated
     public String description() {
         return this.description;
     }
@@ -56,6 +62,7 @@ public final class NestedProxyResourceProperties implements JsonSerializable<Nes
      * @param description the description value to set.
      * @return the NestedProxyResourceProperties object itself.
      */
+    @Generated
     public NestedProxyResourceProperties withDescription(String description) {
         this.description = description;
         return this;

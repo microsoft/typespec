@@ -1,17 +1,44 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { getCollection } from "astro:content";
 import BlogPost from "../../layouts/blog-post.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: post,
-  }));
-}
-type Props = CollectionEntry<"blog">;
 
-const post = Astro.props;
+  // Create paths for all posts using their main slug
+  const mainPaths = posts.map((post) => {
+    // Get the proper slug to use - prioritize data.slug, then post.slug
+    const mainSlug = post.data.slug || post.slug;
+
+    return {
+      params: { slug: mainSlug },
+      props: { post, isRedirect: false },
+    };
+  });
+
+  // Create redirect paths for posts that have a redirect_slug
+  const redirectPaths = posts
+    .filter(
+      (post) =>
+        post.data.redirect_slug && post.data.redirect_slug !== (post.data.slug || post.slug),
+    )
+    .map((post) => ({
+      params: { slug: post.data.redirect_slug },
+      props: { post, isRedirect: true },
+    }));
+
+  return [...mainPaths, ...redirectPaths];
+}
+
+const { post, isRedirect } = Astro.props;
+
+// If this is a redirect path, redirect to the actual post URL
+// Include trailing slash since trailingSlash is set to always
+if (isRedirect) {
+  // Perform the redirect directly without creating an intermediate variable
+  return Astro.redirect(`/blog/${post.data.slug || post.slug}/`);
+}
+
 const { Content } = await post.render();
 ---
 

@@ -60,6 +60,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type", PropertyLocation.Body));
 
         public static readonly ParameterProvider NextPage =
-            new ParameterProvider("nextPage", FormattableStringHelpers.Empty, typeof(Uri));
+            new ParameterProvider("nextPage", $"The url of the next page of responses.", typeof(Uri));
     }
 }

@@ -1,6 +1,6 @@
 import { Realm } from "../experimental/realm.js";
-import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
+import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";

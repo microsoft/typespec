@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableStringEnum;
 import java.util.Collection;
 
@@ -14,6 +15,7 @@ public final class ActionType extends ExpandableStringEnum<ActionType> {
     /**
      * Actions are for internal-only APIs.
      */
+    @Generated
     public static final ActionType INTERNAL = fromString("Internal");
 
     /**
@@ -21,6 +23,7 @@ public final class ActionType extends ExpandableStringEnum<ActionType> {
      * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
+    @Generated
     @Deprecated
     public ActionType() {
     }
@@ -31,6 +34,7 @@ public final class ActionType extends ExpandableStringEnum<ActionType> {
      * @param name a name to look for.
      * @return the corresponding ActionType.
      */
+    @Generated
     public static ActionType fromString(String name) {
         return fromString(name, ActionType.class);
     }
@@ -40,6 +44,7 @@ public final class ActionType extends ExpandableStringEnum<ActionType> {
      * 
      * @return known ActionType values.
      */
+    @Generated
     public static Collection<ActionType> values() {
         return values(ActionType.class);
     }

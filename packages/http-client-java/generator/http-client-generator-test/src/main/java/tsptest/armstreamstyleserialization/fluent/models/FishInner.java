@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,31 +22,37 @@ public class FishInner implements JsonSerializable<FishInner> {
     /*
      * Discriminator property for Fish.
      */
+    @Generated
     private String kind = "Fish";
 
     /*
      * The age property.
      */
+    @Generated
     private int age;
 
     /*
      * The dna property.
      */
+    @Generated
     private String dna;
 
     /*
      * The properties property.
      */
+    @Generated
     private FishProperties innerProperties = new FishProperties();
 
     /*
      * The anotherProperties property.
      */
+    @Generated
     private AnotherFishProperties innerAnotherProperties = new AnotherFishProperties();
 
     /**
      * Creates an instance of FishInner class.
      */
+    @Generated
     public FishInner() {
     }
 
@@ -54,6 +61,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the kind value.
      */
+    @Generated
     public String kind() {
         return this.kind;
     }
@@ -63,6 +71,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the age value.
      */
+    @Generated
     public int age() {
         return this.age;
     }
@@ -73,6 +82,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param age the age value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     public FishInner withAge(int age) {
         this.age = age;
         return this;
@@ -83,6 +93,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the dna value.
      */
+    @Generated
     public String dna() {
         return this.dna;
     }
@@ -93,6 +104,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param dna the dna value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     FishInner withDna(String dna) {
         this.dna = dna;
         return this;
@@ -103,6 +115,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the innerProperties value.
      */
+    @Generated
     private FishProperties innerProperties() {
         return this.innerProperties;
     }
@@ -113,6 +126,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param innerProperties the innerProperties value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     FishInner withInnerProperties(FishProperties innerProperties) {
         this.innerProperties = innerProperties;
         return this;
@@ -123,6 +137,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the innerAnotherProperties value.
      */
+    @Generated
     private AnotherFishProperties innerAnotherProperties() {
         return this.innerAnotherProperties;
     }
@@ -133,6 +148,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param innerAnotherProperties the innerAnotherProperties value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     FishInner withInnerAnotherProperties(AnotherFishProperties innerAnotherProperties) {
         this.innerAnotherProperties = innerAnotherProperties;
         return this;
@@ -143,6 +159,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the length value.
      */
+    @Generated
     public double length() {
         return this.innerProperties() == null ? 0.0 : this.innerProperties().length();
     }
@@ -153,6 +170,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param length the length value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     public FishInner withLength(double length) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -166,6 +184,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the patten value.
      */
+    @Generated
     public String patten() {
         return this.innerProperties() == null ? null : this.innerProperties().patten();
     }
@@ -175,6 +194,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredString() {
         return this.innerProperties() == null ? null : this.innerProperties().requiredString();
     }
@@ -185,6 +205,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param requiredString the requiredString value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     public FishInner withRequiredString(String requiredString) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -198,6 +219,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the length value.
      */
+    @Generated
     public double lengthAnotherPropertiesLength() {
         return this.innerAnotherProperties() == null ? 0.0 : this.innerAnotherProperties().length();
     }
@@ -208,6 +230,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param length the length value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     public FishInner withLengthAnotherPropertiesLength(double length) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();
@@ -221,6 +244,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the patten value.
      */
+    @Generated
     public String pattenAnotherPropertiesPatten() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().patten();
     }
@@ -230,6 +254,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * 
      * @return the requiredString value.
      */
+    @Generated
     public String requiredStringAnotherPropertiesRequiredString() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().requiredString();
     }
@@ -240,6 +265,7 @@ public class FishInner implements JsonSerializable<FishInner> {
      * @param requiredString the requiredString value to set.
      * @return the FishInner object itself.
      */
+    @Generated
     public FishInner withRequiredStringAnotherPropertiesRequiredString(String requiredString) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();

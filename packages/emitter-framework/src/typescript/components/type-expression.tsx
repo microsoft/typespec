@@ -1,10 +1,11 @@
-import { For, refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/typekit";
 import "@typespec/http/experimental/typekit";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
 import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
@@ -28,7 +29,7 @@ export function TypeExpression(props: TypeExpressionProps) {
   if (!props.noReference && isDeclaration($, type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={refkey(type)} />;
+    return <Reference refkey={efRefkey(type)} />;
     //throw new Error("Reference not implemented");
   }
 

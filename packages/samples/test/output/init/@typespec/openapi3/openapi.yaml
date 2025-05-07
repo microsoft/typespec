@@ -51,7 +51,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WidgetCreate'
+              $ref: '#/components/schemas/Widget'
   /widgets/{id}:
     get:
       operationId: Widgets_read
@@ -62,6 +62,7 @@ paths:
           required: true
           schema:
             type: string
+            readOnly: true
       responses:
         '200':
           description: The request has succeeded.
@@ -81,7 +82,12 @@ paths:
       operationId: Widgets_update
       description: Update a widget
       parameters:
-        - $ref: '#/components/parameters/Widget.id'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            readOnly: true
       responses:
         '200':
           description: The request has succeeded.
@@ -100,9 +106,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/merge-patch+json:
             schema:
-              $ref: '#/components/schemas/WidgetUpdate'
+              $ref: '#/components/schemas/WidgetMergePatchUpdate'
     delete:
       operationId: Widgets_delete
       description: Delete a widget
@@ -112,6 +118,7 @@ paths:
           required: true
           schema:
             type: string
+            readOnly: true
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -133,6 +140,7 @@ paths:
           required: true
           schema:
             type: string
+            readOnly: true
       responses:
         '200':
           description: The request has succeeded.
@@ -149,13 +157,6 @@ paths:
       tags:
         - Widgets
 components:
-  parameters:
-    Widget.id:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
   schemas:
     Error:
       type: object
@@ -177,6 +178,7 @@ components:
       properties:
         id:
           type: string
+          readOnly: true
         weight:
           type: integer
           format: int32
@@ -185,21 +187,7 @@ components:
           enum:
             - red
             - blue
-    WidgetCreate:
-      type: object
-      required:
-        - weight
-        - color
-      properties:
-        weight:
-          type: integer
-          format: int32
-        color:
-          type: string
-          enum:
-            - red
-            - blue
-    WidgetUpdate:
+    WidgetMergePatchUpdate:
       type: object
       properties:
         weight:
@@ -210,3 +198,4 @@ components:
           enum:
             - red
             - blue
+      description: ''

@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.operationtemplates.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -20,11 +21,13 @@ public final class ExportResultInner implements JsonSerializable<ExportResultInn
     /*
      * Content of the exported order.
      */
+    @Generated
     private String content;
 
     /**
      * Creates an instance of ExportResultInner class.
      */
+    @Generated
     private ExportResultInner() {
     }
 
@@ -33,6 +36,7 @@ public final class ExportResultInner implements JsonSerializable<ExportResultInn
      * 
      * @return the content value.
      */
+    @Generated
     public String content() {
         return this.content;
     }

@@ -1,5 +1,5 @@
 import { BaseType, ModelProperty, Value } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpAuth } from "@typespec/http";
 import { InternalClient as Client } from "../../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
@@ -47,7 +47,7 @@ interface TypeKit {
   modelProperty: SdkModelPropertyKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface ModelPropertyKit extends SdkModelPropertyKit {}
 }
 

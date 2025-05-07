@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
-import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
@@ -66,6 +65,7 @@ public class Javagen extends NewPlugin {
 
     private boolean generateJava(JavaSettings settings) {
         try {
+
             // Step 1: Parse input yaml as CodeModel
             CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
 
@@ -188,7 +188,7 @@ public class Javagen extends NewPlugin {
             }
 
             // Service version
-            if (settings.isDataPlaneClient()) {
+            if (settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2()) {
                 String packageName = settings.getPackage();
                 if (CoreUtils.isNullOrEmpty(client.getServiceClients())) {
                     List<String> serviceVersions = settings.getServiceVersions();
@@ -274,7 +274,7 @@ public class Javagen extends NewPlugin {
 
             // POM
             if (settings.isRegeneratePom()) {
-                Pom pom = new PomMapper().map(project);
+                Pom pom = Mappers.getPomMapper().map(project);
                 javaPackage.addPom("pom.xml", pom);
             }
 

@@ -98,7 +98,7 @@ op putModel(@body input: VisibilityModel): void;
   }
   ```
   """)
-@patch
+@patch(#{ implicitOptionality: true })
 op patchModel(@body input: VisibilityModel): void;
 
 @scenario

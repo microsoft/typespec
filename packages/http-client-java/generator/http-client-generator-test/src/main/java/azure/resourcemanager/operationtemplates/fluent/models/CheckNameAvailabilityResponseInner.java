@@ -5,6 +5,7 @@
 package azure.resourcemanager.operationtemplates.fluent.models;
 
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityReason;
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,21 +21,25 @@ public final class CheckNameAvailabilityResponseInner implements JsonSerializabl
     /*
      * Indicates if the resource name is available.
      */
+    @Generated
     private Boolean nameAvailable;
 
     /*
      * The reason why the given name is not available.
      */
+    @Generated
     private CheckNameAvailabilityReason reason;
 
     /*
      * Detailed reason why the given name is not available.
      */
+    @Generated
     private String message;
 
     /**
      * Creates an instance of CheckNameAvailabilityResponseInner class.
      */
+    @Generated
     private CheckNameAvailabilityResponseInner() {
     }
 
@@ -43,6 +48,7 @@ public final class CheckNameAvailabilityResponseInner implements JsonSerializabl
      * 
      * @return the nameAvailable value.
      */
+    @Generated
     public Boolean nameAvailable() {
         return this.nameAvailable;
     }
@@ -52,6 +58,7 @@ public final class CheckNameAvailabilityResponseInner implements JsonSerializabl
      * 
      * @return the reason value.
      */
+    @Generated
     public CheckNameAvailabilityReason reason() {
         return this.reason;
     }
@@ -61,6 +68,7 @@ public final class CheckNameAvailabilityResponseInner implements JsonSerializabl
      * 
      * @return the message value.
      */
+    @Generated
     public String message() {
         return this.message;
     }
