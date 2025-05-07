@@ -13,56 +13,56 @@ $solutionDir = Join-Path $packageRoot 'generator'
 if (-not $LaunchOnly) {
     Refresh-Build
 
-    if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+    # if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
 
-        Write-Host "Building logging plugin" -ForegroundColor Cyan
-        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
-        Invoke "dotnet build" $pluginDir
+    #     Write-Host "Building logging plugin" -ForegroundColor Cyan
+    #     $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
+    #     Invoke "dotnet build" $pluginDir
 
-        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+    #     $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-        Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
+    #     Write-Host "Installing SampleTypeSpec plugins" -ForegroundColor Cyan
 
-        Invoke "npm install" $sampleDir
+    #     Invoke "npm install" $sampleDir
 
-        Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
+    #     Write-Host "Generating SampleTypeSpec using plugins" -ForegroundColor Cyan
 
-        Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
+    #     Invoke "npx tsp compile . --trace @typespec/http-client-csharp" $sampleDir
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+    #     # exit if the generation failed
+    #     if ($LASTEXITCODE -ne 0) {
+    #       exit $LASTEXITCODE
+    #     }
 
-        Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
-        Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
+    #     Write-Host "Building SampleTypeSpec plugin library" -ForegroundColor Cyan
+    #     Invoke "dotnet build $sampleDir/SampleClient/src/SampleTypeSpec.csproj"
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-          exit $LASTEXITCODE
-        }
+    #     # exit if the generation failed
+    #     if ($LASTEXITCODE -ne 0) {
+    #       exit $LASTEXITCODE
+    #     }
 
-        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
-        $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
+    #     Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
+    #     $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
-        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
+    #     $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+    #     $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
+    #     Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
+    #     # exit if the generation failed
+    #     if ($LASTEXITCODE -ne 0) {
+    #         exit $LASTEXITCODE
+    #     }
 
-        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
-        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
+    #     Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+    #     Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
 
-        # exit if the generation failed
-        if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-        }
-    }
+    #     # exit if the generation failed
+    #     if ($LASTEXITCODE -ne 0) {
+    #         exit $LASTEXITCODE
+    #     }
+    # }
 }
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
