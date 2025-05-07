@@ -18,6 +18,7 @@ import {
   unsafe_MutatorFlow as MutatorFlow,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
+import { useStateMap } from "@typespec/compiler/utils";
 import {
   createMetadataInfo,
   getHttpOperation,
@@ -28,17 +29,15 @@ import {
   Visibility,
 } from "@typespec/http";
 import { JsContext, NoModule } from "../ctx.js";
+import { createStateSymbol } from "../lib.js";
 import { resolveEncodingChain } from "../util/encoding.js";
 
 const CANONICAL_VISIBILITY = Visibility.Read;
 
-const CANONICAL = Symbol.for("TypeSpec.HttpServerJs.CanonicalOperation");
-const IS_CANONICAL = Symbol.for("TypeSpec.HttpServerJs.IsCanonicalOperation");
-
-interface CanonicalOperationCache {
-  [CANONICAL]?: Operation;
-  [IS_CANONICAL]?: boolean;
-}
+const [getCachedCanonicalOperation, setCachedCanonicalOperation] = useStateMap<
+  Operation,
+  Operation
+>(createStateSymbol("CanonicalOperationCache"));
 
 /**
  * Gets the 'canonicalized' version of an operation.
@@ -55,15 +54,19 @@ interface CanonicalOperationCache {
  * @returns
  */
 export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation): Operation {
-  if ((operation as unknown as CanonicalOperationCache)[IS_CANONICAL]) return operation;
+  let canonical = getCachedCanonicalOperation(ctx.program, operation);
+
+  if (canonical) return canonical;
 
   const metadataInfo = (ctx.metadataInfo ??= createMetadataInfo(ctx.program, {
     canonicalVisibility: CANONICAL_VISIBILITY,
   }));
 
-  return (
-    (operation as unknown as CanonicalOperationCache)[CANONICAL] ?? _canonicalizeHttpOperation()
-  );
+  canonical = _canonicalizeHttpOperation();
+
+  setCachedCanonicalOperation(ctx.program, operation, canonical);
+
+  return canonical;
 
   function _canonicalizeHttpOperation(): Operation {
     const [httpOperation] = getHttpOperation(ctx.program, operation);
@@ -112,9 +115,6 @@ export function canonicalizeHttpOperation(ctx: JsContext, operation: Operation):
     clonedOperation.returnType = mutatedReturnType;
 
     $(ctx.program).type.finishType(clonedOperation);
-
-    (clonedOperation as unknown as CanonicalOperationCache)[CANONICAL] = clonedOperation;
-    (clonedOperation as unknown as CanonicalOperationCache)[IS_CANONICAL] = true;
 
     return clonedOperation;
   }
