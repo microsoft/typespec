@@ -120,7 +120,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(PageThing)} does not support writing '{options.Format}' format.");
             }

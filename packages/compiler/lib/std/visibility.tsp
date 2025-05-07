@@ -366,6 +366,7 @@ extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
  * model CreateDog is Create<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
 model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
@@ -404,6 +405,7 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model ReadDog is Read<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
 model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
@@ -443,6 +445,7 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
  * model UpdateDog is Update<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withLifecycleUpdate(NameTemplate)
 model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
@@ -484,6 +487,7 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model CreateOrUpdateDog is CreateOrUpdate<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
 model CreateOrUpdate<
@@ -527,6 +531,7 @@ model CreateOrUpdate<
  * model DeleteDog is Delete<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
 model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
@@ -575,6 +580,7 @@ model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model QueryDog is Query<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
 @withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
 model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {

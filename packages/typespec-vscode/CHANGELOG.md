@@ -1,5 +1,12 @@
 # Change Log - typespec-vscode
 
+## 1.0.0
+
+### Features
+
+- [#7042](https://github.com/microsoft/typespec/pull/7042) send compile startTime and endTime telemetry
+
+
 ## 0.69.0
 
 ### Bug Fixes

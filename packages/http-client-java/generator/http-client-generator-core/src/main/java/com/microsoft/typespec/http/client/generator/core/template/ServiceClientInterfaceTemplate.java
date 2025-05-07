@@ -21,14 +21,14 @@ public class ServiceClientInterfaceTemplate implements IJavaTemplate<ServiceClie
 
     private static final ServiceClientInterfaceTemplate INSTANCE = new ServiceClientInterfaceTemplate();
 
-    private ServiceClientInterfaceTemplate() {
+    protected ServiceClientInterfaceTemplate() {
     }
 
     public static ServiceClientInterfaceTemplate getInstance() {
         return INSTANCE;
     }
 
-    public final void write(ServiceClient serviceClient, JavaFile javaFile) {
+    public void write(ServiceClient serviceClient, JavaFile javaFile) {
         HashSet<String> imports = new HashSet<String>();
         serviceClient.addImportsTo(imports, false, false, JavaSettings.getInstance());
         javaFile.declareImport(imports);

@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.commonproperties.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -17,28 +18,22 @@ import java.io.IOException;
 @Immutable
 public final class UserAssignedIdentity implements JsonSerializable<UserAssignedIdentity> {
     /*
-     * The client ID of the assigned identity.
-     */
-    private String clientId;
-
-    /*
      * The principal ID of the assigned identity.
      */
+    @Generated
     private String principalId;
+
+    /*
+     * The client ID of the assigned identity.
+     */
+    @Generated
+    private String clientId;
 
     /**
      * Creates an instance of UserAssignedIdentity class.
      */
+    @Generated
     public UserAssignedIdentity() {
-    }
-
-    /**
-     * Get the clientId property: The client ID of the assigned identity.
-     * 
-     * @return the clientId value.
-     */
-    public String clientId() {
-        return this.clientId;
     }
 
     /**
@@ -46,8 +41,19 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
      * 
      * @return the principalId value.
      */
+    @Generated
     public String principalId() {
         return this.principalId;
+    }
+
+    /**
+     * Get the clientId property: The client ID of the assigned identity.
+     * 
+     * @return the clientId value.
+     */
+    @Generated
+    public String clientId() {
+        return this.clientId;
     }
 
     /**
@@ -82,10 +88,10 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("clientId".equals(fieldName)) {
-                    deserializedUserAssignedIdentity.clientId = reader.getString();
-                } else if ("principalId".equals(fieldName)) {
+                if ("principalId".equals(fieldName)) {
                     deserializedUserAssignedIdentity.principalId = reader.getString();
+                } else if ("clientId".equals(fieldName)) {
+                    deserializedUserAssignedIdentity.clientId = reader.getString();
                 } else {
                     reader.skipChildren();
                 }

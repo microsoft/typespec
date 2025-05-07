@@ -1,7 +1,7 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The SpreadAsRequestParameterRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SpreadAsRequestParameterRequest implements JsonSerializable<SpreadAsRequestParameterRequest> {
     /*
      * The name property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
     /**
@@ -24,7 +24,7 @@ public final class SpreadAsRequestParameterRequest implements JsonSerializable<S
      * 
      * @param name the name value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadAsRequestParameterRequest(String name) {
         this.name = name;
     }
@@ -34,7 +34,7 @@ public final class SpreadAsRequestParameterRequest implements JsonSerializable<S
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -42,7 +42,7 @@ public final class SpreadAsRequestParameterRequest implements JsonSerializable<S
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class SpreadAsRequestParameterRequest implements JsonSerializable<S
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SpreadAsRequestParameterRequest.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SpreadAsRequestParameterRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

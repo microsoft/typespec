@@ -37,8 +37,8 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> DocumentsCache);
 
         /// <summary>
-        /// This method reads the project, returns the types defined in it and build symbol caches to acceralate the calculation
-        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behavior
+        /// This method reads the project, returns the types defined in it and build symbol caches to accelerate the calculation
+        /// By default, the types defined in shared documents are not included. Please override <see cref="ShouldIncludeDocument(Document)"/> to tweak this behavior.
         /// </summary>
         /// <param name="compilation">The <see cref="Compilation"/> of the <paramref name="project"/> </param>
         /// <param name="project">The project to extract type symbols from</param>
@@ -74,6 +74,9 @@ namespace Microsoft.TypeSpec.Generator
                         var symbol = semanticModel.GetDeclaredSymbol(typeDeclaration);
                         if (symbol == null)
                             continue;
+                        if (CodeModelGenerator.Instance.TypesToKeepPublic.Contains(symbol.Name))
+                            continue; //skip types that are explicitly marked to keep public
+
                         if (publicOnly && symbol.DeclaredAccessibility != Accessibility.Public &&
                             !document.Name.StartsWith("Internal/", StringComparison.Ordinal))
                             continue;

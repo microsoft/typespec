@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "${workspaceFolder}/DocumentIntelligence",
+        "${workspaceFolder}/node_modules/@azure-tools/azure-http-specs/specs/azure/core/page",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.debug=true"
       ],

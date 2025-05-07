@@ -345,7 +345,7 @@ public class ServiceClient {
 
             ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
             ClassType.RETRY_POLICY.addImportsTo(imports, false);
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 imports.add(UserAgentPolicy.class.getName());
             }
         }
@@ -358,6 +358,19 @@ public class ServiceClient {
         if (proxy != null) {
             proxy.addImportsTo(imports, includeImplementationImports, settings);
         }
+    }
+
+    protected void addRestProxyImport(Set<String> imports) {
+        ClassType.REST_PROXY.addImportsTo(imports, false);
+    }
+
+    protected void addHttpPolicyImports(Set<String> imports) {
+        ClassType.RETRY_POLICY.addImportsTo(imports, false);
+        ClassType.USER_AGENT_POLICY.addImportsTo(imports, false);
+    }
+
+    protected void addPipelineBuilderImport(Set<String> imports) {
+        ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
     }
 
     public static class Builder {
