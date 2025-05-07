@@ -156,6 +156,10 @@ public final class ClientMethodsReturnDescription {
                     final IType returnType = GenericType.SyncPoller(GenericType.PollResult(syncReturnType.asNullable()),
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
+                } else if (settings.isAzureV2()) {
+                    IType returnType = GenericType.AzureVNextPoller(pollingDetails.getIntermediateType(),
+                        pollingDetails.getFinalType());
+                    return createReturnValue(returnType, pollingDetails.getFinalType());
                 } else {
                     IType returnType
                         = GenericType.SyncPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
@@ -219,7 +223,7 @@ public final class ClientMethodsReturnDescription {
                     pageItemName, pageResponseModel.getName()));
         }
 
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(ClassType.BINARY_DATA));
             IType asyncReturnType = GenericType.PagedFlux(ClassType.BINARY_DATA);
             IType syncReturnType = GenericType.PagedIterable(ClassType.BINARY_DATA);
@@ -274,7 +278,7 @@ public final class ClientMethodsReturnDescription {
      */
     private static IType getResponseBodyType(Operation operation, boolean isProtocolMethod, JavaSettings settings) {
         final IType expectedResponseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             return SchemaUtil.tryMapToBinaryData(expectedResponseBodyType, operation);
         }
         return expectedResponseBodyType;

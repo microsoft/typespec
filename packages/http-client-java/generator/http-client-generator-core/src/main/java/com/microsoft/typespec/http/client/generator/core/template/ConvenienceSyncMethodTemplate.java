@@ -96,7 +96,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
             String mapPageExpression = "";
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 mapPageExpression
                     = ".mapPage(bodyItemValue -> "
                         + expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",

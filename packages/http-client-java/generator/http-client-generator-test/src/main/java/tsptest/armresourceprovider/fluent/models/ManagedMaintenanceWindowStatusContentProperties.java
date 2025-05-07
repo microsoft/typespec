@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,11 +21,13 @@ public final class ManagedMaintenanceWindowStatusContentProperties
     /*
      * The status of the last operation.
      */
+    @Generated
     private String provisioningState;
 
     /**
      * Creates an instance of ManagedMaintenanceWindowStatusContentProperties class.
      */
+    @Generated
     private ManagedMaintenanceWindowStatusContentProperties() {
     }
 
@@ -33,6 +36,7 @@ public final class ManagedMaintenanceWindowStatusContentProperties
      * 
      * @return the provisioningState value.
      */
+    @Generated
     public String provisioningState() {
         return this.provisioningState;
     }

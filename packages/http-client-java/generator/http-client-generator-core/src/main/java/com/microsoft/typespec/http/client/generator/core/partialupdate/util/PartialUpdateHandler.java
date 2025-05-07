@@ -636,9 +636,12 @@ public class PartialUpdateHandler {
      */
     private static boolean hasGeneratedAnnotation(BodyDeclaration<?> member) {
         if (member.getAnnotations() != null && !member.getAnnotations().isEmpty()) {
-            return member.getAnnotations()
-                .stream()
-                .anyMatch(annotationExpr -> annotationExpr.getName().toString().equals("Generated"));
+            return member.getAnnotations().stream().anyMatch(annotationExpr -> {
+                boolean hasGeneratedAnnotation = annotationExpr.getName().toString().equals("Generated");
+                boolean hasMetadataWithGenerated = annotationExpr.getName().toString().equals("Metadata")
+                    && annotationExpr.asStringLiteralExpr().getValue().contains("GENERATED");
+                return hasGeneratedAnnotation || hasMetadataWithGenerated;
+            });
         } else {
             return false;
         }

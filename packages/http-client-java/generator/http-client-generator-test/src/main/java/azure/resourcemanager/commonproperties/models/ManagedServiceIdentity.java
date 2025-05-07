@@ -5,6 +5,7 @@
 package azure.resourcemanager.commonproperties.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -22,27 +23,32 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * The service principal ID of the system assigned identity. This property will only be provided for a system
      * assigned identity.
      */
+    @Generated
     private String principalId;
 
     /*
      * The tenant ID of the system assigned identity. This property will only be provided for a system assigned
      * identity.
      */
+    @Generated
     private String tenantId;
 
     /*
      * The type of managed identity assigned to this resource.
      */
+    @Generated
     private ManagedServiceIdentityType type;
 
     /*
      * The identities assigned to this resource by the user.
      */
+    @Generated
     private Map<String, UserAssignedIdentity> userAssignedIdentities;
 
     /**
      * Creates an instance of ManagedServiceIdentity class.
      */
+    @Generated
     public ManagedServiceIdentity() {
     }
 
@@ -52,6 +58,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the principalId value.
      */
+    @Generated
     public String principalId() {
         return this.principalId;
     }
@@ -62,6 +69,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the tenantId value.
      */
+    @Generated
     public String tenantId() {
         return this.tenantId;
     }
@@ -71,6 +79,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the type value.
      */
+    @Generated
     public ManagedServiceIdentityType type() {
         return this.type;
     }
@@ -81,6 +90,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * @param type the type value to set.
      * @return the ManagedServiceIdentity object itself.
      */
+    @Generated
     public ManagedServiceIdentity withType(ManagedServiceIdentityType type) {
         this.type = type;
         return this;
@@ -91,6 +101,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * 
      * @return the userAssignedIdentities value.
      */
+    @Generated
     public Map<String, UserAssignedIdentity> userAssignedIdentities() {
         return this.userAssignedIdentities;
     }
@@ -101,6 +112,7 @@ public final class ManagedServiceIdentity implements JsonSerializable<ManagedSer
      * @param userAssignedIdentities the userAssignedIdentities value to set.
      * @return the ManagedServiceIdentity object itself.
      */
+    @Generated
     public ManagedServiceIdentity withUserAssignedIdentities(Map<String, UserAssignedIdentity> userAssignedIdentities) {
         this.userAssignedIdentities = userAssignedIdentities;
         return this;

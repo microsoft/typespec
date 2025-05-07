@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -41,6 +41,10 @@
     "./ast": {
       "import": "./dist/src/ast/index.js"
     },
+    "./typekit": {
+      "types": "./dist/src/typekit/index.d.ts",
+      "default": "./dist/src/typekit/index.js"
+    },
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
       "default": "./dist/src/experimental/index.js"
@@ -55,6 +59,9 @@
     },
     "./internals/prettier-formatter": {
       "import": "./dist/src/internals/prettier-formatter.js"
+    },
+    "./casing": {
+      "import": "./dist/src/casing/index.js"
     }
   },
   "browser": {

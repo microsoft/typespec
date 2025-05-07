@@ -4,6 +4,7 @@
 
 package azure.resourcemanager.operationtemplates.models;
 
+import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableStringEnum;
 import java.util.Collection;
 
@@ -15,16 +16,19 @@ public final class Origin extends ExpandableStringEnum<Origin> {
     /**
      * Indicates the operation is initiated by a user.
      */
+    @Generated
     public static final Origin USER = fromString("user");
 
     /**
      * Indicates the operation is initiated by a system.
      */
+    @Generated
     public static final Origin SYSTEM = fromString("system");
 
     /**
      * Indicates the operation is initiated by a user or system.
      */
+    @Generated
     public static final Origin USER_SYSTEM = fromString("user,system");
 
     /**
@@ -32,6 +36,7 @@ public final class Origin extends ExpandableStringEnum<Origin> {
      * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
+    @Generated
     @Deprecated
     public Origin() {
     }
@@ -42,6 +47,7 @@ public final class Origin extends ExpandableStringEnum<Origin> {
      * @param name a name to look for.
      * @return the corresponding Origin.
      */
+    @Generated
     public static Origin fromString(String name) {
         return fromString(name, Origin.class);
     }
@@ -51,6 +57,7 @@ public final class Origin extends ExpandableStringEnum<Origin> {
      * 
      * @return known Origin values.
      */
+    @Generated
     public static Collection<Origin> values() {
         return values(Origin.class);
     }

@@ -27,6 +27,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
+import { capitalize } from "@typespec/compiler/casing";
 import {
   map,
   matchType,
@@ -1003,13 +1004,6 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
 function isArray(t: Type) {
   return t.kind === "Model" && t.name === "Array" && t.namespace?.name === "TypeSpec";
-}
-
-/**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
 }
 
 /**

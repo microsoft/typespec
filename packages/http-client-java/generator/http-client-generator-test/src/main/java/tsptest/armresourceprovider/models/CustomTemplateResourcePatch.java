@@ -5,6 +5,7 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -19,11 +20,13 @@ public final class CustomTemplateResourcePatch implements JsonSerializable<Custo
     /*
      * Managed identity.
      */
+    @Generated
     private ManagedServiceIdentity identity;
 
     /**
      * Creates an instance of CustomTemplateResourcePatch class.
      */
+    @Generated
     public CustomTemplateResourcePatch() {
     }
 
@@ -32,6 +35,7 @@ public final class CustomTemplateResourcePatch implements JsonSerializable<Custo
      * 
      * @return the identity value.
      */
+    @Generated
     public ManagedServiceIdentity identity() {
         return this.identity;
     }
@@ -42,6 +46,7 @@ public final class CustomTemplateResourcePatch implements JsonSerializable<Custo
      * @param identity the identity value to set.
      * @return the CustomTemplateResourcePatch object itself.
      */
+    @Generated
     public CustomTemplateResourcePatch withIdentity(ManagedServiceIdentity identity) {
         this.identity = identity;
         return this;

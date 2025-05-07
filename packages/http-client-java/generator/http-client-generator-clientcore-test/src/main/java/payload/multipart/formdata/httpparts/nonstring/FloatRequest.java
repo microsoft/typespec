@@ -1,17 +1,17 @@
 package payload.multipart.formdata.httpparts.nonstring;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 
 /**
  * The FloatRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FloatRequest {
     /*
      * The temperature property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final double temperature;
 
     /**
@@ -19,7 +19,7 @@ public final class FloatRequest {
      * 
      * @param temperature the temperature value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatRequest(double temperature) {
         this.temperature = temperature;
     }
@@ -29,7 +29,7 @@ public final class FloatRequest {
      * 
      * @return the temperature value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public double getTemperature() {
         return this.temperature;
     }
