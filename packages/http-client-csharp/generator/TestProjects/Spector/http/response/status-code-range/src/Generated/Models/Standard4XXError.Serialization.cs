@@ -11,8 +11,6 @@ namespace Response.StatusCodeRange
 {
     public partial class Standard4XXError : IJsonModel<Standard4XXError>
     {
-        internal Standard4XXError() => throw null;
-
         void IJsonModel<Standard4XXError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

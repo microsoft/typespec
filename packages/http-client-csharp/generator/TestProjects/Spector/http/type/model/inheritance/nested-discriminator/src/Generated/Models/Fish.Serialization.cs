@@ -12,8 +12,6 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
     [PersistableModelProxy(typeof(UnknownFish))]
     public abstract partial class Fish : IJsonModel<Fish>
     {
-        internal Fish() => throw null;
-
         void IJsonModel<Fish>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

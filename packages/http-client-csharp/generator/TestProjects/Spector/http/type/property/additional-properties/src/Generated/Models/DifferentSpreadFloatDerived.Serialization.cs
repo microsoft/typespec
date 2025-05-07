@@ -11,8 +11,6 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class DifferentSpreadFloatDerived : IJsonModel<DifferentSpreadFloatDerived>
     {
-        internal DifferentSpreadFloatDerived() => throw null;
-
         void IJsonModel<DifferentSpreadFloatDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

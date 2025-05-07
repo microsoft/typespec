@@ -12,8 +12,6 @@ namespace _Type.Property.AdditionalProperties
     [PersistableModelProxy(typeof(UnknownIsUnknownAdditionalPropertiesDiscriminated))]
     public abstract partial class IsUnknownAdditionalPropertiesDiscriminated : IJsonModel<IsUnknownAdditionalPropertiesDiscriminated>
     {
-        internal IsUnknownAdditionalPropertiesDiscriminated() => throw null;
-
         void IJsonModel<IsUnknownAdditionalPropertiesDiscriminated>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

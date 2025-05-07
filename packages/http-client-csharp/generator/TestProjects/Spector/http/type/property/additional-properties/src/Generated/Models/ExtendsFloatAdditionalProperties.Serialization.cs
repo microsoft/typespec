@@ -11,8 +11,6 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class ExtendsFloatAdditionalProperties : IJsonModel<ExtendsFloatAdditionalProperties>
     {
-        internal ExtendsFloatAdditionalProperties() => throw null;
-
         void IJsonModel<ExtendsFloatAdditionalProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

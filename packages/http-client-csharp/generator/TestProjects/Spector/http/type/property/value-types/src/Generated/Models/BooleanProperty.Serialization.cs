@@ -11,8 +11,6 @@ namespace _Type.Property.ValueTypes
 {
     public partial class BooleanProperty : IJsonModel<BooleanProperty>
     {
-        internal BooleanProperty() => throw null;
-
         void IJsonModel<BooleanProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

@@ -11,8 +11,6 @@ namespace Versioning.Added
 {
     public partial class ModelV2 : IJsonModel<ModelV2>
     {
-        internal ModelV2() => throw null;
-
         void IJsonModel<ModelV2>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

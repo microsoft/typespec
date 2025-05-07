@@ -12,8 +12,6 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     [PersistableModelProxy(typeof(UnknownSnake))]
     public abstract partial class Snake : IJsonModel<Snake>
     {
-        internal Snake() => throw null;
-
         void IJsonModel<Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

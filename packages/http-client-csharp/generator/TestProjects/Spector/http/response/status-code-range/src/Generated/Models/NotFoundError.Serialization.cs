@@ -11,8 +11,6 @@ namespace Response.StatusCodeRange
 {
     public partial class NotFoundError : IJsonModel<NotFoundError>
     {
-        internal NotFoundError() => throw null;
-
         void IJsonModel<NotFoundError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

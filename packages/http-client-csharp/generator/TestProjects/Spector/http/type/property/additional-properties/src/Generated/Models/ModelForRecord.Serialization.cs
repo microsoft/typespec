@@ -11,8 +11,6 @@ namespace _Type.Property.AdditionalProperties
 {
     public partial class ModelForRecord : IJsonModel<ModelForRecord>
     {
-        internal ModelForRecord() => throw null;
-
         void IJsonModel<ModelForRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

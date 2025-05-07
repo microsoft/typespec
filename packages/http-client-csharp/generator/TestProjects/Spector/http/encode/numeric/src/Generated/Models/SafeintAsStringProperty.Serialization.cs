@@ -11,8 +11,6 @@ namespace Encode.Numeric._Property
 {
     public partial class SafeintAsStringProperty : IJsonModel<SafeintAsStringProperty>
     {
-        internal SafeintAsStringProperty() => throw null;
-
         void IJsonModel<SafeintAsStringProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

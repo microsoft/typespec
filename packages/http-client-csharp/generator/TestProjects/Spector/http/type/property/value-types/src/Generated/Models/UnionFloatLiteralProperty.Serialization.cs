@@ -11,8 +11,6 @@ namespace _Type.Property.ValueTypes
 {
     public partial class UnionFloatLiteralProperty : IJsonModel<UnionFloatLiteralProperty>
     {
-        internal UnionFloatLiteralProperty() => throw null;
-
         void IJsonModel<UnionFloatLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

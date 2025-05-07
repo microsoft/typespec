@@ -10,8 +10,6 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     internal partial class UnknownShark : IJsonModel<Shark>
     {
-        internal UnknownShark() => throw null;
-
         void IJsonModel<Shark>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

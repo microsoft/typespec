@@ -11,8 +11,6 @@ namespace _Type.Property.Optional
 {
     public partial class RequiredAndOptionalProperty : IJsonModel<RequiredAndOptionalProperty>
     {
-        internal RequiredAndOptionalProperty() => throw null;
-
         void IJsonModel<RequiredAndOptionalProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
