@@ -49,6 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly CSharpType _persistableModelTInterface;
         private readonly CSharpType? _persistableModelObjectInterface;
         private readonly ModelProvider _model;
+        private readonly ModelProvider? _baseModelProvider;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly PropertyProvider? _additionalBinaryDataProperty;
@@ -61,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
+            _baseModelProvider = _model.BaseTypeProvider as ModelProvider;
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
@@ -766,7 +768,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
                 .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
-            var baseModelProvider = _model.BaseModelProvider;
+            var baseModelProvider = _baseModelProvider;
 
             while (baseModelProvider != null)
             {
@@ -777,7 +779,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         .AddRange(customCodeView.Attributes
                         .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
+                baseModelProvider = baseModelProvider.BaseTypeProvider as ModelProvider;
             }
 
             // Create each property's deserialization statement
@@ -828,7 +830,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                baseModelProvider = _model.BaseModelProvider;
+                baseModelProvider = _baseModelProvider;
                 while (baseModelProvider != null)
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
@@ -837,7 +839,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         rawBinaryData = field;
                         break;
                     }
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
+                    baseModelProvider = baseModelProvider.BaseTypeProvider as ModelProvider;
                 }
             }
 
@@ -1831,7 +1833,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = _model.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
-            return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
+            return property ?? _baseModelProvider?.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 

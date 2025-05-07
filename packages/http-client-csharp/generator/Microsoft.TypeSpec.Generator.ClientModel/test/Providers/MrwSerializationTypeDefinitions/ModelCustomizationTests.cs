@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider && t.Name == "MockInputModel");
             Assert.IsNotNull(modelTypeProvider);
 
-            var baseModelTypeProvider = (modelTypeProvider as ModelProvider)?.BaseModelProvider;
+            var baseModelTypeProvider = (modelTypeProvider as ModelProvider)?.BaseTypeProvider as ModelProvider;
             Assert.IsNotNull(baseModelTypeProvider);
             var customCodeView = baseModelTypeProvider!.CustomCodeView;
             Assert.IsNotNull(customCodeView);

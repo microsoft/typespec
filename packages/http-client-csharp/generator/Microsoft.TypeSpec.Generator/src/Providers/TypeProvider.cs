@@ -170,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return modifiers;
         }
 
-        internal virtual TypeProvider? BaseTypeProvider => null;
+        public virtual TypeProvider? BaseTypeProvider => null;
 
         protected virtual CSharpType? GetBaseType() => null;
 
