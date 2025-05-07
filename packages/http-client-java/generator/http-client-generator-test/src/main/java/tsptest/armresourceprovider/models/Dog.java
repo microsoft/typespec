@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -20,19 +19,16 @@ public class Dog implements JsonSerializable<Dog> {
     /*
      * discriminator property
      */
-    @Generated
     private DogKind kind = DogKind.fromString("Dog");
 
     /*
      * Weight of the dog
      */
-    @Generated
     private int weight;
 
     /**
      * Creates an instance of Dog class.
      */
-    @Generated
     public Dog() {
     }
 
@@ -41,7 +37,6 @@ public class Dog implements JsonSerializable<Dog> {
      * 
      * @return the kind value.
      */
-    @Generated
     public DogKind kind() {
         return this.kind;
     }
@@ -51,7 +46,6 @@ public class Dog implements JsonSerializable<Dog> {
      * 
      * @return the weight value.
      */
-    @Generated
     public int weight() {
         return this.weight;
     }
@@ -62,7 +56,6 @@ public class Dog implements JsonSerializable<Dog> {
      * @param weight the weight value to set.
      * @return the Dog object itself.
      */
-    @Generated
     public Dog withWeight(int weight) {
         this.weight = weight;
         return this;

@@ -5,7 +5,6 @@
 package azure.resourcemanager.nonresource.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -20,25 +19,21 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
     /*
      * An id.
      */
-    @Generated
     private String id;
 
     /*
      * A name.
      */
-    @Generated
     private String name;
 
     /*
      * A type.
      */
-    @Generated
     private String type;
 
     /**
      * Creates an instance of NonResourceInner class.
      */
-    @Generated
     public NonResourceInner() {
     }
 
@@ -47,7 +42,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * 
      * @return the id value.
      */
-    @Generated
     public String id() {
         return this.id;
     }
@@ -58,7 +52,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * @param id the id value to set.
      * @return the NonResourceInner object itself.
      */
-    @Generated
     public NonResourceInner withId(String id) {
         this.id = id;
         return this;
@@ -69,7 +62,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * 
      * @return the name value.
      */
-    @Generated
     public String name() {
         return this.name;
     }
@@ -80,7 +72,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * @param name the name value to set.
      * @return the NonResourceInner object itself.
      */
-    @Generated
     public NonResourceInner withName(String name) {
         this.name = name;
         return this;
@@ -91,7 +82,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * 
      * @return the type value.
      */
-    @Generated
     public String type() {
         return this.type;
     }
@@ -102,7 +92,6 @@ public final class NonResourceInner implements JsonSerializable<NonResourceInner
      * @param type the type value to set.
      * @return the NonResourceInner object itself.
      */
-    @Generated
     public NonResourceInner withType(String type) {
         this.type = type;
         return this;
