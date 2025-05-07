@@ -6,7 +6,6 @@ package azure.resourcemanager.resources.fluent.models;
 
 import azure.resourcemanager.resources.models.LocationResourceProperties;
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.management.ProxyResource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -22,37 +21,31 @@ public final class LocationResourceInner extends ProxyResource {
     /*
      * The resource-specific properties for this resource.
      */
-    @Generated
     private LocationResourceProperties properties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
-    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
-    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
-    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
-    @Generated
     private String id;
 
     /**
      * Creates an instance of LocationResourceInner class.
      */
-    @Generated
     public LocationResourceInner() {
     }
 
@@ -61,7 +54,6 @@ public final class LocationResourceInner extends ProxyResource {
      * 
      * @return the properties value.
      */
-    @Generated
     public LocationResourceProperties properties() {
         return this.properties;
     }
@@ -72,7 +64,6 @@ public final class LocationResourceInner extends ProxyResource {
      * @param properties the properties value to set.
      * @return the LocationResourceInner object itself.
      */
-    @Generated
     public LocationResourceInner withProperties(LocationResourceProperties properties) {
         this.properties = properties;
         return this;
@@ -83,7 +74,6 @@ public final class LocationResourceInner extends ProxyResource {
      * 
      * @return the systemData value.
      */
-    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -93,7 +83,6 @@ public final class LocationResourceInner extends ProxyResource {
      * 
      * @return the type value.
      */
-    @Generated
     @Override
     public String type() {
         return this.type;
@@ -104,7 +93,6 @@ public final class LocationResourceInner extends ProxyResource {
      * 
      * @return the name value.
      */
-    @Generated
     @Override
     public String name() {
         return this.name;
@@ -115,7 +103,6 @@ public final class LocationResourceInner extends ProxyResource {
      * 
      * @return the id value.
      */
-    @Generated
     @Override
     public String id() {
         return this.id;
