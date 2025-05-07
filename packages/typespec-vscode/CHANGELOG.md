@@ -1,6 +1,6 @@
 # Change Log - typespec-vscode
 
-## 0.70.0
+## 1.0.0
 
 ### Features
 
