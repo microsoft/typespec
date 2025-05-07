@@ -12,30 +12,24 @@ namespace Microsoft.TypeSpec.Generator
 {
     public class TypeFactory
     {
-        private ChangeTrackingListDefinition? _changeTrackingListProvider;
-        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingListDefinition ChangeTrackingListProvider { get; } = new();
 
-        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
+        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider { get; } = [];
 
-        private Dictionary<EnumCacheKey, EnumProvider?>? _enumCache;
-        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache => _enumCache ??= [];
+        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
-        private Dictionary<InputType, CSharpType?>? _typeCache;
-        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
+        private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
 
-        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache { get; } = [];
 
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        private HashSet<string>? _unionTypes;
-        internal HashSet<string> UnionTypes => _unionTypes ??= [];
+        private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
+
+        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -53,14 +47,42 @@ namespace Microsoft.TypeSpec.Generator
             return type;
         }
 
+        internal InputType GetLiteralValueType(InputLiteralType literal)
+        {
+            if (LiteralValueTypeCache.TryGetValue(literal, out var valueType))
+            {
+                return valueType;
+            }
+
+            // we only convert the literal into enum when it is not a boolean
+            if (literal.ValueType.Kind == InputPrimitiveTypeKind.Boolean)
+            {
+                valueType = literal.ValueType;
+            }
+            else
+            {
+                var values = new List<InputEnumTypeValue>();
+                var enumType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
+                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, enumType, null, literal.Value.ToString()));
+                valueType = enumType;
+            }
+            LiteralValueTypeCache.Add(literal, valueType);
+            return valueType;
+        }
+
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
             {
                 case InputLiteralType literalType:
-                    var input = CreateCSharpType(literalType.ValueType);
+                    var input = CreateCSharpType(GetLiteralValueType(literalType));
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
+                    break;
+                case InputEnumTypeValue enumValueType:
+                    // for enum value, we redirect to its corresponding enum type as a literal
+                    var enumValue = CreateCSharpType(enumValueType.EnumType);
+                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
                     break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
@@ -70,7 +92,11 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            UnionTypes.Add(unionInput.Name);
+                            // we only keep the type if it is not framework type and not literal
+                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
+                            {
+                                UnionVariantTypesToKeep.Add(unionInput.Name);
+                            }
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);

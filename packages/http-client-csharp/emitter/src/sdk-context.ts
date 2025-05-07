@@ -3,10 +3,13 @@
 
 import {
   SdkClientType,
+  SdkConstantType,
   SdkContext,
+  SdkEnumType,
   SdkHttpOperation,
   SdkHttpResponse,
   SdkModelPropertyType,
+  SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { Type } from "@typespec/compiler";
@@ -16,6 +19,7 @@ import { InputParameter } from "./type/input-parameter.js";
 import {
   InputClient,
   InputEnumType,
+  InputLiteralType,
   InputModelProperty,
   InputModelType,
   InputType,
@@ -55,6 +59,7 @@ class SdkTypeCache {
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;
+  constants: Map<SdkConstantType, InputLiteralType>;
   crossLanguageDefinitionIds: Map<string, Type | undefined>;
 
   constructor() {
@@ -64,6 +69,7 @@ class SdkTypeCache {
     this.types = new Map<SdkType, InputType>();
     this.models = new Map<string, InputModelType>();
     this.enums = new Map<string, InputEnumType>();
+    this.constants = new Map<SdkConstantType, InputLiteralType>();
     this.crossLanguageDefinitionIds = new Map<string, Type | undefined>();
   }
 
@@ -92,11 +98,13 @@ class SdkTypeCache {
     }
   }
 
-  updateTypeCache(typeName: string, type: InputType) {
-    if (type.kind === "model") {
-      this.models.set(typeName, type);
-    } else if (type.kind === "enum") {
-      this.enums.set(typeName, type);
+  updateTypeCache(sdkType: SdkModelType | SdkEnumType | SdkConstantType, type: InputType) {
+    if (type.kind === "model" && sdkType.kind === "model") {
+      this.models.set(sdkType.name, type);
+    } else if (type.kind === "enum" && sdkType.kind === "enum") {
+      this.enums.set(sdkType.name, type);
+    } else if (type.kind === "constant" && sdkType.kind === "constant") {
+      this.constants.set(sdkType, type);
     }
   }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
 
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String);
+            var inputEnum = InputFactory.StringEnum("mockInputModel", [("value", "value")]);
             var enumProvider = new FixedEnumProvider(inputEnum, null);
 
             AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
@@ -166,11 +166,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -204,11 +203,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -242,11 +240,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var props = new[]
             {
-                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.Enum(
+                InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.StringEnum(
                     "MyEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -369,13 +366,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var props = new[] {
-                InputFactory.EnumMember.Int32("val1", 1),
-                InputFactory.EnumMember.Int32("val2", 2),
-                InputFactory.EnumMember.Int32("val3", 3)
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
+            // Updated to use Int32Enum with collection expression for values
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [("val1", 1), ("val2", 2), ("val3", 3)],
+                isExtensible: false
+            );
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
@@ -386,13 +382,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var props = new[] {
-                InputFactory.EnumMember.Int32("val1", 1),
-                InputFactory.EnumMember.Int32("val2", 2),
-                InputFactory.EnumMember.Int32("val3", 3)
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
+            // Updated to use Int32Enum with collection expression for values
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [("val1", 1), ("val2", 2), ("val3", 3)],
+                isExtensible: true
+            );
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum));
@@ -471,13 +466,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeEnumMemberName()
         {
-            var enumValues = new[]
-           {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum("mockInputModel", [("Red", 1), ("Green", 2), ("Blue", 3)]);
             await MockHelpers.LoadMockGeneratorAsync(
                 inputEnumTypes: [inputEnum],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -672,10 +661,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotIncludeReqCustomLiteralInDefaultCtor()
         {
-            var enumType = InputFactory.Enum(
-                "originalEnum",
-                InputPrimitiveType.String,
-                values: [InputFactory.EnumMember.String("bar", "bar")]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
@@ -683,7 +668,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
-                            InputFactory.Property("Prop1", InputFactory.Literal.Enum(enumType, "bar"), isRequired: true),
+                            InputFactory.Property("Prop1", InputFactory.Literal.String("bar", name: "originalEnum"), isRequired: true),
                             InputFactory.Property("Prop2", InputPrimitiveType.String, isRequired: true),
                         ])
                     ],
@@ -786,11 +771,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
-            var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.String("Foo", "foo"),
-                InputFactory.EnumMember.String("Bar", "bar")
-            ]);
+            var discriminatorValues = InputFactory.StringEnum(
+                "discriminatorValue",
+                [("Foo", "foo"), ("Bar", "bar")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
             var discriminatorProp = InputFactory.Property("discriminator", discriminatorValues, isDiscriminator: true, isRequired: true);
             var fooModel = InputFactory.Model("fooModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
             var barModel = InputFactory.Model("barModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");

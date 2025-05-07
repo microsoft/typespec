@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void PreVisitsEnum()
         {
             _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
-            var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
+            var inputEnum = InputFactory.Int32Enum("enum", [("value", 1)], usage: InputModelTypeUsage.Input);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void PreVisitsModel()
         {
             _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
-            var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
+            var inputEnum = InputFactory.Int32Enum("enum", [("value", 1)], usage: InputModelTypeUsage.Input);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 

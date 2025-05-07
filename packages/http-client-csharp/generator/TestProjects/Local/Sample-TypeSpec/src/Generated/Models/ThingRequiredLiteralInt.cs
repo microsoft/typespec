@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The Thing_requiredLiteralInt. </summary>
+    /// <summary> The ThingRequiredLiteralInt. </summary>
     public readonly partial struct ThingRequiredLiteralInt : IEquatable<ThingRequiredLiteralInt>
     {
         private readonly int _value;

@@ -27,8 +27,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (containsApiVersions)
             {
                 List<string> apiVersions = ["1.0", "2.0"];
-                var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-                var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+                var enumValues = apiVersions.Select(a => (a, a));
+                var inputEnum = InputFactory.StringEnum("ServiceVersion", enumValues, usage: InputModelTypeUsage.ApiVersionEnum);
 
                 MockHelpers.LoadMockGenerator(
                     apiVersions: () => apiVersions,

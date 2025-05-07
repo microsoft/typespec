@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
 
-            if (input.Accessibility == "internal")
+            if (input.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }

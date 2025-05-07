@@ -7,13 +7,13 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
+        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
             : base(name)
         {
             Namespace = @namespace;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
-            Accessibility = accessibility;
-            Deprecated = deprecated;
+            Access = access;
+            Deprecation = deprecation;
             Summary = summary;
             Doc = doc;
             Usage = usage;
@@ -22,15 +22,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsExtensible = isExtensible;
         }
 
-        public string Namespace { get; }
-        public string CrossLanguageDefinitionId { get; }
-        public string? Accessibility { get; }
-        public string? Deprecated { get; }
-        public string? Summary { get; }
-        public string? Doc { get; }
-        public InputModelTypeUsage Usage { get; }
-        public InputPrimitiveType ValueType { get; }
-        public IReadOnlyList<InputEnumTypeValue> Values { get; }
-        public bool IsExtensible { get; }
+        public string Namespace { get; internal set; }
+        public string CrossLanguageDefinitionId { get; internal set; }
+        public string? Access { get; internal set; }
+        public string? Deprecation { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
+        public InputModelTypeUsage Usage { get; internal set; }
+        public InputPrimitiveType ValueType { get; internal set; }
+        public IReadOnlyList<InputEnumTypeValue> Values { get; internal set; }
+        public bool IsExtensible { get; internal set; }
     }
 }
