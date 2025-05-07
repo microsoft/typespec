@@ -1,6 +1,3 @@
-/**
- * @typekit scalar
- */
 import { isIntrinsicType } from "../../core/decorator-utils.js";
 import type { Entity, IntrinsicScalarName, Scalar, Type } from "../../core/types.js";
 import { type EncodeData, getEncode, getFormat } from "../../lib/decorators.js";
@@ -10,6 +7,7 @@ import type { ModelPropertyKit } from "./model-property.js";
 
 /**
  * Operations for scalar types like strings, numerics, booleans, dates, etc.
+ * @typekit scalar
  */
 export interface ScalarKit {
   /**

@@ -420,6 +420,100 @@ $(program).intrinsic.null: NullType;
 $(program).intrinsic.void: VoidType;
 ```
 
+## literal
+
+A Typekit for working with literal types(string, numeric, boolean).
+
+### create
+
+```ts
+/**
+ * Create a literal type from a JavaScript value.
+ *
+ * @param value - The JavaScript value to turn into a TypeSpec literal type.
+ */
+$(program).literal
+  .create(value: string | number | boolean): StringLiteral | NumericLiteral | BooleanLiteral;
+```
+
+### createBoolean
+
+```ts
+/**
+ * Create a boolean literal type from a JavaScript boolean value.
+ *
+ * @param value - The boolean value.
+ */
+$(program).literal.createBoolean(value: boolean): BooleanLiteral;
+```
+
+### createNumeric
+
+```ts
+/**
+ * Create a numeric literal type from a JavaScript number value.
+ *
+ * @param value - The numeric value.
+ */
+$(program).literal.createNumeric(value: number): NumericLiteral;
+```
+
+### createString
+
+```ts
+/**
+ * Create a string literal type from a JavaScript string value.
+ *
+ * @param value - The string value.
+ */
+$(program).literal.createString(value: string): StringLiteral;
+```
+
+### is
+
+```ts
+/**
+ * Check if `type` is a literal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).literal
+  .is(type: Entity): type is StringLiteral | NumericLiteral | BooleanLiteral;
+```
+
+### isBoolean
+
+```ts
+/**
+ * Check if `type` is a boolean literal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).literal.isBoolean(type: Entity): type is BooleanLiteral;
+```
+
+### isNumeric
+
+```ts
+/**
+ * Check if `type` is a numeric literal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).literal.isNumeric(type: Entity): type is NumericLiteral;
+```
+
+### isString
+
+```ts
+/**
+ * Check if `type` is a string literal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).literal.isString(type: Entity): type is StringLiteral;
+```
+
 ## model
 
 Utilities for working with models.
@@ -650,6 +744,606 @@ $(program).record.getElementType(type: Model): Type;
  * @param type - The type to check.
  */
 $(program).record.is(type: Entity): type is RecordModelType;
+```
+
+## scalar
+
+Operations for scalar types like strings, numerics, booleans, dates, etc.
+
+### extendsBoolean
+
+```ts
+/**
+ * Check if `type` extends the standard boolean type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsBoolean(type: Entity): type is Scalar;
+```
+
+### extendsBytes
+
+```ts
+/**
+ * Check if `type` extends the standard bytes type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsBytes(type: Entity): type is Scalar;
+```
+
+### extendsDecimal
+
+```ts
+/**
+ * Check if `type` extends the standard decimal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsDecimal(type: Entity): type is Scalar;
+```
+
+### extendsDecimal128
+
+```ts
+/**
+ * Check if `type` extends the standard decimal128 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsDecimal128(type: Entity): type is Scalar;
+```
+
+### extendsDuration
+
+```ts
+/**
+ * Check if `type` extends the standard duration type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsDuration(type: Entity): type is Scalar;
+```
+
+### extendsFloat
+
+```ts
+/**
+ * Check if `type` extends the standard float type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsFloat(type: Entity): type is Scalar;
+```
+
+### extendsFloat32
+
+```ts
+/**
+ * Check if `type` extends the standard float32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsFloat32(type: Entity): type is Scalar;
+```
+
+### extendsFloat64
+
+```ts
+/**
+ * Check if `type` extends the standard float64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsFloat64(type: Entity): type is Scalar;
+```
+
+### extendsInt16
+
+```ts
+/**
+ * Check if `type` extends the standard int16 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsInt16(type: Entity): type is Scalar;
+```
+
+### extendsInt32
+
+```ts
+/**
+ * Check if `type` extends the standard int32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsInt32(type: Entity): type is Scalar;
+```
+
+### extendsInt64
+
+```ts
+/**
+ * Check if `type` extends the standard int64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsInt64(type: Entity): type is Scalar;
+```
+
+### extendsInt8
+
+```ts
+/**
+ * Check if `type` extends the standard int8 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsInt8(type: Entity): type is Scalar;
+```
+
+### extendsInteger
+
+```ts
+/**
+ * Check if `type` extends the standard integer type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsInteger(type: Entity): type is Scalar;
+```
+
+### extendsNumeric
+
+```ts
+/**
+ * Check if `type` extends the standard numeric type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsNumeric(type: Entity): type is Scalar;
+```
+
+### extendsOffsetDateTime
+
+```ts
+/**
+ * Check if `type` extends the standard offsetDateTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsOffsetDateTime(type: Entity): type is Scalar;
+```
+
+### extendsPlainDate
+
+```ts
+/**
+ * Check if `type` extends the standard plainDate type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsPlainDate(type: Entity): type is Scalar;
+```
+
+### extendsPlainTime
+
+```ts
+/**
+ * Check if `type` extends the standard plainTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsPlainTime(type: Entity): type is Scalar;
+```
+
+### extendsSafeint
+
+```ts
+/**
+ * Check if `type` extends the standard safeint type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsSafeint(type: Entity): type is Scalar;
+```
+
+### extendsString
+
+```ts
+/**
+ * Check if `type` extends the standard string type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsString(type: Entity): type is Scalar;
+```
+
+### extendsUint16
+
+```ts
+/**
+ * Check if `type` extends the standard uint16 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUint16(type: Entity): type is Scalar;
+```
+
+### extendsUint32
+
+```ts
+/**
+ * Check if `type` extends the standard uint32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUint32(type: Entity): type is Scalar;
+```
+
+### extendsUint64
+
+```ts
+/**
+ * Check if `type` extends the standard uint64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUint64(type: Entity): type is Scalar;
+```
+
+### extendsUint8
+
+```ts
+/**
+ * Check if `type` extends the standard uint8 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUint8(type: Entity): type is Scalar;
+```
+
+### extendsUrl
+
+```ts
+/**
+ * Check if `type` extends the standard url type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUrl(type: Entity): type is Scalar;
+```
+
+### extendsUtcDateTime
+
+```ts
+/**
+ * Check if `type` extends the standard utcDateTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.extendsUtcDateTime(type: Entity): type is Scalar;
+```
+
+### getEncoding
+
+```ts
+/**
+ * Get the encoding information for a scalar type. Returns undefined if no encoding data is specified.
+ *
+ * Note: This will return the encoding data for the scalar type itself, not the model property that uses the scalar type. If this scalar might be referenced from a model property, use {@link modelProperty.getEncoding} instead.
+ *
+ * @param scalar - The scalar to get the encoding data for.
+ */
+$(program).scalar.getEncoding(scalar: Scalar): EncodeData | undefined;
+```
+
+### getFormat
+
+```ts
+/**
+ * Get the well-known format for a string scalar. Returns undefined if no format is specified.
+ *
+ * Note: This will return the format data for the scalar type itself, not the model property that uses the scalar type. If this scalar might be referenced from a model property, use {@link ModelPropertyKit.getEncoding} instead.
+ *
+ * @param scalar - The scalar to get the format for.
+ */
+$(program).scalar.getFormat(scalar: Scalar): string | undefined;
+```
+
+### getStdBase
+
+```ts
+/**
+ * Get the standard built-in base type of a scalar. For all built-in scalar types (numeric, string, int32, etc.) this will just return the scalar type. For user-defined scalars, this will return the first base scalar that is built-in. For user-defined scalars without a standard base type, this will return null.
+ *
+ * @param type - The scalar to check.
+ */
+$(program).scalar.getStdBase(type: Scalar): Scalar | null;
+```
+
+### is
+
+```ts
+/**
+ * Check if `type` is any scalar type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.is(type: Entity): type is Scalar;
+```
+
+### isBoolean
+
+```ts
+/**
+ * Check if `type` is exactly the standard boolean type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isBoolean(type: Entity): type is Scalar;
+```
+
+### isBytes
+
+```ts
+/**
+ * Check if `type` is exactly the standard bytes type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isBytes(type: Entity): type is Scalar;
+```
+
+### isDecimal
+
+```ts
+/**
+ * Check if `type` is exactly the standard decimal type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isDecimal(type: Entity): type is Scalar;
+```
+
+### isDecimal128
+
+```ts
+/**
+ * Check if `type` is exactly the standard decimal128 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isDecimal128(type: Entity): type is Scalar;
+```
+
+### isDuration
+
+```ts
+/**
+ * Check if `type` is exactly the standard duration type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isDuration(type: Entity): type is Scalar;
+```
+
+### isFloat
+
+```ts
+/**
+ * Check if `type` is exactly the standard float type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isFloat(type: Entity): type is Scalar;
+```
+
+### isFloat32
+
+```ts
+/**
+ * Check if `type` is exactly the standard float32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isFloat32(type: Entity): type is Scalar;
+```
+
+### isFloat64
+
+```ts
+/**
+ * Check if `type` is exactly the standard float64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isFloat64(type: Entity): type is Scalar;
+```
+
+### isInt16
+
+```ts
+/**
+ * Check if `type` is exactly the standard int16 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isInt16(type: Entity): type is Scalar;
+```
+
+### isInt32
+
+```ts
+/**
+ * Check if `type` is exactly the standard int32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isInt32(type: Entity): type is Scalar;
+```
+
+### isInt64
+
+```ts
+/**
+ * Check if `type` is exactly the standard int64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isInt64(type: Entity): type is Scalar;
+```
+
+### isInt8
+
+```ts
+/**
+ * Check if `type` is exactly the standard int8 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isInt8(type: Entity): type is Scalar;
+```
+
+### isInteger
+
+```ts
+/**
+ * Check if `type` is exactly the standard integer type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isInteger(type: Entity): type is Scalar;
+```
+
+### isNumeric
+
+```ts
+/**
+ * @param type - The type to check.
+ */
+$(program).scalar.isNumeric(type: Entity): type is Scalar;
+```
+
+### isOffsetDateTime
+
+```ts
+/**
+ * Check if `type` is exactly the standard offsetDateTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isOffsetDateTime(type: Entity): type is Scalar;
+```
+
+### isPlainDate
+
+```ts
+/**
+ * Check if `type` is exactly the standard plainDate type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isPlainDate(type: Entity): type is Scalar;
+```
+
+### isPlainTime
+
+```ts
+/**
+ * Check if `type` is exactly the standard plainTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isPlainTime(type: Entity): type is Scalar;
+```
+
+### isSafeint
+
+```ts
+/**
+ * Check if `type` is exactly the standard safeint type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isSafeint(type: Entity): type is Scalar;
+```
+
+### isString
+
+```ts
+/**
+ * Check if `type` is exactly the standard string type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isString(type: Entity): type is Scalar;
+```
+
+### isUint16
+
+```ts
+/**
+ * Check if `type` is exactly the standard uint16 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUint16(type: Entity): type is Scalar;
+```
+
+### isUint32
+
+```ts
+/**
+ * Check if `type` is exactly the standard uint32 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUint32(type: Entity): type is Scalar;
+```
+
+### isUint64
+
+```ts
+/**
+ * Check if `type` is exactly the standard uint64 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUint64(type: Entity): type is Scalar;
+```
+
+### isUint8
+
+```ts
+/**
+ * Check if `type` is exactly the standard uint8 type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUint8(type: Entity): type is Scalar;
+```
+
+### isUrl
+
+```ts
+/**
+ * Check if `type` is exactly the standard url type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUrl(type: Entity): type is Scalar;
+```
+
+### isUtcDateTime
+
+```ts
+/**
+ * Check if `type` is exactly the standard utcDateTime type.
+ *
+ * @param type - The type to check.
+ */
+$(program).scalar.isUtcDateTime(type: Entity): type is Scalar;
 ```
 
 ## tuple
