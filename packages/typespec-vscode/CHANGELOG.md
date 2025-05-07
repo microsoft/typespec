@@ -1,5 +1,20 @@
 # Change Log - typespec-vscode
 
+## 1.0.0
+
+### Features
+
+- [#7042](https://github.com/microsoft/typespec/pull/7042) send compile startTime and endTime telemetry
+
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6894](https://github.com/microsoft/typespec/pull/6894) Fix the issue where the emitter version is undefined in telemetry.
+- [#7021](https://github.com/microsoft/typespec/pull/7021) Fix crash when initialize telemetry client
+
+
 ## 0.68.0
 
 ### Bump dependencies

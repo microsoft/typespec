@@ -147,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public void ListMethodWithImplicitPaging()
         {
-            var paging = new InputOperationPaging(
+            var pagingMetadata = InputFactory.PagingMetadata(
                 ["items"],
                 null,
                 null);
@@ -161,8 +161,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
-            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", operation);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient]);
@@ -222,6 +222,105 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             else
             {
                 Assert.IsNull(optionsParameter.DefaultValue);
+            }
+        }
+
+        private static IEnumerable<TestCaseData> RequestBodyTypesSource()
+        {
+            yield return new TestCaseData(
+                InputFactory.Array(
+                    InputFactory.Model("cat", properties:
+                    [
+                        InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                    ])));
+
+            yield return new TestCaseData(
+                InputFactory.Dictionary(
+                    InputFactory.Model("cat", properties:
+                    [
+                        InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                    ])));
+
+            yield return new TestCaseData(
+                    InputFactory.Model("cat", properties:
+                    [
+                        InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                    ]));
+        }
+
+        [TestCaseSource(nameof(RequestBodyTypesSource))]
+        public void RequestBodyConstructedUsingBinaryContentHelpers(InputType inputType)
+        {
+            MockHelpers.LoadMockGenerator();
+            var parameter = InputFactory.Parameter("message", inputType, isRequired: true);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "message") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            if (inputType is InputArrayType)
+            {
+                Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+            }
+            else if (inputType is InputDictionaryType)
+            {
+                Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+            }
+            else
+            {
+                Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
+            }
+        }
+
+        [TestCaseSource(nameof(RequestBodyTypesSource))]
+        public void RequestBodyConstructedRespectingRequestContentApi(InputType inputType)
+        {
+            MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
+            var parameter = InputFactory.Parameter("message", inputType, isRequired: true);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "message") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            if (inputType is InputArrayType)
+            {
+                Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                    .Contains("using string content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+            }
+            else if (inputType is InputDictionaryType)
+            {
+                Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                    .Contains("using string content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+            }
+            else
+            {
+                Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
             }
         }
 

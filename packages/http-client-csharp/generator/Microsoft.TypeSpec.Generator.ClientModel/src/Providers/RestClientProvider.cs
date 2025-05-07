@@ -69,9 +69,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected override ScmMethodProvider[] BuildMethods()
         {
-            List<MethodProvider> methods = new List<MethodProvider>();
+            List<ScmMethodProvider> methods = new List<ScmMethodProvider>();
 
             foreach (var serviceMethod in _inputClient.Methods)
             {
@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
-        private MethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod)
+        private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod)
         {
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
@@ -106,8 +106,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
 
-            return new MethodProvider(
+            return new ScmMethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
@@ -116,10 +117,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    operation.Paging?.NextLink != null ?
+                    pagingServiceMethod?.PagingMetadata.NextLink != null ?
                         uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
                         uri.Reset(ClientProvider.EndpointField).Terminate(),
-                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
+                    .. ConditionallyAppendPathParameters(operation, pagingServiceMethod?.PagingMetadata, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -127,12 +128,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
-                this);
+                this,
+                xmlDocProvider: XmlDocProvider.Empty);
         }
 
-        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
+            InputOperation operation,
+            InputPagingServiceMetadata? pagingMetadata,
+            ScopedApi uri, Dictionary<string,
+            ParameterProvider> paramMap)
         {
-            if (operation.Paging?.NextLink != null)
+            if (pagingMetadata?.NextLink != null)
             {
                 return
                 [
@@ -228,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!TryGetSpecialHeaderParam(inputParameter, out _) && (!inputParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(type, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -303,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
                     (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(paramType, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -312,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static IfStatement BuildQueryOrHeaderParameterNullCheck(
+        private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
             CSharpType? parameterType,
             ValueExpression valueExpression,
             MethodBodyStatement originalStatement)
@@ -378,7 +384,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
                 }
 
-                statements.Add(uri.AppendPath(Literal(pathSpan.Slice(0, paramIndex).ToString()), false).Terminate());
+                var path = pathSpan.Slice(0, paramIndex);
+                statements.Add(uri.AppendPath(Literal(path.ToString()), false).Terminate());
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
@@ -418,7 +425,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, escape).Terminate());
+                    MethodBodyStatement statement;
+                    if (inputParam?.IsRequired == false)
+                    {
+                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                        List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
+                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
+                            : [uri.AppendPath(valueExpression, escape).Terminate()];
+                        statement = BuildQueryOrHeaderOrPathParameterNullCheck(
+                            type,
+                            valueExpression,
+                            appendPathStatements);
+                    }
+                    else
+                    {
+                        statement = uri.AppendPath(valueExpression, escape).Terminate();
+                    }
+                    statements.Add(statement);
                 }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
@@ -598,7 +621,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                if (operation.Paging?.NextLink != null)
+                InputPagingServiceMetadata? inputPagingServiceMetadata = serviceMethod is InputPagingServiceMethod pagingServiceMethod
+                    ? pagingServiceMethod.PagingMetadata
+                    : null;
+
+                if (inputPagingServiceMetadata?.NextLink != null)
                 {
                     // Next link operations will always have an endpoint parameter in the CreateRequest method
                     sortedParams.Add(paging, ScmKnownParameters.NextPage);

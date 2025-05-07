@@ -1,15 +1,19 @@
 package specialwords.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * An instance of this class provides access to all the operations defined in Parameters.
@@ -41,684 +45,1239 @@ public final class ParametersImpl {
      */
     @ServiceInterface(name = "SpecialWordsClientPa", host = "{endpoint}")
     public interface ParametersService {
+        static ParametersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("specialwords.implementation.ParametersServiceImpl");
+                return (ParametersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/and",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withAndSync(@HostParam("endpoint") String endpoint, @QueryParam("and") String and,
-            RequestOptions requestOptions);
+        Response<Void> withAnd(@HostParam("endpoint") String endpoint, @QueryParam("and") String and,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/as",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withAsSync(@HostParam("endpoint") String endpoint, @QueryParam("as") String as,
-            RequestOptions requestOptions);
+        Response<Void> withAs(@HostParam("endpoint") String endpoint, @QueryParam("as") String as,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/assert",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withAssertSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("assert") String assertParameter, RequestOptions requestOptions);
+        Response<Void> withAssert(@HostParam("endpoint") String endpoint, @QueryParam("assert") String assertParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/async",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withAsyncSync(@HostParam("endpoint") String endpoint, @QueryParam("async") String async,
-            RequestOptions requestOptions);
+        Response<Void> withAsync(@HostParam("endpoint") String endpoint, @QueryParam("async") String async,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/await",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withAwaitSync(@HostParam("endpoint") String endpoint, @QueryParam("await") String await,
-            RequestOptions requestOptions);
+        Response<Void> withAwait(@HostParam("endpoint") String endpoint, @QueryParam("await") String await,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/break",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withBreakSync(@HostParam("endpoint") String endpoint, @QueryParam("break") String breakParameter,
-            RequestOptions requestOptions);
+        Response<Void> withBreak(@HostParam("endpoint") String endpoint, @QueryParam("break") String breakParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/class",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withClassSync(@HostParam("endpoint") String endpoint, @QueryParam("class") String classParameter,
-            RequestOptions requestOptions);
+        Response<Void> withClass(@HostParam("endpoint") String endpoint, @QueryParam("class") String classParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/constructor",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withConstructorSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("constructor") String constructor, RequestOptions requestOptions);
+        Response<Void> withConstructor(@HostParam("endpoint") String endpoint,
+            @QueryParam("constructor") String constructor, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/continue",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withContinueSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("continue") String continueParameter, RequestOptions requestOptions);
+        Response<Void> withContinue(@HostParam("endpoint") String endpoint,
+            @QueryParam("continue") String continueParameter, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/def",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withDefSync(@HostParam("endpoint") String endpoint, @QueryParam("def") String def,
-            RequestOptions requestOptions);
+        Response<Void> withDef(@HostParam("endpoint") String endpoint, @QueryParam("def") String def,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/del",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withDelSync(@HostParam("endpoint") String endpoint, @QueryParam("del") String del,
-            RequestOptions requestOptions);
+        Response<Void> withDel(@HostParam("endpoint") String endpoint, @QueryParam("del") String del,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/elif",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withElifSync(@HostParam("endpoint") String endpoint, @QueryParam("elif") String elif,
-            RequestOptions requestOptions);
+        Response<Void> withElif(@HostParam("endpoint") String endpoint, @QueryParam("elif") String elif,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/else",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withElseSync(@HostParam("endpoint") String endpoint, @QueryParam("else") String elseParameter,
-            RequestOptions requestOptions);
+        Response<Void> withElse(@HostParam("endpoint") String endpoint, @QueryParam("else") String elseParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/except",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withExceptSync(@HostParam("endpoint") String endpoint, @QueryParam("except") String except,
-            RequestOptions requestOptions);
+        Response<Void> withExcept(@HostParam("endpoint") String endpoint, @QueryParam("except") String except,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/exec",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withExecSync(@HostParam("endpoint") String endpoint, @QueryParam("exec") String exec,
-            RequestOptions requestOptions);
+        Response<Void> withExec(@HostParam("endpoint") String endpoint, @QueryParam("exec") String exec,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/finally",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withFinallySync(@HostParam("endpoint") String endpoint,
-            @QueryParam("finally") String finallyParameter, RequestOptions requestOptions);
+        Response<Void> withFinally(@HostParam("endpoint") String endpoint,
+            @QueryParam("finally") String finallyParameter, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/for",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withForSync(@HostParam("endpoint") String endpoint, @QueryParam("for") String forParameter,
-            RequestOptions requestOptions);
+        Response<Void> withFor(@HostParam("endpoint") String endpoint, @QueryParam("for") String forParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/from",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withFromSync(@HostParam("endpoint") String endpoint, @QueryParam("from") String from,
-            RequestOptions requestOptions);
+        Response<Void> withFrom(@HostParam("endpoint") String endpoint, @QueryParam("from") String from,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/global",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withGlobalSync(@HostParam("endpoint") String endpoint, @QueryParam("global") String global,
-            RequestOptions requestOptions);
+        Response<Void> withGlobal(@HostParam("endpoint") String endpoint, @QueryParam("global") String global,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/if",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withIfSync(@HostParam("endpoint") String endpoint, @QueryParam("if") String ifParameter,
-            RequestOptions requestOptions);
+        Response<Void> withIf(@HostParam("endpoint") String endpoint, @QueryParam("if") String ifParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/import",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withImportSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("import") String importParameter, RequestOptions requestOptions);
+        Response<Void> withImport(@HostParam("endpoint") String endpoint, @QueryParam("import") String importParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/in",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withInSync(@HostParam("endpoint") String endpoint, @QueryParam("in") String in,
-            RequestOptions requestOptions);
+        Response<Void> withIn(@HostParam("endpoint") String endpoint, @QueryParam("in") String in,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/is",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withIsSync(@HostParam("endpoint") String endpoint, @QueryParam("is") String is,
-            RequestOptions requestOptions);
+        Response<Void> withIs(@HostParam("endpoint") String endpoint, @QueryParam("is") String is,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/lambda",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withLambdaSync(@HostParam("endpoint") String endpoint, @QueryParam("lambda") String lambda,
-            RequestOptions requestOptions);
+        Response<Void> withLambda(@HostParam("endpoint") String endpoint, @QueryParam("lambda") String lambda,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/not",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withNotSync(@HostParam("endpoint") String endpoint, @QueryParam("not") String not,
-            RequestOptions requestOptions);
+        Response<Void> withNot(@HostParam("endpoint") String endpoint, @QueryParam("not") String not,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/or",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withOrSync(@HostParam("endpoint") String endpoint, @QueryParam("or") String or,
-            RequestOptions requestOptions);
+        Response<Void> withOr(@HostParam("endpoint") String endpoint, @QueryParam("or") String or,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/pass",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withPassSync(@HostParam("endpoint") String endpoint, @QueryParam("pass") String pass,
-            RequestOptions requestOptions);
+        Response<Void> withPass(@HostParam("endpoint") String endpoint, @QueryParam("pass") String pass,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/raise",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withRaiseSync(@HostParam("endpoint") String endpoint, @QueryParam("raise") String raise,
-            RequestOptions requestOptions);
+        Response<Void> withRaise(@HostParam("endpoint") String endpoint, @QueryParam("raise") String raise,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/return",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withReturnSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("return") String returnParameter, RequestOptions requestOptions);
+        Response<Void> withReturn(@HostParam("endpoint") String endpoint, @QueryParam("return") String returnParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/try",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withTrySync(@HostParam("endpoint") String endpoint, @QueryParam("try") String tryParameter,
-            RequestOptions requestOptions);
+        Response<Void> withTry(@HostParam("endpoint") String endpoint, @QueryParam("try") String tryParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/while",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withWhileSync(@HostParam("endpoint") String endpoint, @QueryParam("while") String whileParameter,
-            RequestOptions requestOptions);
+        Response<Void> withWhile(@HostParam("endpoint") String endpoint, @QueryParam("while") String whileParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/with",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withWithSync(@HostParam("endpoint") String endpoint, @QueryParam("with") String with,
-            RequestOptions requestOptions);
+        Response<Void> withWith(@HostParam("endpoint") String endpoint, @QueryParam("with") String with,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/yield",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withYieldSync(@HostParam("endpoint") String endpoint, @QueryParam("yield") String yield,
-            RequestOptions requestOptions);
+        Response<Void> withYield(@HostParam("endpoint") String endpoint, @QueryParam("yield") String yield,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/special-words/parameters/cancellationToken",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withCancellationTokenSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("cancellationToken") String cancellationToken, RequestOptions requestOptions);
+        Response<Void> withCancellationToken(@HostParam("endpoint") String endpoint,
+            @QueryParam("cancellationToken") String cancellationToken, RequestContext requestContext);
     }
 
     /**
      * The withAnd operation.
      * 
      * @param and The and parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withAndWithResponse(String and, RequestOptions requestOptions) {
-        return service.withAndSync(this.client.getEndpoint(), and, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAndWithResponse(String and, RequestContext requestContext) {
+        return service.withAnd(this.client.getEndpoint(), and, requestContext);
+    }
+
+    /**
+     * The withAnd operation.
+     * 
+     * @param and The and parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAnd(String and) {
+        withAndWithResponse(and, RequestContext.none());
     }
 
     /**
      * The withAs operation.
      * 
      * @param as The as parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withAsWithResponse(String as, RequestOptions requestOptions) {
-        return service.withAsSync(this.client.getEndpoint(), as, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsWithResponse(String as, RequestContext requestContext) {
+        return service.withAs(this.client.getEndpoint(), as, requestContext);
+    }
+
+    /**
+     * The withAs operation.
+     * 
+     * @param as The as parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAs(String as) {
+        withAsWithResponse(as, RequestContext.none());
     }
 
     /**
      * The withAssert operation.
      * 
      * @param assertParameter The assertParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withAssertWithResponse(String assertParameter, RequestOptions requestOptions) {
-        return service.withAssertSync(this.client.getEndpoint(), assertParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAssertWithResponse(String assertParameter, RequestContext requestContext) {
+        return service.withAssert(this.client.getEndpoint(), assertParameter, requestContext);
+    }
+
+    /**
+     * The withAssert operation.
+     * 
+     * @param assertParameter The assertParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAssert(String assertParameter) {
+        withAssertWithResponse(assertParameter, RequestContext.none());
     }
 
     /**
      * The withAsync operation.
      * 
      * @param async The async parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withAsyncWithResponse(String async, RequestOptions requestOptions) {
-        return service.withAsyncSync(this.client.getEndpoint(), async, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAsyncWithResponse(String async, RequestContext requestContext) {
+        return service.withAsync(this.client.getEndpoint(), async, requestContext);
+    }
+
+    /**
+     * The withAsync operation.
+     * 
+     * @param async The async parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAsync(String async) {
+        withAsyncWithResponse(async, RequestContext.none());
     }
 
     /**
      * The withAwait operation.
      * 
      * @param await The await parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withAwaitWithResponse(String await, RequestOptions requestOptions) {
-        return service.withAwaitSync(this.client.getEndpoint(), await, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withAwaitWithResponse(String await, RequestContext requestContext) {
+        return service.withAwait(this.client.getEndpoint(), await, requestContext);
+    }
+
+    /**
+     * The withAwait operation.
+     * 
+     * @param await The await parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withAwait(String await) {
+        withAwaitWithResponse(await, RequestContext.none());
     }
 
     /**
      * The withBreak operation.
      * 
      * @param breakParameter The breakParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withBreakWithResponse(String breakParameter, RequestOptions requestOptions) {
-        return service.withBreakSync(this.client.getEndpoint(), breakParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withBreakWithResponse(String breakParameter, RequestContext requestContext) {
+        return service.withBreak(this.client.getEndpoint(), breakParameter, requestContext);
+    }
+
+    /**
+     * The withBreak operation.
+     * 
+     * @param breakParameter The breakParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withBreak(String breakParameter) {
+        withBreakWithResponse(breakParameter, RequestContext.none());
     }
 
     /**
      * The withClass operation.
      * 
      * @param classParameter The classParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withClassWithResponse(String classParameter, RequestOptions requestOptions) {
-        return service.withClassSync(this.client.getEndpoint(), classParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withClassWithResponse(String classParameter, RequestContext requestContext) {
+        return service.withClass(this.client.getEndpoint(), classParameter, requestContext);
+    }
+
+    /**
+     * The withClass operation.
+     * 
+     * @param classParameter The classParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withClass(String classParameter) {
+        withClassWithResponse(classParameter, RequestContext.none());
     }
 
     /**
      * The withConstructor operation.
      * 
      * @param constructor The constructor parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withConstructorWithResponse(String constructor, RequestOptions requestOptions) {
-        return service.withConstructorSync(this.client.getEndpoint(), constructor, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withConstructorWithResponse(String constructor, RequestContext requestContext) {
+        return service.withConstructor(this.client.getEndpoint(), constructor, requestContext);
+    }
+
+    /**
+     * The withConstructor operation.
+     * 
+     * @param constructor The constructor parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withConstructor(String constructor) {
+        withConstructorWithResponse(constructor, RequestContext.none());
     }
 
     /**
      * The withContinue operation.
      * 
      * @param continueParameter The continueParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withContinueWithResponse(String continueParameter, RequestOptions requestOptions) {
-        return service.withContinueSync(this.client.getEndpoint(), continueParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withContinueWithResponse(String continueParameter, RequestContext requestContext) {
+        return service.withContinue(this.client.getEndpoint(), continueParameter, requestContext);
+    }
+
+    /**
+     * The withContinue operation.
+     * 
+     * @param continueParameter The continueParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withContinue(String continueParameter) {
+        withContinueWithResponse(continueParameter, RequestContext.none());
     }
 
     /**
      * The withDef operation.
      * 
      * @param def The def parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withDefWithResponse(String def, RequestOptions requestOptions) {
-        return service.withDefSync(this.client.getEndpoint(), def, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDefWithResponse(String def, RequestContext requestContext) {
+        return service.withDef(this.client.getEndpoint(), def, requestContext);
+    }
+
+    /**
+     * The withDef operation.
+     * 
+     * @param def The def parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withDef(String def) {
+        withDefWithResponse(def, RequestContext.none());
     }
 
     /**
      * The withDel operation.
      * 
      * @param del The del parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withDelWithResponse(String del, RequestOptions requestOptions) {
-        return service.withDelSync(this.client.getEndpoint(), del, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withDelWithResponse(String del, RequestContext requestContext) {
+        return service.withDel(this.client.getEndpoint(), del, requestContext);
+    }
+
+    /**
+     * The withDel operation.
+     * 
+     * @param del The del parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withDel(String del) {
+        withDelWithResponse(del, RequestContext.none());
     }
 
     /**
      * The withElif operation.
      * 
      * @param elif The elif parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withElifWithResponse(String elif, RequestOptions requestOptions) {
-        return service.withElifSync(this.client.getEndpoint(), elif, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElifWithResponse(String elif, RequestContext requestContext) {
+        return service.withElif(this.client.getEndpoint(), elif, requestContext);
+    }
+
+    /**
+     * The withElif operation.
+     * 
+     * @param elif The elif parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withElif(String elif) {
+        withElifWithResponse(elif, RequestContext.none());
     }
 
     /**
      * The withElse operation.
      * 
      * @param elseParameter The elseParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withElseWithResponse(String elseParameter, RequestOptions requestOptions) {
-        return service.withElseSync(this.client.getEndpoint(), elseParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withElseWithResponse(String elseParameter, RequestContext requestContext) {
+        return service.withElse(this.client.getEndpoint(), elseParameter, requestContext);
+    }
+
+    /**
+     * The withElse operation.
+     * 
+     * @param elseParameter The elseParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withElse(String elseParameter) {
+        withElseWithResponse(elseParameter, RequestContext.none());
     }
 
     /**
      * The withExcept operation.
      * 
      * @param except The except parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withExceptWithResponse(String except, RequestOptions requestOptions) {
-        return service.withExceptSync(this.client.getEndpoint(), except, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExceptWithResponse(String except, RequestContext requestContext) {
+        return service.withExcept(this.client.getEndpoint(), except, requestContext);
+    }
+
+    /**
+     * The withExcept operation.
+     * 
+     * @param except The except parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withExcept(String except) {
+        withExceptWithResponse(except, RequestContext.none());
     }
 
     /**
      * The withExec operation.
      * 
      * @param exec The exec parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withExecWithResponse(String exec, RequestOptions requestOptions) {
-        return service.withExecSync(this.client.getEndpoint(), exec, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withExecWithResponse(String exec, RequestContext requestContext) {
+        return service.withExec(this.client.getEndpoint(), exec, requestContext);
+    }
+
+    /**
+     * The withExec operation.
+     * 
+     * @param exec The exec parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withExec(String exec) {
+        withExecWithResponse(exec, RequestContext.none());
     }
 
     /**
      * The withFinally operation.
      * 
      * @param finallyParameter The finallyParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withFinallyWithResponse(String finallyParameter, RequestOptions requestOptions) {
-        return service.withFinallySync(this.client.getEndpoint(), finallyParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFinallyWithResponse(String finallyParameter, RequestContext requestContext) {
+        return service.withFinally(this.client.getEndpoint(), finallyParameter, requestContext);
+    }
+
+    /**
+     * The withFinally operation.
+     * 
+     * @param finallyParameter The finallyParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withFinally(String finallyParameter) {
+        withFinallyWithResponse(finallyParameter, RequestContext.none());
     }
 
     /**
      * The withFor operation.
      * 
      * @param forParameter The forParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withForWithResponse(String forParameter, RequestOptions requestOptions) {
-        return service.withForSync(this.client.getEndpoint(), forParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withForWithResponse(String forParameter, RequestContext requestContext) {
+        return service.withFor(this.client.getEndpoint(), forParameter, requestContext);
+    }
+
+    /**
+     * The withFor operation.
+     * 
+     * @param forParameter The forParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withFor(String forParameter) {
+        withForWithResponse(forParameter, RequestContext.none());
     }
 
     /**
      * The withFrom operation.
      * 
      * @param from The from parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withFromWithResponse(String from, RequestOptions requestOptions) {
-        return service.withFromSync(this.client.getEndpoint(), from, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withFromWithResponse(String from, RequestContext requestContext) {
+        return service.withFrom(this.client.getEndpoint(), from, requestContext);
+    }
+
+    /**
+     * The withFrom operation.
+     * 
+     * @param from The from parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withFrom(String from) {
+        withFromWithResponse(from, RequestContext.none());
     }
 
     /**
      * The withGlobal operation.
      * 
      * @param global The global parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withGlobalWithResponse(String global, RequestOptions requestOptions) {
-        return service.withGlobalSync(this.client.getEndpoint(), global, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withGlobalWithResponse(String global, RequestContext requestContext) {
+        return service.withGlobal(this.client.getEndpoint(), global, requestContext);
+    }
+
+    /**
+     * The withGlobal operation.
+     * 
+     * @param global The global parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withGlobal(String global) {
+        withGlobalWithResponse(global, RequestContext.none());
     }
 
     /**
      * The withIf operation.
      * 
      * @param ifParameter The ifParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withIfWithResponse(String ifParameter, RequestOptions requestOptions) {
-        return service.withIfSync(this.client.getEndpoint(), ifParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIfWithResponse(String ifParameter, RequestContext requestContext) {
+        return service.withIf(this.client.getEndpoint(), ifParameter, requestContext);
+    }
+
+    /**
+     * The withIf operation.
+     * 
+     * @param ifParameter The ifParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withIf(String ifParameter) {
+        withIfWithResponse(ifParameter, RequestContext.none());
     }
 
     /**
      * The withImport operation.
      * 
      * @param importParameter The importParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withImportWithResponse(String importParameter, RequestOptions requestOptions) {
-        return service.withImportSync(this.client.getEndpoint(), importParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withImportWithResponse(String importParameter, RequestContext requestContext) {
+        return service.withImport(this.client.getEndpoint(), importParameter, requestContext);
+    }
+
+    /**
+     * The withImport operation.
+     * 
+     * @param importParameter The importParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withImport(String importParameter) {
+        withImportWithResponse(importParameter, RequestContext.none());
     }
 
     /**
      * The withIn operation.
      * 
      * @param in The in parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withInWithResponse(String in, RequestOptions requestOptions) {
-        return service.withInSync(this.client.getEndpoint(), in, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withInWithResponse(String in, RequestContext requestContext) {
+        return service.withIn(this.client.getEndpoint(), in, requestContext);
+    }
+
+    /**
+     * The withIn operation.
+     * 
+     * @param in The in parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withIn(String in) {
+        withInWithResponse(in, RequestContext.none());
     }
 
     /**
      * The withIs operation.
      * 
      * @param is The is parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withIsWithResponse(String is, RequestOptions requestOptions) {
-        return service.withIsSync(this.client.getEndpoint(), is, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withIsWithResponse(String is, RequestContext requestContext) {
+        return service.withIs(this.client.getEndpoint(), is, requestContext);
+    }
+
+    /**
+     * The withIs operation.
+     * 
+     * @param is The is parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withIs(String is) {
+        withIsWithResponse(is, RequestContext.none());
     }
 
     /**
      * The withLambda operation.
      * 
      * @param lambda The lambda parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withLambdaWithResponse(String lambda, RequestOptions requestOptions) {
-        return service.withLambdaSync(this.client.getEndpoint(), lambda, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withLambdaWithResponse(String lambda, RequestContext requestContext) {
+        return service.withLambda(this.client.getEndpoint(), lambda, requestContext);
+    }
+
+    /**
+     * The withLambda operation.
+     * 
+     * @param lambda The lambda parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withLambda(String lambda) {
+        withLambdaWithResponse(lambda, RequestContext.none());
     }
 
     /**
      * The withNot operation.
      * 
      * @param not The not parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withNotWithResponse(String not, RequestOptions requestOptions) {
-        return service.withNotSync(this.client.getEndpoint(), not, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withNotWithResponse(String not, RequestContext requestContext) {
+        return service.withNot(this.client.getEndpoint(), not, requestContext);
+    }
+
+    /**
+     * The withNot operation.
+     * 
+     * @param not The not parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withNot(String not) {
+        withNotWithResponse(not, RequestContext.none());
     }
 
     /**
      * The withOr operation.
      * 
      * @param or The or parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withOrWithResponse(String or, RequestOptions requestOptions) {
-        return service.withOrSync(this.client.getEndpoint(), or, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withOrWithResponse(String or, RequestContext requestContext) {
+        return service.withOr(this.client.getEndpoint(), or, requestContext);
+    }
+
+    /**
+     * The withOr operation.
+     * 
+     * @param or The or parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withOr(String or) {
+        withOrWithResponse(or, RequestContext.none());
     }
 
     /**
      * The withPass operation.
      * 
      * @param pass The pass parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withPassWithResponse(String pass, RequestOptions requestOptions) {
-        return service.withPassSync(this.client.getEndpoint(), pass, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withPassWithResponse(String pass, RequestContext requestContext) {
+        return service.withPass(this.client.getEndpoint(), pass, requestContext);
+    }
+
+    /**
+     * The withPass operation.
+     * 
+     * @param pass The pass parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withPass(String pass) {
+        withPassWithResponse(pass, RequestContext.none());
     }
 
     /**
      * The withRaise operation.
      * 
      * @param raise The raise parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withRaiseWithResponse(String raise, RequestOptions requestOptions) {
-        return service.withRaiseSync(this.client.getEndpoint(), raise, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withRaiseWithResponse(String raise, RequestContext requestContext) {
+        return service.withRaise(this.client.getEndpoint(), raise, requestContext);
+    }
+
+    /**
+     * The withRaise operation.
+     * 
+     * @param raise The raise parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withRaise(String raise) {
+        withRaiseWithResponse(raise, RequestContext.none());
     }
 
     /**
      * The withReturn operation.
      * 
      * @param returnParameter The returnParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withReturnWithResponse(String returnParameter, RequestOptions requestOptions) {
-        return service.withReturnSync(this.client.getEndpoint(), returnParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withReturnWithResponse(String returnParameter, RequestContext requestContext) {
+        return service.withReturn(this.client.getEndpoint(), returnParameter, requestContext);
+    }
+
+    /**
+     * The withReturn operation.
+     * 
+     * @param returnParameter The returnParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withReturn(String returnParameter) {
+        withReturnWithResponse(returnParameter, RequestContext.none());
     }
 
     /**
      * The withTry operation.
      * 
      * @param tryParameter The tryParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withTryWithResponse(String tryParameter, RequestOptions requestOptions) {
-        return service.withTrySync(this.client.getEndpoint(), tryParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withTryWithResponse(String tryParameter, RequestContext requestContext) {
+        return service.withTry(this.client.getEndpoint(), tryParameter, requestContext);
+    }
+
+    /**
+     * The withTry operation.
+     * 
+     * @param tryParameter The tryParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withTry(String tryParameter) {
+        withTryWithResponse(tryParameter, RequestContext.none());
     }
 
     /**
      * The withWhile operation.
      * 
      * @param whileParameter The whileParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withWhileWithResponse(String whileParameter, RequestOptions requestOptions) {
-        return service.withWhileSync(this.client.getEndpoint(), whileParameter, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWhileWithResponse(String whileParameter, RequestContext requestContext) {
+        return service.withWhile(this.client.getEndpoint(), whileParameter, requestContext);
+    }
+
+    /**
+     * The withWhile operation.
+     * 
+     * @param whileParameter The whileParameter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withWhile(String whileParameter) {
+        withWhileWithResponse(whileParameter, RequestContext.none());
     }
 
     /**
      * The withWith operation.
      * 
      * @param with The with parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withWithWithResponse(String with, RequestOptions requestOptions) {
-        return service.withWithSync(this.client.getEndpoint(), with, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWithWithResponse(String with, RequestContext requestContext) {
+        return service.withWith(this.client.getEndpoint(), with, requestContext);
+    }
+
+    /**
+     * The withWith operation.
+     * 
+     * @param with The with parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withWith(String with) {
+        withWithWithResponse(with, RequestContext.none());
     }
 
     /**
      * The withYield operation.
      * 
      * @param yield The yield parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withYieldWithResponse(String yield, RequestOptions requestOptions) {
-        return service.withYieldSync(this.client.getEndpoint(), yield, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withYieldWithResponse(String yield, RequestContext requestContext) {
+        return service.withYield(this.client.getEndpoint(), yield, requestContext);
+    }
+
+    /**
+     * The withYield operation.
+     * 
+     * @param yield The yield parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withYield(String yield) {
+        withYieldWithResponse(yield, RequestContext.none());
     }
 
     /**
      * The withCancellationToken operation.
      * 
      * @param cancellationToken The cancellationToken parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestOptions requestOptions) {
-        return service.withCancellationTokenSync(this.client.getEndpoint(), cancellationToken, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withCancellationTokenWithResponse(String cancellationToken, RequestContext requestContext) {
+        return service.withCancellationToken(this.client.getEndpoint(), cancellationToken, requestContext);
+    }
+
+    /**
+     * The withCancellationToken operation.
+     * 
+     * @param cancellationToken The cancellationToken parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void withCancellationToken(String cancellationToken) {
+        withCancellationTokenWithResponse(cancellationToken, RequestContext.none());
     }
 }

@@ -26,8 +26,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? externalDocsUrl,
             IReadOnlyList<string>? requestMediaTypes,
             bool bufferResponse,
-            InputOperationLongRunning? longRunning,
-            InputOperationPaging? paging,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
             string crossLanguageDefinitionId)
@@ -46,8 +44,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             ExternalDocsUrl = externalDocsUrl;
             RequestMediaTypes = requestMediaTypes;
             BufferResponse = bufferResponse;
-            LongRunning = longRunning;
-            Paging = paging;
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -68,8 +64,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             externalDocsUrl: null,
             requestMediaTypes: Array.Empty<string>(),
             bufferResponse: false,
-            longRunning: null,
-            paging: null,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
             crossLanguageDefinitionId: string.Empty)
@@ -89,8 +83,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ExternalDocsUrl { get; internal set; }
         public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }
         public bool BufferResponse { get; internal set; }
-        public InputOperationLongRunning? LongRunning { get; internal set; }
-        public InputOperationPaging? Paging { get; internal set; }
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }

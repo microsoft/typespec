@@ -1,31 +1,40 @@
 import { Output, render } from "@alloy-js/core";
 import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { EnumValue, Model, Namespace, Numeric, NumericValue, Value } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import {
+  EnumValue,
+  Model,
+  Namespace,
+  Numeric,
+  NumericValue,
+  Program,
+  Value,
+} from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
-import { getProgram, initEmptyProgram } from "../test-host.js";
+import { getProgram } from "../test-host.js";
 
+let program: Program;
 beforeAll(async () => {
-  await initEmptyProgram();
+  program = await getProgram("");
 });
 
 it("renders strings", async () => {
-  const value = $.value.createString("test");
+  const value = $(program).value.createString("test");
 
   await testValueExpression(value, `"test"`);
 });
 
 describe("numeric values", () => {
   it("renders integers", async () => {
-    const value = $.value.createNumeric(42);
+    const value = $(program).value.createNumeric(42);
 
     await testValueExpression(value, `42`);
   });
 
   it("renders decimals", async () => {
-    const value = $.value.createNumeric(42.5);
+    const value = $(program).value.createNumeric(42.5);
 
     await testValueExpression(value, `42.5`);
   });
@@ -54,7 +63,7 @@ describe("numeric values", () => {
 });
 
 it("renders booleans", async () => {
-  const value = $.value.createBoolean(true);
+  const value = $(program).value.createBoolean(true);
   await testValueExpression(value, `true`);
 });
 
@@ -78,11 +87,16 @@ it("renders empty arrays", async () => {
 });
 
 it("renders arrays with mixed values", async () => {
+  const tk = $(program);
   // Can be replaced with with TypeKit once #6976 is implemented
   const value = {
     entityKind: "Value",
     valueKind: "ArrayValue",
-    values: [$.value.createString("foo"), $.value.createNumeric(42), $.value.createBoolean(true)],
+    values: [
+      tk.value.createString("foo"),
+      tk.value.createNumeric(42),
+      tk.value.createBoolean(true),
+    ],
   } as Value;
   await testValueExpression(value, `["foo", 42, true]`);
 });

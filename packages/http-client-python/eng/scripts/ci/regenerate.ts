@@ -46,6 +46,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/client-initialization": {
     namespace: "specs.azure.clientgenerator.core.clientinitialization",
   },
+  "azure/client-generator-core/deserialize-empty-string-as-null": {
+    namespace: "specs.azure.clientgenerator.core.emptystring",
+  },
   "azure/client-generator-core/flatten-property": {
     namespace: "specs.azure.clientgenerator.core.flattenproperty",
   },
@@ -260,6 +263,7 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   }
   const execFileAsync = promisify(execFile);
   try {
+    console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
     await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
@@ -401,16 +405,20 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 }
 
 async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
-  let currentIndex = 0;
-
-  async function worker() {
-    while (currentIndex < tasks.length) {
-      const index = currentIndex++;
-      await tasks[index]();
+  async function worker(start: number, end: number) {
+    while (start < end) {
+      await tasks[start]();
+      start++;
     }
   }
 
-  const workers = new Array(Math.min(poolLimit, tasks.length)).fill(null).map(() => worker());
+  const workers = [];
+  let start = 0;
+  while (start < tasks.length) {
+    const end = Math.min(start + poolLimit, tasks.length);
+    workers.push((async () => await worker(start, end))());
+    start = end;
+  }
   await Promise.all(workers);
 }
 

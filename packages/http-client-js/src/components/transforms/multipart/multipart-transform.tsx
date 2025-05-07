@@ -1,6 +1,5 @@
 import * as ay from "@alloy-js/core";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import { useTransformNamePolicy } from "@typespec/emitter-framework";
+import { useTransformNamePolicy, useTsp } from "@typespec/emitter-framework";
 import { HttpOperationMultipartBody } from "@typespec/http";
 import { reportDiagnostic } from "../../../lib.js";
 import { HttpPartTransform } from "./part-transform.jsx";
@@ -10,6 +9,7 @@ export interface MultipartTransformProps {
 }
 
 export function MultipartTransform(props: MultipartTransformProps) {
+  const { $ } = useTsp();
   const transportNamer = useTransformNamePolicy();
   const httpParts = props.body.parts;
 

@@ -1,6 +1,6 @@
 import { Realm } from "../experimental/realm.js";
-import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
+import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
@@ -214,6 +214,7 @@ export interface Checker {
    * @param target Target type
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    * @returns [related, list of diagnostics]
+   * @internal
    */
   isTypeAssignableTo(
     source: Entity,
@@ -255,6 +256,13 @@ export interface Checker {
    * @internal use program.resolveTypeReference
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
+  /**
+   * Check and resolve a type or value for the given type reference node.
+   * @param node Node.
+   * @returns Resolved type and diagnostics if there was an error.
+   * @internal
+   */
+  resolveTypeOrValueReference(node: TypeReferenceNode): [Entity | undefined, readonly Diagnostic[]];
 
   /** @internal */
   getValueForNode(node: Node): Value | null;
@@ -264,11 +272,15 @@ export interface Checker {
 
   /** @internal */
   getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
-
+  /** @internal */
   readonly errorType: ErrorType;
+  /** @internal */
   readonly voidType: VoidType;
+  /** @internal */
   readonly neverType: NeverType;
+  /** @internal */
   readonly nullType: NullType;
+  /** @internal */
   readonly anyType: UnknownType;
 }
 
@@ -358,6 +370,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     isStdType,
     getStdType,
     resolveTypeReference,
+    resolveTypeOrValueReference,
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
@@ -668,7 +681,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // Intercept tuple used as value and report diagnostic with a codefix
   function interceptTupleUsedAsValue(tuple: Tuple): Tuple | null {
-    if (tuple.node.kind !== SyntaxKind.TupleExpression) {
+    if (tuple.node?.kind !== SyntaxKind.TupleExpression) {
       return tuple; // we won't convert dynamic tuples to array values
     }
 
@@ -979,7 +992,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let hasError = false;
       if (entity !== null && "kind" in entity && entity.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
-          if (entity.node.symbol === templateParameters[i].symbol) {
+          if (entity.node?.symbol === templateParameters[i].symbol) {
             reportCheckerDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node }),
             );
@@ -1052,6 +1065,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
   ): Type | Value | IndeterminateEntity | null {
     return checkNode(node.argument, mapper);
+  }
+
+  function resolveTypeOrValueReference(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+  ): [Entity | undefined, readonly Diagnostic[]] {
+    const oldDiagnosticHook = onCheckerDiagnostic;
+    const diagnostics: Diagnostic[] = [];
+    onCheckerDiagnostic = (x: Diagnostic) => diagnostics.push(x);
+    const entity = checkTypeOrValueReference(node, undefined, false);
+    onCheckerDiagnostic = oldDiagnosticHook;
+    return [entity === errorType ? undefined : entity, diagnostics];
   }
 
   function resolveTypeReference(
@@ -1134,6 +1158,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: readonly TemplateArgumentNode[],
     decls: readonly TemplateParameterDeclarationNode[],
     mapper: TypeMapper | undefined,
+    parentMapper?: TypeMapper,
   ): Map<TemplateParameter, Type | Value | IndeterminateEntity> {
     const params = new Map<string, TemplateParameter>();
     const positional: TemplateParameter[] = [];
@@ -1243,7 +1268,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
 
       if (init === null) {
-        const argumentMapper = createTypeMapper(mapperParams, mapperArgs, { node, mapper });
+        const argumentMapper = createTypeMapper(
+          mapperParams,
+          mapperArgs,
+          { node, mapper },
+          parentMapper,
+        );
         const defaultValue = getResolvedTypeParameterDefault(param, decl, argumentMapper);
         if (defaultValue) {
           commit(param, defaultValue);
@@ -1350,7 +1380,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
 
     if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
-      templateParameterUsageMap.set(entity.node, true);
+      templateParameterUsageMap.set(entity.node!, true);
     }
     return entity;
   }
@@ -1425,6 +1455,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           argumentNodes,
           templateParameters,
           mapper,
+          declaredType.templateMapper,
         );
 
         baseType = getOrInstantiateTemplate(
@@ -4316,9 +4347,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           type.name,
           SymbolFlags.Interface | SymbolFlags.LateBound,
         );
-        if (isTemplateInstance(type) && type.name === "Foo") {
-          getSymbolLinks(type.symbol);
-        }
         mutate(type.symbol).type = type;
         break;
       case "Union":
@@ -6251,7 +6279,7 @@ export function filterModelProperties(
   }
 
   const realm = Realm.realmForType.get(model);
-  const typekit = realm ? $(realm) : $;
+  const typekit = realm ? $(realm) : $(program);
   const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,

@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.UrlBuilder;
-import com.azure.core.util.polling.PollingStrategyOptions;
 import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -15,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -254,13 +252,6 @@ public class ClientMethod {
         return argumentList;
     }
 
-    public final String getArgumentListWithoutRequestOptions() {
-        return getMethodParameters().stream()
-            .map(ClientMethodParameter::getName)
-            .map(name -> name.equals("requestOptions") ? "null" : name)
-            .collect(Collectors.joining(", "));
-    }
-
     /**
      * The full declaration of this ClientMethod.
      */
@@ -390,10 +381,10 @@ public class ClientMethod {
         ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
         ClassType.RESPONSE.addImportsTo(imports, includeImplementationImports);
         ClassType.SIMPLE_RESPONSE.addImportsTo(imports, includeImplementationImports);
+        ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
         if (settings.isDataPlaneClient()) {
             // for some processing on RequestOptions (get/set header)
-            ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
             imports.add(UrlBuilder.class.getName());
@@ -411,16 +402,6 @@ public class ClientMethod {
 
             if (proxyMethod != null) {
                 proxyMethod.addImportsTo(imports, includeImplementationImports, settings);
-                for (ProxyMethodParameter parameter : proxyMethod.getParameters()) {
-                    parameter.getClientType().addImportsTo(imports, true);
-
-                    if (parameter.getExplode()) {
-                        imports.add("java.util.Optional");
-                        imports.add("java.util.stream.Stream");
-                        imports.add(ArrayList.class.getName());
-                        imports.add("java.util.Collection");
-                    }
-                }
             }
 
             if (getReturnValue().getType() == ClassType.INPUT_STREAM) {
@@ -462,19 +443,25 @@ public class ClientMethod {
                     }
                 } else {
                     imports.add(TypeReference.class.getName());
-                    if (!JavaSettings.getInstance().isBranded()) {
+                    if (!JavaSettings.getInstance().isAzureV1()) {
                         imports.add(Type.class.getName());
                         imports.add(ParameterizedType.class.getName());
                     }
 
                     imports.add("java.time.Duration");
-                    imports.add(PollingStrategyOptions.class.getName());
+
+                    ClassType.POLLING_STRATEGY_OPTIONS.addImportsTo(imports, false);
 
                     if (getMethodPollingDetails() != null) {
                         for (String pollingStrategy : KNOWN_POLLING_STRATEGIES) {
                             if (getMethodPollingDetails().getPollingStrategy().contains(pollingStrategy)
                                 || getMethodPollingDetails().getSyncPollingStrategy().contains(pollingStrategy)) {
-                                imports.add("com.azure.core.util.polling." + pollingStrategy);
+
+                                if (JavaSettings.getInstance().isAzureV2()) {
+                                    imports.add("com.azure.v2.core.http.polling." + pollingStrategy);
+                                } else {
+                                    imports.add("com.azure.core.util.polling." + pollingStrategy);
+                                }
                             }
                         }
                     }

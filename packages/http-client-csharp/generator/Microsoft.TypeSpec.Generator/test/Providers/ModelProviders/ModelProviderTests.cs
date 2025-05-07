@@ -21,6 +21,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             MockHelpers.LoadMockGenerator();
         }
 
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
+        {
+            var baseProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [baseProp1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var derivedProp1 = InputFactory.Property("prop1", new InputPrimitiveType(InputPrimitiveTypeKind.String, "string", "TypeSpec.string"));
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [derivedProp1], baseModel: derivedModel1);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Override, derivedModel2Provider.Properties[0].Modifiers);
+        }
+
+        [Test]
+        public void TestBuildProperties_ValidateInheritHierarchyWithNew()
+        {
+            var stringProp1 = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var baseModel = InputFactory.Model("baseModel", properties: [stringProp1]);
+            var derivedModel1 = InputFactory.Model("derivedModel1", baseModel: baseModel);
+            var intProp1 = InputFactory.Property("prop1", InputPrimitiveType.Int32);
+            var derivedModel2 = InputFactory.Model("derivedModel2", properties: [intProp1], baseModel: derivedModel1);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, derivedModel1, derivedModel2]);
+
+            var derivedModel2Provider = new ModelProvider(derivedModel2);
+            Assert.AreEqual(1, derivedModel2Provider.Properties.Count);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.New, derivedModel2Provider.Properties[0].Modifiers);
+            var baseModelProvider = new ModelProvider(baseModel);
+            var prop1Field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == "_prop1");
+            Assert.NotNull(prop1Field);
+            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Protected, prop1Field!.Modifiers);
+        }
+
         // Validates that the property body's setter is correctly set based on the property type
         [TestCaseSource(nameof(BuildProperties_ValidatePropertySettersTestCases))]
         public void TestBuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
@@ -866,6 +899,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var snakeBody = snake!.Body;
             Assert.IsNotNull(snakeBody);
             Assert.IsFalse(snakeBody!.HasSetter);
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String, doc: "This is prop1")]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var writer = new TypeProviderWriter(modelTypeProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

@@ -38,6 +38,7 @@ import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncCli
 import com.microsoft.typespec.http.client.generator.core.template.SwaggerReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
@@ -291,9 +292,17 @@ public class JavaPackage {
 
     public void addModelUnitTest(ClientModel model) {
         try {
-            String className = model.getName() + "Tests";
-            JavaFile javaFile
-                = javaFileFactory.createTestFile(JavaSettings.getInstance().getPackage("generated"), className);
+            final String packageName = JavaSettings.getInstance().getPackage("generated");
+
+            final String classNameSuffix = "Tests";
+            String className = model.getName() + classNameSuffix;
+            if (JavaSettings.getInstance().isAzureV1()) {
+                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
+                    // a hack to count "Tests" suffix into the length of the full path
+                    + classNameSuffix, packageName, className);
+            }
+
+            JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
             ModelTestTemplate.getInstance().write(model, javaFile);
             this.checkDuplicateFile(javaFile.getFilePath());
             javaFiles.add(javaFile);

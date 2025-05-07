@@ -563,6 +563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             List<MethodProvider> subClientAccessorFactoryMethods = [];
             foreach (var method in methods)
             {
+                Assert.IsInstanceOf<ScmMethodProvider>(method);
                 var methodSignature = method.Signature;
                 if (methodSignature != null &&
                     methodSignature.Name.StartsWith("Get") &&
@@ -596,6 +597,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
             var methods = clientProvider!.Methods;
+            // all methods should be ScmMethodProvider instances
+            Assert.IsTrue(methods.All(m => m is ScmMethodProvider));
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -854,6 +857,89 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AccessibilityOfMethodMatchesInputOperation(bool isPublic)
+        {
+            MockHelpers.LoadMockGenerator();
+            var access = isPublic ? "public" : "internal";
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            "Foo",
+                            access: access),
+                        access: access)
+                ]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(convenienceMethod);
+
+            var protocolMethod = clientProvider.Methods.FirstOrDefault(
+                m => m.Signature.Name == "Foo" &&
+                     m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
+            Assert.IsNotNull(protocolMethod);
+
+            if (isPublic)
+            {
+                Assert.IsTrue(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsTrue(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+            else
+            {
+                Assert.IsFalse(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(protocolMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod(
+                        "Foo",
+                        InputFactory.Operation(
+                            name: "Foo",
+                            parameters:
+                            [
+                                InputFactory.Parameter(
+                                    "queryParam",
+                                    InputPrimitiveType.String,
+                                    isRequired: true,
+                                    location: InputRequestLocation.Query,
+                                    kind: InputParameterKind.Client)
+                            ]),
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "queryParam",
+                                InputPrimitiveType.String,
+                                isRequired: true,
+                                location: InputRequestLocation.Query,
+                                kind: InputParameterKind.Client)
+                        ])
+                ]);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var writer = new TypeProviderWriter(clientProvider!);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,
@@ -909,7 +995,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _isAsync = isAsync;
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "queryParam", Type.Name: "InputEnum" } &&
@@ -928,7 +1014,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             public TestNonBodyRequestParametersInBodyDiffClientProvider(InputClient client) : base(client) { }
 
-            protected override MethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "body" } && m.Signature.Name.EndsWith("Async")));
@@ -946,7 +1032,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             public UnsupportedAuthClientProvider(InputClient client)
                 : base(client) { }
 
-            protected override MethodProvider[] BuildMethods() => [];
+            protected override ScmMethodProvider[] BuildMethods() => [];
 
             protected override FieldProvider[] BuildFields() => [];
             protected override PropertyProvider[] BuildProperties() => [];

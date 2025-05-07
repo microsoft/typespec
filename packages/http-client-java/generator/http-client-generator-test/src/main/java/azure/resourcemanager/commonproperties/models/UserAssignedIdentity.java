@@ -17,28 +17,19 @@ import java.io.IOException;
 @Immutable
 public final class UserAssignedIdentity implements JsonSerializable<UserAssignedIdentity> {
     /*
-     * The client ID of the assigned identity.
-     */
-    private String clientId;
-
-    /*
      * The principal ID of the assigned identity.
      */
     private String principalId;
+
+    /*
+     * The client ID of the assigned identity.
+     */
+    private String clientId;
 
     /**
      * Creates an instance of UserAssignedIdentity class.
      */
     public UserAssignedIdentity() {
-    }
-
-    /**
-     * Get the clientId property: The client ID of the assigned identity.
-     * 
-     * @return the clientId value.
-     */
-    public String clientId() {
-        return this.clientId;
     }
 
     /**
@@ -48,6 +39,15 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
      */
     public String principalId() {
         return this.principalId;
+    }
+
+    /**
+     * Get the clientId property: The client ID of the assigned identity.
+     * 
+     * @return the clientId value.
+     */
+    public String clientId() {
+        return this.clientId;
     }
 
     /**
@@ -82,10 +82,10 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("clientId".equals(fieldName)) {
-                    deserializedUserAssignedIdentity.clientId = reader.getString();
-                } else if ("principalId".equals(fieldName)) {
+                if ("principalId".equals(fieldName)) {
                     deserializedUserAssignedIdentity.principalId = reader.getString();
+                } else if ("clientId".equals(fieldName)) {
+                    deserializedUserAssignedIdentity.clientId = reader.getString();
                 } else {
                     reader.skipChildren();
                 }

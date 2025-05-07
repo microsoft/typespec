@@ -366,6 +366,7 @@ namespace ResponseBody {
     contentType: "application/json";
 
     @body
+    @encode(BytesKnownEncoding.base64url)
     body: base64urlBytes;
   };
 }

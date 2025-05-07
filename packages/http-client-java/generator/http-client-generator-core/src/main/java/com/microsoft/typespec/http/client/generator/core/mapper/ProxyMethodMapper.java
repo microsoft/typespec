@@ -142,7 +142,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         final boolean isDataPlaneClient = settings.isDataPlaneClient();
         final IType bodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         final IType bodyTypeMapped;
-        if (isDataPlaneClient && settings.isBranded()) {
+        if (isDataPlaneClient && settings.isAzureV1()) {
             builder.rawResponseBodyType(bodyType);
             // branded (azure) Data Plane Generator uses BinaryData as return type not the model.
             bodyTypeMapped = SchemaUtil.tryMapToBinaryData(bodyType, operation);
@@ -540,7 +540,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         static SwaggerExceptionDefinitions create(ProxyMethodMapper mapper, Operation operation,
             JavaSettings settings) {
-            if (settings.isDataPlaneClient() && settings.isBranded()) {
+            if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                 // LLC does not use model, hence exception from swagger
                 final SwaggerExceptionDefinitions definitions = new SwaggerExceptionDefinitions();
                 definitions.defaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
@@ -585,7 +585,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             }
             // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
             if (definitions.defaultExceptionType == null
-                && settings.isBranded()
+                && settings.isAzureV1()
                 && !CoreUtils.isNullOrEmpty(operation.getExceptions())
                 && operation.getExceptions().get(0).getSchema() != null) {
                 // no default error, use the 1st to keep backward compatibility

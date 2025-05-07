@@ -1331,8 +1331,12 @@ Transforms the `target` model to include only properties that are visible during
 Any nested models of optional properties will be transformed into the "CreateOrUpdate"
 lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
 fully updated.
+
+If a `nameTemplate` is provided, newly-created type instances will be named according
+to the template. See the `@friendlyName` decorator for more information on the template
+syntax. The transformed type is provided as the argument to the template.
 ```typespec
-@withLifecycleUpdate
+@withLifecycleUpdate(nameTemplate?: valueof string)
 ```
 
 #### Target
@@ -1340,7 +1344,9 @@ The model to apply the transformation to.
 `Model`
 
 #### Parameters
-None
+| Name | Type | Description |
+|------|------|-------------|
+| nameTemplate | [valueof `string`](#string) | The name template to use when renaming new model instances. |
 
 #### Examples
 
@@ -1509,8 +1515,12 @@ Applies the given visibility filter to the properties of the target model.
 
 This transformation is recursive, so it will also apply the filter to any nested
 or referenced models that are the types of any properties in the `target`.
+
+If a `nameTemplate` is provided, newly-created type instances will be named according
+to the template. See the `@friendlyName` decorator for more information on the template
+syntax. The transformed type is provided as the argument to the template.
 ```typespec
-@withVisibilityFilter(filter: valueof VisibilityFilter)
+@withVisibilityFilter(filter: valueof VisibilityFilter, nameTemplate?: valueof string)
 ```
 
 #### Target
@@ -1521,6 +1531,7 @@ The model to apply the visibility filter to.
 | Name | Type | Description |
 |------|------|-------------|
 | filter | [valueof `VisibilityFilter`](./built-in-data-types.md#VisibilityFilter) | The visibility filter to apply to the properties of the target model. |
+| nameTemplate | [valueof `string`](#string) | The name template to use when renaming new model instances. |
 
 #### Examples
 

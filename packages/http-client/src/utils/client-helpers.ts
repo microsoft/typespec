@@ -1,13 +1,16 @@
 import { Refkey, refkey } from "@alloy-js/core";
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { type Typekit } from "@typespec/compiler/typekit";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
 const credentialCache = new Map<Refkey, ModelProperty>();
-export function getCredentialParameter(client: InternalClient): ModelProperty | undefined {
+export function getCredentialParameter(
+  $: Typekit,
+  client: InternalClient,
+): ModelProperty | undefined {
   const [httpService] = getHttpService($.program, client.service);
 
   const schemes = resolveAuthentication(httpService).schemes;
@@ -47,7 +50,7 @@ function getCredRefkey(credentials: StringLiteral[]): Refkey {
   return refkey(credentials.map((c) => c.value).join());
 }
 
-export function getConstructors(client: InternalClient): Operation[] {
+export function getConstructors($: Typekit, client: InternalClient): Operation[] {
   const constructors: Operation[] = [];
   const params: ModelProperty[] = [];
   const servers = $.client.listServers(client);
@@ -84,7 +87,7 @@ export function getConstructors(client: InternalClient): Operation[] {
         name: internalEndpointName,
         type: $.builtin.string,
         optional: false,
-        defaultValue: getStringValue(serverDefaultUrls[0].url),
+        defaultValue: getStringValue($, serverDefaultUrls[0].url),
       });
       params.push(endpointParam);
     } else {
@@ -107,7 +110,7 @@ export function getConstructors(client: InternalClient): Operation[] {
     }
   }
 
-  const credParam = getCredentialParameter(client);
+  const credParam = getCredentialParameter($, client);
   if (credParam) {
     params.push(credParam);
   }
@@ -116,7 +119,7 @@ export function getConstructors(client: InternalClient): Operation[] {
     $.operation.create({
       name: "constructor",
       parameters: params,
-      returnType: $.program.checker.voidType,
+      returnType: $.intrinsic.void,
     }),
   );
 
@@ -124,6 +127,7 @@ export function getConstructors(client: InternalClient): Operation[] {
 }
 
 export function createBaseConstructor(
+  $: Typekit,
   client: InternalClient,
   constructors: Operation[],
 ): Operation {
@@ -145,7 +149,10 @@ export function createBaseConstructor(
     // if they aren't used in every single overload, then the parameter should be optional
     // otherwise, it's optional if any of the overloads have it as optional
     const overrideToOptional = params.length !== constructors.length;
-    const uniqueTypes = getUniqueTypes(params.map((param) => param.type));
+    const uniqueTypes = getUniqueTypes(
+      $,
+      params.map((param) => param.type),
+    );
     const combinedType =
       uniqueTypes.length > 1
         ? $.union.create({ variants: uniqueTypes.map((x) => $.unionVariant.create({ type: x })) })
@@ -185,6 +192,6 @@ export function createBaseConstructor(
   return $.operation.create({
     name: "constructor",
     parameters: combinedParams,
-    returnType: $.program.checker.voidType,
+    returnType: $.intrinsic.void,
   });
 }

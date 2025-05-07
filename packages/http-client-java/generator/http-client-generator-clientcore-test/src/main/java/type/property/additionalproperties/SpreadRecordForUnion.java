@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
@@ -14,18 +14,18 @@ import java.util.Map;
 /**
  * The model spread Record&lt;string | float32&gt;.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecordForUnion> {
     /*
      * The name property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final boolean flag;
 
     /*
      * The model spread Record<string | float32>
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, BinaryData> additionalProperties;
 
     /**
@@ -33,7 +33,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
      * 
      * @param flag the flag value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordForUnion(boolean flag) {
         this.flag = flag;
     }
@@ -43,7 +43,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
      * 
      * @return the flag value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public boolean isFlag() {
         return this.flag;
     }
@@ -53,7 +53,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
      * 
      * @return the additionalProperties value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, BinaryData> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -64,7 +64,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadRecordForUnion object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadRecordForUnion setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
@@ -73,7 +73,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -100,7 +100,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SpreadRecordForUnion.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SpreadRecordForUnion fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             boolean flag = false;
