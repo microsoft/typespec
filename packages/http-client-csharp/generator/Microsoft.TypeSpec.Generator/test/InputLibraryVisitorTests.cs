@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 _cleanupReference = cleanupReference;
             }
-            protected internal override ModelProvider? PreVisitModel(InputModelType inputModel, ModelProvider? typeProvider)
+            protected internal override TypeProvider? PreVisitModel(InputModelType inputModel, TypeProvider? typeProvider)
             {
                 if (inputModel.Name == "Model1")
                 {

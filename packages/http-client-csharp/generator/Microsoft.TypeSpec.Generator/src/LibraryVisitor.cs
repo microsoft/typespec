@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="model">The original input model.</param>
         /// <param name="type">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ModelProvider"/>.</returns>
-        protected internal virtual ModelProvider? PreVisitModel(InputModelType model, ModelProvider? type)
+        protected internal virtual TypeProvider? PreVisitModel(InputModelType model, TypeProvider? type)
         {
             return type;
         }

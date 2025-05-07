@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var visitor in Visitors)
             {
-                modelProvider = visitor.PreVisitModel(model, modelProvider as ModelProvider);
+                modelProvider = visitor.PreVisitModel(model, modelProvider) as ModelProvider;
             }
 
             CSharpToModelProvider.Add(model, modelProvider);
