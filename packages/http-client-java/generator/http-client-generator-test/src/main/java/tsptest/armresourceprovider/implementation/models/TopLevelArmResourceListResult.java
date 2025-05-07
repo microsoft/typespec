@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.implementation.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -23,19 +22,16 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
     /*
      * The TopLevelArmResource items on this page
      */
-    @Generated
     private List<TopLevelArmResourceInner> value;
 
     /*
      * The link to the next page of items
      */
-    @Generated
     private String nextLink;
 
     /**
      * Creates an instance of TopLevelArmResourceListResult class.
      */
-    @Generated
     private TopLevelArmResourceListResult() {
     }
 
@@ -44,7 +40,6 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
      * 
      * @return the value value.
      */
-    @Generated
     public List<TopLevelArmResourceInner> value() {
         return this.value;
     }
@@ -54,7 +49,6 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
      * 
      * @return the nextLink value.
      */
-    @Generated
     public String nextLink() {
         return this.nextLink;
     }
