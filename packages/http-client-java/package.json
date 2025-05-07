@@ -72,7 +72,7 @@
     "@azure-tools/typespec-azure-core": "0.56.0",
     "@azure-tools/typespec-azure-resource-manager": "0.56.0",
     "@azure-tools/typespec-azure-rulesets": "0.56.0",
-    "@azure-tools/typespec-client-generator-core": "0.56.0",
+    "@azure-tools/typespec-client-generator-core": "0.56.1",
     "@typespec/spector": "0.1.0-alpha.13",
     "@microsoft/api-extractor": "^7.52.7",
     "@microsoft/api-extractor-model": "^7.30.6",
