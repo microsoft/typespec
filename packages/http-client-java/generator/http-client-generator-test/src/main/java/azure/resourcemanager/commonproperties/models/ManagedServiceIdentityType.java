@@ -4,7 +4,6 @@
 
 package azure.resourcemanager.commonproperties.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableStringEnum;
 import java.util.Collection;
 
@@ -15,25 +14,21 @@ public final class ManagedServiceIdentityType extends ExpandableStringEnum<Manag
     /**
      * No managed identity.
      */
-    @Generated
     public static final ManagedServiceIdentityType NONE = fromString("None");
 
     /**
      * System assigned managed identity.
      */
-    @Generated
     public static final ManagedServiceIdentityType SYSTEM_ASSIGNED = fromString("SystemAssigned");
 
     /**
      * User assigned managed identity.
      */
-    @Generated
     public static final ManagedServiceIdentityType USER_ASSIGNED = fromString("UserAssigned");
 
     /**
      * System and user assigned managed identity.
      */
-    @Generated
     public static final ManagedServiceIdentityType SYSTEM_ASSIGNED_USER_ASSIGNED
         = fromString("SystemAssigned,UserAssigned");
 
@@ -42,7 +37,6 @@ public final class ManagedServiceIdentityType extends ExpandableStringEnum<Manag
      * 
      * @deprecated Use the {@link #fromString(String)} factory method.
      */
-    @Generated
     @Deprecated
     public ManagedServiceIdentityType() {
     }
@@ -53,7 +47,6 @@ public final class ManagedServiceIdentityType extends ExpandableStringEnum<Manag
      * @param name a name to look for.
      * @return the corresponding ManagedServiceIdentityType.
      */
-    @Generated
     public static ManagedServiceIdentityType fromString(String name) {
         return fromString(name, ManagedServiceIdentityType.class);
     }
@@ -63,7 +56,6 @@ public final class ManagedServiceIdentityType extends ExpandableStringEnum<Manag
      * 
      * @return known ManagedServiceIdentityType values.
      */
-    @Generated
     public static Collection<ManagedServiceIdentityType> values() {
         return values(ManagedServiceIdentityType.class);
     }
