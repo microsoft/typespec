@@ -239,16 +239,22 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
 };
 
+const IGNORED_SPECS = ["azure/client-generator-core/client-initialization"];
+
 function toPosix(dir: string): string {
   return dir.replace(/\\/g, "/");
 }
 
-function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
+function getSpecKey(spec: string): string {
   const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
   const relativeSpec = toPosix(relative(specDir, spec));
-  const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
+  return relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
+}
+
+function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
+  const key = getSpecKey(spec);
   const emitter_options = EMITTER_OPTIONS[key] ||
     (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
   return Array.isArray(emitter_options) ? emitter_options : [emitter_options];
@@ -434,9 +440,9 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
       flags.flavor === "azure"
         ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure]
         : subdirectoriesForNonAzure;
-    const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
-      _getCmdList(subdirectory, flagsResolved),
-    );
+    const cmdList: TspCommand[] = subdirectories
+      .filter((subdirectory) => !IGNORED_SPECS.includes(getSpecKey(subdirectory)))
+      .flatMap((subdirectory) => _getCmdList(subdirectory, flagsResolved));
 
     // Create tasks as functions for the pool
     const tasks: Array<() => Promise<void>> = cmdList.map((tspCommand) => {
