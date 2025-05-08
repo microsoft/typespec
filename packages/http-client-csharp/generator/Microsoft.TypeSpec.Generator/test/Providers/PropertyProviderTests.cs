@@ -154,6 +154,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("new description", propertyProvider.Description!.ToString());
             Assert.AreEqual(MethodSignatureModifiers.Public, propertyProvider.Modifiers);
             Assert.AreEqual(new CSharpType(typeof(int)), propertyProvider.Type);
+
+            // if description is not provided, it should still be recalculated
+            propertyProvider.Update(name: "newerName");
+
+            Assert.AreEqual("Gets or sets the newerName.", propertyProvider.Description.ToString());
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()

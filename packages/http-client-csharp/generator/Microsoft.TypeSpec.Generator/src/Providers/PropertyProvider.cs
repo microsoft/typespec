@@ -290,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             else
             {
                 // rebuild the docs if they are not provided
-                BuildDocs(Description);
+                BuildDocs(description);
             }
         }
     }
