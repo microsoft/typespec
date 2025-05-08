@@ -128,37 +128,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void CanUpdatePropertyProvider()
         {
             var propertyProvider = new PropertyProvider(
-                $"description",
-                MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
-                new CSharpType(typeof(string)),
-                "name",
-                new AutoPropertyBody(HasSetter: false),
-                new TestTypeProvider());
+                description: null,
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(string)),
+                name: "name",
+                body: new AutoPropertyBody(HasSetter: false),
+                enclosingType: new TestTypeProvider());
 
             Assert.IsFalse(propertyProvider.Body.HasSetter);
             Assert.AreEqual("name", propertyProvider.Name);
-            Assert.AreEqual("description", propertyProvider.Description!.ToString());
+            Assert.AreEqual("Gets the name.", propertyProvider.Description!.ToString());
             Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, propertyProvider.Modifiers);
             Assert.AreEqual(new CSharpType(typeof(string)), propertyProvider.Type);
 
             propertyProvider.Update(
-                $"new description",
-                propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
-                new CSharpType(typeof(int)),
-                "newName",
-                new AutoPropertyBody(HasSetter: true),
-                new TestTypeProvider());
+                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(int)),
+                name: "newName",
+                body: new AutoPropertyBody(HasSetter: true),
+                enclosingType: new TestTypeProvider());
 
             Assert.IsTrue(propertyProvider.Body.HasSetter);
             Assert.AreEqual("newName", propertyProvider.Name);
-            Assert.AreEqual("new description", propertyProvider.Description!.ToString());
+            // Even though description was not provided, it should still be recalculated
+            Assert.AreEqual("Gets or sets the newName.", propertyProvider.Description!.ToString());
             Assert.AreEqual(MethodSignatureModifiers.Public, propertyProvider.Modifiers);
             Assert.AreEqual(new CSharpType(typeof(int)), propertyProvider.Type);
 
-            // if description is not provided, it should still be recalculated
-            propertyProvider.Update(name: "newerName");
-
-            Assert.AreEqual("Gets or sets the newerName.", propertyProvider.Description.ToString());
+            propertyProvider.Update(description: $"new description");
+            Assert.AreEqual("new description", propertyProvider.Description.ToString());
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()

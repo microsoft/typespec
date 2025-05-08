@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<ParameterProvider> _parameter;
         private readonly InputModelProperty? _inputProperty;
         private readonly SerializationFormat _serializationFormat;
+        private FormattableString? _customDescription;
 
         public FormattableString? Description { get; private set; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
@@ -119,10 +120,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnclosingType = enclosingType;
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
-            BuildDocs(description);
+            _customDescription = description;
+            BuildDocs();
         }
 
-        private void BuildDocs(FormattableString? description = null)
+        private void BuildDocs()
         {
             if (_inputProperty != null)
             {
@@ -138,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else
             {
-                Description = description ?? (IsPropertyPrivate(Modifiers, EnclosingType.DeclarationModifiers) ? null
+                Description = _customDescription ?? (IsPropertyPrivate(Modifiers, EnclosingType.DeclarationModifiers) ? null
                     : PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter));
 
                 if (Description != null)
@@ -253,7 +255,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (description != null)
             {
-                Description = description;
+                _customDescription = description;
             }
             if (modifiers != null)
             {
@@ -290,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             else
             {
                 // rebuild the docs if they are not provided
-                BuildDocs(description);
+                BuildDocs();
             }
         }
     }
