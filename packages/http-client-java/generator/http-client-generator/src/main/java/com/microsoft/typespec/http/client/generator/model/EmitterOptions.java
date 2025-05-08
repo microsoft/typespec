@@ -22,7 +22,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private List<String> serviceVersions;
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
-    private Boolean enableSyncStack;
+    private Boolean enableSyncStack = true;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private String customTypes;
