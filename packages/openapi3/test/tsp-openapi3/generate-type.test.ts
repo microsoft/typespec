@@ -193,15 +193,46 @@ const testScenarios: TestScenario[] = [
         {
           type: "object",
           properties: {
-            prop2: { type: "number" },
+            prop2: {
+              allOf: [
+                { $ref: "#/Path/To/BaseModel" },
+                { $ref: "#/Path/To/MixinModel" },
+                {
+                  type: "object",
+                  properties: {
+                    foo: { type: "string" },
+                    bar: { type: "boolean" },
+                  },
+                },
+              ],
+            },
           },
         },
       ],
     },
-    expected: "{prop1: string; prop2?: numeric}",
+    expected: "{prop1: string; prop2?: BaseModel & MixinModel & {foo?: string; bar?: boolean}}",
+  },
+  {
+    schema: {
+      type: "object",
+      properties: {
+        emptyProp: { type: "object" },
+      },
+    },
+    expected: "{emptyProp?: {}}",
   },
   // fallthrough
   { schema: {}, expected: "unknown" },
+  {
+    schema: {
+      type: "object",
+      required: ["missingTypeProp"],
+      properties: {
+        missingTypeProp: { properties: { foo: { type: "string" } } },
+      },
+    },
+    expected: "{missingTypeProp: unknown}",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {

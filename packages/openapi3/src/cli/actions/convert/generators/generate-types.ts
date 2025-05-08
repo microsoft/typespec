@@ -172,33 +172,39 @@ export class SchemaToExpressionGenerator {
         ? `Record<${this.generateTypeFromRefableSchema(schema.additionalProperties, callingScope)}>`
         : "";
 
-    if (!schema.properties && recordType) {
-      return recordType;
-    }
-
     const requiredProps = schema.required ?? [];
 
     const props: string[] = [];
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
-        const decorators = generateDecorators(getDecoratorsForSchema(schema.properties[name]))
+        const originalPropSchema = schema.properties[name];
+        const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
+
+        const decorators = generateDecorators(getDecoratorsForSchema(originalPropSchema))
           .map((d) => `${d}\n`)
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
-        props.push(
-          `${decorators}${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(schema.properties[name], callingScope)}`,
-        );
+        props.push(`${decorators}${printIdentifier(name)}${isOptional}: ${propType}`);
       }
     }
 
-    const propertyCount = Object.keys(props).length;
-    if (recordType && !propertyCount) {
-      return recordType;
-    } else if (recordType && propertyCount) {
-      props.push(`...${recordType}`);
+    let objectBody = "unknown";
+    if (props.length > 0) {
+      objectBody = `{${props.join("; ")}}`;
     }
 
-    return `{${props.join("; ")}}`;
+    if (recordType) {
+      if (props.length > 0) {
+        objectBody = `{${props.join("; ")}; ...${recordType}}`;
+      } else {
+        objectBody = recordType;
+      }
+    } else {
+      if (props.length === 0) {
+        objectBody = "{}";
+      }
+    }
+    return objectBody;
   }
 }
 
