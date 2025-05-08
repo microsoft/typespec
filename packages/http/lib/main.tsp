@@ -271,3 +271,95 @@ model Link {
 }
 
 scalar LinkHeader<T extends Record<url> | Link[]> extends string;
+
+/**
+ * Create a MergePatch Request body for updating the given resource Model.
+ * The MergePatch request created by this template provides a TypeSpec description of a
+ * JSON MergePatch request that can successfully update the given resource.
+ * The transformation follows the definition of JSON MergePatch requests in
+ * rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+ * applying the merge-patch transform recursively to keyed types in the resource Model.
+ *
+ * Using this template in a PATCH request body overrides the `implicitOptionality`
+ * setting for PATCH operations and sets `application/merge-patch+json` as the request
+ * content-type.
+ *
+ * @template T The type of the resource to create a MergePatch update request body for.
+ * @template NameTemplate A StringTemplate used to name any models created by applying
+ * the merge-patch transform to the resource. The default name template is `{name}MergePatchUpdate`,
+ * for example, the merge patch transform of model `Widget` is named `WidgetMergePatchUpdate`.
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(@body request: MergePatchUpdate<Widget>): Widget;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(@bodyRoot request: MergePatchUpdate<Widget>): Widget;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(...MergePatchUpdate<Widget>): Widget;
+ * ```
+ */
+@doc("")
+@friendlyName(NameTemplate, T)
+@mediaTypeHint("application/merge-patch+json")
+@applyMergePatch(T, NameTemplate, #{ visibilityMode: Private.MergePatchVisibilityMode.Update })
+model MergePatchUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}MergePatchUpdate"
+> {}
+
+/**
+ * Create a MergePatch Request body for creating or updating the given resource Model.
+ * The MergePatch request created by this template provides a TypeSpec description of a
+ * JSON MergePatch request that can successfully create or update the given resource.
+ * The transformation follows the definition of JSON MergePatch requests in
+ * rfc 7396: https://www.rfc-editor.org/rfc/rfc7396,
+ * applying the merge-patch transform recursively to keyed types in the resource Model.
+ *
+ * Using this template in a PATCH request body overrides the `implicitOptionality`
+ * setting for PATCH operations and sets `application/merge-patch+json` as the request
+ * content-type.
+ *
+ * @template T The type of the resource to create a MergePatch update request body for.
+ * @template NameTemplate A StringTemplate used to name any models created by applying
+ * the merge-patch transform to the resource. The default name template is `{name}MergePatchCreateOrUpdate`,
+ * for example, the merge patch transform of model `Widget` is named `WidgetMergePatchCreateOrUpdate`.
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(@body request: MergePatchCreateOrUpdate<Widget>): Widget;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(@bodyRoot request: MergePatchCreateOrUpdate<Widget>): Widget;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // An operation updating a 'Widget' using merge-patch
+ * @patch op update(...MergePatchCreateOrUpdate<Widget>): Widget;
+ * ```
+ */
+@doc("")
+@friendlyName(NameTemplate, T)
+@mediaTypeHint("application/merge-patch+json")
+@applyMergePatch(
+  T,
+  NameTemplate,
+  #{ visibilityMode: Private.MergePatchVisibilityMode.CreateOrUpdate }
+)
+model MergePatchCreateOrUpdate<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
+> {}

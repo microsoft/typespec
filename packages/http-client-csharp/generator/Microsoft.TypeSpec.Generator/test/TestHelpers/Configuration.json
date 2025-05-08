@@ -3,5 +3,6 @@
   "project-folder": "./projectFolder",
   "unknown-bool-property": false,
   "package-name": "Sample.Namespace",
-  "unknown-string-property": "unknownPropertyValue"
+  "unknown-string-property": "unknownPropertyValue",
+  "disable-xml-docs": true
 }

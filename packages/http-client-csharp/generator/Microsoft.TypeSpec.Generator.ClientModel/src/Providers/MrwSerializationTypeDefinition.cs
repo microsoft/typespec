@@ -191,18 +191,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 deserialize
             };
             return new MethodProvider(
-                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                new MethodSignature(Type.Name, null, modifiers, Type, null, [result]),
                 methodBody,
                 this);
         }
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {requestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                new MethodSignature(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, requestContentType, null, [model]),
                 new MethodBodyStatement[]
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
@@ -667,7 +668,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var switchCase = new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippets.JsonFormat,
-                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet])));
+                Return(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [This, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default])));
             var typeOfT = _persistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
                 ThrowValidationFailException(_mrwOptionsParameterSnippet.Format(), typeOfT, WriteAction));

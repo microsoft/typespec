@@ -258,7 +258,8 @@ public class SchemaUtil {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
                     if (Objects.equals(name, "Error")
                         || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
-                            "Azure.Core.Foundations.Error"))) {
+                            "Azure.Core.Foundations.Error"))
+                        || Objects.equals(name, "ErrorResponse")) {
                         classType = ClassType.RESPONSE_ERROR;
                     }
                     /*
@@ -276,11 +277,11 @@ public class SchemaUtil {
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.POLL_OPERATION_DETAILS.getPackage())) {
                         classType = ClassType.POLL_OPERATION_DETAILS;
-                    } else if (Objects.equals(name, ClassType.REQUEST_CONDITIONS.getName())
+                    } else if (ClassType.REQUEST_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.REQUEST_CONDITIONS;
-                    } else if (Objects.equals(name, ClassType.MATCH_CONDITIONS.getName())
+                    } else if (ClassType.MATCH_CONDITIONS.getName().endsWith(name)
                         && Objects.equals(compositeType.getLanguage().getJava().getNamespace(),
                             ClassType.REQUEST_CONDITIONS.getPackage())) {
                         classType = ClassType.MATCH_CONDITIONS;

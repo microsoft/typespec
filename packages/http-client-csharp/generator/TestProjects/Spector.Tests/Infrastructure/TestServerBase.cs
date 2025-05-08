@@ -20,7 +20,7 @@ namespace TestProjects.Spector.Tests
 
         public TestServerBase(string processPath, string processArguments)
         {
-            var portPhrase = "Started server on port ";
+            var portPhrase = "Started server on ";
 
             var processStartInfo = new ProcessStartInfo("node", $"{processPath} {processArguments}")
             {
@@ -40,7 +40,7 @@ namespace TestProjects.Spector.Tests
                 var s = _process.StandardOutput.ReadLine();
                 var indexOfPort = s?.IndexOf(portPhrase);
                 if (indexOfPort > 0)
-                {   
+                {
                     Port = s!.Substring(indexOfPort.Value + portPhrase.Length).Trim();
                     Host = new Uri($"http://localhost:{Port}");
                     Client = new HttpClient
