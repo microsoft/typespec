@@ -174,6 +174,34 @@ describe("compiler: models", () => {
         deepStrictEqual(foo.defaultValue?.value, "up-value");
       });
     });
+
+    describe("using a template parameter", () => {
+      it(`set it with valid constraint`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A<T extends valueof string> { @test foo?: string = T }
+        alias Test = A<"Abc">;
+        `,
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "StringValue");
+      });
+
+      it(`error if constraint is not compatible with property type`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A<T extends valueof int32> { @test foo?: string = T }
+        `,
+        );
+        const diagnostics = await testHost.diagnose("main.tsp");
+        expectDiagnostics(diagnostics, {
+          code: "unassignable",
+          message: "Type 'int32' is not assignable to type 'string'",
+        });
+      });
+    });
   });
 
   describe("doesn't allow a default of different type than the property type", () => {

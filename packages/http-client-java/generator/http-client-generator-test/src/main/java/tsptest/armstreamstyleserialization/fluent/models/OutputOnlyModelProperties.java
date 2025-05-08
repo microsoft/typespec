@@ -4,7 +4,6 @@
 
 package tsptest.armstreamstyleserialization.fluent.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -22,19 +21,16 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
     /*
      * The title property.
      */
-    @Generated
     private String title;
 
     /*
      * The dog property.
      */
-    @Generated
     private Dog dog;
 
     /**
      * Creates an instance of OutputOnlyModelProperties class.
      */
-    @Generated
     private OutputOnlyModelProperties() {
     }
 
@@ -43,7 +39,6 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
      * 
      * @return the title value.
      */
-    @Generated
     public String title() {
         return this.title;
     }
@@ -53,7 +48,6 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
      * 
      * @return the dog value.
      */
-    @Generated
     public Dog dog() {
         return this.dog;
     }

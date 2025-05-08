@@ -4,7 +4,6 @@
 
 package azure.resourcemanager.commonproperties.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,19 +19,16 @@ public final class InnerError implements JsonSerializable<InnerError> {
     /*
      * The exception type.
      */
-    @Generated
     private String exceptiontype;
 
     /*
      * The internal error message or exception dump.
      */
-    @Generated
     private String errordetail;
 
     /**
      * Creates an instance of InnerError class.
      */
-    @Generated
     private InnerError() {
     }
 
@@ -41,7 +37,6 @@ public final class InnerError implements JsonSerializable<InnerError> {
      * 
      * @return the exceptiontype value.
      */
-    @Generated
     public String exceptiontype() {
         return this.exceptiontype;
     }
@@ -51,7 +46,6 @@ public final class InnerError implements JsonSerializable<InnerError> {
      * 
      * @return the errordetail value.
      */
-    @Generated
     public String errordetail() {
         return this.errordetail;
     }

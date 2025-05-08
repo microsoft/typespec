@@ -114,10 +114,6 @@ describe("Init templates e2e tests", () => {
     it("rest", () => scaffoldTemplateSnapshot("rest"));
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
     it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
-  });
-
-  // TODO: reenable after release
-  it.skip("validate rest template", async () => {
     it("validate rest template", async () => {
       const fixture = await scaffoldTemplateForTest("rest");
       await fixture.checkCommand("npm", ["install"]);

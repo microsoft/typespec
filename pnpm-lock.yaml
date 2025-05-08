@@ -2180,9 +2180,21 @@ importers:
       '@alloy-js/core':
         specifier: ^0.15.0
         version: 0.15.0
+      '@alloy-js/markdown':
+        specifier: ^0.15.1
+        version: 0.15.1
       '@alloy-js/typescript':
         specifier: ^0.15.0
         version: 0.15.0
+      '@microsoft/api-extractor-model':
+        specifier: ^7.30.6
+        version: 7.30.6(@types/node@22.13.17)
+      '@microsoft/tsdoc':
+        specifier: ^0.15.1
+        version: 0.15.1
+      '@microsoft/tsdoc-config':
+        specifier: ^0.17.1
+        version: 0.17.1
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2685,6 +2697,9 @@ packages:
 
   '@alloy-js/core@0.15.0':
     resolution: {integrity: sha512-GfQZqaUqGBGFeFJbA9H7Iu+IJQiEQ2B3Hjh5C1N2YclEg5vtjSAb/pdqJ5x2BTqOq2iUCpFOJ44pJy5mhS116Q==}
+
+  '@alloy-js/markdown@0.15.1':
+    resolution: {integrity: sha512-drJbEo8DWDKGmJ/R2lUEyn8dVa3vKVpu9K0+1EJswQ7flgE0k1NgbXq3StIHAr8yd//VCgRHjVgV2R5E76ZjvQ==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
@@ -13615,6 +13630,10 @@ snapshots:
       pathe: 2.0.3
       picocolors: 1.1.1
       prettier: 3.5.3
+
+  '@alloy-js/markdown@0.15.1':
+    dependencies:
+      '@alloy-js/core': 0.15.0
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.1)':
     dependencies:
