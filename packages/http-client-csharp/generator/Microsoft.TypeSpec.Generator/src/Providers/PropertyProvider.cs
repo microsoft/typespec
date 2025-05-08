@@ -18,6 +18,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
+        private readonly InputModelProperty? _inputProperty;
+        private readonly SerializationFormat _serializationFormat;
 
         public FormattableString? Description { get; private set; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
@@ -234,8 +236,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
-        private readonly InputModelProperty? _inputProperty;
-        private readonly SerializationFormat _serializationFormat;
 
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
