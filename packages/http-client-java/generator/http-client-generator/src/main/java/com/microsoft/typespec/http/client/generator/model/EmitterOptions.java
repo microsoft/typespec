@@ -35,6 +35,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String modelsSubpackage;
     private String apiVersion;
     private DevOptions devOptions;
+    private Boolean useRestProxy;
 
     // internal
     private String outputDir;
@@ -139,6 +140,15 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return apiVersion;
     }
 
+    public Boolean getUseRestProxy() {
+        return useRestProxy;
+    }
+
+    public EmitterOptions setUseRestProxy(Boolean useRestProxy) {
+        this.useRestProxy = useRestProxy;
+        return this;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -191,6 +201,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.devOptions = DevOptions.fromJson(reader);
             } else if ("api-version".equals(fieldName)) {
                 options.apiVersion = emptyToNull(reader.getString());
+            } else if ("use-rest-proxy".equals(fieldName)) {
+                options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
             } else {
                 reader.skipChildren();
             }

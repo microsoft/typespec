@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -42,6 +42,9 @@
     "./experimental/typekit": {
       "types": "./dist/src/experimental/typekit/index.d.ts",
       "default": "./dist/src/experimental/typekit/index.js"
+    },
+    "./experimental/merge-patch": {
+      "import": "./dist/src/experimental/merge-patch/index.js"
     }
   },
   "engines": {
@@ -60,7 +63,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/libraries/http/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --typekits --output-dir ../../website/src/content/docs/docs/libraries/http/reference"
   },
   "files": [
     "lib/**/*.tsp",

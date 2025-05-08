@@ -124,6 +124,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(inputPropertyName.ToCleanName() + "Property", property.Name);
         }
 
+        [Test]
+        public void CanUpdatePropertyProvider()
+        {
+            var propertyProvider = new PropertyProvider(
+                $"description",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                new CSharpType(typeof(string)),
+                "name",
+                new AutoPropertyBody(HasSetter: false),
+                new TestTypeProvider());
+
+            Assert.IsFalse(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("name", propertyProvider.Name);
+            Assert.AreEqual("description", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(string)), propertyProvider.Type);
+
+            propertyProvider.Update(
+                $"new description",
+                propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                new CSharpType(typeof(int)),
+                "newName",
+                new AutoPropertyBody(HasSetter: true),
+                new TestTypeProvider());
+
+            Assert.IsTrue(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("newName", propertyProvider.Name);
+            Assert.AreEqual("new description", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(int)), propertyProvider.Type);
+
+            // if description is not provided, it should still be recalculated
+            propertyProvider.Update(name: "newerName");
+
+            Assert.AreEqual("Gets or sets the newerName.", propertyProvider.Description.ToString());
+        }
+
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
         {
             // List<string> -> IReadOnlyList<string>

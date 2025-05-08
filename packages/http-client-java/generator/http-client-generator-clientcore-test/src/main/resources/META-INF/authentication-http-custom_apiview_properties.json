@@ -2,10 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "authentication.http.custom.CustomClient": "Authentication.Http.Custom",
-    "authentication.http.custom.CustomClient.invalid": "Authentication.Http.Custom.invalid",
-    "authentication.http.custom.CustomClient.invalidWithResponse": "Authentication.Http.Custom.invalid",
-    "authentication.http.custom.CustomClient.valid": "Authentication.Http.Custom.valid",
-    "authentication.http.custom.CustomClient.validWithResponse": "Authentication.Http.Custom.valid",
     "authentication.http.custom.CustomClientBuilder": "Authentication.Http.Custom",
     "authentication.http.custom.InvalidAuth": "Authentication.Http.Custom.InvalidAuth"
   }

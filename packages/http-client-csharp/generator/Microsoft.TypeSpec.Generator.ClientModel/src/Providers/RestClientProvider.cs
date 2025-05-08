@@ -128,7 +128,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
-                this);
+                this,
+                xmlDocProvider: XmlDocProvider.Empty);
         }
 
         private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
@@ -233,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!TryGetSpecialHeaderParam(inputParameter, out _) && (!inputParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(type, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -308,7 +309,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
                     (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
                 {
-                    statement = BuildQueryOrHeaderParameterNullCheck(paramType, valueExpression, statement);
+                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
                 }
 
                 statements.Add(statement);
@@ -317,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private static IfStatement BuildQueryOrHeaderParameterNullCheck(
+        private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
             CSharpType? parameterType,
             ValueExpression valueExpression,
             MethodBodyStatement originalStatement)
@@ -383,7 +384,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
                 }
 
-                statements.Add(uri.AppendPath(Literal(pathSpan.Slice(0, paramIndex).ToString()), false).Terminate());
+                var path = pathSpan.Slice(0, paramIndex);
+                statements.Add(uri.AppendPath(Literal(path.ToString()), false).Terminate());
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
@@ -423,7 +425,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueExpression = type?.Equals(typeof(string)) == true
                         ? valueExpression
                         : valueExpression.Invoke(nameof(ToString), toStringParams);
-                    statements.Add(uri.AppendPath(valueExpression, escape).Terminate());
+                    MethodBodyStatement statement;
+                    if (inputParam?.IsRequired == false)
+                    {
+                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                        List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
+                            ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
+                            : [uri.AppendPath(valueExpression, escape).Terminate()];
+                        statement = BuildQueryOrHeaderOrPathParameterNullCheck(
+                            type,
+                            valueExpression,
+                            appendPathStatements);
+                    }
+                    else
+                    {
+                        statement = uri.AppendPath(valueExpression, escape).Terminate();
+                    }
+                    statements.Add(statement);
                 }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
