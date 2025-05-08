@@ -74,7 +74,7 @@ export interface CustomCompileResult {
   readonly hasError: boolean;
   readonly warningDiagnostics?: string[];
   readonly errorDiagnostics?: string[];
-  readonly entryPoint?: string;
+  readonly entrypoint?: string;
   readonly options?: CompilerOptions;
 }
 
