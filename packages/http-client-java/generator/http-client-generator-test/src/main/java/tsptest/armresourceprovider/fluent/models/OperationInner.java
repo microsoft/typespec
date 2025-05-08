@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.fluent.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -26,39 +25,33 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * The name of the operation, as per Resource-Based Access Control (RBAC). Examples:
      * "Microsoft.Compute/virtualMachines/write", "Microsoft.Compute/virtualMachines/capture/action"
      */
-    @Generated
     private String name;
 
     /*
      * Whether the operation applies to data-plane. This is "true" for data-plane operations and "false" for Azure
      * Resource Manager/control-plane operations.
      */
-    @Generated
     private Boolean isDataAction;
 
     /*
      * Localized display information for this particular operation.
      */
-    @Generated
     private OperationDisplay display;
 
     /*
      * The intended executor of the operation; as in Resource Based Access Control (RBAC) and audit logs UX. Default
      * value is "user,system"
      */
-    @Generated
     private Origin origin;
 
     /*
      * Extensible enum. Indicates the action type. "Internal" refers to actions that are for internal only APIs.
      */
-    @Generated
     private ActionType actionType;
 
     /**
      * Creates an instance of OperationInner class.
      */
-    @Generated
     private OperationInner() {
     }
 
@@ -68,7 +61,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * 
      * @return the name value.
      */
-    @Generated
     public String name() {
         return this.name;
     }
@@ -79,7 +71,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * 
      * @return the isDataAction value.
      */
-    @Generated
     public Boolean isDataAction() {
         return this.isDataAction;
     }
@@ -89,7 +80,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * 
      * @return the display value.
      */
-    @Generated
     public OperationDisplay display() {
         return this.display;
     }
@@ -100,7 +90,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * 
      * @return the origin value.
      */
-    @Generated
     public Origin origin() {
         return this.origin;
     }
@@ -111,7 +100,6 @@ public final class OperationInner implements JsonSerializable<OperationInner> {
      * 
      * @return the actionType value.
      */
-    @Generated
     public ActionType actionType() {
         return this.actionType;
     }

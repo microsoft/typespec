@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
@@ -22,43 +21,36 @@ public final class SawShark extends Shark {
     /*
      * Discriminator property for Fish.
      */
-    @Generated
     private String kind = "shark";
 
     /*
      * The sharktype property.
      */
-    @Generated
     private String sharktype = "saw";
 
     /*
      * The dna property.
      */
-    @Generated
     private String dna;
 
     /*
      * The age property.
      */
-    @Generated
     private int age;
 
     /*
      * The anotherProperties property.
      */
-    @Generated
     private AnotherFishProperties innerAnotherProperties = new AnotherFishProperties();
 
     /*
      * The properties property.
      */
-    @Generated
     private FishProperties innerProperties = new FishProperties();
 
     /**
      * Creates an instance of SawShark class.
      */
-    @Generated
     public SawShark() {
     }
 
@@ -67,7 +59,6 @@ public final class SawShark extends Shark {
      * 
      * @return the kind value.
      */
-    @Generated
     @Override
     public String kind() {
         return this.kind;
@@ -78,7 +69,6 @@ public final class SawShark extends Shark {
      * 
      * @return the sharktype value.
      */
-    @Generated
     @Override
     public String sharktype() {
         return this.sharktype;
@@ -89,7 +79,6 @@ public final class SawShark extends Shark {
      * 
      * @return the dna value.
      */
-    @Generated
     public String dna() {
         return this.dna;
     }
@@ -100,7 +89,6 @@ public final class SawShark extends Shark {
      * @param dna the dna value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withDna(String dna) {
         this.dna = dna;
         return this;
@@ -111,7 +99,6 @@ public final class SawShark extends Shark {
      * 
      * @return the age value.
      */
-    @Generated
     public int age() {
         return this.age;
     }
@@ -122,7 +109,6 @@ public final class SawShark extends Shark {
      * @param age the age value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withAge(int age) {
         this.age = age;
         return this;
@@ -133,7 +119,6 @@ public final class SawShark extends Shark {
      * 
      * @return the innerAnotherProperties value.
      */
-    @Generated
     private AnotherFishProperties innerAnotherProperties() {
         return this.innerAnotherProperties;
     }
@@ -143,7 +128,6 @@ public final class SawShark extends Shark {
      * 
      * @return the innerProperties value.
      */
-    @Generated
     private FishProperties innerProperties() {
         return this.innerProperties;
     }
@@ -153,7 +137,6 @@ public final class SawShark extends Shark {
      * 
      * @return the length value.
      */
-    @Generated
     public double length() {
         return this.innerProperties() == null ? 0.0 : this.innerProperties().length();
     }
@@ -164,7 +147,6 @@ public final class SawShark extends Shark {
      * @param length the length value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withLength(double length) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -178,7 +160,6 @@ public final class SawShark extends Shark {
      * 
      * @return the patten value.
      */
-    @Generated
     public String patten() {
         return this.innerProperties() == null ? null : this.innerProperties().patten();
     }
@@ -188,7 +169,6 @@ public final class SawShark extends Shark {
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredString() {
         return this.innerProperties() == null ? null : this.innerProperties().requiredString();
     }
@@ -199,7 +179,6 @@ public final class SawShark extends Shark {
      * @param requiredString the requiredString value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withRequiredString(String requiredString) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -213,7 +192,6 @@ public final class SawShark extends Shark {
      * 
      * @return the length value.
      */
-    @Generated
     public double lengthAnotherPropertiesLength() {
         return this.innerAnotherProperties() == null ? 0.0 : this.innerAnotherProperties().length();
     }
@@ -224,7 +202,6 @@ public final class SawShark extends Shark {
      * @param length the length value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withLengthAnotherPropertiesLength(double length) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();
@@ -238,7 +215,6 @@ public final class SawShark extends Shark {
      * 
      * @return the patten value.
      */
-    @Generated
     public String pattenAnotherPropertiesPatten() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().patten();
     }
@@ -248,7 +224,6 @@ public final class SawShark extends Shark {
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredStringAnotherPropertiesRequiredString() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().requiredString();
     }
@@ -259,7 +234,6 @@ public final class SawShark extends Shark {
      * @param requiredString the requiredString value to set.
      * @return the SawShark object itself.
      */
-    @Generated
     public SawShark withRequiredStringAnotherPropertiesRequiredString(String requiredString) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();

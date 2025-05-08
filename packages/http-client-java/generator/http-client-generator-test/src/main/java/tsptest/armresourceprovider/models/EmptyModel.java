@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,7 +19,6 @@ public final class EmptyModel implements JsonSerializable<EmptyModel> {
     /**
      * Creates an instance of EmptyModel class.
      */
-    @Generated
     public EmptyModel() {
     }
 

@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
@@ -26,43 +25,36 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     /*
      * Configuration Endpoints.
      */
-    @Generated
     private List<String> configurationEndpoints;
 
     /*
      * The userName property.
      */
-    @Generated
     private String userName;
 
     /*
      * The userNames property.
      */
-    @Generated
     private String userNames;
 
     /*
      * The accuserName property.
      */
-    @Generated
     private String accuserName;
 
     /*
      * The startTimeStamp property.
      */
-    @Generated
     private OffsetDateTime startTimeStamp;
 
     /*
      * The status of the last operation.
      */
-    @Generated
     private ProvisioningState provisioningState;
 
     /**
      * Creates an instance of TopLevelArmResourceProperties class.
      */
-    @Generated
     public TopLevelArmResourceProperties() {
     }
 
@@ -71,7 +63,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the configurationEndpoints value.
      */
-    @Generated
     public List<String> configurationEndpoints() {
         return this.configurationEndpoints;
     }
@@ -81,7 +72,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the userName value.
      */
-    @Generated
     public String userName() {
         return this.userName;
     }
@@ -92,7 +82,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @param userName the userName value to set.
      * @return the TopLevelArmResourceProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceProperties withUserName(String userName) {
         this.userName = userName;
         return this;
@@ -103,7 +92,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the userNames value.
      */
-    @Generated
     public String userNames() {
         return this.userNames;
     }
@@ -114,7 +102,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @param userNames the userNames value to set.
      * @return the TopLevelArmResourceProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceProperties withUserNames(String userNames) {
         this.userNames = userNames;
         return this;
@@ -125,7 +112,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the accuserName value.
      */
-    @Generated
     public String accuserName() {
         return this.accuserName;
     }
@@ -136,7 +122,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @param accuserName the accuserName value to set.
      * @return the TopLevelArmResourceProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceProperties withAccuserName(String accuserName) {
         this.accuserName = accuserName;
         return this;
@@ -147,7 +132,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the startTimeStamp value.
      */
-    @Generated
     public OffsetDateTime startTimeStamp() {
         return this.startTimeStamp;
     }
@@ -158,7 +142,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @param startTimeStamp the startTimeStamp value to set.
      * @return the TopLevelArmResourceProperties object itself.
      */
-    @Generated
     public TopLevelArmResourceProperties withStartTimeStamp(OffsetDateTime startTimeStamp) {
         this.startTimeStamp = startTimeStamp;
         return this;
@@ -169,7 +152,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }

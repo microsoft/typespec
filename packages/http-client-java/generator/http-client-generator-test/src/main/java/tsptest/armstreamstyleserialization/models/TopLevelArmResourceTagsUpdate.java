@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -21,13 +20,11 @@ public final class TopLevelArmResourceTagsUpdate implements JsonSerializable<Top
     /*
      * Resource tags.
      */
-    @Generated
     private Map<String, String> tags;
 
     /**
      * Creates an instance of TopLevelArmResourceTagsUpdate class.
      */
-    @Generated
     public TopLevelArmResourceTagsUpdate() {
     }
 
@@ -36,7 +33,6 @@ public final class TopLevelArmResourceTagsUpdate implements JsonSerializable<Top
      * 
      * @return the tags value.
      */
-    @Generated
     public Map<String, String> tags() {
         return this.tags;
     }
@@ -47,7 +43,6 @@ public final class TopLevelArmResourceTagsUpdate implements JsonSerializable<Top
      * @param tags the tags value to set.
      * @return the TopLevelArmResourceTagsUpdate object itself.
      */
-    @Generated
     public TopLevelArmResourceTagsUpdate withTags(Map<String, String> tags) {
         this.tags = tags;
         return this;

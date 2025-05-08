@@ -4,7 +4,6 @@
 
 package azure.resourcemanager.operationtemplates.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,33 +20,28 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      * The localized friendly form of the resource provider name, e.g. "Microsoft Monitoring Insights" or
      * "Microsoft Compute".
      */
-    @Generated
     private String provider;
 
     /*
      * The localized friendly name of the resource type related to this operation. E.g. "Virtual Machines" or
      * "Job Schedule Collections".
      */
-    @Generated
     private String resource;
 
     /*
      * The concise, localized friendly name for the operation; suitable for dropdowns. E.g.
      * "Create or Update Virtual Machine", "Restart Virtual Machine".
      */
-    @Generated
     private String operation;
 
     /*
      * The short, localized friendly description of the operation; suitable for tool tips and detailed views.
      */
-    @Generated
     private String description;
 
     /**
      * Creates an instance of OperationDisplay class.
      */
-    @Generated
     private OperationDisplay() {
     }
 
@@ -57,7 +51,6 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      * 
      * @return the provider value.
      */
-    @Generated
     public String provider() {
         return this.provider;
     }
@@ -68,7 +61,6 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      * 
      * @return the resource value.
      */
-    @Generated
     public String resource() {
         return this.resource;
     }
@@ -79,7 +71,6 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      * 
      * @return the operation value.
      */
-    @Generated
     public String operation() {
         return this.operation;
     }
@@ -90,7 +81,6 @@ public final class OperationDisplay implements JsonSerializable<OperationDisplay
      * 
      * @return the description value.
      */
-    @Generated
     public String description() {
         return this.description;
     }
