@@ -3,7 +3,7 @@
 
 package specialwords;
 
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.RequestContext;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ class ReflectHelper {
         for (Method m : clazz.getDeclaredMethods()) {
             if (m.getName().endsWith("WithResponse")) {
                 Object[] args
-                    = Stream.concat(Arrays.stream(parameters), Stream.of((RequestOptions) null)).toArray(Object[]::new);
+                    = Stream.concat(Arrays.stream(parameters), Stream.of((RequestContext) null)).toArray(Object[]::new);
                 m.invoke(client, args);
             }
         }

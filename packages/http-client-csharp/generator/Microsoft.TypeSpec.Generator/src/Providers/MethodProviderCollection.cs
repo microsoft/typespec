@@ -10,9 +10,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// <summary>
     /// Represents an immutable collection of methods that are associated with a service method <see cref="InputServiceMethod"/>.
     /// </summary>
-    public class MethodProviderCollection : IReadOnlyList<MethodProvider>
+    public class MethodProviderCollection<T> : IReadOnlyList<T> where T : MethodProvider
     {
-        private IReadOnlyList<MethodProvider>? _cSharpMethods;
+        private IReadOnlyList<T>? _cSharpMethods;
         protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; private init; }
 
@@ -22,10 +22,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnclosingType = enclosingType;
         }
 
-        protected virtual IReadOnlyList<MethodProvider> BuildMethods() => [];
-        public IReadOnlyList<MethodProvider> MethodProviders => _cSharpMethods ??= BuildMethods();
+        protected virtual IReadOnlyList<T> BuildMethods() => [];
+        public IReadOnlyList<T> MethodProviders => _cSharpMethods ??= BuildMethods();
 
-        public MethodProvider this[int index]
+        public T this[int index]
         {
             get { return MethodProviders[index]; }
         }
@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             get { return MethodProviders.Count; }
         }
 
-        public IEnumerator<MethodProvider> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             return MethodProviders.GetEnumerator();
         }

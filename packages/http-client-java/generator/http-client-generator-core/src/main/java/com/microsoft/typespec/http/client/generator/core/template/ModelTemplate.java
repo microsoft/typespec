@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.HttpHeader;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -430,13 +429,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         // Add HttpHeaders as an import when strongly-typed HTTP header objects use that as a constructor parameter.
         if (model.isStronglyTypedHeader()) {
             ClassType.HTTP_HEADERS.addImportsTo(imports, false);
+            ClassType.HTTP_HEADER.addImportsTo(imports, false);
             ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
             // Also add any potential imports needed to convert the header to the strong type.
             // If the import isn't used it will be removed later on.
             imports.add(Base64.class.getName());
             imports.add(LinkedHashMap.class.getName());
-            imports.add(HttpHeader.class.getName());
             imports.add(UUID.class.getName());
             imports.add(URL.class.getName());
             imports.add(IOException.class.getName());
@@ -552,7 +551,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             && Stream.concat(model.getProperties().stream(), propertyReferences.stream())
                 .anyMatch(p -> ClientModelUtil.needsPublicSetter(p, settings));
 
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             if (fluent) {
                 javaFile.annotation("Fluent");
             } else {
@@ -560,9 +559,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             }
         } else {
             if (fluent) {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.FLUENT})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.FLUENT})");
             } else {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.IMMUTABLE})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.IMMUTABLE})");
             }
         }
     }
@@ -1330,22 +1329,19 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                Annotation.GENERATED.addImportsTo(imports);
-            } else {
-                Annotation.METADATA.addImportsTo(imports);
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            Annotation.GENERATED.addImportsTo(imports);
+        } else {
+            Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                classBlock.annotation(Annotation.GENERATED.getName());
-            } else {
-                classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            classBlock.annotation(Annotation.GENERATED.getName());
+        } else {
+            classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
         }
     }
 

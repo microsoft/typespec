@@ -1,7 +1,7 @@
 package type.model.empty;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,19 +11,19 @@ import java.io.IOException;
 /**
  * Empty model used in operation parameters.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EmptyInput implements JsonSerializable<EmptyInput> {
     /**
      * Creates an instance of EmptyInput class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public EmptyInput() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -38,7 +38,7 @@ public final class EmptyInput implements JsonSerializable<EmptyInput> {
      * to JSON null.
      * @throws IOException If an error occurs while reading the EmptyInput.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static EmptyInput fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             EmptyInput deserializedEmptyInput = new EmptyInput();
