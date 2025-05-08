@@ -129,7 +129,7 @@ export class SchemaToExpressionGenerator {
     for (const name of Object.keys(properties)) {
       const isOptional = !requiredProps.includes(name) ? "?" : "";
       props.push(
-        `${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(properties[name], callingScope)}`
+        `${printIdentifier(name)}${isOptional}: ${this.generateTypeFromRefableSchema(properties[name], callingScope)}`,
       );
     }
 
