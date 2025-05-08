@@ -199,6 +199,7 @@ const testScenarios: TestScenario[] = [
                 { $ref: "#/Path/To/MixinModel" },
                 {
                   type: "object",
+                  required: ["foo"],
                   properties: {
                     foo: { type: "string" },
                     bar: { type: "boolean" },
@@ -210,7 +211,7 @@ const testScenarios: TestScenario[] = [
         },
       ],
     },
-    expected: "{prop1: string; prop2?: BaseModel & MixinModel & {foo?: string; bar?: boolean}}",
+    expected: "{prop1: string; prop2?: BaseModel & MixinModel & {foo: string; bar?: boolean}}",
   },
   {
     schema: {
