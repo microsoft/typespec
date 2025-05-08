@@ -26,14 +26,15 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     context: vscode.CodeActionContext,
     _token: vscode.CancellationToken,
   ): Promise<vscode.CodeAction[]> {
-    // for each diagnostic entry that has the matching `code`, create a code action command
-    // A CodeAction will only be created if it is a TypeSpec diagnostic and code is an object and has a target attribute
-    // target attribute is the URL to open
-
-    // target is a Uri type, which corresponds to diagnostic.codeDescription.href in compiler
-    // When target is empty, it does not exist in the code object, so the code action will not be created
     const actions: vscode.CodeAction[] = [];
-    context.diagnostics.forEach((diagnostic) => {
+
+    for (const diagnostic of context.diagnostics) {
+      // for each diagnostic entry that has the matching `code`, create a code action command
+      // A CodeAction will only be created if it is a TypeSpec diagnostic and code is an object and has a target attribute
+      // target attribute is the URL to open
+
+      // target is a Uri type, which corresponds to diagnostic.codeDescription.href in compiler
+      // When target is empty, it does not exist in the code object, so the code action will not be created
       if (
         diagnostic.source === "TypeSpec" &&
         diagnostic.code &&
@@ -49,20 +50,9 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           ),
         );
       }
-    });
 
-    actions.push(...(await this.createInstallPackageByNpm(context)));
-
-    return actions;
-  }
-
-  private async createInstallPackageByNpm(
-    context: vscode.CodeActionContext,
-  ): Promise<vscode.CodeAction[]> {
-    // When the corresponding node dependency package is not installed,
-    // consider generating a quick fix to install via npm command
-    const actions: vscode.CodeAction[] = [];
-    for (const diagnostic of context.diagnostics) {
+      // When the corresponding node dependency package is not installed,
+      // consider generating a quick fix to install via npm command
       if (
         diagnostic.source === "TypeSpec" &&
         diagnostic.code &&
@@ -100,19 +90,20 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
         }
       }
     }
+
     return actions;
   }
 
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
-    projectFolder: string | undefined,
+    projectFolder?: string,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
       "Install package by `npm install` for unrecognized import",
       vscode.CodeActionKind.QuickFix,
     );
     action.command = {
-      command: CodeActionCommand.NpmInstallImportPackage,
+      command: CodeActionCommand.NpmInstallPackage,
       title: diagnostic.message,
       arguments: [projectFolder],
     };
