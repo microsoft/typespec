@@ -116,10 +116,7 @@ export function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag:
     throw new Error(`Invalid semver version ${manifest.nextVersion}`);
   }
 
-  if (parsedOldVersion.major > 0 && parsedOldVersion.major === parsedNextVersion.major) {
-    return `^${manifest.oldVersion}`;
-  }
-  return `^${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
+  return `>=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
