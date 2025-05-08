@@ -1,7 +1,7 @@
 package response.statuscoderange;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * The NotFoundError model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NotFoundError implements JsonSerializable<NotFoundError> {
     /*
      * The code property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String code;
 
     /*
      * The resourceId property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String resourceId;
 
     /**
@@ -31,7 +31,7 @@ public final class NotFoundError implements JsonSerializable<NotFoundError> {
      * @param code the code value to set.
      * @param resourceId the resourceId value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private NotFoundError(String code, String resourceId) {
         this.code = code;
         this.resourceId = resourceId;
@@ -42,7 +42,7 @@ public final class NotFoundError implements JsonSerializable<NotFoundError> {
      * 
      * @return the code value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getCode() {
         return this.code;
     }
@@ -52,7 +52,7 @@ public final class NotFoundError implements JsonSerializable<NotFoundError> {
      * 
      * @return the resourceId value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getResourceId() {
         return this.resourceId;
     }
@@ -60,7 +60,7 @@ public final class NotFoundError implements JsonSerializable<NotFoundError> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -78,7 +78,7 @@ public final class NotFoundError implements JsonSerializable<NotFoundError> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the NotFoundError.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static NotFoundError fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String code = null;

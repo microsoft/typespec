@@ -4,39 +4,16 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.*;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Constructor;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.*;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -152,6 +129,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList()));
         }
+
         proxyBuilder.methods(restAPIMethods);
         Proxy proxy = proxyBuilder.build();
         builder.proxy(proxy);
@@ -165,7 +143,6 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
         builder.clientMethods(clientMethods);
-
         return proxy;
     }
 
@@ -187,7 +164,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
         for (Parameter p : clientParameters) {
             String serializedName = p.getLanguage().getDefault().getSerializedName();
 
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(p.getOrigin()) == ParameterSynthesizedOrigin.API_VERSION) {
                 // skip api-version, ServiceVersion will always be added to client for DPG
                 apiVersionSerializedName = serializedName;
@@ -236,7 +213,8 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
             }
         }
 
-        if (settings.isDataPlaneClient() && serviceVersionClassName != null) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
+            && serviceVersionClassName != null) {
             // Always add a ServiceVersion parameter for DPG
             serviceClientProperties.add(new ServiceClientProperty.Builder().description("Service version")
                 .type(new ClassType.Builder().name(serviceVersionClassName).packageName(settings.getPackage()).build())
@@ -272,7 +250,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         serviceClientProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through.",
             ClassType.HTTP_PIPELINE, "httpPipeline", true, null));
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             serviceClientProperties
                 .add(new ServiceClientProperty("The serializer to serialize an object into a string.",
                     ClassType.SERIALIZER_ADAPTER, "serializerAdapter", true, null,
@@ -425,7 +403,7 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
         List<Constructor> serviceClientConstructors = new ArrayList<>();
 
-        if (!settings.isBranded()) {
+        if (!settings.isAzureV1() || settings.isAzureV2()) {
             serviceClientConstructors.add(new Constructor(Collections.singletonList(httpPipelineParameter)));
             builder.tokenCredentialParameter(tokenCredentialParameter)
                 .httpPipelineParameter(httpPipelineParameter)

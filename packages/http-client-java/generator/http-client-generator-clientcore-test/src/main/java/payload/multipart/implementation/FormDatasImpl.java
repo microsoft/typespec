@@ -1,17 +1,26 @@
 package payload.multipart.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
+import payload.multipart.BinaryArrayPartsRequest;
+import payload.multipart.ComplexPartsRequest;
+import payload.multipart.JsonPartRequest;
+import payload.multipart.MultiBinaryPartsRequest;
+import payload.multipart.MultiPartRequest;
+import payload.multipart.formdata.AnonymousModelRequest;
 
 /**
  * An instance of this class provides access to all the operations defined in FormDatas.
@@ -43,15 +52,25 @@ public final class FormDatasImpl {
      */
     @ServiceInterface(name = "MultiPartClientFormD", host = "{endpoint}")
     public interface FormDatasService {
+        static FormDatasService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("payload.multipart.implementation.FormDatasServiceImpl");
+                return (FormDatasService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/multipart/form-data/mixed-parts",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> basicSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> basic(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") MultiPartRequest body, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -59,9 +78,9 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/complex-parts",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> fileArrayAndBasicSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> fileArrayAndBasic(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") ComplexPartsRequest body,
+            RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -69,9 +88,8 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/json-part",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> jsonPartSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> jsonPart(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") JsonPartRequest body, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -79,9 +97,9 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/binary-array-parts",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> binaryArrayPartsSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> binaryArrayParts(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") BinaryArrayPartsRequest body, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -89,9 +107,9 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/multi-binary-parts",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> multiBinaryPartsSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> multiBinaryParts(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") MultiBinaryPartsRequest body, RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -99,9 +117,9 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/check-filename-and-content-type",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> checkFileNameAndContentTypeSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> checkFileNameAndContentType(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") MultiPartRequest body,
+            RequestContext requestContext);
 
         // @Multipart not supported by RestProxy
         @HttpRequestInformation(
@@ -109,99 +127,212 @@ public final class FormDatasImpl {
             path = "/multipart/form-data/anonymous-model",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> anonymousModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("multipart/form-data") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> anonymousModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType,
+            @BodyParam("multipart/form-data") AnonymousModelRequest body, RequestContext requestContext);
     }
 
     /**
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> basicWithResponse(MultiPartRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.basicSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.basic(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void basic(MultiPartRequest body) {
+        basicWithResponse(body, RequestContext.none());
     }
 
     /**
      * Test content-type: multipart/form-data for mixed scenarios.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fileArrayAndBasicWithResponse(ComplexPartsRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.fileArrayAndBasicSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.fileArrayAndBasic(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void fileArrayAndBasic(ComplexPartsRequest body) {
+        fileArrayAndBasicWithResponse(body, RequestContext.none());
     }
 
     /**
      * Test content-type: multipart/form-data for scenario contains json part and binary part.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.jsonPartSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.jsonPart(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains json part and binary part.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void jsonPart(JsonPartRequest body) {
+        jsonPartWithResponse(body, RequestContext.none());
     }
 
     /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> binaryArrayPartsWithResponse(BinaryArrayPartsRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.binaryArrayPartsSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.binaryArrayParts(this.client.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void binaryArrayParts(BinaryArrayPartsRequest body) {
+        binaryArrayPartsWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.multiBinaryPartsSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.multiBinaryParts(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void multiBinaryParts(MultiBinaryPartsRequest body) {
+        multiBinaryPartsWithResponse(body, RequestContext.none());
     }
 
     /**
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkFileNameAndContentTypeWithResponse(MultiPartRequest body,
+        RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.checkFileNameAndContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.checkFileNameAndContentType(this.client.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void checkFileNameAndContentType(MultiPartRequest body) {
+        checkFileNameAndContentTypeWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
-        return service.anonymousModelSync(this.client.getEndpoint(), contentType, body, requestOptions);
+        return service.anonymousModel(this.client.getEndpoint(), contentType, body, requestContext);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void anonymousModel(AnonymousModelRequest body) {
+        anonymousModelWithResponse(body, RequestContext.none());
     }
 }

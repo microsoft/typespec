@@ -2,8 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "server.path.single.SingleClient": "Server.Path.Single",
-    "server.path.single.SingleClient.myOp": "Server.Path.Single.myOp",
-    "server.path.single.SingleClient.myOpWithResponse": "Server.Path.Single.myOp",
     "server.path.single.SingleClientBuilder": "Server.Path.Single"
   }
 }

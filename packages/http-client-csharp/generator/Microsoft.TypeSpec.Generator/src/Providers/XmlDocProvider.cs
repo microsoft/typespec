@@ -8,19 +8,64 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public class XmlDocProvider
     {
-        public XmlDocProvider()
+        public static XmlDocProvider Empty => new XmlDocProvider();
+
+        public XmlDocProvider(
+            XmlDocSummaryStatement? summary = null,
+            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
+            XmlDocReturnsStatement? returns = null,
+            XmlDocInheritStatement? inherit = null)
         {
-            Params = new List<XmlDocParamStatement>();
-            Exceptions = new List<XmlDocExceptionStatement>();
+            Summary = summary;
+            Parameters = parameters ?? new List<XmlDocParamStatement>();
+            Exceptions = exceptions ?? new List<XmlDocExceptionStatement>();
+            Returns = returns;
+            Inherit = inherit;
         }
 
         private static XmlDocProvider? _inheritDocs;
-        public static XmlDocProvider InheritDocs => _inheritDocs ??= new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
 
-        public XmlDocSummaryStatement? Summary { get; set; }
-        public IList<XmlDocParamStatement> Params { get; }
-        public XmlDocReturnsStatement? Returns { get; set; }
-        public IList<XmlDocExceptionStatement> Exceptions { get; }
-        public XmlDocInheritStatement? Inherit { get; set;  }
+        public static XmlDocProvider InheritDocs =>
+            _inheritDocs ??= new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
+
+        public XmlDocSummaryStatement? Summary { get; private set; }
+        public IReadOnlyList<XmlDocParamStatement> Parameters { get; private set; }
+        public XmlDocReturnsStatement? Returns { get; private set; }
+        public IReadOnlyList<XmlDocExceptionStatement> Exceptions { get; private set; }
+        public XmlDocInheritStatement? Inherit { get; private set; }
+
+        public void Update(
+            XmlDocSummaryStatement? summary = null,
+            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
+            XmlDocReturnsStatement? returns = null,
+            XmlDocInheritStatement? inherit = null)
+        {
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+
+            if (parameters != null)
+            {
+                Parameters = parameters;
+            }
+
+            if (exceptions != null)
+            {
+                Exceptions = exceptions;
+            }
+
+            if (returns != null)
+            {
+                Returns = returns;
+            }
+
+            if (inherit != null)
+            {
+                Inherit = inherit;
+            }
+        }
     }
 }

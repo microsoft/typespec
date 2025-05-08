@@ -79,8 +79,12 @@ async function main() {
           .option("output-dir", {
             type: "string",
           })
-          .positional("skip-js", {
+          .option("skip-js", {
             description: "Skip generating JS API docs.",
+            type: "boolean",
+          })
+          .option("typekits", {
+            description: "Generate typekit docs. Currently targeted for use with Astro Starlight.",
             type: "boolean",
           });
       },
@@ -92,6 +96,7 @@ async function main() {
           args["output-dir"] ?? resolvePath(resolvedRoot, "docs"),
           {
             skipJSApi: args["skip-js"],
+            typekits: args["typekits"],
           },
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
