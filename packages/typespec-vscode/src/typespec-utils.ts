@@ -54,7 +54,7 @@ export async function TraverseMainTspFileInWorkspace() {
     );
 }
 
-export function GetVscodeUriFromPath(path: string) {
+export function getVscodeUriFromPath(path: string) {
   const uri = vscode.Uri.file(path);
   return uri.toString();
 }

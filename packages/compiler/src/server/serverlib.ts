@@ -385,7 +385,7 @@ export function createServer(host: ServerHost): Server {
         errorDiagnostics: [
           "Failed to get compiler result, please check the compilation output for details",
         ],
-        entryPoint: undefined,
+        entrypoint: undefined,
         options: undefined,
       };
     } else {
@@ -405,7 +405,7 @@ export function createServer(host: ServerHost): Server {
         hasError: result.program.hasError(),
         errorDiagnostics: errorDiagnostics,
         warningDiagnostics: warningDiagnostics,
-        entryPoint: result.document?.uri,
+        entrypoint: result.document?.uri,
         options: result.program.compilerOptions,
       };
     }

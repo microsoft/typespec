@@ -15,7 +15,7 @@ import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { ResultCode } from "../../types.js";
 import {
   getEntrypointTspFile,
-  GetVscodeUriFromPath,
+  getVscodeUriFromPath,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
 import { ExecOutput, isFile, tryParseYaml, tryReadFile } from "../../utils.js";
@@ -456,7 +456,7 @@ async function doEmit(
         }
         const compileResult = await client.compileProject(
           {
-            uri: GetVscodeUriFromPath(mainTspFile).toString(),
+            uri: getVscodeUriFromPath(mainTspFile).toString(),
           },
           { emit: emitters.map((e) => e.package) },
         );
