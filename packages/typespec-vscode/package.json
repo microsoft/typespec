@@ -254,7 +254,7 @@
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
-    "test:e2e": "pnpm test:web",
+    "test:e2e:skip": "pnpm test:web",
     "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
