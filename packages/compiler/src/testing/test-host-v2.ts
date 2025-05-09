@@ -302,18 +302,8 @@ function addTestLib(fs: TestFileSystem): Record<string, Type> {
     $test(_: any, target: Type, nameLiteral?: StringLiteral) {
       let name = nameLiteral?.value;
       if (!name) {
-        if (
-          target.kind === "Model" ||
-          target.kind === "Scalar" ||
-          target.kind === "Namespace" ||
-          target.kind === "Enum" ||
-          target.kind === "Operation" ||
-          target.kind === "ModelProperty" ||
-          target.kind === "EnumMember" ||
-          target.kind === "Interface" ||
-          (target.kind === "Union" && !target.expression)
-        ) {
-          name = target.name!;
+        if ("name" in target && typeof target.name === "string") {
+          name = target.name;
         } else {
           throw new Error("Need to specify a name for test type");
         }
