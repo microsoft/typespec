@@ -5,11 +5,10 @@ With this approach, you can define OAuth 2.0 authentication directly in your Typ
 
 For more details, refer to the TypeSpec documentation: [Oauth2Auth](https://typespec.io/docs/libraries/http/reference/js-api/interfaces/oauth2auth/)
 
-## Getting Started
-
-- [Creating a client with OAuth Token](#create-custom-client-constructor-to-support-oauth-token)
-- [Example implementation of AuthenticationTokenProvider](#example-implementation-of-authenticationtokenprovider)
-- [Example usage of AuthenticationTokenProvider and Custom Client](#example-usage-of-authenticationtokenprovider-and-custom-client)
+- [OAuth 2.0 Credential Support](#oauth-20-credential-support)
+    - [Generate a client with OAuth2Auth](#generate-a-client-with-oauth2auth)
+    - [Example implementation of OAuthTokenCredential](#example-implementation-of-oauthtokencredential)
+    - [Example usage of OAuthTokenCredential and Custom Client](#example-usage-of-oauthtokencredential-and-custom-client)
 
 ### Generate a client with OAuth2Auth
 
