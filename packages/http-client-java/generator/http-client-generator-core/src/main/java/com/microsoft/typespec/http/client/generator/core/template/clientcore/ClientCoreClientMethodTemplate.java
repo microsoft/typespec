@@ -126,13 +126,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             // Parameter is required and will be part of the method signature.
-            boolean isContinuationToken = clientMethod.getMethodPageDetails() != null
-                && clientMethod.getMethodPageDetails().getContinuationToken() != null
-                && parameter.getName()
-                    .equals(clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
-            boolean isMaxPageSize
-                = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
-            if (parameter.isRequired() || isContinuationToken || isMaxPageSize) {
+            if (parameter.isRequired() || MethodUtil.shouldHideParameterInPageable(clientMethod, parameter)) {
                 continue;
             }
 
