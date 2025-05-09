@@ -114,7 +114,7 @@ export interface Server {
   getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
-  compileProject(param: {
+  internalCompile(param: {
     doc: TextDocumentIdentifier;
     options: CompilerOptions;
   }): Promise<CustomCompileResult>;
@@ -169,7 +169,7 @@ export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
   | "typespec/validateInitProjectTemplate"
-  | "typespec/compileProject";
+  | "typespec/internalCompile";
 export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
   validateInitProjectTemplate?: boolean;

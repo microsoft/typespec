@@ -201,7 +201,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
-    compileProject,
+    internalCompile,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -370,7 +370,7 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function compileProject(param: {
+  async function internalCompile(param: {
     doc: TextDocumentIdentifier;
     options: CompilerOptions;
   }): Promise<CustomCompileResult> {

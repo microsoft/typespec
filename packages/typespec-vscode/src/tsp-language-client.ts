@@ -99,7 +99,7 @@ export class TspLanguageClient {
     doc: TextDocumentIdentifier,
     options?: CompilerOptions,
   ): Promise<CustomCompileResult | undefined> {
-    const compileProjectRequestName: CustomRequestName = "typespec/compileProject";
+    const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
     try {
       const result = await this.client.sendRequest<CustomCompileResult>(compileProjectRequestName, {
         doc: doc,
