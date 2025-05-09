@@ -2,11 +2,31 @@
 
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { Model } from "../../src/index.js";
+import { Enum, Model, Program } from "../../src/index.js";
 import { t } from "../../src/testing/marked-template.js";
 import { createTester } from "../../src/testing/test-host-v2.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
+
+it("generic type", async () => {
+  const res = await Tester.compile(t.code`
+      model ${t.model("Foo")} {} 
+      enum ${t.enum("Bar")} {} 
+      union /*Baz*/Baz {} 
+    `);
+  expect(res.Foo.kind).toBe("Model");
+
+  expectTypeOf({
+    Foo: res.Foo,
+    Bar: res.Bar,
+    Baz: res.Baz,
+    program: res.program,
+  }).toExtend<{
+    Foo: Model;
+    Bar: Enum;
+    program: Program;
+  }>();
+});
 
 describe("extract types", () => {
   it("generic type", async () => {
@@ -17,6 +37,13 @@ describe("extract types", () => {
     expect(res.Foo.kind).toBe("Model");
     expect(res.Bar.kind).toBe("Enum");
   });
+
+  // it("extract with fourslash syntax", async () => {
+  //   const res = await Tester.compile(t.code`
+  //     model /*ExtractedFoo*/Foo {}
+  //   `);
+  //   expect(res.ExtractedFoo.kind).toBe("Model");
+  // });
 
   it("model", async () => {
     const res = await Tester.compile(t.code`
@@ -145,4 +172,18 @@ describe("extract values", () => {
       "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 22-25",
     );
   });
+});
+
+it("still extract with additional using", async () => {
+  const res = await Tester.using("TypeSpec").compile(t.code`
+    model ${t.model("Foo")} {}
+  `);
+  expect(res.Foo.kind).toBe("Model");
+});
+
+it("still extract with wrappers", async () => {
+  const res = await Tester.wrap((x) => `model Test {}\n${x}\nmodel Test2 {}`).compile(t.code`
+    model ${t.model("Foo")} {}
+  `);
+  expect(res.Foo.kind).toBe("Model");
 });

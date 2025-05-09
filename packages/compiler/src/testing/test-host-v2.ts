@@ -16,7 +16,9 @@ import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
 // Need a way to combine that with `program`
-export type TestCompileResult<T extends Record<string, Entity>> = T;
+export type TestCompileResult<T extends Record<string, Entity>> = T & {
+  readonly program: Program;
+} & Record<string, Entity>;
 
 export interface JsFileDef {
   [key: string]: string | unknown;
@@ -214,6 +216,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       params.wraps ? applyWraps(codeStr, params.wraps) : codeStr,
     ].join("\n");
 
+    console.log("Actual code", actualCode);
     const markerPositions = extractMarkers(actualCode);
 
     fs.addTypeSpecFile("main.tsp", actualCode);

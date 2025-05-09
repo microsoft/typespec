@@ -1,5 +1,5 @@
 import { Namespace } from "@typespec/compiler";
-import { expectDiagnostics, TesterInstance } from "@typespec/compiler/testing";
+import { expectDiagnostics, t, TesterInstance } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
@@ -47,10 +47,9 @@ describe("openapi: decorators", () => {
 
   describe("@extension", () => {
     it("apply extension on model", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
         @extension("x-custom", "Bar")
-        @test
-        model Foo {
+        model ${t.model("Foo")} {
           prop: string
         }
       `);
@@ -61,10 +60,9 @@ describe("openapi: decorators", () => {
     });
 
     it("apply extension with complex value", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
         @extension("x-custom", #{foo: 123, bar: "string"})
-        @test
-        model Foo {
+        model ${t.model("Foo")} {
           prop: string
         }
       `);
@@ -83,10 +81,9 @@ describe("openapi: decorators", () => {
       { value: `"hi"`, expected: "hi" },
       { value: `null`, expected: null },
     ])("treats value $value as raw value", async ({ value, expected }) => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
           @extension("x-custom", ${value})
-          @test
-          model Foo{}  
+          model ${t.model("Foo")} {}  
         `);
 
       deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
@@ -95,10 +92,9 @@ describe("openapi: decorators", () => {
     });
 
     it("supports extension key not starting with `x-`", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
         @extension("foo", "Bar")
-        @test
-        model Foo {
+        model ${t.model("Foo")} {
           prop: string
         }
       `);
@@ -139,7 +135,6 @@ describe("openapi: decorators", () => {
       const diagnostics = await runner.diagnose(`
         @externalDocs("https://example.com", 123)
         model Foo {}
-
       `);
 
       expectDiagnostics(diagnostics, {
@@ -148,20 +143,18 @@ describe("openapi: decorators", () => {
     });
 
     it("set the external url", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
         @externalDocs("https://example.com")
-        @test 
-        model Foo {}
+        model ${t.model("Foo")} {}
       `);
 
       deepStrictEqual(getExternalDocs(runner.program, Foo), { url: "https://example.com" });
     });
 
     it("set the external url with description", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await runner.compile(t.code`
         @externalDocs("https://example.com", "More info there")
-        @test 
-        model Foo {}
+        model ${t.model("Foo")} {}
       `);
 
       deepStrictEqual(getExternalDocs(runner.program, Foo), {
@@ -220,7 +213,7 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if termsOfService is not a valid url", async () => {
       const diagnostics = await runner.diagnose(`
         @info(#{termsOfService:"notvalidurl"})
-        @test namespace Service {}
+        namespace Service {}
       `);
 
       expectDiagnostics(diagnostics, {
@@ -253,7 +246,7 @@ describe("openapi: decorators", () => {
     });
 
     it("set all properties", async () => {
-      const { Service } = (await runner.compile(`
+      const { Service } = (await runner.compile(t.code`
         @info(#{
           title: "My API",
           version: "1.0.0",
@@ -269,7 +262,7 @@ describe("openapi: decorators", () => {
             url: "http://www.apache.org/licenses/LICENSE-2.0.html"
           },
         })
-        @test namespace Service {}
+        namespace ${t.namespace("Service")} {}
       `)) as { Service: Namespace };
 
       deepStrictEqual(getInfo(runner.program, Service), {
@@ -290,7 +283,7 @@ describe("openapi: decorators", () => {
     });
 
     it("resolveInfo() merge with data from @service and @summary", async () => {
-      const { Service } = (await runner.compile(`
+      const { Service } = await runner.compile(t.code`
         #suppress "deprecated" "Test"
         @service(#{ 
           title: "Service API", 
@@ -300,8 +293,8 @@ describe("openapi: decorators", () => {
           version: "1.0.0",
           termsOfService: "http://example.com/terms/",
         })
-        @test namespace Service {}
-      `)) as { Service: Namespace };
+        namespace ${t.namespace("Service")} {}
+      `);
 
       deepStrictEqual(resolveInfo(runner.program, Service), {
         title: "Service API",
@@ -312,16 +305,16 @@ describe("openapi: decorators", () => {
     });
 
     it("resolveInfo() returns empty object if nothing is provided", async () => {
-      const { Service } = (await runner.compile(`
-        @test namespace Service {}
-      `)) as { Service: Namespace };
+      const { Service } = await runner.compile(t.code`
+        namespace ${t.namespace("Service")} {}
+      `);
 
       deepStrictEqual(resolveInfo(runner.program, Service), {});
     });
 
     it("setInfo() function for setting info object directly", async () => {
-      const { Service } = (await runner.compile(`
-        @test namespace Service {}
+      const { Service } = (await runner.compile(t.code`
+        namespace ${t.namespace("Service")} {}
       `)) as { Service: Namespace };
       setInfo(runner.program, Service, {
         title: "My API",
@@ -457,11 +450,11 @@ describe("openapi: decorators", () => {
     it("emit diagnostic if externalDocs.url is not a valid url", async () => {
       const diagnostics = await runner.diagnose(
         `
-        @service()
+        @service
         @tagMetadata("tagName", #{
             externalDocs: #{ url: "notvalidurl"}, 
         })
-        @test namespace Service {}
+        namespace Service {}
         `,
       );
 
@@ -543,14 +536,11 @@ describe("openapi: decorators", () => {
     ];
     it.each(testCases)("%s", async (_, tagMetaDecorator, expected) => {
       const runner = Tester.createInstance();
-      const { PetStore } = await runner.compile(
-        `
+      const { PetStore } = await runner.compile(t.code`
         @service()
         ${tagMetaDecorator}
-        @test 
-        namespace PetStore {}
-        `,
-      );
+        namespace ${t.namespace("PetStore")} {}
+      `);
       deepStrictEqual(getTagsMetadata(runner.program, PetStore), expected);
     });
   });
