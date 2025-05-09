@@ -104,9 +104,9 @@ describe("extract types", () => {
   it("validate type match", async () => {
     await expect(() =>
       Tester.compile(t.code`
-    enum ${t.model("Foo")} {} 
-  `),
-    ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 17-20");
+        enum ${t.model("Foo")} {} 
+      `),
+    ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 21-24");
   });
 });
 
@@ -137,10 +137,10 @@ describe("extract values", () => {
   it("validate value match", async () => {
     await expect(() =>
       Tester.compile(t.code`
-    const ${t.object("foo")} = 123; 
-  `),
+        const ${t.object("foo")} = 123; 
+      `),
     ).rejects.toThrowError(
-      "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 18-21",
+      "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 22-25",
     );
   });
 });
