@@ -191,7 +191,7 @@ it("still extract with wrappers", async () => {
 });
 
 it("still extract with multiple files", async () => {
-  const res = await Tester.using("TypeSpec").compile({
+  const res = await Tester.compile({
     "main.tsp": t.code`
       import "./b.tsp";
       model ${t.model("A")} {}
