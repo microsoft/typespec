@@ -10,6 +10,7 @@ import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
 import { Diagnostic, Entity, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
+import { extractMarkers } from "./fourslash.js";
 import { TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
@@ -198,12 +199,13 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     }
     return code;
   }
+
   async function compileAndDiagnose<T extends Record<string, Entity>>(
     code: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]> {
     const fs = await params.fs();
-    const types = await addTestLib(fs);
+    const typesCollected = await addTestLib(fs);
 
     const imports = (params.imports ?? []).map((x) => `import "${x}";`);
     const usings = (params.usings ?? []).map((x) => `using ${x};`);
@@ -222,38 +224,39 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     savedProgram = program;
 
+    const entities: Record<string, Entity> = { ...typesCollected };
     if (typeof code !== "string") {
       const file = program.sourceFiles.get(resolveVirtualPath("main.tsp"));
       if (!file) {
         throw new Error(`Couldn't find main.tsp in program`);
       }
       for (const marker of markerPositions) {
-        const { name, pos, end } = marker;
+        const { name, pos } = marker;
         const markerConfig = code.markers[name];
         const node = getNodeAtPosition(file, pos);
         if (!node) {
-          throw new Error(`Could not find node at ${pos}-${end}`);
+          throw new Error(`Could not find node at ${pos}`);
         }
         const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
         if (sym === undefined) {
-          throw new Error(`Could not find symbol for ${name} at ${pos}-${end}`);
+          throw new Error(`Could not find symbol for ${name} at ${pos}`);
         }
         const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
         if (entity === null) {
           throw new Error(
-            `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}-${end}`,
+            `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}`,
           );
         }
         if (markerConfig) {
           const { entityKind, kind, valueKind } = markerConfig as any;
           if (entity.entityKind !== entityKind) {
             throw new Error(
-              `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+              `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}`,
             );
           }
           if (entity.entityKind === "Type" && kind !== undefined && entity.kind !== kind) {
             throw new Error(
-              `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}-${end}`,
+              `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}`,
             );
           } else if (
             entity?.entityKind === "Value" &&
@@ -261,15 +264,15 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
             entity.valueKind !== valueKind
           ) {
             throw new Error(
-              `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+              `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}`,
             );
           }
         }
 
-        (types as any)[name] = entity;
+        (entities as any)[name] = entity;
       }
     }
-    return [{ program, ...types } as any, program.diagnostics];
+    return [{ program, ...entities } as any, program.diagnostics];
   }
 
   async function compile<T extends Record<string, Entity>>(
@@ -319,31 +322,4 @@ function addTestLib(fs: TestFileSystem): Record<string, Type> {
     },
   });
   return testTypes;
-}
-
-export interface PositionedMarker {
-  name: string;
-  pos: number;
-  end: number;
-}
-function extractMarkers(code: string): PositionedMarker[] {
-  // Extract TypeScript fourslash-style markers: /*markerName*/
-  // Returns an array of Marker objects with name, pos, and end
-  const markerRegex = /\/\*([a-zA-Z0-9_]+)\*\//g;
-  const markers: PositionedMarker[] = [];
-  let match: RegExpExecArray | null;
-  while ((match = markerRegex.exec(code)) !== null) {
-    const markerName = match[1];
-    // The marker is immediately followed by the identifier
-    // Find the next word after the marker
-    const afterMarker = code.slice(markerRegex.lastIndex);
-    const idMatch = /([a-zA-Z0-9_]+)/.exec(afterMarker);
-    if (idMatch) {
-      const id = idMatch[1];
-      const pos = markerRegex.lastIndex;
-      const end = pos + id.length;
-      markers.push({ name: markerName, pos, end });
-    }
-  }
-  return markers;
 }
