@@ -13,9 +13,8 @@ import java.nio.charset.StandardCharsets;
 public class ReadmeTemplate {
 
     public String write(Project project) {
-        final String templateReadme = (JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2())
-            ? "Readme_protocol.txt"
-            : "Readme_unbranded.txt";
+        final String templateReadme
+            = (!JavaSettings.getInstance().isUnbranded()) ? "Readme_protocol.txt" : "Readme_unbranded.txt";
         return TemplateUtil.loadTextFromResource(templateReadme, TemplateUtil.SERVICE_NAME, project.getServiceName(),
             TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(), TemplateUtil.GROUP_ID,
             project.getGroupId(), TemplateUtil.ARTIFACT_ID, project.getArtifactId(), TemplateUtil.ARTIFACT_VERSION,

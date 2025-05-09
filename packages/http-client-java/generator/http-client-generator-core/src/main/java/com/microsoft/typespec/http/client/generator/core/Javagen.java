@@ -254,7 +254,7 @@ public class Javagen extends NewPlugin {
             javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
         }
 
-        if (settings.isDataPlaneClient()) {
+        if (settings.isDataPlaneClient() || settings.isUnbranded()) {
             Project project = new Project(client, ClientModelUtil.getApiVersions(codeModel));
             if (settings.isSdkIntegration()) {
                 project.integrateWithSdk();
@@ -282,7 +282,7 @@ public class Javagen extends NewPlugin {
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
 
-                if (settings.isAzureV1() || settings.isAzureV2()) {
+                if (!settings.isUnbranded()) {
                     if (generateSwaggerMarkdown) {
                         javaPackage.addSwaggerReadmeMarkdown(project);
                     }
