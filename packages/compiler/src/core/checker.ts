@@ -156,6 +156,7 @@ import {
   UnknownType,
   UsingStatementNode,
   Value,
+  ValueWithTemplate,
   VoidType,
 } from "./types.js";
 
@@ -315,7 +316,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     Sym | undefined
   >();
-  const valueExactTypes = new WeakMap<Value, Type>();
+  const valueExactTypes = new WeakMap<ValueWithTemplate, Type>();
   let onCheckerDiagnostic: (diagnostic: Diagnostic) => void = (x: Diagnostic) => {
     program.reportDiagnostic(x);
   };
@@ -561,7 +562,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: Node,
     mapper?: TypeMapper,
     constraint?: CheckValueConstraint,
-    options: { legacyTupleAndModelCast?: boolean } = {},
   ): Value | null {
     const initial = checkNode(node, mapper, constraint);
     if (initial === null) {
@@ -573,14 +573,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       entity = initial;
     }
-    // if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
-    //   entity = legacy_tryTypeToValueCast(entity, constraint, node);
-    // }
     if (entity === null) {
       return null;
     }
     if (isValue(entity)) {
       return constraint ? inferScalarsFromConstraints(entity, constraint.type) : entity;
+    }
+    // If a template parameter that can be a value is used in a template declaration then we allow it but we return null because we don't have an actual value.
+    if (
+      entity.kind === "TemplateParameter" &&
+      entity.constraint?.valueType &&
+      entity.constraint.type === undefined &&
+      mapper === undefined
+    ) {
+      return createValue(
+        {
+          entityKind: "Value",
+          valueKind: "TemplateValue",
+          type: entity.constraint.valueType,
+        },
+        entity.constraint.valueType,
+      ) as any;
     }
     reportExpectedValue(node, entity);
     return null;
@@ -3841,7 +3854,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
-  function createValue<T extends Value>(value: T, preciseType: Type): T {
+  function createValue<T extends ValueWithTemplate>(value: T, preciseType: Type): T {
     valueExactTypes.set(value, preciseType);
     return value;
   }
@@ -4650,7 +4663,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(sym, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, mapper);
       if (prop.default) {
-        const defaultValue = checkDefaultValue(prop.default, type.type);
+        const defaultValue = checkDefaultValue(prop.default, type.type, mapper);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
         }
@@ -4687,26 +4700,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     };
   }
 
-  function checkDefaultValue(defaultNode: Node, type: Type): Value | null {
+  function checkDefaultValue(
+    defaultNode: Node,
+    type: Type,
+    mapper: TypeMapper | undefined,
+  ): Value | null {
     if (isErrorType(type)) {
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(
-      defaultNode,
-      undefined,
-      {
-        kind: "assignment",
-        type,
-      },
-      { legacyTupleAndModelCast: true },
-    );
+    const defaultValue = getValueForNode(defaultNode, mapper, {
+      kind: "assignment",
+      type,
+    });
     if (defaultValue === null) {
       return null;
     }
     const [related, diagnostics] = relation.isValueOfType(defaultValue, type, defaultNode);
     if (!related) {
       reportCheckerDiagnostics(diagnostics);
+      return null;
+    } else if ((defaultValue.valueKind as any) === "TemplateValue") {
+      // Right now we don't want to expose `TemplateValue` in the type graph.
+      // And as interating with the template declaration is not a supported feature we can just drop it.
       return null;
     } else {
       return { ...defaultValue, type };

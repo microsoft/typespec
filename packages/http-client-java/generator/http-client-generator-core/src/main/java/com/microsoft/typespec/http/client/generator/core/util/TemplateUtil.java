@@ -144,13 +144,14 @@ public class TemplateUtil {
             // getLongRunningOperationTypeReferenceExpression
             if (clientMethod.getType() == ClientMethodType.LongRunningBeginAsync
                 && clientMethod.getMethodPollingDetails() != null) {
-                if (clientMethod.getMethodPollingDetails().getIntermediateType() instanceof GenericType) {
+                if (clientMethod.getMethodPollingDetails().getPollResultType() instanceof GenericType) {
                     typeReferenceStaticClasses
-                        .add((GenericType) clientMethod.getMethodPollingDetails().getIntermediateType());
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getPollResultType());
                 }
 
-                if (clientMethod.getMethodPollingDetails().getFinalType() instanceof GenericType) {
-                    typeReferenceStaticClasses.add((GenericType) clientMethod.getMethodPollingDetails().getFinalType());
+                if (clientMethod.getMethodPollingDetails().getFinalResultType() instanceof GenericType) {
+                    typeReferenceStaticClasses
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getFinalResultType());
                 }
             }
         }
@@ -176,8 +177,8 @@ public class TemplateUtil {
      */
     public static String getLongRunningOperationTypeReferenceExpression(MethodPollingDetails details) {
         // see writeTypeReferenceStaticClass
-        return getTypeReferenceCreation(details.getIntermediateType()) + ", "
-            + getTypeReferenceCreation(details.getFinalType());
+        return getTypeReferenceCreation(details.getPollResultType()) + ", "
+            + getTypeReferenceCreation(details.getFinalResultType());
     }
 
     /**
