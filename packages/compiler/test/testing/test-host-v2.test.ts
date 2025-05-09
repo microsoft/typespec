@@ -1,7 +1,8 @@
 // TODO: rename?
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
+import { Model } from "../../src/index.js";
 import { t } from "../../src/testing/marked-template.js";
 import { createTester } from "../../src/testing/test-host-v2.js";
 
@@ -21,6 +22,7 @@ describe("extract types", () => {
     const res = await Tester.compile(t.code`
       model ${t.model("Foo")} {} 
     `);
+    expectTypeOf(res.Foo).toExtend<Model>();
     expect(res.Foo.kind).toBe("Model");
   });
 
