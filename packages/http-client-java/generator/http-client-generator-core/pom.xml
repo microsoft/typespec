@@ -22,14 +22,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.clientcore</groupId>
-      <artifactId>core</artifactId>
-      <version>1.0.0-beta.9</version>
-    </dependency>
-    <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
       <version>1.55.3</version>
+    </dependency>
+    <dependency>
+      <groupId>io.clientcore</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0.0-beta.9</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>

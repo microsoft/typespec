@@ -13,23 +13,34 @@ namespace SampleTypeSpec
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
+        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         public SampleTypeSpecClientListWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
 
+        /// <summary> Gets the raw pages of the collection. </summary>
+        /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateListWithPagingRequest(_options);
             yield return ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
 
+        /// <summary> Gets the continuation token from the specified page. </summary>
+        /// <param name="page"></param>
+        /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
 
+        /// <summary> Gets the values from the specified page. </summary>
+        /// <param name="page"></param>
+        /// <returns> The values from the specified page. </returns>
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
             return ((PageThing)page).Items;
