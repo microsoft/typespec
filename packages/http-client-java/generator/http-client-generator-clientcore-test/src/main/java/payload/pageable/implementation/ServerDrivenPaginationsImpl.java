@@ -16,6 +16,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
@@ -118,8 +119,25 @@ public final class ServerDrivenPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> linkSinglePage(),
-            (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+            }
+            return linkSinglePage();
+        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
     }
 
     /**
@@ -134,8 +152,25 @@ public final class ServerDrivenPaginationsImpl {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link(RequestContext requestContext) {
         RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
-        return new PagedIterable<>((pagingOptions) -> linkSinglePage(requestContext),
-            (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(
+                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+            }
+            return linkSinglePage(requestContext);
+        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
     }
 
     /**
@@ -173,4 +208,6 @@ public final class ServerDrivenPaginationsImpl {
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
             null, res.getValue().getNext(), null, null, null);
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);
 }
