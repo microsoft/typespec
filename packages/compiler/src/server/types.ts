@@ -40,7 +40,14 @@ import {
 import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
-import type { CompilerHost, Diagnostic, SourceFile, TypeSpecScriptNode } from "../core/types.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  NoTarget,
+  SourceFile,
+  SourceLocation,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
@@ -70,9 +77,13 @@ export interface CompileResult {
   readonly optionsFromConfig: CompilerOptions;
 }
 
+export interface ServerDiagnostic extends Diagnostic {
+  target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
+}
+
 export interface CustomCompileResult {
   readonly hasError: boolean;
-  readonly diagnostics: Diagnostic[];
+  readonly diagnostics: ServerDiagnostic[];
   readonly entrypoint?: string;
   readonly options?: CompilerOptions;
 }

@@ -1,4 +1,5 @@
-import { Diagnostic, SourceLocation } from "@typespec/compiler";
+import { SourceLocation } from "@typespec/compiler";
+import { ServerDiagnostic } from "@typespec/compiler/internals";
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
@@ -60,17 +61,20 @@ export function getVscodeUriFromPath(path: string) {
   return uri.toString();
 }
 
-export function formatDiagnostic(diagnostic: Diagnostic): string {
+export function formatDiagnostic(diagnostic: ServerDiagnostic): string {
   const code = diagnostic.code ? ` ${diagnostic.code}` : "";
   const content = code ? `${code}: ${diagnostic.message}` : diagnostic.message;
-  const root = diagnostic.target as SourceLocation;
+  const root = diagnostic.target as SourceLocation & {
+    position?: { line: number; column: number };
+  };
   if (root && root.file) {
     const path = root.file.path;
     const pos = root.pos ?? 0;
-    const formattedLocation = `${path}:${pos}`;
-    const message = [`${formattedLocation} - ${content}`];
+    const formattedLocation = root.position
+      ? `${path}:${root.position.line}:${root.position.column}`
+      : `${path}:${pos}`;
 
-    return message.join("\n");
+    return `${formattedLocation} - ${content}`;
   } else {
     return content;
   }

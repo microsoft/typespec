@@ -10,4 +10,4 @@ if (!(globalThis as any).enableCompilerInternalsExport) {
 export { NodeSystemHost } from "../core/node-system-host.js";
 export { InitTemplateSchema } from "../init/init-template.js";
 export { makeScaffoldingConfig, scaffoldNewProject } from "../init/scaffold.js";
-export { CustomCompileResult } from "../server/index.js";
+export { CustomCompileResult, ServerDiagnostic } from "../server/index.js";

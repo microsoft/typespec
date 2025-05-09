@@ -122,6 +122,7 @@ import {
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
+  ServerDiagnostic,
   ServerHost,
   ServerInitializeResult,
   ServerLog,
@@ -398,16 +399,24 @@ export function createServer(host: ServerHost): Server {
     } else {
       return {
         hasError: result.program.hasError(),
-        diagnostics: result.program.diagnostics.map(
-          (diagnostic) =>
-            ({
-              code: diagnostic.code,
-              message: diagnostic.message,
-              severity: diagnostic.severity,
-              target: getSourceLocation(diagnostic.target, { locateId: true }),
-              url: diagnostic.url,
-            }) as Diagnostic,
-        ),
+        diagnostics: result.program.diagnostics.map((diagnostic) => {
+          const target = getSourceLocation(diagnostic.target, { locateId: true });
+          let position = undefined;
+          if (target?.file) {
+            const lineAndCharacter = target.file.getLineAndCharacterOfPosition(target.pos);
+            position = {
+              line: lineAndCharacter.line + 1,
+              column: lineAndCharacter.character + 1,
+            };
+          }
+          return {
+            code: diagnostic.code,
+            message: diagnostic.message,
+            severity: diagnostic.severity,
+            target: { ...target, position: position },
+            url: diagnostic.url,
+          } as ServerDiagnostic;
+        }),
         entrypoint: result.document?.uri,
         options: result.program.compilerOptions,
       };

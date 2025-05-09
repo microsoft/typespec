@@ -13,6 +13,7 @@ export type {
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
+  ServerDiagnostic,
   ServerHost,
   ServerInitializeResult,
   ServerLog,
