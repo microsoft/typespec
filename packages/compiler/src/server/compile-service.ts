@@ -18,7 +18,6 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { compile as compileProgram, Program } from "../core/program.js";
 import type {
   CompilerHost,
-  TrackActionTask,
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
@@ -27,9 +26,9 @@ import { resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { serverOptions } from "./constants.js";
-import { DynamicServerTask } from "./dynamic-server-task.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
+import { trackActionFunc } from "./server-track-action-task.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
 
@@ -134,8 +133,10 @@ export function createCompileService({
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
-      ...additionalOptions,
     };
+    if (additionalOptions) {
+      Object.assign(options, additionalOptions);
+    }
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
     if (
@@ -164,26 +165,6 @@ export function createCompileService({
       return undefined;
     }
 
-    async function trackActionFunc<T>(
-      message: string,
-      finalMessage: string,
-      asyncAction: (task: TrackActionTask) => Promise<T>,
-    ): Promise<T> {
-      const task = new DynamicServerTask(message, finalMessage, serverHost.log);
-      task.start();
-
-      try {
-        const result = await asyncAction(task);
-        if (!task.isStopped) {
-          task.succeed();
-        }
-
-        return result;
-      } catch (error) {
-        task.fail(message);
-        throw error;
-      }
-    }
     let program: Program;
     try {
       program = await compileProgram(
@@ -192,8 +173,9 @@ export function createCompileService({
               ...compilerHost,
               logSink: {
                 log: compilerHost.logSink.log,
+                getPath: compilerHost.logSink.getPath,
                 trackAction: (message, finalMessage, action) =>
-                  trackActionFunc(message, finalMessage, action),
+                  trackActionFunc(serverHost.log, message, finalMessage, action),
               },
             }
           : compilerHost,

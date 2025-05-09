@@ -1,11 +1,9 @@
-import { StatusIcons } from "../core/logger/dynamic-task.js";
 import { TaskStatus, TrackActionTask } from "../core/types.js";
 import { ServerLog } from "./types.js";
 
-export class DynamicServerTask implements TrackActionTask {
+export class ServerTrackActionTask implements TrackActionTask {
   #log: (log: ServerLog) => void;
   #message: string;
-  #interval: NodeJS.Timeout | undefined;
   #running: boolean;
   #finalMessage: string;
 
@@ -51,13 +49,39 @@ export class DynamicServerTask implements TrackActionTask {
   stop(status: TaskStatus, message?: string) {
     this.#running = false;
     this.#message = message ?? this.#finalMessage;
-    if (this.#interval) {
-      clearInterval(this.#interval);
-      this.#interval = undefined;
-    }
     this.#log({
       level: status !== "failure" ? "info" : "error",
-      message: `${StatusIcons[status]} ${this.#message}\n`,
+      message: `[${TaskStatusText[status]}] ${this.#message}\n`,
     });
+  }
+}
+
+const TaskStatusText = {
+  success: "succeed",
+  failure: "failed",
+  warn: "succeeded with warnings",
+  skipped: "skipped",
+};
+
+/** internal */
+export async function trackActionFunc<T>(
+  log: (log: ServerLog) => void,
+  message: string,
+  finalMessage: string,
+  asyncAction: (task: TrackActionTask) => Promise<T>,
+): Promise<T> {
+  const task = new ServerTrackActionTask(message, finalMessage, log);
+  task.start();
+
+  try {
+    const result = await asyncAction(task);
+    if (!task.isStopped) {
+      task.succeed();
+    }
+
+    return result;
+  } catch (error) {
+    task.fail(message);
+    throw error;
   }
 }

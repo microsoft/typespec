@@ -2,7 +2,7 @@ import isUnicodeSupported from "is-unicode-supported";
 import pc from "picocolors";
 import { TaskStatus, TrackActionTask } from "../types.js";
 
-export const StatusIcons = {
+const StatusIcons = {
   success: pc.green("✔"),
   failure: pc.red("×"),
   warn: pc.yellow("⚠"),
