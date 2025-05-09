@@ -10,8 +10,8 @@ import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
 import { Diagnostic, Entity, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { extractMarkers } from "./fourslash.js";
-import { TemplateWithMarkers } from "./marked-template.js";
+import { PositionedMarker, extractMarkers } from "./fourslash.js";
+import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
@@ -27,20 +27,24 @@ export interface JsFileDef {
 }
 
 interface TestCompileOptions {
-  readonly files?: Record<string, string | JsFileDef>;
+  /** Optional compiler options */
   readonly options?: CompilerOptions;
 }
 
 interface Testable {
-  compile<T extends Record<string, Entity>>(
-    main: string | TemplateWithMarkers<T>,
+  compile<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
     options?: TestCompileOptions,
-  ): Promise<TestCompileResult<T>>;
+  ): Promise<TestCompileResult<GetMarkedEntities<T>>>;
   diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
-  compileAndDiagnose<T extends Record<string, Entity>>(
-    main: string | TemplateWithMarkers<T>,
+  compileAndDiagnose<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
     options?: TestCompileOptions,
-  ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]>;
+  ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]>;
 }
 
 // Immutable structure meant to be reused
@@ -201,46 +205,89 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     return code;
   }
 
-  async function compileAndDiagnose<T extends Record<string, Entity>>(
-    code: string | TemplateWithMarkers<T>,
-    options?: TestCompileOptions,
-  ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]> {
-    const fs = await params.fs();
-    const typesCollected = await addTestLib(fs);
+  interface PositionedMarkerInFile extends PositionedMarker {
+    /** The file where the marker is located */
+    readonly filename: string;
+  }
+  function addCode(
+    fs: TestFileSystem,
+    code: string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  ): {
+    markerPositions: PositionedMarkerInFile[];
+    markerConfigs: Record<string, Marker<any, any>>;
+  } {
+    const markerPositions: PositionedMarkerInFile[] = [];
+    const markerConfigs: Record<string, Marker<any, any>> = {};
 
+    function addTsp(filename: string, value: string | TemplateWithMarkers<any>) {
+      const codeStr = TemplateWithMarkers.is(value) ? value.code : value;
+
+      const actualCode = filename === "main.tsp" ? wrapMain(codeStr) : codeStr;
+      if (TemplateWithMarkers.is(value)) {
+        const markers = extractMarkers(actualCode);
+        for (const marker of markers) {
+          markerPositions.push({ ...marker, filename });
+        }
+        for (const [markerName, markerConfig] of Object.entries(value.markers)) {
+          if (markerConfig) {
+            markerConfigs[markerName] = markerConfig;
+          }
+        }
+      }
+      fs.addTypeSpecFile(filename, actualCode);
+    }
+
+    const files =
+      typeof code === "string" || TemplateWithMarkers.is(code) ? { "main.tsp": code } : code;
+    for (const [name, value] of Object.entries(files)) {
+      addTsp(name, value);
+    }
+
+    return { markerPositions, markerConfigs };
+  }
+
+  function wrapMain(code: string): string {
     const imports = (params.imports ?? []).map((x) => `import "${x}";`);
     const usings = (params.usings ?? []).map((x) => `using ${x};`);
 
-    // Support TemplateWithMarkers
-    const codeStr = typeof code === "string" ? code : code.code;
     const actualCode = [
       ...imports,
       ...usings,
-      params.wraps ? applyWraps(codeStr, params.wraps) : codeStr,
+      params.wraps ? applyWraps(code, params.wraps) : code,
     ].join("\n");
+    return actualCode;
+  }
+  async function compileAndDiagnose<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+    options?: TestCompileOptions,
+  ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]> {
+    const fs = await params.fs();
+    const typesCollected = addTestLib(fs);
+    const { markerPositions, markerConfigs } = addCode(fs, code);
 
-    const markerPositions = extractMarkers(actualCode);
-
-    fs.addTypeSpecFile("main.tsp", actualCode);
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     savedProgram = program;
 
     const entities: Record<string, Entity> = { ...typesCollected };
     if (typeof code !== "string") {
-      const file = program.sourceFiles.get(resolveVirtualPath("main.tsp"));
-      if (!file) {
-        throw new Error(`Couldn't find main.tsp in program`);
-      }
       for (const marker of markerPositions) {
+        const file = program.sourceFiles.get(resolveVirtualPath(marker.filename));
+        if (!file) {
+          throw new Error(`Couldn't find ${resolveVirtualPath(marker.filename)} in program`);
+        }
         const { name, pos } = marker;
-        const markerConfig = code.markers[name];
+        const markerConfig = markerConfigs[name];
         const node = getNodeAtPosition(file, pos);
         if (!node) {
           throw new Error(`Could not find node at ${pos}`);
         }
         const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
         if (sym === undefined) {
-          throw new Error(`Could not find symbol for ${name} at ${pos}`);
+          throw new Error(
+            `Could not find symbol for ${name} at ${pos}. File content: ${file.file.text}`,
+          );
         }
         const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
         if (entity === null) {
@@ -276,16 +323,15 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     return [{ program, ...entities } as any, program.diagnostics];
   }
 
-  async function compile<T extends Record<string, Entity>>(
-    code: string | TemplateWithMarkers<T>,
-    options?: TestCompileOptions,
-  ): Promise<TestCompileResult<T>> {
+  async function compile<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(code: T, options?: TestCompileOptions): Promise<TestCompileResult<GetMarkedEntities<T>>> {
     const [result, diagnostics] = await compileAndDiagnose(code, options);
     expectDiagnosticEmpty(diagnostics);
     return result;
   }
   async function diagnose(
-    code: string,
+    code: string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
     options?: TestCompileOptions,
   ): Promise<readonly Diagnostic[]> {
     const [_, diagnostics] = await compileAndDiagnose(code, options);

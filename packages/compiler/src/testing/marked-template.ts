@@ -55,9 +55,16 @@ export type MarkerConfig<T extends Record<string, Entity>> = {
 };
 
 export interface TemplateWithMarkers<T extends Record<string, Entity>> {
+  readonly isTemplateWithMarkers: true;
   readonly code: string;
   readonly markers: MarkerConfig<T>;
 }
+
+export const TemplateWithMarkers = {
+  is: (value: unknown): value is TemplateWithMarkers<any> => {
+    return typeof value === "object" && value !== null && "isTemplateWithMarkers" in value;
+  },
+};
 
 type Prettify<T extends Record<string, Entity>> = {
   [K in keyof T]: T[K] & Entity;
@@ -89,6 +96,7 @@ function extract<const T extends (Marker<Entity, string> | string)[]>(
     result.push(strings[i + 1]);
   });
   return {
+    isTemplateWithMarkers: true,
     code: result.join(""),
     markers: markers as any,
   };
@@ -119,3 +127,22 @@ export const t = {
   object: valueMarker<Value>("ObjectValue"),
   array: valueMarker<Value>("ArrayValue"),
 };
+
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
+
+type FlattenRecord<T extends Record<string, unknown>> = UnionToIntersection<T[keyof T]>;
+
+type FlattenTemplates<M extends Record<string, string | TemplateWithMarkers<any>>> = FlattenRecord<{
+  [K in keyof M]: M[K] extends TemplateWithMarkers<infer T> ? T : never;
+}>;
+
+export type GetMarkedEntities<
+  M extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+> =
+  M extends Record<string, string | TemplateWithMarkers<any>>
+    ? FlattenTemplates<M>
+    : M extends string | TemplateWithMarkers<infer R>
+      ? R
+      : never;

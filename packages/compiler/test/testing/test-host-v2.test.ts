@@ -137,7 +137,7 @@ describe("extract types", () => {
       Tester.compile(t.code`
         enum ${t.model("Foo")} {} 
       `),
-    ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 21-24");
+    ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 21");
   });
 });
 
@@ -171,7 +171,7 @@ describe("extract values", () => {
         const ${t.object("foo")} = 123; 
       `),
     ).rejects.toThrowError(
-      "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 22-25",
+      "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 22",
     );
   });
 });
@@ -188,4 +188,21 @@ it("still extract with wrappers", async () => {
     model ${t.model("Foo")} {}
   `);
   expect(res.Foo.kind).toBe("Model");
+});
+
+it("still extract with multiple files", async () => {
+  const res = await Tester.using("TypeSpec").compile({
+    "main.tsp": t.code`
+      import "./b.tsp";
+      model ${t.model("A")} {}
+    `,
+    "b.tsp": t.code`
+      enum ${t.enum("B")} {}
+    `,
+  });
+
+  expectTypeOf(res.A).toExtend<Model>();
+  expectTypeOf(res.B).toExtend<Enum>();
+  expect(res.A.kind).toBe("Model");
+  expect(res.B.kind).toBe("Enum");
 });
