@@ -4,6 +4,7 @@ import {
   Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
   Type,
   Union,
@@ -31,10 +32,20 @@ export const m = {
   op: marker<Operation>("Operation"),
   enumMember: marker<EnumMember>("EnumMember"),
   modelProperty: marker<ModelProperty>("ModelProperty"),
+  namespace: marker<Namespace>("Namespace"),
+  scalar: marker<Type>("Scalar"),
+  unionVariant: marker<Type>("UnionVariant"),
+  boolean: marker<Type>("Boolean"),
+  number: marker<Type>("Number"),
+  string: marker<Type>("String"),
 };
 
 export type MarkerConfig<T extends Record<string, Type>> = {
-  [K in keyof T]: T[K]["kind"];
+  [K in keyof T]: {
+    pos: number;
+    end: number;
+    kind: T[K]["kind"];
+  };
 };
 
 export interface TemplateWithMarkers<T extends Record<string, Type>> {
@@ -54,14 +65,21 @@ export function extract<const T extends (Marker<Type, string> | string)[]>(
   strings: TemplateStringsArray,
   ...keys: T
 ): TemplateWithMarkers<Prettify<CollectType<T>> & Record<string, Type>> {
-  const markers: Marker<Type, string>[] = [];
+  const markers: MarkerConfig<any> = {};
   const result: string[] = [strings[0]];
+  let pos = strings[0].length;
   keys.forEach((key, i) => {
     if (typeof key === "string") {
       result.push(key);
+      pos += key.length;
     } else {
       result.push(key.name);
-      markers.push(key as Marker<Type, string>);
+      markers[key.name] = {
+        pos,
+        end: pos + key.name.length,
+        kind: key.kind,
+      };
+      pos += key.name.length;
     }
     result.push(strings[i + 1]);
   });

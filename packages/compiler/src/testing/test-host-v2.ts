@@ -1,18 +1,22 @@
 import { readFile } from "fs/promises";
+import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
+import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
 import { Diagnostic, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
+import { TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
 // Need a way to combine that with `program`
-export type TestCompileResult = Record<string, Type>;
+export type TestCompileResult<T extends Record<string, Type>> = T;
 
 export interface JsFileDef {
   [key: string]: string | unknown;
@@ -24,12 +28,15 @@ interface TestCompileOptions {
 }
 
 interface Testable {
-  compile(main: string, options?: TestCompileOptions): Promise<TestCompileResult>;
-  diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
-  compileAndDiagnose(
-    main: string,
+  compile<T extends Record<string, Type>>(
+    main: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
-  ): Promise<[TestCompileResult, readonly Diagnostic[]]>;
+  ): Promise<TestCompileResult<T>>;
+  diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
+  compileAndDiagnose<T extends Record<string, Type>>(
+    main: string | TemplateWithMarkers<T>,
+    options?: TestCompileOptions,
+  ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]>;
 }
 
 // Immutable structure meant to be reused
@@ -189,28 +196,58 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     }
     return code;
   }
-  async function compileAndDiagnose(
-    code: string,
+  async function compileAndDiagnose<T extends Record<string, Type>>(
+    code: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
-  ): Promise<[TestCompileResult, readonly Diagnostic[]]> {
+  ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]> {
     const fs = await params.fs();
     const types = await addTestLib(fs);
 
     const imports = (params.imports ?? []).map((x) => `import "${x}";`);
     const usings = (params.usings ?? []).map((x) => `using ${x};`);
 
+    // Support TemplateWithMarkers
+    const codeStr = typeof code === "string" ? code : code.code;
     const actualCode = [
       ...imports,
       ...usings,
-      params.wraps ? applyWraps(code, params.wraps) : code,
+      params.wraps ? applyWraps(codeStr, params.wraps) : codeStr,
     ].join("\n");
     fs.addTypeSpecFile("main.tsp", actualCode);
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     savedProgram = program;
+
+    if (typeof code !== "string") {
+      const file = program.sourceFiles.get(resolveVirtualPath("main.tsp"));
+      if (!file) {
+        throw new Error(`Couldn't find main.tsp in program`);
+      }
+      for (const marker of Object.entries(code.markers)) {
+        const [name, { pos, end, kind }] = marker;
+        const node = getNodeAtPosition(file, pos);
+        if (!node) {
+          throw new Error(`Could not find node at ${pos}-${end}`);
+        }
+        const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
+        if (sym === undefined) {
+          throw new Error(`Could not find symbol for ${name} at ${pos}-${end}`);
+        }
+        const type = program.checker.getTypeForNode(getSymNode(sym));
+        if (type.kind !== kind) {
+          throw new Error(
+            `Expected ${name} to be of kind ${kind} but got (${type.kind}) ${getTypeName(type)} at ${pos}-${end}`,
+          );
+        }
+        types[name] = type;
+      }
+    }
     return [{ program, ...types } as any, program.diagnostics];
   }
 
-  async function compile(code: string, options?: TestCompileOptions): Promise<TestCompileResult> {
+  async function compile<T extends Record<string, Type>>(
+    code: string | TemplateWithMarkers<T>,
+    options?: TestCompileOptions,
+  ): Promise<TestCompileResult<T>> {
     const [result, diagnostics] = await compileAndDiagnose(code, options);
     expectDiagnosticEmpty(diagnostics);
     return result;
