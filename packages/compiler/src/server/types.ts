@@ -40,7 +40,7 @@ import {
 import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
-import type { CompilerHost, SourceFile, TypeSpecScriptNode } from "../core/types.js";
+import type { CompilerHost, Diagnostic, SourceFile, TypeSpecScriptNode } from "../core/types.js";
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
@@ -72,8 +72,7 @@ export interface CompileResult {
 
 export interface CustomCompileResult {
   readonly hasError: boolean;
-  readonly warningDiagnostics?: string[];
-  readonly errorDiagnostics?: string[];
+  readonly diagnostics: Diagnostic[];
   readonly entrypoint?: string;
   readonly options?: CompilerOptions;
 }

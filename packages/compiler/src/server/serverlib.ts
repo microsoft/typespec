@@ -56,7 +56,7 @@ import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { formatDiagnostic, formatLog } from "../core/logger/index.js";
+import { formatLog } from "../core/logger/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -382,29 +382,32 @@ export function createServer(host: ServerHost): Server {
     if (result === undefined) {
       return {
         hasError: true,
-        errorDiagnostics: [
-          "Failed to get compiler result, please check the compilation output for details",
+        diagnostics: [
+          {
+            code: "internal-error",
+            message:
+              "Failed to get compiler result, please check the compilation output for details",
+            severity: "error",
+            target: NoTarget,
+            url: undefined,
+          },
         ],
         entrypoint: undefined,
         options: undefined,
       };
     } else {
-      let errorDiagnostics: string[] | undefined = undefined;
-      let warningDiagnostics: string[] | undefined = undefined;
-      if (result.program.diagnostics.length > 0) {
-        errorDiagnostics = result.program.diagnostics
-          .filter((diag) => diag.severity === "error")
-          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }));
-
-        warningDiagnostics = result.program.diagnostics
-          .filter((diag) => diag.severity === "warning")
-          .map((diagnostic) => formatDiagnostic(diagnostic, { pretty: false }));
-      }
-
       return {
         hasError: result.program.hasError(),
-        errorDiagnostics: errorDiagnostics,
-        warningDiagnostics: warningDiagnostics,
+        diagnostics: result.program.diagnostics.map(
+          (diagnostic) =>
+            ({
+              code: diagnostic.code,
+              message: diagnostic.message,
+              severity: diagnostic.severity,
+              target: getSourceLocation(diagnostic.target, { locateId: true }),
+              url: diagnostic.url,
+            }) as Diagnostic,
+        ),
         entrypoint: result.document?.uri,
         options: result.program.compilerOptions,
       };

@@ -14,6 +14,7 @@ import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { ResultCode } from "../../types.js";
 import {
+  formatDiagnostic,
   getEntrypointTspFile,
   getVscodeUriFromPath,
   TraverseMainTspFileInWorkspace,
@@ -469,23 +470,20 @@ async function doEmit(
         }
         const addSuffix = (count: number, suffix: string) =>
           count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
-        let count = 0;
-        if (
-          compileResult.warningDiagnostics &&
-          (count = compileResult?.warningDiagnostics.length) > 0
-        ) {
-          logger.warning(`Found ${addSuffix(count, "warning")}`);
-          for (const diag of compileResult.warningDiagnostics) {
-            logger.warning(diag);
+        const warningDiagnostics = compileResult.diagnostics.filter(
+          (d) => d.severity === "warning",
+        );
+        if (warningDiagnostics.length > 0) {
+          logger.warning(`Found ${addSuffix(warningDiagnostics.length, "warning")}`);
+          for (const diag of warningDiagnostics) {
+            logger.warning(formatDiagnostic(diag));
           }
         }
-        if (
-          compileResult.errorDiagnostics &&
-          (count = compileResult?.errorDiagnostics.length) > 0
-        ) {
-          logger.warning(`Found ${addSuffix(count, "error")}`);
-          for (const diag of compileResult.errorDiagnostics) {
-            logger.error(diag);
+        const errorDiagnostics = compileResult.diagnostics.filter((d) => d.severity === "error");
+        if (errorDiagnostics.length > 0) {
+          logger.error(`Found ${addSuffix(errorDiagnostics.length, "error")}`);
+          for (const diag of errorDiagnostics) {
+            logger.error(formatDiagnostic(diag));
           }
         }
         if (compileResult.hasError) {
