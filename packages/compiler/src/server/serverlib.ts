@@ -621,7 +621,10 @@ export function createServer(host: ServerHost): Server {
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }
-        diagnostic.data = { id: diagnosticIdCounter++ };
+        diagnostic.data = {
+          id: diagnosticIdCounter++,
+          file: diagDocument.uri,
+        };
         const diagnostics = diagnosticMap.get(diagDocument);
         compilerAssert(
           diagnostics,

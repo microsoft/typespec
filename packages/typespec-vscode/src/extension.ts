@@ -14,6 +14,7 @@ import telemetryClient from "./telemetry/telemetry-client.js";
 import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
+  CodeActionCommand,
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
@@ -22,7 +23,7 @@ import {
   ResultCode,
   SettingName,
 } from "./types.js";
-import { isWhitespaceStringOrUndefined } from "./utils.js";
+import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
@@ -53,13 +54,38 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CommandName.OpenUrl, (url: string) => {
+    commands.registerCommand(CodeActionCommand.OpenUrl, (url: string) => {
       try {
         vscode.env.openExternal(vscode.Uri.parse(url));
       } catch (error) {
         logger.error(`Failed to open URL: ${url}`, [error as any]);
       }
     }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(
+      CodeActionCommand.NpmInstallPackage,
+      async (projectFolder: string | undefined) => {
+        try {
+          if (projectFolder) {
+            await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
+          } else {
+            vscode.window.showErrorMessage(
+              "No package.json file was found, and the dependency package could not be installed",
+            );
+            logger.error(
+              "No package.json file was found, and the dependency package could not be installed",
+            );
+          }
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            "Failed to execute npm install. Please check the output for details.",
+          );
+          logger.error("Failed to execute npm install, see details: ", [error]);
+        }
+      },
+    ),
   );
 
   /* emit command. */
