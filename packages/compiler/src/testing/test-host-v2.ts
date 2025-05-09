@@ -18,6 +18,7 @@ import { TestFileSystem } from "./types.js";
 
 // Need a way to combine that with `program`
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
+  /** The program created in this test compilation. */
   readonly program: Program;
 } & Record<string, Entity>;
 
