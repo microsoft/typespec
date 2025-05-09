@@ -7,19 +7,22 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ScmMethodProvider : MethodProvider
+    public class ScmMethodProvider : MethodProvider
     {
         public ScmMethodProvider(
             MethodSignature signature,
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            TypeProvider? collectionDefinition = default)
+            TypeProvider? collectionDefinition = default,
+            bool isProtocolMethod = false)
             : base(signature, bodyStatements, enclosingType, xmlDocProvider)
         {
             CollectionDefinition = collectionDefinition;
+            IsProtocolMethod = isProtocolMethod;
         }
 
         internal TypeProvider? CollectionDefinition { get; }
+        public bool IsProtocolMethod { get; }
     }
 }

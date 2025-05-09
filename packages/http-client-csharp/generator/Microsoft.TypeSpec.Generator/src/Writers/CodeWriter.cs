@@ -254,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            foreach (var param in docs.Params)
+            foreach (var param in docs.Parameters)
             {
                 param.Write(this);
             }

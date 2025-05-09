@@ -1,8 +1,8 @@
-import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { TypeExpression } from "../components/type-expression.jsx";
+import { efRefkey } from "./refkey.js";
 
 export function getReturnType(
   type: Operation,
@@ -52,7 +52,7 @@ export function buildParameterDescriptor(modelProperty: ModelProperty): ts.Param
   const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
   return {
     name: paramName,
-    refkey: getRefkey(modelProperty),
+    refkey: efRefkey(modelProperty),
     optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
   };

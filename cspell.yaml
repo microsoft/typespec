@@ -22,6 +22,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -201,6 +203,7 @@ words:
   - recorda
   - regen
   - rehype
+  - reinjected
   - repr
   - respecify
   - rjust
@@ -258,6 +261,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -270,6 +274,7 @@ words:
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat

@@ -8,6 +8,12 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +41,7 @@ public class JavaSettings {
     private final String flavor;
     private final boolean noCustomHeaders;
     private final boolean disableTypedHeadersMethods;
+    private final boolean useRestProxy;
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -139,9 +146,6 @@ public class JavaSettings {
         this.modelerSettings = new ModelerSettings(
             host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
 
-        // Whether to generate the Azure.
-        this.azure = getBooleanValue(host, "azure-arm", false);
-
         // Whether to generate the SDK integration.
         this.sdkIntegration = getBooleanValue(host, "sdk-integration", false);
 
@@ -180,7 +184,9 @@ public class JavaSettings {
         // The brand name we use to generate SDK.
         this.flavor = getStringValue(host, "flavor", "azure");
 
-        this.modelsSubpackage = getStringValue(host, "models-subpackage", isBranded(this.flavor) ? "models" : "");
+        updateFlavorFactories();
+
+        this.modelsSubpackage = getStringValue(host, "models-subpackage", isAzureV1() || isAzureV2() ? "models" : "");
 
         // The custom types that will be generated.
         String customTypes = getStringValue(host, "custom-types", "");
@@ -291,6 +297,8 @@ public class JavaSettings {
         // Whether to generate tests.
         this.generateTests = getBooleanValue(host, "generate-tests", false);
 
+        this.useRestProxy = getBooleanValue(host, "use-rest-proxy", false);
+
         // Whether to generate the send request method.
         this.generateSendRequestMethod = false;
 
@@ -384,17 +392,35 @@ public class JavaSettings {
         this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
     }
 
-    /**
-     * Whether to generate with Azure branding.
-     *
-     * @return Whether to generate with Azure branding.
-     */
-    public boolean isBranded() {
-        return isBranded(this.flavor);
+    private void updateFlavorFactories() {
+        if (isAzureV2()) {
+            Mappers.setFactory(new AzureVNextMapperFactory());
+            Templates.setFactory(new AzureVNextTemplateFactory());
+        } else if (!isAzureV1()) {
+            Mappers.setFactory(new ClientCoreMapperFactory());
+            Templates.setFactory(new ClientCoreTemplateFactory());
+        }
     }
 
-    private static boolean isBranded(String flavor) {
+    /**
+     * Whether to generate with Azure V1.
+     *
+     * @return Whether to generate with Azure V1.
+     */
+    public boolean isAzureV1() {
+        return isAzureV1(this.flavor);
+    }
+
+    private static boolean isAzureV1(String flavor) {
         return "azure".equalsIgnoreCase(flavor);
+    }
+
+    public boolean isAzureV2() {
+        return "azurev2".equalsIgnoreCase(this.flavor);
+    }
+
+    public boolean useRestProxy() {
+        return this.useRestProxy;
     }
 
     private final String keyCredentialHeaderName;
@@ -428,17 +454,6 @@ public class JavaSettings {
      */
     public Set<String> getCredentialScopes() {
         return credentialScopes;
-    }
-
-    private final boolean azure;
-
-    /**
-     * Whether to generate the Azure.
-     *
-     * @return Whether to generate the Azure.
-     */
-    public final boolean isAzure() {
-        return azure;
     }
 
     private final String artifactId;
@@ -562,15 +577,6 @@ public class JavaSettings {
      */
     public final boolean isFluentPremium() {
         return fluent == Fluent.PREMIUM;
-    }
-
-    /**
-     * Whether to generate the Azure or Fluent.
-     *
-     * @return Whether to generate the Azure or Fluent.
-     */
-    public final boolean isAzureOrFluent() {
-        return isAzure() || isFluent();
     }
 
     // configure for model flatten in client
@@ -1160,7 +1166,7 @@ public class JavaSettings {
      * @return Whether the client is a vanilla client.
      */
     public boolean isVanilla() {
-        return isBranded() && !isDataPlaneClient() && !isFluent();
+        return isAzureV1() && !isDataPlaneClient() && !isFluent();
     }
 
     private final boolean useIterable;
@@ -1304,11 +1310,18 @@ public class JavaSettings {
             = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
                 "    .setContext({context})", "    .setServiceVersion({serviceVersion}))");
 
+        public static final String DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT
+            = String.join("\n", "new %s<>(new PollingStrategyOptions({httpPipeline})", "    .setEndpoint({endpoint})",
+                "    .setRequestContext({context})", "    .setServiceVersion({serviceVersion}))");
+
         private static final String DEFAULT_POLLING_CODE
             = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
 
         private static final String DEFAULT_SYNC_POLLING_CODE
             = String.format(DEFAULT_POLLING_STRATEGY_FORMAT, "SyncDefaultPollingStrategy");
+
+        private static final String DEFAULT_CLIENTCORE_POLLING_CODE
+            = String.format(DEFAULT_CLIENTCORE_POLLING_STRATEGY_FORMAT, "DefaultPollingStrategy");
 
         /**
          * Gets the strategy for polling.
@@ -1336,6 +1349,9 @@ public class JavaSettings {
          */
         public String getSyncStrategy() {
             if (syncStrategy == null || "default".equalsIgnoreCase(syncStrategy)) {
+                if (JavaSettings.getInstance().isAzureV2()) {
+                    return DEFAULT_CLIENTCORE_POLLING_CODE;
+                }
                 return DEFAULT_SYNC_POLLING_CODE;
             } else {
                 return syncStrategy;

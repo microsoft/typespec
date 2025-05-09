@@ -1,5 +1,12 @@
 # Change Log - @typespec/protobuf
 
+## 0.70.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+
+
 ## 0.69.0
 
 ### Bug Fixes

@@ -20,7 +20,7 @@ granted herein, whether by implication, estoppel or otherwise.
 10. mustache version 4.2.0 (https://github.com/janl/mustache.js)
 11. semver version 7.7.1 (https://github.com/npm/node-semver)
 12. which version 5.0.0 (https://github.com/npm/node-which)
-13. yaml version 2.7.0 (github:eemeli/yaml)
+13. yaml version 2.7.1 (github:eemeli/yaml)
 
 
 %% ajv NOTICES AND INFORMATION BEGIN HERE

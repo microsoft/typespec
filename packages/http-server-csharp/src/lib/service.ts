@@ -53,6 +53,7 @@ import {
   isHeader,
   isStatusCode,
 } from "@typespec/http";
+import { getUniqueItems } from "@typespec/json-schema";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
 import path from "path";
@@ -68,12 +69,13 @@ import {
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
+  CollectionType,
   ControllerContext,
   NameCasingType,
   ResponseInfo,
   checkOrAddNamespaceToScope,
 } from "./interfaces.js";
-import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
 import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
@@ -114,6 +116,7 @@ import {
   isRecord,
   isStringEnumType,
   isValueType,
+  resolveReferenceFromScopes,
 } from "./utils.js";
 
 type FileExists = (path: string) => Promise<boolean>;
@@ -123,6 +126,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
   const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
+  CSharpServiceOptions.getInstance().initialize(context.options);
 
   function getFileWriter(program: Program): FileExists {
     return async (path: string) =>
@@ -209,10 +213,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.declaration(
-        ensureCSharpIdentifier(this.emitter.getProgram(), array, name),
-        code`${this.emitter.emitTypeReference(elementType)}[]`,
-      );
+      return this.collectionDeclaration(elementType, array);
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
@@ -226,7 +227,24 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         return code`${csType.type.getTypeReference(this.emitter.getContext()?.scope)}`;
       }
 
-      return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
+      return this.collectionDeclaration(elementType, array);
+    }
+
+    collectionDeclaration(elementType: Type, array: Model): EmitterOutput<string> {
+      const isUniqueItems = getUniqueItems(this.emitter.getProgram(), array);
+      const collectionType = isUniqueItems
+        ? CollectionType.ISet
+        : CSharpServiceOptions.getInstance().collectionType;
+
+      switch (collectionType) {
+        case CollectionType.ISet:
+          return code`ISet<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
+        case CollectionType.IEnumerable:
+          return code`IEnumerable<${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}>`;
+        case CollectionType.Array:
+        default:
+          return code`${this.emitter.emitTypeReference(elementType, this.emitter.getContext())}[]`;
+      }
     }
 
     booleanLiteral(boolean: BooleanLiteral): EmitterOutput<string> {
@@ -485,11 +503,30 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelDeclarationContext(model: Model, name: string): Context {
+      function getSourceModels(source: Model, visited: Set<Model> = new Set<Model>()): Model[] {
+        const result: Model[] = [];
+        if (visited.has(source)) return [];
+        result.push(source);
+        visited.add(source);
+        for (const candidate of source.sourceModels) {
+          result.push(...getSourceModels(candidate.model, visited));
+        }
+        return result;
+      }
+      function getModelNamespace(model: Model): Namespace | undefined {
+        const sourceModels = getSourceModels(model);
+        if (sourceModels.length === 0) return undefined;
+        return sourceModels
+          .filter((m) => m.namespace !== undefined)
+          .flatMap((s) => s.namespace)
+          .reduce((c, n) => (c === n ? c : undefined));
+      }
       if (this.#isMultipartModel(model)) return this.emitter.getContext();
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
-      const modelNamespace = this.#getOrAddNamespace(model.namespace);
+      const ns = model.namespace ?? getModelNamespace(model);
+      const modelNamespace = this.#getOrAddNamespace(ns);
       return this.#createModelContext(modelNamespace, modelFile, modelName);
     }
 
@@ -634,9 +671,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const attr = getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!;
         if (!attributes.has(attr.type.name)) attributes.set(attr.type.name, attr);
       }
-      const defaultValue = property.defaultValue
-        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
-        : typeDefault;
+      const defaultValue =
+        this.#opHelpers.getDefaultValue(
+          this.emitter.getProgram(),
+          property.type,
+          property.defaultValue,
+        ) ?? typeDefault;
       const attributeList = [...attributes.values()];
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributeList.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributeList?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
@@ -650,7 +690,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #findPropertyType(property: ModelProperty): EmittedTypeInfo {
-      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type, property);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {
@@ -1197,8 +1237,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       pathDown: Scope<string>[],
       commonScope: Scope<string> | null,
     ): string | EmitEntity<string> {
-      //if (targetDeclaration.name) return targetDeclaration.name;
-      return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
+      const resolved = resolveReferenceFromScopes(targetDeclaration, pathDown, pathUp);
+      return resolved ?? super.reference(targetDeclaration, pathUp, pathDown, commonScope);
     }
 
     scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<string> {

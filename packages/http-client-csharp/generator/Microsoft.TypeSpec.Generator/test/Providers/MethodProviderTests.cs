@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -47,6 +47,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 null,
                 $"",
                 [new ParameterProvider("input", $"", typeof(Stream))]));
+        }
+
+        [Test]
+        public void TestUpdate()
+        {
+            MockHelpers.LoadMockGenerator();
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Throw(Null), typeProvider);
+            // add the method to the type provider
+            typeProvider.Update(methods: [methodProvider]);
+
+            // now update the method and check if the type provider reflects the change
+            methodProvider.Update(new MethodSignature("Updated", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("foo", $"Foo description", typeof(int))]));
+            var updatedMethods = typeProvider.CanonicalView.Methods;
+            Assert.IsNotNull(updatedMethods);
+            Assert.AreEqual(1, updatedMethods!.Count);
+
+            // Validate that the method name is updated
+            var updatedMethod = updatedMethods[0];
+            Assert.AreEqual("Updated", updatedMethod.Signature.Name);
+
+            // Validate that the parameter description is updated
+            var parameter = updatedMethod.Signature.Parameters[0];
+            Assert.AreEqual("Foo description", parameter.Description.ToString());
+            Assert.IsTrue(parameter.Type.Equals(typeof(int)));
+
+            // Validate that the xml docs are updated
+            Assert.IsNotNull(updatedMethod.XmlDocs);
+            var xmlDocParamStatement = updatedMethod.XmlDocs!.Parameters[0];
+            Assert.IsNotNull(xmlDocParamStatement);
+            Assert.AreEqual(parameter, xmlDocParamStatement.Parameter);
+            Assert.AreEqual("/// <param name=\"foo\"> Foo description. </param>\n", xmlDocParamStatement.ToDisplayString());
         }
 
         private class TestTypeProvider : TypeProvider
