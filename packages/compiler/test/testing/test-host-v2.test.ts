@@ -1,5 +1,6 @@
 // TODO: rename?
 
+import { strictEqual } from "assert";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
 import { Enum, Model, Program } from "../../src/index.js";
@@ -38,12 +39,13 @@ describe("extract types", () => {
     expect(res.Bar.kind).toBe("Enum");
   });
 
-  // it("extract with fourslash syntax", async () => {
-  //   const res = await Tester.compile(t.code`
-  //     model /*ExtractedFoo*/Foo {}
-  //   `);
-  //   expect(res.ExtractedFoo.kind).toBe("Model");
-  // });
+  it("extract with fourslash syntax", async () => {
+    const res = await Tester.compile(t.code`
+      model /*ExtractedFoo*/Foo {}
+    `);
+    strictEqual(res.ExtractedFoo.entityKind, "Type");
+    expect(res.ExtractedFoo.kind).toBe("Model");
+  });
 
   it("model", async () => {
     const res = await Tester.compile(t.code`
