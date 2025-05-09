@@ -260,7 +260,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * Extension point of additional methods for LRO.
      */
     protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
-                                              CreateClientMethodArgs createClientMethodArgs) {
+        CreateClientMethodArgs createClientMethodArgs) {
     }
 
     private static void setJavaDoc(ClientMethod.Builder builder, Operation operation) {
@@ -290,14 +290,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (operation.getExternalDocs() != null) {
             final ExternalDocumentation externalDocumentation
                 = new ExternalDocumentation.Builder().description(operation.getExternalDocs().getDescription())
-                .url(operation.getExternalDocs().getUrl())
-                .build();
+                    .url(operation.getExternalDocs().getUrl())
+                    .build();
             builder.methodDocumentation(externalDocumentation);
         }
     }
 
     private static List<Request> getCodeModelRequests(Operation operation, boolean isProtocolMethod,
-                                                      Map<Request, List<ProxyMethod>> proxyMethodsMap) {
+        Map<Request, List<ProxyMethod>> proxyMethodsMap) {
         if (!isProtocolMethod
             && operation.getConvenienceApi() != null
             && operation.getConvenienceApi().getRequests() != null) {
@@ -314,7 +314,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private static List<Parameter> getCodeModelParameters(Request request, Operation operation,
-                                                          boolean isProtocolMethod) {
+        boolean isProtocolMethod) {
         final Stream<Parameter> parameters;
         if (isProtocolMethod) {
             // Required path, body, header and query parameters are allowed
@@ -322,9 +322,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 RequestParameterLocation location = p.getProtocol().getHttp().getIn();
                 return p.isRequired()
                     && (location == RequestParameterLocation.PATH
-                    || location == RequestParameterLocation.BODY
-                    || location == RequestParameterLocation.HEADER
-                    || location == RequestParameterLocation.QUERY);
+                        || location == RequestParameterLocation.BODY
+                        || location == RequestParameterLocation.HEADER
+                        || location == RequestParameterLocation.QUERY);
             });
         } else {
             parameters = request.getParameters().stream().filter(p -> !p.isFlattened());
@@ -386,7 +386,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private static void createOverloadForVersioning(boolean isProtocolMethod, List<ClientMethod> methods,
-                                                    ClientMethod baseMethod) {
+        ClientMethod baseMethod) {
         final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         if (!isProtocolMethod && JavaSettings.getInstance().isDataPlaneClient()) {
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
@@ -419,8 +419,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             List<ClientMethodParameter> overloadedParameters = allParameters.stream()
                 .filter(p -> (p.getVersioning() == null || p.getVersioning().getAdded() == null)
                     || (p.getVersioning() != null
-                    && p.getVersioning().getAdded() != null
-                    && p.getVersioning().getAdded().contains(version)))
+                        && p.getVersioning().getAdded() != null
+                        && p.getVersioning().getAdded().contains(version)))
                 .collect(Collectors.toList());
 
             if (!overloadedParameters.equals(allParameters)
@@ -435,7 +435,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createPagingClientMethods(boolean isSync, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-                                           List<ClientMethod> methods, CreateClientMethodArgs createClientMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createClientMethodArgs) {
 
         createSinglePageClientMethods(isSync, baseMethod, pagingMetadata, methods, createClientMethodArgs);
         if (pagingMetadata.isNextMethod()) {
@@ -446,7 +446,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSinglePageClientMethods(boolean isSync, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-                                               List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
@@ -491,7 +491,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createPageStreamingClientMethods(boolean isSync, ClientMethod baseMethod,
-                                                  PagingMetadata pagingMetadata, List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        PagingMetadata pagingMetadata, List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
@@ -559,7 +559,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroWithResponseClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-                                                    CreateClientMethodArgs createMethodArgs) {
+        CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
@@ -608,7 +608,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createFluentLroWithResponseSyncClientMethods(Operation operation, ClientMethod baseMethod,
-                                                              List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
@@ -647,7 +647,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createProtocolLroBeginClientMethods(ClientMethod baseMethod, PollingMetadata pollingMetadata,
-                                                     List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         assert createMethodArgs.isProtocolMethod;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
@@ -681,7 +681,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroBeginClientMethods(ClientMethod lroBaseMethod, String asyncMethodName, String syncMethodName,
-                                             List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
 
@@ -700,7 +700,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroBeginClientMethods(boolean isSync, ClientMethod lroBaseMethod, String methodName,
-                                             List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
         final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
@@ -749,7 +749,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSimpleClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-                                           CreateClientMethodArgs createClientMethodArgs) {
+        CreateClientMethodArgs createClientMethodArgs) {
 
         createSimpleWithResponseClientMethods(isSync, baseMethod, methods, createClientMethodArgs);
         if (baseMethod.getProxyMethod().isCustomHeaderIgnored()) {
@@ -759,7 +759,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSimpleWithResponseClientMethods(boolean isSync, ClientMethod baseMethod,
-                                                       List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
         final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
@@ -799,7 +799,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSimpleValueClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-                                                CreateClientMethodArgs createMethodArgs) {
+        CreateClientMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
         final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
@@ -896,7 +896,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @return method visibility, null if do not generate.
      */
     protected JavaVisibility methodVisibility(ClientMethodType methodType, MethodOverloadType methodOverloadType,
-                                              boolean hasContextParameter, boolean isProtocolMethod) {
+        boolean hasContextParameter, boolean isProtocolMethod) {
 
         JavaSettings settings = JavaSettings.getInstance();
         if (settings.isDataPlaneClient()) {
@@ -929,9 +929,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     || (methodType == ClientMethodType.PagingSync && !hasContextParameter)
                     || (methodType == ClientMethodType.LongRunningBeginAsync && !hasContextParameter)
                     || (methodType == ClientMethodType.LongRunningBeginSync && !hasContextParameter))
-                    // || (methodType == ClientMethodType.SimpleSyncRestResponse && hasContextParameter))
-                    ? VISIBLE
-                    : NOT_GENERATE;
+                        // || (methodType == ClientMethodType.SimpleSyncRestResponse && hasContextParameter))
+                        ? VISIBLE
+                        : NOT_GENERATE;
             }
         } else {
             if (methodType == ClientMethodType.SimpleSyncRestResponse && !hasContextParameter) {
@@ -966,7 +966,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param isProtocolMethod Is protocol method.
      */
     protected void addClientMethodWithContext(List<ClientMethod> methods, ClientMethod baseMethod,
-                                              JavaVisibility visibility, boolean isProtocolMethod) {
+        JavaVisibility visibility, boolean isProtocolMethod) {
         final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
         if (JavaSettings.getInstance().isAzureV1()
@@ -984,7 +984,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private static MethodNamer resolveMethodNamer(ProxyMethod proxyMethod, ConvenienceApi convenienceApi,
-                                                  boolean isProtocolMethod) {
+        boolean isProtocolMethod) {
         if (!isProtocolMethod && convenienceApi != null) {
             return new MethodNamer(SchemaUtil.getJavaName(convenienceApi));
         } else {
@@ -996,7 +996,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     protected static MethodPageDetails.ContinuationToken fromContinuationToken(XmsPageable xmsPageable,
-                                                                               IType responseBodyType) {
+        IType responseBodyType) {
         // TODO: anu remove this method once ClientCoreClientMethodMapper is refactored similar to ClientMethodMapper
         return PagingMetadata.getContinuationToken(xmsPageable, responseBodyType);
     }
@@ -1013,8 +1013,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         public final boolean generateRequiredOnlyParametersOverload;
 
         CreateClientMethodArgs(JavaSettings settings, boolean isProtocolMethod,
-                               ClientMethodsReturnDescription methodsReturnDescription, MethodOverloadType defaultOverloadType,
-                               MethodNamer methodNamer) {
+            ClientMethodsReturnDescription methodsReturnDescription, MethodOverloadType defaultOverloadType,
+            MethodNamer methodNamer) {
             this.settings = settings;
             this.isProtocolMethod = isProtocolMethod;
             this.methodsReturnDescription = methodsReturnDescription;
