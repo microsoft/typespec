@@ -216,7 +216,6 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       params.wraps ? applyWraps(codeStr, params.wraps) : codeStr,
     ].join("\n");
 
-    console.log("Actual code", actualCode);
     const markerPositions = extractMarkers(actualCode);
 
     fs.addTypeSpecFile("main.tsp", actualCode);
