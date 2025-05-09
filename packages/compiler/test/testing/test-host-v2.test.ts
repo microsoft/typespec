@@ -2,117 +2,145 @@
 
 import { describe, expect, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { extract, m } from "../../src/testing/marked-template.js";
+import { t } from "../../src/testing/marked-template.js";
 import { createTester } from "../../src/testing/test-host-v2.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
 
 describe("extract types", () => {
-  it("model", async () => {
-    const foo = await Tester.compile(extract`
-      model ${m.model("Foo")} {} 
+  it("generic type", async () => {
+    const res = await Tester.compile(t.code`
+      model ${t.type("Foo")} {} 
+      enum ${t.type("Bar")} {} 
     `);
-    expect(foo.Foo.kind).toBe("Model");
+    expect(res.Foo.kind).toBe("Model");
+    expect(res.Bar.kind).toBe("Enum");
+  });
+
+  it("model", async () => {
+    const res = await Tester.compile(t.code`
+      model ${t.model("Foo")} {} 
+    `);
+    expect(res.Foo.kind).toBe("Model");
   });
 
   it("alias", async () => {
-    const foo = await Tester.compile(extract`
+    const res = await Tester.compile(t.code`
       model Foo {}
-      alias ${m.model("Bar")} = Foo; 
+      alias ${t.model("Bar")} = Foo; 
     `);
-    expect(foo.Bar.kind).toBe("Model");
+    expect(res.Bar.kind).toBe("Model");
   });
 
   it("enum", async () => {
-    const foo = await Tester.compile(extract`
-      enum ${m.enum("Foo")} {} 
+    const res = await Tester.compile(t.code`
+      enum ${t.enum("Foo")} {} 
     `);
-    expect(foo.Foo.kind).toBe("Enum");
+    expect(res.Foo.kind).toBe("Enum");
   });
 
   it("union", async () => {
-    const foo = await Tester.compile(extract`
-      union ${m.union("Foo")} {} 
+    const res = await Tester.compile(t.code`
+      union ${t.union("Foo")} {} 
     `);
-    expect(foo.Foo.kind).toBe("Union");
+    expect(res.Foo.kind).toBe("Union");
   });
 
   it("interface", async () => {
-    const foo = await Tester.compile(extract`
-      interface ${m.interface("Foo")} {}
+    const res = await Tester.compile(t.code`
+      interface ${t.interface("Foo")} {}
     `);
-    expect(foo.Foo.kind).toBe("Interface");
+    expect(res.Foo.kind).toBe("Interface");
   });
 
   it("operation", async () => {
-    const foo = await Tester.compile(extract`
-      op ${m.op("Foo")}(): void;
+    const res = await Tester.compile(t.code`
+      op ${t.op("Foo")}(): void;
     `);
-    expect(foo.Foo.kind).toBe("Operation");
+    expect(res.Foo.kind).toBe("Operation");
   });
 
   it("namespace", async () => {
-    const foo = await Tester.compile(extract`
-      namespace ${m.namespace("Foo")} {}
+    const res = await Tester.compile(t.code`
+      namespace ${t.namespace("Foo")} {}
     `);
-    expect(foo.Foo.kind).toBe("Namespace");
+    expect(res.Foo.kind).toBe("Namespace");
   });
 
   it("scalar", async () => {
-    const foo = await Tester.compile(extract`
-      scalar ${m.scalar("Foo")};
+    const res = await Tester.compile(t.code`
+      scalar ${t.scalar("Foo")};
     `);
-    expect(foo.Foo.kind).toBe("Scalar");
+    expect(res.Foo.kind).toBe("Scalar");
   });
 
   it("model property", async () => {
-    const foo = await Tester.compile(extract`
+    const res = await Tester.compile(t.code`
       model Bar {
-        ${m.modelProperty("prop")}: string;
+        ${t.modelProperty("prop")}: string;
       }
     `);
-    expect(foo.prop.kind).toBe("ModelProperty");
+    expect(res.prop.kind).toBe("ModelProperty");
   });
 
   it("union variant", async () => {
-    const foo = await Tester.compile(extract`
+    const res = await Tester.compile(t.code`
       union Bar {
-        ${m.unionVariant("A")}: string;
+        ${t.unionVariant("A")}: string;
       }
     `);
-    expect(foo.A.kind).toBe("UnionVariant");
+    expect(res.A.kind).toBe("UnionVariant");
   });
 
   it("enum member", async () => {
-    const foo = await Tester.compile(extract`
+    const res = await Tester.compile(t.code`
       enum Bar {
-        ${m.enumMember("A")}
+        ${t.enumMember("A")}
       }
     `);
-    expect(foo.A.kind).toBe("EnumMember");
+    expect(res.A.kind).toBe("EnumMember");
+  });
+
+  it("validate type match", async () => {
+    await expect(() =>
+      Tester.compile(t.code`
+    enum ${t.model("Foo")} {} 
+  `),
+    ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 17-20");
   });
 });
 
 describe("extract values", () => {
-  it("object", async () => {
-    const foo = await Tester.compile(extract`
-      const ${m.object("foo")} = #{};
+  it("generic value", async () => {
+    const res = await Tester.compile(t.code`
+      const ${t.value("a")} = "foo"; 
+      const ${t.value("b")} = 123; 
     `);
-    expect(foo.foo.valueKind).toBe("ObjectValue");
+    expect(res.a.valueKind).toBe("StringValue");
+    expect(res.b.valueKind).toBe("NumericValue");
+  });
+
+  it("object", async () => {
+    const res = await Tester.compile(t.code`
+      const ${t.object("foo")} = #{};
+    `);
+    expect(res.foo.valueKind).toBe("ObjectValue");
   });
 
   it("array", async () => {
-    const foo = await Tester.compile(extract`
-      const ${m.array("foo")} = #[];
+    const res = await Tester.compile(t.code`
+      const ${t.array("foo")} = #[];
     `);
-    expect(foo.foo.valueKind).toBe("ArrayValue");
+    expect(res.foo.valueKind).toBe("ArrayValue");
   });
-});
 
-it("validate type match", async () => {
-  await expect(() =>
-    Tester.compile(extract`
-    enum ${m.model("Foo")} {} 
+  it("validate value match", async () => {
+    await expect(() =>
+      Tester.compile(t.code`
+    const ${t.object("foo")} = 123; 
   `),
-  ).rejects.toThrowError("Expected Foo to be of kind Model but got (Enum) Foo at 10-13");
+    ).rejects.toThrowError(
+      "Expected foo to be of value kind ObjectValue but got (NumericValue) 123 at 18-21",
+    );
+  });
 });

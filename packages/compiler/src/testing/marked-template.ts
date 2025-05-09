@@ -50,7 +50,54 @@ function valueMarker<const T extends Value>(valueKind?: T["valueKind"]) {
   };
 }
 
-export const m = {
+export type MarkerConfig<T extends Record<string, Entity>> = {
+  [K in keyof T]: Marker<T[K], K & string>;
+};
+
+export interface TemplateWithMarkers<T extends Record<string, Entity>> {
+  readonly code: string;
+  readonly markers: MarkerConfig<T>;
+}
+
+type Prettify<T extends Record<string, Entity>> = {
+  [K in keyof T]: T[K] & Entity;
+} & {};
+
+type InferType<T> = T extends Marker<infer K, infer _> ? K : never;
+type CollectType<T extends ReadonlyArray<Marker<Entity, string> | string>> = {
+  [K in T[number] as K extends Marker<infer _K, infer N> ? N : never]: InferType<K>;
+};
+/** Specify that this value is dynamic and needs to be interpolated with the given keys */
+function extract<const T extends (Marker<Entity, string> | string)[]>(
+  strings: TemplateStringsArray,
+  ...keys: T
+): TemplateWithMarkers<Prettify<CollectType<T>>> {
+  const markers: MarkerConfig<any> = {};
+  const result: string[] = [strings[0]];
+  keys.forEach((key, i) => {
+    if (typeof key === "string") {
+      result.push(key);
+    } else {
+      result.push(`/*${key.name}*/${key.name}`);
+      markers[key.name] = {
+        entityKind: key.entityKind,
+        name: key.name,
+        kind: (key as any).kind,
+        valueKind: (key as any).valueKind,
+      };
+    }
+    result.push(strings[i + 1]);
+  });
+  return {
+    code: result.join(""),
+    markers: markers as any,
+  };
+}
+
+/** TypeSpec template marker */
+export const t = {
+  code: extract,
+
   // Types
   type: typeMarker<Type>(),
   model: typeMarker<Model>("Model"),
@@ -72,56 +119,3 @@ export const m = {
   object: valueMarker<Value>("ObjectValue"),
   array: valueMarker<Value>("ArrayValue"),
 };
-
-export type MarkerConfig<T extends Record<string, Entity>> = {
-  [K in keyof T]: {
-    pos: number;
-    end: number;
-  } & Marker<T[K], K & string>;
-};
-
-export interface TemplateWithMarkers<T extends Record<string, Entity>> {
-  readonly code: string;
-  readonly markers: MarkerConfig<T>;
-}
-
-type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
-type InferType<T> = T extends Marker<infer K, infer _> ? K : never;
-type CollectType<T extends ReadonlyArray<Marker<Entity, string> | string>> = {
-  [K in T[number] as K extends Marker<infer _K, infer N> ? N : never]: InferType<K>;
-};
-/** Specify that this value is dynamic and needs to be interpolated with the given keys */
-export function extract<const T extends (Marker<Entity, string> | string)[]>(
-  strings: TemplateStringsArray,
-  ...keys: T
-): TemplateWithMarkers<Prettify<CollectType<T>> & Record<string, Entity>> {
-  const markers: MarkerConfig<any> = {};
-  const result: string[] = [strings[0]];
-  let pos = strings[0].length;
-  keys.forEach((key, i) => {
-    if (typeof key === "string") {
-      result.push(key);
-      pos += key.length;
-    } else {
-      result.push(key.name);
-      markers[key.name] = {
-        pos,
-        end: pos + key.name.length,
-        entityKind: key.entityKind,
-        name: key.name,
-        kind: (key as any).kind,
-        valueKind: (key as any).valueKind,
-      };
-      pos += key.name.length;
-    }
-    result.push(strings[i + 1]);
-  });
-  return {
-    code: result.join(""),
-    markers: markers as any,
-  };
-}
-
-const a = extract`foo ${m.model("bar")} ${"regular"}  ${m.enum("def")}`;

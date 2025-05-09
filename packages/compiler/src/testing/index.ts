@@ -36,4 +36,5 @@ export type {
 } from "./types.js";
 
 // TODO: use named imports
+export { t } from "./marked-template.js";
 export * from "./test-host-v2.js";

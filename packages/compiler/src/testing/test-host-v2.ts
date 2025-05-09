@@ -213,6 +213,9 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       ...usings,
       params.wraps ? applyWraps(codeStr, params.wraps) : codeStr,
     ].join("\n");
+
+    const markerPositions = extractMarkers(actualCode);
+
     fs.addTypeSpecFile("main.tsp", actualCode);
     const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
     savedProgram = program;
@@ -222,8 +225,9 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       if (!file) {
         throw new Error(`Couldn't find main.tsp in program`);
       }
-      for (const marker of Object.values(code.markers)) {
-        const { pos, end, name, kind, entityKind, valueKind } = marker;
+      for (const marker of markerPositions) {
+        const { name, pos, end } = marker;
+        const markerConfig = code.markers[name];
         const node = getNodeAtPosition(file, pos);
         if (!node) {
           throw new Error(`Could not find node at ${pos}-${end}`);
@@ -235,23 +239,31 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
         const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
         if (entity === null) {
           throw new Error(
-            `Expected ${name} to be of entity kind ${entityKind} but got null (Means a value failed to resolve) at ${pos}-${end}`,
+            `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}-${end}`,
           );
         }
-        if (entity.entityKind !== entityKind) {
-          throw new Error(
-            `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}-${end}`,
-          );
+        if (markerConfig) {
+          const { entityKind, kind, valueKind } = markerConfig as any;
+          if (entity.entityKind !== entityKind) {
+            throw new Error(
+              `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+            );
+          }
+          if (entity.entityKind === "Type" && kind !== undefined && entity.kind !== kind) {
+            throw new Error(
+              `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}-${end}`,
+            );
+          } else if (
+            entity?.entityKind === "Value" &&
+            valueKind !== undefined &&
+            entity.valueKind !== valueKind
+          ) {
+            throw new Error(
+              `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+            );
+          }
         }
-        if (entity.entityKind === "Type" && entity.kind !== kind) {
-          throw new Error(
-            `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}-${end}`,
-          );
-        } else if (entity?.entityKind === "Value" && entity.valueKind !== valueKind) {
-          throw new Error(
-            `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}-${end}`,
-          );
-        }
+
         (types as any)[name] = entity;
       }
     }
@@ -305,4 +317,31 @@ function addTestLib(fs: TestFileSystem): Record<string, Type> {
     },
   });
   return testTypes;
+}
+
+export interface PositionedMarker {
+  name: string;
+  pos: number;
+  end: number;
+}
+function extractMarkers(code: string): PositionedMarker[] {
+  // Extract TypeScript fourslash-style markers: /*markerName*/
+  // Returns an array of Marker objects with name, pos, and end
+  const markerRegex = /\/\*([a-zA-Z0-9_]+)\*\//g;
+  const markers: PositionedMarker[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = markerRegex.exec(code)) !== null) {
+    const markerName = match[1];
+    // The marker is immediately followed by the identifier
+    // Find the next word after the marker
+    const afterMarker = code.slice(markerRegex.lastIndex);
+    const idMatch = /([a-zA-Z0-9_]+)/.exec(afterMarker);
+    if (idMatch) {
+      const id = idMatch[1];
+      const pos = markerRegex.lastIndex;
+      const end = pos + id.length;
+      markers.push({ name: markerName, pos, end });
+    }
+  }
+  return markers;
 }
