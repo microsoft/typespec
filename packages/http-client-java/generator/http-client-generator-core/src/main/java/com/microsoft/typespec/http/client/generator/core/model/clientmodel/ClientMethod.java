@@ -104,6 +104,7 @@ public class ClientMethod {
     private final boolean hasWithContextOverload;
     private final String parametersDeclaration;
     private final String argumentList;
+    private final boolean hidePageableParams;
 
     /**
      * Create a new ClientMethod with the provided properties.
@@ -134,7 +135,7 @@ public class ClientMethod {
         ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
-        String crossLanguageDefinitionId, boolean hasWithContextOverload) {
+        String crossLanguageDefinitionId, boolean hasWithContextOverload, boolean hidePageableParams) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -165,11 +166,24 @@ public class ClientMethod {
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.hasWithContextOverload = hasWithContextOverload;
+        this.hidePageableParams = hidePageableParams;
         this.parametersDeclaration = getMethodInputParameters().stream()
+            .filter(param -> !shouldHidePageableParams(methodPageDetails, param))
             .map(ClientMethodParameter::getDeclaration)
             .collect(Collectors.joining(", "));
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+    }
+
+    private boolean shouldHidePageableParams(MethodPageDetails methodPageDetails, ClientMethodParameter param) {
+        if (hidePageableParams) {
+            boolean isContinuationToken = methodPageDetails.getContinuationToken() != null
+                && param.getName().equals(methodPageDetails.getContinuationToken().getRequestParameter().getName());
+            boolean isMaxPageSize
+                = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(param.getName());
+            return isContinuationToken || isMaxPageSize;
+        }
+        return false;
     }
 
     @Override
@@ -552,6 +566,7 @@ public class ClientMethod {
         protected ExternalDocumentation externalDocumentation;
         protected String crossLanguageDefinitionId;
         protected boolean hasWithContextOverload;
+        protected boolean hidePageableParams;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -790,6 +805,11 @@ public class ClientMethod {
             return this;
         }
 
+        public Builder hidePageableParams(boolean hidePageableParams) {
+            this.hidePageableParams = hidePageableParams;
+            return this;
+        }
+
         /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
@@ -798,7 +818,7 @@ public class ClientMethod {
                 proxyMethod, validateExpressions, clientReference, requiredNullableParameterExpressions,
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, hidePageableParams);
         }
     }
 }

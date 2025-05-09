@@ -1848,7 +1848,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         return serviceVersion;
     }
 
-    private static String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+    protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
         StringBuilder expression = new StringBuilder();
         expression.append("if (pagingOptions.getOffset() != null) {")
             .append(

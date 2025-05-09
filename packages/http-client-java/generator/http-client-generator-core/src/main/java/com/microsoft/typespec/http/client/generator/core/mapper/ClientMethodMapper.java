@@ -210,14 +210,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
                 if (operation.isPageable()) {
-                    // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
-                    // PagedIterable.iterableByPage(int)
-
-                    // also remove continuationToken etc. for unbranded
-                    codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
-                            operation.getExtensions().getXmsPageable()))
-                        .collect(Collectors.toList());
+                    codeModelParameters = getPageableParams(operation, codeModelParameters);
                 }
 
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
@@ -520,6 +513,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    protected List<Parameter> getPageableParams(Operation operation, List<Parameter> codeModelParameters) {
+        // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
+        // PagedIterable.iterableByPage(int)
+
+        // also remove continuationToken etc. for unbranded
+        codeModelParameters = codeModelParameters.stream()
+            .filter(p -> !MethodUtil.shouldHideParameterInPageable(p, operation.getExtensions().getXmsPageable()))
+            .collect(Collectors.toList());
+        return codeModelParameters;
     }
 
     private static List<Request> getCodeModelRequests(Operation operation, boolean isProtocolMethod,

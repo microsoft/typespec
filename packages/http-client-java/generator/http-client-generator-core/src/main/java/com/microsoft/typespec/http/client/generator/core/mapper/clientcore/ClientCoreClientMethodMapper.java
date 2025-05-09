@@ -54,11 +54,9 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -215,16 +213,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                final boolean isPageable = operation.getExtensions() != null
-                    && operation.getExtensions().getXmsPageable() != null
-                    && shouldGeneratePagingMethods();
-                if (isPageable && JavaSettings.getInstance().isPageSizeEnabled()) {
-                    // remove maxpagesize parameter from client method API, it would be in e.g.
-                    // PagedIterable.iterableByPage(int)
-                    codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
-                            operation.getExtensions().getXmsPageable()))
-                        .collect(Collectors.toList());
+                if (operation.isPageable()) {
+                    codeModelParameters = getPageableParams(operation, codeModelParameters);
                 }
 
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
@@ -237,7 +227,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .anyMatch(
                         proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
 
-                Set<Parameter> originalParameters = new HashSet<>();
                 for (Parameter parameter : codeModelParameters) {
                     ClientMethodParameter clientMethodParameter
                         = Mappers.getClientParameterMapper().map(parameter, isProtocolMethod);
@@ -307,7 +296,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
                     .methodPageDetails(null);
 
-                if (isPageable) {
+                if (operation.isPageable()) {
                     IType responseType = proxyMethod.getRawResponseBodyType() != null
                         ? proxyMethod.getRawResponseBodyType()
                         : proxyMethod.getResponseBodyType();
@@ -475,6 +464,11 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    @Override
+    protected List<Parameter> getPageableParams(Operation operation, List<Parameter> codeModelParameters) {
+        return codeModelParameters;
     }
 
     private void createAdditionalLroMethods(Operation operation, ClientMethod.Builder builder,
@@ -709,7 +703,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .name(pageMethodName)
             .type(pageMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
+            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false))
+            .hidePageableParams(true);
 
         if (settings.getSyncMethods() != JavaSettings.SyncMethodsGeneration.NONE) {
             // generate the overload, if "sync-methods != NONE"

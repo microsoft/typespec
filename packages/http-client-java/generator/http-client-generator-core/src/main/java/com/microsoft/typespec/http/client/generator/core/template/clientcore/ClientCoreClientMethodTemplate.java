@@ -126,7 +126,13 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             // Parameter is required and will be part of the method signature.
-            if (parameter.isRequired()) {
+            boolean isContinuationToken = clientMethod.getMethodPageDetails() != null
+                && clientMethod.getMethodPageDetails().getContinuationToken() != null
+                && parameter.getName()
+                    .equals(clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
+            boolean isMaxPageSize
+                = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
+            if (parameter.isRequired() || isContinuationToken || isMaxPageSize) {
                 continue;
             }
 
@@ -1188,12 +1194,23 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
-        String lambdaParameters = "";
-        if (!settings.isAzureV1()) {
-            lambdaParameters = "pagingOptions";
-        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("(pagingOptions) -> {");
+        stringBuilder.append("\n");
+        stringBuilder.append(getLogExceptionExpressionForPagingOptions(clientMethod));
 
-        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
+        if ((clientMethod.getMethodPageDetails().getContinuationToken() != null)) {
+            stringBuilder.append("String token = pagingOptions.getContinuationToken();");
+            stringBuilder.append("\n");
+        }
+        stringBuilder.append("return ");
+        stringBuilder.append(methodName);
+        stringBuilder.append("(");
+        stringBuilder.append(argumentLine);
+        stringBuilder.append(");");
+        stringBuilder.append("\n");
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,

@@ -316,6 +316,17 @@ public class MethodUtil {
         return hide;
     }
 
+    public static boolean shouldHideParameterInPageable(ClientMethod clientMethod, ClientMethodParameter parameter) {
+        boolean isContinuationToken = clientMethod.getMethodPageDetails() != null
+            && clientMethod.getMethodPageDetails().getContinuationToken() != null
+            && parameter.getName()
+            .equals(
+                clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
+        boolean isMaxPageSize
+            = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
+        return isContinuationToken || isMaxPageSize;
+    }
+
     /**
      * Checks if the parameter is "maxpagesize".
      * <p>
