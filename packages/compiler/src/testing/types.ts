@@ -12,6 +12,12 @@ export interface TestFileSystem {
   addRealJsFile(path: string, realPath: string): Promise<void>;
   addRealFolder(path: string, realPath: string): Promise<void>;
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
+
+  /** @internal */
+  freeze(): void;
+
+  /** @internal */
+  clone(): TestFileSystem;
 }
 
 export interface TestHost extends TestFileSystem {

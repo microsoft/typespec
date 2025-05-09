@@ -152,10 +152,18 @@ function createTestCompilerHost(
   };
 }
 
-export async function createTestFileSystem(options?: TestHostOptions): Promise<TestFileSystem> {
+export function createTestFileSystem(options?: TestHostOptions): TestFileSystem {
   const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
   const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);
+  return createTestFileSystemInternal(virtualFs, jsImports, options);
+}
 
+function createTestFileSystemInternal(
+  virtualFs: Map<string, string>,
+  jsImports: Map<string, Record<string, any>>,
+  options?: TestHostOptions,
+): TestFileSystem {
+  let frozen = false;
   const compilerHost = createTestCompilerHost(virtualFs, jsImports, options);
   return {
     addTypeSpecFile,
@@ -166,23 +174,37 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
     addTypeSpecLibrary,
     compilerHost,
     fs: virtualFs,
+    freeze,
+    clone,
   };
 
+  function assertNotFrozen() {
+    if (frozen) {
+      throw new Error("Cannot modify the file system after it has been frozen.");
+    }
+  }
   function addTypeSpecFile(path: string, contents: string) {
+    assertNotFrozen();
     virtualFs.set(resolveVirtualPath(path), contents);
   }
 
   function addJsFile(path: string, contents: any) {
+    assertNotFrozen();
+
     const key = resolveVirtualPath(path);
     virtualFs.set(key, ""); // don't need contents
     jsImports.set(key, new Promise((r) => r(contents)));
   }
 
   async function addRealTypeSpecFile(path: string, existingPath: string) {
+    assertNotFrozen();
+
     virtualFs.set(resolveVirtualPath(path), await readFile(existingPath, "utf8"));
   }
 
   async function addRealFolder(folder: string, existingFolder: string) {
+    assertNotFrozen();
+
     const entries = await readdir(existingFolder);
     for (const entry of entries) {
       const existingPath = join(existingFolder, entry);
@@ -202,6 +224,8 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
   }
 
   async function addRealJsFile(path: string, existingPath: string) {
+    assertNotFrozen();
+
     const key = resolveVirtualPath(path);
     const exports = await import(pathToFileURL(existingPath).href);
 
@@ -210,6 +234,8 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
   }
 
   async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
+    assertNotFrozen();
+
     for (const { realDir, pattern, virtualPath } of testLibrary.files) {
       const lookupDir = resolvePath(testLibrary.packageRoot, realDir);
       const entries = await findFilesFromPattern(lookupDir, pattern);
@@ -229,6 +255,14 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
         }
       }
     }
+  }
+
+  function freeze() {
+    frozen = true;
+  }
+
+  function clone() {
+    return createTestFileSystemInternal(new Map(virtualFs), new Map(jsImports), options);
   }
 }
 
