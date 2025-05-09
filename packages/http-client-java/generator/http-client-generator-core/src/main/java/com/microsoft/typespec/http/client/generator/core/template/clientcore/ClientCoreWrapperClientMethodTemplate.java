@@ -48,12 +48,9 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
         typeBlock.javadocComment(comment -> {
             comment.description(clientMethod.getDescription());
             List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-            for (ClientMethodParameter parameter : methodParameters) {
-                if (MethodUtil.shouldHideParameterInPageable(clientMethod, parameter)) {
-                    continue;
-                }
-                comment.param(parameter.getName(), parameter.getDescription());
-            }
+            methodParameters.stream()
+                .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod, parameter))
+                .forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
             if (clientMethod.getParametersDeclaration() != null && !clientMethod.getParametersDeclaration().isEmpty()) {
                 comment.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
             }
