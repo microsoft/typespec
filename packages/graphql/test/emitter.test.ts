@@ -4,7 +4,12 @@ import { emitSingleSchema } from "./test-host.js";
 
 // For now, the expected output is a placeholder string.
 // In the future, this should be replaced with the actual GraphQL schema output.
-const expectedGraphQLSchema = `query { hello: String }`;
+const expectedGraphQLSchema = `type Query {
+  """
+  A placeholder field. If you are seeing this, it means no operations were defined that could be emitted.
+  """
+  _: Boolean
+}`;
 
 describe("name", () => {
   it("Emits a schema.graphql file with placeholder text", async () => {

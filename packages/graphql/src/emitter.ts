@@ -1,7 +1,7 @@
 import type { EmitContext, NewLine } from "@typespec/compiler";
 import { resolvePath } from "@typespec/compiler";
+import { createGraphQLEmitter } from "./graphql-emitter.js";
 import type { GraphQLEmitterOptions } from "./lib.js";
-import { createGraphQLEmitter } from "./schema-emitter.js";
 
 const defaultOptions = {
   "new-line": "lf",
