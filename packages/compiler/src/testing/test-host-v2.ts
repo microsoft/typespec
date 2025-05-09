@@ -1,14 +1,14 @@
 import { readFile } from "fs/promises";
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { Diagnostic, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
+import { Diagnostic, Entity, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
@@ -16,7 +16,7 @@ import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
 // Need a way to combine that with `program`
-export type TestCompileResult<T extends Record<string, Type>> = T;
+export type TestCompileResult<T extends Record<string, Entity>> = T;
 
 export interface JsFileDef {
   [key: string]: string | unknown;
@@ -28,12 +28,12 @@ interface TestCompileOptions {
 }
 
 interface Testable {
-  compile<T extends Record<string, Type>>(
+  compile<T extends Record<string, Entity>>(
     main: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
   ): Promise<TestCompileResult<T>>;
   diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
-  compileAndDiagnose<T extends Record<string, Type>>(
+  compileAndDiagnose<T extends Record<string, Entity>>(
     main: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]>;
@@ -196,7 +196,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     }
     return code;
   }
-  async function compileAndDiagnose<T extends Record<string, Type>>(
+  async function compileAndDiagnose<T extends Record<string, Entity>>(
     code: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult<T>, readonly Diagnostic[]]> {
@@ -222,8 +222,8 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       if (!file) {
         throw new Error(`Couldn't find main.tsp in program`);
       }
-      for (const marker of Object.entries(code.markers)) {
-        const [name, { pos, end, kind }] = marker;
+      for (const marker of Object.values(code.markers)) {
+        const { pos, end, name, kind, entityKind, valueKind } = marker;
         const node = getNodeAtPosition(file, pos);
         if (!node) {
           throw new Error(`Could not find node at ${pos}-${end}`);
@@ -232,19 +232,33 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
         if (sym === undefined) {
           throw new Error(`Could not find symbol for ${name} at ${pos}-${end}`);
         }
-        const type = program.checker.getTypeForNode(getSymNode(sym));
-        if (type.kind !== kind) {
+        const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
+        if (entity === null) {
           throw new Error(
-            `Expected ${name} to be of kind ${kind} but got (${type.kind}) ${getTypeName(type)} at ${pos}-${end}`,
+            `Expected ${name} to be of entity kind ${entityKind} but got null (Means a value failed to resolve) at ${pos}-${end}`,
           );
         }
-        types[name] = type;
+        if (entity.entityKind !== entityKind) {
+          throw new Error(
+            `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+          );
+        }
+        if (entity.entityKind === "Type" && entity.kind !== kind) {
+          throw new Error(
+            `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}-${end}`,
+          );
+        } else if (entity?.entityKind === "Value" && entity.valueKind !== valueKind) {
+          throw new Error(
+            `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}-${end}`,
+          );
+        }
+        (types as any)[name] = entity;
       }
     }
     return [{ program, ...types } as any, program.diagnostics];
   }
 
-  async function compile<T extends Record<string, Type>>(
+  async function compile<T extends Record<string, Entity>>(
     code: string | TemplateWithMarkers<T>,
     options?: TestCompileOptions,
   ): Promise<TestCompileResult<T>> {

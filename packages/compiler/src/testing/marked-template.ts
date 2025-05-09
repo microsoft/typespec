@@ -1,4 +1,5 @@
 import {
+  Entity,
   Enum,
   EnumMember,
   Interface,
@@ -8,47 +9,78 @@ import {
   Operation,
   Type,
   Union,
+  Value,
 } from "../core/types.js";
 
-export interface Marker<T extends Type, N extends string> {
-  kind: T["kind"];
+export type Marker<T extends Entity, N extends string> = T extends Type
+  ? TypeMarker<T, N>
+  : T extends Value
+    ? ValueMarker<T, N>
+    : never;
+
+export interface TypeMarker<T extends Type, N extends string> {
+  entityKind: "Type";
+  kind?: T["kind"];
   name: N;
 }
 
-function marker<const T extends Type>(kind: T["kind"]) {
-  return <const N extends string>(name: N): Marker<T, N> => {
+export interface ValueMarker<T extends Value, N extends string> {
+  entityKind: "Value";
+  valueKind?: T["valueKind"];
+  name: N;
+}
+
+function typeMarker<const T extends Type>(kind?: T["kind"]) {
+  return <const N extends string>(name: N): TypeMarker<T, N> => {
     return {
+      entityKind: "Type",
       kind,
       name,
     };
   };
 }
 
+function valueMarker<const T extends Value>(valueKind?: T["valueKind"]) {
+  return <const N extends string>(name: N): ValueMarker<T, N> => {
+    return {
+      entityKind: "Value",
+      valueKind,
+      name,
+    };
+  };
+}
+
 export const m = {
-  model: marker<Model>("Model"),
-  enum: marker<Enum>("Enum"),
-  union: marker<Union>("Union"),
-  interface: marker<Interface>("Interface"),
-  op: marker<Operation>("Operation"),
-  enumMember: marker<EnumMember>("EnumMember"),
-  modelProperty: marker<ModelProperty>("ModelProperty"),
-  namespace: marker<Namespace>("Namespace"),
-  scalar: marker<Type>("Scalar"),
-  unionVariant: marker<Type>("UnionVariant"),
-  boolean: marker<Type>("Boolean"),
-  number: marker<Type>("Number"),
-  string: marker<Type>("String"),
+  // Types
+  type: typeMarker<Type>(),
+  model: typeMarker<Model>("Model"),
+  enum: typeMarker<Enum>("Enum"),
+  union: typeMarker<Union>("Union"),
+  interface: typeMarker<Interface>("Interface"),
+  op: typeMarker<Operation>("Operation"),
+  enumMember: typeMarker<EnumMember>("EnumMember"),
+  modelProperty: typeMarker<ModelProperty>("ModelProperty"),
+  namespace: typeMarker<Namespace>("Namespace"),
+  scalar: typeMarker<Type>("Scalar"),
+  unionVariant: typeMarker<Type>("UnionVariant"),
+  boolean: typeMarker<Type>("Boolean"),
+  number: typeMarker<Type>("Number"),
+  string: typeMarker<Type>("String"),
+
+  // Values
+  value: valueMarker<Value>(),
+  object: valueMarker<Value>("ObjectValue"),
+  array: valueMarker<Value>("ArrayValue"),
 };
 
-export type MarkerConfig<T extends Record<string, Type>> = {
+export type MarkerConfig<T extends Record<string, Entity>> = {
   [K in keyof T]: {
     pos: number;
     end: number;
-    kind: T[K]["kind"];
-  };
+  } & Marker<T[K], K & string>;
 };
 
-export interface TemplateWithMarkers<T extends Record<string, Type>> {
+export interface TemplateWithMarkers<T extends Record<string, Entity>> {
   readonly code: string;
   readonly markers: MarkerConfig<T>;
 }
@@ -57,14 +89,14 @@ type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 type InferType<T> = T extends Marker<infer K, infer _> ? K : never;
-type CollectType<T extends ReadonlyArray<Marker<Type, string> | string>> = {
+type CollectType<T extends ReadonlyArray<Marker<Entity, string> | string>> = {
   [K in T[number] as K extends Marker<infer _K, infer N> ? N : never]: InferType<K>;
 };
 /** Specify that this value is dynamic and needs to be interpolated with the given keys */
-export function extract<const T extends (Marker<Type, string> | string)[]>(
+export function extract<const T extends (Marker<Entity, string> | string)[]>(
   strings: TemplateStringsArray,
   ...keys: T
-): TemplateWithMarkers<Prettify<CollectType<T>> & Record<string, Type>> {
+): TemplateWithMarkers<Prettify<CollectType<T>> & Record<string, Entity>> {
   const markers: MarkerConfig<any> = {};
   const result: string[] = [strings[0]];
   let pos = strings[0].length;
@@ -77,7 +109,10 @@ export function extract<const T extends (Marker<Type, string> | string)[]>(
       markers[key.name] = {
         pos,
         end: pos + key.name.length,
-        kind: key.kind,
+        entityKind: key.entityKind,
+        name: key.name,
+        kind: (key as any).kind,
+        valueKind: (key as any).valueKind,
       };
       pos += key.name.length;
     }
