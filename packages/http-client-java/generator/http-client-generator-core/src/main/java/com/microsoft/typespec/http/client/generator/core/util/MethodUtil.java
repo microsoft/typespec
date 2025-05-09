@@ -320,8 +320,7 @@ public class MethodUtil {
         boolean isContinuationToken = clientMethod.getMethodPageDetails() != null
             && clientMethod.getMethodPageDetails().getContinuationToken() != null
             && parameter.getName()
-            .equals(
-                clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
+                .equals(clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
         boolean isMaxPageSize
             = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
         return isContinuationToken || isMaxPageSize;

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -12,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.WrapperClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,8 +33,7 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     @Override
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        String argumentList = parameters
-            .stream()
+        String argumentList = parameters.stream()
             .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod, parameter))
             .map(ClientMethodParameter::getName)
             .collect(Collectors.joining(", "));
