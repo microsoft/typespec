@@ -69,7 +69,10 @@
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
-    "@typespec/versioning": "workspace:^"
+    "@typespec/versioning": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/tspd": "workspace:^",
+    "@typespec/xml": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@typespec/json-schema": {
@@ -79,6 +82,9 @@
       "optional": true
     },
     "@typespec/versioning": {
+      "optional": true
+    },
+    "@typespec/tspd": {
       "optional": true
     }
   },
