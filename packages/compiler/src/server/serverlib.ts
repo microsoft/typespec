@@ -57,6 +57,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
+import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -115,11 +116,13 @@ import {
 } from "./type-details.js";
 import {
   CompileResult,
+  CustomCompileResult,
   InitProjectConfig,
   InitProjectContext,
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
+  ServerDiagnostic,
   ServerHost,
   ServerInitializeResult,
   ServerLog,
@@ -199,6 +202,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
+    internalCompile,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -364,6 +368,58 @@ export function createServer(host: ServerHost): Server {
     } catch (e) {
       log({ level: "error", message: "Unexpected error when initializing project", detail: e });
       return false;
+    }
+  }
+
+  async function internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<CustomCompileResult> {
+    const option: CompilerOptions = {
+      ...param.options,
+    };
+
+    const result = await compileService.compile(param.doc, option, true, true);
+    if (result === undefined) {
+      return {
+        hasError: true,
+        diagnostics: [
+          {
+            code: "internal-error",
+            message:
+              "Failed to get compiler result, please check the compilation output for details",
+            severity: "error",
+            target: NoTarget,
+            url: undefined,
+          },
+        ],
+        entrypoint: undefined,
+        options: undefined,
+      };
+    } else {
+      return {
+        hasError: result.program.hasError(),
+        diagnostics: result.program.diagnostics.map((diagnostic) => {
+          const target = getSourceLocation(diagnostic.target, { locateId: true });
+          let position = undefined;
+          if (target?.file) {
+            const lineAndCharacter = target.file.getLineAndCharacterOfPosition(target.pos);
+            position = {
+              line: lineAndCharacter.line + 1,
+              column: lineAndCharacter.character + 1,
+            };
+          }
+          return {
+            code: diagnostic.code,
+            message: diagnostic.message,
+            severity: diagnostic.severity,
+            target: { ...target, position: position },
+            url: diagnostic.url,
+          } as ServerDiagnostic;
+        }),
+        entrypoint: result.document?.uri,
+        options: result.program.compilerOptions,
+      };
     }
   }
 

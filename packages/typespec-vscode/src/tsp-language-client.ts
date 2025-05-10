@@ -1,13 +1,20 @@
 import type {
+  CompilerOptions,
   CustomRequestName,
   InitProjectConfig,
   InitProjectContext,
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { CustomCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
-import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import {
+  Executable,
+  LanguageClient,
+  LanguageClientOptions,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
@@ -85,6 +92,23 @@ export class TspLanguageClient {
     } catch (e) {
       logger.error("Unexpected error when initializing project", [e]);
       return false;
+    }
+  }
+
+  public async compileProject(
+    doc: TextDocumentIdentifier,
+    options?: CompilerOptions,
+  ): Promise<CustomCompileResult | undefined> {
+    const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
+    try {
+      const result = await this.client.sendRequest<CustomCompileResult>(compileProjectRequestName, {
+        doc: doc,
+        options: { ...options, dryRun: false },
+      });
+      return result;
+    } catch (e) {
+      logger.error("Unexpected error when compiling project", [e]);
+      return undefined;
     }
   }
 

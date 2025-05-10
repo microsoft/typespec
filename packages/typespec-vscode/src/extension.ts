@@ -29,7 +29,7 @@ import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/openapi3-preview.js";
 
-let client: TspLanguageClient | undefined;
+export let client: TspLanguageClient | undefined;
 /**
  * Workaround: LogOutputChannel doesn't work well with LSP RemoteConsole, so having a customized LogOutputChannel to make them work together properly
  * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
@@ -40,6 +40,11 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
   telemetryClient.Initialize(stateManager);
+  /**
+   * workaround: vscode output cannot display ANSI color.
+   * Set the NO_COLOR environment variable to suppress the addition of ANSI color escape codes.
+   */
+  process.env["NO_COLOR"] = "true";
   context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());
