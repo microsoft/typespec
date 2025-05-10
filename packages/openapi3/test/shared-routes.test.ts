@@ -70,7 +70,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       {
         in: "query",
         name: "resourceGroup",
-        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -79,7 +78,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       {
         in: "query",
         name: "foo",
-        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -88,7 +86,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       {
         in: "query",
         name: "subscription",
-        explode: false,
         required: false,
         schema: {
           type: "string",
@@ -133,7 +130,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       {
         in: "query",
         name: "filter",
-        explode: false,
         required: true,
         schema: {
           type: "string",
@@ -180,7 +176,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         name: "filter",
         in: "query",
         required: false,
-        explode: false,
         schema: {
           type: "string",
           enum: ["resourceGroup"],

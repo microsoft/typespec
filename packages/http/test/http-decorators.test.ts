@@ -277,14 +277,25 @@ describe("http: decorators", () => {
       strictEqual(getQueryParamName(runner.program, select), "$select");
     });
 
-    it("specify explode: true", async () => {
+    it("don't specify explode", async () => {
       const { selects } = await runner.compile(`
-        op test(@test @query(#{ explode: true }) selects: string[]): string;
+        op test(@test @query selects: string[]): string;
       `);
       expect(getQueryParamOptions(runner.program, selects)).toEqual({
         type: "query",
         name: "selects",
         explode: true,
+      });
+    });
+
+    it("specify explode: false", async () => {
+      const { selects } = await runner.compile(`
+        op test(@test @query(#{ explode: false }) selects: string[]): string;
+      `);
+      expect(getQueryParamOptions(runner.program, selects)).toEqual({
+        type: "query",
+        name: "selects",
+        explode: false,
       });
     });
   });
