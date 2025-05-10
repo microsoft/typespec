@@ -15,14 +15,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
             TypeProvider? collectionDefinition = default,
-            bool isProtocolMethod = false)
+            bool isProtocolMethod = false,
+            bool isCreateRequestMethod = false,
+            bool isConvenienceMethod = false)
             : base(signature, bodyStatements, enclosingType, xmlDocProvider)
         {
             CollectionDefinition = collectionDefinition;
             IsProtocolMethod = isProtocolMethod;
+            IsCreateRequestMethod = isCreateRequestMethod;
+            IsConvenienceMethod = isConvenienceMethod;
         }
 
         internal TypeProvider? CollectionDefinition { get; }
         public bool IsProtocolMethod { get; }
+        public bool IsConvenienceMethod { get; }
+        public bool IsCreateRequestMethod { get; }
     }
 }
