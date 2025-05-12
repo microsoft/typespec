@@ -76,7 +76,6 @@ export async function activate(context: ExtensionContext) {
               [],
               {
                 showPopup: true,
-                popupButtonText: "",
               },
             );
           }
@@ -86,7 +85,6 @@ export async function activate(context: ExtensionContext) {
             [error],
             {
               showPopup: true,
-              popupButtonText: "",
             },
           );
         }
