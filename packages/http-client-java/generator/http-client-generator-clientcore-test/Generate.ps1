@@ -60,6 +60,21 @@ $generateScript = {
   }
 }
 
+$generateAndCompile = {
+  $folder = $_
+
+  npx --no-install tsp compile "specs/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
+
+  Push-Location $folder
+  mvn package
+  if ($ExitCode -ne 0) {
+    throw "Failed to compile smoke test of $folder"
+  }
+  Pop-Location
+
+  Remove-Item $folder -Recurse -Force
+}
+
 ./Setup.ps1
 
 Write-Host "Setup Complete"
@@ -91,17 +106,14 @@ $job | Receive-Job
 
 Remove-Item ./specs -Recurse -Force
 
+# smoke test
 git fetch origin pull/6981/head:smoke-test-branch
 git restore --source smoke-test-branch --worktree -- ../../../smoke-http-specs
 Copy-Item -Path ../../../smoke-http-specs/specs -Destination ./ -Recurse -Force
-npx --no-install tsp compile specs/todoapp/main.tsp --option "@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"
-npx --no-install tsp compile specs/petstore/main.tsp --option "@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"
+generateAndCompile todoapp
+generateAndCompile petstore
 Remove-Item ./specs -Recurse -Force
 Remove-Item ../../../smoke-http-specs -Recurse -Force
-
-Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("module-info.java")
-
-Remove-Item ./tsp-output -Recurse -Force
 
 if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_properties.json) {
   # client structure is generated from multiple client.tsp files and the last one to execute overwrites
