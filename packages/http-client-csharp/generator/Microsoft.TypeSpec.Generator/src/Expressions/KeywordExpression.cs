@@ -17,6 +17,25 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
         }
 
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodBodyStatement? parentStatement)
+        {
+            var expr = visitor.VisitKeywordExpression(this, parentStatement);
+
+            if (expr is not KeywordExpression keywordExpression)
+            {
+                return expr?.Accept(visitor, parentStatement);
+            }
+
+            var newExpression = keywordExpression.Expression?.Accept(visitor, parentStatement);
+
+            if (ReferenceEquals(newExpression, keywordExpression.Expression))
+            {
+                return keywordExpression;
+            }
+
+            return new KeywordExpression(keywordExpression.Keyword, newExpression);
+        }
+
         private MethodBodyStatement? _terminated;
         public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
     }

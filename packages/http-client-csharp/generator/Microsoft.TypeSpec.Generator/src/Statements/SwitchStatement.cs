@@ -4,10 +4,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class SwitchStatement : MethodBodyStatement, IEnumerable<SwitchCaseStatement>
+    public sealed class SwitchStatement : MethodBodyStatement
     {
         public ValueExpression MatchExpression { get; }
 
@@ -25,8 +26,6 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public IReadOnlyList<SwitchCaseStatement> Cases => _cases;
 
         public void Add(SwitchCaseStatement statement) => _cases.Add(statement);
-        public IEnumerator<SwitchCaseStatement> GetEnumerator() => _cases.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_cases).GetEnumerator();
 
         internal override void Write(CodeWriter writer)
         {
@@ -41,6 +40,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     switchCase.Write(writer);
                 }
             }
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            return this;
         }
     }
 }

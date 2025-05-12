@@ -701,7 +701,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         {
             public MockClientProvider(InputClient inputClient, ClientProvider clientProvider) : base(inputClient, clientProvider) { }
 
-            protected override ScmMethodProvider[] BuildMethods()
+            protected override ScmClientMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods()];
             }

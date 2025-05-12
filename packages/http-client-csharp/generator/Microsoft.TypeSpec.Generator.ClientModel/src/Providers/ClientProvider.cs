@@ -505,11 +505,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        protected override ScmMethodProvider[] BuildMethods()
+        protected override ScmClientMethodProvider[] BuildMethods()
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
-            List<ScmMethodProvider> methods = new List<ScmMethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
+            List<ScmClientMethodProvider> methods = new List<ScmClientMethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
 
             foreach (var serviceMethod in _inputClient.Methods)
             {
@@ -560,7 +560,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? $"Get{subClient.Name}"
                     : $"Get{subClient.Name}{ClientSuffix}";
 
-                var factoryMethod = new ScmMethodProvider(
+                var factoryMethod = new ScmClientMethodProvider(
                     new(
                         factoryMethodName,
                         $"Initializes a new instance of {subClient.Type.Name}",

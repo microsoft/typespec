@@ -19,7 +19,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class ScmMethodProviderCollection : MethodProviderCollection<ScmMethodProvider>
+    public class ScmClientMethodProviderCollection : MethodProviderCollection<ScmClientMethodProvider>
     {
         private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
@@ -33,7 +33,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ClientProvider Client { get; }
 
-        public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+        protected override ClientProvider EnclosingType => Client;
+
+        public ScmClientMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
             : base(serviceMethod, enclosingType)
         {
             _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
@@ -46,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        protected override IReadOnlyList<ScmMethodProvider> BuildMethods()
+        protected override IReadOnlyList<ScmClientMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
@@ -69,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
+        private ScmClientMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
             if (EnclosingType is not ClientProvider)
             {
@@ -110,7 +112,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
+            var convenienceMethod = new ScmClientMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -458,7 +460,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return (required, optional);
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
+        private ScmClientMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
             if (EnclosingType is not ClientProvider client)
             {
@@ -539,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, isProtocolMethod: true);
+                new ScmClientMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, isProtocolMethod: true);
 
             if (protocolMethod.XmlDocs != null)
             {

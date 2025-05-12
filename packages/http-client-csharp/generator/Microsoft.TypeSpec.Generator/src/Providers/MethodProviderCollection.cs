@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private IReadOnlyList<T>? _cSharpMethods;
         protected InputServiceMethod ServiceMethod { get; }
-        protected TypeProvider EnclosingType { get; private init; }
+        protected virtual TypeProvider EnclosingType { get; private init; }
 
         public MethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {

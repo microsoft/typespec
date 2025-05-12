@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -20,6 +21,11 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         private protected ValueExpression() { }
 
         internal virtual void Write(CodeWriter writer) { }
+
+        internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodBodyStatement? statement)
+        {
+            return this;
+        }
 
         protected internal virtual bool IsEmptyExpression() => ReferenceEquals(this, Empty);
 

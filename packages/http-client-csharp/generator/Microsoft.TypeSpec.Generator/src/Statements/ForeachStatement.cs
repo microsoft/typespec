@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -9,7 +8,7 @@ using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class ForeachStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForeachStatement : MethodBodyStatement
     {
         public CSharpType? ItemType { get; }
         public CodeWriterDeclaration Item { get; }
@@ -72,9 +71,6 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _body.Add(statement);
             return this;
         }
-
-        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
         internal override void Write(CodeWriter writer)
         {

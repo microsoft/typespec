@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public XmlDocProvider? XmlDocs => _xmlDocs ??= BuildXmlDocs();
         private XmlDocProvider? _xmlDocs;
 
-        public TypeProvider EnclosingType { get; }
+        public virtual TypeProvider EnclosingType { get; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

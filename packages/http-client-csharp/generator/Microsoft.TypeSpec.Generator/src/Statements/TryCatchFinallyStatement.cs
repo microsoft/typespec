@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
@@ -38,6 +38,68 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             Finally?.Write(writer);
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            var updated = visitor.VisitTryCatchFinallyStatement(this, methodProvider);
+
+            if (updated is not TryCatchFinallyStatement updatedTryCatchFinallyStatement)
+            {
+                return updated?.Accept(visitor, methodProvider);
+            }
+
+            var newTry = updatedTryCatchFinallyStatement.Try.Accept(visitor, methodProvider);
+            if (newTry is not TryStatement updatedTry)
+            {
+                throw new InvalidOperationException("Expected updated Try statement.");
+            }
+            bool hasChanges = !ReferenceEquals(updatedTry, Try);
+
+            var newCatches = new List<CatchStatement>(updatedTryCatchFinallyStatement.Catches.Count);
+            foreach (var catchStatement in updatedTryCatchFinallyStatement.Catches)
+            {
+                var updatedCatch = catchStatement.Accept(visitor, methodProvider);
+                if (updatedCatch is not CatchStatement updatedCatchStatement)
+                {
+                    throw new InvalidOperationException("Expected updated Catch statement.");
+                }
+                if (!ReferenceEquals(updatedCatchStatement, catchStatement))
+                {
+                    hasChanges = true;
+                }
+                newCatches.Add(updatedCatchStatement);
+            }
+            if (newCatches.Count != updatedTryCatchFinallyStatement.Catches.Count)
+            {
+                hasChanges = true;
+            }
+
+            var updatedFinally = updatedTryCatchFinallyStatement.Finally?.Accept(visitor, methodProvider);
+            if (updatedFinally is not FinallyStatement updatedFinallyStatement)
+            {
+                throw new InvalidOperationException("Expected updated Finally statement.");
+            }
+
+            var newFinallyStatements = new List<MethodBodyStatement>(updatedFinallyStatement.Body.Count);
+            foreach (var statement in updatedFinallyStatement.Body)
+            {
+                var updatedStatement = statement.Accept(visitor, methodProvider);
+                if (!ReferenceEquals(updatedStatement, statement))
+                {
+                    hasChanges = true;
+                }
+                if (updatedStatement != null)
+                {
+                    newFinallyStatements.Add(updatedStatement);
+                }
+            }
+            if (!hasChanges && newFinallyStatements.Count == updatedFinallyStatement.Body.Count)
+            {
+                return updated;
+            }
+
+            return new TryCatchFinallyStatement(updatedTry, newCatches, updatedFinallyStatement);
         }
 
         public void Update(

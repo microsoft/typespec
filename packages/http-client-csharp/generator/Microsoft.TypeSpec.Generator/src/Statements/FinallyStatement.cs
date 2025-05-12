@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class FinallyStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class FinallyStatement : MethodBodyStatement
     {
         private readonly List<MethodBodyStatement> _body = [];
         public IReadOnlyList<MethodBodyStatement> Body => _body;
@@ -28,9 +27,5 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _body.Add(statement);
             return this;
         }
-
-        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
     }
 }

@@ -217,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             }
 
             var enumeratedCases = new List<SwitchCaseStatement>();
-            foreach (var caseItem in switchStatement)
+            foreach (var caseItem in switchStatement.Cases)
             {
                 enumeratedCases.Add(caseItem);
             }
@@ -555,18 +555,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 ifFalseStatement
             };
 
-            var flattened = methodBodyStatements.Flatten().ToList();
+            var flattened = methodBodyStatements.ToList();
             Assert.AreEqual(3, flattened.Count);
             Assert.AreEqual(ifTrueStatement, flattened[0]);
             Assert.AreEqual(ifElseStatement, flattened[1]);
             Assert.AreEqual(ifFalseStatement, flattened[2]);
 
             // Test flattening a single statement
-            var singleStatementFlattened = ifTrueStatement.Flatten().ToList();
+            var singleStatementFlattened = ifTrueStatement.ToList();
             Assert.AreEqual(1, singleStatementFlattened.Count);
 
             // flatten the body
-            var body = ifTrueStatement.Body.Flatten().ToList();
+            var body = ifTrueStatement.Body.ToList();
             Assert.AreEqual(1, body.Count);
             Assert.AreEqual(ifTrueStatement.Body.ToDisplayString(), body[0].ToDisplayString());
         }
@@ -589,7 +589,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 statement2
             ]);
 
-            var result = methodBodyStatements.Flatten();
+            var result = methodBodyStatements.ToList();
             var expectedOrder = new List<MethodBodyStatement>
             {
                 statement1,

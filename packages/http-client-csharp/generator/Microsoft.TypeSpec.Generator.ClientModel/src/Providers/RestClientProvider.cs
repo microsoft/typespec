@@ -69,9 +69,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
-        protected override ScmMethodProvider[] BuildMethods()
+        protected override ScmClientMethodProvider[] BuildMethods()
         {
-            List<ScmMethodProvider> methods = new List<ScmMethodProvider>();
+            List<ScmClientMethodProvider> methods = new List<ScmClientMethodProvider>();
 
             foreach (var serviceMethod in _inputClient.Methods)
             {
@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
-        private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod)
+        private ScmClientMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod)
         {
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var classifier = GetClassifier(operation);
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
 
-            return new ScmMethodProvider(
+            return new ScmClientMethodProvider(
                 signature,
                 new MethodBodyStatements(
                 [
@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
-                this,
+                ClientProvider,
                 xmlDocProvider: XmlDocProvider.Empty);
         }
 

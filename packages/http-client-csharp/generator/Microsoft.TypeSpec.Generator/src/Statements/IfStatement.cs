@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class IfStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class IfStatement : MethodBodyStatement
     {
         public ValueExpression Condition { get; set; }
         public bool Inline { get; }
@@ -20,12 +20,10 @@ namespace Microsoft.TypeSpec.Generator.Statements
             AddBraces = addBraces;
         }
 
-        private readonly List<MethodBodyStatement> _body = new();
+        private List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
-        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
         internal override void Write(CodeWriter writer)
         {
@@ -48,6 +46,23 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     Body.Write(writer);
                 }
             }
+        }
+
+        internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            Condition = visitor.VisitExpression(Condition, this);
+            var bodyStatements = new List<MethodBodyStatement>();
+            foreach (var bodyStatement in _body)
+            {
+                var updatedStatement = bodyStatement.Accept(visitor, methodProvider);
+                if (updatedStatement != null)
+                {
+                    bodyStatements.Add(updatedStatement);
+                }
+            }
+            _body = bodyStatements;
+
+            return this;
         }
     }
 }

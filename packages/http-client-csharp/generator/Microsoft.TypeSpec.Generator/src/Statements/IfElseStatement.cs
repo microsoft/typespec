@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class IfElseStatement : MethodBodyStatement
     {
-        public IfStatement If { get; }
-        public MethodBodyStatement? Else { get; }
+        public IfStatement If { get; private set; }
+        public MethodBodyStatement? Else { get; private set; }
 
         public IfElseStatement(IfStatement ifStatement, MethodBodyStatement? elseStatement)
         {
@@ -30,6 +31,20 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     Else.Write(writer);
                 }
             }
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            var updated = visitor.VisitIfStatement(If, methodProvider);
+            if (updated is not IfStatement updatedIfStatement)
+            {
+                return updated?.Accept(visitor, methodProvider);
+            }
+
+            If = updatedIfStatement;
+            Else = Else?.Accept(visitor, methodProvider);
+
+            return this;
         }
     }
 }
