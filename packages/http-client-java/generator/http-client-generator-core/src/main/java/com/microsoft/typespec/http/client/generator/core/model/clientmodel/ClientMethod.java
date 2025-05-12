@@ -204,22 +204,11 @@ public class ClientMethod {
         this.hasWithContextOverload = hasWithContextOverload;
         this.hidePageableParams = hidePageableParams;
         this.parametersDeclaration = getMethodInputParameters().stream()
-            .filter(param -> !shouldHidePageableParams(methodPageDetails, param))
+            .filter(param -> !MethodUtil.shouldHideParameterInPageable(methodPageDetails, param))
             .map(ClientMethodParameter::getDeclaration)
             .collect(Collectors.joining(", "));
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
-    }
-
-    private boolean shouldHidePageableParams(MethodPageDetails methodPageDetails, ClientMethodParameter param) {
-        if (hidePageableParams) {
-            boolean isContinuationToken = methodPageDetails.getContinuationToken() != null
-                && param.getName().equals(methodPageDetails.getContinuationToken().getRequestParameter().getName());
-            boolean isMaxPageSize
-                = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(param.getName());
-            return isContinuationToken || isMaxPageSize;
-        }
-        return false;
     }
 
     @Override

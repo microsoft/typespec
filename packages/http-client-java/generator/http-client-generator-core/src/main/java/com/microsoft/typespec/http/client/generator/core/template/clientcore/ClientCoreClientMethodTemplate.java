@@ -126,7 +126,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             // Parameter is required and will be part of the method signature.
-            if (parameter.isRequired() || MethodUtil.shouldHideParameterInPageable(clientMethod, parameter)) {
+            if (parameter.isRequired()
+                || MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter)) {
                 continue;
             }
 

@@ -214,10 +214,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                if (operation.isPageable()) {
-                    codeModelParameters = getPageableParams(operation, codeModelParameters);
-                }
-
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
                 final boolean proxyMethodUsesBinaryData = proxyMethod.getParameters()
@@ -464,10 +460,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
-    }
-
-    protected List<Parameter> getPageableParams(Operation operation, List<Parameter> codeModelParameters) {
-        return codeModelParameters;
     }
 
     private void createAdditionalLroMethods(Operation operation, ClientMethod.Builder builder,

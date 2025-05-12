@@ -34,7 +34,8 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
         String argumentList = parameters.stream()
-            .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod, parameter))
+            .filter(
+                parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter))
             .map(ClientMethodParameter::getName)
             .collect(Collectors.joining(", "));
         function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
@@ -46,7 +47,8 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
             comment.description(clientMethod.getDescription());
             List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
             methodParameters.stream()
-                .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod, parameter))
+                .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(),
+                    parameter))
                 .forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
             if (clientMethod.getParametersDeclaration() != null && !clientMethod.getParametersDeclaration().isEmpty()) {
                 comment.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");

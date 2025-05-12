@@ -28,6 +28,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
@@ -316,11 +317,11 @@ public class MethodUtil {
         return hide;
     }
 
-    public static boolean shouldHideParameterInPageable(ClientMethod clientMethod, ClientMethodParameter parameter) {
-        boolean isContinuationToken = clientMethod.getMethodPageDetails() != null
-            && clientMethod.getMethodPageDetails().getContinuationToken() != null
-            && parameter.getName()
-                .equals(clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
+    public static boolean shouldHideParameterInPageable(MethodPageDetails methodPageDetails,
+        ClientMethodParameter parameter) {
+        boolean isContinuationToken = methodPageDetails != null
+            && methodPageDetails.getContinuationToken() != null
+            && parameter.getName().equals(methodPageDetails.getContinuationToken().getRequestParameter().getName());
         boolean isMaxPageSize
             = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
         return isContinuationToken || isMaxPageSize;
