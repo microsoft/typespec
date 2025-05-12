@@ -1,5 +1,12 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.14
+
+### Bug Fixes
+
+- [#7270](https://github.com/microsoft/typespec/pull/7270) Fix specs using `dyn` when using port `0`
+
+
 ## 0.1.0-alpha.13
 
 ### Features

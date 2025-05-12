@@ -2,6 +2,11 @@ import { Numeric } from "../../core/numeric.js";
 import type { BooleanLiteral, Entity, NumericLiteral, StringLiteral } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * A Typekit for working with literal types(string, numeric, boolean).
+ *
+ * @typekit literal
+ */
 export interface LiteralKit {
   /**
    * Create a literal type from a JavaScript value.

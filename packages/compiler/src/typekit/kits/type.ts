@@ -27,6 +27,9 @@ import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
+/**
+ * @typekit type
+ */
 export interface TypeTypekit {
   /**
    * Checks if `entity` is a Type.
