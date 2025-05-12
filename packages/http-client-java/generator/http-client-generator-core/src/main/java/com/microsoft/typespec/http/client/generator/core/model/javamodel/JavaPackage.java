@@ -304,8 +304,9 @@ public class JavaPackage {
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
             ModelTestTemplate.getInstance().write(model, javaFile);
-            this.checkDuplicateFile(javaFile.getFilePath());
-            javaFiles.add(javaFile);
+            if (this.checkDuplicateFile(javaFile.getFilePath())) {
+                javaFiles.add(javaFile);
+            }
         } catch (PossibleCredentialException e) {
             // skip this test file
             logger.warn("Skip unit test for model '{}', caused by key '{}'", model.getName(), e.getKeyName());
