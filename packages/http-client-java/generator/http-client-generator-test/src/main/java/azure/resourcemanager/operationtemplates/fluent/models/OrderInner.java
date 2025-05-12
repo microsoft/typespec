@@ -6,7 +6,6 @@ package azure.resourcemanager.operationtemplates.fluent.models;
 
 import azure.resourcemanager.operationtemplates.models.OrderProperties;
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -23,37 +22,31 @@ public final class OrderInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
-    @Generated
     private OrderProperties properties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
-    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
-    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
-    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
-    @Generated
     private String id;
 
     /**
      * Creates an instance of OrderInner class.
      */
-    @Generated
     public OrderInner() {
     }
 
@@ -62,7 +55,6 @@ public final class OrderInner extends Resource {
      * 
      * @return the properties value.
      */
-    @Generated
     public OrderProperties properties() {
         return this.properties;
     }
@@ -73,7 +65,6 @@ public final class OrderInner extends Resource {
      * @param properties the properties value to set.
      * @return the OrderInner object itself.
      */
-    @Generated
     public OrderInner withProperties(OrderProperties properties) {
         this.properties = properties;
         return this;
@@ -84,7 +75,6 @@ public final class OrderInner extends Resource {
      * 
      * @return the systemData value.
      */
-    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -94,7 +84,6 @@ public final class OrderInner extends Resource {
      * 
      * @return the type value.
      */
-    @Generated
     @Override
     public String type() {
         return this.type;
@@ -105,7 +94,6 @@ public final class OrderInner extends Resource {
      * 
      * @return the name value.
      */
-    @Generated
     @Override
     public String name() {
         return this.name;
@@ -116,7 +104,6 @@ public final class OrderInner extends Resource {
      * 
      * @return the id value.
      */
-    @Generated
     @Override
     public String id() {
         return this.id;
@@ -125,7 +112,6 @@ public final class OrderInner extends Resource {
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public OrderInner withLocation(String location) {
         super.withLocation(location);
@@ -135,7 +121,6 @@ public final class OrderInner extends Resource {
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public OrderInner withTags(Map<String, String> tags) {
         super.withTags(tags);

@@ -13,6 +13,7 @@ import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from 
 
 /**
  * Utilities for working with model properties in the context of Http.
+ * @typekit modelProperty
  * @experimental
  */
 export interface HttpModelProperty {

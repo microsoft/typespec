@@ -145,7 +145,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         javaFile.annotation(String.format("ServiceClientBuilder(serviceClients = %1$s)", builderTypes));
         String classDefinition = serviceClientBuilderName;
 
-        if (!settings.isAzureOrFluent() && !CoreUtils.isNullOrEmpty(clientBuilder.getBuilderTraits())) {
+        if (!settings.isFluent() && !CoreUtils.isNullOrEmpty(clientBuilder.getBuilderTraits())) {
             String serviceClientBuilderGeneric = "<" + serviceClientBuilderName + ">";
 
             String interfaces = clientBuilder.getBuilderTraits()
@@ -157,7 +157,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         }
 
         javaFile.publicFinalClass(classDefinition, classBlock -> {
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 // sdk name
                 addGeneratedAnnotation(classBlock);
                 classBlock.privateStaticFinalVariable("String SDK_NAME = \"name\"");
@@ -198,7 +198,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
             Stream<ServiceClientProperty> serviceClientPropertyStream
                 = serviceClient.getProperties().stream().filter(p -> !p.isReadOnly());
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 addTraitMethods(clientBuilder, settings, serviceClientBuilderName, classBlock);
                 serviceClientPropertyStream
                     = serviceClientPropertyStream.filter(property -> !(clientBuilder.getBuilderTraits()
@@ -260,12 +260,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             addGeneratedAnnotation(classBlock);
             classBlock.method(visibility, null, String.format("%1$s %2$s()", buildReturnType, buildMethodName),
                 function -> {
-                    if (!settings.isAzureOrFluent()) {
+                    if (!settings.isFluent()) {
                         function.line("this.validateClient();");
                     }
 
                     List<ServiceClientProperty> allProperties = mergeClientPropertiesWithTraits(clientProperties,
-                        settings.isAzureOrFluent() ? null : clientBuilder.getBuilderTraits());
+                        settings.isFluent() ? null : clientBuilder.getBuilderTraits());
 
                     for (ServiceClientProperty serviceClientProperty : allProperties) {
                         if (serviceClientProperty.getDefaultValueExpression() != null
@@ -318,7 +318,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                     function.line("return client;");
                 });
 
-            if (!settings.isAzureOrFluent()) {
+            if (!settings.isFluent()) {
                 List<ServiceClientProperty> allProperties
                     = mergeClientPropertiesWithTraits(clientProperties, clientBuilder.getBuilderTraits());
                 addValidateClientMethod(classBlock, allProperties);
@@ -559,7 +559,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     protected ArrayList<ServiceClientProperty> addCommonClientProperties(JavaSettings settings,
         SecurityInfo securityInfo) {
         ArrayList<ServiceClientProperty> commonProperties = new ArrayList<ServiceClientProperty>();
-        if (settings.isAzureOrFluent()) {
+        if (settings.isFluent()) {
             commonProperties.add(new ServiceClientProperty("The environment to connect to", ClassType.AZURE_ENVIRONMENT,
                 "environment", false, "AzureEnvironment.AZURE"));
             commonProperties.add(new ServiceClientProperty("The HTTP pipeline to send requests through",
@@ -579,7 +579,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                     : JACKSON_SERIALIZER));
         }
 
-        if (!settings.isAzureOrFluent() && settings.isAzureV1()) {
+        if (!settings.isFluent() && settings.isAzureV1()) {
             commonProperties.add(new ServiceClientProperty(
                 "The retry policy that will attempt to retry failed " + "requests, if applicable.",
                 ClassType.RETRY_POLICY, "retryPolicy", false, null));
