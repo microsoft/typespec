@@ -122,9 +122,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
         if async_mode:
-            file_import.add_submodule_import("typing", "AsyncIterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import(self.code_model.core_library, "AsyncItemPaged", ImportType.SDK_CORE, TypingSection.CONDITIONAL)
         else:
-            file_import.add_submodule_import("typing", "Iterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import(self.code_model.core_library, "ItemPaged", ImportType.SDK_CORE, TypingSection.CONDITIONAL)
         if (
             self.next_request_builder
             and self.code_model.options["builders_visibility"] == "embedded"
