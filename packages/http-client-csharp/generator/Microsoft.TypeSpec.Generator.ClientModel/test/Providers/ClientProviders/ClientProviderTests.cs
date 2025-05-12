@@ -563,7 +563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             List<MethodProvider> subClientAccessorFactoryMethods = [];
             foreach (var method in methods)
             {
-                Assert.IsInstanceOf<ScmClientMethodProvider>(method);
+                Assert.IsInstanceOf<ScmMethodProvider>(method);
                 var methodSignature = method.Signature;
                 if (methodSignature != null &&
                     methodSignature.Name.StartsWith("Get") &&
@@ -598,7 +598,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             var methods = clientProvider!.Methods;
             // all methods should be ScmMethodProvider instances
-            Assert.IsTrue(methods.All(m => m is ScmClientMethodProvider));
+            Assert.IsTrue(methods.All(m => m is ScmMethodProvider));
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -995,7 +995,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _isAsync = isAsync;
             }
 
-            protected override ScmClientMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "queryParam", Type.Name: "InputEnum" } &&
@@ -1014,7 +1014,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             public TestNonBodyRequestParametersInBodyDiffClientProvider(InputClient client) : base(client) { }
 
-            protected override ScmClientMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "body" } && m.Signature.Name.EndsWith("Async")));
@@ -1032,7 +1032,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             public UnsupportedAuthClientProvider(InputClient client)
                 : base(client) { }
 
-            protected override ScmClientMethodProvider[] BuildMethods() => [];
+            protected override ScmMethodProvider[] BuildMethods() => [];
 
             protected override FieldProvider[] BuildFields() => [];
             protected override PropertyProvider[] BuildProperties() => [];

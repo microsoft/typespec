@@ -75,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _expectedSubClientFactoryMethodNames = expectedSubClientFactoryMethodNames;
             }
 
-            protected override ScmClientMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods().Where(m => _expectedSubClientFactoryMethodNames.Contains(m.Signature?.Name))];
             }

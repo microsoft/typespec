@@ -7,9 +7,9 @@ using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class ScmClientMethodProvider : MethodProvider
+    public class ScmMethodProvider : MethodProvider
     {
-        public ScmClientMethodProvider(
+        public ScmMethodProvider(
             MethodSignature signature,
             MethodBodyStatement bodyStatements,
             ClientProvider enclosingType,

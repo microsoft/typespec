@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
-    internal class ScmClientMethodProviderCollectionTests
+    internal class ScmMethodProviderCollectionTests
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            var methodCollection = new ScmClientMethodProviderCollection(serviceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            var methodCollection = new ScmClientMethodProviderCollection(serviceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // there should be no CollectionResultDefinition
             Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is CollectionResultDefinition));
 
-            var methodCollection = new ScmClientMethodProviderCollection(inputClient.Methods.First(), client!);
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
             var listMethod = methodCollection.FirstOrDefault(
@@ -174,7 +174,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                t => t is CollectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition);
 
-            var methodCollection = new ScmClientMethodProviderCollection(inputClient.Methods.First(), client!);
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -206,7 +206,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: parameters);
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methodCollection = new ScmClientMethodProviderCollection(inputServiceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             var protocolMethod = methodCollection.FirstOrDefault(
                 m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
             Assert.IsNotNull(protocolMethod);
@@ -265,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
 
-            var methodCollection = new ScmClientMethodProviderCollection(inputServiceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             var convenienceMethod = methodCollection.FirstOrDefault(
                 m => m.Signature.Parameters.Any(p => p.Name == "message") && m.Signature.Name == "TestOperation");
             Assert.IsNotNull(convenienceMethod);
@@ -303,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
 
-            var methodCollection = new ScmClientMethodProviderCollection(inputServiceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
             var convenienceMethod = methodCollection.FirstOrDefault(
                 m => m.Signature.Parameters.Any(p => p.Name == "message") && m.Signature.Name == "TestOperation");
             Assert.IsNotNull(convenienceMethod);
