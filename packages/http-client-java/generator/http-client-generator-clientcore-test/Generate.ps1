@@ -60,9 +60,7 @@ $generateScript = {
   }
 }
 
-$generateAndCompile = {
-  $folder = $_
-
+function Generate-Compile ($folder) {
   npx --no-install tsp compile "specs/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
 
   Push-Location $folder
@@ -110,8 +108,8 @@ Remove-Item ./specs -Recurse -Force
 git fetch origin pull/6981/head:smoke-test-branch
 git restore --source smoke-test-branch --worktree -- ../../../smoke-http-specs
 Copy-Item -Path ../../../smoke-http-specs/specs -Destination ./ -Recurse -Force
-generateAndCompile todoapp
-generateAndCompile petstore
+Generate-Compile todoapp
+Generate-Compile petstore
 Remove-Item ./specs -Recurse -Force
 Remove-Item ../../../smoke-http-specs -Recurse -Force
 
