@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
@@ -28,5 +29,26 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         private MethodBodyStatement? _terminated;
         public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
+
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var expr = visitor.VisitAssignmentExpression(this, method);
+
+            if (expr is not AssignmentExpression assignmentExpression)
+            {
+                return expr?.Accept(visitor, method);
+            }
+
+            var newVariable = assignmentExpression.Variable.Accept(visitor, method);
+            var newValue = assignmentExpression.Value.Accept(visitor, method);
+
+            if (ReferenceEquals(newVariable, assignmentExpression.Variable) &&
+                ReferenceEquals(newValue, assignmentExpression.Value))
+            {
+                return assignmentExpression;
+            }
+
+            return new AssignmentExpression(newVariable!, newValue!, assignmentExpression.UseNullCoalesce);
+        }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -13,6 +14,11 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         {
             writer.AppendRawIf("ref ", IsRef);
             writer.Append(Declaration);
+        }
+
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            return visitor.VisitVariableExpression(this, method);
         }
     }
 }

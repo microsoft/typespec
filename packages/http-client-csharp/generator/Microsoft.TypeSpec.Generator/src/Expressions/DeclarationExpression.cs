@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -24,6 +25,33 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.AppendRawIf("out ", IsOut);
             writer.Append($"{Variable.Type} ");
             Variable.Write(writer);
+        }
+
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var expr = visitor.VisitDeclarationExpression(this, method);
+
+            if (expr is not DeclarationExpression declarationExpression)
+            {
+                return expr?.Accept(visitor, method);
+            }
+
+            var newExpr = declarationExpression.Variable.Accept(visitor, method);
+            if (newExpr is null)
+            {
+                return null;
+            }
+            if (newExpr is not VariableExpression newVariable)
+            {
+                return newExpr.Accept(visitor, method);
+            }
+
+            if (ReferenceEquals(newVariable, declarationExpression.Variable))
+            {
+                return declarationExpression;
+            }
+
+            return new DeclarationExpression(newVariable, declarationExpression.IsOut, declarationExpression.IsUsing);
         }
     }
 }

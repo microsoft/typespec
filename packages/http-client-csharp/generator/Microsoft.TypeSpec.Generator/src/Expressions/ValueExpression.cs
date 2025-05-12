@@ -7,7 +7,6 @@ using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
-using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -15,9 +14,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// Represents a single operator or operand, or a sequence of operators or operands.
     /// </summary>
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public record ValueExpression
+    public abstract record ValueExpression
     {
-        public static readonly ValueExpression Empty = new();
+        public static readonly ValueExpression Empty = new EmptyValueExpression();
 
         private protected ValueExpression() { }
 
@@ -136,6 +135,10 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             using CodeWriter writer = new CodeWriter();
             Write(writer);
             return writer.ToString(false);
+        }
+
+        private record EmptyValueExpression : ValueExpression
+        {
         }
     }
 }
