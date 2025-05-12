@@ -75,16 +75,15 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           getDirectoryPath(packageFileUri.fsPath),
         );
 
-        if (packageJsonFolder === undefined) {
-          actions.push(this.createInstallPackageCodeAction(diagnostic, packageJsonFolder));
-        } else if (
-          !targetPackage.startsWith("./") &&
-          !targetPackage.startsWith("../") &&
-          !isPathAbsolute(targetPackage) &&
-          packageJson &&
-          ((packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
-            (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
-            (packageJson.devDependencies && targetPackage in packageJson.devDependencies))
+        if (
+          packageJsonFolder === undefined ||
+          (!targetPackage.startsWith("./") &&
+            !targetPackage.startsWith("../") &&
+            !isPathAbsolute(targetPackage) &&
+            packageJson &&
+            ((packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
+              (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
+              (packageJson.devDependencies && targetPackage in packageJson.devDependencies)))
         ) {
           actions.push(this.createInstallPackageCodeAction(diagnostic, packageJsonFolder));
         }

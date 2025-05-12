@@ -71,18 +71,24 @@ export async function activate(context: ExtensionContext) {
           if (projectFolder) {
             await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
           } else {
-            vscode.window.showErrorMessage(
-              "No package.json file was found, and the dependency package could not be installed",
-            );
             logger.error(
               "No package.json file was found, and the dependency package could not be installed",
+              [],
+              {
+                showPopup: true,
+                popupButtonText: "",
+              },
             );
           }
         } catch (error) {
-          vscode.window.showErrorMessage(
-            "Failed to execute npm install. Please check the output for details.",
+          logger.error(
+            "Failed to execute npm install, please check the output for details",
+            [error],
+            {
+              showPopup: true,
+              popupButtonText: "",
+            },
           );
-          logger.error("Failed to execute npm install, see details: ", [error]);
         }
       },
     ),
