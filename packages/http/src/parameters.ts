@@ -5,7 +5,9 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb, getPathOptions } from "./decorators.js";
+import { getOperationVerb, getPatchOptions, getPathOptions } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
+import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
@@ -114,6 +116,22 @@ function getOperationParametersForVerb(
       },
     }),
   );
+  const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
+  // TODO: remove in 6month after 1.0.0. (November 2025)
+  if (
+    verb === "patch" &&
+    resolvedBody &&
+    implicitOptionality === undefined &&
+    !isMergePatchBody(program, resolvedBody?.type) &&
+    !resolvedBody.contentTypes.includes("application/merge-patch+json") // Above statement doesn't detect Spread merge patch
+  ) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "patch-implicit-optional",
+        target: operation,
+      }),
+    );
+  }
 
   for (const item of metadata) {
     switch (item.kind) {

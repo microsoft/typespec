@@ -2,9 +2,9 @@ import { Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import {
   createDiagnosable,
   defineKit,
-  Diagnosable,
-  Typekit,
-} from "@typespec/compiler/experimental/typekit";
+  type Diagnosable,
+  type Typekit,
+} from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../../operations.js";
 import {
   HttpOperation,
@@ -14,6 +14,7 @@ import {
 
 /**
  * Utilities for working with HTTP operations.
+ * @typekit httpOperation
  * @experimental
  */
 export interface HttpOperationKit {
@@ -67,7 +68,7 @@ interface TypekitExtension {
   httpOperation: HttpOperationKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

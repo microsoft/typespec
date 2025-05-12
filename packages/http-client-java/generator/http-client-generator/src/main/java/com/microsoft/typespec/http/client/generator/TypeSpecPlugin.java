@@ -14,12 +14,15 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
@@ -131,6 +134,11 @@ public class TypeSpecPlugin extends Javagen {
             .filter(ModelUtil::isGeneratingModel)
             .forEach(model -> javaPackage.addClientResponse(model.getPackage(), model.getName(), model));
 
+        // Exception
+        for (ClientException exception : client.getExceptions()) {
+            javaPackage.addException(exception.getPackage(), exception.getName(), exception);
+        }
+
         // Union
         client.getUnionModels().stream().filter(ModelUtil::isGeneratingModel).forEach(javaPackage::addUnionModel);
     }
@@ -154,7 +162,7 @@ public class TypeSpecPlugin extends Javagen {
             .filter(ModelUtil::isGeneratingModel)
             .anyMatch(ClientModelUtil::isMultipartModel);
         if (generateMultipartFormDataHelper) {
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             } else {
@@ -166,12 +174,21 @@ public class TypeSpecPlugin extends Javagen {
 
         // OperationLocationPollingStrategy
         if (ClientModelUtil.requireOperationLocationPollingStrategy(codeModel)) {
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.POLLING_UTILS);
+            if (JavaSettings.getInstance().isAzureV2()) {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.CLIENT_CORE_POLLING_UTILS, ClientModelUtil.POLLING_UTILS);
+            } else {
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.SYNC_OPERATION_LOCATION_POLLING_STRATEGY);
+                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                    ClientModelUtil.POLLING_UTILS);
+            }
+
         }
     }
 
@@ -210,6 +227,7 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("disable-required-property-annotation", true);
         // Defaulting to KeyCredential and not providing TypeSpec services to generate with AzureKeyCredential.
         SETTINGS_MAP.put("use-key-credential", true);
+        SETTINGS_MAP.put("use-rest-proxy", true);
     }
 
     public Map<String, String> getCrossLanguageDefinitionMap() {
@@ -260,6 +278,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
         }
+        if (options.getUseRestProxy() != null) {
+            SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
+        }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("regenerate-pom", sdkIntegration);
@@ -290,7 +311,7 @@ public class TypeSpecPlugin extends Javagen {
         }
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {
-            SETTINGS_MAP.put("sdk-integration", false);
+            SETTINGS_MAP.put("data-plane", false);
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
             SETTINGS_MAP.put("enable-page-size", false);
@@ -303,13 +324,32 @@ public class TypeSpecPlugin extends Javagen {
             } else {
                 SETTINGS_MAP.remove("license-header");
             }
+            SETTINGS_MAP.put("disable-typed-headers-methods", true);
+        }
+
+        if (options.getFlavor() != null && "azurev2".equalsIgnoreCase(options.getFlavor())) {
+            SETTINGS_MAP.put("data-plane", false);
+            SETTINGS_MAP.put("sdk-integration", false);
+            SETTINGS_MAP.put("license-header", "MICROSOFT_MIT_SMALL_TYPESPEC");
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
+
+            SETTINGS_MAP.put("sync-methods", "sync-only");
+            SETTINGS_MAP.put("generate-samples", false);
+            SETTINGS_MAP.put("generate-tests", false);
+            SETTINGS_MAP.put("disable-typed-headers-methods", true);
         }
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
 
-        Mappers.setFactory(new TypeSpecMapperFactory());
+        if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azure")) {
+            Mappers.setFactory(new TypeSpecMapperFactory());
+        } else if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azurev2")) {
+            Mappers.setFactory(new TypeSpecAzureVNextMapperFactory());
+        } else {
+            Mappers.setFactory(new TypeSpecClientCoreMapperFactory());
+        }
     }
 
     @SuppressWarnings("unchecked")

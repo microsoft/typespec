@@ -1,7 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,12 +12,12 @@ import java.util.Map;
 /**
  * Model with dictionary string properties.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DictionaryStringProperty implements JsonSerializable<DictionaryStringProperty> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final Map<String, String> property;
 
     /**
@@ -25,7 +25,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
      * 
      * @param property the property value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DictionaryStringProperty(Map<String, String> property) {
         this.property = property;
     }
@@ -35,7 +35,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, String> getProperty() {
         return this.property;
     }
@@ -43,7 +43,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -60,7 +60,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the DictionaryStringProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DictionaryStringProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             Map<String, String> property = null;

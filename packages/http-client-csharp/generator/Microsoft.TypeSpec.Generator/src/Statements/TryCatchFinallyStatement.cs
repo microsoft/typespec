@@ -9,9 +9,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
-        public TryStatement Try { get; }
-        public IReadOnlyList<CatchStatement> Catches { get; }
-        public FinallyStatement? Finally { get; }
+        public TryStatement Try { get; private set; }
+        public IReadOnlyList<CatchStatement> Catches { get; private set; }
+        public FinallyStatement? Finally { get; private set; }
 
         public TryCatchFinallyStatement(TryStatement @try, IReadOnlyList<CatchStatement> catches, FinallyStatement? @finally)
         {
@@ -38,6 +38,25 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             Finally?.Write(writer);
+        }
+
+        public void Update(
+            TryStatement? @try = null,
+            IReadOnlyList<CatchStatement>? catches = null,
+            FinallyStatement? @finally = null)
+        {
+            if (@try != null)
+            {
+                Try = @try;
+            }
+            if (catches != null)
+            {
+                Catches = catches;
+            }
+            if (@finally != null)
+            {
+                Finally = @finally;
+            }
         }
     }
 }

@@ -32,7 +32,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Func<Task<Compilation>>? compilation = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
-            IEnumerable<string>? typesToKeep = null)
+            IEnumerable<string>? typesToKeep = null,
+            bool includeXmlDocs = false)
         {
             var mockGenerator = LoadMockGenerator(
                 createCSharpTypeCore,
@@ -44,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 inputEnumTypes,
                 additionalMetadataReferences,
                 sharedSourceDirectories,
-                typesToKeep);
+                typesToKeep,
+                includeXmlDocs);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -64,9 +66,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputEnumType[]? inputEnumTypes = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
-            IEnumerable<string>? typesToKeep = null)
+            IEnumerable<string>? typesToKeep = null,
+            bool includeXmlDocs = false)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
+            if (includeXmlDocs)
+            {
+                configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
+            }
             // initialize the singleton instance of the generator
             var mockGenerator = new Mock<CodeModelGenerator>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
 

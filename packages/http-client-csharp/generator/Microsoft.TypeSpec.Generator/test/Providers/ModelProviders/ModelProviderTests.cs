@@ -836,7 +836,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var initializer = serializationCtor!.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
-            Assert.AreEqual("prop1.ToString()", initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("prop1?.ToString()", initializer.Arguments[0].ToDisplayString());
         }
 
         [Test]
@@ -899,6 +899,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var snakeBody = snake!.Body;
             Assert.IsNotNull(snakeBody);
             Assert.IsFalse(snakeBody!.HasSetter);
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String, doc: "This is prop1")]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var writer = new TypeProviderWriter(modelTypeProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

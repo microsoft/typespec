@@ -133,6 +133,9 @@ if (Test-Path ./src/main) {
 if (Test-Path ./src/samples) {
   Remove-Item ./src/samples -Recurse -Force
 }
+if (Test-Path ./src/test) {
+  Get-ChildItem -Path ./src/test -Recurse -Directory | Where-Object {$_.Name -match "^generated$"} | Remove-Item -Recurse -Force
+}
 if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force
 }

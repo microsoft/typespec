@@ -7,10 +7,7 @@ import static com.microsoft.typespec.http.client.generator.core.util.ClientModel
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlReader;
 import com.azure.xml.XmlSerializable;
-import com.azure.xml.XmlToken;
-import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -77,10 +74,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             imports.add(QName.class.getName());
             imports.add(XMLStreamException.class.getName());
 
-            imports.add(XmlSerializable.class.getName());
-            imports.add(XmlWriter.class.getName());
-            imports.add(XmlReader.class.getName());
-            imports.add(XmlToken.class.getName());
+            ClassType.XML_SERIALIZABLE.addImportsTo(imports, false);
+            ClassType.XML_WRITER.addImportsTo(imports, false);
+            ClassType.XML_READER.addImportsTo(imports, false);
+            ClassType.XML_TOKEN.addImportsTo(imports, false);
+
         } else {
             imports.add(IOException.class.getName());
 
@@ -144,8 +142,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         classBlock.annotation("Override");
         classBlock.publicMethod(
             "XmlWriter toXml(XmlWriter xmlWriter, String rootElementName) throws XMLStreamException", writerMethod -> {
-                writerMethod.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + xmlRootElementName
-                    + "\" : rootElementName;");
+                writerMethod.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                    + xmlRootElementName + "\" : rootElementName;");
                 String writeStartElement = (xmlRootElementNamespace != null)
                     ? "xmlWriter.writeStartElement(\"" + xmlRootElementNamespace + "\", rootElementName);"
                     : "xmlWriter.writeStartElement(rootElementName);";
@@ -170,8 +168,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         classBlock.publicStaticMethod(
             wrapperClassName + " fromXml(XmlReader xmlReader, String rootElementName) throws XMLStreamException",
             readerMethod -> {
-                readerMethod.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + xmlRootElementName
-                    + "\" : rootElementName;");
+                readerMethod.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                    + xmlRootElementName + "\" : rootElementName;");
                 String readObject = (xmlRootElementNamespace != null)
                     ? "return xmlReader.readObject(\"" + xmlRootElementNamespace + "\", rootElementName, reader -> {"
                     : "return xmlReader.readObject(rootElementName, reader -> {";
@@ -742,8 +740,15 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         + "Accessor().prepareModelForJsonMergePatch(" + propertyValueGetter + ", false);");
                 }
             } else if (wireType == ClassType.OBJECT) {
-                methodBlock
-                    .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                if (!property.isRequired() && !property.isRequiredForCreate()
+                // In json-merge-patch, we don't need to check whether the optional untyped property is null again.
+                    && !isJsonMergePatch) {
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> ifBlock.line(
+                        "jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");"));
+                } else {
+                    methodBlock
+                        .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                }
             } else if (wireType instanceof IterableType) {
                 serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
                     ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
@@ -1946,8 +1951,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 "XmlWriter toXml(XmlWriter xmlWriter, String rootElementName) throws XMLStreamException",
                 methodBlock -> {
                     String modelXmlName = propertiesManager.getXmlRootElementName();
-                    methodBlock.line("rootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? \"" + modelXmlName
-                        + "\" : rootElementName;");
+                    methodBlock.line("rootElementName = rootElementName == null || rootElementName.isEmpty() ? \""
+                        + modelXmlName + "\" : rootElementName;");
                     methodBlock.line("xmlWriter.writeStartElement(rootElementName);");
 
                     String modelXmlNamespace = propertiesManager.getXmlRootElementNamespace();
@@ -2190,8 +2195,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     String requiredElementName = propertiesManager.getXmlRootElementName();
                     String requiredNamespace = propertiesManager.getXmlRootElementNamespace();
 
-                    methodBlock.line("String finalRootElementName = CoreUtils.isNullOrEmpty(rootElementName) ? " + "\""
-                        + requiredElementName + "\" : rootElementName;");
+                    methodBlock
+                        .line("String finalRootElementName = rootElementName == null || rootElementName.isEmpty() ? "
+                            + "\"" + requiredElementName + "\" : rootElementName;");
                     if (requiredNamespace != null) {
                         methodBlock.line("return xmlReader.readObject("
                             + propertiesManager.getXmlNamespaceConstant(requiredNamespace)
