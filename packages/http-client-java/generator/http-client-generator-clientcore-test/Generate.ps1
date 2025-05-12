@@ -65,7 +65,7 @@ function Generate-Compile ($folder) {
 
   Push-Location $folder
   mvn package
-  if ($ExitCode -ne 0) {
+  if ($LASTEXITCODE -ne 0) {
     throw "Failed to compile smoke test of $folder"
   }
   Pop-Location
