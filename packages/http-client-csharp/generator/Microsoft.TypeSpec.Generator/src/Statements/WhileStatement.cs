@@ -32,23 +32,23 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
         }
 
-        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            var updated = visitor.VisitWhileStatement(this, methodProvider);
+            var updated = visitor.VisitWhileStatement(this, method);
 
             if (updated is not WhileStatement updatedWhile)
             {
-                return updated?.Accept(visitor, methodProvider);
+                return updated?.Accept(visitor, method);
             }
 
-            var newCondition = updatedWhile.Condition.Accept(visitor, updatedWhile);
+            var newCondition = updatedWhile.Condition.Accept(visitor, method);
             bool hasChanges = !ReferenceEquals(newCondition, Condition);
 
             var newBody = new List<MethodBodyStatement>(_body.Count);
 
             foreach (var statement in updatedWhile.Body)
             {
-                var updatedStatement = statement.Accept(visitor, methodProvider);
+                var updatedStatement = statement.Accept(visitor, method);
                 if (updatedStatement != null)
                 {
                     newBody.Add(updatedStatement);

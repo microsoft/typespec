@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
@@ -17,16 +18,16 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
         }
 
-        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodBodyStatement? parentStatement)
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            var expr = visitor.VisitKeywordExpression(this, parentStatement);
+            var expr = visitor.VisitKeywordExpression(this, method);
 
             if (expr is not KeywordExpression keywordExpression)
             {
-                return expr?.Accept(visitor, parentStatement);
+                return expr?.Accept(visitor, method);
             }
 
-            var newExpression = keywordExpression.Expression?.Accept(visitor, parentStatement);
+            var newExpression = keywordExpression.Expression?.Accept(visitor, method);
 
             if (ReferenceEquals(newExpression, keywordExpression.Expression))
             {

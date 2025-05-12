@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 return statement?.Accept(visitor, methodProvider);
             }
-            var newExpression = expressionStatement.Expression.Accept(visitor, expressionStatement);
+            var newExpression = expressionStatement.Expression.Accept(visitor, methodProvider);
             if (newExpression == null)
             {
                 return null;

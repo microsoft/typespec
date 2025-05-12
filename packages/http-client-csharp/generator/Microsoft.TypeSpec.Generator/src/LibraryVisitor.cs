@@ -181,7 +181,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (method.BodyExpression != null)
             {
-                var expression = method.BodyExpression.Accept(this, null);
+                var expression = method.BodyExpression.Accept(this, method);
                 if (!ReferenceEquals(expression, method.BodyExpression))
                 {
                     method.Update(bodyExpression: expression);
@@ -249,36 +249,36 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
-        protected internal virtual ValueExpression VisitExpression(ValueExpression expression, MethodBodyStatement? parentStatement)
+        protected internal virtual ValueExpression VisitExpression(ValueExpression expression, MethodProvider method)
         {
             return expression;
         }
 
-        protected internal virtual ValueExpression? VisitMemberExpression(MemberExpression expression, MethodBodyStatement? parentStatement)
+        protected internal virtual ValueExpression? VisitMemberExpression(MemberExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected internal virtual ValueExpression? VisitKeywordExpression(KeywordExpression expression, MethodBodyStatement? parentStatement)
+        protected internal virtual ValueExpression? VisitKeywordExpression(KeywordExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitInvokeMethodExpression(InvokeMethodExpression expression, MethodBodyStatement? parentStatement)
+        protected virtual ValueExpression? VisitInvokeMethodExpression(InvokeMethodExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitExpression(DictionaryExpression expression, MethodBodyStatement? parentStatement)
+        protected virtual ValueExpression? VisitExpression(DictionaryExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitExpression(TupleExpression expression, MethodBodyStatement? parentStatement)
+        protected virtual ValueExpression? VisitExpression(TupleExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitExpression(TypeReferenceExpression expression, MethodBodyStatement? parentStatement)
+        protected virtual ValueExpression? VisitExpression(TypeReferenceExpression expression, MethodProvider method)
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitExpression(BinaryOperatorExpression expression, MethodBodyStatement? parentStatement)
+        protected virtual ValueExpression? VisitExpression(BinaryOperatorExpression expression, MethodProvider method)
         {
             return expression;
         }

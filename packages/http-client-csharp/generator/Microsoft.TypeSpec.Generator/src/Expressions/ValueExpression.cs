@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 
@@ -22,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal virtual void Write(CodeWriter writer) { }
 
-        internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodBodyStatement? statement)
+        internal virtual ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
             return this;
         }

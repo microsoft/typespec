@@ -48,13 +48,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
         }
 
-        internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            Condition = visitor.VisitExpression(Condition, this);
+            Condition = visitor.VisitExpression(Condition, method);
             var bodyStatements = new List<MethodBodyStatement>();
             foreach (var bodyStatement in _body)
             {
-                var updatedStatement = bodyStatement.Accept(visitor, methodProvider);
+                var updatedStatement = bodyStatement.Accept(visitor, method);
                 if (updatedStatement != null)
                 {
                     bodyStatements.Add(updatedStatement);

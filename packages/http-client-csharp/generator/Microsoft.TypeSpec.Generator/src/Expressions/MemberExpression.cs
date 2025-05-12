@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
@@ -19,15 +20,15 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.AppendRaw(MemberName == "Object" && Inner == null ? $"this.{MemberName}" : MemberName);
         }
 
-        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodBodyStatement? parentStatement)
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            var expression = visitor.VisitMemberExpression(this, parentStatement);
+            var expression = visitor.VisitMemberExpression(this, method);
             if (expression is not MemberExpression memberExpression)
             {
-                return expression?.Accept(visitor, parentStatement);
+                return expression?.Accept(visitor, method);
             }
 
-            var newInner = memberExpression.Inner?.Accept(visitor, parentStatement);
+            var newInner = memberExpression.Inner?.Accept(visitor, method);
             if (ReferenceEquals(newInner, memberExpression.Inner))
             {
                 return memberExpression;
