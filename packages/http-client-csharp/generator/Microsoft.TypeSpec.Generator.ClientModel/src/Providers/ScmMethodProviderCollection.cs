@@ -33,8 +33,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ClientProvider Client { get; }
 
-        protected override ClientProvider EnclosingType => Client;
-
         public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
             : base(serviceMethod, enclosingType)
         {

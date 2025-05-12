@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ScmMethodProvider(
             MethodSignature signature,
             MethodBodyStatement bodyStatements,
-            ClientProvider enclosingType,
+            TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
             TypeProvider? collectionDefinition = default,
             bool isProtocolMethod = false)
