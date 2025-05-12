@@ -196,6 +196,9 @@ public class ClientCorePomTemplate extends PomTemplate {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
+            pluginBlock.block("configuration", configurationBlock -> {
+                configurationBlock.tag("release", "11");
+            });
 
             // Generate annotation processor configuration if not using Rest Proxy
             if (!JavaSettings.getInstance().useRestProxy()) {
