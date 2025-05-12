@@ -1,6 +1,5 @@
 {% import 'operation_tools.jinja2' as op_tools %}
 {% set operations_description = "async operations" if async_mode else "operations" %}
-{% set return_none_type_annotation = " -> None" if async_mode else "" %}
 # coding=utf-8
 {% if code_model.license_header %}
 {{ code_model.license_header }}

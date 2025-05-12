@@ -14,6 +14,7 @@ import {
   HttpOperation,
   HttpOperationParameter,
   getHeaderFieldName,
+  getHttpOperation,
   isBody,
   isHeader,
   isStatusCode,
@@ -46,6 +47,7 @@ import {
   transposeExpressionFromJson,
 } from "../../common/serialization/json.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -96,11 +98,14 @@ function* emitRawServerOperation(
   module: Module,
   responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
-  const op = operation.operation;
+  let op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
   const containerNameCase = parseCase(container.name);
+
+  op = canonicalizeHttpOperation(ctx, op);
+  [operation] = getHttpOperation(ctx.program, op);
 
   module.imports.push({
     binder: [containerNameCase.pascalCase],
