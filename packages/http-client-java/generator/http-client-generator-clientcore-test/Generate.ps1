@@ -104,14 +104,9 @@ $job | Receive-Job
 
 Remove-Item ./specs -Recurse -Force
 
-# smoke test
-git fetch origin pull/6981/head:smoke-test-branch
-git restore --source smoke-test-branch --worktree -- ../../../smoke-http-specs
-Copy-Item -Path ../../../smoke-http-specs/specs -Destination ./ -Recurse -Force
-Generate-Compile todoapp
-Generate-Compile petstore
-Remove-Item ./specs -Recurse -Force
-Remove-Item ../../../smoke-http-specs -Recurse -Force
+Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("module-info.java")
+
+Remove-Item ./tsp-output -Recurse -Force
 
 if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_properties.json) {
   # client structure is generated from multiple client.tsp files and the last one to execute overwrites
@@ -119,6 +114,15 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
 }
+
+# smoke test, generate Java project and verify compilation pass
+git fetch origin pull/6981/head:smoke-test-branch
+git restore --source smoke-test-branch --worktree -- ../../../smoke-http-specs
+Copy-Item -Path ../../../smoke-http-specs/specs -Destination ./ -Recurse -Force
+Generate-Compile todoapp
+Generate-Compile petstore
+Remove-Item ./specs -Recurse -Force
+Remove-Item ../../../smoke-http-specs -Recurse -Force
 
 if ($ExitCode -ne 0) {
   throw "Failed to generate from tsp"
