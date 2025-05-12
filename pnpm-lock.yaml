@@ -440,30 +440,30 @@ importers:
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
-      tree-sitter:
-        specifier: ^0.22.4
-        version: 0.22.4
       tree-sitter-c-sharp:
         specifier: ^0.23.0
-        version: 0.23.1(tree-sitter@0.22.4)
+        version: 0.23.1
       tree-sitter-java:
         specifier: ^0.23.2
-        version: 0.23.5(tree-sitter@0.22.4)
+        version: 0.23.5
       tree-sitter-javascript:
         specifier: ^0.23.0
-        version: 0.23.1(tree-sitter@0.22.4)
+        version: 0.23.1
       tree-sitter-python:
         specifier: ^0.23.2
-        version: 0.23.6(tree-sitter@0.22.4)
+        version: 0.23.6
       tree-sitter-typescript:
         specifier: ^0.23.0
-        version: 0.23.2(tree-sitter@0.22.4)
+        version: 0.23.2
       typescript:
         specifier: ~5.8.2
         version: 5.8.3
       vitest:
         specifier: ^3.1.2
         version: 3.1.2(@types/debug@4.1.12)(@types/node@22.13.17)(@vitest/ui@3.1.2)(happy-dom@17.4.6)(jsdom@25.0.1)(tsx@4.19.4)(yaml@2.7.1)
+      web-tree-sitter:
+        specifier: ^0.25.4
+        version: 0.25.4
 
   packages/eslint-plugin-typespec:
     dependencies:
@@ -12398,9 +12398,6 @@ packages:
       tree-sitter:
         optional: true
 
-  tree-sitter@0.22.4:
-    resolution: {integrity: sha512-usbHZP9/oxNsUY65MQUsduGRqDHQOou1cagUSwjhoSYAmSahjQDAVsh9s+SlZkn8X8+O1FULRGwHu7AFP3kjzg==}
-
   treeify@1.1.0:
     resolution: {integrity: sha512-1m4RA7xVAJrSGrrXGs0L3YTwyvBs2S8PbRHaLZAkFw7JR8oIFwYtysxlBZhYIa7xSyiYJKZ3iGrrk55cGA3i9A==}
     engines: {node: '>=0.6'}
@@ -13126,6 +13123,9 @@ packages:
 
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
+
+  web-tree-sitter@0.25.4:
+    resolution: {integrity: sha512-BNbAL2tgeuqpufHOM4TapD8evwq+J+X514rTL7zMgDSc+RN9LlByE3zVtTheucwQFkQ+FPU0Pz8Wn4Emz9itRg==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -26547,46 +26547,31 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  tree-sitter-c-sharp@0.23.1(tree-sitter@0.22.4):
+  tree-sitter-c-sharp@0.23.1:
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
-    optionalDependencies:
-      tree-sitter: 0.22.4
 
-  tree-sitter-java@0.23.5(tree-sitter@0.22.4):
+  tree-sitter-java@0.23.5:
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
-    optionalDependencies:
-      tree-sitter: 0.22.4
 
-  tree-sitter-javascript@0.23.1(tree-sitter@0.22.4):
+  tree-sitter-javascript@0.23.1:
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
-    optionalDependencies:
-      tree-sitter: 0.22.4
 
-  tree-sitter-python@0.23.6(tree-sitter@0.22.4):
+  tree-sitter-python@0.23.6:
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
-    optionalDependencies:
-      tree-sitter: 0.22.4
 
-  tree-sitter-typescript@0.23.2(tree-sitter@0.22.4):
+  tree-sitter-typescript@0.23.2:
     dependencies:
       node-addon-api: 8.3.1
       node-gyp-build: 4.8.4
-      tree-sitter-javascript: 0.23.1(tree-sitter@0.22.4)
-    optionalDependencies:
-      tree-sitter: 0.22.4
-
-  tree-sitter@0.22.4:
-    dependencies:
-      node-addon-api: 8.3.1
-      node-gyp-build: 4.8.4
+      tree-sitter-javascript: 0.23.1
 
   treeify@1.1.0: {}
 
@@ -27271,6 +27256,8 @@ snapshots:
       defaults: 1.0.4
 
   web-namespaces@2.0.1: {}
+
+  web-tree-sitter@0.25.4: {}
 
   webidl-conversions@3.0.1: {}
 
