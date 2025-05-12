@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator
                 var methods = new List<MethodProvider>();
                 foreach (var methodProvider in typeProvider.Methods)
                 {
-                    var method = VisitMethod(methodProvider);
+                    var method = methodProvider.Accept(this);
                     if (method != null)
                     {
                         methods.Add(method);
@@ -177,25 +177,8 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="method">The original <see cref="MethodProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="MethodProvider"/>.</returns>
-        protected virtual MethodProvider? VisitMethod(MethodProvider method)
+        protected internal virtual MethodProvider? VisitMethod(MethodProvider method)
         {
-            if (method.BodyExpression != null)
-            {
-                var expression = method.BodyExpression.Accept(this, method);
-                if (!ReferenceEquals(expression, method.BodyExpression))
-                {
-                    method.Update(bodyExpression: expression);
-                }
-            }
-            else
-            {
-                var updatedStatements = method.BodyStatements!.Accept(this, method);
-                if (!ReferenceEquals(updatedStatements, method.BodyStatements))
-                {
-                    method.Update(bodyStatements: updatedStatements);
-                }
-            }
-
             return method;
         }
 
