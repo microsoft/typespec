@@ -204,11 +204,18 @@ public class ClientMethod {
         this.hasWithContextOverload = hasWithContextOverload;
         this.hidePageableParams = hidePageableParams;
         this.parametersDeclaration = getMethodInputParameters().stream()
-            .filter(param -> hidePageableParams && !MethodUtil.shouldHideParameterInPageable(methodPageDetails, param))
+            .filter(param -> !shouldHidePageableParams(methodPageDetails, param))
             .map(ClientMethodParameter::getDeclaration)
             .collect(Collectors.joining(", "));
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+    }
+
+    private boolean shouldHidePageableParams(MethodPageDetails methodPageDetails, ClientMethodParameter param) {
+        if (hidePageableParams) {
+            MethodUtil.shouldHideParameterInPageable(methodPageDetails, param);
+        }
+        return false;
     }
 
     @Override
