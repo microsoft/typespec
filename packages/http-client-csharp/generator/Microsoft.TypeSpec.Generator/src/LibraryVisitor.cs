@@ -262,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             return expression;
         }
-        protected virtual ValueExpression? VisitInvokeMethodExpression(InvokeMethodExpression expression, MethodProvider method)
+        protected internal virtual ValueExpression? VisitInvokeMethodExpression(InvokeMethodExpression expression, MethodProvider method)
         {
             return expression;
         }

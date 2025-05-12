@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -107,6 +108,56 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.WriteTypeArguments(TypeArguments);
             writer.WriteArguments(Arguments);
             writer.AppendRawIf(".ConfigureAwait(false)", CallAsAsync && AddConfigureAwaitFalse);
+        }
+
+        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var updated = visitor.VisitInvokeMethodExpression(this, method);
+            if (updated is not InvokeMethodExpression invokeMethod)
+            {
+                return updated?.Accept(visitor, method);
+            }
+
+            bool hasChanges = !ReferenceEquals(invokeMethod, updated);
+
+            var newInstanceReference = invokeMethod.InstanceReference?.Accept(visitor, method);
+            if (!ReferenceEquals(newInstanceReference, invokeMethod.InstanceReference))
+            {
+                hasChanges = true;
+            }
+
+            var arguments = new List<ValueExpression>(invokeMethod.Arguments.Count);
+            foreach (var argument in invokeMethod.Arguments)
+            {
+                var updatedArgument = argument.Accept(visitor, method);
+                if (updatedArgument != null)
+                {
+                    arguments.Add(updatedArgument);
+                    if (!ReferenceEquals(updatedArgument, argument))
+                    {
+                        hasChanges = true;
+                    }
+                }
+            }
+            if (arguments.Count != invokeMethod.Arguments.Count)
+            {
+                hasChanges = true;
+            }
+
+            if (!hasChanges)
+            {
+                return updated;
+            }
+
+            return new InvokeMethodExpression(
+                newInstanceReference,
+                invokeMethod.MethodName,
+                invokeMethod.MethodSignature,
+                arguments,
+                invokeMethod.TypeArguments,
+                invokeMethod.CallAsAsync,
+                invokeMethod.AddConfigureAwaitFalse,
+                invokeMethod.ExtensionType);
         }
 
         private MethodBodyStatement? _terminated;
