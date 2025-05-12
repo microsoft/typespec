@@ -213,7 +213,7 @@ public class ClientMethod {
 
     private boolean shouldHidePageableParams(MethodPageDetails methodPageDetails, ClientMethodParameter param) {
         if (hidePageableParams) {
-            MethodUtil.shouldHideParameterInPageable(methodPageDetails, param);
+            return MethodUtil.shouldHideParameterInPageable(methodPageDetails, param);
         }
         return false;
     }
