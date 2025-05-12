@@ -165,8 +165,6 @@ public class ClientCorePomTemplate extends PomTemplate {
      * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
      */
     protected void writeSpotless(XmlBlock propertiesBlock) {
-        // For now all generation will enable Spotless running.
-        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**
