@@ -254,7 +254,7 @@ public class Javagen extends NewPlugin {
             javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
         }
 
-        if (settings.isDataPlaneClient() || settings.isUnbranded()) {
+        if (settings.isDataPlaneClient() || settings.isUnbranded() || settings.isAzureV2()) {
             Project project = new Project(client, ClientModelUtil.getApiVersions(codeModel));
             if (settings.isSdkIntegration()) {
                 project.integrateWithSdk();
