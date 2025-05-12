@@ -121,7 +121,7 @@
         },
         {
           "command": "typespec.emitCode",
-          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec || resourceFilename == 'tspconfig.yaml'",
           "group": "typespec@1"
         },
         {
@@ -133,7 +133,7 @@
       "editor/context": [
         {
           "command": "typespec.emitCode",
-          "when": "resourceLangId == typespec",
+          "when": "resourceLangId == typespec || resourceFilename == 'tspconfig.yaml'",
           "group": "typespec@1"
         },
         {
