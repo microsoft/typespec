@@ -3,7 +3,15 @@
 import { strictEqual } from "assert";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
-import { Enum, Model, Program } from "../../src/index.js";
+import {
+  EmitContext,
+  emitFile,
+  Enum,
+  getLocationContext,
+  Model,
+  navigateProgram,
+  Program,
+} from "../../src/index.js";
 import { t } from "../../src/testing/marked-template.js";
 import { createTester } from "../../src/testing/test-host-v2.js";
 
@@ -205,4 +213,40 @@ it("still extract with multiple files", async () => {
   expectTypeOf(res.B).toExtend<Enum>();
   expect(res.A.kind).toBe("Model");
   expect(res.B.kind).toBe("Enum");
+});
+
+describe("emitter", () => {
+  const EmitterTester = Tester.files({
+    "node_modules/dummy-emitter/package.json": JSON.stringify({
+      name: "dummy-emitter",
+      version: "1.0.0",
+      exports: { ".": "./index.js" },
+    }),
+    "node_modules/dummy-emitter/index.js": {
+      $onEmit: (context: EmitContext) => {
+        navigateProgram(context.program, {
+          model: (model) => {
+            if (getLocationContext(context.program, model).type !== "project") return;
+            emitFile(context.program, {
+              path: resolvePath(context.emitterOutputDir, `${model.name}.model`),
+              content: model.name,
+            });
+          },
+        });
+      },
+    },
+  }).emit("dummy-emitter");
+
+  it("return output", async () => {
+    const res = await EmitterTester.compile(
+      `
+      model Foo {}
+      model Bar {}
+    `,
+    );
+    expect(res.outputs).toEqual({
+      "Foo.model": "Foo",
+      "Bar.model": "Bar",
+    });
+  });
 });

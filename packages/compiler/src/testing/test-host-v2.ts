@@ -20,10 +20,17 @@ import { TestFileSystem } from "./types.js";
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The program created in this test compilation. */
   readonly program: Program;
+
+  /** File system */
+  readonly fs: TestFileSystem;
 } & Record<string, Entity>;
 
-export interface JsFileDef {
-  [key: string]: string | unknown;
+export interface TestEmitterCompileResult {
+  /** The program created in this test compilation. */
+  readonly program: Program;
+
+  /** Files written to the emitter output dir. */
+  readonly outputs: Record<string, string>;
 }
 
 interface TestCompileOptions {
@@ -49,16 +56,47 @@ interface Testable {
 
 // Immutable structure meant to be reused
 export interface Tester extends Testable {
+  /** Extend with the given list of files */
+  files(files: Record<string, string | Record<string, unknown>>): Tester;
   /** Auto import all libraries defined in this tester. */
   importLibraries(): Tester;
+  /** Import the given paths */
   import(...imports: string[]): Tester;
+  /** Add using statement for the given namespaces. */
   using(...names: string[]): Tester;
+  /** Wrap the code of the `main.tsp` file */
   wrap(fn: (x: string) => string): Tester;
+  /** Create an emitter tester */
+  emit(emitter: string): EmitterTester;
+  /** Create an instance of the tester */
   createInstance(): TesterInstance;
 }
 
+export interface OutputTester {
+  compile(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<TestEmitterCompileResult>;
+  compileAndDiagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<[TestEmitterCompileResult, readonly Diagnostic[]]>;
+  diagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<readonly Diagnostic[]>;
+}
+/** Alternate version of the tester which runs the configured emitter */
+export interface EmitterTester extends OutputTester {
+  createInstance(): EmitterTesterInstance;
+}
+
+export interface EmitterTesterInstance extends OutputTester {
+  get program(): Program;
+}
+
 export interface TesterInstance extends Testable {
-  readonly program: Program;
+  get program(): Program;
 }
 
 export interface TesterOptions {
@@ -131,19 +169,52 @@ interface TesterInternalParams {
   usings?: string[];
 }
 
+interface EmitterTesterInternalParams extends TesterInternalParams {
+  emitter: string;
+}
+
+function createEmitterTesterInternal(params: EmitterTesterInternalParams): EmitterTester {
+  const { compile, compileAndDiagnose, diagnose } = createEmitterTesterInstance(params);
+  return {
+    compile,
+    compileAndDiagnose,
+    diagnose,
+    createInstance: () => createEmitterTesterInstance(params),
+  };
+}
+
 function createTesterInternal(params: TesterInternalParams): Tester {
   const { compile, compileAndDiagnose, diagnose } = createInstance();
   return {
     compile,
     compileAndDiagnose,
     diagnose,
+    files,
     wrap,
     importLibraries,
     import: importFn,
     using,
+    emit,
     createInstance,
   };
 
+  function files(files: Record<string, string | Record<string, unknown>>): Tester {
+    const fs = async () => {
+      const fs = (await params.fs()).clone();
+      for (const [name, value] of Object.entries(files)) {
+        if (typeof value === "string") {
+          fs.addTypeSpecFile(name, value);
+        } else {
+          fs.addJsFile(name, value);
+        }
+      }
+      return fs;
+    };
+    return createTesterInternal({
+      ...params,
+      fs,
+    });
+  }
   function wrap(fn: (x: string) => string): Tester {
     return createTesterInternal({
       ...params,
@@ -171,6 +242,12 @@ function createTesterInternal(params: TesterInternalParams): Tester {
       usings: [...(params.usings ?? []), ...usings],
     });
   }
+  function emit(emitter: string): EmitterTester {
+    return createEmitterTesterInternal({
+      ...params,
+      emitter,
+    });
+  }
 
   function createInstance(): TesterInstance {
     return createTesterInstance({
@@ -180,6 +257,66 @@ function createTesterInternal(params: TesterInternalParams): Tester {
         return fs.clone();
       },
     });
+  }
+}
+
+function createEmitterTesterInstance(params: EmitterTesterInternalParams): EmitterTesterInstance {
+  const tester = createTesterInstance(params);
+  return {
+    compile,
+    compileAndDiagnose,
+    diagnose,
+    get program() {
+      return tester.program;
+    },
+  };
+
+  async function compile<T extends string | Record<string, string>>(
+    code: T,
+    options?: TestCompileOptions,
+  ): Promise<TestEmitterCompileResult> {
+    const [result, diagnostics] = await compileAndDiagnose(code, options);
+    expectDiagnosticEmpty(diagnostics);
+    return result;
+  }
+  async function diagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<readonly Diagnostic[]> {
+    const [_, diagnostics] = await compileAndDiagnose(code, options);
+    return diagnostics;
+  }
+  async function compileAndDiagnose(
+    code: string | Record<string, string>,
+    options?: TestCompileOptions,
+  ): Promise<[TestEmitterCompileResult, readonly Diagnostic[]]> {
+    if (options?.options?.emit !== undefined) {
+      throw new Error("Cannot set emit in options.");
+    }
+    const resolvedOptions: TestCompileOptions = {
+      ...options,
+      options: {
+        ...options?.options,
+        outputDir: "tsp-output",
+        emit: [params.emitter],
+      },
+    };
+    const [result, diagnostics] = await tester.compileAndDiagnose(code, resolvedOptions);
+    const outputs: Record<string, string> = {};
+    const outputDir = resolveVirtualPath(resolvePath("tsp-output", params.emitter));
+    for (const [name, value] of result.fs.fs) {
+      if (name.startsWith(outputDir)) {
+        const relativePath = name.slice(outputDir.length + 1);
+        outputs[relativePath] = value;
+      }
+    }
+    return [
+      {
+        ...result,
+        outputs,
+      },
+      diagnostics,
+    ];
   }
 }
 
@@ -209,6 +346,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     /** The file where the marker is located */
     readonly filename: string;
   }
+
   function addCode(
     fs: TestFileSystem,
     code: string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
@@ -257,6 +395,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     ].join("\n");
     return actualCode;
   }
+
   async function compileAndDiagnose<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
   >(
@@ -267,7 +406,11 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     const typesCollected = addTestLib(fs);
     const { markerPositions, markerConfigs } = addCode(fs, code);
 
-    const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"));
+    const program = await coreCompile(
+      fs.compilerHost,
+      resolveVirtualPath("main.tsp"),
+      options?.options,
+    );
     savedProgram = program;
 
     const entities: Record<string, Entity> = { ...typesCollected };
@@ -320,7 +463,7 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
         (entities as any)[name] = entity;
       }
     }
-    return [{ program, ...entities } as any, program.diagnostics];
+    return [{ program, fs, ...entities } as any, program.diagnostics];
   }
 
   async function compile<
