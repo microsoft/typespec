@@ -143,6 +143,7 @@ export default tsEslint.config(
       "**/.temp/**/*",
       "**/temp/**/*",
       "**/generated-defs/*",
+      "**/__snapshots__/*",
       "**/website/build/**/*",
       "**/.astro/**/*",
       "**/.docusaurus/**/*",
