@@ -15,7 +15,7 @@
     "@typespec/spector": "0.1.0-alpha.13",
     "@typespec/spec-api": "0.1.0-alpha.6",
     "@typespec/http-specs": "0.1.0-alpha.22",
-    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.4.0.tgz",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.4.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {

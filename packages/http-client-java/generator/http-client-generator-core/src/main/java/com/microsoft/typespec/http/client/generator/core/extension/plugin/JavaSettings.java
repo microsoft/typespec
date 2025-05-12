@@ -404,15 +404,20 @@ public class JavaSettings {
      * @return Whether to generate with Azure V1.
      */
     public boolean isAzureV1() {
-        return isAzureV1(this.flavor);
-    }
-
-    private static boolean isAzureV1(String flavor) {
         return "azure".equalsIgnoreCase(flavor);
     }
 
+    /**
+     * Whether to generate with Azure V2.
+     *
+     * @return Whether to generate with Azure V2.
+     */
     public boolean isAzureV2() {
         return "azurev2".equalsIgnoreCase(this.flavor);
+    }
+
+    public boolean isUnbranded() {
+        return !isAzureV1() && !isAzureV2();
     }
 
     public boolean useRestProxy() {
