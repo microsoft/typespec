@@ -38,9 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
-            BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
+            BodyStatements = bodyStatements;
             _xmlDocs = xmlDocProvider;
             EnclosingType = enclosingType;
         }

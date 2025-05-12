@@ -182,10 +182,11 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
-                if (method.BodyStatements is { } body)
+                if (method.BodyStatements != null)
                 {
                     using (WriteMethodDeclaration(method.Signature))
                     {
+                        var body = MethodProviderHelpers.GetBodyStatementWithValidation(method.BodyStatements, method.Signature);
                         body.Write(this);
                     }
                 }
@@ -207,10 +208,11 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
-                if (ctor.BodyStatements is { } body)
+                if (ctor.BodyStatements != null)
                 {
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
+                        var body = MethodProviderHelpers.GetBodyStatementWithValidation(ctor.BodyStatements, ctor.Signature);
                         body.Write(this);
                     }
                 }

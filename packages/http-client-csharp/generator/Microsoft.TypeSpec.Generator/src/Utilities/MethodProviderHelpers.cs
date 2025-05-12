@@ -31,36 +31,32 @@ namespace Microsoft.TypeSpec.Generator
             return paramHash;
         }
 
-        public static MethodBodyStatement GetBodyStatementWithValidation(IEnumerable<ParameterProvider> parameters, MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
+        public static MethodBodyStatement GetBodyStatementWithValidation(MethodBodyStatement bodyStatements, MethodSignatureBase signature)
         {
-            if (paramHash is null || bodyStatements == MethodBodyStatement.Empty)
-                return bodyStatements;
-
-            int count = 0;
-            foreach (var kvp in paramHash)
+            if (bodyStatements == MethodBodyStatement.Empty)
             {
-                if (kvp.Key == ParameterValidationType.None)
-                    continue;
-                count += kvp.Value.Count;
+                return bodyStatements;
             }
 
-            if (count == 0)
+            // only add validation to the public methods to avoid repeating the same validation in internal methods
+            if (!signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+            {
                 return bodyStatements;
+            }
 
-            MethodBodyStatement[] statements = new MethodBodyStatement[count + 2];
-            int index = 0;
-            foreach (var parameter in parameters)
+            var statements = new List<MethodBodyStatement>(signature.Parameters.Count + 2);
+            foreach (var parameter in signature.Parameters)
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = ValidateParameter(parameter);
-                    index++;
+                    statements.Add(ValidateParameter(parameter));
                 }
             }
-            statements[index] = MethodBodyStatement.EmptyLine;
-            index++;
-
-            statements[index] = bodyStatements;
+            if (statements.Count > 0)
+            {
+                statements.Add(MethodBodyStatement.EmptyLine);
+            }
+            statements.Add(bodyStatements);
 
             return statements;
         }
