@@ -11,10 +11,11 @@ import { createSourceLoader } from "../core/source-loader.js";
 import { Diagnostic, Entity, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { PositionedMarker, extractMarkers } from "./fourslash.js";
+import { createTestFileSystem } from "./fs.js";
 import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
-import { StandardTestLibrary, createTestFileSystem } from "./test-host.js";
+import { StandardTestLibrary } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
-import { TestFileSystem } from "./types.js";
+import { MockFile, TestFileSystem } from "./types.js";
 
 // Need a way to combine that with `program`
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
@@ -57,7 +58,7 @@ interface Testable {
 // Immutable structure meant to be reused
 export interface Tester extends Testable {
   /** Extend with the given list of files */
-  files(files: Record<string, string | Record<string, unknown>>): Tester;
+  files(files: Record<string, MockFile>): Tester;
   /** Auto import all libraries defined in this tester. */
   importLibraries(): Tester;
   /** Import the given paths */
@@ -145,17 +146,14 @@ async function createTesterFs(base: string, options: TesterOptions) {
 
   for (const file of sl.resolution.sourceFiles.values()) {
     const relativePath = computeVirtualPath(file.file);
-    fs.addTypeSpecFile(resolveVirtualPath(relativePath), file.file.text);
+    fs.add(resolveVirtualPath(relativePath), file.file.text);
   }
   for (const file of sl.resolution.jsSourceFiles.values()) {
     const relativePath = computeVirtualPath(file.file);
     fs.addJsFile(resolveVirtualPath(relativePath), file.esmExports);
   }
   for (const [path, lib] of sl.resolution.loadedLibraries) {
-    fs.addTypeSpecFile(
-      resolvePath("node_modules", path, "package.json"),
-      (lib.manifest as any).file.text,
-    );
+    fs.add(resolvePath("node_modules", path, "package.json"), (lib.manifest as any).file.text);
   }
   fs.freeze();
   return fs;
@@ -198,15 +196,11 @@ function createTesterInternal(params: TesterInternalParams): Tester {
     createInstance,
   };
 
-  function files(files: Record<string, string | Record<string, unknown>>): Tester {
+  function files(files: Record<string, MockFile>): Tester {
     const fs = async () => {
       const fs = (await params.fs()).clone();
       for (const [name, value] of Object.entries(files)) {
-        if (typeof value === "string") {
-          fs.addTypeSpecFile(name, value);
-        } else {
-          fs.addJsFile(name, value);
-        }
+        fs.add(name, value);
       }
       return fs;
     };

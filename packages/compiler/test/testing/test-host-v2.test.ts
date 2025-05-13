@@ -12,6 +12,7 @@ import {
   navigateProgram,
   Program,
 } from "../../src/index.js";
+import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
 import { createTester } from "../../src/testing/test-host-v2.js";
 
@@ -222,7 +223,7 @@ describe("emitter", () => {
       version: "1.0.0",
       exports: { ".": "./index.js" },
     }),
-    "node_modules/dummy-emitter/index.js": {
+    "node_modules/dummy-emitter/index.js": mockFile.js({
       $onEmit: (context: EmitContext) => {
         navigateProgram(context.program, {
           model: (model) => {
@@ -234,7 +235,7 @@ describe("emitter", () => {
           },
         });
       },
-    },
+    }),
   }).emit("dummy-emitter");
 
   it("return output", async () => {

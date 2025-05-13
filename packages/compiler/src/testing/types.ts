@@ -2,11 +2,24 @@ import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Type } from "../core/types.js";
 
-export interface TestFileSystem {
-  readonly compilerHost: CompilerHost;
-  readonly fs: Map<string, string>;
+export type MockFile = string | JsFile;
 
+export interface JsFile {
+  readonly kind: "js";
+  readonly exports: Record<string, any>;
+}
+
+export interface TestFileSystem {
+  /** Raw files */
+  readonly fs: Map<string, string>;
+  readonly compilerHost: CompilerHost;
+
+  /** Add a mock test file */
+  add(path: string, content: MockFile): void;
+
+  /** Prefer using {@link add} */
   addTypeSpecFile(path: string, contents: string): void;
+  /** Prefer using {@link add} */
   addJsFile(path: string, contents: Record<string, any>): void;
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
@@ -20,7 +33,18 @@ export interface TestFileSystem {
   clone(): TestFileSystem;
 }
 
-export interface TestHost extends TestFileSystem {
+export interface TestHost
+  extends Pick<
+    TestFileSystem,
+    | "addTypeSpecFile"
+    | "addJsFile"
+    | "addRealTypeSpecFile"
+    | "addRealJsFile"
+    | "addRealFolder"
+    | "addTypeSpecLibrary"
+    | "compilerHost"
+    | "fs"
+  > {
   program: Program;
   libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;
