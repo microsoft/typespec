@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
-        public IReadOnlyList<CSharpSyntaxRewriter> Rewriters => _rewriters;
+        public IReadOnlyList<LibraryRewriter> Rewriters => _rewriters;
 
         [ImportingConstructor]
         public CodeModelGenerator(GeneratorContext context)
@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator
         public virtual TypeFactory TypeFactory { get; }
 
         private SourceInputModel? _sourceInputModel;
-        private List<CSharpSyntaxRewriter> _rewriters = [];
+        private List<LibraryRewriter> _rewriters = [];
 
         public virtual SourceInputModel SourceInputModel
         {
@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator
             _visitors.Add(visitor);
         }
 
-        public void AddRewriter(CSharpSyntaxRewriter rewriter)
+        public void AddRewriter(LibraryRewriter rewriter)
         {
             _rewriters.Add(rewriter);
         }

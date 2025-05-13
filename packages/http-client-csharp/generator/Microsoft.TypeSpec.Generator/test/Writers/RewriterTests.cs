@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         protected override TypeProvider[] BuildTypeProviders() => TypeProviders.ToArray();
     }
 
-    public class TestRewriter : CSharpSyntaxRewriter
+    public class TestRewriter : LibraryRewriter
     {
         public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
         {

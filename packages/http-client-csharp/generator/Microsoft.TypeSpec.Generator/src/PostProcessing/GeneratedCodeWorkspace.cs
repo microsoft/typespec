@@ -134,6 +134,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
                 {
+                    rewriter.SemanticModel = semanticModel;
                     root = rewriter.Visit(root);
                 }
                 document = document.WithSyntaxRoot(root);
