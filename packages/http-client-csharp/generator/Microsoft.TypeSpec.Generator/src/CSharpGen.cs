@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
 namespace Microsoft.TypeSpec.Generator
@@ -28,7 +29,6 @@ namespace Microsoft.TypeSpec.Generator
             var generatedTestOutputPath = CodeModelGenerator.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
-
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
@@ -40,7 +40,9 @@ namespace Microsoft.TypeSpec.Generator
 
             await Task.WhenAll(generateAttributeTasks);
 
-            CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(await customCodeWorkspace.GetCompilationAsync());
+            CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
+                await customCodeWorkspace.GetCompilationAsync(),
+                await GeneratedCodeWorkspace.LoadBaselineContract());
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
 

@@ -8,12 +8,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using NuGet.Configuration;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -24,6 +26,8 @@ namespace Microsoft.TypeSpec.Generator
         private const string GeneratedCodeProjectName = "GeneratedCode";
         private const string GeneratedTestFolder = "GeneratedTests";
         private const string NewLine = "\n";
+        private const string ApiCompatPropertyName = "ApiCompatVersion";
+        private const string LastContractAssemblyNetVersion = "netstandard2.0";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -204,16 +208,16 @@ namespace Microsoft.TypeSpec.Generator
             return new GeneratedCodeWorkspace(project);
         }
 
-        internal static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
+        private static async Task<CSharpCompilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
-            Project project = workspace.AddProject("PreviousContract", LanguageNames.CSharp);
+            Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
             project = project
                 .AddMetadataReferences(_assemblyMetadataReferences.Value)
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
-            return await project.GetCompilationAsync();
+            return (CSharpCompilation?)await project.GetCompilationAsync();
         }
 
         /// <summary>
@@ -259,6 +263,33 @@ namespace Microsoft.TypeSpec.Generator
                     _project = await postProcessor.RemoveAsync(_project);
                     break;
             }
+        }
+
+        internal static async Task<Compilation?> LoadBaselineContract()
+        {
+            string fullPath;
+            string ns = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{ns}.csproj"));
+            if (!File.Exists(projectFilePath))
+                return null;
+
+            var baselineVersion = ProjectRootElement.Open(projectFilePath).Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
+            if (baselineVersion != null)
+            {
+                var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(Settings.LoadDefaultSettings(projectFilePath));
+                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, ns.ToLowerInvariant(), baselineVersion, "lib", LastContractAssemblyNetVersion);
+                fullPath = Path.Combine(nugetFolder, $"{ns}.dll");
+                if (File.Exists(fullPath))
+                {
+                    return await CreateLastContractFromDll(Path.Combine(nugetFolder, $"{ns}.xml"), fullPath);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                        $"Please make sure the baseline nuget package has been installed properly");
+                }
+            }
+            return null;
         }
     }
 }
