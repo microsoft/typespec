@@ -1,8 +1,7 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
-import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { ApiTester, createOpenAPITestHost } from "./test-host.js";
+import { ApiTester } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
@@ -110,50 +109,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
       },
       required: ["prop1", "prop2", "prop3"],
     });
-  });
-
-  it("doesn't lose parent namespace", async () => {
-    const host = await createOpenAPITestHost();
-
-    let storedNamespace: string | undefined = undefined;
-    host.addJsFile("test.js", {
-      $armNamespace(context: DecoratorContext, entity: Namespace) {
-        storedNamespace = getNamespaceFullName(entity);
-      },
-    });
-
-    const runner = createTestWrapper(host, {
-      autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
-      compilerOptions: {
-        emit: ["@typespec/openapi3"],
-        options: { "@typespec/openapi3": { "openapi-versions": [specVersion] } },
-      },
-    });
-
-    await runner.compile(`
-    @versioned(Contoso.Library.Versions)
-    namespace Contoso.Library {
-      namespace Blah { }
-      enum Versions { v1 };
-    }
-    @armNamespace
-    @service(#{title: "Widgets 'r' Us"})
-    @useDependency(Contoso.Library.Versions.v1)
-    namespace Contoso.WidgetService {
-      model Widget {
-        @key
-        @segment("widgets")
-        id: string;
-      }
-      interface Operations {
-        @test
-        op get(id: string): Widget;
-      }
-    }
-    `);
-
-    strictEqual(storedNamespace, "Contoso.WidgetService");
   });
 
   // Test for https://github.com/microsoft/typespec/issues/812

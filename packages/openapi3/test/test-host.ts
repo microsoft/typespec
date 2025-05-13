@@ -1,20 +1,12 @@
 import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
 import {
   createTester,
-  createTestHost,
   expectDiagnosticEmpty,
   resolveVirtualPath,
 } from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { JsonSchemaTestLibrary } from "@typespec/json-schema/testing";
-import { OpenAPITestLibrary } from "@typespec/openapi/testing";
-import { RestTestLibrary } from "@typespec/rest/testing";
-import { VersioningTestLibrary } from "@typespec/versioning/testing";
-import { XmlTestLibrary } from "@typespec/xml/testing";
 import { ok } from "assert";
 import { parse } from "yaml";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 import { OpenAPI3Document } from "../src/types.js";
 
 export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
@@ -43,20 +35,6 @@ export const SimpleTester = ApiTester.import(
 export const TesterWithVersioning = ApiTester.importLibraries()
   .using("Http", "Rest", "OpenAPI", "Xml", "Versioning")
   .emit("@typespec/openapi3");
-
-export async function createOpenAPITestHost() {
-  return createTestHost({
-    libraries: [
-      HttpTestLibrary,
-      JsonSchemaTestLibrary,
-      RestTestLibrary,
-      VersioningTestLibrary,
-      XmlTestLibrary,
-      OpenAPITestLibrary,
-      OpenAPI3TestLibrary,
-    ],
-  });
-}
 
 export async function emitOpenApiWithDiagnostics(
   code: string,
