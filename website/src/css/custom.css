@@ -1,4 +1,4 @@
-@layer core, fluentui, starlight, reset;
+@layer reset, starlight, core, fluentui;
 
 @import url("@typespec/astro-utils/css/fluentui.css") layer(fluentui);
 @import url("./reset.css") layer(reset);

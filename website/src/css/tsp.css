@@ -26,3 +26,8 @@
 .sl-markdown-content code {
   overflow-wrap: normal;
 }
+
+header.header {
+  padding: 0;
+  padding-inline-end: unset !important;
+}
