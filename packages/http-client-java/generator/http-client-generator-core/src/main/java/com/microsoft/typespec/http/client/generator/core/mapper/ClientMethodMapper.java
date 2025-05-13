@@ -6,10 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -27,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
-import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,19 +143,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 if (proxyMethod.getImplementation() != null) {
                     continue;
                 }
-                final List<Parameter> codeModelParameters
-                    = getCodeModelParameters(request, operation, isProtocolMethod);
-                final ClientMethodParameterProcessor.Result result = ClientMethodParameterProcessor.process(request,
-                    codeModelParameters, proxyMethod.hasParameterOfType(ClassType.BINARY_DATA), isProtocolMethod);
-                final MethodOverloadType defaultOverloadType = result.hasNonRequiredParameters
+                final ClientMethodParametersDetails parametersDetails = ClientMethodParameterProcessor.process(request,
+                    proxyMethod.hasParameterOfType(ClassType.BINARY_DATA), isProtocolMethod);
+                final MethodOverloadType defaultOverloadType = parametersDetails.hasNonRequiredParameters()
                     ? MethodOverloadType.OVERLOAD_MAXIMUM
                     : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
 
                 final ClientMethod baseMethod = builder.proxyMethod(proxyMethod)
-                    .parameters(result.parameters)
-                    .requiredNullableParameterExpressions(result.requiredParameterExpressions)
-                    .validateExpressions(result.validateParameterExpressions)
-                    .parameterTransformations(result.parameterTransformations)
+                    .parameters(parametersDetails.getClientMethodParameters())
+                    .requiredNullableParameterExpressions(parametersDetails.requiredParameterExpressions)
+                    .validateExpressions(parametersDetails.validateParameterExpressions)
+                    .parameterTransformations(parametersDetails.parameterTransformations)
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient(operation, isProtocolMethod))
                     .build();
 
@@ -173,7 +167,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 if (operation.isPageable()) {
                     // Create Paging Client Methods.
                     //
-                    final PagingMetadata pagingMetadata = PagingMetadata.create(operation, proxyMethod, settings);
+                    final PagingMetadata pagingMetadata
+                        = PagingMetadata.create(operation, proxyMethod, parametersDetails, settings);
                     if (pagingMetadata == null) {
                         continue;
                     }
@@ -310,34 +305,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return requests;
         } else {
             return operation.getRequests();
-        }
-    }
-
-    private static List<Parameter> getCodeModelParameters(Request request, Operation operation,
-        boolean isProtocolMethod) {
-        final Stream<Parameter> parameters;
-        if (isProtocolMethod) {
-            // Required path, body, header and query parameters are allowed
-            parameters = request.getParameters().stream().filter(p -> {
-                RequestParameterLocation location = p.getProtocol().getHttp().getIn();
-                return p.isRequired()
-                    && (location == RequestParameterLocation.PATH
-                        || location == RequestParameterLocation.BODY
-                        || location == RequestParameterLocation.HEADER
-                        || location == RequestParameterLocation.QUERY);
-            });
-        } else {
-            parameters = request.getParameters().stream().filter(p -> !p.isFlattened());
-        }
-        if (operation.isPageable()) {
-            // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
-            // PagedIterable.iterableByPage(int), and also remove continuationToken for unbranded.
-            //
-            return parameters
-                .filter(p -> !MethodUtil.shouldHideParameterInPageable(p, operation.getExtensions().getXmsPageable()))
-                .collect(Collectors.toList());
-        } else {
-            return parameters.collect(Collectors.toList());
         }
     }
 
@@ -993,12 +960,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
             return new MethodNamer(proxyMethod.getName());
         }
-    }
-
-    protected static MethodPageDetails.ContinuationToken fromContinuationToken(XmsPageable xmsPageable,
-        IType responseBodyType) {
-        // TODO: anu remove this method once ClientCoreClientMethodMapper is refactored similar to ClientMethodMapper
-        return PagingMetadata.getContinuationToken(xmsPageable, responseBodyType);
     }
 
     /**

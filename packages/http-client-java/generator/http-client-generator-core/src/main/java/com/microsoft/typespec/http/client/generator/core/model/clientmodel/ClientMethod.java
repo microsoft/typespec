@@ -115,7 +115,6 @@ public class ClientMethod {
     private final boolean hasWithContextOverload;
     private final String parametersDeclaration;
     private final String argumentList;
-    private final boolean hidePageableParams;
 
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
@@ -170,7 +169,7 @@ public class ClientMethod {
         ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
-        String crossLanguageDefinitionId, boolean hasWithContextOverload, boolean hidePageableParams) {
+        String crossLanguageDefinitionId, boolean hasWithContextOverload) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -202,20 +201,18 @@ public class ClientMethod {
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.hasWithContextOverload = hasWithContextOverload;
-        this.hidePageableParams = hidePageableParams;
-        this.parametersDeclaration = getMethodInputParameters().stream()
-            .filter(param -> !shouldHidePageableParams(methodPageDetails, param))
-            .map(ClientMethodParameter::getDeclaration)
-            .collect(Collectors.joining(", "));
+        if (methodPageDetails != null && isPageStreamingClientMethodType(type)) {
+            this.parametersDeclaration = getMethodInputParameters().stream()
+                .filter(p -> !methodPageDetails.shouldHideParameter(p))
+                .map(ClientMethodParameter::getDeclaration)
+                .collect(Collectors.joining(", "));
+        } else {
+            this.parametersDeclaration = getMethodInputParameters().stream()
+                .map(ClientMethodParameter::getDeclaration)
+                .collect(Collectors.joining(", "));
+        }
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
-    }
-
-    private boolean shouldHidePageableParams(MethodPageDetails methodPageDetails, ClientMethodParameter param) {
-        if (hidePageableParams) {
-            return MethodUtil.shouldHideParameterInPageable(methodPageDetails, param);
-        }
-        return false;
     }
 
     @Override
@@ -289,6 +286,10 @@ public class ClientMethod {
      */
     public final String getParametersDeclaration() {
         return parametersDeclaration;
+    }
+
+    public boolean hasParameterDeclaration() {
+        return parametersDeclaration != null && !parametersDeclaration.isEmpty();
     }
 
     /**
@@ -586,6 +587,17 @@ public class ClientMethod {
             .build();
     }
 
+    /**
+     * Check if the given ClientMethodType is a page streaming type (i.e. if the type represents a method that
+     * returns PagedIterable&lt;T&gt; or PagedFlux&lt;T&gt;).
+     *
+     * @param type The ClientMethodType to check.
+     * @return true if the type is a page streaming type, false otherwise.
+     */
+    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
+        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
+    }
+
     public static class Builder {
         protected String description;
         protected ReturnValue returnValue;
@@ -847,11 +859,6 @@ public class ClientMethod {
             return this;
         }
 
-        public Builder hidePageableParams(boolean hidePageableParams) {
-            this.hidePageableParams = hidePageableParams;
-            return this;
-        }
-
         /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
@@ -861,7 +868,7 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, hidePageableParams);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload);
         }
     }
 }
