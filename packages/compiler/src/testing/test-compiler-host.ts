@@ -1,5 +1,5 @@
 import { RmOptions } from "fs";
-import { fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath } from "url";
 import { CompilerPackageRoot, NodeHost } from "../core/node-host.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import { CompilerHost } from "../core/types.js";
@@ -136,7 +136,7 @@ export function createTestCompilerHost(
     mkdirp: async (path: string) => path,
     fileURLToPath,
     pathToFileURL(path: string) {
-      return pathToFileURL(path).href;
+      return `file://${path}`;
     },
 
     ...options?.compilerHostOverrides,
