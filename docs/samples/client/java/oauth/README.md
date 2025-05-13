@@ -46,7 +46,11 @@ namespace ExampleServer {
 
 ### Example implementation of OAuthTokenCredential
 
-Below is an example implementation of the `OAuthTokenCredential` class that supports the client credentials flow.
+Below is an example implementation of the `OAuthTokenCredential` class that supports the client credentials flow. This sample should be modified to meet your needs, including:
+
+- Choosing the appropriate OAuth flow.
+- Choosing the appropriate JSON library for your project. Jackson is used here only as an example.
+- Appropriate error handling and logging.
 
 ```java
 public class TestCredential implements OAuthTokenCredential {
@@ -75,7 +79,7 @@ public class TestCredential implements OAuthTokenCredential {
             // just use the first one
             String tokenUrl = authFlows.get(0).get("tokenUrl");
             String scope = authFlows.get(0).get("scopes");
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = getHttpClient(); // assumes a path in your environment to handle client pooling, etc. 
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(tokenUrl))
                     .header("Content-Type", "application/x-www-form-urlencoded")
