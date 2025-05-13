@@ -165,8 +165,6 @@ public class ClientCorePomTemplate extends PomTemplate {
      * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
      */
     protected void writeSpotless(XmlBlock propertiesBlock) {
-        // For now all generation will enable Spotless running.
-        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**
@@ -196,6 +194,9 @@ public class ClientCorePomTemplate extends PomTemplate {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
+            pluginBlock.block("configuration", configurationBlock -> {
+                configurationBlock.tag("release", "11");
+            });
 
             // Generate annotation processor configuration if not using Rest Proxy
             if (!JavaSettings.getInstance().useRestProxy()) {
