@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                     new TestTypeProvider())
             };
             var type = new TestTypeProvider(methods: methods);
-            var outputLibrary = new TestOutputLibary(type);
+            var outputLibrary = new TestOutputLibrary(type);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => outputLibrary,
                 typesToKeep: ["TestName"]);
@@ -65,9 +65,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
     }
 
-    public class TestOutputLibary : OutputLibrary
+    public class TestOutputLibrary : OutputLibrary
     {
-        public TestOutputLibary(TypeProvider typeProvider)
+        public TestOutputLibrary(TypeProvider typeProvider)
         {
             TypeProviders = new List<TypeProvider> { typeProvider };
         }
