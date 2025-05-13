@@ -76,6 +76,17 @@ It is possible to use server driven pagination on top of client driven paginatio
 };
 ```
 
+In this case, the body of the server response for a page has a property marked as continuation token, which can be used to fetch the next page. When fetching the next page, request will include the continuation token as a query parameter.
+
+The continuation token can be in other locations as well, for instance, the below spec indicates that the server response for a page can have a header containing the continuation token. When fetching the next page, request will include the continuation token as a query parameter.
+
+```tsp
+@list op listPets(@query @continuationToken token?: string): {
+  @pageItems pets: Pet[];
+  @continuationToken @header nextToken?: string;
+};
+```
+
 ### Example 2: Using links for an HTTP service
 
 ```tsp
