@@ -202,22 +202,12 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
-        protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfElseStatement statement, MethodProvider method)
-        {
-            return statement;
-        }
-
         protected internal virtual MethodBodyStatement? VisitTryCatchFinallyStatement(TryCatchFinallyStatement statement, MethodProvider method)
         {
             return statement;
         }
 
         protected internal virtual MethodBodyStatement? VisitWhileStatement(WhileStatement statement, MethodProvider method)
-        {
-            return statement;
-        }
-
-        protected internal virtual MethodBodyStatement? VisitSwitchStatement(SwitchStatement statement, MethodProvider method)
         {
             return statement;
         }
@@ -267,22 +257,6 @@ namespace Microsoft.TypeSpec.Generator
             return expression;
         }
         protected internal virtual FinallyExpression VisitFinallyExpression(FinallyExpression expression, MethodProvider method)
-        {
-            return expression;
-        }
-        protected virtual ValueExpression? VisitExpression(DictionaryExpression expression, MethodProvider method)
-        {
-            return expression;
-        }
-        protected virtual ValueExpression? VisitExpression(TupleExpression expression, MethodProvider method)
-        {
-            return expression;
-        }
-        protected virtual ValueExpression? VisitExpression(TypeReferenceExpression expression, MethodProvider method)
-        {
-            return expression;
-        }
-        protected virtual ValueExpression? VisitExpression(BinaryOperatorExpression expression, MethodProvider method)
         {
             return expression;
         }
