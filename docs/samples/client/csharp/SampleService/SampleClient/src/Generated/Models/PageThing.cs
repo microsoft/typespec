@@ -14,11 +14,16 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
+        /// <summary> Initializes a new instance of <see cref="PageThing"/>. </summary>
+        /// <param name="items"></param>
         internal PageThing(IEnumerable<Thing> items)
         {
             Items = items.ToList();
         }
 
+        /// <summary> Initializes a new instance of <see cref="PageThing"/>. </summary>
+        /// <param name="items"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal PageThing(IList<Thing> items, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Items = items;

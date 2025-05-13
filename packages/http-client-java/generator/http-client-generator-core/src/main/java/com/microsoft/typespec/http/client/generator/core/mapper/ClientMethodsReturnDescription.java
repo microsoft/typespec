@@ -33,10 +33,84 @@ import java.util.stream.Collectors;
  */
 public final class ClientMethodsReturnDescription {
     private final Operation operation;
+    /**
+     * represents return type of '[Operation]WithResponseAsync' or '[Operation]SinglePageAsync' client methods.
+     * <p>
+     * In case of '[Operation]WithResponseAsync' ({@link ClientMethodType#SimpleAsyncRestResponse}), the return type
+     * takes one of the following form -
+     * <ul>
+     * <li>Mono&lt;Response&lt;T&gt;&gt;</li>
+     * <li>Mono&lt;ResponseBase&lt;H,T&gt;&gt;</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * In case of '[Operation]SinglePageAsync' ({@link ClientMethodType#PagingAsyncSinglePage}), the return type takes
+     * one of the following form -
+     * <ul>
+     * <li>Mono&lt;PagedResponse&lt;T&gt;&gt;</li>
+     * <li>Mono&lt;PagedResponseBase&lt;H,T&gt;&gt;</li>
+     * </ul>
+     * </p>
+     *
+     * @see ResponseTypeFactory#createAsyncResponse(Operation, IType, boolean, JavaSettings, boolean).
+     */
     private final IType asyncRestResponseReturnType;
-    private final IType asyncReturnType;
-    private final IType syncReturnType;
+    /**
+     * represents return type of '[Operation]WithResponse' or '[Operation]SinglePage' synchronous client methods.
+     * <p>
+     * In case of '[Operation]WithResponse' ({@link ClientMethodType#SimpleSyncRestResponse}), the return type takes one
+     * of the following form -
+     * <ul>
+     * <li>Response&lt;T&gt;</li>
+     * <li>ResponseBase&lt;H,T&gt;</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * In case of '[Operation]SinglePage' ({@link ClientMethodType#PagingSyncSinglePage}), the return
+     * type takes one of the following form -
+     * <ul>
+     * <li>PagedResponse&lt;T&gt;</li>
+     * <li>PagedResponseBase&lt;H,T&gt</li>
+     * </ul>
+     * </p>
+     *
+     * @see ResponseTypeFactory#createSyncResponse(Operation, IType, boolean, JavaSettings, boolean).
+     */
     private final IType syncReturnWithResponse;
+    /**
+     * represents return type of following asynchronous client methods,
+     * <ul>
+     * <li>Mono&ltT&gt; in case of a simple async method ({@link ClientMethodType#SimpleAsync}), 'Mono&lt;Foo&gt;
+     * getFooAsync(...)'.</li>
+     * <li>Mono&ltT&gt; in case of a long-running async method {@link ClientMethodType#LongRunningAsync} that wait for
+     * LRO completion and produces final result (T).</li>
+     * <li>PagedFlux&lt;T&gt; in case of a pageable async method ({@link ClientMethodType#PagingAsync}).</li>
+     * </ul>
+     */
+    private final IType asyncReturnType;
+    /**
+     * represents return type of following synchronous client methods,
+     * <ul>
+     * <li>T in case of a simple sync method ({@link ClientMethodType#SimpleSync}), 'Foo getFoo(...)'.</li>
+     * <li>T in case of a long-running sync method {@link ClientMethodType#LongRunningSync} that wait for LRO completion
+     * and produces final result (T).</li>
+     * <li>PagedIterable&lt;T&gt; in case of a pageable sync method ({@link ClientMethodType#PagingSync}).</li>
+     *
+     * </ul>
+     *
+     * <p>
+     * in fluent {@link JavaSettings#isFluent()} mode, this is used in return type of long-running (LRO) begin methods,
+     * <ul>
+     * <li>T in PollerFlux&lt;T, T&gt; in case of a LRO begin async method
+     * ({@link ClientMethodType#LongRunningBeginAsync}), 'PollerFlux&lt;T, T&gt; begin[Operation]Async'.</li>
+     * <li>T in SyncPoller&lt;T, T&gt; in case of a LRO begin sync method
+     * ({@link ClientMethodType#LongRunningBeginSync}), 'SyncPoller&lt;T, T&gt; begin[Operation]'.</li>
+     * </ul>
+     * </p>
+     */
+    private final IType syncReturnType;
 
     /**
      * Create a {@link ClientMethodsReturnDescription} for the given operation. The description allows obtaining
@@ -156,10 +230,14 @@ public final class ClientMethodsReturnDescription {
                     final IType returnType = GenericType.SyncPoller(GenericType.PollResult(syncReturnType.asNullable()),
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
+                } else if (settings.isAzureV2()) {
+                    IType returnType = GenericType.AzureVNextPoller(pollingDetails.getPollResultType(),
+                        pollingDetails.getFinalResultType());
+                    return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 } else {
-                    IType returnType
-                        = GenericType.SyncPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-                    return createReturnValue(returnType, pollingDetails.getFinalType());
+                    IType returnType = GenericType.SyncPoller(pollingDetails.getPollResultType(),
+                        pollingDetails.getFinalResultType());
+                    return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             case LongRunningBeginAsync:
                 if (settings.isFluent()) {
@@ -167,9 +245,9 @@ public final class ClientMethodsReturnDescription {
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
                 } else {
-                    IType returnType
-                        = GenericType.PollerFlux(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-                    return createReturnValue(returnType, pollingDetails.getFinalType());
+                    IType returnType = GenericType.PollerFlux(pollingDetails.getPollResultType(),
+                        pollingDetails.getFinalResultType());
+                    return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             default:
                 throw new IllegalArgumentException("Unsupported method type: " + methodType
@@ -219,7 +297,7 @@ public final class ClientMethodsReturnDescription {
                     pageItemName, pageResponseModel.getName()));
         }
 
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(ClassType.BINARY_DATA));
             IType asyncReturnType = GenericType.PagedFlux(ClassType.BINARY_DATA);
             IType syncReturnType = GenericType.PagedIterable(ClassType.BINARY_DATA);
@@ -274,7 +352,7 @@ public final class ClientMethodsReturnDescription {
      */
     private static IType getResponseBodyType(Operation operation, boolean isProtocolMethod, JavaSettings settings) {
         final IType expectedResponseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
-        if (isProtocolMethod && settings.isBranded()) {
+        if (isProtocolMethod && settings.isAzureV1()) {
             return SchemaUtil.tryMapToBinaryData(expectedResponseBodyType, operation);
         }
         return expectedResponseBodyType;
@@ -363,8 +441,8 @@ public final class ClientMethodsReturnDescription {
         IType asyncReturnType, IType syncReturnType, IType syncReturnWithResponse) {
         this.operation = operation;
         this.asyncRestResponseReturnType = asyncRestResponseReturnType;
+        this.syncReturnWithResponse = syncReturnWithResponse;
         this.asyncReturnType = asyncReturnType;
         this.syncReturnType = syncReturnType;
-        this.syncReturnWithResponse = syncReturnWithResponse;
     }
 }

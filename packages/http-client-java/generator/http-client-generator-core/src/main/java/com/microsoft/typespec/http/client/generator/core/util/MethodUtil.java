@@ -28,6 +28,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
@@ -52,7 +53,7 @@ public class MethodUtil {
     public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
         = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
     public static final String REPEATABILITY_REQUEST_ID_EXPRESSION
-        = JavaSettings.getInstance().isBranded() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
+        = JavaSettings.getInstance().isAzureV1() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
     public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
         = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 
@@ -314,6 +315,16 @@ public class MethodUtil {
             hide = true;
         }
         return hide;
+    }
+
+    public static boolean shouldHideParameterInPageable(MethodPageDetails methodPageDetails,
+        ClientMethodParameter parameter) {
+        boolean isContinuationToken = methodPageDetails != null
+            && methodPageDetails.getContinuationToken() != null
+            && parameter.getName().equals(methodPageDetails.getContinuationToken().getRequestParameter().getName());
+        boolean isMaxPageSize
+            = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
+        return isContinuationToken || isMaxPageSize;
     }
 
     /**

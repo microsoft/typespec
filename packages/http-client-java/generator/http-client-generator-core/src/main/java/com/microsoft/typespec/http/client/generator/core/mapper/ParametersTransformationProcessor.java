@@ -27,7 +27,7 @@ public final class ParametersTransformationProcessor {
     private final boolean isProtocolMethod;
     private final List<ParametersTuple> parameters = new ArrayList<>();
 
-    ParametersTransformationProcessor(boolean isProtocolMethod) {
+    public ParametersTransformationProcessor(boolean isProtocolMethod) {
         this.isProtocolMethod = isProtocolMethod;
     }
 
@@ -37,7 +37,7 @@ public final class ParametersTransformationProcessor {
      * @param clientMethodParameter the client method parameter.
      * @param parameter the source parameter from which {@code clientMethodParameter} was derived.
      */
-    void addParameter(ClientMethodParameter clientMethodParameter, Parameter parameter) {
+    public void addParameter(ClientMethodParameter clientMethodParameter, Parameter parameter) {
         if (isProtocolMethod || parameter.getSchema() instanceof ConstantSchema) {
             return;
         }
@@ -47,7 +47,7 @@ public final class ParametersTransformationProcessor {
         parameters.add(new ParametersTuple(clientMethodParameter, parameter));
     }
 
-    ParameterTransformations process(Request request) {
+    public ParameterTransformations process(Request request) {
         final List<Transformation> transformations = new ArrayList<>(this.parameters.size());
 
         for (ParametersTuple t : parameters) {

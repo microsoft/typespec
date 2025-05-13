@@ -137,12 +137,12 @@ export const $summary: SummaryDecorator = (
 export { getSummary };
 
 /**
- * @doc attaches a documentation string. Works great with multi-line string literals.
+ * `@doc` attaches a documentation string. Works great with multi-line string literals.
  *
- * The first argument to @doc is a string, which may contain template parameters, enclosed in braces,
+ * The first argument to `@doc` is a string, which may contain template parameters, enclosed in braces,
  * which are replaced with an attribute for the type (commonly "name") passed as the second (optional) argument.
  *
- * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
+ * `@doc` can be specified on any language element -- a model, an operation, a namespace, etc.
  */
 export const $doc: DocDecorator = (
   context: DecoratorContext,

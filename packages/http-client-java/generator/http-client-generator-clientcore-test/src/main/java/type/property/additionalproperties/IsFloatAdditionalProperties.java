@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -13,18 +13,18 @@ import java.util.Map;
 /**
  * The model is from Record&lt;float32&gt; type.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsFloatAdditionalProperties implements JsonSerializable<IsFloatAdditionalProperties> {
     /*
      * The id property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final double id;
 
     /*
      * The model is from Record<float32> type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, Double> additionalProperties;
 
     /**
@@ -32,7 +32,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
      * 
      * @param id the id value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsFloatAdditionalProperties(double id) {
         this.id = id;
     }
@@ -42,7 +42,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
      * 
      * @return the id value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public double getId() {
         return this.id;
     }
@@ -52,7 +52,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
      * 
      * @return the additionalProperties value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, Double> getAdditionalProperties() {
         return this.additionalProperties;
     }
@@ -63,7 +63,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsFloatAdditionalProperties object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public IsFloatAdditionalProperties setAdditionalProperties(Map<String, Double> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
@@ -72,7 +72,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -94,7 +94,7 @@ public final class IsFloatAdditionalProperties implements JsonSerializable<IsFlo
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the IsFloatAdditionalProperties.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static IsFloatAdditionalProperties fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             double id = 0.0;

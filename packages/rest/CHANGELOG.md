@@ -1,5 +1,13 @@
 # Change Log - @typespec/rest
 
+## 0.70.0
+
+### Bug Fixes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Handle new behavior of `@patch` keeping old behavior
+- [#7168](https://github.com/microsoft/typespec/pull/7168) Do not add a leading `/` in front of autoRoute optional parameter already using path expansion.
+
+
 ## 0.69.0
 
 No changes, version bump only.

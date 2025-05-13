@@ -455,7 +455,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                                 }
 
                                 // convert List<WireType> to String
-                                if (JavaSettings.getInstance().isBranded()) {
+                                if (JavaSettings.getInstance().isAzureV1()) {
                                     // Always use serializeIterable as Iterable supports both Iterable and List.
                                     expression = String.format(
                                         "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
@@ -585,7 +585,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    public final void write(ClientMethod clientMethod, JavaType typeBlock) {
+    @Override
+    public void write(ClientMethod clientMethod, JavaType typeBlock) {
         final boolean writingInterface = typeBlock instanceof JavaInterface;
         if (clientMethod.getMethodVisibility() != JavaVisibility.Public && writingInterface) {
             return;
@@ -834,7 +835,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String serviceMethodCall
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            if (settings.isBranded()) {
+            if (settings.isAzureV1()) {
                 pagedSinglePageResponseConversion(restAPIMethod, clientMethod, settings, function);
             } else {
                 function.line("return new PagedResponse<>(");
@@ -912,7 +913,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    private void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -965,7 +966,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    private void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
@@ -1002,12 +1003,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     private static void addServiceMethodAnnotation(JavaType typeBlock, ReturnType returnType) {
-        if (JavaSettings.getInstance().isBranded()) {
-            typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
-        }
+        typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
     }
 
-    private void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
@@ -1018,7 +1017,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    private void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    protected void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
@@ -1319,7 +1318,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (settings.isDataPlaneClient() && settings.isBranded()) {
+                    if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                         function.line("getValues(res.getValue(), \"%s\"),",
                             clientMethod.getMethodPageDetails().getSerializedItemName());
                     } else {
@@ -1327,7 +1326,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (settings.isDataPlaneClient() && settings.isBranded()) {
+                        if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                             function.line("getNextLink(res.getValue(), \"%s\"),",
                                 clientMethod.getMethodPageDetails().getSerializedNextLinkName());
                         } else {
@@ -1349,7 +1348,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response".
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @return nextLink expression
      */
@@ -1359,7 +1358,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response".
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @param valueExpression the value expression to get the result value of the "Response"
      * @return nextLink expression
@@ -1370,7 +1369,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     /**
      * Get the expression for nextLink, for variable "res" of type "Response", or variable with the specified name.
-     * 
+     *
      * @param clientMethod the client method to generate implementation
      * @param valueExpression the value expression to get the result value of the "Response"
      * @param result name of the variable if it's not of type "Response"
@@ -1690,7 +1689,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             return String.format("() -> %s(%s)", methodName, argumentLine);
         } else {
             return String.format("pagingOptions -> { %s return %s(%s); }",
@@ -1728,7 +1727,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
 
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             return String.format("nextLink -> %s(%s)", methodName, argumentLine);
         } else {
             return String.format("(pagingOptions, nextLink) -> { %s return %s(%s); }",
@@ -1769,8 +1768,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
@@ -1808,8 +1807,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
@@ -1849,7 +1848,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         return serviceVersion;
     }
 
-    private static String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+    protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
         StringBuilder expression = new StringBuilder();
         expression.append("if (pagingOptions.getOffset() != null) {")
             .append(

@@ -559,7 +559,7 @@ it("generates standard scalar array for uniqueItems properties", async () => {
         arrUniqueColors: Array<string>;
       }
         
-     @patch @route("/Foo") op update(...Foo): Foo;
+     @patch(#{implicitOptionality: true}) @route("/Foo") op update(...Foo): Foo;
 
       `,
     [
@@ -607,7 +607,7 @@ it("generates standard array properties", async () => {
         arrColors: Array<string>;
       }
         
-     @patch @route("/Foo") op update(...Foo): Foo[];
+     @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): Foo[];
 
       `,
     [
@@ -639,7 +639,7 @@ it("generates bytes array properties", async () => {
         arrSBytes: int8[];
       }
         
-     @patch @route("/Foo") op update(...Foo): int8[];
+     @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): int8[];
 
       `,
     [
@@ -1000,7 +1000,6 @@ it("Coalesces union types", async () => {
   );
 });
 
-it("Organizes controllers by interface", async () => {});
 it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
@@ -1133,6 +1132,69 @@ it("Generates types and controllers in a service subnamespace", async () => {
         ["public partial class MyServiceOperationsController: ControllerBase"],
       ],
       ["ToyCollectionWithNextLink.cs", ["public partial class ToyCollectionWithNextLink"]],
+    ],
+  );
+});
+
+it("Handles MergePatchUpdate", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      
+model Widget {
+  id: string;
+  weight: int32;
+  color: "red" | "blue";
+}
+
+model WidgetList {
+  items: Widget[];
+}
+
+@error
+model Error {
+  code: int32;
+  message: string;
+}
+
+model AnalyzeResult {
+  id: string;
+  analysis: string;
+}
+
+@route("/widgets")
+@tag("Widgets")
+interface Widgets {
+  /** Update a widget */
+  @patch update(@path id: string, @body body: MergePatchUpdate<Widget>): Widget | Error;
+}
+    `,
+    [
+      [
+        "IWidgets.cs",
+        [
+          "using TypeSpec.Http;",
+          "public interface IWidgets",
+          "Task<Widget> UpdateAsync( string id, WidgetMergePatchUpdate body);",
+        ],
+      ],
+      [
+        "WidgetsController.cs",
+        [
+          "using TypeSpec.Http;",
+          "public partial class WidgetsController: ControllerBase",
+          "public virtual async Task<IActionResult> Update(string id, WidgetMergePatchUpdate body)",
+        ],
+      ],
+      [
+        "WidgetMergePatchUpdate.cs",
+        [
+          "namespace TypeSpec.Http {",
+          "public string Id { get; set; }",
+          "public int? Weight { get; set; }",
+          "public string Color { get; set; }",
+        ],
+      ],
     ],
   );
 });
