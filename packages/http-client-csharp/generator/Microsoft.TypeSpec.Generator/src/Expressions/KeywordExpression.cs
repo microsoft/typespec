@@ -8,6 +8,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record KeywordExpression(string Keyword, ValueExpression? Expression) : ValueExpression
     {
+        public string Keyword { get; private set; } = Keyword;
+        public ValueExpression? Expression { get; private set; } = Expression;
         internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw(Keyword);
@@ -35,6 +37,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
 
             return new KeywordExpression(keywordExpression.Keyword, newExpression);
+        }
+
+        public void Update(string keyword, ValueExpression? expression)
+        {
+            Keyword = keyword;
+            Expression = expression;
         }
 
         private MethodBodyStatement? _terminated;

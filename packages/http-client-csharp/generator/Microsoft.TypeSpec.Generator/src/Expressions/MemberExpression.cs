@@ -8,6 +8,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record MemberExpression(ValueExpression? Inner, string MemberName) : ValueExpression
     {
+        public ValueExpression? Inner { get; internal set; } = Inner;
+        public string MemberName { get; private set; } = MemberName;
         internal override void Write(CodeWriter writer)
         {
             if (Inner is not null)
@@ -35,6 +37,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
 
             return new MemberExpression(newInner, memberExpression.MemberName);
+        }
+
+        public void Update(ValueExpression? inner, string memberName)
+        {
+            Inner = inner;
+            MemberName = memberName;
         }
     }
 }

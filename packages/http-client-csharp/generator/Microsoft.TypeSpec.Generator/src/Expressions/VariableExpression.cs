@@ -8,6 +8,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public record VariableExpression(CSharpType Type, CodeWriterDeclaration Declaration, bool IsRef = false) : ValueExpression
     {
+        public CSharpType Type { get; private set; } = Type;
+        public CodeWriterDeclaration Declaration { get; private set; } = Declaration;
+        public bool IsRef { get; private set; } = IsRef;
         public VariableExpression(CSharpType type, string name, bool isRef = false) : this(type, new CodeWriterDeclaration(name), isRef) { }
 
         internal override void Write(CodeWriter writer)
@@ -19,6 +22,13 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
         {
             return visitor.VisitVariableExpression(this, method);
+        }
+
+        public void Update(CSharpType type, string name, bool isRef)
+        {
+            Type = type;
+            Declaration = new CodeWriterDeclaration(name);
+            IsRef = isRef;
         }
     }
 }
