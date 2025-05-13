@@ -92,7 +92,7 @@ Models are partial, so you can add additional members for internal usage as need
 
 After successful generation, you should:
 
-- Use the SwaggerUI endpoint to test out the running service
+- Use the SwaggerUI endpoint (`/swagger`) to test out the running service
 - Implement the business logic interfaces for your operations
 - Update MockRegistration.cs, or register each of your interfaces as part of application startup
 - Update configuration to suit your needs
