@@ -309,75 +309,74 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryStatementWithEmptyBody()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             Assert.IsEmpty(tryStatement.Body);
         }
 
         [Test]
         public void TryStatementWithOneLineBody()
         {
-            var tryStatement = new TryStatement() { Return(True) };
+            var tryStatement = new TryExpression(Return(True));
             Assert.AreEqual(1, tryStatement.Body.Count);
         }
 
         [Test]
         public void TryStatementWithMultipleLineBody()
         {
-            var tryStatement = new TryStatement
-            {
+            var tryStatement = new TryExpression
+            (
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
-            };
+            );
             Assert.AreEqual(2, tryStatement.Body.Count);
         }
 
         [Test]
         public void CatchStatementWithEmptyBody()
         {
-            var catchStatement = new CatchStatement(null);
+            var catchStatement = new CatchExpression(null);
             Assert.IsEmpty(catchStatement.Body);
         }
 
         [Test]
         public void CatchStatementWithOneLineBody()
         {
-            var catchStatement = new CatchStatement(null) { Return(True) };
+            var catchStatement = new CatchExpression(null, Return(True));
             Assert.AreEqual(1, catchStatement.Body.Count);
         }
 
         [Test]
         public void CatchStatementWithMultipleLineBody()
         {
-            var catchStatement = new CatchStatement(null)
-            {
+            var catchStatement = new CatchExpression(
+                null,
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
-                Return(True)
-            };
+                Return(True));
             Assert.AreEqual(2, catchStatement.Body.Count);
         }
 
         [Test]
         public void FinallyStatementWithEmptyBody()
         {
-            var finallyStatement = new FinallyStatement();
+            var finallyStatement = new FinallyExpression();
             Assert.IsEmpty(finallyStatement.Body);
         }
 
         [Test]
         public void FinallyStatementWithOneLineBody()
         {
-            var finallyStatement = new FinallyStatement() { Return(True) };
+            var finallyStatement = new FinallyExpression(Return(True));
             Assert.AreEqual(1, finallyStatement.Body.Count);
         }
 
         [Test]
         public void FinallyStatementWithMultipleLineBody()
         {
-            var finallyStatement = new FinallyStatement
-            {
+            var finallyStatement = new FinallyExpression
+            (
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
-            };
+            );
             Assert.AreEqual(2, finallyStatement.Body.Count);
         }
 
@@ -385,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryOnly()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -396,8 +395,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
-            var tryStatement = new TryStatement();
-            var catchStatement = new CatchStatement(null);
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -409,9 +408,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
-            var tryStatement = new TryStatement();
-            var catchStatement = new CatchStatement(null);
-            var finallyStatement = new FinallyStatement();
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
+            var finallyStatement = new FinallyExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -423,15 +422,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyStatementWithMultipleCatches()
         {
-            var tryStatement = new TryStatement();
+            var tryStatement = new TryExpression();
             var var1 = new DeclarationExpression(typeof(UnauthorizedAccessException), "ex1");
             var var2 = new DeclarationExpression(typeof(Exception), "ex2");
             var catchStatements = new[]
             {
-                new CatchStatement(var1),
-                new CatchStatement(var2)
+                new CatchExpression(var1),
+                new CatchExpression(var2)
             };
-            var finallyStatement = new FinallyStatement();
+            var finallyStatement = new FinallyExpression();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -460,11 +459,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void TryCatchFinallyUpdate()
         {
-            var tryCatchFinally = new TryCatchFinallyStatement(new TryStatement(), new CatchStatement(null), new FinallyStatement());
+            var tryCatchFinally = new TryCatchFinallyStatement(new TryExpression(), new CatchExpression(null), new FinallyExpression());
 
-            var tryStatement = new TryStatement();
-            var catchStatement = new CatchStatement(null);
-            var finallyStatement = new FinallyStatement();
+            var tryStatement = new TryExpression();
+            var catchStatement = new CatchExpression(null);
+            var finallyStatement = new FinallyExpression();
 
             tryCatchFinally.Update(
                 @try: tryStatement,

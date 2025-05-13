@@ -207,11 +207,6 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
-        protected internal virtual MethodBodyStatement? VisitTryStatement(TryStatement statement, MethodProvider method)
-        {
-            return statement;
-        }
-
         protected internal virtual MethodBodyStatement? VisitTryCatchFinallyStatement(TryCatchFinallyStatement statement, MethodProvider method)
         {
             return statement;
@@ -260,6 +255,18 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         protected internal virtual ValueExpression? VisitAssignmentExpression(AssignmentExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual TryExpression VisitTryExpression(TryExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual CatchExpression VisitCatchExpression(CatchExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+        protected internal virtual FinallyExpression VisitFinallyExpression(FinallyExpression expression, MethodProvider method)
         {
             return expression;
         }

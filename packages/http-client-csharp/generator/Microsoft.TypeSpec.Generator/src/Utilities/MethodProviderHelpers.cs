@@ -31,32 +31,36 @@ namespace Microsoft.TypeSpec.Generator
             return paramHash;
         }
 
-        public static MethodBodyStatement GetBodyStatementWithValidation(MethodBodyStatement bodyStatements, MethodSignatureBase signature)
+        public static MethodBodyStatement GetBodyStatementWithValidation(IEnumerable<ParameterProvider> parameters, MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
-            if (bodyStatements == MethodBodyStatement.Empty)
-            {
+            if (paramHash is null || bodyStatements == MethodBodyStatement.Empty)
                 return bodyStatements;
+
+            int count = 0;
+            foreach (var kvp in paramHash)
+            {
+                if (kvp.Key == ParameterValidationType.None)
+                    continue;
+                count += kvp.Value.Count;
             }
 
-            // only add validation to the public methods to avoid repeating the same validation in internal methods
-            if (!signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
-            {
+            if (count == 0)
                 return bodyStatements;
-            }
 
-            var statements = new List<MethodBodyStatement>(signature.Parameters.Count + 2);
-            foreach (var parameter in signature.Parameters)
+            MethodBodyStatement[] statements = new MethodBodyStatement[count + 2];
+            int index = 0;
+            foreach (var parameter in parameters)
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements.Add(ValidateParameter(parameter));
+                    statements[index] = ValidateParameter(parameter);
+                    index++;
                 }
             }
-            if (statements.Count > 0)
-            {
-                statements.Add(MethodBodyStatement.EmptyLine);
-            }
-            statements.Add(bodyStatements);
+            statements[index] = MethodBodyStatement.EmptyLine;
+            index++;
+
+            statements[index] = bodyStatements;
 
             return statements;
         }

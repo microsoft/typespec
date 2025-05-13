@@ -9,22 +9,22 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
-        public TryStatement Try { get; private set; }
-        public IReadOnlyList<CatchStatement> Catches { get; private set; }
-        public FinallyStatement? Finally { get; private set; }
+        public TryExpression Try { get; private set; }
+        public IReadOnlyList<CatchExpression> Catches { get; private set; }
+        public FinallyExpression? Finally { get; private set; }
 
-        public TryCatchFinallyStatement(TryStatement @try, IReadOnlyList<CatchStatement> catches, FinallyStatement? @finally)
+        public TryCatchFinallyStatement(TryExpression @try, IReadOnlyList<CatchExpression> catches, FinallyExpression? @finally)
         {
             Try = @try;
             Catches = catches;
             Finally = @finally;
         }
 
-        public TryCatchFinallyStatement(TryStatement @try) : this(@try, Array.Empty<CatchStatement>(), null)
+        public TryCatchFinallyStatement(TryExpression @try) : this(@try, Array.Empty<CatchExpression>(), null)
         {
         }
 
-        public TryCatchFinallyStatement(TryStatement @try, CatchStatement @catch, FinallyStatement? @finally = null) : this(@try, new[] { @catch }, @finally)
+        public TryCatchFinallyStatement(TryExpression @try, CatchExpression @catch, FinallyExpression? @finally = null) : this(@try, new[] { @catch }, @finally)
         {
         }
 
@@ -50,62 +50,27 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             var newTry = updatedTryCatchFinallyStatement.Try.Accept(visitor, methodProvider);
-            if (newTry is not TryStatement updatedTry)
-            {
-                throw new InvalidOperationException("Expected updated Try statement.");
-            }
-            bool hasChanges = !ReferenceEquals(updatedTry, Try);
 
-            var newCatches = new List<CatchStatement>(updatedTryCatchFinallyStatement.Catches.Count);
+            var newCatches = new List<CatchExpression>(updatedTryCatchFinallyStatement.Catches.Count);
             foreach (var catchStatement in updatedTryCatchFinallyStatement.Catches)
             {
                 var updatedCatch = catchStatement.Accept(visitor, methodProvider);
-                if (updatedCatch is not CatchStatement updatedCatchStatement)
-                {
-                    throw new InvalidOperationException("Expected updated Catch statement.");
-                }
-                if (!ReferenceEquals(updatedCatchStatement, catchStatement))
-                {
-                    hasChanges = true;
-                }
-                newCatches.Add(updatedCatchStatement);
-            }
-            if (newCatches.Count != updatedTryCatchFinallyStatement.Catches.Count)
-            {
-                hasChanges = true;
+                newCatches.Add(updatedCatch);
             }
 
-            var updatedFinally = updatedTryCatchFinallyStatement.Finally?.Accept(visitor, methodProvider);
-            if (updatedFinally is not FinallyStatement updatedFinallyStatement)
-            {
-                throw new InvalidOperationException("Expected updated Finally statement.");
-            }
+            var newFinally = updatedTryCatchFinallyStatement.Finally?.Accept(visitor, methodProvider);
 
-            var newFinallyStatements = new List<MethodBodyStatement>(updatedFinallyStatement.Body.Count);
-            foreach (var statement in updatedFinallyStatement.Body)
-            {
-                var updatedStatement = statement.Accept(visitor, methodProvider);
-                if (!ReferenceEquals(updatedStatement, statement))
-                {
-                    hasChanges = true;
-                }
-                if (updatedStatement != null)
-                {
-                    newFinallyStatements.Add(updatedStatement);
-                }
-            }
-            if (!hasChanges && newFinallyStatements.Count == updatedFinallyStatement.Body.Count)
-            {
-                return updated;
-            }
+            Try = newTry;
+            Catches = newCatches;
+            Finally = newFinally;
 
-            return new TryCatchFinallyStatement(updatedTry, newCatches, updatedFinallyStatement);
+            return this;
         }
 
         public void Update(
-            TryStatement? @try = null,
-            IReadOnlyList<CatchStatement>? catches = null,
-            FinallyStatement? @finally = null)
+            TryExpression? @try = null,
+            IReadOnlyList<CatchExpression>? catches = null,
+            FinallyExpression? @finally = null)
         {
             if (@try != null)
             {
