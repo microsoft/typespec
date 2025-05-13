@@ -129,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this,
-                xmlDocProvider: XmlDocProvider.Empty);
+                xmlDocProvider: XmlDocProvider.Empty,
+                serviceMethod: serviceMethod);
         }
 
         private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
