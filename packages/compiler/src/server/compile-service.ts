@@ -133,10 +133,9 @@ export function createCompileService({
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
+      ...(additionalOptions ?? {}),
     };
-    if (additionalOptions) {
-      Object.assign(options, additionalOptions);
-    }
+
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
     if (
