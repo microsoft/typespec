@@ -1,5 +1,6 @@
 import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
 import {
+  createTester,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
@@ -16,6 +17,33 @@ import { parse } from "yaml";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 import { OpenAPI3Document } from "../src/types.js";
+
+const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: [
+    "@typespec/http",
+    "@typespec/json-schema",
+    "@typespec/rest",
+    "@typespec/versioning",
+    "@typespec/openapi",
+    "@typespec/xml",
+    "@typespec/openapi3",
+  ],
+});
+
+export const SimpleTester = Tester.import(
+  "@typespec/http",
+  "@typespec/json-schema",
+  "@typespec/rest",
+  "@typespec/openapi",
+  "@typespec/xml",
+  "@typespec/openapi3",
+)
+  .using("Http", "Rest", "OpenAPI", "Xml")
+  .emit("@typespec/openapi3");
+
+export const TesterWithVersioning = Tester.importLibraries()
+  .using("Http", "Rest", "OpenAPI", "Xml", "Versioning")
+  .emit("@typespec/openapi3");
 
 export async function createOpenAPITestHost() {
   return createTestHost({
@@ -94,27 +122,20 @@ export async function openApiFor(
   versions?: string[],
   options: OpenAPI3EmitterOptions = {},
 ) {
-  const host = await createOpenAPITestHost();
-  const outPath = resolveVirtualPath("{version}.openapi.json");
-  host.addTypeSpecFile(
-    "./main.tsp",
-    `import "@typespec/http"; import "@typespec/json-schema"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3";import "@typespec/xml"; ${
-      versions ? `import "@typespec/versioning"; using Versioning;` : ""
-    }using Rest;using Http;using OpenAPI;using TypeSpec.Xml;${code}`,
-  );
-  const diagnostics = await host.diagnose("./main.tsp", {
-    noEmit: false,
-    emit: ["@typespec/openapi3"],
-    options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
+  const host = await (versions ? TesterWithVersioning : SimpleTester).createInstance();
+  const outPath = "{emitter-output-dir}/{version}.openapi.json";
+  const { outputs } = await host.compile(code, {
+    options: {
+      options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
+    },
   });
-  expectDiagnosticEmpty(diagnostics);
 
   if (!versions) {
-    return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);
+    return JSON.parse(outputs["openapi.json"]);
   } else {
     const output: any = {};
     for (const version of versions) {
-      output[version] = JSON.parse(host.fs.get(interpolatePath(outPath, { version: version }))!);
+      output[version] = JSON.parse(outputs[interpolatePath(outPath, { version: version })]!);
     }
     return output;
   }

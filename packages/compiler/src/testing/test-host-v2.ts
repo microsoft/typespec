@@ -1,4 +1,5 @@
-import { readFile } from "fs/promises";
+import { readFile, realpath } from "fs/promises";
+import { pathToFileURL } from "url";
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
@@ -7,7 +8,8 @@ import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
+import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
+import { resolveModule } from "../module-resolver/module-resolver.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { PositionedMarker, extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
@@ -48,10 +50,36 @@ function once<T>(fn: () => Promise<T>): () => Promise<T> {
 async function createTesterFs(base: string, options: TesterOptions) {
   const fs = createTestFileSystem();
 
-  const sl = await createSourceLoader({ ...NodeHost, realpath: async (x) => x });
+  const host: CompilerHost = {
+    ...NodeHost,
+    // We want to keep the original path in the file map but we do still want to resolve the full path when loading JS to prevent duplicate imports.
+    realpath: async (x: string) => x,
+    getJsImport: async (path: string) => {
+      return await import(pathToFileURL(await realpath(path)).href);
+    },
+  };
+
+  const sl = await createSourceLoader(host);
   const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
   for (const lib of options.libraries) {
     await sl.importPath(lib, NoTarget, base);
+
+    const resolved = await resolveModule(
+      {
+        realpath: async (x) => x,
+        stat: NodeHost.stat,
+        readFile: async (path) => {
+          const file = await NodeHost.readFile(path);
+          return file.text;
+        },
+      },
+      lib,
+      { baseDir: base, conditions: ["import", "default"] },
+    );
+    if (resolved.type === "module") {
+      const virtualPath = computeRelativePath(lib, resolved.mainFile);
+      fs.addJsFile(virtualPath, host.getJsImport(resolved.mainFile));
+    }
   }
 
   await fs.addTypeSpecLibrary(StandardTestLibrary);
@@ -62,8 +90,12 @@ async function createTesterFs(base: string, options: TesterOptions) {
       context?.type === "library",
       `Unexpected: all source files should be in a library but ${file.path} was in '${context?.type}'`,
     );
-    const relativePath = getRelativePathFromDirectory(base, file.path, false);
-    if (context.metadata.name === selfName) {
+    return computeRelativePath(context.metadata.name, file.path);
+  }
+
+  function computeRelativePath(libName: string, realPath: string): string {
+    const relativePath = getRelativePathFromDirectory(base, realPath, false);
+    if (libName === selfName) {
       return joinPaths("node_modules", selfName, relativePath);
     } else {
       return relativePath;
@@ -103,14 +135,7 @@ function createEmitterTesterInternal(params: EmitterTesterInternalParams): Emitt
       const instance = await createEmitterTesterInstance(params);
       return instance.compileAndDiagnose(...args);
     }),
-    createInstance: () =>
-      createEmitterTesterInstance({
-        ...params,
-        fs: async () => {
-          const fs = await params.fs();
-          return fs.clone();
-        },
-      }),
+    createInstance: () => createEmitterTesterInstance(params),
   };
 }
 
@@ -178,13 +203,7 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   }
 
   function createInstance(): Promise<TesterInstance> {
-    return createTesterInstance({
-      ...params,
-      fs: async () => {
-        const fs = await params.fs();
-        return fs.clone();
-      },
-    });
+    return createTesterInstance(params);
   }
 }
 
@@ -236,7 +255,7 @@ async function createEmitterTesterInstance(
 
 async function createTesterInstance(params: TesterInternalParams): Promise<TesterInstance> {
   let savedProgram: Program | undefined;
-  const fs = await params.fs();
+  const fs = (await params.fs()).clone();
 
   return {
     ...createCompilable(compileAndDiagnose),
