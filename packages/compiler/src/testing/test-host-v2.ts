@@ -4,6 +4,7 @@ import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
+import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
@@ -123,6 +124,7 @@ interface TesterInternalParams {
   wraps?: ((code: string) => string)[];
   imports?: string[];
   usings?: string[];
+  compilerOptions?: CompilerOptions;
 }
 
 interface EmitterTesterInternalParams extends TesterInternalParams {
@@ -195,10 +197,19 @@ function createTesterInternal(params: TesterInternalParams): Tester {
       usings: [...(params.usings ?? []), ...usings],
     });
   }
-  function emit(emitter: string): EmitterTester {
+  function emit(emitter: string, options?: Record<string, unknown>): EmitterTester {
     return createEmitterTesterInternal({
       ...params,
       emitter,
+      compilerOptions: options
+        ? {
+            ...params.compilerOptions,
+            options: {
+              ...params.compilerOptions?.options,
+              [emitter]: options,
+            },
+          }
+        : params.compilerOptions,
     });
   }
 
@@ -229,6 +240,7 @@ async function createEmitterTesterInstance(
     const resolvedOptions: TestCompileOptions = {
       ...options,
       options: {
+        ...params.compilerOptions,
         ...options?.options,
         outputDir: "tsp-output",
         emit: [params.emitter],

@@ -88,8 +88,11 @@ export interface Tester extends Testable {
   using(...names: string[]): Tester;
   /** Wrap the code of the `main.tsp` file */
   wrap(fn: (x: string) => string): Tester;
-  /** Create an emitter tester */
-  emit(emitter: string): EmitterTester;
+  /**
+   * Create an emitter tester
+   * @param options - Options to pass to the emitter
+   */
+  emit(emitter: string, options?: Record<string, unknown>): EmitterTester;
   /** Create an instance of the tester */
   createInstance(): Promise<TesterInstance>;
 }
