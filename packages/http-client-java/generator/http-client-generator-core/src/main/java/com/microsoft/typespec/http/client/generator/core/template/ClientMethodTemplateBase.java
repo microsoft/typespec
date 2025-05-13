@@ -113,8 +113,8 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                             IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
                             if (listTypeArgs.length == 0) {
                                 throw new IllegalStateException(
-                                    "List or Iterable type does not have template argument. ResponseType = " +
-                                    rawResponseType));
+                                    "List or Iterable type does not have template argument. ResponseType = "
+                                        + rawResponseType);
                             }
                             return listTypeArgs[0];
                         })
