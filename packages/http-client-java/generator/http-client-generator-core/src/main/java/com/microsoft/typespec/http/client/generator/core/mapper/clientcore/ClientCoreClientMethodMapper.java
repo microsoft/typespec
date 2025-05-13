@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.mapper.clientcore;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -39,8 +38,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         JavaVisibility visibility, boolean isProtocolMethod) {
         final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
-        if (JavaSettings.getInstance().isAzureV1()
-            || contextParameter.getClientType().equals(ClassType.REQUEST_CONTEXT)) {
+        if (contextParameter.getClientType().equals(ClassType.REQUEST_CONTEXT)) {
             parameters.add(contextParameter);
         }
         final ClientMethod withContextMethod = baseMethod.newBuilder()
