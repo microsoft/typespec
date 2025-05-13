@@ -92,8 +92,8 @@ public class AzureVNextClientMethodTemplate extends ClientCoreClientMethodTempla
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }

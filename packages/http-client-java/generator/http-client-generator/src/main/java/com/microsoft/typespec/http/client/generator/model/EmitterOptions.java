@@ -9,7 +9,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +31,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
+    private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private DevOptions devOptions;
@@ -112,7 +112,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return includeApiViewProperties;
     }
 
-    public Map<String, JavaSettings.PollingDetails> getPolling() {
+    public Map<String, PollingSettings> getPolling() {
         return polling;
     }
 
@@ -188,7 +188,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
-                options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
+                options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
                 options.arm = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("models-subpackage".equals(fieldName)) {

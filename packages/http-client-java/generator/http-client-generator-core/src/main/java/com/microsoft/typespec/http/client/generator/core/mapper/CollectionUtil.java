@@ -39,6 +39,21 @@ public final class CollectionUtil {
     }
 
     /**
+     * Get an unmodifiable view of the given map.
+     *
+     * @param map the map for which an unmodifiable view is to be returned.
+     * @param <K> the type of keys in the map.
+     * @param <V> the type of values in the map.
+     * @return an immutable map containing the same entries as the given map, or null if the input map is null.
+     */
+    public static <K, V> Map<K, V> toImmutableMap(Map<K, V> map) {
+        if (map == null) {
+            return null;
+        }
+        return Collections.unmodifiableMap(map);
+    }
+
+    /**
      * Get an unmodifiable view of the given map, where the values are immutable lists.
      *
      * @param map the map for which an unmodifiable view is to be returned.
@@ -52,7 +67,8 @@ public final class CollectionUtil {
             return null;
         }
         if (map == Collections.unmodifiableMap(map)) {
-            // if map is already unmodifiable, then Collections.unmodifiableMap will return the same reference.
+            // if map is already a java.util.UnmodifiableMap, then Collections.unmodifiableMap(map) returns the same
+            // 'map', so this reference equality check save us from creating a new map (below) with list values copied.
             return map;
         }
         final Map<K, List<V>> m = new HashMap<>(map.size());
