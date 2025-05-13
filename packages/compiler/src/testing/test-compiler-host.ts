@@ -2,9 +2,9 @@ import { RmOptions } from "fs";
 import { fileURLToPath } from "url";
 import { CompilerPackageRoot, NodeHost } from "../core/node-host.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
-import { CompilerHost } from "../core/types.js";
+import { CompilerHost, StringLiteral, Type } from "../core/types.js";
 import { resolveVirtualPath } from "./fs.js";
-import { TestHostError, TypeSpecTestLibrary } from "./types.js";
+import { TestFileSystem, TestHostError, TypeSpecTestLibrary } from "./types.js";
 
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
@@ -141,4 +141,26 @@ export function createTestCompilerHost(
 
     ...options?.compilerHostOverrides,
   };
+}
+
+export function addTestLib(fs: TestFileSystem): Record<string, Type> {
+  const testTypes: Record<string, Type> = {};
+  // add test decorators
+  fs.add(".tsp/test-lib/main.tsp", 'import "./test.js";');
+  fs.addJsFile(".tsp/test-lib/test.js", {
+    namespace: "TypeSpec",
+    $test(_: any, target: Type, nameLiteral?: StringLiteral) {
+      let name = nameLiteral?.value;
+      if (!name) {
+        if ("name" in target && typeof target.name === "string") {
+          name = target.name;
+        } else {
+          throw new Error("Need to specify a name for test type");
+        }
+      }
+
+      testTypes[name] = target;
+    },
+  });
+  return testTypes;
 }

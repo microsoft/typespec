@@ -8,12 +8,12 @@ import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
-import { Diagnostic, Entity, NoTarget, SourceFile, StringLiteral, Type } from "../core/types.js";
+import { Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { PositionedMarker, extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
 import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
-import { StandardTestLibrary } from "./test-compiler-host.js";
+import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { MockFile, TestFileSystem } from "./types.js";
 
@@ -474,26 +474,4 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     const [_, diagnostics] = await compileAndDiagnose(code, options);
     return diagnostics;
   }
-}
-
-function addTestLib(fs: TestFileSystem): Record<string, Type> {
-  const testTypes: Record<string, Type> = {};
-  // add test decorators
-  fs.addTypeSpecFile(".tsp/test-lib/main.tsp", 'import "./test.js";');
-  fs.addJsFile(".tsp/test-lib/test.js", {
-    namespace: "TypeSpec",
-    $test(_: any, target: Type, nameLiteral?: StringLiteral) {
-      let name = nameLiteral?.value;
-      if (!name) {
-        if ("name" in target && typeof target.name === "string") {
-          name = target.name;
-        } else {
-          throw new Error("Need to specify a name for test type");
-        }
-      }
-
-      testTypes[name] = target;
-    },
-  });
-  return testTypes;
 }
