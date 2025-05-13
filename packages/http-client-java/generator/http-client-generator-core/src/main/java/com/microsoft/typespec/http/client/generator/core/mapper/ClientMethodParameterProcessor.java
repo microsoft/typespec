@@ -6,7 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodParametersDetails.ParameterTuple;
+import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodParametersDetails.ParametersTuple;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -27,7 +27,7 @@ final class ClientMethodParameterProcessor {
         boolean isProtocolMethod) {
 
         final List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
-        final List<ParameterTuple> parameterTuples = new ArrayList<>();
+        final List<ParametersTuple> parametersTuples = new ArrayList<>();
         final List<String> requiredParameterExpressions = new ArrayList<>();
         final Map<String, String> validateParameterExpressions = new HashMap<>();
         final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
@@ -38,7 +38,7 @@ final class ClientMethodParameterProcessor {
             final ClientMethodParameter parameter = toClientMethodParameter(codeModelParameter, isJsonPatch,
                 mapFluxByteBufferToBinaryData, isProtocolMethod);
             if (request.getSignatureParameters().contains(codeModelParameter)) {
-                parameterTuples.add(new ParameterTuple(codeModelParameter, parameter));
+                parametersTuples.add(new ParametersTuple(codeModelParameter, parameter));
             }
             transformationProcessor.addParameter(parameter, codeModelParameter);
 
@@ -65,7 +65,7 @@ final class ClientMethodParameterProcessor {
         }
         final ParameterTransformations parameterTransformations = transformationProcessor.process(request);
 
-        return new ClientMethodParametersDetails(parameterTuples, requiredParameterExpressions,
+        return new ClientMethodParametersDetails(parametersTuples, requiredParameterExpressions,
             validateParameterExpressions, parameterTransformations);
     }
 

@@ -12,44 +12,44 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class ClientMethodParametersDetails {
-    final List<ParameterTuple> parameterTuples;
+    final List<ParametersTuple> parametersTuples;
     final List<String> requiredParameterExpressions;
     final Map<String, String> validateParameterExpressions;
     final ParameterTransformations parameterTransformations;
 
-    ClientMethodParametersDetails(List<ParameterTuple> parameterTuples, List<String> requiredParameterExpressions,
+    ClientMethodParametersDetails(List<ParametersTuple> parametersTuples, List<String> requiredParameterExpressions,
         Map<String, String> validateParameterExpressions, ParameterTransformations parameterTransformations) {
-        this.parameterTuples = parameterTuples;
+        this.parametersTuples = parametersTuples;
         this.requiredParameterExpressions = requiredParameterExpressions;
         this.validateParameterExpressions = validateParameterExpressions;
         this.parameterTransformations = parameterTransformations;
     }
 
-    Stream<ParameterTuple> getParameterTuples() {
-        return this.parameterTuples.stream();
+    Stream<ParametersTuple> getParameterTuples() {
+        return this.parametersTuples.stream();
     }
 
     boolean hasNonRequiredParameters() {
-        return this.parameterTuples.stream().map(t -> t.parameter).anyMatch(p -> !p.isRequired() && !p.isConstant());
+        return this.parametersTuples.stream().map(t -> t.parameter).anyMatch(p -> !p.isRequired() && !p.isConstant());
     }
 
     List<ClientMethodParameter> getClientMethodParameters() {
-        return this.parameterTuples.stream().map(t -> t.parameter).collect(Collectors.toList());
+        return this.parametersTuples.stream().map(t -> t.parameter).collect(Collectors.toList());
     }
 
     ClientMethodParameter getClientMethodParameter(Parameter codeModelParameter) {
-        return this.parameterTuples.stream()
+        return this.parametersTuples.stream()
             .filter(t -> t.codeModelParameter == codeModelParameter)
             .map(t -> t.parameter)
             .findFirst()
             .orElse(null);
     }
 
-    static final class ParameterTuple {
+    static final class ParametersTuple {
         final Parameter codeModelParameter;
         final ClientMethodParameter parameter;
 
-        ParameterTuple(Parameter codeModelParameter, ClientMethodParameter parameter) {
+        ParametersTuple(Parameter codeModelParameter, ClientMethodParameter parameter) {
             this.codeModelParameter = codeModelParameter;
             this.parameter = parameter;
         }
