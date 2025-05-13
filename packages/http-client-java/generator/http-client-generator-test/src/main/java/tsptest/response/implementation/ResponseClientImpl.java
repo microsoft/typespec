@@ -796,84 +796,6 @@ public final class ResponseClientImpl {
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public PollerFlux<BinaryData, BinaryData> beginLroInvalidPollResponseAsync(BinaryData request,
-        RequestOptions requestOptions) {
-        return PollerFlux.create(Duration.ofSeconds(1),
-            () -> this.lroInvalidPollResponseWithResponseAsync(request, requestOptions),
-            new tsptest.response.implementation.OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
-            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
-    }
-
-    /**
-     * The most basic operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: String (Required)
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     type: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param request The request parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<BinaryData, BinaryData> beginLroInvalidPollResponse(BinaryData request,
-        RequestOptions requestOptions) {
-        return SyncPoller.createPoller(Duration.ofSeconds(1),
-            () -> this.lroInvalidPollResponseWithResponse(request, requestOptions),
-            new tsptest.response.implementation.SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "result"),
-            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
-    }
-
-    /**
-     * The most basic operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: String (Required)
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     type: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param request The request parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<OperationDetails1, Resource> beginLroInvalidPollResponseWithModelAsync(BinaryData request,
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
@@ -926,6 +848,84 @@ public final class ResponseClientImpl {
                     .setServiceVersion(this.getServiceVersion().getVersion()),
                 "result"),
             TypeReference.createInstance(OperationDetails1.class), TypeReference.createInstance(Resource.class));
+    }
+
+    /**
+     * The most basic operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     *     description: String (Optional)
+     *     type: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<BinaryData, BinaryData> beginLroInvalidPollResponseAsync(BinaryData request,
+        RequestOptions requestOptions) {
+        return PollerFlux.create(Duration.ofSeconds(1),
+            () -> this.lroInvalidPollResponseWithResponseAsync(request, requestOptions),
+            new tsptest.response.implementation.OperationLocationPollingStrategy<>(
+                new PollingStrategyOptions(this.getHttpPipeline())
+                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                    .setContext(requestOptions != null && requestOptions.getContext() != null
+                        ? requestOptions.getContext()
+                        : Context.NONE)
+                    .setServiceVersion(this.getServiceVersion().getVersion()),
+                "result"),
+            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
+    }
+
+    /**
+     * The most basic operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     *     description: String (Optional)
+     *     type: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<BinaryData, BinaryData> beginLroInvalidPollResponse(BinaryData request,
+        RequestOptions requestOptions) {
+        return SyncPoller.createPoller(Duration.ofSeconds(1),
+            () -> this.lroInvalidPollResponseWithResponse(request, requestOptions),
+            new tsptest.response.implementation.SyncOperationLocationPollingStrategy<>(
+                new PollingStrategyOptions(this.getHttpPipeline())
+                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                    .setContext(requestOptions != null && requestOptions.getContext() != null
+                        ? requestOptions.getContext()
+                        : Context.NONE)
+                    .setServiceVersion(this.getServiceVersion().getVersion()),
+                "result"),
+            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
     /**
@@ -1014,83 +1014,6 @@ public final class ResponseClientImpl {
      * @return the {@link PollerFlux} for polling of long-running operation.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public PollerFlux<BinaryData, BinaryData> beginLroInvalidResultAsync(BinaryData request,
-        RequestOptions requestOptions) {
-        return PollerFlux.create(Duration.ofSeconds(1),
-            () -> this.lroInvalidResultWithResponseAsync(request, requestOptions),
-            new tsptest.response.implementation.OperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lro_result"),
-            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
-    }
-
-    /**
-     * The most basic operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: String (Required)
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     type: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param request The request parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<BinaryData, BinaryData> beginLroInvalidResult(BinaryData request, RequestOptions requestOptions) {
-        return SyncPoller.createPoller(Duration.ofSeconds(1),
-            () -> this.lroInvalidResultWithResponse(request, requestOptions),
-            new tsptest.response.implementation.SyncOperationLocationPollingStrategy<>(
-                new PollingStrategyOptions(this.getHttpPipeline())
-                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
-                    .setContext(requestOptions != null && requestOptions.getContext() != null
-                        ? requestOptions.getContext()
-                        : Context.NONE)
-                    .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lro_result"),
-            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
-    }
-
-    /**
-     * The most basic operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     id: String (Required)
-     *     name: String (Required)
-     *     description: String (Optional)
-     *     type: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param request The request parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public PollerFlux<OperationDetails2, Resource> beginLroInvalidResultWithModelAsync(BinaryData request,
         RequestOptions requestOptions) {
         return PollerFlux.create(Duration.ofSeconds(1),
@@ -1143,6 +1066,83 @@ public final class ResponseClientImpl {
                     .setServiceVersion(this.getServiceVersion().getVersion()),
                 "lro_result"),
             TypeReference.createInstance(OperationDetails2.class), TypeReference.createInstance(Resource.class));
+    }
+
+    /**
+     * The most basic operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     *     description: String (Optional)
+     *     type: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<BinaryData, BinaryData> beginLroInvalidResultAsync(BinaryData request,
+        RequestOptions requestOptions) {
+        return PollerFlux.create(Duration.ofSeconds(1),
+            () -> this.lroInvalidResultWithResponseAsync(request, requestOptions),
+            new tsptest.response.implementation.OperationLocationPollingStrategy<>(
+                new PollingStrategyOptions(this.getHttpPipeline())
+                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                    .setContext(requestOptions != null && requestOptions.getContext() != null
+                        ? requestOptions.getContext()
+                        : Context.NONE)
+                    .setServiceVersion(this.getServiceVersion().getVersion()),
+                "lro_result"),
+            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
+    }
+
+    /**
+     * The most basic operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     id: String (Required)
+     *     name: String (Required)
+     *     description: String (Optional)
+     *     type: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param request The request parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<BinaryData, BinaryData> beginLroInvalidResult(BinaryData request, RequestOptions requestOptions) {
+        return SyncPoller.createPoller(Duration.ofSeconds(1),
+            () -> this.lroInvalidResultWithResponse(request, requestOptions),
+            new tsptest.response.implementation.SyncOperationLocationPollingStrategy<>(
+                new PollingStrategyOptions(this.getHttpPipeline())
+                    .setEndpoint("{endpoint}".replace("{endpoint}", this.getEndpoint()))
+                    .setContext(requestOptions != null && requestOptions.getContext() != null
+                        ? requestOptions.getContext()
+                        : Context.NONE)
+                    .setServiceVersion(this.getServiceVersion().getVersion()),
+                "lro_result"),
+            TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
     /**

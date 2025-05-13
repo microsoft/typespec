@@ -35,16 +35,21 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                 throw new InvalidOperationException($"Can't call ToSerial on non-enum type {type.Name}");
 
             ValueExpression variable = param.Field is null ? param : param.Field;
+            ValueExpression invokeVariable = variable;
+            if (param.Type.IsNullable)
+            {
+                invokeVariable = variable.NullConditional();
+            }
 
             if (type.IsStruct) //extensible
             {
                 if (type.UnderlyingEnumType.Equals(typeof(string)))
                 {
-                    return variable.Invoke("ToString");
+                    return invokeVariable.Invoke("ToString");
                 }
                 else
                 {
-                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
+                    return invokeVariable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
             else
@@ -55,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                 }
                 else
                 {
-                    return variable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
+                    return invokeVariable.Invoke($"ToSerial{type.UnderlyingEnumType.Name}", [], null, false, extensionType: type);
                 }
             }
         }
