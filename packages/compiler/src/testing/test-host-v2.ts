@@ -3,7 +3,6 @@ import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
-import { CompilerOptions } from "../core/options.js";
 import { getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
@@ -15,90 +14,17 @@ import { createTestFileSystem } from "./fs.js";
 import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
-import { MockFile, TestFileSystem } from "./types.js";
-
-// Need a way to combine that with `program`
-export type TestCompileResult<T extends Record<string, Entity>> = T & {
-  /** The program created in this test compilation. */
-  readonly program: Program;
-
-  /** File system */
-  readonly fs: TestFileSystem;
-} & Record<string, Entity>;
-
-export interface TestEmitterCompileResult {
-  /** The program created in this test compilation. */
-  readonly program: Program;
-
-  /** Files written to the emitter output dir. */
-  readonly outputs: Record<string, string>;
-}
-
-interface TestCompileOptions {
-  /** Optional compiler options */
-  readonly options?: CompilerOptions;
-}
-
-interface Testable {
-  compile<
-    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
-  >(
-    code: T,
-    options?: TestCompileOptions,
-  ): Promise<TestCompileResult<GetMarkedEntities<T>>>;
-  diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
-  compileAndDiagnose<
-    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
-  >(
-    code: T,
-    options?: TestCompileOptions,
-  ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]>;
-}
-
-// Immutable structure meant to be reused
-export interface Tester extends Testable {
-  /** Extend with the given list of files */
-  files(files: Record<string, MockFile>): Tester;
-  /** Auto import all libraries defined in this tester. */
-  importLibraries(): Tester;
-  /** Import the given paths */
-  import(...imports: string[]): Tester;
-  /** Add using statement for the given namespaces. */
-  using(...names: string[]): Tester;
-  /** Wrap the code of the `main.tsp` file */
-  wrap(fn: (x: string) => string): Tester;
-  /** Create an emitter tester */
-  emit(emitter: string): EmitterTester;
-  /** Create an instance of the tester */
-  createInstance(): TesterInstance;
-}
-
-export interface OutputTester {
-  compile(
-    code: string | Record<string, string>,
-    options?: TestCompileOptions,
-  ): Promise<TestEmitterCompileResult>;
-  compileAndDiagnose(
-    code: string | Record<string, string>,
-    options?: TestCompileOptions,
-  ): Promise<[TestEmitterCompileResult, readonly Diagnostic[]]>;
-  diagnose(
-    code: string | Record<string, string>,
-    options?: TestCompileOptions,
-  ): Promise<readonly Diagnostic[]>;
-}
-/** Alternate version of the tester which runs the configured emitter */
-export interface EmitterTester extends OutputTester {
-  createInstance(): EmitterTesterInstance;
-}
-
-export interface EmitterTesterInstance extends OutputTester {
-  get program(): Program;
-}
-
-export interface TesterInstance extends Testable {
-  get program(): Program;
-}
+import type {
+  EmitterTester,
+  EmitterTesterInstance,
+  MockFile,
+  TestCompileOptions,
+  TestCompileResult,
+  TestEmitterCompileResult,
+  TestFileSystem,
+  Tester,
+  TesterInstance,
+} from "./types.js";
 
 export interface TesterOptions {
   libraries: string[];
@@ -202,6 +128,7 @@ function createTesterInternal(params: TesterInternalParams): Tester {
       for (const [name, value] of Object.entries(files)) {
         fs.add(name, value);
       }
+      fs.freeze();
       return fs;
     };
     return createTesterInternal({
