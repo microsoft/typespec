@@ -106,13 +106,14 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                         .map(valueListType -> {
                             // value type is List<T>, we need to get the typeArguments
                             if (!(valueListType instanceof IterableType)) {
-                                throw new IllegalStateException("value type must be list for paging method. "
-                                    + "rawResponseType = " + rawResponseType);
+                                throw new IllegalStateException(
+                                    "Type of 'value' property must be List or Iterable, for paging method. ResponseType = "
+                                        + rawResponseType);
                             }
                             IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
                             if (listTypeArgs.length == 0) {
-                                throw new IllegalStateException(String.format(
-                                    "list type arguments' length should not be 0 for paging method. rawResponseType = %s",
+                                throw new IllegalStateException(
+                                    "List or Iterable type does not have template argument. ResponseType = " +
                                     rawResponseType));
                             }
                             return listTypeArgs[0];
