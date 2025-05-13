@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
                     && m.Signature.Name == $"{operation.Name.ToCleanName()}");
             Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(serviceMethod, convenienceMethod!.ServiceMethod);
 
             var convenienceMethodParams = convenienceMethod!.Signature.Parameters;
             Assert.IsNotNull(convenienceMethodParams);
@@ -210,6 +211,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var protocolMethod = methodCollection.FirstOrDefault(
                 m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
             Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
             if (inBody)
