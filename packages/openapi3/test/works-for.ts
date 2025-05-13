@@ -33,8 +33,8 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
     version,
     oapiForModel: (...[name, modelDef, options]: Parameters<typeof oapiForModel>) =>
       oapiForModel(name, modelDef, { ...options, "openapi-versions": [version] }),
-    openApiFor: (...[code, versions, options]: Parameters<typeof openApiFor>) =>
-      openApiFor(code, versions, { ...options, "openapi-versions": [version] }),
+    openApiFor: (...[code, options]: Parameters<typeof openApiFor>) =>
+      openApiFor(code, { ...options, "openapi-versions": [version] }),
     openapiWithOptions: (...[code, options]: Parameters<typeof openapiWithOptions>) =>
       openapiWithOptions(code, { ...options, "openapi-versions": [version] }),
     checkFor: (...[code, options]: Parameters<typeof diagnoseOpenApiFor>) =>

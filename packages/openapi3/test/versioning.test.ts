@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { ApiTester } from "./test-host.js";
+import { ApiTester, openApiForVersions } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
@@ -10,7 +10,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     .emit("@typespec/openapi3", { "openapi-versions": [specVersion] });
 
   it("works with models", async () => {
-    const { v1, v2, v3 } = await openApiFor(
+    const { v1, v2, v3 } = await openApiForVersions(
       `
       @versioned(Versions)
       @service(#{title: "My Service"})
@@ -50,6 +50,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     );
 
     strictEqual(v1.info.version, "v1");
+    ok(v1.components?.schemas);
     deepStrictEqual(v1.components.schemas.Test, {
       type: "object",
       properties: {
@@ -70,6 +71,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     });
 
     strictEqual(v2.info.version, "v2");
+    ok(v2.components?.schemas);
     deepStrictEqual(v2.components.schemas.Test, {
       type: "object",
       properties: {
@@ -88,7 +90,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
       },
       required: ["prop1", "prop2"],
     });
-
+    ok(v3.components?.schemas);
     strictEqual(v3.info.version, "v3");
     deepStrictEqual(v3.components.schemas.Test, {
       type: "object",

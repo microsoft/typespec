@@ -388,7 +388,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @delete op delete(...U): void;
     }
     `,
-      undefined,
       { "omit-unreachable-types": true },
     );
 

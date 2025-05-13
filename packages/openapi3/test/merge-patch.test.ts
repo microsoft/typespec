@@ -18,7 +18,6 @@ export async function oapiForPatchRequest(
       @patch op update(${body}): void;
     }
   `,
-    undefined,
     options,
   );
 

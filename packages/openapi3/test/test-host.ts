@@ -63,28 +63,35 @@ export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterO
   return diagnostics;
 }
 
-export async function openApiFor(
-  code: string,
-  versions?: string[],
-  options: OpenAPI3EmitterOptions = {},
-) {
-  const host = await (versions ? TesterWithVersioning : SimpleTester).createInstance();
-  const outPath = "{emitter-output-dir}/{version}.openapi.json";
+export async function openApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
+  const host = await SimpleTester.createInstance();
+  const outPath = "{emitter-output-dir}/openapi.json";
   const { outputs } = await host.compile(code, {
     options: {
       options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
     },
   });
 
-  if (!versions) {
-    return JSON.parse(outputs["openapi.json"]);
-  } else {
-    const output: any = {};
-    for (const version of versions) {
-      output[version] = JSON.parse(outputs[interpolatePath(outPath, { version: version })]!);
-    }
-    return output;
+  return JSON.parse(outputs["openapi.json"]);
+}
+
+export async function openApiForVersions<T extends string>(
+  code: string,
+  versions: T[],
+): Promise<Record<T, OpenAPI3Document>> {
+  const host = await TesterWithVersioning.createInstance();
+  const outPath = "{emitter-output-dir}/{version}.openapi.json";
+  const { outputs } = await host.compile(code, {
+    options: {
+      options: { "@typespec/openapi3": { "output-file": outPath } },
+    },
+  });
+
+  const output: Record<T, OpenAPI3Document> = {} as any;
+  for (const version of versions) {
+    output[version] = JSON.parse(outputs[interpolatePath(outPath, { version: version })]!);
   }
+  return output;
 }
 
 export async function oapiForModel(
@@ -104,7 +111,6 @@ export async function oapiForModel(
       };
     }
   `,
-    undefined,
     options,
   );
 
