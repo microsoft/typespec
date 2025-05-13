@@ -129,7 +129,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var semanticModel = compilation.GetSemanticModel(syntaxTree);
                 var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
-                document = document.WithSyntaxRoot(modelRemoveRewriter.Visit(await syntaxTree.GetRootAsync()));
+                var root = await syntaxTree.GetRootAsync();
+                root = modelRemoveRewriter.Visit(root);
+
+                foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
+                {
+                    root = rewriter.Visit(root);
+                }
+                document = document.WithSyntaxRoot(root);
             }
 
             document = await Simplifier.ReduceAsync(document);
