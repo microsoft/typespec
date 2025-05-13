@@ -6,13 +6,14 @@ package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.WrapperClientMethodTemplate;
-import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTemplate {
 
@@ -33,11 +34,16 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     @Override
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        String argumentList = parameters.stream()
-            .filter(
-                parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter))
-            .map(ClientMethodParameter::getName)
-            .collect(Collectors.joining(", "));
+        final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
+        final String argumentList;
+        if (pageDetails != null) {
+            argumentList = parameters.stream()
+                .filter(parameter -> !pageDetails.shouldHideParameter(parameter))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", "));
+        } else {
+            argumentList = parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+        }
         function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
             argumentList);
     }
@@ -45,12 +51,15 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {
         typeBlock.javadocComment(comment -> {
             comment.description(clientMethod.getDescription());
-            List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-            methodParameters.stream()
-                .filter(parameter -> !MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(),
-                    parameter))
-                .forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
-            if (clientMethod.getParametersDeclaration() != null && !clientMethod.getParametersDeclaration().isEmpty()) {
+            final Stream<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters().stream();
+            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
+            if (pageDetails != null) {
+                methodParameters.filter(parameter -> !pageDetails.shouldHideParameter(parameter))
+                    .forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
+            } else {
+                methodParameters.forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
+            }
+            if (clientMethod.hasParameterDeclaration()) {
                 comment.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
             }
             if (restAPIMethod != null) {
