@@ -216,6 +216,17 @@ it("still extract with multiple files", async () => {
   expect(res.B.kind).toBe("Enum");
 });
 
+it("add extra files via fs api", async () => {
+  const tester = await Tester.createInstance();
+  tester.fs.add("foo.tsp", "model Foo {}");
+  await tester.compile(
+    `
+      import "./foo.tsp";
+      model Bar {}
+    `,
+  );
+});
+
 describe("emitter", () => {
   const EmitterTester = Tester.files({
     "node_modules/dummy-emitter/package.json": JSON.stringify({
@@ -242,6 +253,21 @@ describe("emitter", () => {
     const res = await EmitterTester.compile(
       `
       model Foo {}
+      model Bar {}
+    `,
+    );
+    expect(res.outputs).toEqual({
+      "Foo.model": "Foo",
+      "Bar.model": "Bar",
+    });
+  });
+
+  it("add extra files via fs api", async () => {
+    const tester = await EmitterTester.createInstance();
+    tester.fs.add("foo.tsp", "model Foo {}");
+    const res = await tester.compile(
+      `
+      import "./foo.tsp";
       model Bar {}
     `,
     );

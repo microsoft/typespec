@@ -91,7 +91,7 @@ export interface Tester extends Testable {
   /** Create an emitter tester */
   emit(emitter: string): EmitterTester;
   /** Create an instance of the tester */
-  createInstance(): TesterInstance;
+  createInstance(): Promise<TesterInstance>;
 }
 
 export interface OutputTester {
@@ -110,15 +110,17 @@ export interface OutputTester {
 }
 /** Alternate version of the tester which runs the configured emitter */
 export interface EmitterTester extends OutputTester {
-  createInstance(): EmitterTesterInstance;
+  createInstance(): Promise<EmitterTesterInstance>;
 }
 
 export interface EmitterTesterInstance extends OutputTester {
   get program(): Program;
+  readonly fs: TestFileSystem;
 }
 
 export interface TesterInstance extends Testable {
   get program(): Program;
+  readonly fs: TestFileSystem;
 }
 // #endregion
 

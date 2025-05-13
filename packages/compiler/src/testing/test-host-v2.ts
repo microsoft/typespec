@@ -98,21 +98,28 @@ interface EmitterTesterInternalParams extends TesterInternalParams {
 }
 
 function createEmitterTesterInternal(params: EmitterTesterInternalParams): EmitterTester {
-  const { compile, compileAndDiagnose, diagnose } = createEmitterTesterInstance(params);
   return {
-    compile,
-    compileAndDiagnose,
-    diagnose,
-    createInstance: () => createEmitterTesterInstance(params),
+    ...createCompilable(async (...args) => {
+      const instance = await createEmitterTesterInstance(params);
+      return instance.compileAndDiagnose(...args);
+    }),
+    createInstance: () =>
+      createEmitterTesterInstance({
+        ...params,
+        fs: async () => {
+          const fs = await params.fs();
+          return fs.clone();
+        },
+      }),
   };
 }
 
 function createTesterInternal(params: TesterInternalParams): Tester {
-  const { compile, compileAndDiagnose, diagnose } = createInstance();
   return {
-    compile,
-    compileAndDiagnose,
-    diagnose,
+    ...createCompilable(async (...args) => {
+      const instance = await createTesterInstance(params);
+      return instance.compileAndDiagnose(...args);
+    }),
     files,
     wrap,
     importLibraries,
@@ -170,7 +177,7 @@ function createTesterInternal(params: TesterInternalParams): Tester {
     });
   }
 
-  function createInstance(): TesterInstance {
+  function createInstance(): Promise<TesterInstance> {
     return createTesterInstance({
       ...params,
       fs: async () => {
@@ -181,32 +188,18 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   }
 }
 
-function createEmitterTesterInstance(params: EmitterTesterInternalParams): EmitterTesterInstance {
-  const tester = createTesterInstance(params);
+async function createEmitterTesterInstance(
+  params: EmitterTesterInternalParams,
+): Promise<EmitterTesterInstance> {
+  const tester = await createTesterInstance(params);
   return {
-    compile,
-    compileAndDiagnose,
-    diagnose,
+    fs: tester.fs,
+    ...createCompilable(compileAndDiagnose),
     get program() {
       return tester.program;
     },
   };
 
-  async function compile<T extends string | Record<string, string>>(
-    code: T,
-    options?: TestCompileOptions,
-  ): Promise<TestEmitterCompileResult> {
-    const [result, diagnostics] = await compileAndDiagnose(code, options);
-    expectDiagnosticEmpty(diagnostics);
-    return result;
-  }
-  async function diagnose(
-    code: string | Record<string, string>,
-    options?: TestCompileOptions,
-  ): Promise<readonly Diagnostic[]> {
-    const [_, diagnostics] = await compileAndDiagnose(code, options);
-    return diagnostics;
-  }
   async function compileAndDiagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
@@ -241,13 +234,13 @@ function createEmitterTesterInstance(params: EmitterTesterInternalParams): Emitt
   }
 }
 
-function createTesterInstance(params: TesterInternalParams): TesterInstance {
+async function createTesterInstance(params: TesterInternalParams): Promise<TesterInstance> {
   let savedProgram: Program | undefined;
+  const fs = await params.fs();
 
   return {
-    compileAndDiagnose,
-    compile,
-    diagnose,
+    ...createCompilable(compileAndDiagnose),
+    fs,
     get program() {
       if (!savedProgram) {
         throw new Error("Program not initialized. Call compile first.");
@@ -261,11 +254,6 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
       code = wrap(code);
     }
     return code;
-  }
-
-  interface PositionedMarkerInFile extends PositionedMarker {
-    /** The file where the marker is located */
-    readonly filename: string;
   }
 
   function addCode(
@@ -323,7 +311,6 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     code: T,
     options?: TestCompileOptions,
   ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]> {
-    const fs = await params.fs();
     const typesCollected = addTestLib(fs);
     const { markerPositions, markerConfigs } = addCode(fs, code);
 
@@ -334,71 +321,90 @@ function createTesterInstance(params: TesterInternalParams): TesterInstance {
     );
     savedProgram = program;
 
-    const entities: Record<string, Entity> = { ...typesCollected };
-    if (typeof code !== "string") {
-      for (const marker of markerPositions) {
-        const file = program.sourceFiles.get(resolveVirtualPath(marker.filename));
-        if (!file) {
-          throw new Error(`Couldn't find ${resolveVirtualPath(marker.filename)} in program`);
-        }
-        const { name, pos } = marker;
-        const markerConfig = markerConfigs[name];
-        const node = getNodeAtPosition(file, pos);
-        if (!node) {
-          throw new Error(`Could not find node at ${pos}`);
-        }
-        const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
-        if (sym === undefined) {
-          throw new Error(
-            `Could not find symbol for ${name} at ${pos}. File content: ${file.file.text}`,
-          );
-        }
-        const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
-        if (entity === null) {
-          throw new Error(
-            `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}`,
-          );
-        }
-        if (markerConfig) {
-          const { entityKind, kind, valueKind } = markerConfig as any;
-          if (entity.entityKind !== entityKind) {
-            throw new Error(
-              `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}`,
-            );
-          }
-          if (entity.entityKind === "Type" && kind !== undefined && entity.kind !== kind) {
-            throw new Error(
-              `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}`,
-            );
-          } else if (
-            entity?.entityKind === "Value" &&
-            valueKind !== undefined &&
-            entity.valueKind !== valueKind
-          ) {
-            throw new Error(
-              `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}`,
-            );
-          }
-        }
+    const entities = extractMarkedEntities(program, markerPositions, markerConfigs);
+    return [{ program, fs, ...typesCollected, ...entities } as any, program.diagnostics];
+  }
+}
 
-        (entities as any)[name] = entity;
+interface PositionedMarkerInFile extends PositionedMarker {
+  /** The file where the marker is located */
+  readonly filename: string;
+}
+
+function extractMarkedEntities(
+  program: Program,
+  markerPositions: PositionedMarkerInFile[],
+  markerConfigs: Record<string, Marker<any, any>>,
+) {
+  const entities: Record<string, Entity> = {};
+  for (const marker of markerPositions) {
+    const file = program.sourceFiles.get(resolveVirtualPath(marker.filename));
+    if (!file) {
+      throw new Error(`Couldn't find ${resolveVirtualPath(marker.filename)} in program`);
+    }
+    const { name, pos } = marker;
+    const markerConfig = markerConfigs[name];
+    const node = getNodeAtPosition(file, pos);
+    if (!node) {
+      throw new Error(`Could not find node at ${pos}`);
+    }
+    const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
+    if (sym === undefined) {
+      throw new Error(
+        `Could not find symbol for ${name} at ${pos}. File content: ${file.file.text}`,
+      );
+    }
+    const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
+    if (entity === null) {
+      throw new Error(
+        `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}`,
+      );
+    }
+    if (markerConfig) {
+      const { entityKind, kind, valueKind } = markerConfig as any;
+      if (entity.entityKind !== entityKind) {
+        throw new Error(
+          `Expected ${name} to be of entity kind ${entityKind} but got (${entity?.entityKind}) ${getEntityName(entity)} at ${pos}`,
+        );
+      }
+      if (entity.entityKind === "Type" && kind !== undefined && entity.kind !== kind) {
+        throw new Error(
+          `Expected ${name} to be of kind ${kind} but got (${entity.kind}) ${getEntityName(entity)} at ${pos}`,
+        );
+      } else if (
+        entity?.entityKind === "Value" &&
+        valueKind !== undefined &&
+        entity.valueKind !== valueKind
+      ) {
+        throw new Error(
+          `Expected ${name} to be of value kind ${valueKind} but got (${entity.valueKind}) ${getEntityName(entity)} at ${pos}`,
+        );
       }
     }
-    return [{ program, fs, ...entities } as any, program.diagnostics];
-  }
 
-  async function compile<
-    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
-  >(code: T, options?: TestCompileOptions): Promise<TestCompileResult<GetMarkedEntities<T>>> {
-    const [result, diagnostics] = await compileAndDiagnose(code, options);
-    expectDiagnosticEmpty(diagnostics);
-    return result;
+    entities[name] = entity;
   }
-  async function diagnose(
-    code: string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
-    options?: TestCompileOptions,
-  ): Promise<readonly Diagnostic[]> {
-    const [_, diagnostics] = await compileAndDiagnose(code, options);
-    return diagnostics;
-  }
+  return entities;
+}
+
+export interface Compilable<A extends unknown[], R> {
+  compileAndDiagnose(...args: A): Promise<[R, readonly Diagnostic[]]>;
+  compile(...args: A): Promise<R>;
+  diagnose(...args: A): Promise<readonly Diagnostic[]>;
+}
+function createCompilable<A extends unknown[], R>(
+  fn: (...args: A) => Promise<[R, readonly Diagnostic[]]>,
+): Compilable<A, R> {
+  return {
+    compileAndDiagnose: fn,
+    compile: async (...args: A) => {
+      const [result, diagnostics] = await fn(...args);
+      expectDiagnosticEmpty(diagnostics);
+      return result;
+    },
+    diagnose: async (...args: A) => {
+      const [_, diagnostics] = await fn(...args);
+      return diagnostics;
+    },
+  };
 }
