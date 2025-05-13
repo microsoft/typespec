@@ -6,9 +6,9 @@ With this approach, you can define OAuth 2.0 authentication directly in your Typ
 For more details, refer to the TypeSpec documentation: [Oauth2Auth](https://typespec.io/docs/libraries/http/reference/js-api/interfaces/oauth2auth/)
 
 - [OAuth 2.0 Credential Support](#oauth-20-credential-support)
-    - [Generate a client with OAuth2Auth](#generate-a-client-with-oauth2auth)
-    - [Example implementation of OAuthTokenCredential](#example-implementation-of-oauthtokencredential)
-    - [Example usage of OAuthTokenCredential and Custom Client](#example-usage-of-oauthtokencredential-and-custom-client)
+  - [Generate a client with OAuth2Auth](#generate-a-client-with-oauth2auth)
+  - [Example implementation of OAuthTokenCredential](#example-implementation-of-oauthtokencredential)
+  - [Example usage of OAuthTokenCredential and Custom Client](#example-usage-of-oauthtokencredential-and-custom-client)
 
 ### Generate a client with OAuth2Auth
 
@@ -19,20 +19,18 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@useAuth(OAuth2Auth<[
-  {
-    type: OAuth2FlowType.clientCredentials,
-    tokenUrl: "https://tokenUrl",
-    scopes: ["scope"]
-  },
-]>)
-@service(#{
-  title: "Example Server API",
-
-})
+@useAuth(
+  OAuth2Auth<[
+    {
+      type: OAuth2FlowType.clientCredentials,
+      tokenUrl: "https://tokenUrl",
+      scopes: ["scope"],
+    }
+  ]>
+)
+@service(#{ title: "Example Server API" })
 @server("https://endpoint", "Example Server Endpoint")
 namespace ExampleServer {
-
   model Result {
     value: string;
   }
@@ -79,7 +77,7 @@ public class TestCredential implements OAuthTokenCredential {
             // just use the first one
             String tokenUrl = authFlows.get(0).get("tokenUrl");
             String scope = authFlows.get(0).get("scopes");
-            HttpClient client = getHttpClient(); // assumes a path in your environment to handle client pooling, etc. 
+            HttpClient client = getHttpClient(); // assumes a path in your environment to handle client pooling, etc.
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(tokenUrl))
                     .header("Content-Type", "application/x-www-form-urlencoded")
