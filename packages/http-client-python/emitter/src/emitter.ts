@@ -131,14 +131,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
-  if (yamlMap.clients.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-valid-client",
-      target: NoTarget,
-    });
-    return;
-  }
-
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
