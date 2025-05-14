@@ -15,7 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
@@ -310,7 +310,7 @@ public final class ClientMethodsReturnDescription {
         //
         final ClientModelProperty property = pageItemPropertyOpt.get();
         final IType listType = property.getWireType();
-        final IType elementType = ((ListType) listType).getElementType();
+        final IType elementType = ((IterableType) listType).getElementType();
         IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(elementType));
         IType asyncReturnType = GenericType.PagedFlux(elementType);
         IType syncReturnType = GenericType.PagedIterable(elementType);
