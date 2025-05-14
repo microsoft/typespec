@@ -305,6 +305,7 @@ export function createServer(host: ServerHost): Server {
       getInitProjectContext: true,
       initProject: true,
       validateInitProjectTemplate: true,
+      internalCompile: true,
     };
     // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
     const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));

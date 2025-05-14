@@ -184,6 +184,7 @@ export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
   validateInitProjectTemplate?: boolean;
   initProject?: boolean;
+  internalCompile?: boolean;
 }
 
 export interface ServerInitializeResult extends InitializeResult {

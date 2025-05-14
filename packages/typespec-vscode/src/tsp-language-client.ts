@@ -101,6 +101,10 @@ export class TspLanguageClient {
   ): Promise<InternalCompileResult | undefined> {
     const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
     try {
+      if (this.initializeResult?.customCapacities?.internalCompile !== true) {
+        logger.warning("Compile project is not supported by the current TypeSpec Compiler's LSP.");
+        return undefined;
+      }
       const result = await this.client.sendRequest<InternalCompileResult>(
         compileProjectRequestName,
         {
