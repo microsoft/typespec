@@ -8,11 +8,7 @@ namespace Test
     {
         public void VisitsInvokeMethodExpression()
         {
-            Foo();
-        }
-
-        public void Foo()
-        {
+            Foo("bar", "baz");
         }
     }
 }
