@@ -14,7 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -65,8 +65,8 @@ public class ModelExampleUtil {
     @SuppressWarnings("unchecked")
     public static ExampleNode parseNode(IType type, IType wireType, Object objectValue) {
         ExampleNode node;
-        if (type instanceof ListType) {
-            IType elementType = ((ListType) type).getElementType();
+        if (type instanceof IterableType) {
+            IType elementType = ((IterableType) type).getElementType();
             if (objectValue instanceof List) {
                 ListNode listNode = new ListNode(elementType, objectValue);
                 node = listNode;
@@ -363,11 +363,11 @@ public class ModelExampleUtil {
         IType type = methodParameter.getClientMethodParameter().getClientType();
         IType wireType = methodParameter.getClientMethodParameter().getWireType();
         if (methodParameter.getProxyMethodParameter().getCollectionFormat() != null
-            && type instanceof ListType
+            && type instanceof IterableType
             && objectValue instanceof String) {
             // handle parameter style
 
-            IType elementType = ((ListType) type).getElementType();
+            IType elementType = ((IterableType) type).getElementType();
             ListNode listNode = new ListNode(elementType, objectValue);
             String value = (String) objectValue;
 
