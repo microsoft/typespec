@@ -254,7 +254,7 @@ public class Javagen extends NewPlugin {
             javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
         }
 
-        if (settings.isDataPlaneClient()) {
+        if (settings.isDataPlaneClient() || settings.isUnbranded() || settings.isAzureV2()) {
             Project project = new Project(client, ClientModelUtil.getApiVersions(codeModel));
             if (settings.isSdkIntegration()) {
                 project.integrateWithSdk();
@@ -281,16 +281,19 @@ public class Javagen extends NewPlugin {
             // Readme, Changelog
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
-                if (generateSwaggerMarkdown) {
-                    javaPackage.addSwaggerReadmeMarkdown(project);
+
+                if (!settings.isUnbranded()) {
+                    if (generateSwaggerMarkdown) {
+                        javaPackage.addSwaggerReadmeMarkdown(project);
+                    }
+                    javaPackage.addChangelogMarkdown(project);
+
+                    // test proxy asserts.json
+                    javaPackage.addTestProxyAssetsJson(project);
+
+                    // Blank readme sample
+                    javaPackage.addProtocolExamplesBlank();
                 }
-                javaPackage.addChangelogMarkdown(project);
-
-                // test proxy asserts.json
-                javaPackage.addTestProxyAssetsJson(project);
-
-                // Blank readme sample
-                javaPackage.addProtocolExamplesBlank();
             }
         }
         return javaPackage;

@@ -40,21 +40,19 @@ export async function writeConfiguration(
 
 function transformJSONProperties(this: any, key: string, value: any): any {
   // convertUsageNumbersToStrings
-  if (this["kind"] === "model" || this["kind"] === "enum") {
-    if (key === "usage" && typeof value === "number") {
-      if (value === 0) {
-        return "None";
-      }
-      const result: string[] = [];
-      for (const prop in UsageFlags) {
-        if (!isNaN(Number(prop))) {
-          if ((value & Number(prop)) !== 0) {
-            result.push(UsageFlags[prop]);
-          }
+  if (key === "usage" && typeof value === "number") {
+    if (value === 0) {
+      return "None";
+    }
+    const result: string[] = [];
+    for (const prop in UsageFlags) {
+      if (!isNaN(Number(prop))) {
+        if ((value & Number(prop)) !== 0) {
+          result.push(UsageFlags[prop]);
         }
       }
-      return result.join(",");
     }
+    return result.join(",");
   }
 
   // skip __raw if there is one

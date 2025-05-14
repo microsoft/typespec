@@ -26,10 +26,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
+            Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<Task<Compilation>>? compilation = null,
             string? configuration = null)
         {
             var mockGenerator = LoadMockGenerator(
+                inputLiterals: inputLiterals,
                 inputEnums: inputEnums,
                 inputModels: inputModels,
                 clients: clients,
@@ -49,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<CSharpType>? matchConditionsType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
+            Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
@@ -63,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             bool includeXmlDocs = false)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
+            IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
@@ -72,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var mockInputNs = new Mock<InputNamespace>(
                 "Sample",
                 inputNsApiVersions,
+                inputNsLiterals,
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,

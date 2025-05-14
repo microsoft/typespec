@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.8.0",
+    "@azure/identity": "~4.9.1",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -44,7 +44,7 @@
     "@typespec/spec-coverage-sdk": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "ajv": "~8.17.1",
-    "body-parser": "^1.20.3",
+    "body-parser": "^2.2.0",
     "deep-equal": "^2.2.0",
     "express": "^5.1.0",
     "globby": "~14.1.0",
