@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The Thing_optionalLiteralFloat. </summary>
+    /// <summary> The ThingOptionalLiteralFloat. </summary>
     public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
     {
         private readonly float _value;
