@@ -5,6 +5,7 @@ import "./pre-extension-activate.js";
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
+import { client, setClient } from "./extension-component.js";
 import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
@@ -29,7 +30,6 @@ import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/openapi3-preview.js";
 
-export let client: TspLanguageClient | undefined;
 /**
  * Workaround: LogOutputChannel doesn't work well with LSP RemoteConsole, so having a customized LogOutputChannel to make them work together properly
  * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
@@ -236,10 +236,10 @@ async function recreateLSPClient(
 ): Promise<Result<TspLanguageClient>> {
   logger.info("Recreating TypeSpec LSP server...");
   const oldClient = client;
-  client = await TspLanguageClient.create(activityId, context, outputChannel);
+  setClient(await TspLanguageClient.create(activityId, context, outputChannel));
   await oldClient?.stop();
-  await client.start(activityId);
-  if (client.state === State.Running) {
+  await client?.start(activityId);
+  if (client?.state === State.Running) {
     telemetryClient.logOperationDetailTelemetry(activityId, {
       compilerVersion: client.initializeResult?.serverInfo?.version ?? "< 0.64.0",
     });

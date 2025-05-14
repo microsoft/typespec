@@ -5,7 +5,7 @@ import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
-import { client } from "../../extension.js";
+import { client } from "../../extension-component.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
