@@ -22,6 +22,7 @@ import {
   InputLiteralType,
   InputModelProperty,
   InputModelType,
+  InputProperty,
   InputType,
 } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
@@ -54,7 +55,7 @@ export function createCSharpEmitterContext<
 
 class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
-  properties: Map<SdkModelPropertyType, InputParameter | InputModelProperty>;
+  properties: Map<SdkModelPropertyType, InputParameter | InputProperty>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
@@ -64,7 +65,7 @@ class SdkTypeCache {
 
   constructor() {
     this.clients = new Map<SdkClientType<SdkHttpOperation>, InputClient>();
-    this.properties = new Map<SdkModelPropertyType, InputParameter | InputModelProperty>();
+    this.properties = new Map<SdkModelPropertyType, InputParameter | InputProperty>();
     this.responses = new Map<SdkHttpResponse, OperationResponse>();
     this.types = new Map<SdkType, InputType>();
     this.models = new Map<string, InputModelType>();
@@ -80,7 +81,7 @@ class SdkTypeCache {
 
   updateSdkPropertyReferences(
     sdkProperty: SdkModelPropertyType,
-    inputProperty: InputParameter | InputModelProperty,
+    inputProperty: InputParameter | InputProperty,
   ) {
     this.properties.set(sdkProperty, inputProperty);
     this.crossLanguageDefinitionIds.set(sdkProperty.crossLanguageDefinitionId, sdkProperty.__raw);

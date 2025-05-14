@@ -139,25 +139,24 @@ export function fromSdkModelType(
       ? fromSdkType(sdkContext, modelType.additionalProperties)
       : undefined;
 
-    const propertiesDict = new Map<SdkModelPropertyType, InputProperty>();
+    const properties: InputProperty[] = [];
     for (const property of modelType.properties) {
       const ourProperty = fromSdkModelProperty(sdkContext, property);
 
-      if (!ourProperty) {
-        continue;
+      if (ourProperty) {
+        properties.push(ourProperty);
       }
-      propertiesDict.set(property, ourProperty);
     }
 
     inputModelType.discriminatorProperty = modelType.discriminatorProperty
-      ? propertiesDict.get(modelType.discriminatorProperty)
+      ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
       : undefined;
 
     inputModelType.baseModel = modelType.baseModel
       ? fromSdkModelType(sdkContext, modelType.baseModel)
       : undefined;
 
-    inputModelType.properties = Array.from(propertiesDict.values()).flat();
+    inputModelType.properties = properties;
 
     if (modelType.discriminatedSubtypes) {
       const discriminatedSubtypes: Record<string, InputModelType> = {};
@@ -173,20 +172,32 @@ export function fromSdkModelType(
 
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
-    property: SdkModelPropertyType,
-  ): InputProperty | undefined {
-    switch (property.kind) {
-      case "property":
-        return fromSdkBodyModelProperty(sdkContext, property);
-      case "header":
-        return fromSdkHeaderParameter(sdkContext, property);
-      case "query":
-        return fromSdkQueryParameter(sdkContext, property);
-      case "path":
-        return fromSdkPathParameter(sdkContext, property);
-      default:
-        return undefined;
+    sdkProperty: SdkModelPropertyType,
+  ): InputProperty | undefined { // TODO -- this returns undefined because some properties we do not support yet.
+    let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
+    if (property) {
+      return property;
     }
+    switch (sdkProperty.kind) {
+      case "property":
+        property = fromSdkBodyModelProperty(sdkContext, sdkProperty);
+        break;
+      case "header":
+        property = fromSdkHeaderParameter(sdkContext, sdkProperty);
+        break;
+      case "query":
+        property = fromSdkQueryParameter(sdkContext, sdkProperty);
+        break;
+      case "path":
+        property = fromSdkPathParameter(sdkContext, sdkProperty);
+        break;
+    }
+
+    if (property) {
+      sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
+    }
+
+    return property;
   }
 
   function fromSdkHeaderParameter(
@@ -205,7 +216,7 @@ export function fromSdkModelType(
       decorators: property.decorators,
       crossLanguageDefinitionId: property.crossLanguageDefinitionId,
       correspondingMethodParams: [], // TODO - this should be a ref of other properties
-    }
+    };
   }
 
   function fromSdkQueryParameter(

@@ -160,7 +160,11 @@ export interface InputModelProperty extends InputModelPropertyTypeBase {
 
 export type InputProperty = InputModelProperty | InputHttpParameter;
 
-export type InputHttpParameter = InputQueryParameter | InputPathParameter | InputHeaderParameter | InputBodyParameter;
+export type InputHttpParameter =
+  | InputQueryParameter
+  | InputPathParameter
+  | InputHeaderParameter
+  | InputBodyParameter;
 
 export interface InputQueryParameter extends InputModelPropertyTypeBase {
   kind: "query";
