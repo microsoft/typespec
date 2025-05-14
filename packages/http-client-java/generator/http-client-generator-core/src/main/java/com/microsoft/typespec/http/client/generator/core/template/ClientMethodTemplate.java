@@ -182,7 +182,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (parameterWireType != ClassType.BASE_64_URL
                 && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
                 // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = ClassType.STRING;
             }
 
@@ -363,7 +363,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (parameterWireType != ClassType.BASE_64_URL
                 && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
                 // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData &&
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = (parameter.getExplode()) ? new ListType(ClassType.STRING) : ClassType.STRING;
             }
 
@@ -490,7 +490,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             if (parameter.getWireType().isUsedInXml()
-                && parameterClientType instanceof ListType
+                && parameterClientType instanceof IterableType
                 && (parameterLocation
                     == RequestParameterLocation.BODY /* || parameterLocation == RequestParameterLocation.FormData */)) {
                 function.line("%s %s = new %s(%s);", parameter.getWireType(), parameterWireName,

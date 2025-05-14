@@ -21,7 +21,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
@@ -765,14 +764,14 @@ abstract class ConvenienceMethodTemplateBase {
                     builder.append(String.format(".serializeFileField(%1$s, %2$s, %3$s, %4$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), fileExpression,
                         contentTypeExpression, filenameExpression));
-                } else if (property.getWireType() instanceof ListType
-                    && isMultipartModel(((ListType) property.getWireType()).getElementType())) {
+                } else if (property.getWireType() instanceof IterableType
+                    && isMultipartModel(((IterableType) property.getWireType()).getElementType())) {
                     // file array
 
                     // For now, we use 3 List, as we do not wish the Helper class refer to different ##FileDetails
                     // model.
                     // Later, if we switch to a shared class in azure-core, we can change the implementation.
-                    String className = ((ListType) property.getWireType()).getElementType().toString();
+                    String className = ((IterableType) property.getWireType()).getElementType().toString();
                     String streamExpressionFormat = "%1$s.stream().map(%2$s::%3$s).collect(Collectors.toList())";
                     String fileExpression
                         = String.format(streamExpressionFormat, propertyGetExpression, className, "getContent");
