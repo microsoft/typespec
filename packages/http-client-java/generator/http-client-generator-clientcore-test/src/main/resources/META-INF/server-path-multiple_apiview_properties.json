@@ -1,7 +1,0 @@
-{
-  "flavor": "generic", 
-  "CrossLanguageDefinitionId": {
-    "server.path.multiple.MultipleClient": "Server.Path.Multiple",
-    "server.path.multiple.MultipleClientBuilder": "Server.Path.Multiple"
-  }
-}
