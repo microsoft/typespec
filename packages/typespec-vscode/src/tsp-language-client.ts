@@ -6,7 +6,7 @@ import type {
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
-import { CustomCompileResult } from "@typespec/compiler/internals";
+import { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import {
@@ -98,13 +98,16 @@ export class TspLanguageClient {
   public async compileProject(
     doc: TextDocumentIdentifier,
     options?: CompilerOptions,
-  ): Promise<CustomCompileResult | undefined> {
+  ): Promise<InternalCompileResult | undefined> {
     const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
     try {
-      const result = await this.client.sendRequest<CustomCompileResult>(compileProjectRequestName, {
-        doc: doc,
-        options: { ...options, dryRun: false },
-      });
+      const result = await this.client.sendRequest<InternalCompileResult>(
+        compileProjectRequestName,
+        {
+          doc: doc,
+          options: { ...options, dryRun: false },
+        },
+      );
       return result;
     } catch (e) {
       logger.error("Unexpected error when compiling project", [e]);

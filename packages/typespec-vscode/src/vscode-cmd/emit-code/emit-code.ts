@@ -16,10 +16,15 @@ import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
   getEntrypointTspFile,
-  getVscodeUriFromPath,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
-import { ExecOutput, isFile, tryParseYaml, tryReadFile } from "../../utils.js";
+import {
+  ExecOutput,
+  getVscodeUriFromPath,
+  isFile,
+  tryParseYaml,
+  tryReadFile,
+} from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -457,7 +462,7 @@ async function doEmit(
         }
         const compileResult = await client.compileProject(
           {
-            uri: getVscodeUriFromPath(mainTspFile).toString(),
+            uri: getVscodeUriFromPath(mainTspFile),
           },
           { emit: emitters.map((e) => e.package) },
         );

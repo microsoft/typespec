@@ -56,11 +56,6 @@ export async function TraverseMainTspFileInWorkspace() {
     );
 }
 
-export function getVscodeUriFromPath(path: string) {
-  const uri = vscode.Uri.file(path);
-  return uri.toString();
-}
-
 export function formatDiagnostic(diagnostic: ServerDiagnostic): string {
   const code = diagnostic.code ? ` ${diagnostic.code}` : "";
   const content = code ? `${code}: ${diagnostic.message}` : diagnostic.message;

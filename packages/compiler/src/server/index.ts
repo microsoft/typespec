@@ -2,13 +2,13 @@ export { TypeSpecLanguageConfiguration } from "./language-config.js";
 export { createServer } from "./serverlib.js";
 export type {
   CompileResult,
-  CustomCompileResult,
   CustomRequestName,
   InitProjectConfig,
   InitProjectContext,
   InitProjectTemplate,
   InitProjectTemplateEmitterTemplate,
   InitProjectTemplateLibrarySpec,
+  InternalCompileResult,
   SemanticToken,
   SemanticTokenKind,
   Server,

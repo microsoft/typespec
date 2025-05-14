@@ -81,7 +81,7 @@ export interface ServerDiagnostic extends Diagnostic {
   target: (SourceLocation & { position?: { line: number; column: number } }) | typeof NoTarget;
 }
 
-export interface CustomCompileResult {
+export interface InternalCompileResult {
   readonly hasError: boolean;
   readonly diagnostics: ServerDiagnostic[];
   readonly entrypoint?: string;
@@ -127,7 +127,7 @@ export interface Server {
   internalCompile(param: {
     doc: TextDocumentIdentifier;
     options: CompilerOptions;
-  }): Promise<CustomCompileResult>;
+  }): Promise<InternalCompileResult>;
 }
 
 export interface ServerSourceFile extends SourceFile {

@@ -116,9 +116,9 @@ import {
 } from "./type-details.js";
 import {
   CompileResult,
-  CustomCompileResult,
   InitProjectConfig,
   InitProjectContext,
+  InternalCompileResult,
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
@@ -374,7 +374,7 @@ export function createServer(host: ServerHost): Server {
   async function internalCompile(param: {
     doc: TextDocumentIdentifier;
     options: CompilerOptions;
-  }): Promise<CustomCompileResult> {
+  }): Promise<InternalCompileResult> {
     const option: CompilerOptions = {
       ...param.options,
     };
