@@ -380,7 +380,10 @@ export function createServer(host: ServerHost): Server {
       ...param.options,
     };
 
-    const result = await compileService.compile(param.doc, option, true, true);
+    const result = await compileService.compile(param.doc, option, {
+      bypassCache: true,
+      trackAction: true,
+    });
     if (result === undefined) {
       return {
         hasError: true,

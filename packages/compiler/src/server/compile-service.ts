@@ -48,8 +48,10 @@ export interface CompileService {
   compile(
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions?: CompilerOptions,
-    bypassCache?: boolean,
-    trackAction?: boolean,
+    compileOptions?: {
+      bypassCache?: boolean;
+      trackAction?: boolean;
+    },
   ): Promise<CompileResult | undefined>;
 
   /**
@@ -119,8 +121,10 @@ export function createCompileService({
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
     additionalOptions?: CompilerOptions,
-    bypassCache: boolean = false,
-    trackAction: boolean = false,
+    runOptions?: {
+      bypassCache?: boolean;
+      trackAction?: boolean;
+    },
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
@@ -167,7 +171,7 @@ export function createCompileService({
     let program: Program;
     try {
       program = await compileProgram(
-        trackAction
+        runOptions?.trackAction
           ? {
               ...compilerHost,
               logSink: {
@@ -180,7 +184,7 @@ export function createCompileService({
           : compilerHost,
         mainFile,
         options,
-        bypassCache ? undefined : oldPrograms.get(mainFile),
+        runOptions?.bypassCache ? undefined : oldPrograms.get(mainFile),
       );
       oldPrograms.set(mainFile, program);
       if (!fileService.upToDate(document)) {
