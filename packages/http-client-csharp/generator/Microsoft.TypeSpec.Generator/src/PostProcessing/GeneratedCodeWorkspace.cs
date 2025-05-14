@@ -239,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionTypes, .. CodeModelGenerator.Instance.TypesToKeep],
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.TypesToKeep],
                 modelFactoryFullName: $"{modelFactory.Type.Namespace}.{modelFactory.Name}");
             switch (Configuration.UnreferencedTypesHandling)
             {
