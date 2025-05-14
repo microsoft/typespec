@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Expression = expression;
         }
 
-        public ValueExpression Expression { get; }
+        public ValueExpression Expression { get; private set; }
 
         internal override void Write(CodeWriter writer)
         {
@@ -33,12 +33,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 return null;
             }
-            if (ReferenceEquals(newExpression, expressionStatement.Expression))
-            {
-                return expressionStatement;
-            }
+            expressionStatement.Expression = newExpression;
+            return expressionStatement;
+        }
 
-            return new ExpressionStatement(newExpression);
+        public void Update(ValueExpression expression)
+        {
+            Expression = expression;
         }
     }
 }

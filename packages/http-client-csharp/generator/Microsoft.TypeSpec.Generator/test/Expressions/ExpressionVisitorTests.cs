@@ -125,6 +125,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             Assert.IsNotNull(updatedMethod);
             Assert.AreEqual("global::Test.TestName.ReplacedProperty = \"foo\";\n", updatedMethod!.BodyStatements!.ToDisplayString());
         }
+
+        [Test]
+        public void CanChangeExpressionStatement()
+        {
+            ValidateExpressionStatement("ChangeProperty");
+        }
+
+        [Test]
+        public void CanUpdateExpressionStatement()
+        {
+            ValidateExpressionStatement("UpdateProperty");
+        }
+
+        private static void ValidateExpressionStatement(string memberName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var type = new TestTypeProvider();
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, type.Type, $"", []),
+                new MethodBodyStatement[]
+                {
+                    new ExpressionStatement(new MemberExpression(type.Type, memberName).Assign(Literal("foo"))),
+                },
+                type);
+            var visitor = new TestLibraryVisitor();
+            var updatedMethod = method.Accept(visitor);
+            Assert.IsNotNull(updatedMethod);
+            Assert.AreEqual("global::Test.TestName.ReplacedProperty = \"foo\";\n", updatedMethod!.BodyStatements!.ToDisplayString());
+        }
         private class TestLibraryVisitor : LibraryVisitor
         {
             protected internal override ValueExpression VisitInvokeMethodExpression(InvokeMethodExpression expression,
@@ -197,6 +226,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
                 }
 
                 return expression;
+            }
+
+            protected internal override MethodBodyStatement? VisitExpressionStatement(ExpressionStatement statement, MethodProvider method)
+            {
+                if ((statement.Expression as MemberExpression)?.MemberName == "ChangeProperty")
+                {
+                    return new ExpressionStatement(new MemberExpression(
+                        TypeReferenceExpression.FromType(new TestTypeProvider().Type),
+                        "ReplacedProperty").Assign(statement.Expression));
+                }
+
+                if ((statement.Expression as MemberExpression)?.MemberName == "UpdateProperty")
+                {
+                    statement.Update(expression: new MemberExpression(
+                        TypeReferenceExpression.FromType(new TestTypeProvider().Type),
+                        "ReplacedProperty"));
+                }
+
+                return statement;
             }
         }
     }
