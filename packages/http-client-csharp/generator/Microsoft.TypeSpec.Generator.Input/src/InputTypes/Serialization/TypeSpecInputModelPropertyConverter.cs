@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public override void Write(Utf8JsonWriter writer, InputModelProperty value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
+        // TODO -- this becomes discriminated as well
         private static InputModelProperty ReadInputModelProperty(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)

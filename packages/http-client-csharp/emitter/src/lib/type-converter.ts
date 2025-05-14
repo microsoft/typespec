@@ -173,7 +173,8 @@ export function fromSdkModelType(
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
     sdkProperty: SdkModelPropertyType,
-  ): InputProperty | undefined { // TODO -- this returns undefined because some properties we do not support yet.
+  ): InputProperty | undefined {
+    // TODO -- this returns undefined because some properties we do not support yet.
     let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
     if (property) {
       return property;

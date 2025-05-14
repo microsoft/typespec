@@ -20,7 +20,6 @@ import {
   InputClient,
   InputEnumType,
   InputLiteralType,
-  InputModelProperty,
   InputModelType,
   InputProperty,
   InputType,
