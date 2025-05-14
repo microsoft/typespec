@@ -123,7 +123,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         file_import = super()._imports_shared(async_mode, **kwargs)
         if async_mode:
             file_import.add_submodule_import(
-                f"{self.code_model.core_library}.paging", "AsyncItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+                f"{self.code_model.core_library}.paging",
+                "AsyncItemPaged",
+                ImportType.SDKCORE,
+                TypingSection.CONDITIONAL,
             )
         else:
             file_import.add_submodule_import(
