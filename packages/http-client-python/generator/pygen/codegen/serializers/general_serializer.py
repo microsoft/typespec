@@ -58,9 +58,9 @@ class GeneralSerializer(BaseSerializer):
         else:
             dev_status = "5 - Production/Stable"
         try:
-          client_name = self.code_model.clients[0].name
+            client_name = self.code_model.clients[0].name
         except IndexError:
-          client_name = ""
+            client_name = ""
         params = {
             "code_model": self.code_model,
             "dev_status": dev_status,
