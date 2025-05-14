@@ -39,10 +39,16 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             return new MemberExpression(newInner, memberExpression.MemberName);
         }
 
-        public void Update(ValueExpression? inner, string memberName)
+        public void Update(ValueExpression? inner = null, string? memberName = null)
         {
-            Inner = inner;
-            MemberName = memberName;
+            if (inner != null)
+            {
+                Inner = inner;
+            }
+            if (memberName != null)
+            {
+                MemberName = memberName;
+            }
         }
     }
 }
