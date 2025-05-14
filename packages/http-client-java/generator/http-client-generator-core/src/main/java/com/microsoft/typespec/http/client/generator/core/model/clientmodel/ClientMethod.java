@@ -371,7 +371,7 @@ public class ClientMethod {
                                                                                              * RequestParameterLocation.
                                                                                              * FormData
                                                                                              */
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = ClassType.STRING;
             }
 

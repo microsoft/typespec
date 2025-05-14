@@ -36,7 +36,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Exter
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
@@ -522,7 +522,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                 .findFirst()
                 .ifPresentOrElse(itemProperty -> {
                     IType listType = itemProperty.getWireType();
-                    IType elementType = ((ListType) listType).getElementType();
+                    IType elementType = ((IterableType) listType).getElementType();
                     // unbranded would use the model, instead of BinaryData, as return type
                     if (isProtocolMethod && settings.isAzureV1()) {
                         returnTypeHolder.asyncRestResponseReturnType = createProtocolPagedRestResponseReturnType();
