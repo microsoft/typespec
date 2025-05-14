@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.models;
 
-import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -20,19 +19,16 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
     /*
      * The principal ID of the assigned identity.
      */
-    @Generated
     private String principalId;
 
     /*
      * The client ID of the assigned identity.
      */
-    @Generated
     private String clientId;
 
     /**
      * Creates an instance of UserAssignedIdentity class.
      */
-    @Generated
     public UserAssignedIdentity() {
     }
 
@@ -41,7 +37,6 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
      * 
      * @return the principalId value.
      */
-    @Generated
     public String principalId() {
         return this.principalId;
     }
@@ -51,7 +46,6 @@ public final class UserAssignedIdentity implements JsonSerializable<UserAssigned
      * 
      * @return the clientId value.
      */
-    @Generated
     public String clientId() {
         return this.clientId;
     }

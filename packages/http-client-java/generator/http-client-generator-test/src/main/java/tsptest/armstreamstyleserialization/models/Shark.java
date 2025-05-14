@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
@@ -23,37 +22,31 @@ public class Shark extends FishInner {
     /*
      * Discriminator property for Fish.
      */
-    @Generated
     private String kind = "shark";
 
     /*
      * The sharktype property.
      */
-    @Generated
     private String sharktype = "shark";
 
     /*
      * The anotherProperties property.
      */
-    @Generated
     private AnotherFishProperties innerAnotherProperties = new AnotherFishProperties();
 
     /*
      * The properties property.
      */
-    @Generated
     private FishProperties innerProperties = new FishProperties();
 
     /*
      * The dna property.
      */
-    @Generated
     private String dna;
 
     /**
      * Creates an instance of Shark class.
      */
-    @Generated
     public Shark() {
     }
 
@@ -62,7 +55,6 @@ public class Shark extends FishInner {
      * 
      * @return the kind value.
      */
-    @Generated
     @Override
     public String kind() {
         return this.kind;
@@ -73,7 +65,6 @@ public class Shark extends FishInner {
      * 
      * @return the sharktype value.
      */
-    @Generated
     public String sharktype() {
         return this.sharktype;
     }
@@ -83,7 +74,6 @@ public class Shark extends FishInner {
      * 
      * @return the innerAnotherProperties value.
      */
-    @Generated
     private AnotherFishProperties innerAnotherProperties() {
         return this.innerAnotherProperties;
     }
@@ -93,7 +83,6 @@ public class Shark extends FishInner {
      * 
      * @return the innerProperties value.
      */
-    @Generated
     private FishProperties innerProperties() {
         return this.innerProperties;
     }
@@ -103,7 +92,6 @@ public class Shark extends FishInner {
      * 
      * @return the dna value.
      */
-    @Generated
     @Override
     public String dna() {
         return this.dna;
@@ -112,7 +100,6 @@ public class Shark extends FishInner {
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public Shark withAge(int age) {
         super.withAge(age);
@@ -124,7 +111,6 @@ public class Shark extends FishInner {
      * 
      * @return the length value.
      */
-    @Generated
     public double length() {
         return this.innerProperties() == null ? 0.0 : this.innerProperties().length();
     }
@@ -135,7 +121,6 @@ public class Shark extends FishInner {
      * @param length the length value to set.
      * @return the Shark object itself.
      */
-    @Generated
     public Shark withLength(double length) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -149,7 +134,6 @@ public class Shark extends FishInner {
      * 
      * @return the patten value.
      */
-    @Generated
     public String patten() {
         return this.innerProperties() == null ? null : this.innerProperties().patten();
     }
@@ -159,7 +143,6 @@ public class Shark extends FishInner {
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredString() {
         return this.innerProperties() == null ? null : this.innerProperties().requiredString();
     }
@@ -170,7 +153,6 @@ public class Shark extends FishInner {
      * @param requiredString the requiredString value to set.
      * @return the Shark object itself.
      */
-    @Generated
     public Shark withRequiredString(String requiredString) {
         if (this.innerProperties() == null) {
             this.innerProperties = new FishProperties();
@@ -184,7 +166,6 @@ public class Shark extends FishInner {
      * 
      * @return the length value.
      */
-    @Generated
     public double lengthAnotherPropertiesLength() {
         return this.innerAnotherProperties() == null ? 0.0 : this.innerAnotherProperties().length();
     }
@@ -195,7 +176,6 @@ public class Shark extends FishInner {
      * @param length the length value to set.
      * @return the Shark object itself.
      */
-    @Generated
     public Shark withLengthAnotherPropertiesLength(double length) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();
@@ -209,7 +189,6 @@ public class Shark extends FishInner {
      * 
      * @return the patten value.
      */
-    @Generated
     public String pattenAnotherPropertiesPatten() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().patten();
     }
@@ -219,7 +198,6 @@ public class Shark extends FishInner {
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredStringAnotherPropertiesRequiredString() {
         return this.innerAnotherProperties() == null ? null : this.innerAnotherProperties().requiredString();
     }
@@ -230,7 +208,6 @@ public class Shark extends FishInner {
      * @param requiredString the requiredString value to set.
      * @return the Shark object itself.
      */
-    @Generated
     public Shark withRequiredStringAnotherPropertiesRequiredString(String requiredString) {
         if (this.innerAnotherProperties() == null) {
             this.innerAnotherProperties = new AnotherFishProperties();

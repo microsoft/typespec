@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,13 +20,11 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
     /*
      * The eyeProperties property.
      */
-    @Generated
     private EyeProperties innerEyeProperties = new EyeProperties();
 
     /**
      * Creates an instance of AnotherFishProperties class.
      */
-    @Generated
     public AnotherFishProperties() {
     }
 
@@ -36,7 +33,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * 
      * @return the innerEyeProperties value.
      */
-    @Generated
     private EyeProperties innerEyeProperties() {
         return this.innerEyeProperties;
     }
@@ -46,7 +42,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * 
      * @return the length value.
      */
-    @Generated
     public double length() {
         return this.innerEyeProperties() == null ? 0.0 : this.innerEyeProperties().length();
     }
@@ -57,7 +52,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * @param length the length value to set.
      * @return the AnotherFishProperties object itself.
      */
-    @Generated
     public AnotherFishProperties withLength(double length) {
         if (this.innerEyeProperties() == null) {
             this.innerEyeProperties = new EyeProperties();
@@ -71,7 +65,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * 
      * @return the patten value.
      */
-    @Generated
     public String patten() {
         return this.innerEyeProperties() == null ? null : this.innerEyeProperties().patten();
     }
@@ -81,7 +74,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredString() {
         return this.innerEyeProperties() == null ? null : this.innerEyeProperties().requiredString();
     }
@@ -92,7 +84,6 @@ public final class AnotherFishProperties implements JsonSerializable<AnotherFish
      * @param requiredString the requiredString value to set.
      * @return the AnotherFishProperties object itself.
      */
-    @Generated
     public AnotherFishProperties withRequiredString(String requiredString) {
         if (this.innerEyeProperties() == null) {
             this.innerEyeProperties = new EyeProperties();

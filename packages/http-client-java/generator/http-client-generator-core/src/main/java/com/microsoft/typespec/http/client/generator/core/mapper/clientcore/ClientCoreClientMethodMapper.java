@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.mapper.clientcore;
 
 import com.azure.core.http.HttpMethod;
@@ -14,6 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapper;
 import com.microsoft.typespec.http.client.generator.core.mapper.CustomClientParameterMapper;
@@ -51,11 +55,9 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -212,18 +214,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                final boolean isPageable = operation.getExtensions() != null
-                    && operation.getExtensions().getXmsPageable() != null
-                    && shouldGeneratePagingMethods();
-                if (isPageable && JavaSettings.getInstance().isPageSizeEnabled()) {
-                    // remove maxpagesize parameter from client method API, it would be in e.g.
-                    // PagedIterable.iterableByPage(int)
-                    codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
-                            operation.getExtensions().getXmsPageable()))
-                        .collect(Collectors.toList());
-                }
-
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
                 final boolean proxyMethodUsesBinaryData = proxyMethod.getParameters()
@@ -234,7 +224,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .anyMatch(
                         proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
 
-                Set<Parameter> originalParameters = new HashSet<>();
                 for (Parameter parameter : codeModelParameters) {
                     ClientMethodParameter clientMethodParameter
                         = Mappers.getClientParameterMapper().map(parameter, isProtocolMethod);
@@ -304,7 +293,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
                     .methodPageDetails(null);
 
-                if (isPageable) {
+                if (operation.isPageable()) {
                     IType responseType = proxyMethod.getRawResponseBodyType() != null
                         ? proxyMethod.getRawResponseBodyType()
                         : proxyMethod.getResponseBodyType();
@@ -329,7 +318,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     }
                 } else if (operation.getExtensions() != null
                     && operation.getExtensions().isXmsLongRunningOperation()
-                    && (settings.isFluent() || settings.getPollingConfig("default") != null)
+                    && (settings.isFluent() || settings.getPollingSettings("default") != null)
                     && !returnTypeHolder.syncReturnType.equals(ClassType.INPUT_STREAM)) {
                     // temporary skip InputStream, no idea how to do this in PollerFlux
                     // Skip sync ProxyMethods for polling as sync polling isn't ready yet.
@@ -362,8 +351,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
                     }
 
-                    JavaSettings.PollingDetails pollingDetails
-                        = settings.getPollingConfig(proxyMethod.getOperationId());
+                    PollingSettings pollingDetails = settings.getPollingSettings(proxyMethod.getOperationId());
 
                     MethodPollingDetails methodPollingDetails = null;
                     MethodPollingDetails dpgMethodPollingDetailsWithModel = null;   // for additional LRO methods
@@ -376,8 +364,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                         // LongRunningMetadata)
                         if (methodPollingDetails == null) {
                             methodPollingDetails
-                                = new MethodPollingDetails(pollingDetails.getStrategy(),
-                                    pollingDetails.getSyncStrategy(),
+                                = new MethodPollingDetails(pollingDetails.getPollingStrategy(),
+                                    pollingDetails.getSyncPollingStrategy(),
                                     getPollingIntermediateType(pollingDetails, returnTypeHolder.syncReturnType),
                                     getPollingFinalType(pollingDetails, returnTypeHolder.syncReturnType,
                                         MethodUtil.getHttpMethod(operation)),
@@ -387,9 +375,9 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
                     if (methodPollingDetails != null && isProtocolMethod
                     // models of LRO configured
-                        && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getIntermediateType())
-                            && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalType())
-                                || ClassType.VOID.equals(methodPollingDetails.getFinalType().asNullable())))) {
+                        && !(ClassType.BINARY_DATA.equals(methodPollingDetails.getPollResultType())
+                            && (ClassType.BINARY_DATA.equals(methodPollingDetails.getFinalResultType())
+                                || ClassType.VOID.equals(methodPollingDetails.getFinalResultType().asNullable())))) {
 
                         // a new method to be added as implementation only (not exposed to client) for developer
                         dpgMethodPollingDetailsWithModel = methodPollingDetails;
@@ -665,8 +653,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             = getPageableNextLink(operation.getExtensions().getXmsPageable(), responseType);
 
         MethodPageDetails details = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
-            lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
-                operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
+            lroIntermediateType, fromContinuationToken(operation.getExtensions().getXmsPageable(), responseType));
         builder.methodPageDetails(details);
 
         String pageMethodName
@@ -706,7 +693,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .name(pageMethodName)
             .type(pageMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
+            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false))
+            .hidePageableParams(true);
 
         if (settings.getSyncMethods() != JavaSettings.SyncMethodsGeneration.NONE) {
             // generate the overload, if "sync-methods != NONE"
@@ -736,8 +724,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
             if (nextMethod != null) {
                 detailsWithContext = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
-                    lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
-                        operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
+                    lroIntermediateType,
+                    fromContinuationToken(operation.getExtensions().getXmsPageable(), responseType));
             }
         }
 
@@ -1088,8 +1076,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             return new ReturnValue(returnTypeDescription(operation, returnType, syncReturnType), returnType);
         } else {
             IType returnType
-                = GenericType.AzureVNextPoller(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-            return new ReturnValue(returnTypeDescription(operation, returnType, pollingDetails.getFinalType()),
+                = GenericType.AzureVNextPoller(pollingDetails.getPollResultType(), pollingDetails.getFinalResultType());
+            return new ReturnValue(returnTypeDescription(operation, returnType, pollingDetails.getFinalResultType()),
                 returnType);
         }
     }
@@ -1110,8 +1098,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             return new ReturnValue(returnTypeDescription(operation, returnType, syncReturnType), returnType);
         } else {
             IType returnType
-                = GenericType.PollerFlux(pollingDetails.getIntermediateType(), pollingDetails.getFinalType());
-            return new ReturnValue(returnTypeDescription(operation, returnType, pollingDetails.getFinalType()),
+                = GenericType.PollerFlux(pollingDetails.getPollResultType(), pollingDetails.getFinalResultType());
+            return new ReturnValue(returnTypeDescription(operation, returnType, pollingDetails.getFinalResultType()),
                 returnType);
         }
     }
@@ -1407,13 +1395,13 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
     }
 
-    private IType getPollingIntermediateType(JavaSettings.PollingDetails details, IType syncReturnType) {
+    private IType getPollingIntermediateType(PollingSettings details, IType syncReturnType) {
         IType pollResponseType = syncReturnType.asNullable();
         if (JavaSettings.getInstance().isFluent()) {
             return pollResponseType;
         }
-        if (details != null && details.getIntermediateType() != null) {
-            pollResponseType = createTypeFromModelName(details.getIntermediateType(), JavaSettings.getInstance());
+        if (details != null && details.getPollResultType() != null) {
+            pollResponseType = createTypeFromModelName(details.getPollResultType(), JavaSettings.getInstance());
         }
         // azure-core wants poll response to be non-null
         if (pollResponseType.asNullable() == ClassType.VOID) {
@@ -1423,14 +1411,13 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
         return pollResponseType;
     }
 
-    private IType getPollingFinalType(JavaSettings.PollingDetails details, IType syncReturnType,
-        HttpMethod httpMethod) {
+    private IType getPollingFinalType(PollingSettings details, IType syncReturnType, HttpMethod httpMethod) {
         IType resultType = syncReturnType.asNullable();
         if (JavaSettings.getInstance().isFluent()) {
             return resultType;
         }
-        if (details != null && details.getFinalType() != null) {
-            resultType = createTypeFromModelName(details.getFinalType(), JavaSettings.getInstance());
+        if (details != null && details.getFinalResultType() != null) {
+            resultType = createTypeFromModelName(details.getFinalResultType(), JavaSettings.getInstance());
         }
         // azure-core wants poll response to be non-null
         if (resultType.asNullable() == ClassType.VOID) {
@@ -1519,7 +1506,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
     }
 
     private static MethodPollingDetails methodPollingDetailsFromMetadata(Operation operation,
-        JavaSettings.PollingDetails pollingDetails) {
+        PollingSettings pollingDetails) {
 
         if (pollingDetails == null || operation.getConvenienceApi() == null) {
             return null;
@@ -1536,24 +1523,24 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                 : objectMapper.map(metadata.getFinalResultType());
 
             // PollingDetails would override LongRunningMetadata
-            if (pollingDetails.getIntermediateType() != null) {
+            if (pollingDetails.getPollResultType() != null) {
                 intermediateType
-                    = createTypeFromModelName(pollingDetails.getIntermediateType(), JavaSettings.getInstance());
+                    = createTypeFromModelName(pollingDetails.getPollResultType(), JavaSettings.getInstance());
             }
-            if (pollingDetails.getFinalType() != null) {
-                finalType = createTypeFromModelName(pollingDetails.getFinalType(), JavaSettings.getInstance());
+            if (pollingDetails.getFinalResultType() != null) {
+                finalType = createTypeFromModelName(pollingDetails.getFinalResultType(), JavaSettings.getInstance());
             }
 
             // PollingStrategy
             JavaSettings settings = JavaSettings.getInstance();
             final String packageName = settings.getPackage(settings.getImplementationSubpackage());
             String pollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingDetails.getStrategy()
-                : String.format(JavaSettings.PollingDetails.DEFAULT_POLLING_STRATEGY_FORMAT,
+                ? pollingDetails.getPollingStrategy()
+                : String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT,
                     packageName + "." + metadata.getPollingStrategy().getLanguage().getJava().getName());
             String syncPollingStrategy = metadata.getPollingStrategy() == null
-                ? pollingDetails.getSyncStrategy()
-                : String.format(JavaSettings.PollingDetails.DEFAULT_POLLING_STRATEGY_FORMAT,
+                ? pollingDetails.getSyncPollingStrategy()
+                : String.format(PollingSettings.INSTANTIATE_POLLING_STRATEGY_FORMAT,
                     packageName + ".Sync" + metadata.getPollingStrategy().getLanguage().getJava().getName());
             if (metadata.getPollingStrategy() != null && metadata.getFinalResultPropertySerializedName() != null) {
                 // add "<property-name>" argument to polling strategy constructor

@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -21,13 +20,11 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
     /*
      * The tailProperties property.
      */
-    @Generated
     private TailProperties innerTailProperties = new TailProperties();
 
     /**
      * Creates an instance of FishProperties class.
      */
-    @Generated
     public FishProperties() {
     }
 
@@ -36,7 +33,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * 
      * @return the innerTailProperties value.
      */
-    @Generated
     private TailProperties innerTailProperties() {
         return this.innerTailProperties;
     }
@@ -46,7 +42,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * 
      * @return the length value.
      */
-    @Generated
     public double length() {
         return this.innerTailProperties() == null ? 0.0 : this.innerTailProperties().length();
     }
@@ -57,7 +52,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * @param length the length value to set.
      * @return the FishProperties object itself.
      */
-    @Generated
     public FishProperties withLength(double length) {
         if (this.innerTailProperties() == null) {
             this.innerTailProperties = new TailProperties();
@@ -71,7 +65,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * 
      * @return the patten value.
      */
-    @Generated
     public String patten() {
         return this.innerTailProperties() == null ? null : this.innerTailProperties().patten();
     }
@@ -81,7 +74,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * 
      * @return the requiredString value.
      */
-    @Generated
     public String requiredString() {
         return this.innerTailProperties() == null ? null : this.innerTailProperties().requiredString();
     }
@@ -92,7 +84,6 @@ public final class FishProperties implements JsonSerializable<FishProperties> {
      * @param requiredString the requiredString value to set.
      * @return the FishProperties object itself.
      */
-    @Generated
     public FishProperties withRequiredString(String requiredString) {
         if (this.innerTailProperties() == null) {
             this.innerTailProperties = new TailProperties();

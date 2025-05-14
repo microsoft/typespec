@@ -126,7 +126,7 @@ public class ClientBuilderTrait {
             String pipelineMethodName = "pipeline";
             ServiceClientProperty pipelineProperty = new ServiceClientProperty(
                 "The HTTP pipeline to send requests " + "through.", ClassType.HTTP_PIPELINE, "pipeline", false,
-                JavaSettings.getInstance().isAzureOrFluent()
+                JavaSettings.getInstance().isFluent()
                     ? "new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build()"
                     : "createHttpPipeline()");
             importPackages.add(ClassType.LOG_LEVEL.getFullName());

@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
 import com.azure.json.JsonReader;
@@ -25,37 +24,31 @@ public final class TopLevelArmResourceInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
-    @Generated
     private TopLevelArmResourceProperties innerProperties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
-    @Generated
     private SystemData systemData;
 
     /*
      * The type of the resource.
      */
-    @Generated
     private String type;
 
     /*
      * The name of the resource.
      */
-    @Generated
     private String name;
 
     /*
      * Fully qualified resource Id for the resource.
      */
-    @Generated
     private String id;
 
     /**
      * Creates an instance of TopLevelArmResourceInner class.
      */
-    @Generated
     public TopLevelArmResourceInner() {
     }
 
@@ -64,7 +57,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the innerProperties value.
      */
-    @Generated
     private TopLevelArmResourceProperties innerProperties() {
         return this.innerProperties;
     }
@@ -74,7 +66,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the systemData value.
      */
-    @Generated
     public SystemData systemData() {
         return this.systemData;
     }
@@ -84,7 +75,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the type value.
      */
-    @Generated
     @Override
     public String type() {
         return this.type;
@@ -95,7 +85,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the name value.
      */
-    @Generated
     @Override
     public String name() {
         return this.name;
@@ -106,7 +95,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the id value.
      */
-    @Generated
     @Override
     public String id() {
         return this.id;
@@ -115,7 +103,6 @@ public final class TopLevelArmResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public TopLevelArmResourceInner withLocation(String location) {
         super.withLocation(location);
@@ -125,7 +112,6 @@ public final class TopLevelArmResourceInner extends Resource {
     /**
      * {@inheritDoc}
      */
-    @Generated
     @Override
     public TopLevelArmResourceInner withTags(Map<String, String> tags) {
         super.withTags(tags);
@@ -137,7 +123,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the configurationEndpoints value.
      */
-    @Generated
     public List<String> configurationEndpoints() {
         return this.innerProperties() == null ? null : this.innerProperties().configurationEndpoints();
     }
@@ -147,7 +132,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the userName value.
      */
-    @Generated
     public String userName() {
         return this.innerProperties() == null ? null : this.innerProperties().userName();
     }
@@ -158,7 +142,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * @param userName the userName value to set.
      * @return the TopLevelArmResourceInner object itself.
      */
-    @Generated
     public TopLevelArmResourceInner withUserName(String userName) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceProperties();
@@ -172,7 +155,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the userNames value.
      */
-    @Generated
     public String userNames() {
         return this.innerProperties() == null ? null : this.innerProperties().userNames();
     }
@@ -183,7 +165,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * @param userNames the userNames value to set.
      * @return the TopLevelArmResourceInner object itself.
      */
-    @Generated
     public TopLevelArmResourceInner withUserNames(String userNames) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceProperties();
@@ -197,7 +178,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the accuserName value.
      */
-    @Generated
     public String accuserName() {
         return this.innerProperties() == null ? null : this.innerProperties().accuserName();
     }
@@ -208,7 +188,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * @param accuserName the accuserName value to set.
      * @return the TopLevelArmResourceInner object itself.
      */
-    @Generated
     public TopLevelArmResourceInner withAccuserName(String accuserName) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceProperties();
@@ -222,7 +201,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the startTimeStamp value.
      */
-    @Generated
     public OffsetDateTime startTimeStamp() {
         return this.innerProperties() == null ? null : this.innerProperties().startTimeStamp();
     }
@@ -233,7 +211,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * @param startTimeStamp the startTimeStamp value to set.
      * @return the TopLevelArmResourceInner object itself.
      */
-    @Generated
     public TopLevelArmResourceInner withStartTimeStamp(OffsetDateTime startTimeStamp) {
         if (this.innerProperties() == null) {
             this.innerProperties = new TopLevelArmResourceProperties();
@@ -247,7 +224,6 @@ public final class TopLevelArmResourceInner extends Resource {
      * 
      * @return the provisioningState value.
      */
-    @Generated
     public ProvisioningState provisioningState() {
         return this.innerProperties() == null ? null : this.innerProperties().provisioningState();
     }

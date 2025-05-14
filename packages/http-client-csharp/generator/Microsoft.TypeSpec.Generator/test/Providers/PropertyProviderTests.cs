@@ -124,6 +124,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(inputPropertyName.ToCleanName() + "Property", property.Name);
         }
 
+        [Test]
+        public void CanUpdatePropertyProvider()
+        {
+            var propertyProvider = new PropertyProvider(
+                description: null,
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(string)),
+                name: "name",
+                body: new AutoPropertyBody(HasSetter: false),
+                enclosingType: new TestTypeProvider());
+
+            Assert.IsFalse(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("name", propertyProvider.Name);
+            Assert.AreEqual("Gets the name.", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(string)), propertyProvider.Type);
+
+            propertyProvider.Update(
+                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(int)),
+                name: "newName",
+                body: new AutoPropertyBody(HasSetter: true),
+                enclosingType: new TestTypeProvider());
+
+            Assert.IsTrue(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("newName", propertyProvider.Name);
+            // Even though description was not provided, it should still be recalculated
+            Assert.AreEqual("Gets or sets the newName.", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(int)), propertyProvider.Type);
+
+            propertyProvider.Update(description: $"new description");
+            Assert.AreEqual("new description", propertyProvider.Description.ToString());
+        }
+
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
         {
             // List<string> -> IReadOnlyList<string>

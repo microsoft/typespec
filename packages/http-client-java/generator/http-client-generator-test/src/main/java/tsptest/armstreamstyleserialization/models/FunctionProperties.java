@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.annotation.Generated;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
@@ -22,19 +21,16 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
     /*
      * Discriminator property for FunctionProperties.
      */
-    @Generated
     private String kind = "FunctionProperties";
 
     /*
      * The properties property.
      */
-    @Generated
     private FunctionConfiguration innerProperties = new FunctionConfiguration();
 
     /**
      * Creates an instance of FunctionProperties class.
      */
-    @Generated
     public FunctionProperties() {
     }
 
@@ -43,7 +39,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * 
      * @return the kind value.
      */
-    @Generated
     public String kind() {
         return this.kind;
     }
@@ -53,7 +48,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * 
      * @return the innerProperties value.
      */
-    @Generated
     FunctionConfiguration innerProperties() {
         return this.innerProperties;
     }
@@ -64,7 +58,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * @param innerProperties the innerProperties value to set.
      * @return the FunctionProperties object itself.
      */
-    @Generated
     FunctionProperties withInnerProperties(FunctionConfiguration innerProperties) {
         this.innerProperties = innerProperties;
         return this;
@@ -75,7 +68,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * 
      * @return the input value.
      */
-    @Generated
     public String input() {
         return this.innerProperties() == null ? null : this.innerProperties().input();
     }
@@ -86,7 +78,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * @param input the input value to set.
      * @return the FunctionProperties object itself.
      */
-    @Generated
     public FunctionProperties withInput(String input) {
         if (this.innerProperties() == null) {
             this.withInnerProperties(new FunctionConfiguration());
@@ -100,7 +91,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * 
      * @return the output value.
      */
-    @Generated
     public String output() {
         return this.innerProperties() == null ? null : this.innerProperties().output();
     }
@@ -111,7 +101,6 @@ public class FunctionProperties implements JsonSerializable<FunctionProperties> 
      * @param output the output value to set.
      * @return the FunctionProperties object itself.
      */
-    @Generated
     public FunctionProperties withOutput(String output) {
         if (this.innerProperties() == null) {
             this.withInnerProperties(new FunctionConfiguration());

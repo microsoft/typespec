@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
 import com.azure.core.annotation.ReturnType;
@@ -123,7 +126,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             // Parameter is required and will be part of the method signature.
-            if (parameter.isRequired()) {
+            if (parameter.isRequired()
+                || MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter)) {
                 continue;
             }
 
@@ -1185,12 +1189,23 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
-        String lambdaParameters = "";
-        if (!settings.isAzureV1()) {
-            lambdaParameters = "pagingOptions";
-        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("(pagingOptions) -> {");
+        stringBuilder.append("\n");
+        stringBuilder.append(getLogExceptionExpressionForPagingOptions(clientMethod));
 
-        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
+        if ((clientMethod.getMethodPageDetails().getContinuationToken() != null)) {
+            stringBuilder.append("String token = pagingOptions.getContinuationToken();");
+            stringBuilder.append("\n");
+        }
+        stringBuilder.append("return ");
+        stringBuilder.append(methodName);
+        stringBuilder.append("(");
+        stringBuilder.append(argumentLine);
+        stringBuilder.append(");");
+        stringBuilder.append("\n");
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
@@ -1237,8 +1252,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
