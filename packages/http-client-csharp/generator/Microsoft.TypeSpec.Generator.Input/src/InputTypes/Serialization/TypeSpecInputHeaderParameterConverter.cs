@@ -8,22 +8,22 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecInputModelPropertyConverter : JsonConverter<InputModelProperty>
+    internal sealed class TypeSpecInputHeaderParameterConverter : JsonConverter<InputHeaderParameter>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecInputModelPropertyConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputHeaderParameterConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
 
-        public override InputModelProperty Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputModelProperty>(_referenceHandler.CurrentResolver) ?? ReadInputModelProperty(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+        public override InputHeaderParameter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputHeaderParameter>(_referenceHandler.CurrentResolver) ?? ReadInputHeaderParameter(ref reader, null, null, options, _referenceHandler.CurrentResolver);
 
-        public override void Write(Utf8JsonWriter writer, InputModelProperty value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputHeaderParameter value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static InputModelProperty ReadInputModelProperty(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputHeaderParameter ReadInputHeaderParameter(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             id = id ?? throw new JsonException();
 
             // create an empty model property to resolve circular references
-            var property = new InputModelProperty(
+            var property = new InputHeaderParameter(
                 name: null!,
                 summary: null,
                 doc: null,
@@ -41,9 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isRequired: false,
                 isReadOnly: false,
                 access: null,
-                isDiscriminator: false,
+                collectionFormat: null,
                 serializedName: null!,
-                serializationOptions: null!);
+                explode: false);
             resolver.AddReference(id, property);
 
             string? kind = null;
@@ -54,9 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isReadOnly = false;
             bool isOptional = false;
             string? access = null;
-            bool isDiscriminator = false;
+            string? collectionFormat = null;
+            bool explode = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            InputSerializationOptions? serializationOptions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -69,10 +69,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadString("access", ref access)
-                    || reader.TryReadBoolean("discriminator", ref isDiscriminator)
-                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadString("collectionFormat", ref collectionFormat)
                     || reader.TryReadString("serializedName", ref serializedName)
-                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
+                    || reader.TryReadBoolean("explode", ref explode)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -80,17 +80,17 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.Name = name ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a name.");
             property.Summary = summary;
             property.Doc = doc;
-            property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
+            property.Type = propertyType ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a property type.");
             property.IsRequired = !isOptional;
             property.IsReadOnly = isReadOnly;
             property.Access = access;
-            property.IsDiscriminator = isDiscriminator;
+            property.CollectionFormat = collectionFormat;
+            property.Explode = explode;
             property.Decorators = decorators ?? [];
-            property.SerializationOptions = serializationOptions;
-            property.DefaultSerializedName = serializedName;
+            property.SerializedName = serializedName ?? throw new JsonException($"{nameof(InputHeaderParameter)} must have a serializedName.");
 
             return property;
         }

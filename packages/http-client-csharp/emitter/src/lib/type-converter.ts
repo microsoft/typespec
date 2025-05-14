@@ -216,6 +216,7 @@ export function fromSdkModelType(
       readOnly: isReadOnly(property),
       decorators: property.decorators,
       crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      collectionFormat: property.collectionFormat,
       correspondingMethodParams: [], // TODO - this should be a ref of other properties
     };
   }

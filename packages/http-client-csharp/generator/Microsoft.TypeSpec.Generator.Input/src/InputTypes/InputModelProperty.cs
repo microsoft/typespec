@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputModelProperty : InputProperty
     {
-        public InputModelProperty(string name, InputModelPropertyKind kind, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool isDiscriminator, string? serializedName, InputSerializationOptions serializationOptions) : base(name, summary, doc, type, isRequired, isReadOnly, access)
+        public InputModelProperty(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool isDiscriminator, string? serializedName, InputSerializationOptions serializationOptions) : base(name, summary, doc, type, isRequired, isReadOnly, access)
         {
             Name = name;
             Summary = summary;
