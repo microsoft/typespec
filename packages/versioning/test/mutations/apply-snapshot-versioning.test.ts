@@ -3,7 +3,7 @@ import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimen
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { getVersioningMutators } from "../../src/mutator.js";
-import { createVersioningTestRunner } from "../test-host.js";
+import { Tester } from "../test-host.js";
 
 const baseCode = `
   @versioned(Versions)
@@ -15,13 +15,14 @@ const baseCode = `
 async function testMutationLogic(
   code: string,
 ): Promise<{ v1: Namespace; v2: Namespace; v3: Namespace }> {
-  const runner = await createVersioningTestRunner();
+  const runner = await Tester.createInstance();
   const fullCode = baseCode + "\n" + code;
-  const { Service } = (await runner.compile(fullCode)) as { Service: Namespace };
-  const mutators = getVersioningMutators(runner.program, Service);
+  const { Service } = await runner.compile(fullCode);
+  const mutators = getVersioningMutators(runner.program, Service as Namespace);
   strictEqual(mutators?.kind, "versioned");
   const [v1, v2, v3] = mutators.snapshots.map(
-    (x) => unsafe_mutateSubgraphWithNamespace(runner.program, [x.mutator], Service).type,
+    (x) =>
+      unsafe_mutateSubgraphWithNamespace(runner.program, [x.mutator], Service as Namespace).type,
   );
   return { v1, v2, v3 } as any;
 }
