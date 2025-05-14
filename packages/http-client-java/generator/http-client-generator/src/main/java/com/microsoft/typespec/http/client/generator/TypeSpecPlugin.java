@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMap
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import java.io.File;
 import java.io.OutputStream;
@@ -33,7 +34,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +44,16 @@ public class TypeSpecPlugin extends Javagen {
 
     private final EmitterOptions emitterOptions;
 
-    private final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
+    private final TypeSpecMetadata metadata = new TypeSpecMetadata();
 
     public Client processClient(CodeModel codeModel) {
+        metadata.setApiVersion(emitterOptions.getApiVersion() == null
+            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+            : emitterOptions.getApiVersion());
+
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
+        Map<String, String> crossLanguageDefinitionsMap = metadata.getCrossLanguageDefinitions();
 
         // map to client model
         Client client = Mappers.getClientMapper().map(codeModel);
@@ -114,6 +119,7 @@ public class TypeSpecPlugin extends Javagen {
 
     @Override
     protected void writeClientModels(Client client, JavaPackage javaPackage, JavaSettings settings) {
+        Map<String, String> crossLanguageDefinitionsMap = metadata.getCrossLanguageDefinitions();
         // Client model
         client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
@@ -230,8 +236,8 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("use-rest-proxy", true);
     }
 
-    public Map<String, String> getCrossLanguageDefinitionMap() {
-        return this.crossLanguageDefinitionsMap;
+    public TypeSpecMetadata getMetadata() {
+        return this.metadata;
     }
 
     public static class MockConnection extends Connection {
@@ -308,6 +314,8 @@ public class TypeSpecPlugin extends Javagen {
 
         if (options.getFlavor() != null) {
             SETTINGS_MAP.put("flavor", options.getFlavor());
+
+            this.metadata.setFlavor(options.getFlavor());
         }
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {

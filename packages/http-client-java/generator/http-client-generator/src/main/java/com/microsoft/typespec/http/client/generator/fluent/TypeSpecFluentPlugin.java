@@ -7,12 +7,14 @@ import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
+import com.microsoft.typespec.http.client.generator.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
@@ -23,12 +25,15 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
     private final EmitterOptions emitterOptions;
+    private final TypeSpecMetadata metadata = new TypeSpecMetadata();
 
     public TypeSpecFluentPlugin(EmitterOptions emitterOptions, boolean sdkIntegration) {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
@@ -64,6 +69,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
+
+        this.metadata.setFlavor(emitterOptions.getFlavor());
     }
 
     public CodeModel preProcess(CodeModel codeModel) {
@@ -73,6 +80,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
     }
 
     public Client processClient(CodeModel codeModel) {
+        metadata.setApiVersion(emitterOptions.getApiVersion() == null
+            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+            : emitterOptions.getApiVersion());
 
         // call FluentGen.handleMap
 
@@ -81,7 +91,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
         FluentJavaPackage javaPackage = handleTemplate(client);
-        handleFluentLite(codeModel, client, javaPackage, emitterOptions.getApiVersion());
+        handleFluentLite(codeModel, client, javaPackage, metadata.getApiVersion());
         return javaPackage;
     }
 
@@ -138,6 +148,10 @@ public class TypeSpecFluentPlugin extends FluentGen {
         namingOverrides.put("tagvalue", "tagValue");
 
         return namingOverrides;
+    }
+
+    public TypeSpecMetadata getMetadata() {
+        return this.metadata;
     }
 
     @SuppressWarnings("unchecked")

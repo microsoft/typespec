@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
@@ -29,7 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -124,8 +124,8 @@ public class Main {
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
 
         // properties file
+        String artifactId = FluentUtils.getArtifactId();
         if (JavaSettings.getInstance().isFluentLite()) {
-            String artifactId = FluentUtils.getArtifactId();
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
                 fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
                     "version=${project.version}\n", null);
@@ -135,6 +135,8 @@ public class Main {
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
+
+        handleMetadata(fluentPlugin, fluentPlugin.getMetadata(), artifactId);
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration,
@@ -180,30 +182,15 @@ public class Main {
             }
         }
 
-        boolean includeApiViewProperties
-            = emitterOptions.getIncludeApiViewProperties() != null && emitterOptions.getIncludeApiViewProperties();
-        if (includeApiViewProperties && !CoreUtils.isNullOrEmpty(typeSpecPlugin.getCrossLanguageDefinitionMap())) {
-            String flavor = emitterOptions.getFlavor() == null ? "azure" : emitterOptions.getFlavor();
-            StringBuilder sb
-                = new StringBuilder("{\n  \"flavor\": \"" + flavor + "\", \n  \"CrossLanguageDefinitionId\": {\n");
-            AtomicBoolean first = new AtomicBoolean(true);
-            typeSpecPlugin.getCrossLanguageDefinitionMap().forEach((key, value) -> {
-                if (first.get()) {
-                    first.set(false);
-                } else {
-                    sb.append(",\n");
-                }
-                sb.append("    \"").append(key).append("\": ");
-                if (value == null) {
-                    sb.append("null");
-                } else {
-                    sb.append("\"").append(value).append("\"");
-                }
-            });
-            sb.append("\n  }\n}\n");
+        handleMetadata(typeSpecPlugin, typeSpecPlugin.getMetadata(), artifactId);
+    }
 
-            typeSpecPlugin.writeFile("src/main/resources/META-INF/" + artifactId + "_apiview_properties.json",
-                sb.toString(), null);
+    private static void handleMetadata(NewPlugin plugin, TypeSpecMetadata metadata, String artifactId) {
+        try {
+            String metadataJson = metadata.toJsonString();
+            plugin.writeFile("src/main/resources/META-INF/" + artifactId + "_metadata.json", metadataJson, null);
+        } catch (IOException e) {
+            LOGGER.warn("Failed to write metadata file");
         }
     }
 
