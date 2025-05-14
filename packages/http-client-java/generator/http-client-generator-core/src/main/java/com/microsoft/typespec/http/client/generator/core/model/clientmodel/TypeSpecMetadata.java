@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator;
+package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
@@ -11,23 +11,19 @@ import java.util.TreeMap;
 
 public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata> {
 
-    private String flavor = "generic";
-    private String apiVersion;
+    private final String artifactId;
+    private final String flavor;
+    private final String apiVersion;
     private final Map<String, String> crossLanguageDefinitions = new TreeMap<>();
 
-    public TypeSpecMetadata() {
-    }
-
-    public void setFlavor(String flavor) {
+    public TypeSpecMetadata(String artifactId, String flavor, String apiVersion) {
+        this.artifactId = artifactId;
         this.flavor = flavor;
-    }
-
-    public void setApiVersion(String apiVersion) {
         this.apiVersion = apiVersion;
     }
 
-    public String getFlavor() {
-        return flavor;
+    public String getArtifactId() {
+        return artifactId;
     }
 
     public String getApiVersion() {

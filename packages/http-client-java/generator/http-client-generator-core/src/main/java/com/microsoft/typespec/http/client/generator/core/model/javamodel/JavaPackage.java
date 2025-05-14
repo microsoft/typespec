@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proto
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceVersion;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TestContext;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.XmlSequenceWrapper;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
@@ -359,6 +360,27 @@ public class JavaPackage {
         }
     }
 
+    public void addJsonMergePatchHelper(List<ClientModel> models) {
+        JavaFile javaFile
+            = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
+        this.checkDuplicateFile(javaFile.getFilePath());
+        Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
+        this.checkDuplicateFile(javaFile.getFilePath());
+        javaFiles.add(javaFile);
+    }
+
+    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata) {
+        final String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata.json";
+        try {
+            TextFile textFile = new TextFile(filePath, typeSpecMetadata.toJsonString());
+            this.checkDuplicateFile(textFile.getFilePath());
+            textFiles.add(textFile);
+        } catch (IOException e) {
+            logger.warn("Failed to write metadata file {}", filePath);
+        }
+    }
+
     protected boolean checkDuplicateFile(String filePath) {
         if (filePaths.contains(filePath)) {
 //            throw new IllegalStateException(String.format("Name conflict for output file '%1$s'.", filePath));
@@ -366,14 +388,5 @@ public class JavaPackage {
             return true;
         }
         return false;
-    }
-
-    public void addJsonMergePatchHelper(List<ClientModel> models) {
-        JavaFile javaFile
-            = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
-        Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
-        this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
     }
 }

@@ -17,6 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
@@ -44,12 +45,13 @@ public class TypeSpecPlugin extends Javagen {
 
     private final EmitterOptions emitterOptions;
 
-    private final TypeSpecMetadata metadata = new TypeSpecMetadata();
+    private TypeSpecMetadata metadata;
 
     public Client processClient(CodeModel codeModel) {
-        metadata.setApiVersion(emitterOptions.getApiVersion() == null
-            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-            : emitterOptions.getApiVersion());
+        this.metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
+            emitterOptions.getApiVersion() == null
+                ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+                : emitterOptions.getApiVersion());
 
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
@@ -114,7 +116,9 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        return super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        javaPackage.addTypeSpecMetadata(metadata);
+        return javaPackage;
     }
 
     @Override
@@ -236,10 +240,6 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("use-rest-proxy", true);
     }
 
-    public TypeSpecMetadata getMetadata() {
-        return this.metadata;
-    }
-
     public static class MockConnection extends Connection {
         public MockConnection() {
             super(new OutputStream() {
@@ -314,8 +314,6 @@ public class TypeSpecPlugin extends Javagen {
 
         if (options.getFlavor() != null) {
             SETTINGS_MAP.put("flavor", options.getFlavor());
-
-            this.metadata.setFlavor(options.getFlavor());
         }
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {
