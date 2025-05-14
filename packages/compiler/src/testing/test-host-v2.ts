@@ -247,7 +247,9 @@ async function createEmitterTesterInstance(
     };
     const [result, diagnostics] = await tester.compileAndDiagnose(code, resolvedOptions);
     const outputs: Record<string, string> = {};
-    const outputDir = resolveVirtualPath(resolvePath("tsp-output", params.emitter));
+    const outputDir =
+      resolvedOptions.options?.options?.[params.emitter]?.["emitter-output-dir"] ??
+      resolveVirtualPath(resolvePath("tsp-output", params.emitter));
     for (const [name, value] of result.fs.fs) {
       if (name.startsWith(outputDir)) {
         const relativePath = name.slice(outputDir.length + 1);
