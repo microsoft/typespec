@@ -14,19 +14,17 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
