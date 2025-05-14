@@ -22,7 +22,7 @@ import {
   spawnExecutionAndLogToOutput,
 } from "../utils.js";
 
-const TITLE = "Import TypeSpec From OpenAPI 3";
+const TITLE = "Import TypeSpec from OpenAPI 3";
 const TSP_OPENAPI3_COMMAND = "tsp-openapi3";
 const TSP_COMPILER_PACKAGE = "@typespec/compiler";
 const TSP_OPENAPI3_PACKAGE = "@typespec/openapi3";
