@@ -20,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -618,7 +617,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 } else {
                     fieldSignature = propertyType + " " + propertyName;
                 }
-            } else if (propertyType instanceof ListType) {
+            } else if (propertyType instanceof IterableType) {
                 fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
             } else {
                 // handle x-ms-client-default
@@ -764,7 +763,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 classBlock.annotation("JacksonXmlText");
             } else if (property.isAdditionalProperties()) {
                 classBlock.annotation("JsonIgnore");
-            } else if (treatAsXml && property.getWireType() instanceof ListType && !property.isXmlWrapper()) {
+            } else if (treatAsXml && property.getWireType() instanceof IterableType && !property.isXmlWrapper()) {
                 classBlock.annotation("JsonProperty(\"" + property.getXmlListElementName() + "\")");
             } else if (!CoreUtils.isNullOrEmpty(property.getAnnotationArguments())) {
                 classBlock.annotation("JsonProperty(" + property.getAnnotationArguments() + ")");

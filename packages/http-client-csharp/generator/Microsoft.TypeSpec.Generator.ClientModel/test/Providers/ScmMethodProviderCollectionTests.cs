@@ -273,20 +273,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Parameter(
                     "choice",
-                    InputFactory.Enum(
-                        "TestEnum",
-                        useInt ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
-                        values:
-                        useInt ?
-                        [
-                            InputFactory.EnumMember.Int32("Value1", 1),
-                            InputFactory.EnumMember.Int32("Value2", 2),
-                        ] :
-                        [
-                            InputFactory.EnumMember.String("Value1", "value1"),
-                            InputFactory.EnumMember.String("Value2", "value2"),
-                        ],
-                        isExtensible: isExtensible),
+                    useInt
+                        ? InputFactory.Int32Enum("TestEnum", [("Value1", 1), ("Value2", 2)], isExtensible: isExtensible)
+                        : InputFactory.StringEnum("TestEnum", [("Value1", "value1"), ("Value2", "value2")], isExtensible: isExtensible),
                     isRequired: false,
                     location: InputRequestLocation.Query)
             ];
