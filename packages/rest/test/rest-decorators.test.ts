@@ -1,27 +1,20 @@
-import { Scalar } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { getResourceLocationType } from "../src/rest.js";
-import { createRestTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
 describe("rest: rest decorators", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createRestTestRunner();
-  });
-
   describe("@resourceLocation", () => {
     it("emit diagnostic when used on non-model", async () => {
-      const diagnostics = await runner.diagnose(`
-          model Widget {};
+      const diagnostics = await Tester.diagnose(`
+        model Widget {};
 
-          @TypeSpec.Rest.Private.resourceLocation(Widget)
-          op test(): string;
+        @TypeSpec.Rest.Private.resourceLocation(Widget)
+        op test(): string;
 
-          scalar WidgetLocation extends ResourceLocation<Widget>;
-        `);
+        scalar WidgetLocation extends ResourceLocation<Widget>;
+      `);
 
       expectDiagnostics(diagnostics, [
         {
@@ -33,14 +26,13 @@ describe("rest: rest decorators", () => {
     });
 
     it("marks a model type as a resource location for a specific type", async () => {
-      const { WidgetLocation } = (await runner.compile(`
-          model Widget {};
+      const { WidgetLocation, program } = await Tester.compile(t.code`
+        model Widget {};
 
-          @test
-          scalar WidgetLocation extends ResourceLocation<Widget>;
-`)) as { WidgetLocation: Scalar };
+        scalar ${t.scalar("WidgetLocation")} extends ResourceLocation<Widget>;
+      `);
 
-      const resourceType = getResourceLocationType(runner.program, WidgetLocation.baseScalar!);
+      const resourceType = getResourceLocationType(program, WidgetLocation.baseScalar!);
       ok(resourceType);
       strictEqual(resourceType!.name, "Widget");
     });

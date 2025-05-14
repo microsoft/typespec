@@ -1,4 +1,5 @@
 import {
+  BooleanLiteral,
   Entity,
   Enum,
   EnumMember,
@@ -6,9 +7,13 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  NumericLiteral,
   Operation,
+  Scalar,
+  StringLiteral,
   Type,
   Union,
+  UnionVariant,
   Value,
 } from "../core/types.js";
 
@@ -116,11 +121,11 @@ export const t = {
   enumMember: typeMarker<EnumMember>("EnumMember"),
   modelProperty: typeMarker<ModelProperty>("ModelProperty"),
   namespace: typeMarker<Namespace>("Namespace"),
-  scalar: typeMarker<Type>("Scalar"),
-  unionVariant: typeMarker<Type>("UnionVariant"),
-  boolean: typeMarker<Type>("Boolean"),
-  number: typeMarker<Type>("Number"),
-  string: typeMarker<Type>("String"),
+  scalar: typeMarker<Scalar>("Scalar"),
+  unionVariant: typeMarker<UnionVariant>("UnionVariant"),
+  boolean: typeMarker<BooleanLiteral>("Boolean"),
+  number: typeMarker<NumericLiteral>("Number"),
+  string: typeMarker<StringLiteral>("String"),
 
   // Values
   value: valueMarker<Value>(),
