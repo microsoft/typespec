@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             writer.Append(Declaration);
         }
 
-        internal override ValueExpression? Accept(LibraryVisitor visitor, MethodProvider method)
+        internal override VariableExpression Accept(LibraryVisitor visitor, MethodProvider method)
         {
             return visitor.VisitVariableExpression(this, method);
         }

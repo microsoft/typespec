@@ -8,6 +8,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record DeclarationExpression(VariableExpression Variable, bool IsOut = false, bool IsUsing = false) : ValueExpression
     {
+        public VariableExpression Variable { get; private set; } = Variable;
         public DeclarationExpression(CSharpType type, string name, bool isOut = false, bool isUsing = false)
             : this(new VariableExpression(type, new CodeWriterDeclaration(name)), isOut, isUsing)
         {
@@ -37,21 +38,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
 
             var newExpr = declarationExpression.Variable.Accept(visitor, method);
-            if (newExpr is null)
-            {
-                return null;
-            }
-            if (newExpr is not VariableExpression newVariable)
-            {
-                return newExpr.Accept(visitor, method);
-            }
 
-            if (ReferenceEquals(newVariable, declarationExpression.Variable))
-            {
-                return declarationExpression;
-            }
-
-            return new DeclarationExpression(newVariable, declarationExpression.IsOut, declarationExpression.IsUsing);
+            declarationExpression.Variable = newExpr;
+            return declarationExpression;
         }
     }
 }

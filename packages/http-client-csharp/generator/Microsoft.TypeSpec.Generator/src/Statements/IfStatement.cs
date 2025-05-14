@@ -48,9 +48,14 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
         }
 
-        internal override MethodBodyStatement Accept(LibraryVisitor visitor, MethodProvider method)
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            Condition = visitor.VisitExpression(Condition, method);
+            var newStatement = visitor.VisitIfStatement(this, method);
+            if (newStatement is not IfStatement newIfStatement)
+            {
+                return newStatement?.Accept(visitor, method);
+            }
+
             var bodyStatements = new List<MethodBodyStatement>();
             foreach (var bodyStatement in _body)
             {
@@ -60,9 +65,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
                     bodyStatements.Add(updatedStatement);
                 }
             }
-            _body = bodyStatements;
+            newIfStatement._body = bodyStatements;
 
-            return this;
+            return newIfStatement;
         }
     }
 }

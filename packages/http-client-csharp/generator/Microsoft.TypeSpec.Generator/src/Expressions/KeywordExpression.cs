@@ -31,12 +31,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
             var newExpression = keywordExpression.Expression?.Accept(visitor, method);
 
-            if (ReferenceEquals(newExpression, keywordExpression.Expression))
-            {
-                return keywordExpression;
-            }
-
-            return new KeywordExpression(keywordExpression.Keyword, newExpression);
+            keywordExpression.Expression = newExpression;
+            return keywordExpression;
         }
 
         public void Update(string keyword, ValueExpression? expression)

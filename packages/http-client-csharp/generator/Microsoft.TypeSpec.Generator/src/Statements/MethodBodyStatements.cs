@@ -8,7 +8,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public class MethodBodyStatements : MethodBodyStatement
     {
-        public IReadOnlyList<MethodBodyStatement> Statements { get; }
+        public IReadOnlyList<MethodBodyStatement> Statements { get; private set; }
 
         public MethodBodyStatements(IReadOnlyList<MethodBodyStatement> statements)
         {
@@ -32,26 +32,17 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             var newStatements = new List<MethodBodyStatement>(updatedStatements.Statements.Count);
-            bool hasChanges = false;
             foreach (var statement in updatedStatements.Statements)
             {
                 var updated = statement.Accept(visitor, methodProvider);
                 if (updated != null)
                 {
                     newStatements.Add(updated);
-                    if (!ReferenceEquals(updated, statement))
-                    {
-                        hasChanges = true;
-                    }
                 }
             }
 
-            if (!hasChanges && newStatements.Count == updatedStatements.Statements.Count)
-            {
-                return updatedStatements;
-            }
-
-            return new MethodBodyStatements(newStatements);
+            updatedStatements.Statements = newStatements;
+            return updatedStatements;
         }
     }
 }

@@ -35,56 +35,56 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public CSharpType? ExtensionType
         {
             get => _extensionType;
-            init => _extensionType = value;
+            internal set => _extensionType = value;
         }
         private CSharpType? _extensionType;
 
         public bool AddConfigureAwaitFalse
         {
             get => _addConfigureAwaitFalse;
-            init => _addConfigureAwaitFalse = value;
+            internal set => _addConfigureAwaitFalse = value;
         }
         private bool _addConfigureAwaitFalse;
 
         public bool CallAsAsync
         {
             get => _callAsAsync;
-            init => _callAsAsync = value;
+            internal set => _callAsAsync = value;
         }
         private bool _callAsAsync;
 
         public IReadOnlyList<CSharpType>? TypeArguments
         {
             get => _typeArguments;
-            init => _typeArguments = value;
+            internal set => _typeArguments = value;
         }
         private IReadOnlyList<CSharpType>? _typeArguments;
 
         public IReadOnlyList<ValueExpression> Arguments
         {
             get => _arguments;
-            init => _arguments = value;
+            internal set => _arguments = value;
         }
         private IReadOnlyList<ValueExpression> _arguments;
 
         public MethodSignatureBase? MethodSignature
         {
             get => _methodSignature;
-            init => _methodSignature = value;
+            internal set => _methodSignature = value;
         }
         private MethodSignatureBase? _methodSignature;
 
         public string? MethodName
         {
             get => _methodName;
-            init => _methodName = value;
+            internal set => _methodName = value;
         }
         private string? _methodName;
 
         public ValueExpression? InstanceReference
         {
             get => _instanceReference;
-            init => _instanceReference = value;
+            internal set => _instanceReference = value;
         }
         private ValueExpression? _instanceReference;
 
@@ -117,14 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             {
                 return updated?.Accept(visitor, method);
             }
-
-            bool hasChanges = !ReferenceEquals(invokeMethod, updated);
-
             var newInstanceReference = invokeMethod.InstanceReference?.Accept(visitor, method);
-            if (!ReferenceEquals(newInstanceReference, invokeMethod.InstanceReference))
-            {
-                hasChanges = true;
-            }
 
             var arguments = new List<ValueExpression>(invokeMethod.Arguments.Count);
             foreach (var argument in invokeMethod.Arguments)
@@ -133,31 +126,19 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 if (updatedArgument != null)
                 {
                     arguments.Add(updatedArgument);
-                    if (!ReferenceEquals(updatedArgument, argument))
-                    {
-                        hasChanges = true;
-                    }
                 }
             }
-            if (arguments.Count != invokeMethod.Arguments.Count)
-            {
-                hasChanges = true;
-            }
 
-            if (!hasChanges)
-            {
-                return updated;
-            }
+            invokeMethod.InstanceReference = newInstanceReference;
+            invokeMethod.Arguments = arguments;
+            invokeMethod.MethodName = invokeMethod.MethodName;
+            invokeMethod.MethodSignature = invokeMethod.MethodSignature;
+            invokeMethod.TypeArguments = invokeMethod.TypeArguments;
+            invokeMethod.CallAsAsync = invokeMethod.CallAsAsync;
+            invokeMethod.AddConfigureAwaitFalse = invokeMethod.AddConfigureAwaitFalse;
+            invokeMethod.ExtensionType = invokeMethod.ExtensionType;
 
-            return new InvokeMethodExpression(
-                newInstanceReference,
-                invokeMethod.MethodName,
-                invokeMethod.MethodSignature,
-                arguments,
-                invokeMethod.TypeArguments,
-                invokeMethod.CallAsAsync,
-                invokeMethod.AddConfigureAwaitFalse,
-                invokeMethod.ExtensionType);
+            return invokeMethod;
         }
 
         private MethodBodyStatement? _terminated;

@@ -202,6 +202,11 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
+        protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
         protected internal virtual MethodBodyStatement? VisitTryCatchFinallyStatement(TryCatchFinallyStatement statement, MethodProvider method)
         {
             return statement;
@@ -239,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator
             return expression;
         }
 
-        protected internal virtual ValueExpression? VisitVariableExpression(VariableExpression expression, MethodProvider method)
+        protected internal virtual VariableExpression VisitVariableExpression(VariableExpression expression, MethodProvider method)
         {
             return expression;
         }

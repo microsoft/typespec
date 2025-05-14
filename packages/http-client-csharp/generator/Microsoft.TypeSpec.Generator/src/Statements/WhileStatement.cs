@@ -9,14 +9,14 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public class WhileStatement : MethodBodyStatement
     {
-        public ValueExpression Condition { get; }
+        public ValueExpression Condition { get; private set; }
 
         public WhileStatement(ValueExpression condition)
         {
             Condition = condition;
         }
 
-        private readonly List<MethodBodyStatement> _body = new();
+        private List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
@@ -42,7 +42,6 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             var newCondition = updatedWhile.Condition.Accept(visitor, method);
-            bool hasChanges = !ReferenceEquals(newCondition, Condition);
 
             var newBody = new List<MethodBodyStatement>(_body.Count);
 
@@ -52,21 +51,12 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 if (updatedStatement != null)
                 {
                     newBody.Add(updatedStatement);
-                    if (!ReferenceEquals(updatedStatement, statement))
-                    {
-                        hasChanges = true;
-                    }
                 }
             }
-            if (!hasChanges && newBody.Count == _body.Count)
-            {
-                return updated;
-            }
 
-            return new WhileStatement(newCondition!)
-            {
-                newBody
-            };
+            updatedWhile._body = newBody;
+            updatedWhile.Condition = newCondition!;
+            return updatedWhile;
         }
     }
 }

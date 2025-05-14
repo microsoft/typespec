@@ -13,6 +13,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     /// <param name="Value">The value that <paramref name="Variable"/> is being assigned.</param>
     public sealed record AssignmentExpression(ValueExpression Variable, ValueExpression Value, bool UseNullCoalesce = false) : ValueExpression
     {
+        public ValueExpression Variable { get; private set; } = Variable;
+        public ValueExpression Value { get; private set; } = Value;
         internal override void Write(CodeWriter writer)
         {
             Variable.Write(writer);
@@ -42,13 +44,10 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             var newVariable = assignmentExpression.Variable.Accept(visitor, method);
             var newValue = assignmentExpression.Value.Accept(visitor, method);
 
-            if (ReferenceEquals(newVariable, assignmentExpression.Variable) &&
-                ReferenceEquals(newValue, assignmentExpression.Value))
-            {
-                return assignmentExpression;
-            }
+            assignmentExpression.Variable = newVariable!;
+            assignmentExpression.Value = newValue!;
 
-            return new AssignmentExpression(newVariable!, newValue!, assignmentExpression.UseNullCoalesce);
+            return assignmentExpression;
         }
     }
 }

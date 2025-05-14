@@ -194,7 +194,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
                 return expression;
             }
 
-            protected internal override ValueExpression VisitVariableExpression(VariableExpression expression,
+            protected internal override VariableExpression VisitVariableExpression(VariableExpression expression,
                 MethodProvider methodProvider)
             {
                 if (expression.Declaration.RequestedName == "change")

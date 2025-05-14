@@ -33,10 +33,5 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Condition.Write(writer);
             writer.WriteRawLine(");");
         }
-
-        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
-        {
-            return this;
-        }
     }
 }

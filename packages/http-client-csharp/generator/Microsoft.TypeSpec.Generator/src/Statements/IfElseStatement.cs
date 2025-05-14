@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 
@@ -35,16 +36,21 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
         {
-            var updated = visitor.VisitIfStatement(If, methodProvider);
-            if (updated is not IfStatement updatedIfStatement)
+            var updated = visitor.VisitIfElseStatement(If, methodProvider);
+            if (updated is not IfElseStatement updatedIfElseStatement)
             {
                 return updated?.Accept(visitor, methodProvider);
             }
 
-            If = updatedIfStatement;
-            Else = Else?.Accept(visitor, methodProvider);
+            var newIf = updatedIfElseStatement.If.Accept(visitor, methodProvider);
+            if (newIf is not IfStatement newIfStatement)
+            {
+                throw new InvalidOperationException("Expected an IfStatement.");
+            }
+            updatedIfElseStatement.If = newIfStatement;
+            updatedIfElseStatement.Else = updatedIfElseStatement.Else?.Accept(visitor, methodProvider);
 
-            return this;
+            return updatedIfElseStatement;
         }
     }
 }

@@ -31,12 +31,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
 
             var newInner = memberExpression.Inner?.Accept(visitor, method);
-            if (ReferenceEquals(newInner, memberExpression.Inner))
-            {
-                return memberExpression;
-            }
 
-            return new MemberExpression(newInner, memberExpression.MemberName);
+            memberExpression.Inner = newInner;
+            return memberExpression;
         }
 
         public void Update(ValueExpression? inner = null, string? memberName = null)
