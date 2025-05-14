@@ -364,7 +364,6 @@ public class JavaPackage {
         JavaFile javaFile
             = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()),
                 ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
-        this.checkDuplicateFile(javaFile.getFilePath());
         Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
         javaFiles.add(javaFile);
@@ -383,7 +382,11 @@ public class JavaPackage {
 
     protected boolean checkDuplicateFile(String filePath) {
         if (filePaths.contains(filePath)) {
-//            throw new IllegalStateException(String.format("Name conflict for output file '%1$s'.", filePath));
+            /*
+             * Originally, we want to fail the codegen if we see file of duplicate name generated.
+             * However, there is later cases that we decided to delay the decision to the function calling it.
+             * E.g. code to generate unit tests can just skip that file of duplicate name.
+             */
             logger.warn(String.format("Name conflict for output file '%1$s'.", filePath));
             return true;
         }
