@@ -24,11 +24,20 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             return visitor.VisitVariableExpression(this, method);
         }
 
-        public void Update(CSharpType type, string name, bool isRef)
+        public void Update(CSharpType? type = null, string? name = null, bool? isRef = null)
         {
-            Type = type;
-            Declaration = new CodeWriterDeclaration(name);
-            IsRef = isRef;
+            if (type != null)
+            {
+                Type = type;
+            }
+            if (name != null)
+            {
+                Declaration = new CodeWriterDeclaration(name);
+            }
+            if (isRef != null)
+            {
+                IsRef = isRef.Value;
+            }
         }
     }
 }
