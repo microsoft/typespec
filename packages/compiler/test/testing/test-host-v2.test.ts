@@ -123,6 +123,15 @@ describe("extract types", () => {
     expect(res.prop.kind).toBe("ModelProperty");
   });
 
+  it("model property in operation", async () => {
+    const res = await Tester.compile(t.code`
+      op test(
+        ${t.modelProperty("prop")}: string;
+      ): void;
+    `);
+    expect(res.prop.kind).toBe("ModelProperty");
+  });
+
   it("union variant", async () => {
     const res = await Tester.compile(t.code`
       union Bar {

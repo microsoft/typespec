@@ -1,11 +1,10 @@
 import { readFile, realpath } from "fs/promises";
 import { pathToFileURL } from "url";
-import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition } from "../core/parser.js";
+import { getIdentifierContext, getNodeAtPosition } from "../core/parser.js";
 import { getRelativePathFromDirectory, joinPaths, resolvePath } from "../core/path-utils.js";
 import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
@@ -379,13 +378,13 @@ function extractMarkedEntities(
     if (!node) {
       throw new Error(`Could not find node at ${pos}`);
     }
-    const sym = program.checker.resolveRelatedSymbols(node as any)?.[0];
-    if (sym === undefined) {
+    const { node: contextNode } = getIdentifierContext(node as any);
+    if (contextNode === undefined) {
       throw new Error(
-        `Could not find symbol for ${name} at ${pos}. File content: ${file.file.text}`,
+        `Could not find context node for ${name} at ${pos}. File content: ${file.file.text}`,
       );
     }
-    const entity = program.checker.getTypeOrValueForNode(getSymNode(sym));
+    const entity = program.checker.getTypeOrValueForNode(contextNode);
     if (entity === null) {
       throw new Error(
         `Expected ${name} to be of entity kind ${markerConfig?.entityKind} but got null (Means a value failed to resolve) at ${pos}`,

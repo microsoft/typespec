@@ -1,12 +1,12 @@
-import { LinterRuleTester, createLinterRuleTester } from "@typespec/compiler/testing";
+import { createLinterRuleTester, LinterRuleTester } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { opReferenceContainerRouteRule } from "../../src/rules/op-reference-container-route.js";
-import { createHttpTestRunner } from "../test-host.js";
+import { Tester } from "../test-host.js";
 
 describe("operation reference route container rule", () => {
   let ruleTester: LinterRuleTester;
   beforeEach(async () => {
-    const runner = await createHttpTestRunner();
+    const runner = await Tester.createInstance();
     ruleTester = createLinterRuleTester(runner, opReferenceContainerRouteRule, "@typespec/http");
   });
 
