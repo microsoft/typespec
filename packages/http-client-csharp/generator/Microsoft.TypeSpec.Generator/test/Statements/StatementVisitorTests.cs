@@ -149,6 +149,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             Assert.AreEqual("while (true)\n{\n    return 10;\n}\n", actual);
         }
 
+        [Test]
+        public void CanChangeSwitchStatement()
+        {
+            ValidateSwitchStatement("ChangeSwitchStatement");
+        }
+
+        [Test]
+        public void CanUpdateSwitchStatement()
+        {
+            ValidateSwitchStatement("UpdateSwitchStatement");
+        }
+
+        private static void ValidateSwitchStatement(string methodName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var type = new TestTypeProvider();
+
+            var switchStatement = new SwitchStatement(new VariableExpression(typeof(string), "foo"));
+            var method = new MethodProvider(
+                new MethodSignature(methodName, $"", MethodSignatureModifiers.Public, typeof(int), $"", []),
+                new MethodBodyStatement[]
+                {
+                    switchStatement
+                },
+                type);
+            var visitor = new TestLibraryVisitor();
+            var updatedMethod = method.Accept(visitor);
+            Assert.IsNotNull(updatedMethod);
+            var actual = updatedMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual("switch (updatedVar)\n{\n    case 100:\n        return true;\n    case 200:\n        return false;\n}\n", actual);
+        }
+
         private class TestLibraryVisitor : LibraryVisitor
         {
             protected internal override MethodBodyStatement VisitIfElseStatement(
@@ -249,6 +281,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                         {
                             Return(Literal(10))
                         });
+                }
+
+                return statement;
+            }
+
+            protected internal override MethodBodyStatement VisitSwitchStatement(
+                SwitchStatement statement,
+                MethodProvider methodProvider)
+            {
+                if (methodProvider.Signature.Name == "ChangeSwitchStatement")
+                {
+                    return new SwitchStatement(
+                        new VariableExpression(typeof(bool), "updatedVar"),
+                        new SwitchCaseStatement[]
+                        {
+                            new SwitchCaseStatement(
+                                Literal(100),
+                                Return(True)),
+                            new SwitchCaseStatement(
+                                Literal(200),
+                                Return(False))
+                        });
+                }
+
+                if (methodProvider.Signature.Name == "UpdateSwitchStatement")
+                {
+                    statement.Update(
+                        matchExpression: new VariableExpression(typeof(bool), "updatedVar"),
+                        cases: [new SwitchCaseStatement(
+                            Literal(100),
+                            Return(True)),
+                        new SwitchCaseStatement(
+                            Literal(200),
+                            Return(False))]);
                 }
 
                 return statement;

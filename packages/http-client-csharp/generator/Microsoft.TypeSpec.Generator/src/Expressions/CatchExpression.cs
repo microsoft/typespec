@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         private List<MethodBodyStatement> _body = [];
         public ValueExpression? Exception { get; }
-        public IReadOnlyList<MethodBodyStatement> Body => _body;
+        public MethodBodyStatement Body => _body;
         public CatchExpression(ValueExpression? exception, params MethodBodyStatement[] statements)
         {
             Exception = exception;
@@ -58,6 +58,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             updated._body = newBody;
 
             return updated;
+        }
+
+        public void Update(MethodBodyStatement body)
+        {
+            _body.Clear();
+            _body.Add(body);
         }
     }
 }

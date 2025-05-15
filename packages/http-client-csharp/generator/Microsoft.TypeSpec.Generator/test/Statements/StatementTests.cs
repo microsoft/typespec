@@ -317,7 +317,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void TryStatementWithOneLineBody()
         {
             var tryStatement = new TryExpression(Return(True));
-            Assert.AreEqual(1, tryStatement.Body.Count);
+            Assert.AreEqual(1, tryStatement.Body.Count());
         }
 
         [Test]
@@ -328,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
             );
-            Assert.AreEqual(2, tryStatement.Body.Count);
+            Assert.AreEqual(2, tryStatement.Body.Count());
         }
 
         [Test]
@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void CatchStatementWithOneLineBody()
         {
             var catchStatement = new CatchExpression(null, Return(True));
-            Assert.AreEqual(1, catchStatement.Body.Count);
+            Assert.AreEqual(1, catchStatement.Body.Count());
         }
 
         [Test]
@@ -352,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 null,
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True));
-            Assert.AreEqual(2, catchStatement.Body.Count);
+            Assert.AreEqual(2, catchStatement.Body.Count());
         }
 
         [Test]
@@ -366,7 +366,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void FinallyStatementWithOneLineBody()
         {
             var finallyStatement = new FinallyExpression(Return(True));
-            Assert.AreEqual(1, finallyStatement.Body.Count);
+            Assert.AreEqual(1, finallyStatement.Body.Count());
         }
 
         [Test]
@@ -377,7 +377,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 Declare(new VariableExpression(typeof(int), "foo"), Literal(5)),
                 Return(True)
             );
-            Assert.AreEqual(2, finallyStatement.Body.Count);
+            Assert.AreEqual(2, finallyStatement.Body.Count());
         }
 
 

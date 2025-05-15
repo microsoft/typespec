@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 
@@ -10,7 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class SwitchStatement : MethodBodyStatement
     {
-        public ValueExpression MatchExpression { get; }
+        public ValueExpression MatchExpression { get; private set; }
 
         public SwitchStatement(ValueExpression matchExpression)
         {
@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _cases.AddRange(cases);
         }
 
-        private readonly List<SwitchCaseStatement> _cases = new();
+        private List<SwitchCaseStatement> _cases = new();
         public IReadOnlyList<SwitchCaseStatement> Cases => _cases;
 
         public void Add(SwitchCaseStatement statement) => _cases.Add(statement);
@@ -39,6 +39,44 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 {
                     switchCase.Write(writer);
                 }
+            }
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var updated = visitor.VisitSwitchStatement(this, method);
+
+            if (updated is not SwitchStatement switchStatement)
+            {
+                return updated?.Accept(visitor, method);
+            }
+
+            var updatedCases = new List<SwitchCaseStatement>(switchStatement.Cases.Count);
+            foreach (var switchCase in switchStatement.Cases)
+            {
+                var updatedCase = switchCase.Accept(visitor, method);
+                if (updatedCase != null)
+                {
+                    updatedCases.Add(updatedCase);
+                }
+            }
+
+            switchStatement._cases = updatedCases;
+            return switchStatement;
+        }
+
+        public void Update(
+            ValueExpression? matchExpression = null,
+            IEnumerable<SwitchCaseStatement>? cases = null)
+        {
+            if (matchExpression != null)
+            {
+                MatchExpression = matchExpression;
+            }
+
+            if (cases != null)
+            {
+                _cases = cases.ToList();
             }
         }
     }

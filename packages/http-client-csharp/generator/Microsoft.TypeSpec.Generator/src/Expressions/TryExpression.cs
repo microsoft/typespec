@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     public sealed record TryExpression : ValueExpression
     {
         private List<MethodBodyStatement> _body = [];
-        public IReadOnlyList<MethodBodyStatement> Body => _body;
+        public MethodBodyStatement Body => _body;
 
         public TryExpression(params MethodBodyStatement[] statements)
         {
@@ -49,6 +49,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             updated._body = newBody;
 
             return updated;
+        }
+
+        public void Update(MethodBodyStatement body)
+        {
+            _body.Clear();
+            _body.Add(body);
         }
     }
 }

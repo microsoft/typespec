@@ -227,6 +227,16 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
+        protected internal virtual MethodBodyStatement? VisitSwitchStatement(SwitchStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual SwitchCaseStatement? VisitSwitchCaseStatement(SwitchCaseStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
         protected internal virtual MethodBodyStatement? VisitXmlDocInheritStatement(XmlDocInheritStatement statement, MethodProvider method)
         {
             return statement;
