@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                     newBody.Add(updatedStatement);
                 }
             }
-            _body = newBody;
+            updated._body = newBody;
 
             return updated;
         }

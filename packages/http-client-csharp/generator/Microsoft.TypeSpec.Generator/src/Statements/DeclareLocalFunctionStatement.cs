@@ -61,10 +61,5 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 throw new InvalidOperationException($"{nameof(DeclareLocalFunctionStatement)}.{nameof(BodyExpression)} and {nameof(DeclareLocalFunctionStatement)}.{nameof(BodyStatement)} can't both be null.");
             }
         }
-
-        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
-        {
-            return this;
-        }
     }
 }

@@ -58,5 +58,19 @@ namespace Microsoft.TypeSpec.Generator.Statements
             updatedWhile.Condition = newCondition!;
             return updatedWhile;
         }
+
+        public void Update(ValueExpression? condition = null, MethodBodyStatement? body = null)
+        {
+            if (condition != null)
+            {
+                Condition = condition;
+            }
+
+            if (body != null)
+            {
+                _body.Clear();
+                _body.Add(body);
+            }
+        }
     }
 }

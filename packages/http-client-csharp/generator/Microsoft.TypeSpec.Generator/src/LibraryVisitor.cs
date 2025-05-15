@@ -212,6 +212,16 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
+        protected internal virtual MethodBodyStatement? VisitForStatement(ForStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitForEachStatement(ForEachStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
         protected internal virtual MethodBodyStatement? VisitWhileStatement(WhileStatement statement, MethodProvider method)
         {
             return statement;

@@ -52,5 +52,17 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
             return updatedIfElseStatement;
         }
+
+        public void Update(IfStatement? ifStatement, MethodBodyStatement? elseStatement)
+        {
+            if (ifStatement != null)
+            {
+                If = ifStatement;
+            }
+            if (elseStatement != null)
+            {
+                Else = elseStatement;
+            }
+        }
     }
 }

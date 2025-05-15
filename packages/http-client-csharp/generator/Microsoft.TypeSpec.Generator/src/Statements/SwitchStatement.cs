@@ -41,10 +41,5 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 }
             }
         }
-
-        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
-        {
-            return this;
-        }
     }
 }

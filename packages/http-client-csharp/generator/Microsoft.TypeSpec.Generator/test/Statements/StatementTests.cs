@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var itemName = "item";
             var enumerable = ValueExpression.Empty;
 
-            var foreachStatement = new ForeachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
+            var foreachStatement = new ForEachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
 
             Assert.NotNull(foreachStatement);
             Assert.AreEqual(itemType, foreachStatement.ItemType);
@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         [Test]
         public void ForeachStatementWithAddMethod()
         {
-            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
+            var foreachStatement = new ForEachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
             var statementToAdd = MethodBodyStatement.Empty;
 
             foreachStatement.Add(statementToAdd);

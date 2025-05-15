@@ -9,9 +9,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class IfStatement : MethodBodyStatement
     {
-        public ValueExpression Condition { get; set; }
-        public bool Inline { get; }
-        public bool AddBraces { get; }
+        public ValueExpression Condition { get; private set; }
+        public bool Inline { get; private set; }
+        public bool AddBraces { get; private set; }
 
         public IfStatement(ValueExpression condition, bool inline = false, bool addBraces = true)
         {
@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
 
             var bodyStatements = new List<MethodBodyStatement>();
-            foreach (var bodyStatement in _body)
+            foreach (var bodyStatement in newIfStatement.Body)
             {
                 var updatedStatement = bodyStatement.Accept(visitor, method);
                 if (updatedStatement != null)
@@ -68,6 +68,31 @@ namespace Microsoft.TypeSpec.Generator.Statements
             newIfStatement._body = bodyStatements;
 
             return newIfStatement;
+        }
+
+        public void Update(
+            ValueExpression? condition = null,
+            bool? inline = null,
+            bool? addBraces = null,
+            MethodBodyStatement? body = null)
+        {
+            if (condition != null)
+            {
+                Condition = condition;
+            }
+            if (inline != null)
+            {
+                Inline = inline.Value;
+            }
+            if (addBraces != null)
+            {
+                AddBraces = addBraces.Value;
+            }
+            if (body != null)
+            {
+                _body.Clear();
+                _body.Add(body);
+            }
         }
     }
 }

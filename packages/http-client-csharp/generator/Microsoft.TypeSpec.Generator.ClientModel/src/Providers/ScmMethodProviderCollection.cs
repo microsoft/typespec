@@ -250,7 +250,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
                             .Add(GetElementConversion(elementType, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -271,7 +271,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
                             .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
