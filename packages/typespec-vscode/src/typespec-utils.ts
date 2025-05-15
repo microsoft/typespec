@@ -1,3 +1,5 @@
+import { SourceLocation } from "@typespec/compiler";
+import { ServerDiagnostic } from "@typespec/compiler/internals";
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
@@ -54,6 +56,25 @@ export async function TraverseMainTspFileInWorkspace() {
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
         .map((uri) => normalizeSlashes(uri.fsPath)),
     );
+}
+
+export function formatDiagnostic(diagnostic: ServerDiagnostic): string {
+  const code = diagnostic.code ? ` ${diagnostic.code}` : "";
+  const content = code ? `${code}: ${diagnostic.message}` : diagnostic.message;
+  const root = diagnostic.target as SourceLocation & {
+    position?: { line: number; column: number };
+  };
+  if (root && root.file) {
+    const path = root.file.path;
+    const pos = root.pos ?? 0;
+    const formattedLocation = root.position
+      ? `${path}:${root.position.line}:${root.position.column}`
+      : `${path}:${pos}`;
+
+    return `${formattedLocation} - ${content}`;
+  } else {
+    return content;
+  }
 }
 
 /**
