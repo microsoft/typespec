@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/typescript": "^0.16.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
     "prettier": "~3.5.3"

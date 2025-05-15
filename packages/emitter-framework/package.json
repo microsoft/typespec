@@ -32,7 +32,7 @@
   "description": "",
   "peerDependencies": {
     "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/typescript": "^0.16.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
@@ -41,7 +41,7 @@
     "@alloy-js/cli": "^0.15.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/typescript": "^0.16.0",
     "@types/minimist": "^1.2.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
