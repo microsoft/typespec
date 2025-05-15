@@ -144,6 +144,13 @@ class JinjaSerializer(ReaderAndWriter):
                         self._serialize_and_write_sample(env, namespace=client_namespace)
                     if self.code_model.options["generate_test"]:
                         self._serialize_and_write_test(env, namespace=client_namespace)
+
+                # add _metadata.json
+                if self.code_model.metadata:
+                    self.write_file(
+                        exec_path / Path("_metadata.json"),
+                        json.dumps(self.code_model.metadata, indent=2),
+                    )
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
@@ -462,10 +469,6 @@ class JinjaSerializer(ReaderAndWriter):
                 exec_path / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
-
-        # write _metadata.json
-        if self.code_model.metadata:
-            self.write_file(exec_path / Path("_metadata.json"), json.dumps(self.code_model.metadata, indent=2))
 
     def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
         metadata_serializer = MetadataSerializer(self.code_model, env, client_namespace=namespace)
