@@ -1,0 +1,28 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "payload.multipart.Address": "Payload.MultiPart.Address",
+    "payload.multipart.BinaryArrayPartsRequest": "Payload.MultiPart.BinaryArrayPartsRequest",
+    "payload.multipart.ComplexHttpPartsModelRequest": "Payload.MultiPart.ComplexHttpPartsModelRequest",
+    "payload.multipart.ComplexPartsRequest": "Payload.MultiPart.ComplexPartsRequest",
+    "payload.multipart.FileOptionalContentType": "Payload.MultiPart.FileOptionalContentType",
+    "payload.multipart.FileRequiredMetaData": "Payload.MultiPart.FileRequiredMetaData",
+    "payload.multipart.FileSpecificContentType": "Payload.MultiPart.FileSpecificContentType",
+    "payload.multipart.FileWithHttpPartOptionalContentTypeRequest": "Payload.MultiPart.FileWithHttpPartOptionalContentTypeRequest",
+    "payload.multipart.FileWithHttpPartRequiredContentTypeRequest": "Payload.MultiPart.FileWithHttpPartRequiredContentTypeRequest",
+    "payload.multipart.FileWithHttpPartSpecificContentTypeRequest": "Payload.MultiPart.FileWithHttpPartSpecificContentTypeRequest",
+    "payload.multipart.FormDataClient": "Payload.MultiPart.FormData",
+    "payload.multipart.FormDataHttpPartsClient": "Payload.MultiPart.FormData.HttpParts",
+    "payload.multipart.FormDataHttpPartsContentTypeClient": "Payload.MultiPart.FormData.HttpParts.ContentType",
+    "payload.multipart.FormDataHttpPartsNonStringClient": "Payload.MultiPart.FormData.HttpParts.NonString",
+    "payload.multipart.JsonPartRequest": "Payload.MultiPart.JsonPartRequest",
+    "payload.multipart.MultiBinaryPartsRequest": "Payload.MultiPart.MultiBinaryPartsRequest",
+    "payload.multipart.MultiPartClientBuilder": "Payload.MultiPart",
+    "payload.multipart.MultiPartRequest": "Payload.MultiPart.MultiPartRequest",
+    "payload.multipart.PictureFileDetails": null,
+    "payload.multipart.PicturesFileDetails": null,
+    "payload.multipart.ProfileImageFileDetails": null,
+    "payload.multipart.formdata.AnonymousModelRequest": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
+    "payload.multipart.formdata.httpparts.nonstring.FloatRequest": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous"
+  }
+}

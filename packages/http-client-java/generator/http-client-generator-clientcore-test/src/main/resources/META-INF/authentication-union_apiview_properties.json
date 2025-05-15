@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "authentication.union.UnionClient": "Authentication.Union",
+    "authentication.union.UnionClientBuilder": "Authentication.Union"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "authentication.apikey.ApiKeyClient": "Authentication.ApiKey",
+    "authentication.apikey.ApiKeyClientBuilder": "Authentication.ApiKey",
+    "authentication.apikey.InvalidAuth": "Authentication.ApiKey.InvalidAuth"
+  }
+}

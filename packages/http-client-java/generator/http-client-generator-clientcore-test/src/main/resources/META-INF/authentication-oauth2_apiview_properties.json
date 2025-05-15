@@ -1,0 +1,8 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "authentication.oauth2.InvalidAuth": "Authentication.OAuth2.InvalidAuth",
+    "authentication.oauth2.OAuth2Client": "Authentication.OAuth2",
+    "authentication.oauth2.OAuth2ClientBuilder": "Authentication.OAuth2"
+  }
+}

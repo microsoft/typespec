@@ -1,0 +1,7 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "specialheaders.repeatability.RepeatabilityClient": "SpecialHeaders.Repeatability",
+    "specialheaders.repeatability.RepeatabilityClientBuilder": "SpecialHeaders.Repeatability"
+  }
+}
