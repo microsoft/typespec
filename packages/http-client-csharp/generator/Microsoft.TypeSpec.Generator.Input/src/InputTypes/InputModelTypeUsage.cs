@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         Json = 256,
         Xml = 512,
         Exception = 1024,
-        LroInitializer = 2048,
+        LroInitial = 2048,
         LroFinalEnvelope = 4096,
     }
 }
