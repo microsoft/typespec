@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,8 +90,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         FluentJavaPackage javaPackage = handleTemplate(client);
         handleFluentLite(codeModel, client, javaPackage, apiVersion);
 
-        TypeSpecMetadata metadata
-            = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(), apiVersion, null);
+        TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
+            apiVersion, collectCrossLanguageDefinitions(client));
         javaPackage.addTypeSpecMetadata(metadata);
 
         return javaPackage;
@@ -187,5 +189,53 @@ public class TypeSpecFluentPlugin extends FluentGen {
                 LOGGER.info(log);
                 break;
         }
+    }
+
+    private Map<String, String> collectCrossLanguageDefinitions(Client client) {
+        if (!JavaSettings.getInstance().isFluentLite()) {
+            return null;
+        }
+
+        final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
+
+        String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();
+
+        // Client interface
+        crossLanguageDefinitionsMap.put(interfacePackage + "." + client.getServiceClient().getInterfaceName(),
+            client.getServiceClient().getCrossLanguageDefinitionId());
+
+        client.getServiceClient()
+            .getMethodGroupClients()
+            .forEach(methodGroupClient -> crossLanguageDefinitionsMap.put(
+                interfacePackage + "." + methodGroupClient.getInterfaceName(),
+                methodGroupClient.getCrossLanguageDefinitionId()));
+
+        client.getClientBuilders()
+            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
+                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
+                clientBuilder.getCrossLanguageDefinitionId()));
+
+        // Methods
+        client.getServiceClient()
+            .getMethodGroupClients()
+            .forEach(methodGroupClient -> methodGroupClient.getClientMethods().forEach(method -> {
+                crossLanguageDefinitionsMap.put(
+                    interfacePackage + "." + methodGroupClient.getInterfaceName() + "." + method.getName(),
+                    method.getCrossLanguageDefinitionId());
+            }));
+
+        // Client model
+        client.getModels().forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        // Enum
+        client.getEnums().forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        return crossLanguageDefinitionsMap;
     }
 }

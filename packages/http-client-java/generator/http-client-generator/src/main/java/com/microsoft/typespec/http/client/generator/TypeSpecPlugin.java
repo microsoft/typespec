@@ -341,7 +341,7 @@ public class TypeSpecPlugin extends Javagen {
     private Map<String, String> collectCrossLanguageDefinitions(Client client) {
         final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
 
-        // client
+        // Client
         client.getAsyncClients()
             .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
                 asyncClient.getPackageName() + "." + asyncClient.getClassName(),
@@ -357,7 +357,7 @@ public class TypeSpecPlugin extends Javagen {
                 clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
                 clientBuilder.getCrossLanguageDefinitionId()));
 
-        // method
+        // Method
         for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
             List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
             for (ConvenienceMethod convenienceMethod : convenienceMethods) {
