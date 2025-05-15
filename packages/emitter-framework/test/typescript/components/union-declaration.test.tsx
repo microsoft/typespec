@@ -18,7 +18,6 @@ describe("Typescript Union Declaration", () => {
   });
 
   describe("Union not bound to Typespec Types", () => {
-    // TODO: clean up this test
     it("creates a union declaration", async () => {
       await runner.compile(``);
       const res = render(
