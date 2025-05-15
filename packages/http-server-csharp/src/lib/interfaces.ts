@@ -102,6 +102,71 @@ export function checkOrAddNamespaceToScope(
   }
 }
 
+export enum CollectionType {
+  ISet = "ISet",
+  ICollection = "ICollection",
+  IEnumerable = "IEnumerable",
+  Array = "[]",
+}
+
+export function resolveCollectionType(option?: string): CollectionType {
+  switch (option) {
+    case "enumerable":
+      return CollectionType.IEnumerable;
+    case "array":
+    default:
+      return CollectionType.Array;
+  }
+}
+
+export class CSharpCollectionType extends CSharpType {
+  collectionType: CollectionType;
+  itemTypeName: string;
+
+  static readonly implementationType: Record<CollectionType, string> = {
+    [CollectionType.ISet]: "HashSet",
+    [CollectionType.ICollection]: "List",
+    [CollectionType.IEnumerable]: "List",
+    [CollectionType.Array]: "[]",
+  };
+
+  public constructor(
+    csharpType: {
+      name: string;
+      namespace: string;
+      isBuiltIn?: boolean;
+      isValueType?: boolean;
+      isNullable?: boolean;
+      isClass?: boolean;
+      isCollection?: boolean;
+    },
+    collectionType: CollectionType,
+    itemTypeName: string,
+  ) {
+    super(csharpType);
+    this.collectionType = collectionType;
+    this.itemTypeName = itemTypeName;
+  }
+
+  public getTypeReference(scope?: Scope<string> | undefined): string {
+    if (this.isNamespaceInScope(scope)) {
+      return this.name;
+    }
+    return `${this.collectionType}<${this.namespace}.${this.itemTypeName}>`;
+  }
+
+  public getImplementationType(): string {
+    switch (this.collectionType) {
+      case CollectionType.ISet:
+      case CollectionType.ICollection:
+      case CollectionType.IEnumerable:
+        return `new ${CSharpCollectionType.implementationType[this.collectionType]}<${this.itemTypeName}>()`;
+      default:
+        return `[]`;
+    }
+  }
+}
+
 export abstract class CSharpValue {
   value?: any;
   public abstract emitValue(scope?: Scope<string>): string;

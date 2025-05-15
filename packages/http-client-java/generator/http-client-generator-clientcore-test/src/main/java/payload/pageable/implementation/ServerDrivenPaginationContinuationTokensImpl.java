@@ -1,20 +1,24 @@
 package payload.pageable.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
+import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.PagedIterable;
-import io.clientcore.core.http.models.PagedResponse;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.http.paging.PagedResponse;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.utils.UriBuilder;
+import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderResponseBodyResponse;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestQueryResponseBodyResponse;
@@ -50,126 +54,113 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
+        static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("payload.pageable.implementation.ServerDrivenPaginationContinuationTokensServiceImpl");
+                return (ServerDrivenPaginationContinuationTokensService) clazz
+                    .getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseBodyResponse> requestQueryResponseBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(@HostParam("endpoint") String endpoint,
+            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBodySync(
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeaderSync(
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(@HostParam("endpoint") String endpoint,
+            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeaderSync(
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(
+            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
+            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
     }
 
     /**
      * The requestQueryResponseBody operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     nextToken: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> requestQueryResponseBodySinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryResponseBodySinglePage(String token, String foo, String bar) {
+        final String accept = "application/json";
+        Response<RequestQueryResponseBodyResponse> res = service.requestQueryResponseBody(this.client.getEndpoint(),
+            token, foo, bar, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getValue().getNextToken(), null, null, null, null);
+    }
+
+    /**
+     * The requestQueryResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryResponseBodySinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
         final String accept = "application/json";
         Response<RequestQueryResponseBodyResponse> res
-            = service.requestQueryResponseBodySync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), res.getValue().getNextToken(), null, null, null, null);
+            = service.requestQueryResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getValue().getNextToken(), null, null, null, null);
     }
 
     /**
      * The requestQueryResponseBody operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     nextToken: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<Pet> requestQueryResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(pagingOptions -> {
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
@@ -182,102 +173,128 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
             }
-            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-            if (pagingOptions.getContinuationToken() != null) {
-                requestOptionsLocal.addRequestCallback(requestLocal -> {
-                    UriBuilder urlBuilder = UriBuilder.parse(requestLocal.getUri());
-                    urlBuilder.setQueryParameter("token", String.valueOf(pagingOptions.getContinuationToken()));
-                    requestLocal.setUri(urlBuilder.toString());
-                });
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryResponseBody operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
             }
-            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseBodySinglePage(token, foo, bar, requestContext);
         });
     }
 
     /**
      * The requestHeaderResponseBody operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     nextToken: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> requestHeaderResponseBodySinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderResponseBodySinglePage(String token, String foo, String bar) {
         final String accept = "application/json";
-        Response<RequestHeaderResponseBodyResponse> res
-            = service.requestHeaderResponseBodySync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), res.getValue().getNextToken(), null, null, null, null);
+        Response<RequestHeaderResponseBodyResponse> res = service.requestHeaderResponseBody(this.client.getEndpoint(),
+            token, foo, bar, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getValue().getNextToken(), null, null, null, null);
     }
 
     /**
      * The requestHeaderResponseBody operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     nextToken: String (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<Pet> requestHeaderResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(pagingOptions -> {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderResponseBodySinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<RequestHeaderResponseBodyResponse> res
+            = service.requestHeaderResponseBody(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getValue().getNextToken(), null, null, null, null);
+    }
+
+    /**
+     * The requestHeaderResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
@@ -290,98 +307,128 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
             }
-            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-            if (pagingOptions.getContinuationToken() != null) {
-                requestOptionsLocal.setHeader(HttpHeaderName.fromString("token"),
-                    String.valueOf(pagingOptions.getContinuationToken()));
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestHeaderResponseBody operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
             }
-            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestHeaderResponseBody operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseBodySinglePage(token, foo, bar, requestContext);
         });
     }
 
     /**
      * The requestQueryResponseHeader operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> requestQueryResponseHeaderSinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryResponseHeaderSinglePage(String token, String foo, String bar) {
         final String accept = "application/json";
-        Response<RequestQueryResponseHeaderResponse> res
-            = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null,
-            null, null);
+        Response<RequestQueryResponseHeaderResponse> res = service.requestQueryResponseHeader(this.client.getEndpoint(),
+            token, foo, bar, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
     }
 
     /**
      * The requestQueryResponseHeader operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<Pet> requestQueryResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(pagingOptions -> {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestQueryResponseHeaderSinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<RequestQueryResponseHeaderResponse> res
+            = service.requestQueryResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
@@ -394,101 +441,128 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
             }
-            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-            if (pagingOptions.getContinuationToken() != null) {
-                requestOptionsLocal.addRequestCallback(requestLocal -> {
-                    UriBuilder urlBuilder = UriBuilder.parse(requestLocal.getUri());
-                    urlBuilder.setQueryParameter("token", String.valueOf(pagingOptions.getContinuationToken()));
-                    requestLocal.setUri(urlBuilder.toString());
-                });
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseHeaderSinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader() {
+        final String foo = null;
+        final String bar = null;
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
             }
-            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseHeaderSinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryResponseHeader operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseHeaderSinglePage(token, foo, bar, requestContext);
         });
     }
 
     /**
      * The requestHeaderResponseHeader operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    private PagedResponse<Pet> requestHeaderResponseHeaderSinglePage(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderResponseHeaderSinglePage(String token, String foo, String bar) {
         final String accept = "application/json";
-        Response<RequestHeaderResponseHeaderResponse> res
-            = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions);
-        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null,
-            null, null);
+        Response<RequestHeaderResponseHeaderResponse> res = service
+            .requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, RequestContext.none());
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
     }
 
     /**
      * The requestHeaderResponseHeader operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public PagedIterable<Pet> requestHeaderResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(pagingOptions -> {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<Pet> requestHeaderResponseHeaderSinglePage(String token, String foo, String bar,
+        RequestContext requestContext) {
+        final String accept = "application/json";
+        Response<RequestHeaderResponseHeaderResponse> res
+            = service.requestHeaderResponseHeader(this.client.getEndpoint(), token, foo, bar, accept, requestContext);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
+            res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null, null, null);
+    }
+
+    /**
+     * The requestHeaderResponseHeader operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
+        return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
@@ -501,12 +575,69 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
                 throw LOGGER.logThrowableAsError(new IllegalArgumentException(
                     "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
             }
-            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
-            if (pagingOptions.getContinuationToken() != null) {
-                requestOptionsLocal.setHeader(HttpHeaderName.fromString("token"),
-                    String.valueOf(pagingOptions.getContinuationToken()));
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseHeaderSinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestHeaderResponseHeader operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseHeader() {
+        final String foo = null;
+        final String bar = null;
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
             }
-            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseHeaderSinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestHeaderResponseHeader operation.
+     * 
+     * @param token The token parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
+                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestHeaderResponseHeaderSinglePage(token, foo, bar, requestContext);
         });
     }
 

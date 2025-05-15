@@ -23,26 +23,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
 
         private static object[] ValidateTypes(bool isExtensible)
         {
-            var intValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.Int32("One", 1),
-                InputFactory.EnumMember.Int32("Two", 2)
-            };
-            var intType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: isExtensible, values: intValues);
+            var intType = InputFactory.Int32Enum(
+                "mockInputEnum",
+                [ ("One", 1), ("Two", 2)],
+                isExtensible: isExtensible);
 
-            var floatValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.Float32("One", 1f),
-                InputFactory.EnumMember.Float32("Two", 2f)
-            };
-            var floatType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: isExtensible, values: floatValues);
+            var floatType = InputFactory.Float32Enum(
+                "mockInputEnum",
+                [ ("One", 1f), ("Two", 2f)],
+                isExtensible: isExtensible);
 
-            var stringValues = new List<InputEnumTypeValue>
-            {
-                InputFactory.EnumMember.String("One", "1"),
-                InputFactory.EnumMember.String("Two", "2")
-            };
-            var stringType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: isExtensible, values: stringValues);
+            var stringType = InputFactory.StringEnum(
+                "mockInputEnum",
+                [ ("One", "1"), ("Two", "2")],
+                isExtensible: isExtensible);
 
             return [intType, floatType, stringType];
         }

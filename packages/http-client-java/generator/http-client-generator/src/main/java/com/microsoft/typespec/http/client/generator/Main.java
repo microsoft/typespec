@@ -92,7 +92,7 @@ public class Main {
 
             // ensure the process exits as expected
             System.exit(0);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Unhandled error.", e);
             System.exit(1);
         }
@@ -173,7 +173,7 @@ public class Main {
             .forEach(textFile -> typeSpecPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
         // resources
         String artifactId = ClientModelUtil.getArtifactId();
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
                 typeSpecPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
                     "name=${project.artifactId}\nversion=${project.version}\n", null);

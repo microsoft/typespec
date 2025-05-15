@@ -6,16 +6,16 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 public class MethodPollingDetails {
     private final String pollingStrategy;
     private final String syncPollingStrategy;
-    private final IType intermediateType;
-    private final IType finalType;
+    private final IType pollResultType;
+    private final IType finalResultType;
     private final int pollIntervalInSeconds;
 
-    public MethodPollingDetails(String pollingStrategy, String syncPollingStrategy, IType intermediateType,
-        IType finalType, int pollIntervalInSeconds) {
+    public MethodPollingDetails(String pollingStrategy, String syncPollingStrategy, IType pollResultType,
+        IType finalResultType, int pollIntervalInSeconds) {
         this.pollingStrategy = pollingStrategy;
         this.syncPollingStrategy = syncPollingStrategy;
-        this.intermediateType = intermediateType;
-        this.finalType = finalType;
+        this.pollResultType = pollResultType;
+        this.finalResultType = finalResultType;
         this.pollIntervalInSeconds = pollIntervalInSeconds;
     }
 
@@ -27,12 +27,12 @@ public class MethodPollingDetails {
         return syncPollingStrategy;
     }
 
-    public IType getIntermediateType() {
-        return intermediateType;
+    public IType getPollResultType() {
+        return pollResultType;
     }
 
-    public IType getFinalType() {
-        return finalType;
+    public IType getFinalResultType() {
+        return finalResultType;
     }
 
     public int getPollIntervalInSeconds() {

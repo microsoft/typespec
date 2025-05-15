@@ -64,7 +64,15 @@ export function JsonTransformDiscriminatorDeclaration(
   props: JsonTransformDiscriminatorDeclarationProps,
 ) {
   const { $ } = useTsp();
-  const discriminator = $.type.getDiscriminator(props.type);
+  let discriminator: Discriminator | undefined;
+  if ($.model.is(props.type)) {
+    discriminator = $.model.getDiscriminatedUnion(props.type);
+  } else {
+    const discriminatedUnion = $.union.getDiscriminatedUnion(props.type);
+    if (discriminatedUnion?.options.discriminatorPropertyName) {
+      discriminator = { propertyName: discriminatedUnion.options.discriminatorPropertyName };
+    }
+  }
   if (!discriminator) {
     return null;
   }

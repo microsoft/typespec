@@ -12,37 +12,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
     {
         public static class EnumMember
         {
-            public static InputEnumTypeValue Int32(string name, int value)
+            public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, enumType, "", $"{name} description");
             }
 
-            public static InputEnumTypeValue Float32(string name, float value)
+            public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, enumType, "", $"{name} description");
             }
 
-            public static InputEnumTypeValue String(string name, string value)
+            public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, enumType, "", $"{name} description");
             }
         }
 
         public static class Literal
         {
-            public static InputLiteralType String(string value)
+            public static InputLiteralType String(string value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(InputPrimitiveType.String, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.String, value);
             }
 
-            public static InputLiteralType Any(object value)
+            public static InputLiteralType Int32(int value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(InputPrimitiveType.Any, value);
-            }
-
-            public static InputLiteralType Enum(InputEnumType enumType, object value)
-            {
-                return new InputLiteralType(enumType, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
         }
 
@@ -107,27 +102,106 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string name,
             IEnumerable<InputModelType>? models = null,
             IEnumerable<InputEnumType>? enums = null,
-            IEnumerable<InputClient>? clients = null)
+            IEnumerable<InputClient>? clients = null,
+            IEnumerable<InputLiteralType>? constants = null)
         {
             return new InputNamespace(
                 name,
                 [],
+                constants is null ? [] : [.. constants],
                 enums is null ? [] : [.. enums],
                 models is null ? [] : [.. models],
                 clients is null ? [] : [.. clients],
                 new InputAuth());
         }
 
-        public static InputEnumType Enum(
+        public static InputEnumType StringEnum(
             string name,
-            InputPrimitiveType underlyingType,
+            IEnumerable<(string Name, string Value)> values,
             string access = "public",
-            InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
-            IEnumerable<InputEnumTypeValue>? values = null,
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
             string clientNamespace = "Sample.Models")
         {
-            return new InputEnumType(
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.String,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.String(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Int32Enum(
+            string name,
+            IEnumerable<(string Name, int Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Int32,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Int32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Float32Enum(
+            string name,
+            IEnumerable<(string Name, float Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Float32,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Float32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        private static InputEnumType Enum(
+            string name,
+            InputPrimitiveType underlyingType,
+            IReadOnlyList<InputEnumTypeValue> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
+            => new InputEnumType(
                 name,
                 clientNamespace,
                 name,
@@ -137,9 +211,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 $"{name} description",
                 usage,
                 underlyingType,
-                values is null ? [new InputEnumTypeValue("Value", 1, InputPrimitiveType.Int32, "", "Value description")] : [.. values],
+                values,
                 isExtensible);
-        }
 
         public static InputModelProperty Property(
             string name,

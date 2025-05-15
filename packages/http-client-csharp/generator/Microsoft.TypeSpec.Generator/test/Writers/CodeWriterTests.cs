@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         public CodeWriterTests()
         {
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
         }
 
         [Test]

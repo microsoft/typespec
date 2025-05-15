@@ -2,12 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "encode.numeric.NumericClient": "Encode.Numeric.Property",
-    "encode.numeric.NumericClient.safeintAsString": "Encode.Numeric.Property.safeintAsString",
-    "encode.numeric.NumericClient.safeintAsStringWithResponse": "Encode.Numeric.Property.safeintAsString",
-    "encode.numeric.NumericClient.uint32AsStringOptional": "Encode.Numeric.Property.uint32AsStringOptional",
-    "encode.numeric.NumericClient.uint32AsStringOptionalWithResponse": "Encode.Numeric.Property.uint32AsStringOptional",
-    "encode.numeric.NumericClient.uint8AsString": "Encode.Numeric.Property.uint8AsString",
-    "encode.numeric.NumericClient.uint8AsStringWithResponse": "Encode.Numeric.Property.uint8AsString",
     "encode.numeric.NumericClientBuilder": "Encode.Numeric",
     "encode.numeric.property.SafeintAsStringProperty": "Encode.Numeric.Property.SafeintAsStringProperty",
     "encode.numeric.property.Uint32AsStringProperty": "Encode.Numeric.Property.Uint32AsStringProperty",
