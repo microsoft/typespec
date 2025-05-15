@@ -5,8 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 
-namespace Microsoft.TypeSpec.Generator.Statements
+namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record CatchExpression : ValueExpression
     {

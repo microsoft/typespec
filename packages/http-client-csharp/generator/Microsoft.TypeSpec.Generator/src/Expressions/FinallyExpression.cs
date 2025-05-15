@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 
-namespace Microsoft.TypeSpec.Generator.Statements
+namespace Microsoft.TypeSpec.Generator.Expressions
 {
-    public sealed record TryExpression : ValueExpression
+    public sealed record FinallyExpression : ValueExpression
     {
         private List<MethodBodyStatement> _body = [];
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public TryExpression(params MethodBodyStatement[] statements)
+        public FinallyExpression(params MethodBodyStatement[] statements)
         {
             foreach (var statement in statements)
             {
@@ -22,19 +22,19 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            writer.WriteRawLine("try");
+            writer.WriteRawLine("finally");
             using (writer.Scope())
             {
-                foreach (var statement in Body)
+                foreach (var statement in _body)
                 {
                     statement.Write(writer);
                 }
             }
         }
 
-        internal override TryExpression Accept(LibraryVisitor visitor, MethodProvider method)
+        internal override FinallyExpression Accept(LibraryVisitor visitor, MethodProvider method)
         {
-            var updated = visitor.VisitTryExpression(this, method);
+            var updated = visitor.VisitFinallyExpression(this, method);
 
             var newBody = new List<MethodBodyStatement>(_body.Count);
             foreach (var statement in updated.Body)
