@@ -1,0 +1,16 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "streaming.jsonl.JsonlAsyncClient": "Streaming.Jsonl.Basic",
+    "streaming.jsonl.JsonlAsyncClient.receive": "Streaming.Jsonl.Basic.receive",
+    "streaming.jsonl.JsonlAsyncClient.receiveWithResponse": "Streaming.Jsonl.Basic.receive",
+    "streaming.jsonl.JsonlAsyncClient.send": "Streaming.Jsonl.Basic.send",
+    "streaming.jsonl.JsonlAsyncClient.sendWithResponse": "Streaming.Jsonl.Basic.send",
+    "streaming.jsonl.JsonlClient": "Streaming.Jsonl.Basic",
+    "streaming.jsonl.JsonlClient.receive": "Streaming.Jsonl.Basic.receive",
+    "streaming.jsonl.JsonlClient.receiveWithResponse": "Streaming.Jsonl.Basic.receive",
+    "streaming.jsonl.JsonlClient.send": "Streaming.Jsonl.Basic.send",
+    "streaming.jsonl.JsonlClient.sendWithResponse": "Streaming.Jsonl.Basic.send",
+    "streaming.jsonl.JsonlClientBuilder": "Streaming.Jsonl"
+  }
+}

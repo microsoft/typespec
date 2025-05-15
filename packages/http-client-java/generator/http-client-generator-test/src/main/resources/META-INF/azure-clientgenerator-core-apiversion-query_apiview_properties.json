@@ -1,0 +1,12 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.apiversion.query.QueryAsyncClient": "Client.AlternateApiVersion.Service.Query",
+    "azure.clientgenerator.core.apiversion.query.QueryAsyncClient.queryApiVersion": "Client.AlternateApiVersion.Service.Query.queryApiVersion",
+    "azure.clientgenerator.core.apiversion.query.QueryAsyncClient.queryApiVersionWithResponse": "Client.AlternateApiVersion.Service.Query.queryApiVersion",
+    "azure.clientgenerator.core.apiversion.query.QueryClient": "Client.AlternateApiVersion.Service.Query",
+    "azure.clientgenerator.core.apiversion.query.QueryClient.queryApiVersion": "Client.AlternateApiVersion.Service.Query.queryApiVersion",
+    "azure.clientgenerator.core.apiversion.query.QueryClient.queryApiVersionWithResponse": "Client.AlternateApiVersion.Service.Query.queryApiVersion",
+    "azure.clientgenerator.core.apiversion.query.QueryClientBuilder": "Client.AlternateApiVersion.Service.Query"
+  }
+}

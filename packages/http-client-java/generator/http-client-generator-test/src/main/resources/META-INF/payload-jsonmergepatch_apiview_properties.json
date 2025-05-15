@@ -1,0 +1,23 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient": "Payload.JsonMergePatch",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.createResource": "Payload.JsonMergePatch.createResource",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.createResourceWithResponse": "Payload.JsonMergePatch.createResource",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.updateOptionalResource": "Payload.JsonMergePatch.updateOptionalResource",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.updateOptionalResourceWithResponse": "Payload.JsonMergePatch.updateOptionalResource",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.updateResource": "Payload.JsonMergePatch.updateResource",
+    "payload.jsonmergepatch.JsonMergePatchAsyncClient.updateResourceWithResponse": "Payload.JsonMergePatch.updateResource",
+    "payload.jsonmergepatch.JsonMergePatchClient": "Payload.JsonMergePatch",
+    "payload.jsonmergepatch.JsonMergePatchClient.createResource": "Payload.JsonMergePatch.createResource",
+    "payload.jsonmergepatch.JsonMergePatchClient.createResourceWithResponse": "Payload.JsonMergePatch.createResource",
+    "payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResource": "Payload.JsonMergePatch.updateOptionalResource",
+    "payload.jsonmergepatch.JsonMergePatchClient.updateOptionalResourceWithResponse": "Payload.JsonMergePatch.updateOptionalResource",
+    "payload.jsonmergepatch.JsonMergePatchClient.updateResource": "Payload.JsonMergePatch.updateResource",
+    "payload.jsonmergepatch.JsonMergePatchClient.updateResourceWithResponse": "Payload.JsonMergePatch.updateResource",
+    "payload.jsonmergepatch.JsonMergePatchClientBuilder": "Payload.JsonMergePatch",
+    "payload.jsonmergepatch.models.InnerModel": "Payload.JsonMergePatch.InnerModel",
+    "payload.jsonmergepatch.models.Resource": "Payload.JsonMergePatch.Resource",
+    "payload.jsonmergepatch.models.ResourcePatch": "Payload.JsonMergePatch.ResourcePatch"
+  }
+}

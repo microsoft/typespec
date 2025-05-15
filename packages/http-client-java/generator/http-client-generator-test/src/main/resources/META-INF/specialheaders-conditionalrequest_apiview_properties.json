@@ -1,0 +1,24 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient": "SpecialHeaders.ConditionalRequest",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.headIfModifiedSince": "SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.headIfModifiedSinceWithResponse": "SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfMatch": "SpecialHeaders.ConditionalRequest.postIfMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfMatchWithResponse": "SpecialHeaders.ConditionalRequest.postIfMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfNoneMatch": "SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfNoneMatchWithResponse": "SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfUnmodifiedSince": "SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestAsyncClient.postIfUnmodifiedSinceWithResponse": "SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestClient": "SpecialHeaders.ConditionalRequest",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.headIfModifiedSince": "SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.headIfModifiedSinceWithResponse": "SpecialHeaders.ConditionalRequest.headIfModifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfMatch": "SpecialHeaders.ConditionalRequest.postIfMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfMatchWithResponse": "SpecialHeaders.ConditionalRequest.postIfMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfNoneMatch": "SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfNoneMatchWithResponse": "SpecialHeaders.ConditionalRequest.postIfNoneMatch",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfUnmodifiedSince": "SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestClient.postIfUnmodifiedSinceWithResponse": "SpecialHeaders.ConditionalRequest.postIfUnmodifiedSince",
+    "specialheaders.conditionalrequest.ConditionalRequestClientBuilder": "SpecialHeaders.ConditionalRequest"
+  }
+}

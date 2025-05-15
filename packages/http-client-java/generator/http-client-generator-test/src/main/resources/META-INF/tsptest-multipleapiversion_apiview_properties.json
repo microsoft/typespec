@@ -1,0 +1,28 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.multipleapiversion.FirstAsyncClient": "TspTest.MultipleApiVersion",
+    "tsptest.multipleapiversion.FirstAsyncClient.get": "TspTest.MultipleApiVersion.Client.get",
+    "tsptest.multipleapiversion.FirstAsyncClient.getWithResponse": "TspTest.MultipleApiVersion.Client.get",
+    "tsptest.multipleapiversion.FirstClient": "TspTest.MultipleApiVersion",
+    "tsptest.multipleapiversion.FirstClient.get": "TspTest.MultipleApiVersion.Client.get",
+    "tsptest.multipleapiversion.FirstClient.getWithResponse": "TspTest.MultipleApiVersion.Client.get",
+    "tsptest.multipleapiversion.FirstClientBuilder": "TspTest.MultipleApiVersion",
+    "tsptest.multipleapiversion.NoApiVersionAsyncClient": "TspTest.MultipleApiVersion3",
+    "tsptest.multipleapiversion.NoApiVersionAsyncClient.action": "TspTest.MultipleApiVersion3.Client.action",
+    "tsptest.multipleapiversion.NoApiVersionAsyncClient.actionWithResponse": "TspTest.MultipleApiVersion3.Client.action",
+    "tsptest.multipleapiversion.NoApiVersionClient": "TspTest.MultipleApiVersion3",
+    "tsptest.multipleapiversion.NoApiVersionClient.action": "TspTest.MultipleApiVersion3.Client.action",
+    "tsptest.multipleapiversion.NoApiVersionClient.actionWithResponse": "TspTest.MultipleApiVersion3.Client.action",
+    "tsptest.multipleapiversion.NoApiVersionClientBuilder": "TspTest.MultipleApiVersion3",
+    "tsptest.multipleapiversion.SecondAsyncClient": "TspTest.MultipleApiVersion2",
+    "tsptest.multipleapiversion.SecondAsyncClient.get": "TspTest.MultipleApiVersion2.Client.get",
+    "tsptest.multipleapiversion.SecondAsyncClient.getWithResponse": "TspTest.MultipleApiVersion2.Client.get",
+    "tsptest.multipleapiversion.SecondClient": "TspTest.MultipleApiVersion2",
+    "tsptest.multipleapiversion.SecondClient.get": "TspTest.MultipleApiVersion2.Client.get",
+    "tsptest.multipleapiversion.SecondClient.getWithResponse": "TspTest.MultipleApiVersion2.Client.get",
+    "tsptest.multipleapiversion.SecondClientBuilder": "TspTest.MultipleApiVersion2",
+    "tsptest.multipleapiversion.models.Resource": "TspTest.MultipleApiVersion.Resource",
+    "tsptest.multipleapiversion.models.Resource2": "TspTest.MultipleApiVersion2.Resource2"
+  }
+}

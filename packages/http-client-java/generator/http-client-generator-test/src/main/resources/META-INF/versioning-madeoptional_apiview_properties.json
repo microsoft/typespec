@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "versioning.madeoptional.MadeOptionalAsyncClient": "Versioning.MadeOptional",
+    "versioning.madeoptional.MadeOptionalAsyncClient.test": "Versioning.MadeOptional.test",
+    "versioning.madeoptional.MadeOptionalAsyncClient.testWithResponse": "Versioning.MadeOptional.test",
+    "versioning.madeoptional.MadeOptionalClient": "Versioning.MadeOptional",
+    "versioning.madeoptional.MadeOptionalClient.test": "Versioning.MadeOptional.test",
+    "versioning.madeoptional.MadeOptionalClient.testWithResponse": "Versioning.MadeOptional.test",
+    "versioning.madeoptional.MadeOptionalClientBuilder": "Versioning.MadeOptional",
+    "versioning.madeoptional.models.TestModel": "Versioning.MadeOptional.TestModel",
+    "versioning.madeoptional.models.Versions": "Versioning.MadeOptional.Versions"
+  }
+}

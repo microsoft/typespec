@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromAsyncClient": "Versioning.ReturnTypeChangedFrom",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromAsyncClient.test": "Versioning.ReturnTypeChangedFrom.test",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromAsyncClient.testWithResponse": "Versioning.ReturnTypeChangedFrom.test",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClient": "Versioning.ReturnTypeChangedFrom",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClient.test": "Versioning.ReturnTypeChangedFrom.test",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClient.testWithResponse": "Versioning.ReturnTypeChangedFrom.test",
+    "versioning.returntypechangedfrom.ReturnTypeChangedFromClientBuilder": "Versioning.ReturnTypeChangedFrom",
+    "versioning.returntypechangedfrom.models.Versions": "Versioning.ReturnTypeChangedFrom.Versions"
+  }
+}
