@@ -202,7 +202,7 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
-        protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfStatement statement, MethodProvider method)
+        protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfElseStatement statement, MethodProvider method)
         {
             return statement;
         }
