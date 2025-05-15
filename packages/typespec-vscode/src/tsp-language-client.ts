@@ -223,12 +223,19 @@ export class TspLanguageClient {
     }
   }
 
+  /**
+   * resolve the tsp server location and create a tsp language client from it.
+   * undefined will be returned if the tsp server location can't be resolved.
+   */
   static async create(
     activityId: string,
     context: ExtensionContext,
     outputChannel: LogOutputChannel,
-  ): Promise<TspLanguageClient> {
+  ): Promise<TspLanguageClient | undefined> {
     const exe = await resolveTypeSpecServer(activityId, context);
+    if (!exe) {
+      return undefined;
+    }
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
       workspace.createFileSystemWatcher("**/*.tsp"),
