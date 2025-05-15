@@ -104,7 +104,7 @@ public class ModelExampleUtil {
                     mapNode.getKeys().add(entry.getKey());
                 }
             } else {
-                throw new IllegalStateException("Example value is not List type: " + objectValue);
+                throw new IllegalStateException("Example value is not Map type: " + objectValue);
             }
         } else if (type == ClassType.OBJECT) {
             node = new ObjectNode(type, objectValue);
