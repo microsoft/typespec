@@ -32,7 +32,7 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
   if (children || (Array.isArray(children) && children.length)) {
     return (
       <>
-        {variants} {` | ${children}`}
+        {variants} {`| ${children}`}
       </>
     );
   }
