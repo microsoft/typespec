@@ -5,7 +5,7 @@ import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
-import { client } from "../../extension-component.js";
+import { tspLanguageClient } from "../../extension-context.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
@@ -452,7 +452,7 @@ async function doEmit(
         telemetryClient.logOperationDetailTelemetry(tel.activityId, {
           CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
         });
-        if (!client) {
+        if (!tspLanguageClient) {
           logger.error("LSP client is not started.");
           logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
             showOutput: true,
@@ -460,7 +460,7 @@ async function doEmit(
           });
           return ResultCode.Fail;
         }
-        const compileResult = await client.compileProject(
+        const compileResult = await tspLanguageClient.compileProject(
           {
             uri: getVscodeUriFromPath(mainTspFile),
           },

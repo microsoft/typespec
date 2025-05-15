@@ -5,7 +5,7 @@ import "./pre-extension-activate.js";
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
-import { client, setClient } from "./extension-component.js";
+import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
 import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
@@ -106,10 +106,10 @@ export async function activate(context: ExtensionContext) {
                   tel.lastStep = "Recreate LSP client in force";
                   return await recreateLSPClient(context, tel.activityId);
                 }
-                if (client && client.state === State.Running) {
+                if (tspLanguageClient && tspLanguageClient.state === State.Running) {
                   tel.lastStep = "Restart LSP client";
-                  await client.restart();
-                  return { code: ResultCode.Success, value: client };
+                  await tspLanguageClient.restart();
+                  return { code: ResultCode.Success, value: tspLanguageClient };
                 } else {
                   logger.info(
                     "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
@@ -152,7 +152,7 @@ export async function activate(context: ExtensionContext) {
       await telemetryClient.doOperationWithTelemetry(
         TelemetryEventName.PreviewOpenApi3,
         async (tel): Promise<ResultCode> => {
-          return await showOpenApi3(uri, context, client!, tel);
+          return await showOpenApi3(uri, context, tspLanguageClient!, tel);
         },
       );
     }),
@@ -226,7 +226,7 @@ export async function activate(context: ExtensionContext) {
 }
 
 export async function deactivate() {
-  await client?.stop();
+  await tspLanguageClient?.stop();
   await clearOpenApi3PreviewTempFolders();
 }
 
@@ -235,15 +235,15 @@ async function recreateLSPClient(
   activityId: string,
 ): Promise<Result<TspLanguageClient>> {
   logger.info("Recreating TypeSpec LSP server...");
-  const oldClient = client;
-  setClient(await TspLanguageClient.create(activityId, context, outputChannel));
+  const oldClient = tspLanguageClient;
+  setTspLanguageClient(await TspLanguageClient.create(activityId, context, outputChannel));
   await oldClient?.stop();
-  await client?.start(activityId);
-  if (client?.state === State.Running) {
+  await tspLanguageClient?.start(activityId);
+  if (tspLanguageClient?.state === State.Running) {
     telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerVersion: client.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+      compilerVersion: tspLanguageClient.initializeResult?.serverInfo?.version ?? "< 0.64.0",
     });
-    return { code: ResultCode.Success, value: client };
+    return { code: ResultCode.Success, value: tspLanguageClient };
   } else {
     return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
   }
