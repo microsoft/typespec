@@ -154,9 +154,7 @@ async function loadOpenApi3PreviewPanel(
           }
           await clearOutputFolder(outputFolder);
 
-          // If the path contains spaces, it will cause compilation failure, so quotes are required
-          const escapedMainTspFile = mainTspFile.includes(" ") ? `"${mainTspFile}"` : mainTspFile;
-          const result = await client.compileOpenApi3(escapedMainTspFile, srcFolder, outputFolder);
+          const result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
           if (result === undefined || result.exitCode !== 0) {
             logger.error(
               "Failed to generate OpenAPI3 files.",
