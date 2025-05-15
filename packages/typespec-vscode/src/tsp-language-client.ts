@@ -1,13 +1,20 @@
 import type {
+  CompilerOptions,
   CustomRequestName,
   InitProjectConfig,
   InitProjectContext,
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
-import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import {
+  Executable,
+  LanguageClient,
+  LanguageClientOptions,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
@@ -85,6 +92,30 @@ export class TspLanguageClient {
     } catch (e) {
       logger.error("Unexpected error when initializing project", [e]);
       return false;
+    }
+  }
+
+  public async compileProject(
+    doc: TextDocumentIdentifier,
+    options?: CompilerOptions,
+  ): Promise<InternalCompileResult | undefined> {
+    const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
+    try {
+      if (this.initializeResult?.customCapacities?.internalCompile !== true) {
+        logger.warning("Compile project is not supported by the current TypeSpec Compiler's LSP.");
+        return undefined;
+      }
+      const result = await this.client.sendRequest<InternalCompileResult>(
+        compileProjectRequestName,
+        {
+          doc: doc,
+          options: { ...options, dryRun: false },
+        },
+      );
+      return result;
+    } catch (e) {
+      logger.error("Unexpected error when compiling project", [e]);
+      return undefined;
     }
   }
 
@@ -192,12 +223,19 @@ export class TspLanguageClient {
     }
   }
 
+  /**
+   * resolve the tsp server location and create a tsp language client from it.
+   * undefined will be returned if the tsp server location can't be resolved.
+   */
   static async create(
     activityId: string,
     context: ExtensionContext,
     outputChannel: LogOutputChannel,
-  ): Promise<TspLanguageClient> {
+  ): Promise<TspLanguageClient | undefined> {
     const exe = await resolveTypeSpecServer(activityId, context);
+    if (!exe) {
+      return undefined;
+    }
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
       workspace.createFileSystemWatcher("**/*.tsp"),

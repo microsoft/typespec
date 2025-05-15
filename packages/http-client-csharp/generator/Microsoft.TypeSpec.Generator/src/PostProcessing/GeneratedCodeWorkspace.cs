@@ -141,6 +141,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             document = await Simplifier.ReduceAsync(document);
+
+            // Reformat if any custom rewriters have been applied
+            if (CodeModelGenerator.Instance.Rewriters.Count > 0)
+            {
+                document = await Formatter.FormatAsync(document);
+            }
             return document;
         }
 
