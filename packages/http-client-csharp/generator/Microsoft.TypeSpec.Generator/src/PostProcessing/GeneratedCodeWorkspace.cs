@@ -286,7 +286,9 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 else
                 {
-                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.BaselineContractMissing, $"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.BaselineContractMissing,
+                        $"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }
