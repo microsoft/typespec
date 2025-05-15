@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
@@ -11,23 +11,6 @@ import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
-
-/**
- * Execute a command asynchronously using child_process.exec
- * @param command The command to execute
- * @returns A promise that resolves when the command completes successfully, or rejects with an error
- */
-async function execAsync(command: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    exec(command, (error: Error | null) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -246,7 +229,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      await execAsync(command);
+      execSync(command);
 
       const blackExcludeDirs = [
         "__pycache__/*",
@@ -269,7 +252,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".nox",
         ".svn",
       ];
-      await execAsync(
+      execSync(
         `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
       );
       checkForPylintIssues(outputDir);
