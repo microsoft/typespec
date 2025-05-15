@@ -234,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isReadOnly: isReadOnly,
                 access: null,
                 isDiscriminator: isDiscriminator,
-                serializedName: serializedName ?? name,
+                serializedName: serializedName ?? wireName ?? name.ToVariableName(),
                 serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
         }
 
