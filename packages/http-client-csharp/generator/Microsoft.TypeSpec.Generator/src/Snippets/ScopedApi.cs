@@ -42,7 +42,19 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             scopedApi.Original = scopedApi.Original.Accept(visitor, method)!;
 
             return scopedApi;
+        }
 
+        public void Update(ValueExpression? original = null, CSharpType? type = null)
+        {
+            if (original != null)
+            {
+                Original = original;
+            }
+
+            if (type != null)
+            {
+                Type = type;
+            }
         }
     }
 }
