@@ -29,9 +29,10 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
           return <ts.ValueExpression jsValue={value.value ?? value.name} />;
         }
 
-        if (discriminatedUnion?.options.envelope) {
+        if (discriminatedUnion?.options.envelope === "object") {
           const discriminatorPropertyName = discriminatedUnion.options.discriminatorPropertyName;
           const envelopePropertyName = discriminatedUnion.options.envelopePropertyName;
+
           const envelope = $.model.create({
             properties: {
               [discriminatorPropertyName]: $.modelProperty.create({
@@ -46,6 +47,10 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
           });
 
           return <TypeExpression type={envelope} />;
+        } else if (discriminatedUnion?.options.envelope === "none") {
+          // this is a discriminated union with no envelope
+          // we need a model where the discriminator and the rest of the values are side-by-side
+          return <TypeExpression type={value.type} />;
         } else {
           return <TypeExpression type={value.type} />;
         }
