@@ -2,7 +2,6 @@ import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { compilerAssert, Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { TypeExpression } from "./type-expression.jsx";
 
@@ -20,7 +19,33 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
 
   const variants = (
     <ay.For joiner={" | "} each={items}>
-      {(_, value) => renderVariant($, value)}
+      {(_, type) => {
+        if ($.enumMember.is(type)) {
+          return <ts.ValueExpression jsValue={type.value ?? type.name} />;
+        }
+
+        const discriminatedUnion = $.union.getDiscriminatedUnion(type.union);
+        switch (discriminatedUnion?.options.envelope) {
+          case "object":
+            return (
+              <ObjectEnvelope
+                discriminatorPropertyName={discriminatedUnion.options.discriminatorPropertyName}
+                envelopePropertyName={discriminatedUnion.options.envelopePropertyName}
+                type={type}
+              />
+            );
+          case "none":
+            return (
+              <NoneEnvelope
+                discriminatorPropertyName={discriminatedUnion.options.discriminatorPropertyName}
+                type={type}
+              />
+            );
+          default:
+            // not a discriminated union
+            return <TypeExpression type={type.type} />;
+        }
+      }}
     </ay.For>
   );
 
@@ -34,37 +59,6 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
   }
 
   return variants;
-}
-
-/**
- * Renders a union variant or enum member based on its type
- */
-function renderVariant($: Typekit, value: UnionVariant | EnumMember) {
-  if ($.enumMember.is(value)) {
-    return <ts.ValueExpression jsValue={value.value ?? value.name} />;
-  }
-
-  const discriminatedUnion = $.union.getDiscriminatedUnion(value.union);
-  switch (discriminatedUnion?.options.envelope) {
-    case "object":
-      return (
-        <ObjectEnvelope
-          discriminatorPropertyName={discriminatedUnion.options.discriminatorPropertyName}
-          envelopePropertyName={discriminatedUnion.options.envelopePropertyName}
-          type={value}
-        />
-      );
-    case "none":
-      return (
-        <NoneEnvelope
-          discriminatorPropertyName={discriminatedUnion.options.discriminatorPropertyName}
-          type={value}
-        />
-      );
-    default:
-      // not a discriminated union
-      return <TypeExpression type={value.type} />;
-  }
 }
 
 interface ObjectEnvelopeProps {
