@@ -268,31 +268,49 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static async Task<Compilation?> LoadBaselineContract()
         {
-            string fullPath;
-            string ns = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{ns}.csproj"));
+            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
             if (!File.Exists(projectFilePath))
                 return null;
 
             var baselineVersion = ProjectRootElement.Open(projectFilePath).Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
-            if (baselineVersion != null)
+            if (baselineVersion == null)
+                return null;
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            // Try to find or download the assembly
+            try
             {
-                var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(Settings.LoadDefaultSettings(projectFilePath));
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, ns.ToLowerInvariant(), baselineVersion, "lib", LastContractAssemblyNetVersion);
-                fullPath = Path.Combine(nugetFolder, $"{ns}.dll");
-                if (File.Exists(fullPath))
+                string nugetFolderPathToAssembly = Path.Combine(
+                    nugetGlobalPackageFolder,
+                    packageName.ToLowerInvariant(),
+                    baselineVersion,
+                    "lib",
+                    LastContractAssemblyNetVersion);
+                string assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+
+                // If assembly doesn't exist locally, download it & install it
+                if (!File.Exists(assemblyFileFullPath))
                 {
-                    return await CreateLastContractFromDll(Path.Combine(nugetFolder, $"{ns}.xml"), fullPath);
+                    NugetPackageDownloader downloader = new(packageName, baselineVersion, nugetSettings);
+                    nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
                 }
-                else
-                {
-                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                        DiagnosticCodes.BaselineContractMissing,
-                        $"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
-                        $"Please make sure the baseline nuget package has been installed properly");
-                }
+
+                string xmlDocPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.xml");
+                return await CreateLastContractFromDll(xmlDocPath, assemblyFileFullPath);
             }
-            return null;
+            catch (Exception ex)
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.BaselineContractMissing,
+                    $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
+                    $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
+                return null;
+            }
         }
     }
 }
