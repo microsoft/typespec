@@ -56,7 +56,7 @@
   ],
   "dependencies": {
     "@alloy-js/core": "^0.15.0",
-    "@alloy-js/markdown": "^0.15.1",
+    "@alloy-js/markdown": "^0.16.0",
     "@alloy-js/typescript": "^0.15.0",
     "@microsoft/api-extractor-model": "^7.30.6",
     "@microsoft/tsdoc": "^0.15.1",
