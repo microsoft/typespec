@@ -411,8 +411,8 @@ importers:
         specifier: ^0.15.0
         version: 0.15.0
       '@alloy-js/core':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.2)
@@ -662,8 +662,8 @@ importers:
         specifier: ^0.15.0
         version: 0.15.0
       '@alloy-js/core':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.2)
@@ -698,8 +698,8 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/typescript':
         specifier: ^0.15.0
         version: 0.15.0
@@ -2178,8 +2178,8 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/markdown':
         specifier: ^0.15.1
         version: 0.15.1
@@ -2697,6 +2697,9 @@ packages:
 
   '@alloy-js/core@0.15.0':
     resolution: {integrity: sha512-GfQZqaUqGBGFeFJbA9H7Iu+IJQiEQ2B3Hjh5C1N2YclEg5vtjSAb/pdqJ5x2BTqOq2iUCpFOJ44pJy5mhS116Q==}
+
+  '@alloy-js/core@0.16.0':
+    resolution: {integrity: sha512-A6jtbUP2JANFH4qNgKnybjzuDgLmqXnH/5/PAyhc5FALW/sjQKIxsikpcMhJSrkR2xMs87Rbw2VlS0FDDgKSDg==}
 
   '@alloy-js/markdown@0.15.1':
     resolution: {integrity: sha512-drJbEo8DWDKGmJ/R2lUEyn8dVa3vKVpu9K0+1EJswQ7flgE0k1NgbXq3StIHAr8yd//VCgRHjVgV2R5E76ZjvQ==}
@@ -6618,11 +6621,14 @@ packages:
       typescript:
         optional: true
 
-  '@vue/reactivity@3.5.13':
-    resolution: {integrity: sha512-NaCwtw8o48B9I6L1zl2p41OHo/2Z4wqYGGIK1Khu5T7yxrn+ATOixn/Udn2m+6kZKB/J7cuT9DbWWhRxqixACg==}
+  '@vue/reactivity@3.5.14':
+    resolution: {integrity: sha512-7cK1Hp343Fu/SUCCO52vCabjvsYu7ZkOqyYu7bXV9P2yyfjUMUXHZafEbq244sP7gf+EZEz+77QixBTuEqkQQw==}
 
   '@vue/shared@3.5.13':
     resolution: {integrity: sha512-/hnE/qP5ZoGpol0a5mDi45bOd7t3tjYJBjsgCsivow7D48cJeV5l05RD82lPqi7gRiphZM37rnhW1l6ZoCNNnQ==}
+
+  '@vue/shared@3.5.14':
+    resolution: {integrity: sha512-oXTwNxVfc9EtP1zzXAlSlgARLXNC84frFYkS0HHz0h3E4WZSP9sywqjqzGCP9Y34M8ipNmd380pVgmMuwELDyQ==}
 
   '@xmldom/xmldom@0.8.10':
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
@@ -13551,7 +13557,15 @@ snapshots:
 
   '@alloy-js/core@0.15.0':
     dependencies:
-      '@vue/reactivity': 3.5.13
+      '@vue/reactivity': 3.5.14
+      cli-table3: 0.6.5
+      pathe: 2.0.3
+      picocolors: 1.1.1
+      prettier: 3.5.3
+
+  '@alloy-js/core@0.16.0':
+    dependencies:
+      '@vue/reactivity': 3.5.14
       cli-table3: 0.6.5
       pathe: 2.0.3
       picocolors: 1.1.1
@@ -19173,11 +19187,13 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.3
 
-  '@vue/reactivity@3.5.13':
+  '@vue/reactivity@3.5.14':
     dependencies:
-      '@vue/shared': 3.5.13
+      '@vue/shared': 3.5.14
 
   '@vue/shared@3.5.13': {}
+
+  '@vue/shared@3.5.14': {}
 
   '@xmldom/xmldom@0.8.10': {}
 
