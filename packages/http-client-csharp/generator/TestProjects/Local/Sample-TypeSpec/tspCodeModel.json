@@ -3055,8 +3055,7 @@
      "readOnly": false,
      "decorators": [],
      "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredHeader",
-     "discriminator": false,
-     "flatten": false
+     "correspondingMethodParams": []
     },
     {
      "$id": "394",
@@ -3075,8 +3074,7 @@
      "readOnly": false,
      "decorators": [],
      "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalHeader",
-     "discriminator": false,
-     "flatten": false
+     "correspondingMethodParams": []
     },
     {
      "$id": "396",
@@ -3095,8 +3093,7 @@
      "readOnly": false,
      "decorators": [],
      "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.requiredQuery",
-     "discriminator": false,
-     "flatten": false
+     "correspondingMethodParams": []
     },
     {
      "$id": "398",
@@ -3115,8 +3112,7 @@
      "readOnly": false,
      "decorators": [],
      "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithEmbeddedNonBodyParameters.optionalQuery",
-     "discriminator": false,
-     "flatten": false
+     "correspondingMethodParams": []
     }
    ]
   }

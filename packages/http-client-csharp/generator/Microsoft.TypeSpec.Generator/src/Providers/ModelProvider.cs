@@ -208,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var property in _inputModel.Properties)
             {
-                if (property.IsDiscriminator)
+                if (IsDiscriminator(property))
                     continue;
 
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
@@ -225,6 +225,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. fields];
+        }
+
+        private static bool IsDiscriminator(InputProperty property)
+        {
+            return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
@@ -344,12 +349,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>>? _inputDerivedProperties;
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>>? _inputDerivedProperties;
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>> InputDerivedProperties => _inputDerivedProperties ??= BuildDerivedProperties();
 
-        private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
+        private Dictionary<InputModelType, Dictionary<string, InputProperty>> BuildDerivedProperties()
         {
-            Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
+            Dictionary<InputModelType, Dictionary<string, InputProperty>> derivedProperties = [];
             var derivedModels = new List<InputModelType>();
             EnumerateDerivedModels(_inputModel, derivedModels);
             foreach (var derivedModel in derivedModels)
@@ -376,20 +381,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
+                var isDiscriminator = IsDiscriminator(property);
 
-                if (property.IsDiscriminator && property.Name == baseModelDiscriminator?.Name)
+                if (isDiscriminator && property.Name == baseModelDiscriminator?.Name)
                     continue;
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
                 if (outputProperty is null)
                     continue;
 
-                if (!property.IsDiscriminator)
+                if (!isDiscriminator)
                 {
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                     if (derivedProperty is not null)
@@ -439,7 +445,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
+        private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
         {
             if (baseProperty.Type.Name != derivedProperty.Type.Name)
                 return false;

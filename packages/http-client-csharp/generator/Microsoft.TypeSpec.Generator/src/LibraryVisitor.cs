@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The original input model property.</param>
         /// <param name="propertyProvider">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected internal virtual PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
+        protected internal virtual PropertyProvider? PreVisitProperty(InputProperty property, PropertyProvider? propertyProvider)
         {
             return propertyProvider;
         }

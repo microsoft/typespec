@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
 
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache { get; } = [];
+        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
@@ -227,7 +227,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreateProperty(InputModelProperty property, TypeProvider enclosingType)
+        public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
@@ -243,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
+        protected virtual PropertyProvider? CreatePropertyCore(InputProperty property, TypeProvider enclosingType)
         {
             PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
             if (Visitors.Count == 0)

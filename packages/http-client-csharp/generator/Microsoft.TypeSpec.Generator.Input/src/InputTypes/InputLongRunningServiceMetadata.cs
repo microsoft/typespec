@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     return FinalResponse.BodyType;
 
                 var rawResponseType = (InputModelType)FinalResponse.BodyType;
-                return rawResponseType.Properties.FirstOrDefault(p => p.SerializationOptions?.Json?.Name == ResultPath)!.Type;
+                return rawResponseType.Properties.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.SerializationOptions?.Json?.Name == ResultPath)!.Type;
             }
         }
     }
