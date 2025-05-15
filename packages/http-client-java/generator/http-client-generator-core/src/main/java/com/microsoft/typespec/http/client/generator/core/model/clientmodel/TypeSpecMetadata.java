@@ -6,21 +6,26 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import java.io.IOException;
 import java.util.Map;
-import java.util.TreeMap;
 
+/**
+ * Metadata for TypeSpec generated SDK.
+ */
 public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata> {
 
     private final String artifactId;
     private final String flavor;
     private final String apiVersion;
-    private final Map<String, String> crossLanguageDefinitions = new TreeMap<>();
+    private final Map<String, String> crossLanguageDefinitions;
 
-    public TypeSpecMetadata(String artifactId, String flavor, String apiVersion) {
+    public TypeSpecMetadata(String artifactId, String flavor, String apiVersion,
+        Map<String, String> crossLanguageDefinitions) {
         this.artifactId = artifactId;
         this.flavor = flavor;
         this.apiVersion = apiVersion;
+        this.crossLanguageDefinitions = crossLanguageDefinitions;
     }
 
     public String getArtifactId() {
@@ -36,7 +41,7 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
     }
 
     public Map<String, String> getCrossLanguageDefinitions() {
-        return crossLanguageDefinitions;
+        return CollectionUtil.toImmutableMap(crossLanguageDefinitions);
     }
 
     @Override

@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,96 +46,36 @@ public class TypeSpecPlugin extends Javagen {
 
     private final EmitterOptions emitterOptions;
 
-    private TypeSpecMetadata metadata;
-
     public Client processClient(CodeModel codeModel) {
-        this.metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
-            emitterOptions.getApiVersion() == null
-                ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-                : emitterOptions.getApiVersion());
-
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
-        Map<String, String> crossLanguageDefinitionsMap = metadata.getCrossLanguageDefinitions();
 
         // map to client model
-        Client client = Mappers.getClientMapper().map(codeModel);
-
-        client.getAsyncClients()
-            .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
-                asyncClient.getPackageName() + "." + asyncClient.getClassName(),
-                asyncClient.getCrossLanguageDefinitionId()));
-
-        client.getSyncClients()
-            .forEach(syncClient -> crossLanguageDefinitionsMap.put(
-                syncClient.getPackageName() + "." + syncClient.getClassName(),
-                syncClient.getCrossLanguageDefinitionId()));
-
-        client.getClientBuilders()
-            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
-                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
-                clientBuilder.getCrossLanguageDefinitionId()));
-
-        for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
-            List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
-            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
-                convenienceMethod.getConvenienceMethods()
-                    .stream()
-                    .filter(method -> !method.getName().endsWith("Async"))
-                    .forEach(method -> crossLanguageDefinitionsMap.put(
-                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
-                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(
-                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
-                            + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
-                }
-            }
-        }
-
-        for (AsyncSyncClient syncClient : client.getSyncClients()) {
-            List<ConvenienceMethod> convenienceMethods = syncClient.getConvenienceMethods();
-            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
-                convenienceMethod.getConvenienceMethods()
-                    .stream()
-                    .filter(method -> !method.getName().endsWith("Async"))
-                    .forEach(method -> crossLanguageDefinitionsMap.put(
-                        syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
-
-                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
-                    crossLanguageDefinitionsMap.put(
-                        syncClient.getPackageName() + "." + syncClient.getClassName() + "."
-                            + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
-                }
-
-            }
-        }
-        return client;
+        return Mappers.getClientMapper().map(codeModel);
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
         JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+
+        TypeSpecMetadata metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
+            emitterOptions.getApiVersion() == null
+                ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+                : emitterOptions.getApiVersion(),
+            collectCrossLanguageDefinitions(client));
         javaPackage.addTypeSpecMetadata(metadata);
+
         return javaPackage;
     }
 
     @Override
     protected void writeClientModels(Client client, JavaPackage javaPackage, JavaSettings settings) {
-        Map<String, String> crossLanguageDefinitionsMap = metadata.getCrossLanguageDefinitions();
         // Client model
         client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
             javaPackage.addModel(model.getPackage(), model.getName(), model);
         });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
-            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
             javaPackage.addEnum(model.getPackage(), model.getName(), model);
         });
 
@@ -395,5 +336,78 @@ public class TypeSpecPlugin extends Javagen {
                 LOGGER.info(log);
                 break;
         }
+    }
+
+    private Map<String, String> collectCrossLanguageDefinitions(Client client) {
+        final Map<String, String> crossLanguageDefinitionsMap = new TreeMap<>();
+
+        // client
+        client.getAsyncClients()
+            .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
+                asyncClient.getPackageName() + "." + asyncClient.getClassName(),
+                asyncClient.getCrossLanguageDefinitionId()));
+
+        client.getSyncClients()
+            .forEach(syncClient -> crossLanguageDefinitionsMap.put(
+                syncClient.getPackageName() + "." + syncClient.getClassName(),
+                syncClient.getCrossLanguageDefinitionId()));
+
+        client.getClientBuilders()
+            .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
+                clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
+                clientBuilder.getCrossLanguageDefinitionId()));
+
+        // method
+        for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
+            List<ConvenienceMethod> convenienceMethods = asyncClient.getConvenienceMethods();
+            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
+                convenienceMethod.getConvenienceMethods()
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
+
+                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
+                    crossLanguageDefinitionsMap.put(
+                        asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                }
+            }
+        }
+
+        for (AsyncSyncClient syncClient : client.getSyncClients()) {
+            List<ConvenienceMethod> convenienceMethods = syncClient.getConvenienceMethods();
+            for (ConvenienceMethod convenienceMethod : convenienceMethods) {
+                convenienceMethod.getConvenienceMethods()
+                    .stream()
+                    .filter(method -> !method.getName().endsWith("Async"))
+                    .forEach(method -> crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId()));
+
+                if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
+                    crossLanguageDefinitionsMap.put(
+                        syncClient.getPackageName() + "." + syncClient.getClassName() + "."
+                            + convenienceMethod.getProtocolMethod().getName(),
+                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                }
+            }
+        }
+
+        // Client model
+        client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        // Enum
+        client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
+            crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
+                model.getCrossLanguageDefinitionId());
+        });
+
+        return crossLanguageDefinitionsMap;
     }
 }

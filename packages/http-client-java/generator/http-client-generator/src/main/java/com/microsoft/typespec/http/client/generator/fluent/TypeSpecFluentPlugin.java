@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
     private final EmitterOptions emitterOptions;
-    private TypeSpecMetadata metadata;
 
     public TypeSpecFluentPlugin(EmitterOptions emitterOptions, boolean sdkIntegration) {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
@@ -77,20 +76,22 @@ public class TypeSpecFluentPlugin extends FluentGen {
     }
 
     public Client processClient(CodeModel codeModel) {
-        this.metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-            emitterOptions.getApiVersion() == null
-                ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-                : emitterOptions.getApiVersion());
-
         // call FluentGen.handleMap
-
         return handleMap(codeModel);
     }
 
     public FluentJavaPackage processTemplates(CodeModel codeModel, Client client) {
+        final String apiVersion = emitterOptions.getApiVersion() == null
+            ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+            : emitterOptions.getApiVersion();
+
         FluentJavaPackage javaPackage = handleTemplate(client);
-        handleFluentLite(codeModel, client, javaPackage, metadata.getApiVersion());
+        handleFluentLite(codeModel, client, javaPackage, apiVersion);
+
+        TypeSpecMetadata metadata
+            = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(), apiVersion, null);
         javaPackage.addTypeSpecMetadata(metadata);
+
         return javaPackage;
     }
 
@@ -147,10 +148,6 @@ public class TypeSpecFluentPlugin extends FluentGen {
         namingOverrides.put("tagvalue", "tagValue");
 
         return namingOverrides;
-    }
-
-    public TypeSpecMetadata getMetadata() {
-        return this.metadata;
     }
 
     @SuppressWarnings("unchecked")
