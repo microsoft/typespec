@@ -139,6 +139,106 @@ describe("Typescript Union Declaration", () => {
           `,
         );
       });
+
+      describe("Discriminated Union", () => {
+        it("renders a discriminated union declaration", async () => {
+          const { TestUnion } = (await runner.compile(`
+          namespace DemoService;
+          @discriminated
+          @test union TestUnion {
+            one: { oneItem: true },
+            two: true
+          }
+        `)) as { TestUnion: Union };
+
+          const res = render(
+            <Output program={runner.program}>
+              <SourceFile path="test.ts">
+                <UnionDeclaration type={TestUnion} />
+              </SourceFile>
+            </Output>,
+          );
+
+          assertFileContents(
+            res,
+            d`
+            type TestUnion = {
+              kind: "one";
+              value: {
+                oneItem: true;
+              };
+            } | {
+              kind: "two";
+              value: true;
+            };
+          `,
+          );
+        });
+      });
+
+      it("renders a discriminated union declaration with custom properties", async () => {
+        const { TestUnion } = (await runner.compile(`
+        namespace DemoService;
+        @discriminated(#{ discriminatorPropertyName: "dataKind", envelopePropertyName: "data" })
+        @test union TestUnion {
+          one: { oneItem: true },
+          two: true
+        }
+      `)) as { TestUnion: Union };
+
+        const res = render(
+          <Output program={runner.program}>
+            <SourceFile path="test.ts">
+              <UnionDeclaration type={TestUnion} />
+            </SourceFile>
+          </Output>,
+        );
+        assertFileContents(
+          res,
+          d`
+          type TestUnion = {
+            dataKind: "one";
+            data: {
+              oneItem: true;
+            };
+          } | {
+            dataKind: "two";
+            data: true;
+          };
+        `,
+        );
+      });
+
+      it("renders a discriminated union declaration with no envelope", async () => {
+        const { TestUnion } = (await runner.compile(`
+        namespace DemoService;
+        @discriminated(#{ envelope: "none" })
+        @test union TestUnion {
+          one: { oneItem: true },
+          two: { secondItem: false }
+        }
+      `)) as { TestUnion: Union };
+
+        const res = render(
+          <Output program={runner.program}>
+            <SourceFile path="test.ts">
+              <UnionDeclaration type={TestUnion} />
+            </SourceFile>
+          </Output>,
+        );
+        assertFileContents(
+          res,
+          d`
+          type TestUnion = {
+            kind: "one";
+            oneItem: true;
+          } | {
+            kind: "two";
+            secondItem: false;
+          };
+        `,
+        );
+      });
     });
 
     describe("Bound to Enum", () => {
