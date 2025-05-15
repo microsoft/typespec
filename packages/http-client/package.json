@@ -26,7 +26,7 @@
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.15.0",
+    "@alloy-js/cli": "^0.16.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@alloy-js/core": "^0.15.0",
     "@alloy-js/typescript": "^0.15.0",

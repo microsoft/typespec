@@ -408,8 +408,8 @@ importers:
   packages/emitter-framework:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/core':
         specifier: ^0.15.0
         version: 0.15.0
@@ -659,8 +659,8 @@ importers:
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/core':
         specifier: ^0.15.0
         version: 0.15.0
@@ -720,8 +720,8 @@ importers:
         version: 3.5.3
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.2)
@@ -2218,8 +2218,8 @@ importers:
         version: 17.7.2
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.2)
@@ -2690,8 +2690,8 @@ packages:
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
 
-  '@alloy-js/cli@0.15.0':
-    resolution: {integrity: sha512-VI113tvoXL8ceSWloOr7ZbvMtQrGFLYe6bRUWsFkwpXuzRIK+JvyQJ5gspHKpuUBl0FDMTcYljvLEDKba9ueQA==}
+  '@alloy-js/cli@0.16.0':
+    resolution: {integrity: sha512-a6BXlN84n37T02mdRlZ9QagTMuheVYEJH1LYX4lD+V8hzP0/4Kq544ucWhJj9cAJhh7wSCmyqBbmBFmP1XEyvw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -13539,7 +13539,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.15.0':
+  '@alloy-js/cli@0.16.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.1(@babel/core@7.27.1)
       '@babel/core': 7.27.1
