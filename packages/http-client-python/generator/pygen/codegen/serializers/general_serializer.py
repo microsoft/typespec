@@ -57,17 +57,13 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-        try:
-            client_name = self.code_model.clients[0].name
-        except IndexError:
-            client_name = ""
         params = {
             "code_model": self.code_model,
             "dev_status": dev_status,
             "token_credential": token_credential,
             "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
             "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
-            "client_name": client_name,
+            "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
