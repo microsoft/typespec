@@ -3,9 +3,9 @@
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class InputHeaderParameter : InputProperty
+    public class InputQueryParameter : InputProperty
     {
-        public InputHeaderParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string? collectionFormat, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access)
+        public InputQueryParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string? collectionFormat, string serializedName, bool explode) : base(name, summary, doc, type, isRequired, isReadOnly, access)
         {
             Name = name;
             Summary = summary;
@@ -15,9 +15,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsReadOnly = isReadOnly;
             CollectionFormat = collectionFormat;
             SerializedName = serializedName;
+            Explode = explode;
         }
 
         public string? CollectionFormat { get; internal set; }
         public string SerializedName { get; internal set; }
+        public bool Explode { get; internal set; }
     }
 }
