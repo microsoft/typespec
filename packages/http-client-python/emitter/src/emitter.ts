@@ -247,7 +247,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
       await execAsync(command);
-      
+
       const blackExcludeDirs = [
         "__pycache__/*",
         "node_modules/*",
@@ -270,7 +270,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".svn",
       ];
       await execAsync(
-        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`
+        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
       );
       checkForPylintIssues(outputDir);
     }
