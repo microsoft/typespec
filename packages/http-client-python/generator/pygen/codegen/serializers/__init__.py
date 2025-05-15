@@ -9,6 +9,7 @@ import re
 from typing import List, Any, Union
 from pathlib import Path
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
+import json
 
 from ... import ReaderAndWriter
 from ..models import (
@@ -461,6 +462,10 @@ class JinjaSerializer(ReaderAndWriter):
                 exec_path / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
+
+        # write _metadata.json
+        if self.code_model.metadata:
+            self.write_file(exec_path / Path("_metadata.json"), json.dumps(self.code_model.metadata, indent=2))
 
     def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
         metadata_serializer = MetadataSerializer(self.code_model, env, client_namespace=namespace)
