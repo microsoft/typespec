@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
-        public static CatchStatement Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchStatement(declare) { statements };
+        public static CatchExpression Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchExpression(declare, statements);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
