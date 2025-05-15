@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
@@ -26,6 +27,10 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
         return artifactId;
     }
 
+    public String getFlavor() {
+        return flavor;
+    }
+
     public String getApiVersion() {
         return apiVersion;
     }
@@ -39,13 +44,15 @@ public final class TypeSpecMetadata implements JsonSerializable<TypeSpecMetadata
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("flavor", flavor);
         jsonWriter.writeStringField("apiVersion", apiVersion);
-        jsonWriter.writeMapField("crossLanguageDefinitions", this.crossLanguageDefinitions, (writer, element) -> {
-            if (element == null) {
-                writer.writeNull();
-            } else {
-                writer.writeString(element);
-            }
-        });
+        if (!CoreUtils.isNullOrEmpty(crossLanguageDefinitions)) {
+            jsonWriter.writeMapField("crossLanguageDefinitions", this.crossLanguageDefinitions, (writer, element) -> {
+                if (element == null) {
+                    writer.writeNull();
+                } else {
+                    writer.writeString(element);
+                }
+            });
+        }
         return jsonWriter.writeEndObject();
     }
 }
