@@ -698,11 +698,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/typescript':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -720,8 +720,8 @@ importers:
         version: 3.5.3
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.16.0
+        version: 0.16.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.1)(@types/babel__core@7.20.5)(rollup@4.40.2)
@@ -2690,18 +2690,10 @@ packages:
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
 
-  '@alloy-js/cli@0.15.0':
-    resolution: {integrity: sha512-VI113tvoXL8ceSWloOr7ZbvMtQrGFLYe6bRUWsFkwpXuzRIK+JvyQJ5gspHKpuUBl0FDMTcYljvLEDKba9ueQA==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-
   '@alloy-js/cli@0.16.0':
     resolution: {integrity: sha512-a6BXlN84n37T02mdRlZ9QagTMuheVYEJH1LYX4lD+V8hzP0/4Kq544ucWhJj9cAJhh7wSCmyqBbmBFmP1XEyvw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  '@alloy-js/core@0.15.0':
-    resolution: {integrity: sha512-GfQZqaUqGBGFeFJbA9H7Iu+IJQiEQ2B3Hjh5C1N2YclEg5vtjSAb/pdqJ5x2BTqOq2iUCpFOJ44pJy5mhS116Q==}
 
   '@alloy-js/core@0.16.0':
     resolution: {integrity: sha512-A6jtbUP2JANFH4qNgKnybjzuDgLmqXnH/5/PAyhc5FALW/sjQKIxsikpcMhJSrkR2xMs87Rbw2VlS0FDDgKSDg==}
@@ -2712,9 +2704,6 @@ packages:
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
     engines: {node: '>=18.0.0'}
-
-  '@alloy-js/typescript@0.15.0':
-    resolution: {integrity: sha512-dALRXFY6h3i3i4Xv6ym+ejmgerxP6HcCECAhTC7CZJ4zNY9fHDhjqfxScsEaFrbalpib4JMX8wceO47l4CIFTw==}
 
   '@alloy-js/typescript@0.16.0':
     resolution: {integrity: sha512-ytBT0TFxD16Sb/iT9ORKIyn4+uVblzY/50h6TLyy3os/b9BWxX1kgF82kmK9YPlvOkgewx/lFf5mQ/VLufanvw==}
@@ -13550,16 +13539,6 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.15.0':
-    dependencies:
-      '@alloy-js/babel-preset': 0.2.1(@babel/core@7.27.1)
-      '@babel/core': 7.27.1
-      '@babel/preset-typescript': 7.27.1(@babel/core@7.27.1)
-      pathe: 2.0.3
-      picocolors: 1.1.1
-    transitivePeerDependencies:
-      - supports-color
-
   '@alloy-js/cli@0.16.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.1(@babel/core@7.27.1)
@@ -13569,14 +13548,6 @@ snapshots:
       picocolors: 1.1.1
     transitivePeerDependencies:
       - supports-color
-
-  '@alloy-js/core@0.15.0':
-    dependencies:
-      '@vue/reactivity': 3.5.13
-      cli-table3: 0.6.5
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.5.3
 
   '@alloy-js/core@0.16.0':
     dependencies:
@@ -13601,12 +13572,6 @@ snapshots:
       - '@types/babel__core'
       - rollup
       - supports-color
-
-  '@alloy-js/typescript@0.15.0':
-    dependencies:
-      '@alloy-js/core': 0.15.0
-      change-case: 5.4.4
-      pathe: 2.0.3
 
   '@alloy-js/typescript@0.16.0':
     dependencies:
