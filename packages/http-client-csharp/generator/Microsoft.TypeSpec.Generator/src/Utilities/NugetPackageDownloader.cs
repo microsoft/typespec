@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NuGet.Protocol;
 using NuGet.Packaging.Core;
-using NuGet.Frameworks;
 using NuGet.Packaging.Signing;
 using NuGet.Packaging;
 using System.IO;
@@ -52,12 +51,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             _packageVersion = packageVersion;
         }
 
-        protected virtual SourceRepository GetCoreV3NugetSourceRepo(string source)
+        private protected virtual SourceRepository GetCoreV3NugetSourceRepo(string source)
         {
             return Repository.Factory.GetCoreV3(source);
         }
 
-        protected virtual async Task<bool> PackageExistsInSource(
+        private protected virtual async Task<bool> PackageExistsInSource(
             MetadataResource resource,
             string packageName,
             NuGetVersion packageVersion,
@@ -68,13 +67,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return await resource.Exists(new PackageIdentity(packageName, packageVersion), cacheContext, logger, cancellationToken);
         }
 
-        protected virtual bool TryFindPackageInCache(string packageName, NuGetVersion version, out NuGet.Repositories.LocalPackageInfo? packageInfo)
+        private protected virtual bool TryFindPackageInCache(string packageName, NuGetVersion version, out NuGet.Repositories.LocalPackageInfo? packageInfo)
         {
             packageInfo = _localRepo.FindPackage(packageName, version);
             return packageInfo != null;
         }
 
-        protected virtual bool DirectoryExists(string path)
+        private protected virtual bool DirectoryExists(string path)
         {
             return Directory.Exists(path);
         }
@@ -83,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             var parsedVersion = ParseVersionString();
             var resource = await FindPackageInSources(parsedVersion);
-            // install the package
+
             return await InstallPackageAndGetPath(resource);
         }
 
@@ -124,18 +123,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     catch (FatalProtocolException ex) when
                             (ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode == HttpStatusCode.Unauthorized)
                     {
-                        Console.WriteLine($"Unauthorized access to source {source.Name}. Skipping..");
+                        CodeModelGenerator.Instance.Emitter.Debug($"Unauthorized access to source {source.Name}. Skipping..");
                     }
                 }
             }
 
             var searchedSources = string.Join(Environment.NewLine, _availableSources.Select(s => s.Source));
-            throw new InvalidOperationException($"Failed to find package {_packageName}.{_packageVersion} in sources:{Environment.NewLine}{searchedSources}");
+            throw new InvalidOperationException($"Failed to find package {_packageName}.{_packageVersion} in any of the searched sources: {searchedSources}");
         }
 
         private async Task<string> InstallPackageAndGetPath(NugetPackageResource packageResource)
         {
-            string? nugetPackagePathInCache;
             string packageName = packageResource.Name;
             string source = packageResource.FeedUrl;
             NuGetVersion? version = packageResource.Version;
@@ -147,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             await InstallPackage(packageName, version, source, isLocalFeed);
-            if (!TryFindPackageLibPathInCache(packageName, version, out nugetPackagePathInCache))
+            if (!TryFindPackageLibPathInCache(packageName, version, out string? nugetPackagePathInCache))
             {
                 throw new InvalidOperationException($"Failed to find package {packageName} in cache after installation.");
             }
@@ -158,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private async Task InstallPackage(string packageName, NuGetVersion version, string sourceFeedUrl, bool isLocalFeed)
         {
             var packageIdentity = new PackageIdentity(packageName, version);
-            Console.WriteLine($"Installing package {packageName}.{version} from source {sourceFeedUrl}..");
+            CodeModelGenerator.Instance.Emitter.Debug($"Installing package {packageName}.{version} from source {sourceFeedUrl}..");
 
             try
             {
