@@ -122,8 +122,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
         if async_mode:
+            default_paging_submodule = f"{'async_' if self.code_model.is_azure_flavor else ''}paging"
             file_import.add_submodule_import(
-                f"{self.code_model.core_library}.paging",
+                f"{self.code_model.core_library}.{default_paging_submodule}",
                 "AsyncItemPaged",
                 ImportType.SDKCORE,
                 TypingSection.CONDITIONAL,
