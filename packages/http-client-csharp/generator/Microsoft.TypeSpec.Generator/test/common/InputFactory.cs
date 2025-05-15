@@ -223,20 +223,87 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? wireName = null,
             string? summary = null,
             string? serializedName = null,
-            string? doc = null,
-            InputModelPropertyKind kind = InputModelPropertyKind.Property)
+            string? doc = null)
         {
             return new InputModelProperty(
-                name,
-                kind,
-                summary,
-                doc ?? $"Description for {name}",
-                type,
-                isRequired,
-                isReadOnly,
-                isDiscriminator,
-                serializedName,
-                new(json: new(wireName ?? name.ToVariableName())));
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                isDiscriminator: isDiscriminator,
+                serializedName: serializedName ?? name,
+                serializationOptions: new(json: new(wireName ?? name.ToVariableName())));
+        }
+
+        public static InputHeaderParameter HeaderParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null)
+        {
+            return new InputHeaderParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                collectionFormat: collectionFormat,
+                serializedName: serializedName ?? name);
+        }
+
+        public static InputQueryParameter QueryParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? collectionFormat = null,
+            string? serializedName = null,
+            bool explode = false)
+        {
+            return new InputQueryParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                serializedName: serializedName ?? name,
+                collectionFormat: collectionFormat,
+                explode: explode);
+        }
+
+        public static InputPathParameter PathParameter(
+            string name,
+            InputType type,
+            bool isRequired = false,
+            bool isReadOnly = false,
+            string? summary = null,
+            string? doc = null,
+            string? serializedName = null,
+            bool allowReserved = false)
+        {
+            return new InputPathParameter(
+                name: name,
+                summary: summary,
+                doc: doc ?? $"Description for {name}",
+                type: type,
+                isRequired: isRequired,
+                isReadOnly: isReadOnly,
+                access: null,
+                serializedName: serializedName ?? name,
+                allowReserved: allowReserved);
         }
 
         // Replace reflection with InternalsVisibleTo after fixing https://github.com/microsoft/typespec/issues/7075")]
@@ -246,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
-            IEnumerable<InputModelProperty>? properties = null,
+            IEnumerable<InputProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
             string? discriminatedKind = null,
@@ -254,7 +321,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null)
         {
-            IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
+            IEnumerable<InputProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
             var model = new InputModelType(
                 name,
@@ -269,7 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                propertiesList.FirstOrDefault(p => p.IsDiscriminator),
+                propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,

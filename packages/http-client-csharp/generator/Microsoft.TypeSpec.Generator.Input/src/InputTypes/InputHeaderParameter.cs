@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputHeaderParameter : InputProperty
     {
-        public InputHeaderParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string? collectionFormat, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access)
+        public InputHeaderParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string? collectionFormat, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
         {
             Name = name;
             Summary = summary;
@@ -18,6 +18,5 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public string? CollectionFormat { get; internal set; }
-        public string SerializedName { get; internal set; }
     }
 }

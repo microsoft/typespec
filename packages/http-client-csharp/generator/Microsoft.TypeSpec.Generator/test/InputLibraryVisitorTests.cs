@@ -126,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 return base.PreVisitModel(inputModel, typeProvider);
             }
 
-            protected internal override PropertyProvider? PreVisitProperty(InputModelProperty inputModelProperty, PropertyProvider? propertyProvider)
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty inputModelProperty, PropertyProvider? propertyProvider)
             {
                 if (_cleanupReference && inputModelProperty.Type.Name == "Model1")
                 {

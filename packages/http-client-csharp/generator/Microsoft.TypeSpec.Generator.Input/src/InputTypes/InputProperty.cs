@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public abstract class InputProperty
     {
-        protected InputProperty(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access)
+        protected InputProperty(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, string serializedName)
         {
             Name = name;
             Summary = summary;
@@ -16,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             Access = access;
+            SerializedName = serializedName;
         }
 
         public string Name { get; internal set; }
@@ -25,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsRequired { get; internal set; }
         public bool IsReadOnly { get; internal set; }
         public string? Access { get; internal set; }
+        public string SerializedName { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
         public InputModelType? EnclosingType { get; internal set; }
     }

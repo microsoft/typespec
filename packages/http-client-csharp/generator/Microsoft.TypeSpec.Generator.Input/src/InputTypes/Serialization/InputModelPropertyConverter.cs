@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.IsDiscriminator = isDiscriminator;
             property.Decorators = decorators ?? [];
             property.SerializationOptions = serializationOptions;
-            property.DefaultSerializedName = serializedName;
+            property.SerializedName = serializedName ?? serializationOptions?.Json?.Name ?? name;
 
             return property;
         }

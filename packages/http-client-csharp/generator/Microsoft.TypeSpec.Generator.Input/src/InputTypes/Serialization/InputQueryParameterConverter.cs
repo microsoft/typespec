@@ -41,8 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 isRequired: false,
                 isReadOnly: false,
                 access: null,
-                collectionFormat: null,
                 serializedName: null!,
+                collectionFormat: null,
                 explode: false);
             resolver.AddReference(id, property);
 

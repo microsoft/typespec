@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputPathParameter : InputProperty
     {
-        public InputPathParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool allowReserved, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access)
+        public InputPathParameter(string name, string? summary, string? doc, InputType type, bool isRequired, bool isReadOnly, string? access, bool allowReserved, string serializedName) : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName)
         {
             Name = name;
             Summary = summary;
@@ -14,10 +14,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             AllowReserved = allowReserved;
-            SerializedName = serializedName;
         }
 
         public bool AllowReserved { get; internal set; }
-        public string SerializedName { get; internal set; }
     }
 }
