@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
 
 namespace Microsoft.TypeSpec.Generator
@@ -208,7 +209,7 @@ namespace Microsoft.TypeSpec.Generator
             return new GeneratedCodeWorkspace(project);
         }
 
-        private static async Task<CSharpCompilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
+        private static async Task<Compilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
             Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
@@ -217,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
-            return (CSharpCompilation?)await project.GetCompilationAsync();
+            return await project.GetCompilationAsync();
         }
 
         /// <summary>
@@ -285,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.BaselineContractMissing, $"Can't find Baseline contract assembly ({ns}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }
