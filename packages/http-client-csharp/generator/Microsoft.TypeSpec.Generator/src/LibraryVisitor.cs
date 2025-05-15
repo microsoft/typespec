@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator
@@ -200,6 +201,11 @@ namespace Microsoft.TypeSpec.Generator
         protected internal virtual MethodBodyStatement? VisitIfStatement(IfStatement statement, MethodProvider method)
         {
             return statement;
+        }
+
+        protected internal virtual ValueExpression? VisitScopedApiExpression(ScopedApi expression, MethodProvider method)
+        {
+            return expression;
         }
 
         protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfElseStatement statement, MethodProvider method)
