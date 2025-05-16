@@ -283,6 +283,16 @@ export interface Checker {
   readonly nullType: NullType;
   /** @internal */
   readonly anyType: UnknownType;
+
+  /** @internal */
+  stats: CheckerStats;
+}
+
+export interface CheckerStats {
+  /** Number of types created */
+  createdTypes: number;
+  /** Number of types finished */
+  finishedTypes: number;
 }
 
 interface TypePrototype {}
@@ -309,6 +319,11 @@ const TypeInstantiationMap = class
   implements TypeInstantiationMap {};
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
+  const stats: CheckerStats = {
+    createdTypes: 0,
+    finishedTypes: 0,
+  };
+
   const stdTypes: Partial<StdTypes> = {};
   const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
   const docFromCommentForSym = new Map<Sym, string>();
@@ -377,6 +392,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
@@ -5772,6 +5788,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
+    stats.createdTypes++;
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
 
@@ -5786,6 +5803,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function finishType<T extends Type>(typeDef: T): T {
+    stats.finishedTypes++;
     return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
