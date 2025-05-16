@@ -2,7 +2,7 @@ import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@ty
 import { spawn, SpawnOptions } from "child_process";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
-import { CancellationToken } from "vscode";
+import vscode, { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import which from "which";
 import { parseDocument } from "yaml";
@@ -473,4 +473,9 @@ export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: nu
       fn.apply(this, args);
     }
   } as T;
+}
+
+export function getVscodeUriFromPath(path: string): string {
+  const uri = vscode.Uri.file(path);
+  return uri.toString();
 }

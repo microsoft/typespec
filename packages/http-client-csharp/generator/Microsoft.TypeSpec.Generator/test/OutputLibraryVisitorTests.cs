@@ -104,8 +104,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildSerializationProviders")
                 .Returns([mockSerializationProvider.Object]);
             var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
-            var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty, mockSerializationProvider.Object, new XmlDocProvider());
-            mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
+            var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty,
+                mockSerializationProvider.Object, new XmlDocProvider())
+            {
+                CallBase = true
+            };
+
+        mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([mockMethodProvider.Object]);
 
             _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);

@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: fix
 packages:
-  - "@typespec/emitter-framework"
+  - typespec-vscode
 ---
 
-Use wasm version of tree sitter for snippet extractor
+Unify the writing of OpenAPI 3
