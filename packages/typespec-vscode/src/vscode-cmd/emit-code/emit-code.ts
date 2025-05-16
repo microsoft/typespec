@@ -12,6 +12,7 @@ import { getDirectoryPath } from "../../path-utils.js";
 import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
+import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
@@ -460,6 +461,13 @@ async function doEmit(
           });
           return ResultCode.Fail;
         }
+        const isSupport = await isCompilerSupport(tspLanguageClient);
+        if (!isSupport) {
+          logger.info(
+            "Compile project is not supported by the current TypeSpec Compiler's LSP. Emitting Failed.",
+          );
+          return ResultCode.Fail;
+        }
         const compileResult = await tspLanguageClient.compileProject(
           {
             uri: getVscodeUriFromPath(mainTspFile),
@@ -796,4 +804,22 @@ export async function emitCode(
       return ResultCode.Cancelled;
     }
   }
+}
+
+async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
+  if (
+    client.initializeResult?.serverInfo?.version === undefined ||
+    client.initializeResult?.customCapacities?.internalCompile !== true
+  ) {
+    logger.error(
+      `Compile project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "< 1.0.0"}). Please upgrade TypeSpec Compiler and try again.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return false;
+  }
+  return true;
 }
