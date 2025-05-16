@@ -1,9 +1,11 @@
+import pc from "picocolors";
 import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
+import { Stats } from "../../../stats.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 import { CliCompilerHost } from "../../types.js";
 import {
@@ -68,6 +70,9 @@ async function compileOnce(
   try {
     const program = await compileProgram(host, entrypoint, cliOptions);
     logProgramResult(host, program);
+    if (args.stats) {
+      printStats(program.stats);
+    }
     if (program.hasError()) {
       process.exit(1);
     }
@@ -191,4 +196,45 @@ function logProgramResult(
       "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config.",
     );
   }
+}
+
+function printStats(stats: Stats) {
+  print("Compiler statistics:");
+  printRuntime(stats, "resolver");
+  printRuntime(stats, "checker");
+  printGroup(stats, "validation", "validators");
+  printGroup(stats, "linter", "rules");
+  printGroup(stats, "emit", "emitters");
+
+  function printGroup<K extends keyof Stats, L extends keyof Stats[K]>(
+    base: Stats,
+    groupName: K,
+    itemsKey: L,
+  ) {
+    const group: any = base[groupName];
+    print(`${pc.gray(groupName)}: ${runtimeStr(group["total"] ?? 0)}`);
+    for (const [key, value] of Object.entries(group[itemsKey])) {
+      if (typeof value === "number") {
+        printRuntime(group[itemsKey], key, 2);
+      }
+    }
+  }
+  function printRuntime(base: any, key: string, indent: number = 0) {
+    print(`${" ".repeat(indent)}${pc.gray(key)}: ${runtimeStr(base[key])}`);
+  }
+
+  function runtimeStr(runtime: number) {
+    const str = `${Math.round(runtime)}ms`;
+    if (runtime > 1000) {
+      return pc.red(str);
+    } else if (runtime > 500) {
+      return pc.yellow(str);
+    }
+    return pc.green(str);
+  }
+}
+
+function print(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(message);
 }
