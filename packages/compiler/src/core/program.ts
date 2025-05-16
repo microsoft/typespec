@@ -42,7 +42,7 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { Stats, startTimer, time } from "./stats.js";
+import { Stats, startTimer, time, timeAsync } from "./stats.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -267,7 +267,7 @@ async function createProgram(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  await loadSources(resolvedMain);
+  stats.loader = await timeAsync(() => loadSources(resolvedMain));
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;

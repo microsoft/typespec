@@ -1,6 +1,6 @@
 export interface Stats {
   total: number;
-  parser: number;
+  loader: number;
   resolver: number;
   checker: number;
   validation: {
@@ -39,5 +39,11 @@ export function startTimer(): Timer {
 export function time(fn: () => void): number {
   const timer = startTimer();
   fn();
+  return timer.end();
+}
+
+export async function timeAsync(fn: () => Promise<void>): Promise<number> {
+  const timer = startTimer();
+  await fn();
   return timer.end();
 }

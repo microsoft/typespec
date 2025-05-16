@@ -200,6 +200,7 @@ function logProgramResult(
 
 function printStats(stats: Stats) {
   print("Compiler statistics:");
+  printRuntime(stats, "loader");
   printRuntime(stats, "resolver");
   printRuntime(stats, "checker");
   printGroup(stats, "validation", "validators");
