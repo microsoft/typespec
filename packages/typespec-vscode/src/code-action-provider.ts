@@ -1,3 +1,4 @@
+import { PackageJson } from "@typespec/compiler";
 import vscode from "vscode";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";
@@ -75,17 +76,10 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           getDirectoryPath(packageFileUri.fsPath),
         );
 
-        if (
-          packageJsonFolder === undefined ||
-          (!targetPackage.startsWith("./") &&
-            !targetPackage.startsWith("../") &&
-            !isPathAbsolute(targetPackage) &&
-            packageJson &&
-            ((packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
-              (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
-              (packageJson.devDependencies && targetPackage in packageJson.devDependencies)))
-        ) {
-          actions.push(this.createInstallPackageCodeAction(diagnostic, packageJsonFolder));
+        if (this.shouldOfferPackageInstallation(targetPackage, packageJsonFolder, packageJson)) {
+          actions.push(
+            this.createInstallPackageCodeAction(diagnostic, targetPackage, packageJsonFolder),
+          );
         }
       }
     }
@@ -93,12 +87,51 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     return actions;
   }
 
+  /**
+   * Determines if a package should be installed based on the following criteria:
+   * - No package.json found in parent directories, OR
+   * - The target is a npm package (not a local path or absolute path) that exists
+   *   in package.json dependencies but isn't installed
+   *
+   * @param targetPackage The package to check for installation
+   * @param packageJsonFolder The folder containing package.json, if found
+   * @param packageJson The parsed package.json contents, if found
+   * @returns True if the package should be installed
+   */
+  private shouldOfferPackageInstallation(
+    targetPackage: string,
+    packageJsonFolder: string | undefined,
+    packageJson: PackageJson | undefined,
+  ): boolean {
+    if (packageJsonFolder === undefined) {
+      return true;
+    }
+
+    if (
+      !targetPackage.startsWith("./") &&
+      !targetPackage.startsWith("../") &&
+      !isPathAbsolute(targetPackage) &&
+      packageJson
+    ) {
+      // Add `false` to resolve the error of returning `boolean|undefined` type
+      return (
+        (packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
+        (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
+        (packageJson.devDependencies && targetPackage in packageJson.devDependencies) ||
+        false
+      );
+    }
+
+    return false;
+  }
+
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
+    pkgName: string,
     projectFolder?: string,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
-      "Install package by `npm install` for unrecognized import",
+      `Install "${pkgName}" using npm`,
       vscode.CodeActionKind.QuickFix,
     );
     action.command = {
