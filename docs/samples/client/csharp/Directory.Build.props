@@ -1,9 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <!-- append nuget.org to whatever you already have -->
-    <RestoreSources>
-      $(RestoreSources);
-      https://api.nuget.org/v3/index.json
-    </RestoreSources>
-  </PropertyGroup>
-</Project>
