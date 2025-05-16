@@ -57,12 +57,15 @@ public class TypeSpecPlugin extends Javagen {
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
         JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
 
-        TypeSpecMetadata metadata = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
-            emitterOptions.getApiVersion() == null
-                ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
-                : emitterOptions.getApiVersion(),
-            collectCrossLanguageDefinitions(client));
-        javaPackage.addTypeSpecMetadata(metadata);
+        if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
+            TypeSpecMetadata metadata
+                = new TypeSpecMetadata(ClientModelUtil.getArtifactId(), emitterOptions.getFlavor(),
+                    emitterOptions.getApiVersion() == null
+                        ? MetadataUtil.getLatestApiVersionFromClient(codeModel)
+                        : emitterOptions.getApiVersion(),
+                    collectCrossLanguageDefinitions(client));
+            javaPackage.addTypeSpecMetadata(metadata);
+        }
 
         return javaPackage;
     }
