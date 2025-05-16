@@ -90,9 +90,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
         FluentJavaPackage javaPackage = handleTemplate(client);
         handleFluentLite(codeModel, client, javaPackage, apiVersion);
 
-        TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-            apiVersion, collectCrossLanguageDefinitions(client));
-        javaPackage.addTypeSpecMetadata(metadata);
+        if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
+            TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
+                apiVersion, collectCrossLanguageDefinitions(client));
+            javaPackage.addTypeSpecMetadata(metadata);
+        }
 
         return javaPackage;
     }
