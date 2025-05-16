@@ -122,6 +122,16 @@ export type ProtoScalar = [typeof $scalar, ScalarName];
 export type ProtoType = ProtoScalar | ProtoRef | ProtoMap;
 
 /**
+ * A wrapped `ProtoType`. If the `protoType` is a `ProtoRef` requiring an
+ * import, then the import `source` should be provided. Otherwise, it should
+ * be undefined.
+ */
+export type ProtoTypeInfo = {
+  protoType: ProtoType;
+  source?: string;
+};
+
+/**
  * Create a scalar type by name.
  */
 export function scalar(t: ScalarName): ProtoScalar {
