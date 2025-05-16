@@ -74,8 +74,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 ]
             };
 
-            SetupCommonPackageInCache(packageName, packageVersion, mockPackageSourceRepository);
-
             var mockLocalPackageInfo = new LocalPackageInfo(packageName, NuGetVersion.Parse(packageVersion), packageName, "mockSourceUri", "mockManifestPath",
                 "mockSha512Path", new Lazy<NuGet.Packaging.NuspecReader>(), new Lazy<IReadOnlyList<string>>(), new Lazy<string>(),
                 new Lazy<NuGet.RuntimeModel.RuntimeGraph>());
@@ -100,37 +98,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             {
                 Assert.ThrowsAsync<InvalidOperationException>(downloader.DownloadAndInstallPackage);
             }
-        }
-
-        /// <summary>
-        /// Helper method to setup the common package in the cache for testing.
-        /// </summary>
-        public static void SetupCommonPackageInCache(string packageName, string packageVersion, Mock<SourceRepository> mockPackageSourceRepository)
-        {
-            var mockMetadataResource = new Mock<MetadataResource>();
-
-            // mock fetching dependency info
-            var primaryPackage = new PackageIdentity(packageName, NuGetVersion.Parse(packageVersion));
-            var framework = NuGetFramework.Parse("net8.0");
-            using var cacheContext = new SourceCacheContext();
-            var packageSource = new PackageSource("mockSource");
-            var packageSources = new List<PackageSource>() { packageSource };
-            ISet<SourcePackageDependencyInfo> availablePackages = new HashSet<SourcePackageDependencyInfo>();
-            TestNugetSettings mockSettings = new()
-            {
-                Sections = new[]
-                {
-                    new TestNugetSettingSection(ConfigurationConstants.PackageSources, new SourceItem("mockSource", "mockSourceUri"))
-                }
-            };
-            var mockLogger = new Mock<ILogger>();
-            var mockDependencyInfoResource = new Mock<DependencyInfoResource>();
-            mockDependencyInfoResource.Setup(d => d.ResolvePackage(
-                It.IsAny<PackageIdentity>(), It.IsAny<NuGetFramework>(), It.IsAny<SourceCacheContext>(), It.IsAny<ILogger>(),
-                It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new SourcePackageDependencyInfo(primaryPackage.Id, primaryPackage.Version, [], true, mockPackageSourceRepository.Object)));
-            mockPackageSourceRepository.Setup(s => s.GetResourceAsync<DependencyInfoResource>())
-                .Returns(Task.FromResult(mockDependencyInfoResource.Object));
         }
 
         public static IEnumerable<TestCaseData> ParseVersionStringTestCases

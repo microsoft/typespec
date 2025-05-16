@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private readonly string _globalNugetPackagePath;
         private readonly ISettings _nugetSettings;
         private readonly IReadOnlyList<PackageSource> _availableSources;
+        // cspell: disable-next-line
         private readonly NuGetv3LocalRepository _localRepo;
         private readonly List<string> _preferredDotNetFrameworkVersions =
         [
@@ -46,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             _nugetSettings = settings;
             _availableSources = GetPrimaryPackageSources(settings);
             _globalNugetPackagePath = SettingsUtility.GetGlobalPackagesFolder(settings);
+            // cspell: disable-next-line
             _localRepo = new NuGetv3LocalRepository(_globalNugetPackagePath);
             _packageName = packageName;
             _packageVersion = packageVersion;
@@ -163,6 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private async Task InstallLocalPackage(string sourceFeedUrl, PackageIdentity packageIdentity)
         {
             var packageExtractionContext = new PackageExtractionContext(
+                // cspell: disable-next-line
                 PackageSaveMode.Defaultv3,
                 XmlDocFileSaveMode.None,
                 ClientPolicyContext.GetClientPolicy(_nugetSettings, NullLogger.Instance),
