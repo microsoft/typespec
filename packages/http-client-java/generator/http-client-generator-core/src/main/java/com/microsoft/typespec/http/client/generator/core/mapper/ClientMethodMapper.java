@@ -173,14 +173,18 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         continue;
                     }
 
+                    final CreateClientMethodArgs createPagingMethodArgs
+                        = createMethodArgs.forPaging(pagingMetadata, parametersDetails);
+
                     if (proxyMethod.isSync()) {
-                        createPagingClientMethods(true, baseMethod, pagingMetadata, methods, createMethodArgs);
+                        createPagingClientMethods(true, baseMethod, pagingMetadata, methods, createPagingMethodArgs);
                     } else {
-                        createPagingClientMethods(false, baseMethod, pagingMetadata, methods, createMethodArgs);
+                        createPagingClientMethods(false, baseMethod, pagingMetadata, methods, createPagingMethodArgs);
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
                             // If SyncMethodsGeneration is enabled and Sync Stack is not, perform synchronous pageable
                             // API generation.
-                            createPagingClientMethods(true, baseMethod, pagingMetadata, methods, createMethodArgs);
+                            createPagingClientMethods(true, baseMethod, pagingMetadata, methods,
+                                createPagingMethodArgs);
                         }
                     }
                 } else if (operation.isLro()
@@ -984,5 +988,23 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             this.generateRequiredOnlyParametersOverload = settings.isRequiredParameterClientMethods()
                 && defaultOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
         }
+
+        CreateClientMethodArgs forPaging(PagingMetadata pagingMetadata,
+            ClientMethodParametersDetails parametersDetails) {
+            return new CreateClientMethodArgs(this.settings, this.isProtocolMethod, this.methodsReturnDescription,
+                getPageMethodOverloadType(pagingMetadata, parametersDetails), this.methodNamer);
+        }
+    }
+
+    private static MethodOverloadType getPageMethodOverloadType(PagingMetadata pagingMetadata,
+        ClientMethodParametersDetails parametersDetails) {
+        final MethodPageDetails methodPageDetails = pagingMetadata.asMethodPageDetails(false);
+        final boolean hasNonRequiredParameters = parametersDetails.getParameterTuples()
+            .map(t -> t.parameter)
+            .filter(p -> !methodPageDetails.shouldHideParameter(p))
+            .anyMatch(p -> !p.isRequired() && !p.isConstant());
+        return hasNonRequiredParameters
+            ? MethodOverloadType.OVERLOAD_MAXIMUM
+            : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
     }
 }
