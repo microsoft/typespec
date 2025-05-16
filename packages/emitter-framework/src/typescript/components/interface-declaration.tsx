@@ -154,7 +154,7 @@ function InterfaceBody(props: TypedInterfaceDeclarationProps): Children {
 
   return (
     <>
-      <ay.For each={validTypeMembers} line {...enderProp}>
+      <ay.For each={validTypeMembers} semicolon line {...enderProp}>
         {(typeMember) => {
           return <InterfaceMember type={typeMember} />;
         }}
