@@ -112,7 +112,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+        internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, ClientProvider enclosingType)
         {
             ScmMethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
             var visitors = ScmCodeModelGenerator.Instance.Visitors;

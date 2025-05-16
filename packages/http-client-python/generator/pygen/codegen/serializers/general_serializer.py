@@ -63,7 +63,7 @@ class GeneralSerializer(BaseSerializer):
             "token_credential": token_credential,
             "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
             "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
-            "client_name": self.code_model.clients[0].name,
+            "client_name": self.code_model.clients[0].name if self.code_model.clients else "",
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
