@@ -51,12 +51,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             _packageVersion = packageVersion;
         }
 
-        private protected virtual SourceRepository GetCoreV3NugetSourceRepo(string source)
+        protected virtual SourceRepository GetCoreV3NugetSourceRepo(string source)
         {
             return Repository.Factory.GetCoreV3(source);
         }
 
-        private protected virtual async Task<bool> PackageExistsInSource(
+        protected virtual async Task<bool> PackageExistsInSource(
             MetadataResource resource,
             string packageName,
             NuGetVersion packageVersion,
@@ -67,38 +67,23 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return await resource.Exists(new PackageIdentity(packageName, packageVersion), cacheContext, logger, cancellationToken);
         }
 
-        private protected virtual bool TryFindPackageInCache(string packageName, NuGetVersion version, out NuGet.Repositories.LocalPackageInfo? packageInfo)
+        protected virtual bool TryFindPackageInCache(string packageName, NuGetVersion version, out NuGet.Repositories.LocalPackageInfo? packageInfo)
         {
             packageInfo = _localRepo.FindPackage(packageName, version);
             return packageInfo != null;
         }
 
-        private protected virtual bool DirectoryExists(string path)
+        protected virtual bool DirectoryExists(string path)
         {
             return Directory.Exists(path);
         }
 
         public async Task<string> DownloadAndInstallPackage()
         {
-            var parsedVersion = ParseVersionString();
+            var parsedVersion = ParseVersionString(_packageVersion);
             var resource = await FindPackageInSources(parsedVersion);
 
             return await InstallPackageAndGetPath(resource);
-        }
-
-        private NuGetVersion ParseVersionString()
-        {
-            NuGetVersion parsedVersion;
-            try
-            {
-                parsedVersion = NuGetVersion.Parse(_packageVersion);
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException($"Failed to parse version string {_packageVersion}.", nameof(_packageVersion), ex);
-            }
-
-            return parsedVersion;
         }
 
         private async Task<NugetPackageResource> FindPackageInSources(NuGetVersion packageVersion)
@@ -269,6 +254,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return [.. new PackageSourceProvider(settings)
                 .LoadPackageSources()
                 .Where(source => source.IsEnabled)];
+        }
+
+        internal static NuGetVersion ParseVersionString(string version)
+        {
+            NuGetVersion parsedVersion;
+            try
+            {
+                parsedVersion = NuGetVersion.Parse(version);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException($"Failed to parse version string {version}.", nameof(version), ex);
+            }
+
+            return parsedVersion;
         }
 
         internal readonly struct NugetPackageResource
