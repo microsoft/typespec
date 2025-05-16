@@ -20,6 +20,7 @@ using System.IO;
 using System.Diagnostics.CodeAnalysis;
 using NuGet.Repositories;
 using ILogger = NuGet.Common.ILogger;
+using PackageArchiveDownloader = NuGet.Protocol.LocalPackageArchiveDownloader;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -175,7 +176,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var sourceNugetFileName = packageSourceResolver.GetPackageFileName(packageIdentity.Id, packageIdentity.Version);
             var sourceNugetFilePath = Path.Combine(packageSourceResolver.RootPath, sourceNugetFileName);
 
-            using var packageDownloader = new NuGet.Protocol.LocalPackageArchiveDownloader(
+            using var packageDownloader = new PackageArchiveDownloader(
                 source: sourceFeedUrl,
                 packageFilePath: sourceNugetFilePath,
                 packageIdentity: packageIdentity,
