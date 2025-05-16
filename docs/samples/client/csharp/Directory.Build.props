@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- append nuget.org to the nuget.config feeds. We can't add this directly to the nuget.config due to compliance errors -->
+    <RestoreSources>
+      $(RestoreSources);
+      https://api.nuget.org/v3/index.json
+    </RestoreSources>
+  </PropertyGroup>
+</Project>
