@@ -101,12 +101,6 @@ const libDef = {
           "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
       },
     },
-    "no-valid-client": {
-      severity: "warning",
-      messages: {
-        default: "Can't generate Python SDK since no client defined in typespec file.",
-      },
-    },
     "invalid-paging-items": {
       severity: "warning",
       messages: {
