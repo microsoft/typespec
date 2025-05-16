@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -30,10 +30,12 @@ import { OperationHandler } from "../types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
+    const { $ } = useTsp();
     const pagingMetadata = $.operation.getPagingMetadata(httpOperation.operation);
     return pagingMetadata !== undefined;
   },
   handle(httpOperation: HttpOperation): Children {
+    const { $ } = useTsp();
     const clientLibrary = cl.useClientLibrary();
     const client = clientLibrary.getClientForOperation(httpOperation);
 

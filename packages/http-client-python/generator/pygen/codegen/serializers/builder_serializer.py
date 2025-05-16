@@ -672,7 +672,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 [
                     "_body = (",
                     f"    {body_param.client_name}.as_dict()",
-                    f"    if isinstance({body_param.client_name}, _model_base.Model) else",
+                    f"    if isinstance({body_param.client_name}, _Model) else",
                     f"    {body_param.client_name}",
                     ")",
                     f"_file_fields: List[str] = {file_fields}",
@@ -1276,6 +1276,17 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
                 else api_version_param.full_client_name
             )
             retval.append(f'_next_request_params["api-version"] = {api_version}')
+            if builder.next_link_reinjected_parameters:
+                for param in builder.next_link_reinjected_parameters:
+                    if param.location == ParameterLocation.QUERY:
+                        retval.extend(
+                            self.parameter_serializer.serialize_query_header(
+                                param,
+                                "next_request_params",
+                                self.serializer_name,
+                                self.code_model.is_legacy,
+                            )
+                        )
             query_str = ", params=_next_request_params"
             next_link_str = "urllib.parse.urljoin(next_link, _parsed_next_link.path)"
         except StopIteration:

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -145,13 +146,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             _endpointParameterName = new(GetEndpointParameterName);
             _additionalClientFields = new(BuildAdditionalClientFields);
-            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Methods.SelectMany(m => m.Operation.Parameters).Where(p => p.Kind == InputParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
             _subClients = new(GetSubClients);
         }
-
-        private const string namespaceConflictCode = "client-namespace-conflict";
 
         private string? _namespace;
         // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
@@ -170,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // figure out if this namespace has been changed for this client
             if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
-                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
         }
@@ -232,6 +231,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
+
+        public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -503,16 +504,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected override ScmMethodProvider[] BuildMethods()
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
-            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Operations.Count * 4) + subClientCount);
+            List<ScmMethodProvider> methods = new List<ScmMethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
 
-            // Build methods for all the operations
-            foreach (var operation in _inputClient.Operations)
+            foreach (var serviceMethod in _inputClient.Methods)
             {
-                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(serviceMethod, this);
                 if (clientMethods != null)
                 {
                     methods.AddRange(clientMethods);
@@ -559,7 +559,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? $"Get{subClient.Name}"
                     : $"Get{subClient.Name}{ClientSuffix}";
 
-                var factoryMethod = new MethodProvider(
+                var factoryMethod = new ScmMethodProvider(
                     new(
                         factoryMethodName,
                         $"Initializes a new instance of {subClient.Type.Name}",

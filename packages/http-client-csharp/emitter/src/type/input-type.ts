@@ -5,13 +5,18 @@ import {
   AccessFlags,
   DecoratorInfo,
   SdkBuiltInKinds,
+  SdkModelPropertyType,
   SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
-import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
+import { InputServiceMethod } from "./input-service-method.js";
 
+/**
+ * The input client type for the CSharp emitter.
+ * @beta
+ */
 export interface InputClient extends DecoratedType {
   kind: "client";
   name: string;
@@ -19,7 +24,7 @@ export interface InputClient extends DecoratedType {
   doc?: string;
   summary?: string;
   parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
-  operations: InputOperation[];
+  methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
   parent?: InputClient;
@@ -45,6 +50,7 @@ export type InputType =
   | InputUnionType
   | InputModelType
   | InputEnumType
+  | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
   | InputNullableType;
@@ -59,7 +65,11 @@ export interface InputPrimitiveType extends InputTypeBase {
 
 export interface InputLiteralType extends InputTypeBase {
   kind: "constant";
-  valueType: InputPrimitiveType | InputEnumType; // this has to be inconsistent because currently we have possibility of having an enum underlying the literal type
+  name: string;
+  access?: AccessFlags;
+  usage: UsageFlags;
+  namespace: string;
+  valueType: InputPrimitiveType;
   value: string | number | boolean | null;
 }
 
@@ -105,6 +115,10 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
   return type.kind === "union";
 }
 
+/**
+ * The input model type for the CSharp emitter.
+ * @beta
+ */
 export interface InputModelType extends InputTypeBase {
   kind: "model";
   properties: InputModelProperty[];
@@ -122,7 +136,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
+  kind: SdkModelPropertyType["kind"];
   name: string;
   serializedName: string;
   type: InputType;
@@ -131,7 +145,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {
@@ -143,7 +157,7 @@ export interface InputEnumType extends InputTypeBase {
   name: string;
   crossLanguageDefinitionId: string;
   valueType: InputPrimitiveType;
-  values: InputEnumTypeValue[];
+  values: InputEnumValueType[];
   isFixed: boolean;
   isFlags: boolean;
   usage: UsageFlags;
@@ -151,7 +165,7 @@ export interface InputEnumType extends InputTypeBase {
   namespace: string;
 }
 
-export interface InputEnumTypeValue extends InputTypeBase {
+export interface InputEnumValueType extends InputTypeBase {
   kind: "enumvalue";
   name: string;
   value: string | number;

@@ -8,6 +8,7 @@ import {
   HttpVerb,
   OperationContainer,
   getHeaderFieldName,
+  getHttpOperation,
   isHeader,
 } from "@typespec/http";
 import {
@@ -24,6 +25,7 @@ import { HttpContext } from "../index.js";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as routerHelper } from "../../../generated-defs/helpers/router.js";
 import { differentiateModelTypes, writeCodeTree } from "../../util/differentiate.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 /**
  * Emit a router for the HTTP operations defined in a given service.
@@ -484,11 +486,13 @@ interface RouteParameter {
 function createRouteTree(ctx: HttpContext, service: HttpService): RouteTree {
   // First get the Route for each operation in the service.
   const routes = service.operations.map(function (operation) {
-    const segments = getRouteSegments(ctx, operation);
+    const canonicalOperation = canonicalizeHttpOperation(ctx, operation.operation);
+    const [httpOperation] = getHttpOperation(ctx.program, canonicalOperation);
+    const segments = getRouteSegments(ctx, httpOperation);
     return {
-      operation: operation.operation,
+      operation: canonicalOperation,
       container: operation.container,
-      verb: operation.verb,
+      verb: httpOperation.verb,
       parameters: segments.filter((segment) => typeof segment !== "string"),
       segments,
     } as Route;

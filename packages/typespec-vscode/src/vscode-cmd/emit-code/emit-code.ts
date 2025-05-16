@@ -3,9 +3,9 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
+import { tspLanguageClient } from "../../extension-context.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
@@ -13,11 +13,15 @@ import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { ResultCode } from "../../types.js";
-import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import {
+  formatDiagnostic,
+  getEntrypointTspFile,
+  TraverseMainTspFileInWorkspace,
+} from "../../typespec-utils.js";
 import {
   ExecOutput,
+  getVscodeUriFromPath,
   isFile,
-  spawnExecutionAndLogToOutput,
   tryParseYaml,
   tryReadFile,
 } from "../../utils.js";
@@ -438,21 +442,56 @@ async function doEmit(
             return createHash("sha256").update(packageName).digest("hex");
           }
         };
-        emitters.forEach((e) => {
+        emitters.forEach(async (e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             emitterName: generatePackageNameForTelemetry(e.package),
-            emitterVersion: e.version,
+            emitterVersion: e.version ?? (await npmUtil.loadNpmPackage(e.package))?.version,
           });
         });
-        const compileResult = await compile(
-          cli,
-          mainTspFile,
-          emitters.map((e) => {
-            return { name: e.package, options: {} };
-          }),
-          false,
+
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileStartTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
+        if (!tspLanguageClient) {
+          logger.error("LSP client is not started.");
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
+        const compileResult = await tspLanguageClient.compileProject(
+          {
+            uri: getVscodeUriFromPath(mainTspFile),
+          },
+          { emit: emitters.map((e) => e.package) },
         );
-        if (compileResult.exitCode !== 0) {
+        if (!compileResult) {
+          logger.error(`Emitting ${codeInfoStr}...Failed.`, [], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return ResultCode.Fail;
+        }
+        const addSuffix = (count: number, suffix: string) =>
+          count > 1 ? `${count} ${suffix}s` : count === 1 ? `${count} ${suffix}` : undefined;
+        const warningDiagnostics = compileResult.diagnostics.filter(
+          (d) => d.severity === "warning",
+        );
+        if (warningDiagnostics.length > 0) {
+          logger.warning(`Found ${addSuffix(warningDiagnostics.length, "warning")}`);
+          for (const diag of warningDiagnostics) {
+            logger.warning(formatDiagnostic(diag));
+          }
+        }
+        const errorDiagnostics = compileResult.diagnostics.filter((d) => d.severity === "error");
+        if (errorDiagnostics.length > 0) {
+          logger.error(`Found ${addSuffix(errorDiagnostics.length, "error")}`);
+          for (const diag of errorDiagnostics) {
+            logger.error(formatDiagnostic(diag));
+          }
+        }
+        if (compileResult.hasError) {
           logger.error(`Emitting ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
@@ -487,6 +526,10 @@ async function doEmit(
           emitResult: `Emitting code failed: ${inspect(err)}`,
         });
         return ResultCode.Fail;
+      } finally {
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          CompileEndTime: new Date().toISOString(), // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        });
       }
     },
   );
@@ -753,33 +796,4 @@ export async function emitCode(
       return ResultCode.Cancelled;
     }
   }
-}
-
-async function compile(
-  cli: Executable,
-  startFile: string,
-  emitters: { name: string; options: Record<string, string> }[],
-  logPretty?: boolean,
-): Promise<ExecOutput> {
-  const args: string[] = cli.args ?? [];
-  args.push("compile");
-  args.push(startFile);
-  if (emitters) {
-    for (const emitter of emitters) {
-      args.push("--emit", emitter.name);
-      if (emitter.options) {
-        for (const [key, value] of Object.entries(emitter.options)) {
-          args.push("--option", `${emitter.name}.${key}=${value}`);
-        }
-      }
-    }
-  }
-  if (logPretty !== undefined) {
-    args.push("--pretty");
-    args.push(logPretty ? "true" : "false");
-  }
-
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
-    NO_COLOR: "true",
-  });
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.ClientModel;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
@@ -9,11 +10,11 @@ namespace Logging.Plugin
 {
     public class LoggingVisitor : ScmLibraryVisitor
     {
-        protected override MethodProviderCollection Visit(InputOperation operation,
+        protected override ScmMethodProviderCollection Visit(InputServiceMethod serviceMethod,
             TypeProvider enclosingType,
-            MethodProviderCollection methodProvider)
+            ScmMethodProviderCollection methodProvider)
         {
-            return new LoggingMethodProviderCollection(operation, enclosingType);
+            return new LoggingMethodProviderCollection(serviceMethod, enclosingType);
         }
     }
 }

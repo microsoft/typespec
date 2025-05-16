@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 AssemblyTitle = $"SDK Code Generation {CodeModelGenerator.Instance.Configuration.PackageName}",
                 Version = "1.0.0-beta.1",
                 PackageTags = CodeModelGenerator.Instance.Configuration.PackageName,
-                TargetFramework = "netstandard2.0",
+                TargetFrameworks = "netstandard2.0;net8.0",
                 LangVersion = "latest",
                 GenerateDocumentationFile = true,
             };
@@ -72,8 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
-            new("System.ClientModel", "1.3.0"),
-            new("System.Text.Json", "8.0.5")
+            new("System.ClientModel", "1.4.1"),
         };
 
         protected virtual string GetSolutionFileContent()

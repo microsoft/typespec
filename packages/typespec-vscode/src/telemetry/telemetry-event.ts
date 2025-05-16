@@ -9,6 +9,7 @@ export interface RawTelemetryEvent {
 
 export enum TelemetryEventName {
   StartExtension = "start-extension",
+  StartServer = "start-server",
   CreateProject = "create-project",
   InstallGlobalCompilerCli = "install-global-compiler-cli",
   RestartServer = "restart-server",
@@ -38,6 +39,8 @@ export enum OperationDetailPropertyName {
   emitResult,
   compilerLocation,
   compilerVersion,
+  CompileStartTime,
+  CompileEndTime,
 }
 
 export function generateActivityId() {

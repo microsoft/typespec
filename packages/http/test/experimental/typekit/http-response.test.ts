@@ -1,6 +1,6 @@
 import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
 import { createHttpTestRunner } from "./../../test-host.js";
 
@@ -31,12 +31,13 @@ it("should return true for an error response", async () => {
     @get
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
+  const tk = $(runner.program);
 
-  const httpOperation = $.httpOperation.get(getFoo);
-  const responses = $.httpOperation.flattenResponses(httpOperation);
+  const httpOperation = tk.httpOperation.get(getFoo);
+  const responses = tk.httpOperation.flattenResponses(httpOperation);
   expect(responses).toHaveLength(2);
-  expect($.httpResponse.isErrorResponse(responses[0])).toBe(false);
-  expect($.httpResponse.isErrorResponse(responses[1])).toBe(true);
+  expect(tk.httpResponse.isErrorResponse(responses[0])).toBe(false);
+  expect(tk.httpResponse.isErrorResponse(responses[1])).toBe(true);
 });
 
 it("should identify a single  and default status code", async () => {
@@ -57,13 +58,14 @@ it("should identify a single  and default status code", async () => {
     @get
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
+  const tk = $(runner.program);
 
-  const httpOperation = $.httpOperation.get(getFoo);
-  const responses = $.httpOperation.flattenResponses(httpOperation);
+  const httpOperation = tk.httpOperation.get(getFoo);
+  const responses = tk.httpOperation.flattenResponses(httpOperation);
   const response = responses[0];
   const error = responses[1];
-  expect($.httpResponse.statusCode.isSingle(response.statusCode)).toBe(true);
-  expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
+  expect(tk.httpResponse.statusCode.isSingle(response.statusCode)).toBe(true);
+  expect(tk.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
 });
 
 it("should identify a range status code", async () => {
@@ -85,11 +87,12 @@ it("should identify a range status code", async () => {
     @get
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
+  const tk = $(runner.program);
 
-  const httpOperation = $.httpOperation.get(getFoo);
-  const responses = $.httpOperation.flattenResponses(httpOperation);
+  const httpOperation = tk.httpOperation.get(getFoo);
+  const responses = tk.httpOperation.flattenResponses(httpOperation);
   const response = responses[0];
   const error = responses[1];
-  expect($.httpResponse.statusCode.isRange(response.statusCode)).toBe(true);
-  expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
+  expect(tk.httpResponse.statusCode.isRange(response.statusCode)).toBe(true);
+  expect(tk.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
 });

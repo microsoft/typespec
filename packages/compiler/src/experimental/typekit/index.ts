@@ -1,10 +1,5 @@
-import { compilerAssert } from "../../core/diagnostics.js";
-import type { Program } from "../../core/program.js";
+import { type Typekit, TypekitPrototype } from "../../typekit/define-kit.js";
 import { Realm } from "../realm.js";
-import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
-
-export * from "./define-kit.js";
-export * from "./kits/index.js";
 
 /**
  * Create a new Typekit that operates in the given realm.
@@ -35,14 +30,43 @@ export function createTypekit(realm: Realm): Typekit {
 
       // Wrap functions to set `this` correctly
       if (typeof value === "function") {
-        return function (this: any, ...args: any[]) {
+        const proxyWrapper = function (this: any, ...args: any[]) {
+          // Call the original function (`value`) with the correct `this` (the proxy)
           return value.apply(proxy, args);
         };
+
+        // functions may also have properties added to them, like in the case of `withDiagnostics`.
+        // Copy enumerable properties from the original function (`value`) to the wrapper
+        for (const propName of Object.keys(value)) {
+          const originalPropValue = (value as any)[propName];
+
+          if (typeof originalPropValue === "function") {
+            // If the property is a function, wrap it to ensure `this` is bound correctly
+            (proxyWrapper as any)[propName] = function (this: any, ...args: any[]) {
+              // Call the original property function with `this` bound to the proxy
+              return originalPropValue.apply(proxy, args);
+            };
+          } else {
+            // If the property is not a function, copy it directly
+            // Use Reflect.defineProperty to handle potential getters/setters correctly, though Object.keys usually only returns data properties.
+            Reflect.defineProperty(
+              proxyWrapper,
+              propName,
+              Reflect.getOwnPropertyDescriptor(value, propName)!,
+            );
+          }
+        }
+
+        return proxyWrapper;
       }
 
-      // Only wrap objects marked as Typekit namespaces
-      if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
-        return new Proxy(value, handler); // Wrap namespace objects
+      // Wrap objects to ensure their functions are bound correctly, avoid wrapping `get` accessors
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Reflect.getOwnPropertyDescriptor(target, prop)?.get
+      ) {
+        return new Proxy(value, handler);
       }
 
       return value;
@@ -52,144 +76,3 @@ export function createTypekit(realm: Realm): Typekit {
   const proxy = new Proxy(tk, handler);
   return proxy;
 }
-
-// Helper function to check if an object is a Typekit namespace
-function isTypekitNamespace(obj: any): boolean {
-  return obj && !!obj[TypekitNamespaceSymbol];
-}
-
-// #region Default Typekit
-
-const CURRENT_PROGRAM = Symbol.for("TypeSpec.Typekit.CURRENT_PROGRAM");
-const DEFAULT_REALM = Symbol.for("TypeSpec.Typekit.DEFAULT_TYPEKIT_REALM");
-
-function getCurrentProgram(): Program | undefined {
-  return (globalThis as any)[CURRENT_PROGRAM];
-}
-
-/**
- * Sets a given program as the current program for Typekit operations.
- *
- * This is necessary to enable use of the default Typekit `$` and should be
- * called whenever the compiler is working with a specific program
- *
- * @param program - The program to set as the current program.
- *
- * @internal
- */
-export function setCurrentProgram(program: Program) {
-  (globalThis as any)[CURRENT_PROGRAM] = program;
-}
-
-interface DefaultRealmStore {
-  [DEFAULT_REALM]?: Realm;
-}
-
-/** @experimental */
-interface DefaultTypekit extends Typekit {
-  /**
-   * Create or get the default typekit for the given Realm.
-   *
-   * @see {@link Realm}
-   *
-   * @param realm - The realm to get the typekit for.
-   * @returns The default typekit for the realm.
-   */
-  (realm: Realm): Typekit;
-
-  /**
-   * Create or get the default typekit for the given Program.
-   *
-   * If a default typekit realm for the given program does not exist, one will be created.
-   *
-   * @param program - The program to get the typekit for.
-   * @returns The default typekit for the program.
-   */
-  (program: Program): Typekit;
-}
-
-function _$(realm: Realm): Typekit;
-function _$(program: Program): Typekit;
-function _$(arg: Realm | Program): Typekit {
-  let realm: Realm;
-  if (Object.hasOwn(arg, "projectRoot")) {
-    // arg is a Program
-    realm = (arg as DefaultRealmStore)[DEFAULT_REALM] ??= new Realm(
-      arg as Program,
-      "default typekit realm",
-    );
-  } else {
-    // arg is a Realm
-    realm = arg as Realm;
-  }
-
-  return realm.typekit;
-}
-
-/**
- * Typekit - Utilities for working with TypeSpec types.
- *
- * The default typekit `$` can be used to manipulate types in the current program.
- *
- * Each typekit is associated with a Realm in which it operates. The default typekit
- * will use the default typekit realm for the current program.
- *
- * Alternatively, to work in a specific realm, you can get the typekit associated
- * with that realm by calling `$` with the realm as an argument, or by calling
- * `$` with a program as an argument (in this case, it will use that program's
- * default typekit realm or create one if it does not already exist).
- *
- * @example
- * ```ts
- * import { $ } from "@typespec/compiler/experimental";
- *
- * const clone = $.type.clone(inputType);
- * ```
- *
- * @example
- * ```ts
- * import { $, Realm } from "@typespec/compiler/experimental";
- *
- * const realm = new Realm(program, "my custom realm");
- *
- * const clone = $(realm).type.clone(inputType);
- * ```
- *
- * @example
- * ```ts
- * import { $ } from "@typespec/compiler/experimental";
- *
- * const projectedProgram = projectProgram(program, ...);
- *
- * const clone = $(projectedProgram).type.clone(inputType);
- * ```
- *
- * @see {@link Realm}
- *
- * @experimental
- */
-export const $: DefaultTypekit = new Proxy(_$, {
-  get(_target, prop, _receiver) {
-    const currentProgram = getCurrentProgram();
-
-    compilerAssert(
-      currentProgram !== undefined,
-      "Default typekits may not be used until a program is set in the compiler.",
-    );
-
-    if (prop === "program") return currentProgram;
-
-    const realm = ((currentProgram as DefaultRealmStore)[DEFAULT_REALM] ??= new Realm(
-      currentProgram,
-      "default typekit realm",
-    ));
-
-    if (prop === "realm") return realm;
-
-    const tk = _$(realm);
-
-    return Reflect.get(tk, prop, tk);
-  },
-}) as unknown as DefaultTypekit;
-
-// #endregion

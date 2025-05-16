@@ -15,12 +15,12 @@ namespace Logging.Plugin
 {
     internal class LoggingMethodProviderCollection : ScmMethodProviderCollection
     {
-        public LoggingMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
-            : base(operation, enclosingType)
+        public LoggingMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+            : base(serviceMethod, enclosingType)
         {
         }
 
-        protected override IReadOnlyList<MethodProvider> BuildMethods()
+        protected override IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             // Add the base methods.
             var methods = base.BuildMethods();

@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -35,12 +36,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
 
         private readonly string _itemsPropertyName;
-        private readonly InputOperationPaging _paging;
+        private readonly InputPagingServiceMetadata _paging;
         private readonly FieldProvider[] _requestFields;
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
         private readonly int? _nextTokenParameterIndex;
 
-        public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
+        public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
             _client = client;
             _clientField = new FieldProvider(
@@ -48,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _client.Type,
                 "_client",
                 this);
-            _operation = operation;
-            _paging = _operation.Paging!;
+            _operation = serviceMethod.Operation;
+            _paging = serviceMethod.PagingMetadata;
 
             _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
 
@@ -94,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (itemsModelPropertyName == null)
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    "missing-items-property",
+                    DiagnosticCodes.MissingItemsProperty,
                     $"Missing items property: {itemsPropertyName}",
                     _operation.CrossLanguageDefinitionId);
             }
@@ -141,14 +142,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var clientParameter = new ParameterProvider(
                 "client",
-                FormattableStringHelpers.Empty,
+                $"The {_client.Type.Name} client used to send requests.",
                 _client.Type);
             return
             [
                 new ConstructorProvider(
                     new ConstructorSignature(
                         Type,
-                        FormattableStringHelpers.Empty,
+                        $"Initializes a new instance of {Name}, which is used to iterate over the pages of a collection.",
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
@@ -189,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new MethodSignature(_isAsync ?
                             nameof(AsyncCollectionResult.GetRawPagesAsync) :
                             nameof(CollectionResult.GetRawPages),
-                        FormattableStringHelpers.Empty,
+                        $"Gets the raw pages of the collection.",
                         _isAsync ?
                             MethodSignatureModifiers.Public | MethodSignatureModifiers.Async | MethodSignatureModifiers.Override :
                             MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
@@ -197,17 +198,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             typeof(IAsyncEnumerable<>) :
                             typeof(IEnumerable<>),
                             typeof(ClientResult)),
-                        FormattableStringHelpers.Empty,
+                        $"The raw pages of the collection.",
                         []),
                     getRawPagesMethodBody,
                     this),
 
                 new MethodProvider(
                     new MethodSignature(nameof(CollectionResult.GetContinuationToken),
-                        FormattableStringHelpers.Empty,
+                        $"Gets the continuation token from the specified page.",
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                         new CSharpType(typeof(ContinuationToken)),
-                        FormattableStringHelpers.Empty,
+                        $"The continuation token for the specified page.",
                         [PageParameter]),
                     BuildGetContinuationToken(),
                     this)
@@ -217,14 +218,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 methods.Add(new MethodProvider(
                                 new MethodSignature(_isAsync ? "GetValuesFromPageAsync" : "GetValuesFromPage",
-                                FormattableStringHelpers.Empty,
+                                $"Gets the values from the specified page.",
                                 _isAsync ?
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override | MethodSignatureModifiers.Async :
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
                                 _isAsync ?
                                     new CSharpType(typeof(IAsyncEnumerable<>), _itemModelType) :
                                     new CSharpType(typeof(IEnumerable<>), _itemModelType),
-                                FormattableStringHelpers.Empty,
+                                $"The values from the specified page.",
                                 [PageParameter]),
                         BuildGetValuesFromPages(),
                         this));
@@ -238,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             _isAsync ?
                 [
-                    new ForeachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
+                    new ForEachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
                         .Property(_itemsPropertyName), false, out var item)
                     {
                         YieldReturn(item),

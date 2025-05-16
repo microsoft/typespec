@@ -276,8 +276,13 @@ model VisibilityFilter {
  * This transformation is recursive, so it will also apply the filter to any nested
  * or referenced models that are the types of any properties in the `target`.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the visibility filter to.
  * @param filter The visibility filter to apply to the properties of the target model.
+ * @param nameTemplate The name template to use when renaming new model instances.
  *
  * @example
  * ```typespec
@@ -294,7 +299,11 @@ model VisibilityFilter {
  * }
  * ```
  */
-extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter);
+extern dec withVisibilityFilter(
+  target: Model,
+  filter: valueof VisibilityFilter,
+  nameTemplate?: valueof string
+);
 
 /**
  * Transforms the `target` model to include only properties that are visible during the
@@ -304,7 +313,12 @@ extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter)
  * lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
  * fully updated.
  *
+ * If a `nameTemplate` is provided, newly-created type instances will be named according
+ * to the template. See the `@friendlyName` decorator for more information on the template
+ * syntax. The transformed type is provided as the argument to the template.
+ *
  * @param target The model to apply the transformation to.
+ * @param nameTemplate The name template to use when renaming new model instances.
  *
  * @example
  * ```typespec
@@ -324,7 +338,7 @@ extern dec withVisibilityFilter(target: Model, filter: valueof VisibilityFilter)
  * }
  * ```
  */
-extern dec withLifecycleUpdate(target: Model);
+extern dec withLifecycleUpdate(target: Model, nameTemplate?: valueof string);
 
 /**
  * A copy of the input model `T` with only the properties that are visible during the
@@ -352,8 +366,9 @@ extern dec withLifecycleUpdate(target: Model);
  * model CreateDog is Create<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Create] })
+@withVisibilityFilter(#{ all: #[Lifecycle.Create] }, NameTemplate)
 model Create<T extends Reflection.Model, NameTemplate extends valueof string = "Create{name}"> {
   ...T;
 }
@@ -390,8 +405,9 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model ReadDog is Read<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+@withVisibilityFilter(#{ all: #[Lifecycle.Read] }, NameTemplate)
 model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Read{name}"> {
   ...T;
 }
@@ -429,8 +445,9 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
  * model UpdateDog is Update<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withLifecycleUpdate
+@withLifecycleUpdate(NameTemplate)
 model Update<T extends Reflection.Model, NameTemplate extends valueof string = "Update{name}"> {
   ...T;
 }
@@ -470,8 +487,9 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model CreateOrUpdateDog is CreateOrUpdate<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] })
+@withVisibilityFilter(#{ any: #[Lifecycle.Create, Lifecycle.Update] }, NameTemplate)
 model CreateOrUpdate<
   T extends Reflection.Model,
   NameTemplate extends valueof string = "CreateOrUpdate{name}"
@@ -513,8 +531,9 @@ model CreateOrUpdate<
  * model DeleteDog is Delete<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Delete] })
+@withVisibilityFilter(#{ all: #[Lifecycle.Delete] }, NameTemplate)
 model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
   ...T;
 }
@@ -561,8 +580,9 @@ model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "
  * model QueryDog is Query<Dog>;
  * ```
  */
+@doc("")
 @friendlyName(NameTemplate, T)
-@withVisibilityFilter(#{ all: #[Lifecycle.Query] })
+@withVisibilityFilter(#{ all: #[Lifecycle.Query] }, NameTemplate)
 model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
   ...T;
 }

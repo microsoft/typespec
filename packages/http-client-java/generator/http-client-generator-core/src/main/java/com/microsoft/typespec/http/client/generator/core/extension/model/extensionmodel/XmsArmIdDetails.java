@@ -3,18 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
-
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Represents the details of an ARM ID.
  */
-public class XmsArmIdDetails implements JsonSerializable<XmsArmIdDetails> {
+public class XmsArmIdDetails {
     private List<AllowedResource> allowedResources;
 
     /**
@@ -39,29 +33,5 @@ public class XmsArmIdDetails implements JsonSerializable<XmsArmIdDetails> {
      */
     public void setAllowedResources(List<AllowedResource> allowedResources) {
         this.allowedResources = allowedResources;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeArrayField("allowedResources", allowedResources, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes an XmsArmIdDetails instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return An XmsArmIdDetails instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static XmsArmIdDetails fromJson(JsonReader jsonReader) throws IOException {
-        return readObject(jsonReader, XmsArmIdDetails::new, (xmsArmIdDetails, fieldName, reader) -> {
-            if ("allowedResources".equals(fieldName)) {
-                xmsArmIdDetails.allowedResources = reader.readArray(AllowedResource::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

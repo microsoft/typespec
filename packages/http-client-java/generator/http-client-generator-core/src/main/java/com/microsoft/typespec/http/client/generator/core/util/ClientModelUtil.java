@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelPropertyAccess;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -63,6 +65,9 @@ public class ClientModelUtil {
     public static final String OPERATION_LOCATION_POLLING_STRATEGY = "OperationLocationPollingStrategy";
     public static final String SYNC_OPERATION_LOCATION_POLLING_STRATEGY = "SyncOperationLocationPollingStrategy";
     public static final String POLLING_UTILS = "PollingUtils";
+    public static final String CLIENT_CORE_POLLING_UTILS = "ClientCorePollingUtils";
+    public static final String CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY
+        = "ClientCoreOperationLocationPollingStrategy";
 
     private ClientModelUtil() {
     }
@@ -95,7 +100,9 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(serviceClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (generateAsyncMethods) {
                 String asyncClassName = clientNameToAsyncClientName(serviceClient.getClientBaseName());
@@ -128,7 +135,9 @@ public class ClientModelUtil {
                 .findAny()
                 .map(og -> getConvenienceMethods(methodGroupClient::getClientMethods, og))
                 .orElse(Collections.emptyList());
-            builder.convenienceMethods(convenienceMethods);
+            if (JavaSettings.getInstance().isAzureV1()) {
+                builder.convenienceMethods(convenienceMethods);
+            }
 
             if (count == 1) {
                 // if it is the only method group, use service client name as base.
@@ -378,9 +387,17 @@ public class ClientModelUtil {
     public static String getArtifactId() {
         JavaSettings settings = JavaSettings.getInstance();
         String artifactId = settings.getArtifactId();
-        if (settings.isDataPlaneClient() && CoreUtils.isNullOrEmpty(artifactId)) {
+        if ((settings.isDataPlaneClient() || !settings.isAzureV1()) && CoreUtils.isNullOrEmpty(artifactId)) {
             // convert package/namespace to artifact
             artifactId = settings.getPackage().toLowerCase(Locale.ROOT).replace("com.", "").replace(".", "-");
+        }
+
+        if (settings.isAzureV2()) {
+            artifactId = settings.getPackage()
+                .toLowerCase(Locale.ROOT)
+                .replace("com.", "")
+                .replace(".v2.", ".")
+                .replace(".", "-");
         }
         return artifactId;
     }
@@ -447,8 +464,21 @@ public class ClientModelUtil {
     public static boolean isClientModel(IType type) {
         if (type instanceof ClassType) {
             ClassType classType = (ClassType) type;
-            return classType.getPackage().startsWith(JavaSettings.getInstance().getPackage())
-                && getClientModel(classType.getName()) != null;
+            /*
+             * It is possible in TypeSpec that the models be in different package of the package in JavaSettings.
+             * Therefore, we now check:
+             * 1. The package of the class is not in java.*
+             * 2. The package of the class is not in core package (clientcore or azure-core)
+             */
+            // final boolean typeInExternalPackage =
+            // !classType.getPackage().startsWith(JavaSettings.getInstance().getPackage());
+            final boolean typeInExternalPackage = classType.getPackage().startsWith("java.")
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_CORE_PACKAGE_NAME)
+                || classType.getPackage().startsWith(ExternalPackage.AZURE_JSON_PACKAGE_NAME)
+                || classType.getPackage().startsWith("com.azure.v2.core");
+            return !typeInExternalPackage && getClientModel(classType.getName()) != null;
         } else {
             return false;
         }
@@ -958,14 +988,15 @@ public class ClientModelUtil {
      * @return the ModelPropertySegment represents the model and property
      */
     public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
-        ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
-        ClientModelProperty property = Stream
-            .concat(responseBodyModel.getProperties().stream(),
-                ClientModelUtil.getParentProperties(responseBodyModel).stream())
-            .filter(p -> p.getSerializedName().equals(propertySerializedName))
-            .findAny()
-            .orElse(null);
-        return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
+        final ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        final Optional<ClientModelProperty> propertyOpt = findProperty(responseBodyModel, propertySerializedName);
+        return propertyOpt.map(property -> new ModelPropertySegment(responseBodyModel, property)).orElse(null);
+    }
+
+    public static Optional<ClientModelProperty> findProperty(ClientModel model, String propertyName) {
+        final Stream<ClientModelProperty> allProperties
+            = Stream.concat(model.getProperties().stream(), ClientModelUtil.getParentProperties(model).stream());
+        return allProperties.filter(p -> p.getSerializedName().equals(propertyName)).findFirst();
     }
 
     private static boolean hasNoUsage(ClientModel model) {

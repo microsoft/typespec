@@ -1,17 +1,22 @@
 package encode.bytes.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.utils.Base64Uri;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * An instance of this class provides access to all the operations defined in RequestBodies.
@@ -43,149 +48,214 @@ public final class RequestBodiesImpl {
      */
     @ServiceInterface(name = "BytesClientRequestBo", host = "{endpoint}")
     public interface RequestBodiesService {
+        static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.bytes.implementation.RequestBodiesServiceImpl");
+                return (RequestBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/bytes/body/request/default",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethodSync(@HostParam("endpoint") String endpoint,
+        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            RequestOptions requestOptions);
+            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/bytes/body/request/octet-stream",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> octetStreamSync(@HostParam("endpoint") String endpoint,
+        Response<Void> octetStream(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
-            RequestOptions requestOptions);
+            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/bytes/body/request/custom-content-type",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> customContentTypeSync(@HostParam("endpoint") String endpoint,
+        Response<Void> customContentType(@HostParam("endpoint") String endpoint,
             @HeaderParam("content-type") String contentType, @BodyParam("image/png") BinaryData value,
-            RequestOptions requestOptions);
+            @HeaderParam("Content-Length") long contentLength, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/bytes/body/request/base64",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> base64Sync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
-            RequestOptions requestOptions);
+        Response<Void> base64(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/json") byte[] value, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/encode/bytes/body/request/base64url",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
-            RequestOptions requestOptions);
+        Response<Void> base64url(@HostParam("endpoint") String endpoint,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") Base64Uri value,
+            RequestContext requestContext);
     }
 
     /**
      * The defaultMethod operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param contentLength The Content-Length header for the request.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> defaultMethodWithResponse(BinaryData value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(BinaryData value, long contentLength,
+        RequestContext requestContext) {
         final String contentType = "application/octet-stream";
-        return service.defaultMethodSync(this.client.getEndpoint(), contentType, value, requestOptions);
+        return service.defaultMethod(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+    }
+
+    /**
+     * The defaultMethod operation.
+     * 
+     * @param value The value parameter.
+     * @param contentLength The Content-Length header for the request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void defaultMethod(BinaryData value, long contentLength) {
+        defaultMethodWithResponse(value, contentLength, RequestContext.none());
     }
 
     /**
      * The octetStream operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param contentLength The Content-Length header for the request.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> octetStreamWithResponse(BinaryData value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> octetStreamWithResponse(BinaryData value, long contentLength, RequestContext requestContext) {
         final String contentType = "application/octet-stream";
-        return service.octetStreamSync(this.client.getEndpoint(), contentType, value, requestOptions);
+        return service.octetStream(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+    }
+
+    /**
+     * The octetStream operation.
+     * 
+     * @param value The value parameter.
+     * @param contentLength The Content-Length header for the request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void octetStream(BinaryData value, long contentLength) {
+        octetStreamWithResponse(value, contentLength, RequestContext.none());
     }
 
     /**
      * The customContentType operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param contentLength The Content-Length header for the request.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> customContentTypeWithResponse(BinaryData value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> customContentTypeWithResponse(BinaryData value, long contentLength,
+        RequestContext requestContext) {
         final String contentType = "image/png";
-        return service.customContentTypeSync(this.client.getEndpoint(), contentType, value, requestOptions);
+        return service.customContentType(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
+    }
+
+    /**
+     * The customContentType operation.
+     * 
+     * @param value The value parameter.
+     * @param contentLength The Content-Length header for the request.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void customContentType(BinaryData value, long contentLength) {
+        customContentTypeWithResponse(value, contentLength, RequestContext.none());
     }
 
     /**
      * The base64 operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * byte[]
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> base64WithResponse(BinaryData value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.base64Sync(this.client.getEndpoint(), contentType, value, requestOptions);
+        return service.base64(this.client.getEndpoint(), contentType, value, requestContext);
+    }
+
+    /**
+     * The base64 operation.
+     * 
+     * @param value The value parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void base64(byte[] value) {
+        base64WithResponse(value, RequestContext.none());
     }
 
     /**
      * The base64url operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * Base64Uri
-     * }
-     * </pre>
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> base64urlWithResponse(BinaryData value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.base64urlSync(this.client.getEndpoint(), contentType, value, requestOptions);
+        Base64Uri valueConverted = Base64Uri.encode(value);
+        return service.base64url(this.client.getEndpoint(), contentType, valueConverted, requestContext);
+    }
+
+    /**
+     * The base64url operation.
+     * 
+     * @param value The value parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void base64url(byte[] value) {
+        base64urlWithResponse(value, RequestContext.none());
     }
 }

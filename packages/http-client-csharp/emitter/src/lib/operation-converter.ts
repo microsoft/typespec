@@ -7,6 +7,9 @@ import {
   SdkContext,
   SdkHttpOperation,
   SdkHttpResponse,
+  SdkLroPagingServiceMethod,
+  SdkLroServiceMethod,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkServiceMethod,
@@ -22,17 +25,23 @@ import { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
+import { InputParameterKind } from "../type/input-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
+import {
+  InputBasicServiceMethod,
+  InputContinuationToken,
+  InputLongRunningPagingServiceMethod,
+  InputLongRunningServiceMetadata,
+  InputLongRunningServiceMethod,
+  InputNextLink,
+  InputPagingServiceMetadata,
+  InputPagingServiceMethod,
+  InputServiceMethod,
+  InputServiceMethodResponse,
+} from "../type/input-service-method.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
-import {
-  InputContinuationToken,
-  InputNextLink,
-  InputOperationPaging,
-} from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -43,6 +52,66 @@ import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString } from "./utils.js";
 
 export function fromSdkServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): InputServiceMethod | undefined {
+  const methodKind = method.kind;
+
+  switch (methodKind) {
+    case "basic":
+      return createServiceMethod<InputBasicServiceMethod>(sdkContext, method, uri, rootApiVersions);
+    case "paging":
+      const pagingServiceMethod = createServiceMethod<InputPagingServiceMethod>(
+        sdkContext,
+        method,
+        uri,
+        rootApiVersions,
+      );
+      pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
+        sdkContext,
+        method,
+        rootApiVersions,
+        uri,
+      );
+      return pagingServiceMethod;
+    case "lro":
+      const lroServiceMethod = createServiceMethod<InputLongRunningServiceMethod>(
+        sdkContext,
+        method,
+        uri,
+        rootApiVersions,
+      );
+      lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
+      return lroServiceMethod;
+    case "lropaging":
+      const lroPagingMethod = createServiceMethod<InputLongRunningPagingServiceMethod>(
+        sdkContext,
+        method,
+        uri,
+        rootApiVersions,
+      );
+      lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, method);
+      lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
+        sdkContext,
+        method,
+        rootApiVersions,
+        uri,
+      );
+      return lroPagingMethod;
+
+    default:
+      sdkContext.logger.reportDiagnostic({
+        code: "unsupported-service-method",
+        format: { methodKind: methodKind },
+        target: NoTarget,
+      });
+      return undefined;
+  }
+}
+
+export function fromSdkServiceMethodOperation(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
@@ -78,8 +147,6 @@ export function fromSdkServiceMethod(
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
     requestMediaTypes: getRequestMediaTypes(method.operation),
     bufferResponse: true,
-    longRunning: loadLongRunningOperation(sdkContext, method),
-    paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
@@ -114,6 +181,32 @@ export function getParameterDefaultValue(
   };
 }
 
+function createServiceMethod<T extends InputServiceMethod>(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): T {
+  return {
+    kind: method.kind,
+    name: method.name,
+    accessibility: method.access,
+    apiVersions: method.apiVersions,
+    doc: method.doc,
+    summary: method.summary,
+    operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
+    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions),
+    response: fromSdkServiceMethodResponse(sdkContext, method.response),
+    exception: method.exception
+      ? fromSdkServiceMethodResponse(sdkContext, method.exception)
+      : undefined,
+    isOverride: method.isOverride,
+    generateConvenient: method.generateConvenient,
+    generateProtocol: method.generateProtocol,
+    crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+  } as T;
+}
+
 function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
   switch (typeof value) {
     case "string":
@@ -134,6 +227,57 @@ function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInK
   }
 }
 
+function fromSdkServiceMethodParameters(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  rootApiVersions: string[],
+): InputParameter[] {
+  const parameters: InputParameter[] = [];
+
+  for (const p of method.parameters) {
+    const methodInputParameter = fromParameter(sdkContext, p, rootApiVersions);
+    const operationHttpParameter = getHttpOperationParameter(method, p);
+
+    if (!operationHttpParameter) {
+      parameters.push(methodInputParameter);
+      continue;
+    }
+
+    // post-process the method parameter with information from the operation parameter
+    updateMethodParameter(sdkContext, methodInputParameter, operationHttpParameter);
+    parameters.push(methodInputParameter);
+  }
+
+  return parameters;
+}
+
+function updateMethodParameter(
+  sdkContext: CSharpEmitterContext,
+  methodParameter: InputParameter,
+  operationHttpParameter: SdkModelPropertyType,
+): void {
+  // Update the location based on the operation parameter
+  methodParameter.location = getParameterLocation(operationHttpParameter);
+  if (methodParameter.location === RequestLocation.Body) {
+    // Convert constants to enums
+    if (methodParameter.type.kind === "constant") {
+      methodParameter.type = fromSdkType(sdkContext, operationHttpParameter.type);
+    }
+  }
+}
+
+function fromSdkServiceMethodResponse(
+  sdkContext: CSharpEmitterContext,
+  methodResponse: SdkMethodResponse,
+): InputServiceMethodResponse {
+  return {
+    type: methodResponse.type ? fromSdkType(sdkContext, methodResponse.type) : undefined,
+    resultSegments: methodResponse.resultSegments?.map((segment) =>
+      getResponseSegmentName(segment),
+    ),
+  };
+}
+
 function fromSdkOperationParameters(
   sdkContext: CSharpEmitterContext,
   operation: SdkHttpOperation,
@@ -149,22 +293,18 @@ function fromSdkOperationParameters(
       });
       return parameters;
     }
-    const param = fromSdkHttpOperationParameter(sdkContext, p, rootApiVersions);
+    const param = fromParameter(sdkContext, p, rootApiVersions);
     parameters.push(param);
   }
 
   if (operation.bodyParam) {
-    const bodyParam = fromSdkHttpOperationParameter(
-      sdkContext,
-      operation.bodyParam,
-      rootApiVersions,
-    );
+    const bodyParam = fromParameter(sdkContext, operation.bodyParam, rootApiVersions);
     parameters.push(bodyParam);
   }
   return parameters;
 }
 
-export function fromSdkHttpOperationParameter(
+export function fromParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkModelPropertyType,
   rootApiVersions: string[],
@@ -213,13 +353,10 @@ export function fromSdkHttpOperationParameter(
   return retVar;
 }
 
-function loadLongRunningOperation(
+function loadLongRunningMetadata(
   sdkContext: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
-): OperationLongRunning | undefined {
-  if (method.kind !== "lro") {
-    return undefined;
-  }
+  method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): InputLongRunningServiceMetadata {
   return {
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     finalResponse: {
@@ -328,16 +465,12 @@ function getMediaTypes(type: SdkType): string[] {
   return [];
 }
 
-function loadOperationPaging(
+function loadPagingServiceMetadata(
   context: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
-): InputOperationPaging | undefined {
-  if (method.kind !== "paging" || method.pagingMetadata === undefined) {
-    return undefined;
-  }
-
+): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
@@ -372,7 +505,7 @@ function loadOperationPaging(
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
-      parameter: fromSdkHttpOperationParameter(
+      parameter: fromParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,
@@ -404,7 +537,7 @@ function getResponseSegmentName(segment: SdkModelPropertyType): string {
 
 function getResponseLocation(
   context: CSharpEmitterContext,
-  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   p: SdkModelPropertyType,
 ): ResponseLocation {
   switch (p?.kind) {
@@ -433,6 +566,7 @@ function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
       return RequestLocation.Header;
     case "query":
       return RequestLocation.Query;
+    case "property":
     case "body":
       return RequestLocation.Body;
     default:
@@ -444,24 +578,24 @@ function getParameterKind(
   p: SdkModelPropertyType,
   type: InputType,
   hasGlobalApiVersion: boolean,
-): InputOperationParameterKind {
+): InputParameterKind {
   if (p.kind === "body") {
     /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
     if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
-      return InputOperationParameterKind.Spread;
+      return InputParameterKind.Spread;
     }
-    return InputOperationParameterKind.Method;
+    return InputParameterKind.Method;
   }
 
   return type.kind === "constant"
-    ? InputOperationParameterKind.Constant
+    ? InputParameterKind.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
-        ? InputOperationParameterKind.Client
-        : InputOperationParameterKind.Method
+        ? InputParameterKind.Client
+        : InputParameterKind.Method
       : p.onClient
-        ? InputOperationParameterKind.Client
-        : InputOperationParameterKind.Method;
+        ? InputParameterKind.Client
+        : InputParameterKind.Method;
 }
 
 function getOperationGroupName(

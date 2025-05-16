@@ -16,7 +16,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
@@ -24,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(GetCustomCodeView);
             _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(GetLastContractView);
             _inputType = inputType;
         }
 
@@ -35,9 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), BuildName());
+
+        private protected virtual TypeProvider? GetLastContractView()
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? LastContractView => _lastContractView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -319,8 +325,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement([Description]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+
             return docs;
         }
 
@@ -374,6 +380,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _relativeFilePath = relativeFilePath;
             }
+
+            // Rebuild the canonical view
+            _canonicalView = new(BuildCanonicalView);
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
@@ -518,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
-                if (parameterType.FullyQualifiedName != signature.Parameters[i].Type.FullyQualifiedName ||
+                if (!IsNameMatch(parameterType, signature.Parameters[i].Type) ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
@@ -539,23 +548,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // The namespace may not be available for generated types as they are not yet generated
                 // so Roslyn will not have the namespace information.
-                if (string.IsNullOrEmpty(customMethod.Parameters[i].Type.Namespace))
+                if (!IsNameMatch(customMethod.Parameters[i].Type, method.Parameters[i].Type))
                 {
-                    if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (customMethod.Parameters[i].Type.FullyQualifiedName != method.Parameters[i].Type.FullyQualifiedName)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
             return true;
+        }
+
+        private static bool IsNameMatch(CSharpType typeFromCustomization, CSharpType generatedType)
+        {
+            // The namespace may not be available for generated types referenced from customization as they
+            // are not yet generated so Roslyn will not have the namespace information.
+            if (string.IsNullOrEmpty(typeFromCustomization.Namespace))
+            {
+                return typeFromCustomization.Name == generatedType.Name;
+            }
+
+            return typeFromCustomization.FullyQualifiedName == generatedType.FullyQualifiedName;
         }
 
         private static string GetFullMethodName(MethodSignatureBase method)
@@ -604,7 +615,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var fileLinePosition = GetFileLinePosition(attributeData.ApplicationSyntaxReference);
                         var filePath = fileLinePosition.Path;
                         var line = fileLinePosition.StartLinePosition.Line + 1;
-                        throw new InvalidOperationException($"The undefined type '{errorType.Name}' is referenced in the '{attribute}' attribute ({filePath}, line: {line}). Please define this type or remove it from the attribute.");
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"The undefined type '{errorType.Name}' is referenced in the '{attribute}' attribute ({filePath}, line: {line}). If this is not a generated type, " +
+                            $"please define this type or remove it from the attribute.");
                     }
                 }
                 else

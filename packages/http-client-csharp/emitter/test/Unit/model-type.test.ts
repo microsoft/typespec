@@ -493,6 +493,172 @@ op op1(): void;
   });
 });
 
+describe("Spec with no operations should still compile", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Model should be returned even though no operations", async () => {
+    const program = await typeSpecCompile(
+      `
+@doc("Foo model")
+@usage(Usage.output)
+model Foo {
+  Bar: string;
+}
+
+`,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const model = models.find((m) => m.name === "Foo");
+    ok(model);
+    strictEqual(model?.properties.length, 1);
+    strictEqual(model?.properties[0].name, "Bar");
+    strictEqual(root.clients.length, 0);
+  });
+});
+
+describe("Header property", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Header property should be included in the model", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
+  });
+
+  it("Header property should be included in the model if it's read-only", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @visibility(Lifecycle.Read)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "string");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, true);
+  });
+
+  it("Header property should not be included in the model if visibility is none", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    @invisible(Lifecycle)
+    foo: string;
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    strictEqual(undefined, headerProperty);
+  });
+
+  it("Header property should be included in the model if it has a default value", async () => {
+    const program = await typeSpecCompile(
+      `
+model HeaderModel {
+    @header("x-foo")
+    foo: "cat";
+
+    bar: int32;
+}
+
+op testOperation(@bodyRoot body: HeaderModel): void;
+`,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const isEmptyModel = models.find((m) => m.name === "HeaderModel");
+    ok(isEmptyModel);
+
+    const headerProperty = isEmptyModel?.properties.find((p) => p.name === "foo");
+    ok(headerProperty);
+    strictEqual(headerProperty.name, "foo");
+    strictEqual(headerProperty.serializedName, "x-foo");
+    strictEqual(headerProperty.type.kind, "constant");
+    strictEqual(headerProperty.type.value, "cat");
+    strictEqual(headerProperty.optional, false);
+    strictEqual(headerProperty.readOnly, false);
+  });
+});
+
 describe("typespec-client-generator-core: general decorators list", () => {
   let runner: TestHost;
   beforeEach(async () => {

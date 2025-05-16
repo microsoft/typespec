@@ -71,8 +71,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var propertyNameParameter = new ParameterProvider("propertyName", FormattableStringHelpers.Empty, typeof(string));
-            var propertySerializationNameParameter = new ParameterProvider("propertySerializationName", FormattableStringHelpers.Empty, typeof(string));
+            var propertyNameParameter = new ParameterProvider("propertyName", $"The property name which these hooks apply to.", typeof(string));
+            var propertySerializationNameParameter = new ParameterProvider("propertySerializationName", $"The serialization name of the property.", typeof(string));
             return
             [
                 new ConstructorProvider(

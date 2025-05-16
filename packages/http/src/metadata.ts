@@ -380,13 +380,12 @@ export function resolveRequestVisibility(
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+    const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
 
-    if (patchOptionality) {
+    if (implicitOptionality) {
       visibility |= Visibility.Patch;
     }
   }
-
   return visibility;
 }
 

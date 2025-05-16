@@ -1,5 +1,3 @@
-encode/datetime
-encode/duration
 payload/multipart
 payload/xml
 response/status-code-range

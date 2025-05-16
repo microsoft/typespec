@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected EnumProvider(InputEnumType input)
         {
             _inputType = input;
-            _deprecated = input.Deprecated;
+            _deprecated = input.Deprecation;
             IsExtensible = input.IsExtensible;
             Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? FormattableStringHelpers.Empty;
         }

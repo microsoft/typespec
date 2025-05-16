@@ -16,6 +16,7 @@ import {
   DocumentSymbol,
   DocumentSymbolParams,
   ExecuteCommandParams,
+  FileChangeType,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -30,6 +31,7 @@ import {
   PrepareRenameParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensBuilder,
@@ -55,6 +57,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
+import { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -62,6 +65,7 @@ import {
   getDirectoryPath,
   joinPaths,
   normalizePath,
+  resolvePath,
 } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
@@ -91,6 +95,7 @@ import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
 import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
@@ -101,6 +106,7 @@ import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
+import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -112,9 +118,11 @@ import {
   CompileResult,
   InitProjectConfig,
   InitProjectContext,
+  InternalCompileResult,
   SemanticTokenKind,
   Server,
   ServerCustomCapacities,
+  ServerDiagnostic,
   ServerHost,
   ServerInitializeResult,
   ServerLog,
@@ -179,6 +187,7 @@ export function createServer(host: ServerHost): Server {
     findDocumentHighlight,
     prepareRename,
     rename,
+    renameFiles,
     getSemanticTokens: getSemanticTokensForDocument,
     buildSemanticTokens,
     checkChange,
@@ -193,6 +202,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
+    internalCompile,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -247,6 +257,20 @@ export function createServer(host: ServerHost): Server {
           supported: true,
           changeNotifications: true,
         },
+        fileOperations: {
+          didRename: {
+            filters: [
+              {
+                scheme: "file",
+                pattern: { glob: "**/*.tsp", matches: "file" },
+              },
+              {
+                scheme: "file",
+                pattern: { glob: "**/*", matches: "folder" },
+              },
+            ],
+          },
+        },
       };
       // eslint-disable-next-line @typescript-eslint/no-deprecated
     } else if (params.rootUri) {
@@ -281,6 +305,7 @@ export function createServer(host: ServerHost): Server {
       getInitProjectContext: true,
       initProject: true,
       validateInitProjectTemplate: true,
+      internalCompile: true,
     };
     // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
     const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));
@@ -344,6 +369,131 @@ export function createServer(host: ServerHost): Server {
     } catch (e) {
       log({ level: "error", message: "Unexpected error when initializing project", detail: e });
       return false;
+    }
+  }
+
+  async function internalCompile(param: {
+    doc: TextDocumentIdentifier;
+    options: CompilerOptions;
+  }): Promise<InternalCompileResult> {
+    const option: CompilerOptions = {
+      ...param.options,
+    };
+
+    const result = await compileService.compile(param.doc, option, {
+      bypassCache: true,
+      trackAction: true,
+    });
+    if (result === undefined) {
+      return {
+        hasError: true,
+        diagnostics: [
+          {
+            code: "internal-error",
+            message:
+              "Failed to get compiler result, please check the compilation output for details",
+            severity: "error",
+            target: NoTarget,
+            url: undefined,
+          },
+        ],
+        entrypoint: undefined,
+        options: undefined,
+      };
+    } else {
+      return {
+        hasError: result.program.hasError(),
+        diagnostics: result.program.diagnostics.map((diagnostic) => {
+          const target = getSourceLocation(diagnostic.target, { locateId: true });
+          let position = undefined;
+          if (target?.file) {
+            const lineAndCharacter = target.file.getLineAndCharacterOfPosition(target.pos);
+            position = {
+              line: lineAndCharacter.line + 1,
+              column: lineAndCharacter.character + 1,
+            };
+          }
+          return {
+            code: diagnostic.code,
+            message: diagnostic.message,
+            severity: diagnostic.severity,
+            target: { ...target, position: position },
+            url: diagnostic.url,
+          } as ServerDiagnostic;
+        }),
+        entrypoint: result.document?.uri,
+        options: result.program.compilerOptions,
+      };
+    }
+  }
+
+  async function renameFiles(params: RenameFilesParams): Promise<void> {
+    const firstFilePath = params.files[0];
+    if (!firstFilePath) {
+      return;
+    }
+
+    // Update cache for renamed folders.
+    for (const file of params.files) {
+      const oldFilePath = await fileService.getPath({ uri: file.oldUri });
+      const newFilePath = await fileService.getPath({ uri: file.newUri });
+      const isDirRename = !file.oldUri.endsWith(".tsp");
+
+      if (isDirRename) {
+        const files = await listAllFilesInDir(compilerHost, newFilePath);
+        for (const file of files) {
+          const oldFile = resolvePath(oldFilePath, file);
+
+          fileSystemCache.notify([
+            { uri: fileService.getURL(oldFile), type: FileChangeType.Deleted },
+          ]);
+        }
+      }
+    }
+
+    const mainFile = await compileService.getMainFileForDocument(
+      await fileService.getPath({ uri: firstFilePath.newUri }),
+    );
+
+    // Add this method to resolve timing issues between renamed files and `fs.stat`
+    // to prevent `fs.stat` from getting the files before modification.
+    // Currently the test requires a delay of 300ms
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
+    if (!result) {
+      log({
+        level: "debug",
+        message: `The main tsp file '${mainFile}' compilation failed, please check the detailed compilation message`,
+      });
+      return;
+    }
+
+    for (const file of params.files) {
+      const oldFilePath = await fileService.getPath({ uri: file.oldUri });
+      const newFilePath = await fileService.getPath({ uri: file.newUri });
+      const isDirRename = !file.oldUri.endsWith(".tsp");
+
+      for (const diagnostic of result.program.diagnostics) {
+        if (diagnostic.code !== "import-not-found") continue;
+        const target = diagnostic.target as Node;
+        if (target.kind === SyntaxKind.ImportStatement) {
+          const result = getUpdatedImportValue(target, {
+            oldPath: oldFilePath,
+            newPath: newFilePath,
+            isDirRename,
+          });
+
+          if (result) {
+            log({
+              level: "info",
+              message: `The imports content '${target.path.value}' needs to be modified in tsp file '${result.filePath}' to '${result.newValue}'`,
+            });
+
+            const edit = getRenameImportEdit(target, result.newValue);
+            await host.applyEdit({ changes: { [fileService.getURL(result.filePath)]: [edit] } });
+          }
+        }
+      }
     }
   }
 
@@ -451,6 +601,10 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
     const { program, document, script } = result;
+    if (!document) {
+      return [];
+    }
+
     const identifiers = findReferenceIdentifiers(
       program,
       script,
@@ -468,7 +622,9 @@ export function createServer(host: ServerHost): Server {
 
     compileService.notifyChange(change.document);
   }
+
   async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
+    if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
@@ -550,6 +706,10 @@ export function createServer(host: ServerHost): Server {
     }
     const { program, document, script } = result;
 
+    if (!document) {
+      return { contents: [] };
+    }
+
     const id = getNodeAtPosition(script, document.offsetAt(params.position));
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
@@ -571,6 +731,9 @@ export function createServer(host: ServerHost): Server {
       return undefined;
     }
     const { script, document, program } = result;
+    if (!document) {
+      return undefined;
+    }
     const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
     if (data === undefined) {
       return undefined;
@@ -777,7 +940,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return [];
     }
     const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -844,6 +1007,9 @@ export function createServer(host: ServerHost): Server {
     const result = await compileService.compile(params.textDocument);
     if (result) {
       const { script, document, program } = result;
+      if (!document) {
+        return completions;
+      }
       const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
       return await resolveCompletion(
@@ -864,7 +1030,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return [];
     }
     const identifiers = findReferenceIdentifiers(
@@ -879,7 +1045,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return undefined;
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return undefined;
     }
     const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -891,7 +1057,7 @@ export function createServer(host: ServerHost): Server {
 
     const changes: Record<string, TextEdit[]> = {};
     const result = await compileService.compile(params.textDocument);
-    if (result) {
+    if (result && result.document) {
       const identifiers = findReferenceIdentifiers(
         result.program,
         result.script,

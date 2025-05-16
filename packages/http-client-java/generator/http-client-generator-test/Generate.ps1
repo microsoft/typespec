@@ -34,9 +34,14 @@ $generateScript = {
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
+  } elseif ($tspFile -match "client[\\/]namespace[\\/]") {
+    # specify the namespace, but @clientNamespace in client.tsp should take precedence
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=client.clientnamespace"""
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
     # override examples-dir
     $tspOptions += " --option ""@typespec/http-client-java.examples-dir={project-root}/specs/azure/example/basic/examples"""
+  } elseif ($tspFile -match "azure[\\/]client-generator-core[\\/]client-initialization[\\/]") {
+    $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]old\.tsp") {
     # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
@@ -75,6 +80,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
+    # test for include-api-view-properties
+    $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -128,6 +135,9 @@ if (Test-Path ./src/main) {
 if (Test-Path ./src/samples) {
   Remove-Item ./src/samples -Recurse -Force
 }
+if (Test-Path ./src/test) {
+  Get-ChildItem -Path ./src/test -Recurse -Directory | Where-Object {$_.Name -match "^generated$"} | Remove-Item -Recurse -Force
+}
 if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force
 }
@@ -160,11 +170,11 @@ Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("R
 
 Remove-Item ./tsp-output -Recurse -Force
 
-if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_properties.json) {
+if (Test-Path ./src/main/resources/META-INF/client-structure-service_metadata.json) {
   # client structure is generated from multiple client.tsp files and the last one to execute overwrites
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
-  Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+  Remove-Item ./src/main/resources/META-INF/client-structure-service_metadata.json -Force
 }
 
 if ($ExitCode -ne 0) {
