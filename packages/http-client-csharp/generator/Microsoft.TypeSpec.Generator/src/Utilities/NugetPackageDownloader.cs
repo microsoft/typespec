@@ -31,21 +31,18 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private readonly string _globalNugetPackagePath;
         private readonly ISettings _nugetSettings;
         private readonly IReadOnlyList<PackageSource> _availableSources;
+        private readonly HashSet<string> _targetFrameworks;
         // cspell: disable-next-line
         private readonly NuGetv3LocalRepository _localRepo;
-        private readonly List<string> _preferredDotNetFrameworkVersions =
-        [
-             "netstandard2.0",
-             "netstandard2.1",
-             "net8.0",
-             "net7.0",
-             "net6.0",
-             "net5.0",
-        ];
 
-        public NugetPackageDownloader(string packageName, string packageVersion, ISettings settings)
+        public NugetPackageDownloader(
+            string packageName,
+            string packageVersion,
+            IEnumerable<string> targetFrameworks,
+            ISettings settings)
         {
             _nugetSettings = settings;
+            _targetFrameworks = [.. targetFrameworks];
             _availableSources = GetPrimaryPackageSources(settings);
             _globalNugetPackagePath = SettingsUtility.GetGlobalPackagesFolder(settings);
             // cspell: disable-next-line
@@ -89,6 +86,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return await InstallPackageAndGetPath(resource);
         }
 
+        internal static readonly List<string> PreferredDotNetFrameworkVersions =
+        [
+             "netstandard2.0",
+             "netstandard2.1",
+             "net9.0",
+             "net8.0",
+             "net7.0",
+             "net6.0",
+             "net5.0",
+        ];
+
         private async Task<NugetPackageResource> FindPackageInSources(NuGetVersion packageVersion)
         {
             CancellationToken cancellationToken = CancellationToken.None;
@@ -116,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
 
-            var searchedSources = string.Join(Environment.NewLine, _availableSources.Select(s => s.Source));
+            var searchedSources = string.Join(", ", _availableSources.Select(s => s.Source));
             throw new InvalidOperationException($"Failed to find package {_packageName}.{_packageVersion} in any of the searched sources: {searchedSources}");
         }
 
@@ -144,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private async Task InstallPackage(string packageName, NuGetVersion version, string sourceFeedUrl, bool isLocalFeed)
         {
             var packageIdentity = new PackageIdentity(packageName, version);
-            CodeModelGenerator.Instance.Emitter.Debug($"Installing package {packageName}.{version} from source {sourceFeedUrl}..");
+            CodeModelGenerator.Instance.Emitter.Debug($"Installing package {packageName}.{version} from source {sourceFeedUrl}.");
 
             try
             {
@@ -241,8 +249,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private string? GetDotNetFolderPath(string packageLibraryPath)
         {
-            foreach (var preferredDotNetFrameworkVersion in _preferredDotNetFrameworkVersions)
+            foreach (var preferredDotNetFrameworkVersion in PreferredDotNetFrameworkVersions)
             {
+                if (!_targetFrameworks.Contains(preferredDotNetFrameworkVersion))
+                {
+                    continue;
+                }
+
                 var dotNetFolder = Path.Combine(packageLibraryPath, preferredDotNetFrameworkVersion);
                 if (DirectoryExists(dotNetFolder))
                 {

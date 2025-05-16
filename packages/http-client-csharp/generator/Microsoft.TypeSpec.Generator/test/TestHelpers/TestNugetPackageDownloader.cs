@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
 {
     internal class TestNugetPackageDownloader : NugetPackageDownloader
     {
+        private const string DefaultTargetFramework = "netstandard2.0";
         private readonly SourceRepository _mockPackageSourceRepo;
         private readonly bool _mockDirectoryExists;
         private readonly bool _mockTryFindPackageInCache;
@@ -36,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
             SourceRepository sourceRepository,
             bool directoryExists,
             bool packageExistsInSource,
-            LocalPackageInfo? localPackageInfo = null) : base(packageName, version, settings)
+            IEnumerable<string>? targetFrameworks = null,
+            LocalPackageInfo? localPackageInfo = null) : base(packageName, version, targetFrameworks ?? [DefaultTargetFramework], settings)
         {
             _mockPackageSourceRepo = sourceRepository;
             _mockDirectoryExists = directoryExists;

@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
     {
         private string? _tempDirectory;
         private string? _projectDir;
-        private string? originalNugetPackageDir;
+        private string? _originalNugetPackageDir;
 
         [SetUp]
         public void Setup()
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             CreateTestAssemblyAndProjectFile(nugetCacheDir);
 
-            originalNugetPackageDir = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
+            _originalNugetPackageDir = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
         }
 
@@ -41,9 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void Cleanup()
         {
             Directory.Delete(_tempDirectory!, true);
-            if (originalNugetPackageDir != null)
+            if (_originalNugetPackageDir != null)
             {
-                Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackageDir, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("NUGET_PACKAGES", _originalNugetPackageDir, EnvironmentVariableTarget.Process);
             }
         }
 

@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator
         private const string GeneratedTestFolder = "GeneratedTests";
         private const string NewLine = "\n";
         private const string ApiCompatPropertyName = "ApiCompatVersion";
-        private const string LastContractAssemblyNetVersion = "netstandard2.0";
+        private const string TargetFrameworkPropertyName = "TargetFramework";
+        private const string TargetFrameworksPropertyName = "TargetFrameworks";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -274,9 +275,16 @@ namespace Microsoft.TypeSpec.Generator
             if (!File.Exists(projectFilePath))
                 return null;
 
-            var baselineVersion = ProjectRootElement.Open(projectFilePath).Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
+            var projectRoot = ProjectRootElement.Open(projectFilePath);
+            var baselineVersion = projectRoot.Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
             if (baselineVersion == null)
                 return null;
+
+            var targetFrameworksValue = projectRoot.Properties
+                .SingleOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
+            HashSet<string> parsedTargetFrameworks = targetFrameworksValue != null
+                ? [.. targetFrameworksValue.Split(';')]
+                : [];
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
@@ -284,18 +292,34 @@ namespace Microsoft.TypeSpec.Generator
             // Try to find or download the assembly
             try
             {
-                string nugetFolderPathToAssembly = Path.Combine(
-                    nugetGlobalPackageFolder,
-                    packageName.ToLowerInvariant(),
-                    baselineVersion,
-                    "lib",
-                    LastContractAssemblyNetVersion);
-                string assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+                string nugetFolderPathToAssembly = string.Empty;
+                string assemblyFileFullPath = string.Empty;
+                bool foundInstalledAssembly = false;
+
+                foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                {
+                    if (!parsedTargetFrameworks.Contains(preferredTargetFramework))
+                        continue;
+
+                    nugetFolderPathToAssembly = Path.Combine(
+                        nugetGlobalPackageFolder,
+                        packageName.ToLowerInvariant(),
+                        baselineVersion,
+                        "lib",
+                        preferredTargetFramework);
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+
+                    if (File.Exists(assemblyFileFullPath))
+                    {
+                        foundInstalledAssembly = true;
+                        break;
+                    }
+                }
 
                 // If assembly doesn't exist locally, download it & install it
-                if (!File.Exists(assemblyFileFullPath))
+                if (!foundInstalledAssembly)
                 {
-                    NugetPackageDownloader downloader = new(packageName, baselineVersion, nugetSettings);
+                    NugetPackageDownloader downloader = new(packageName, baselineVersion, parsedTargetFrameworks, nugetSettings);
                     nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
                     assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
                 }

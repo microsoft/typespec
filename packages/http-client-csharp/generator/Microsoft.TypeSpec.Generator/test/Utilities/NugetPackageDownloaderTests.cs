@@ -17,6 +17,8 @@ using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using NuGet.Common;
 using System.IO;
 using NuGet.Repositories;
+using NuGet.Packaging;
+using NuGet.RuntimeModel;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {
@@ -66,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var mockPackageSourceRepository = new Mock<SourceRepository>();
             mockPackageSourceRepository.SetupSequence(s => s.GetResourceAsync<DownloadResource>())
                 .Returns(Task.FromResult(mockDownloadResource.Object));
-            TestNugetSettings mockSettings = new TestNugetSettings()
+            TestNugetSettings mockSettings = new()
             {
                 Sections =
                 [
@@ -75,8 +77,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             };
 
             var mockLocalPackageInfo = new LocalPackageInfo(packageName, NuGetVersion.Parse(packageVersion), packageName, "mockSourceUri", "mockManifestPath",
-                "mockSha512Path", new Lazy<NuGet.Packaging.NuspecReader>(), new Lazy<IReadOnlyList<string>>(), new Lazy<string>(),
-                new Lazy<NuGet.RuntimeModel.RuntimeGraph>());
+                "mockSha512Path", new Lazy<NuspecReader>(), new Lazy<IReadOnlyList<string>>(), new Lazy<string>(),
+                new Lazy<RuntimeGraph>());
             var mockFileInfos = new FileInfo[] { new("c:\\mockPath\\someDll.dll") };
             var downloader = new TestNugetPackageDownloader(
                 packageName,
@@ -85,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 mockPackageSourceRepository.Object,
                 true,
                 packageExistsInSource,
+                null,
                 mockLocalPackageInfo);
 
             Assert.NotNull(downloader);
