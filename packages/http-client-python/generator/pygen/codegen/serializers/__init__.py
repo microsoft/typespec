@@ -4,12 +4,12 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
+import json
 from collections import namedtuple
 import re
 from typing import List, Any, Union
 from pathlib import Path
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
-import json
 
 from ... import ReaderAndWriter
 from ..models import (
