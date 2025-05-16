@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("next", nextLink.ResponseSegments[0]);
             Assert.AreEqual(InputResponseLocation.Body, nextLink.ResponseLocation);
 
-            var continuationMethod = inputNamespace.Clients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithContinuationToken");
+            var continuationMethod = inputNamespace.Clients.First().Methods.FirstOrDefault(x => x.Operation.Name == "ListWithContinuationTokenHeaderResponse");
             Assert.IsNotNull(continuationMethod);
 
             InputPagingServiceMetadata? continuationPaging = null;
@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var continuation = continuationPaging!.ContinuationToken;
             Assert.IsNotNull(continuation);
             Assert.AreEqual(1, continuation!.ResponseSegments.Count);
-            Assert.AreEqual("nextToken", continuation.ResponseSegments[0]);
+            Assert.AreEqual("next-token", continuation.ResponseSegments[0]);
             Assert.AreEqual(InputResponseLocation.Header, continuation.ResponseLocation);
             Assert.AreEqual("token", continuation.Parameter.Name);
         }

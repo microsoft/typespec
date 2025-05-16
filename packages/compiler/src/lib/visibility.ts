@@ -565,7 +565,7 @@ function createVisibilityFilterMutator(
     name: "VisibilityFilterProperty",
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (prop, clone, program) => {
+      replace: (prop, clone, program) => {
         let modified = false;
 
         // We need to create a copy of the decorators array to avoid modifying the original.
@@ -613,22 +613,19 @@ function createVisibilityFilterMutator(
           modified ||= clone.type !== prop.type;
         }
 
-        if (modified) {
-          return clone;
-        } else {
-          return prop;
-        }
+        return modified ? clone : prop;
       },
     },
   };
+
   const self: Mutator = {
     name: "VisibilityFilter",
     Union: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (union, clone, program) => {
+      replace: (union, clone, program) => {
         let modified = false;
         for (const [key, member] of union.variants) {
-          if (member.type.kind === "Model" || member.type.kind === "Union") {
+          if (isVisibilitySubject(member.type)) {
             const variant: UnionVariant = {
               ...member,
               type: cachedMutateSubgraph(program, self, member.type).type,
@@ -639,17 +636,14 @@ function createVisibilityFilterMutator(
           }
         }
 
-        if (modified) {
-          rename(clone, options.nameTemplate);
-          return clone;
-        } else {
-          return union;
-        }
+        rename(clone, options.nameTemplate);
+
+        return modified ? clone : union;
       },
     },
     Model: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (model, clone, program, realm) => {
+      replace: (model, clone, program, realm) => {
         let modified = false;
 
         if (model.indexer && isVisibilitySubject(model.indexer.value)) {
@@ -684,38 +678,44 @@ function createVisibilityFilterMutator(
           modified ||= clone.decorators.length !== model.decorators.length;
         }
 
-        if (modified) {
-          rename(clone, options.nameTemplate);
-          return clone;
-        } else {
-          return model;
-        }
+        rename(clone, options.nameTemplate);
+
+        return modified ? clone : model;
       },
     },
     ModelProperty: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (prop, clone, program) => {
+      replace: (prop, clone, program) => {
         if (isVisibilitySubject(prop.type)) {
           clone.type = cachedMutateSubgraph(program, self, prop.type).type;
         }
+
+        return clone.type !== prop.type ? clone : prop;
       },
     },
     UnionVariant: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (variant, clone, program) => {
+      replace: (variant, clone, program) => {
         if (isVisibilitySubject(variant.type)) {
           clone.type = cachedMutateSubgraph(program, self, variant.type).type;
         }
+
+        return clone.type !== variant.type ? clone : variant;
       },
     },
     Tuple: {
       filter: () => MutatorFlow.DoNotRecur,
-      mutate: (tuple, clone, program) => {
+      replace: (tuple, clone, program) => {
+        let modified = false;
         for (const [index, element] of tuple.values.entries()) {
           if (isVisibilitySubject(element)) {
             clone.values[index] = cachedMutateSubgraph(program, self, element).type;
+
+            modified ||= clone.values[index] !== element;
           }
         }
+
+        return modified ? clone : tuple;
       },
     },
   };

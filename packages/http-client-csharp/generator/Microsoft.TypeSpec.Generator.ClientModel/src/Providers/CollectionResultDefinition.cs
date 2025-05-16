@@ -238,7 +238,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             _isAsync ?
                 [
-                    new ForeachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
+                    new ForEachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
                         .Property(_itemsPropertyName), false, out var item)
                     {
                         YieldReturn(item),

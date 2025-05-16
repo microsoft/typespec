@@ -105,8 +105,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Summary = summary;
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
-            // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
-            parsedUsage |= InputModelTypeUsage.Json;
             model.Usage = parsedUsage;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;

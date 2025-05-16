@@ -15,7 +15,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set; }
         public ValueExpression? BodyExpression { get; private set; }
-        public XmlDocProvider? XmlDocs { get; private set; }
+        public XmlDocProvider? XmlDocs => _xmlDocs ??= BuildXmlDocs();
+        private XmlDocProvider? _xmlDocs;
 
         public TypeProvider EnclosingType { get; }
 
@@ -39,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
             var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, paramHash);
+            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, paramHash);
             EnclosingType = enclosingType;
         }
 
@@ -54,8 +55,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null);
+            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null);
             EnclosingType = enclosingType;
+        }
+
+        private XmlDocProvider? BuildXmlDocs()
+        {
+            return MethodProviderHelpers.BuildXmlDocs(
+                Signature.Parameters,
+                Signature.Description,
+                null,
+                BodyStatements != null ?
+                    MethodProviderHelpers.GetParamHash(
+                        Signature.Parameters,
+                        !Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) :
+                    null);
         }
 
         public void Update(
@@ -67,6 +81,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (signature != null)
             {
                 Signature = signature;
+                // rebuild the XML docs if the signature changed
+                _xmlDocs = BuildXmlDocs();
             }
             if (bodyExpression != null)
             {
@@ -80,7 +96,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (xmlDocs != null)
             {
-                XmlDocs = xmlDocs;
+                _xmlDocs = xmlDocs;
             }
         }
     }

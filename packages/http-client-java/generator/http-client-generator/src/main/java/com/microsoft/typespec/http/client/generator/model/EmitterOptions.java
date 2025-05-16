@@ -9,7 +9,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -22,16 +22,15 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private List<String> serviceVersions;
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
-    private Boolean enableSyncStack;
+    private Boolean enableSyncStack = true;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private String customTypes;
     private String customTypeSubpackage;
     private String customizationClass;
-    private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
+    private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private DevOptions devOptions;
@@ -108,11 +107,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean getIncludeApiViewProperties() {
-        return includeApiViewProperties;
-    }
-
-    public Map<String, JavaSettings.PollingDetails> getPolling() {
+    public Map<String, PollingSettings> getPolling() {
         return polling;
     }
 
@@ -183,12 +178,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.customTypeSubpackage = emptyToNull(reader.getString());
             } else if ("customization-class".equals(fieldName)) {
                 options.customizationClass = emptyToNull(reader.getString());
-            } else if ("include-api-view-properties".equals(fieldName)) {
-                options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
-                options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
+                options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
                 options.arm = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("models-subpackage".equals(fieldName)) {

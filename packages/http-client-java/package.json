@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-java",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
   "keywords": [
     "TypeSpec"
@@ -72,15 +72,15 @@
     "@azure-tools/typespec-azure-core": "0.56.0",
     "@azure-tools/typespec-azure-resource-manager": "0.56.0",
     "@azure-tools/typespec-azure-rulesets": "0.56.0",
-    "@azure-tools/typespec-client-generator-core": "0.56.1",
-    "@typespec/spector": "0.1.0-alpha.13",
-    "@microsoft/api-extractor": "^7.52.7",
+    "@azure-tools/typespec-client-generator-core": "0.56.2",
+    "@typespec/spector": "0.1.0-alpha.14",
+    "@microsoft/api-extractor": "^7.52.8",
     "@microsoft/api-extractor-model": "^7.30.6",
     "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.16",
-    "@types/node": "~22.15.14",
+    "@types/node": "~22.15.17",
     "@typespec/compiler": "1.0.0",
-    "@typespec/http": "1.0.0",
+    "@typespec/http": "1.0.1",
     "@typespec/openapi": "1.0.0",
     "@typespec/rest": "0.70.0",
     "@typespec/versioning": "0.70.0",
