@@ -5,7 +5,7 @@ import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
-import { Stats } from "../../../stats.js";
+import { RuntimeStats, Stats } from "../../../stats.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
 import { CliCompilerHost } from "../../types.js";
 import {
@@ -200,28 +200,37 @@ function logProgramResult(
 
 function printStats(stats: Stats) {
   print("Compiler statistics:");
-  printRuntime(stats, "loader");
-  printRuntime(stats, "resolver");
-  printRuntime(stats, "checker");
-  printGroup(stats, "validation", "validators");
-  printGroup(stats, "linter", "rules");
-  printGroup(stats, "emit", "emitters");
+  print("  Complexity:");
+  printKV("Created types", stats.complexity.createdTypes.toString(), 4);
+  printKV("Finished types", stats.complexity.finishedTypes.toString(), 4);
+  print("  Performance:");
+  printRuntimeStats(stats.runtime);
 
-  function printGroup<K extends keyof Stats, L extends keyof Stats[K]>(
-    base: Stats,
+  function printRuntimeStats(stats: RuntimeStats) {
+    printRuntime(stats, "loader", 4);
+    printRuntime(stats, "resolver", 4);
+    printRuntime(stats, "checker", 4);
+    printGroup(stats, "validation", "validators", 4);
+    printGroup(stats, "linter", "rules", 4);
+    printGroup(stats, "emit", "emitters", 4);
+  }
+
+  function printGroup<K extends keyof RuntimeStats, L extends keyof RuntimeStats[K]>(
+    base: RuntimeStats,
     groupName: K,
     itemsKey: L,
+    indent: number = 0,
   ) {
     const group: any = base[groupName];
-    print(`${pc.gray(groupName)}: ${runtimeStr(group["total"] ?? 0)}`);
+    printKV(groupName, runtimeStr(group["total"] ?? 0), indent);
     for (const [key, value] of Object.entries(group[itemsKey])) {
       if (typeof value === "number") {
-        printRuntime(group[itemsKey], key, 2);
+        printRuntime(group[itemsKey], key, indent + 2);
       }
     }
   }
   function printRuntime(base: any, key: string, indent: number = 0) {
-    print(`${" ".repeat(indent)}${pc.gray(key)}: ${runtimeStr(base[key])}`);
+    printKV(key, runtimeStr(base[key]), indent);
   }
 
   function runtimeStr(runtime: number) {
@@ -232,6 +241,10 @@ function printStats(stats: Stats) {
       return pc.yellow(str);
     }
     return pc.green(str);
+  }
+
+  function printKV(key: string, value: string, indent: number = 0) {
+    print(`${" ".repeat(indent)}${pc.gray(key)}: ${value}`);
   }
 }
 

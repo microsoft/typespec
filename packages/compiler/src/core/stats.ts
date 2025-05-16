@@ -1,4 +1,14 @@
 export interface Stats {
+  complexity: ComplexityStats;
+  runtime: RuntimeStats;
+}
+
+export interface ComplexityStats {
+  createdTypes: number;
+  finishedTypes: number;
+}
+
+export interface RuntimeStats {
   total: number;
   loader: number;
   resolver: number;

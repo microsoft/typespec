@@ -42,7 +42,7 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { Stats, startTimer, time, timeAsync } from "./stats.js";
+import { ComplexityStats, RuntimeStats, Stats, startTimer, time, timeAsync } from "./stats.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -177,7 +177,7 @@ export async function compile(
     return program;
   }
 
-  const emitStats: Stats["emit"] = {
+  const emitStats: RuntimeStats["emit"] = {
     total: 0,
     emitters: {},
   };
@@ -195,7 +195,7 @@ export async function compile(
     }
   }
   emitStats.total = timer.end();
-  program.stats.emit = emitStats;
+  program.stats.runtime.emit = emitStats;
   return program;
 }
 
@@ -205,7 +205,7 @@ async function createProgram(
   options: CompilerOptions = {},
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
-  const stats: Partial<Stats> = {};
+  const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
@@ -213,6 +213,7 @@ async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
+  const complexityStats: ComplexityStats = {} as any;
   let sourceResolution: SourceResolution;
   let error = false;
   let continueToNextStage = true;
@@ -233,7 +234,11 @@ async function createProgram(
     getOption,
     stateMaps,
     stateSets,
-    stats: stats as any,
+    stats: {
+      complexity: complexityStats,
+      runtime: runtimeStats as any,
+    },
+
     tracer,
     trace,
     ...createStateAccessors(stateMaps, stateSets),
@@ -267,7 +272,7 @@ async function createProgram(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  stats.loader = await timeAsync(() => loadSources(resolvedMain));
+  runtimeStats.loader = await timeAsync(() => loadSources(resolvedMain));
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
@@ -286,7 +291,7 @@ async function createProgram(
   oldProgram = undefined;
 
   const resolver = createResolver(program);
-  stats.resolver = time(() => resolver.resolveProgram());
+  runtimeStats.resolver = time(() => resolver.resolveProgram());
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
@@ -295,7 +300,10 @@ async function createProgram(
   }
 
   program.checker = createChecker(program, resolver);
-  stats.checker = time(() => program.checker.checkProgram());
+  runtimeStats.checker = time(() => program.checker.checkProgram());
+
+  complexityStats.createdTypes = program.checker.stats.createdTypes;
+  complexityStats.finishedTypes = program.checker.stats.finishedTypes;
 
   if (!continueToNextStage) {
     return { program, shouldAbort: true };
@@ -314,7 +322,7 @@ async function createProgram(
 
   // Linter stage
   const lintResult = linter.lint();
-  stats.linter = lintResult.stats.runtime;
+  runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
 
   return { program, shouldAbort: false };
@@ -621,15 +629,15 @@ async function createProgram(
 
   async function runValidators() {
     const start = startTimer();
-    stats.validation = { total: 0, validators: {} };
+    runtimeStats.validation = { total: 0, validators: {} };
     runCompilerValidators();
-    stats.validation.validators.compiler = start.end();
+    runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
       const start = startTimer();
       await runValidator(validator);
-      stats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
+      runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
-    stats.validation.total = start.end();
+    runtimeStats.validation.total = start.end();
   }
 
   async function runValidator(validator: Validator) {
