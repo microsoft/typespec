@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { InitTemplate } from "../../src/init/init-template.js";
@@ -38,24 +38,63 @@ async function runTemplate(
 }
 
 describe("libraries", () => {
+  it("adds libraries to peer and dev dependencies fields", async () => {
+    await runTemplate({
+      target: "library",
+      libraries: [{ name: "bar" }],
+    });
+
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.peerDependencies).toEqual({
+      "@typespec/compiler": "latest",
+      bar: "latest",
+    });
+    expect(pkgJson.devDependencies).toEqual({
+      "@typespec/compiler": "latest",
+      bar: "latest",
+    });
+    expect(pkgJson.dependencies).toBeUndefined();
+  });
+
   it("templates can contain specific library versions to use", async () => {
     await runTemplate({
+      target: "library",
       libraries: [{ name: "foo", version: "~1.2.3" }, { name: "bar" }],
     });
 
-    deepStrictEqual(JSON.parse(getOutputFile("package.json")!).peerDependencies, {
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.peerDependencies).toEqual({
       "@typespec/compiler": "latest",
       foo: "~1.2.3",
       bar: "latest",
     });
 
-    deepStrictEqual(JSON.parse(getOutputFile("package.json")!).devDependencies, {
+    expect(pkgJson.devDependencies).toEqual({
       "@typespec/compiler": "latest",
       foo: "~1.2.3",
       bar: "latest",
     });
 
     strictEqual(getOutputFile("main.tsp")!, 'import "foo";\nimport "bar";\n');
+  });
+});
+
+describe("project", () => {
+  it("adds libraries to dependencies field", async () => {
+    await runTemplate({
+      libraries: [{ name: "bar" }],
+    });
+
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.dependencies).toEqual({
+      "@typespec/compiler": "latest",
+      bar: "latest",
+    });
+    expect(pkgJson.peerDependencies).toBeUndefined();
+    expect(pkgJson.devDependencies).toBeUndefined();
   });
 });
 
