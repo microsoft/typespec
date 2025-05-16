@@ -11,6 +11,8 @@
     <PackageReference Include="Microsoft.Build" />
     <PackageReference Include="System.ComponentModel.Composition" />
     <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="NuGet.Versioning" />
+    <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     <PackageReference Include="System.Memory.Data" />
   </ItemGroup>
