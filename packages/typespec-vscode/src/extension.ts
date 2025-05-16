@@ -26,7 +26,7 @@ import {
   SettingName,
 } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
-import { isWhitespaceStringOrUndefined } from "./utils.js";
+import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
@@ -93,7 +93,7 @@ export async function activate(context: ExtensionContext) {
       );
 
       context.subscriptions.push(
-        commands.registerCommand(CommandName.OpenUrl, (url: string) => {
+        commands.registerCommand(CodeActionCommand.OpenUrl, (url: string) => {
           try {
             vscode.env.openExternal(vscode.Uri.parse(url));
           } catch (error) {
