@@ -201,7 +201,7 @@ public class ClientMethod {
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.hasWithContextOverload = hasWithContextOverload;
-        if (methodPageDetails != null && isPageStreamingClientMethodType(type)) {
+        if (methodPageDetails != null && isPageStreamingType()) {
             this.parametersDeclaration = getMethodInputParameters().stream()
                 .filter(p -> !methodPageDetails.shouldHideParameter(p))
                 .map(ClientMethodParameter::getDeclaration)
@@ -267,6 +267,16 @@ public class ClientMethod {
 
     public final ClientMethodType getType() {
         return type;
+    }
+
+    /**
+     * Check if this method is page streaming method (i.e. if the method returns PagedIterable&lt;T&gt; or
+     * PagedFlux&lt;T&gt;).
+     *
+     * @return true if this method is a page streaming method, false otherwise.
+     */
+    public final boolean isPageStreamingType() {
+        return type == ClientMethodType.PagingAsync || type == ClientMethodType.PagingSync;
     }
 
     public final ProxyMethod getProxyMethod() {
@@ -585,17 +595,6 @@ public class ClientMethod {
             .returnValue(new ReturnValue("the response body along with {@link Response}",
                 GenericType.Response(ClassType.BINARY_DATA)))
             .build();
-    }
-
-    /**
-     * Check if the given ClientMethodType is a page streaming type (i.e. if the type represents a method that
-     * returns PagedIterable&lt;T&gt; or PagedFlux&lt;T&gt;).
-     *
-     * @param type The ClientMethodType to check.
-     * @return true if the type is a page streaming type, false otherwise.
-     */
-    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
-        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
     }
 
     public static class Builder {

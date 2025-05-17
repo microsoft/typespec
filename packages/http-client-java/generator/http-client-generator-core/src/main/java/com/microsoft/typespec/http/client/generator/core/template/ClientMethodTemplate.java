@@ -1254,13 +1254,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ProxyMethod restAPIMethod, boolean useFullClassName) {
         commentBlock.description(clientMethod.getDescription());
         List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-        if (isPageStreamingClientMethodType(clientMethod.getType())) {
+        if (clientMethod.isPageStreamingType()) {
             final MethodPageDetails methodPageDetails = clientMethod.getMethodPageDetails();
-            if (methodPageDetails != null) {
-                for (ClientMethodParameter parameter : methodParameters) {
-                    if (methodPageDetails.shouldHideParameter(parameter)) {
-                        continue;
-                    }
+            for (ClientMethodParameter parameter : methodParameters) {
+                if (!methodPageDetails.shouldHideParameter(parameter)) {
                     commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
                 }
             }
@@ -1276,10 +1273,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         commentBlock.methodThrows("RuntimeException",
             "all other wrapped checked exceptions if the request fails to be sent");
         commentBlock.methodReturns(clientMethod.getReturnValue().getDescription());
-    }
-
-    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
-        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
     }
 
     protected static String parameterDescriptionOrDefault(ClientMethodParameter parameter) {
