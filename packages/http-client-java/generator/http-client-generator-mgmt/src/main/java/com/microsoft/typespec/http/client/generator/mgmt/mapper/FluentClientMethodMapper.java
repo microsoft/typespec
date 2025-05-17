@@ -23,7 +23,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
     @Override
     protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
-        CreateClientMethodArgs createMethodArgs) {
+        CreateMethodArgs createMethodArgs) {
         createLroGetFinalResultClientMethods(false, lroBaseMethod, methods, createMethodArgs);
         createLroGetFinalResultClientMethods(true, lroBaseMethod, methods, createMethodArgs);
     }
@@ -97,15 +97,16 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     }
 
     private void createLroGetFinalResultClientMethods(boolean isSync, ClientMethod baseMethod,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
         // Fluent provides simple LRO method variants that wait for LRO to complete and produces the final result.
         // Note that these variants does not include '[Operation]WithResponse' style methods returning Response<T>,
         // as Response data is not included in an LRO API.
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType defaultOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
-        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final boolean generateRequiredOnlyParametersOverload
+            = createMethodArgs.generateRequiredOnlyParamsMethodOverload;
         final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
 
         final String methodName;

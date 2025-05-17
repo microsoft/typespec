@@ -93,6 +93,7 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
         // a dummy client method only for generating javadoc
         ClientMethod dummyClientMethodForJavadoc
             = new ClientMethod.Builder().proxyMethod(collectionMethod.getInnerProxyMethod())
+                .type(null)
                 .name(name)
                 .returnValue(new ReturnValue(returnType == PrimitiveType.VOID
                     ? ""
