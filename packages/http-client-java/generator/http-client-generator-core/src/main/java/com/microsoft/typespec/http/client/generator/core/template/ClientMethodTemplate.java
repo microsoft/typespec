@@ -1254,8 +1254,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ProxyMethod restAPIMethod, boolean useFullClassName) {
         commentBlock.description(clientMethod.getDescription());
         List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-        for (ClientMethodParameter parameter : methodParameters) {
-            commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+        if (isPageStreamingClientMethodType(clientMethod.getType())) {
+            final MethodPageDetails methodPageDetails = clientMethod.getMethodPageDetails();
+            if (methodPageDetails != null) {
+                for (ClientMethodParameter parameter : methodParameters) {
+                    if (methodPageDetails.shouldHideParameter(parameter)) {
+                        continue;
+                    }
+                    commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+                }
+            }
+        } else {
+            for (ClientMethodParameter parameter : methodParameters) {
+                commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+            }
         }
         if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
@@ -1264,6 +1276,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         commentBlock.methodThrows("RuntimeException",
             "all other wrapped checked exceptions if the request fails to be sent");
         commentBlock.methodReturns(clientMethod.getReturnValue().getDescription());
+    }
+
+    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
+        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
     }
 
     protected static String parameterDescriptionOrDefault(ClientMethodParameter parameter) {

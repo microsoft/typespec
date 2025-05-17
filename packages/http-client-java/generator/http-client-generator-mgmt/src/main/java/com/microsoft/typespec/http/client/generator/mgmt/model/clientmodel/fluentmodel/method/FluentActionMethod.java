@@ -69,6 +69,7 @@ public class FluentActionMethod extends FluentMethod {
         // a dummy client method only for generating javadoc
         this.dummyClientMethodForJavadoc
             = new ClientMethod.Builder().proxyMethod(collectionMethod.getInnerProxyMethod())
+                .type(null)
                 .name(name)
                 .returnValue(returnValue)
                 .parameters(parameters)

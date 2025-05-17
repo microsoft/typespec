@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
@@ -831,7 +832,18 @@ abstract class ConvenienceMethodTemplateBase {
             String name = convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
         }
+        if (isPageStreamingClientMethodType(convenienceMethod.getType())) {
+            final MethodPageDetails pageDetails = convenienceMethod.getMethodPageDetails();
+            if (pageDetails != null) {
+                parameterMap.entrySet()
+                    .removeIf(it -> pageDetails.shouldHideParameter(it.getKey().getClientMethodParameter()));
+            }
+        }
         return parameterMap;
+    }
+
+    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
+        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
     }
 
     private static MethodParameter findProtocolMethodParameterForConvenienceMethod(MethodParameter parameter,
