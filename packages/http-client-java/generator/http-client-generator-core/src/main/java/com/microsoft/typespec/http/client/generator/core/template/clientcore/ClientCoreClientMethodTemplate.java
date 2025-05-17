@@ -124,12 +124,13 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             if (parameter.isRequired()) {
                 // Parameter is required and will be part of the method signature.
                 continue;
             }
-            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
             if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
                 continue;
             }

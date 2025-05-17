@@ -34,9 +34,9 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     @Override
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
         final String argumentList;
-        if (pageDetails != null) {
+        if (clientMethod.isPageStreamingType()) {
+            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
             argumentList = parameters.stream()
                 .filter(parameter -> !pageDetails.shouldHideParameter(parameter))
                 .map(ClientMethodParameter::getName)
@@ -52,8 +52,8 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
         typeBlock.javadocComment(comment -> {
             comment.description(clientMethod.getDescription());
             final Stream<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters().stream();
-            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
-            if (pageDetails != null) {
+            if (clientMethod.isPageStreamingType()) {
+                final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
                 methodParameters.filter(parameter -> !pageDetails.shouldHideParameter(parameter))
                     .forEach(parameter -> comment.param(parameter.getName(), parameter.getDescription()));
             } else {
