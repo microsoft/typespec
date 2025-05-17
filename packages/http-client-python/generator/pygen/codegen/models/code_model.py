@@ -98,6 +98,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.has_subnamespace = False
         self._operations_folder_name: Dict[str, str] = {}
         self._relative_import_path: Dict[str, str] = {}
+        self.metadata: Dict[str, Any] = yaml_data.get("metadata", {})
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
