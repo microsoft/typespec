@@ -356,6 +356,9 @@ namespace Microsoft.TypeSpec.Generator
                 project = await RemoveModelsFromDocumentAsync(project, models);
             }
 
+            // remove what are now invalid usings due to the models being removed
+            project = await RemoveInvalidUsings(project);
+
             return project;
         }
 
@@ -386,6 +389,41 @@ namespace Microsoft.TypeSpec.Generator
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
             document = document.WithSyntaxRoot(root!);
             return document.Project;
+        }
+
+        private async Task<Project> RemoveInvalidUsings(Project project)
+        {
+            var solution = project.Solution;
+            foreach (var documentId in project.DocumentIds)
+            {
+                var document = solution.GetDocument(documentId)!;
+                var root = await document.GetSyntaxRootAsync();
+                var model = await document.GetSemanticModelAsync();
+
+                if (root is not CompilationUnitSyntax cu || model == null)
+                {
+                    continue;
+                }
+
+                var invalidUsings = cu.Usings
+                    .Where(u =>
+                    {
+                        var info = model.GetSymbolInfo(u.Name!);
+                        var sym  = info.Symbol;
+                        return sym is null || sym.Kind != SymbolKind.Namespace;
+                    })
+                    .ToList();
+
+                if (invalidUsings.Count == 0)
+                {
+                    continue;
+                }
+
+                var cleaned = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia);
+                solution = solution.WithDocumentSyntaxRoot(documentId, cleaned!);
+            }
+
+            return solution.GetProject(project.Id)!;
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
