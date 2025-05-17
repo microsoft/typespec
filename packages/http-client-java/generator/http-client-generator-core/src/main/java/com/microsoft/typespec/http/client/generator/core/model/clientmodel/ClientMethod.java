@@ -201,7 +201,7 @@ public class ClientMethod {
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
         this.hasWithContextOverload = hasWithContextOverload;
-        if (methodPageDetails != null && isPageStreamingType()) {
+        if (isPageStreamingType() && methodPageDetails != null) {
             this.parametersDeclaration = getMethodInputParameters().stream()
                 .filter(p -> !methodPageDetails.shouldHideParameter(p))
                 .map(ClientMethodParameter::getDeclaration)
