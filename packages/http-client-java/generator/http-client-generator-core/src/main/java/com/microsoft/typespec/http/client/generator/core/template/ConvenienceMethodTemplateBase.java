@@ -832,18 +832,12 @@ abstract class ConvenienceMethodTemplateBase {
             String name = convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
         }
-        if (isPageStreamingClientMethodType(convenienceMethod.getType())) {
+        if (convenienceMethod.isPageStreamingType()) {
             final MethodPageDetails pageDetails = convenienceMethod.getMethodPageDetails();
-            if (pageDetails != null) {
-                parameterMap.entrySet()
-                    .removeIf(it -> pageDetails.shouldHideParameter(it.getKey().getClientMethodParameter()));
-            }
+            parameterMap.entrySet()
+                .removeIf(it -> pageDetails.shouldHideParameter(it.getKey().getClientMethodParameter()));
         }
         return parameterMap;
-    }
-
-    private static boolean isPageStreamingClientMethodType(ClientMethodType type) {
-        return type == ClientMethodType.PagingSync || type == ClientMethodType.PagingAsync;
     }
 
     private static MethodParameter findProtocolMethodParameterForConvenienceMethod(MethodParameter parameter,
