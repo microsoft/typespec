@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,13 @@ final class ClientMethodParametersDetails {
 
     boolean hasNonRequiredParameters() {
         return this.parametersTuples.stream().map(t -> t.parameter).anyMatch(p -> !p.isRequired() && !p.isConstant());
+    }
+
+    boolean hasNonRequiredParameters(MethodPageDetails methodPageDetails) {
+        return this.parametersTuples.stream()
+            .map(t -> t.parameter)
+            .filter(p -> !methodPageDetails.shouldHideParameter(p))
+            .anyMatch(p -> !p.isRequired() && !p.isConstant());
     }
 
     List<ClientMethodParameter> getClientMethodParameters() {
