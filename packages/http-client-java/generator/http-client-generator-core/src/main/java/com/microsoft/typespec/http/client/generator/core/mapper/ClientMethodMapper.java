@@ -143,17 +143,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 if (proxyMethod.getImplementation() != null) {
                     continue;
                 }
-                final ClientMethodParametersDetails parametersDetails = ClientMethodParameterProcessor.process(request,
+                final ClientMethodParametersDetails paramsDetails = ClientMethodParameterProcessor.process(request,
                     proxyMethod.hasParameterOfType(ClassType.BINARY_DATA), isProtocolMethod);
-                final MethodOverloadType defaultOverloadType = parametersDetails.hasNonRequiredParameters()
-                    ? MethodOverloadType.OVERLOAD_MAXIMUM
-                    : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
 
                 final ClientMethod baseMethod = builder.proxyMethod(proxyMethod)
-                    .parameters(parametersDetails.getClientMethodParameters())
-                    .requiredNullableParameterExpressions(parametersDetails.requiredParameterExpressions)
-                    .validateExpressions(parametersDetails.validateParameterExpressions)
-                    .parameterTransformations(parametersDetails.parameterTransformations)
+                    .parameters(paramsDetails.getClientMethodParameters())
+                    .requiredNullableParameterExpressions(paramsDetails.requiredParameterExpressions)
+                    .validateExpressions(paramsDetails.validateParameterExpressions)
+                    .parameterTransformations(paramsDetails.parameterTransformations)
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient(operation, isProtocolMethod))
                     .build();
 
@@ -161,20 +158,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
                 final ClientMethodsReturnDescription methodsReturnDescription = ClientMethodsReturnDescription
                     .create(operation, isProtocolMethod, proxyMethod.isCustomHeaderIgnored());
-                final CreateClientMethodArgs createMethodArgs = new CreateClientMethodArgs(settings, isProtocolMethod,
-                    methodsReturnDescription, defaultOverloadType, methodNamer);
+                final CreateMethodArgs createMethodArgs = new CreateMethodArgs(settings, isProtocolMethod,
+                    methodsReturnDescription, methodNamer, getMethodOverloadType(paramsDetails));
 
                 if (operation.isPageable()) {
                     // Create Paging Client Methods.
                     //
                     final PagingMetadata pagingMetadata
-                        = PagingMetadata.create(operation, proxyMethod, parametersDetails, settings);
+                        = PagingMetadata.create(operation, proxyMethod, paramsDetails, settings);
                     if (pagingMetadata == null) {
                         continue;
                     }
 
-                    final CreateClientMethodArgs createPagingMethodArgs
-                        = createMethodArgs.forPaging(pagingMetadata, parametersDetails);
+                    final CreateMethodArgs createPagingMethodArgs
+                        = createMethodArgs.forPaging(pagingMetadata, paramsDetails);
 
                     if (proxyMethod.isSync()) {
                         createPagingClientMethods(true, baseMethod, pagingMetadata, methods, createPagingMethodArgs);
@@ -259,7 +256,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * Extension point of additional methods for LRO.
      */
     protected void createAdditionalLroMethods(ClientMethod lroBaseMethod, List<ClientMethod> methods,
-        CreateClientMethodArgs createClientMethodArgs) {
+        CreateMethodArgs createMethodArgs) {
     }
 
     private static void setJavaDoc(ClientMethod.Builder builder, Operation operation) {
@@ -406,22 +403,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createPagingClientMethods(boolean isSync, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-        List<ClientMethod> methods, CreateClientMethodArgs createClientMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
-        createSinglePageClientMethods(isSync, baseMethod, pagingMetadata, methods, createClientMethodArgs);
+        createSinglePageClientMethods(isSync, baseMethod, pagingMetadata, methods, createMethodArgs);
         if (pagingMetadata.isNextMethod()) {
             // If this was the next method there is no streaming methods to be generated.
             return;
         }
-        createPageStreamingClientMethods(isSync, baseMethod, pagingMetadata, methods, createClientMethodArgs);
+        createPageStreamingClientMethods(isSync, baseMethod, pagingMetadata, methods, createMethodArgs);
     }
 
     private void createSinglePageClientMethods(boolean isSync, ClientMethod baseMethod, PagingMetadata pagingMetadata,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
@@ -438,9 +435,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methodPageDetails = pagingMetadata.asMethodPageDetails(false);
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
 
         // Generate only maximum overload of '[Operation]SinglePage', and it should not be exposed to user.
         final ClientMethod singlePageMethod = baseMethod.newBuilder()
@@ -462,13 +459,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createPageStreamingClientMethods(boolean isSync, ClientMethod baseMethod,
-        PagingMetadata pagingMetadata, List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        PagingMetadata pagingMetadata, List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
-        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final boolean generateRequiredOnlyParametersOverload
+            = createMethodArgs.generateRequiredOnlyParamsMethodOverload;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         final String methodName;
@@ -489,11 +487,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 = pagingMetadata.asMethodPageDetailsForContext(false, getContextParameter(isProtocolMethod));
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
         final JavaVisibility methodWithOnlyRequiredParametersVisibility
             = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
 
         final ClientMethod pagingMethod = baseMethod.newBuilder()
             .methodPageDetails(methodPageDetails)
@@ -530,11 +528,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroWithResponseClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-        CreateClientMethodArgs createMethodArgs) {
+        CreateMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final ProxyMethod proxyMethod = baseMethod.getProxyMethod();
 
@@ -558,9 +556,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methodVisibility = NOT_GENERATE;
             methodWithContextVisibility = NOT_VISIBLE;
         } else {
-            methodVisibility = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            methodVisibility = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
             methodWithContextVisibility
-                = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+                = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
         }
 
         // '[Operation]WithResponse' LRO sync or async method with required and optional parameters.
@@ -579,7 +577,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createFluentLroWithResponseSyncClientMethods(Operation operation, ClientMethod baseMethod,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
@@ -618,7 +616,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createProtocolLroBeginClientMethods(ClientMethod baseMethod, PollingMetadata pollingMetadata,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         assert createMethodArgs.isProtocolMethod;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
@@ -652,7 +650,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroBeginClientMethods(ClientMethod lroBaseMethod, String asyncMethodName, String syncMethodName,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final JavaSettings settings = createMethodArgs.settings;
 
@@ -671,12 +669,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createLroBeginClientMethods(boolean isSync, ClientMethod lroBaseMethod, String methodName,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
-        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final boolean generateRequiredOnlyParametersOverload
+            = createMethodArgs.generateRequiredOnlyParamsMethodOverload;
 
         final ClientMethodType clientMethodType;
         if (isSync) {
@@ -685,11 +684,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             clientMethodType = ClientMethodType.LongRunningBeginAsync;
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
         final JavaVisibility methodWithRequiredParametersVisibility
             = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
         final MethodPollingDetails methodPollingDetails = lroBaseMethod.getMethodPollingDetails();
 
         // LRO 'begin[Operation]' sync or async method.
@@ -720,20 +719,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSimpleClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-        CreateClientMethodArgs createClientMethodArgs) {
+        CreateMethodArgs createMethodArgs) {
 
-        createSimpleWithResponseClientMethods(isSync, baseMethod, methods, createClientMethodArgs);
+        createSimpleWithResponseClientMethods(isSync, baseMethod, methods, createMethodArgs);
         if (baseMethod.getProxyMethod().isCustomHeaderIgnored()) {
             return;
         }
-        createSimpleValueClientMethods(isSync, baseMethod, methods, createClientMethodArgs);
+        createSimpleValueClientMethods(isSync, baseMethod, methods, createMethodArgs);
     }
 
     private void createSimpleWithResponseClientMethods(boolean isSync, ClientMethod baseMethod,
-        List<ClientMethod> methods, CreateClientMethodArgs createMethodArgs) {
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
@@ -749,9 +748,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             clientMethodType = ClientMethodType.SimpleAsyncRestResponse;
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
         final boolean hasContextOverload = methodWithContextVisibility != NOT_GENERATE;
 
         final ClientMethod withResponseMethod = baseMethod.newBuilder()
@@ -770,12 +769,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     private void createSimpleValueClientMethods(boolean isSync, ClientMethod baseMethod, List<ClientMethod> methods,
-        CreateClientMethodArgs createMethodArgs) {
+        CreateMethodArgs createMethodArgs) {
 
         final boolean isProtocolMethod = createMethodArgs.isProtocolMethod;
-        final MethodOverloadType defaultOverloadType = createMethodArgs.defaultOverloadType;
+        final MethodOverloadType methodOverloadType = createMethodArgs.methodOverloadType;
         final ClientMethodsReturnDescription methodsReturnDescription = createMethodArgs.methodsReturnDescription;
-        final boolean generateRequiredOnlyParametersOverload = createMethodArgs.generateRequiredOnlyParametersOverload;
+        final boolean generateRequiredOnlyParametersOverload
+            = createMethodArgs.generateRequiredOnlyParamsMethodOverload;
         final MethodNamer methodNamer = createMethodArgs.methodNamer;
 
         // Simple '[Operation]' sync or async methods.
@@ -790,11 +790,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             clientMethodType = ClientMethodType.SimpleAsync;
         }
         final JavaVisibility methodVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, false, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, false, isProtocolMethod);
         final JavaVisibility methodWithRequiredParametersVisibility
             = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
-            = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+            = methodVisibility(clientMethodType, methodOverloadType, true, isProtocolMethod);
 
         final ClientMethod simpleMethod = baseMethod.newBuilder()
             .returnValue(methodsReturnDescription.getReturnValue(clientMethodType))
@@ -969,42 +969,46 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     /**
      * Type holding immutable common arguments shared across all client method creator functions.
      */
-    protected static class CreateClientMethodArgs {
+    protected static class CreateMethodArgs {
         public final JavaSettings settings;
         public final boolean isProtocolMethod;
         public final ClientMethodsReturnDescription methodsReturnDescription;
-        public final MethodOverloadType defaultOverloadType;
+        public final MethodOverloadType methodOverloadType;
         public final MethodNamer methodNamer;
-        public final boolean generateRequiredOnlyParametersOverload;
+        public final boolean generateRequiredOnlyParamsMethodOverload;
 
-        CreateClientMethodArgs(JavaSettings settings, boolean isProtocolMethod,
-            ClientMethodsReturnDescription methodsReturnDescription, MethodOverloadType defaultOverloadType,
-            MethodNamer methodNamer) {
+        CreateMethodArgs(JavaSettings settings, boolean isProtocolMethod,
+            ClientMethodsReturnDescription methodsReturnDescription, MethodNamer methodNamer,
+            MethodOverloadType methodOverloadType) {
             this.settings = settings;
             this.isProtocolMethod = isProtocolMethod;
             this.methodsReturnDescription = methodsReturnDescription;
-            this.defaultOverloadType = defaultOverloadType;
+            this.methodOverloadType = methodOverloadType;
             this.methodNamer = methodNamer;
-            this.generateRequiredOnlyParametersOverload = settings.isRequiredParameterClientMethods()
-                && defaultOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
+            this.generateRequiredOnlyParamsMethodOverload = settings.isRequiredParameterClientMethods()
+                && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM;
         }
 
-        CreateClientMethodArgs forPaging(PagingMetadata pagingMetadata,
-            ClientMethodParametersDetails parametersDetails) {
-            return new CreateClientMethodArgs(this.settings, this.isProtocolMethod, this.methodsReturnDescription,
-                getPageMethodOverloadType(pagingMetadata, parametersDetails), this.methodNamer);
+        CreateMethodArgs forPaging(PagingMetadata pagingMetadata, ClientMethodParametersDetails paramsDetails) {
+            return new CreateMethodArgs(this.settings, this.isProtocolMethod, this.methodsReturnDescription,
+                this.methodNamer, getPageMethodOverloadType(pagingMetadata, paramsDetails));
+        }
+    }
+
+    private static MethodOverloadType getMethodOverloadType(ClientMethodParametersDetails paramsDetails) {
+        if (paramsDetails.hasNonRequiredParameters()) {
+            return MethodOverloadType.OVERLOAD_MAXIMUM;
+        } else {
+            return MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
         }
     }
 
     private static MethodOverloadType getPageMethodOverloadType(PagingMetadata pagingMetadata,
-        ClientMethodParametersDetails parametersDetails) {
-        final MethodPageDetails methodPageDetails = pagingMetadata.asMethodPageDetails(false);
-        final boolean hasNonRequiredParameters = parametersDetails.getParameterTuples()
-            .map(t -> t.parameter)
-            .filter(p -> !methodPageDetails.shouldHideParameter(p))
-            .anyMatch(p -> !p.isRequired() && !p.isConstant());
-        return hasNonRequiredParameters
-            ? MethodOverloadType.OVERLOAD_MAXIMUM
-            : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
+        ClientMethodParametersDetails paramsDetails) {
+        if (paramsDetails.hasNonRequiredParameters(pagingMetadata.asMethodPageDetails(false))) {
+            return MethodOverloadType.OVERLOAD_MAXIMUM;
+        } else {
+            return MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
+        }
     }
 }
