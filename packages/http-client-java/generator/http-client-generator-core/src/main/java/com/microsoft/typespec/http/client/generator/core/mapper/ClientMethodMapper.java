@@ -148,7 +148,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                 final ClientMethod baseMethod = builder.proxyMethod(proxyMethod)
                     .parameters(paramsDetails.getClientMethodParameters())
-                    .requiredNullableParameterExpressions(paramsDetails.requiredParameterExpressions)
+                    .requiredNullableParameterExpressions(paramsDetails.requiredNullableParameterExpressions)
                     .validateExpressions(paramsDetails.validateParameterExpressions)
                     .parameterTransformations(paramsDetails.parameterTransformations)
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient(operation, isProtocolMethod))

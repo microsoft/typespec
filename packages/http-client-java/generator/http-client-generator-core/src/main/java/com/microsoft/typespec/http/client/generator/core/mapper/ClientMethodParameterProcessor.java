@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodParametersDetails.ParametersTuple;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -28,25 +27,26 @@ final class ClientMethodParameterProcessor {
 
         final List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
         final List<ParametersTuple> parametersTuples = new ArrayList<>();
-        final List<String> requiredParameterExpressions = new ArrayList<>();
+        final List<String> requiredNullableParameterExpressions = new ArrayList<>();
         final Map<String, String> validateParameterExpressions = new HashMap<>();
         final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
         final ParametersTransformationProcessor transformationProcessor
             = new ParametersTransformationProcessor(isProtocolMethod);
         for (Parameter codeModelParameter : codeModelParameters) {
-            final ClientMethodParameter parameter = toClientMethodParameter(codeModelParameter, isJsonPatch,
+            final ClientMethodParameter clientMethodParameter = toClientMethodParameter(codeModelParameter, isJsonPatch,
                 mapFluxByteBufferToBinaryData, isProtocolMethod);
+            final ParametersTuple tuple = new ParametersTuple(codeModelParameter, clientMethodParameter);
             if (request.getSignatureParameters().contains(codeModelParameter)) {
-                parametersTuples.add(new ParametersTuple(codeModelParameter, parameter));
+                parametersTuples.add(tuple);
             }
-            transformationProcessor.addParameter(parameter, codeModelParameter);
+            transformationProcessor.addParameter(tuple);
 
             if (!codeModelParameter.isConstant() && codeModelParameter.getGroupedBy() == null) {
                 final MethodParameter methodParameter;
                 final String expression;
                 if (codeModelParameter.getImplementation() != Parameter.ImplementationLocation.CLIENT) {
-                    methodParameter = parameter;
+                    methodParameter = clientMethodParameter;
                     expression = methodParameter.getName();
                 } else {
                     ProxyMethodParameter proxyParameter = Mappers.getProxyParameterMapper().map(codeModelParameter);
@@ -55,7 +55,7 @@ final class ClientMethodParameterProcessor {
                 }
 
                 if (methodParameter.isRequired() && methodParameter.isReferenceClientType()) {
-                    requiredParameterExpressions.add(expression);
+                    requiredNullableParameterExpressions.add(expression);
                 }
                 final String validation = methodParameter.getClientType().validate(expression);
                 if (validation != null) {
@@ -65,7 +65,7 @@ final class ClientMethodParameterProcessor {
         }
         final ParameterTransformations parameterTransformations = transformationProcessor.process(request);
 
-        return new ClientMethodParametersDetails(parametersTuples, requiredParameterExpressions,
+        return new ClientMethodParametersDetails(parametersTuples, requiredNullableParameterExpressions,
             validateParameterExpressions, parameterTransformations);
     }
 

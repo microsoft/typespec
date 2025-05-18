@@ -147,6 +147,14 @@ final class PagingMetadata {
         return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
     }
 
+    /**
+     * Inspects the given {@link ClientMethodParametersDetails} for a code model query {@link Parameter} representing
+     * the page size (commonly named "maxpagesize" or "maxPageSize"), and returns the corresponding
+     * {@link ClientMethodParameter}.
+     *
+     * @param parametersDetails the {@link ClientMethodParametersDetails} to inspect.
+     * @return the {@link ClientMethodParameter} representing the page size, or {@code null} if not found.
+     */
     private static ClientMethodParameter
         getPageSizeClientMethodParameter(ClientMethodParametersDetails parametersDetails) {
         return parametersDetails.getParameterTuples().filter(t -> {
@@ -162,9 +170,17 @@ final class PagingMetadata {
             if (Objects.equals(serializedName, "maxpagesize")) {
                 return true;
             }
+            //
+            // Note: The below fallback logic using Java name exists because, according to the REST API Guidelines for
+            // Swagger, the standard query parameter name for page size is "maxpagesize".
+            // However, some services were designed before this guideline and may use a different serialized name (e.g.,
+            // "$maxpagesize" or "maxPageSize").
+            // In such cases, spec authors were instructed to add directive to make it "maxpagesize" that produces
+            // "maxPageSize" Java name in the SDK.
+            //
             final String javaName = SchemaUtil.getJavaName(cmParameter);
             return Objects.equals(javaName, "maxPageSize");
-        }).map(t -> t.parameter).findFirst().orElse(null);
+        }).map(t -> t.clientMethodParameter).findFirst().orElse(null);
     }
 
     private static MethodPageDetails.ContinuationToken getContinuationToken(XmsPageable xmsPageable,
