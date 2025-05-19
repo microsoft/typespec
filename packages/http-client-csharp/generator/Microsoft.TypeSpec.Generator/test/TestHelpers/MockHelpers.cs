@@ -30,10 +30,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             Func<Task<Compilation>>? compilation = null,
+            Func<Task<Compilation>>? lastContractCompilation = null,
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
             IEnumerable<string>? typesToKeep = null,
-            bool includeXmlDocs = false)
+            bool includeXmlDocs = false,
+            string? inputNamespaceName = null,
+            string? outputPath = null)
         {
             var mockGenerator = LoadMockGenerator(
                 createCSharpTypeCore,
@@ -46,11 +49,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 additionalMetadataReferences,
                 sharedSourceDirectories,
                 typesToKeep,
-                includeXmlDocs);
+                includeXmlDocs,
+                inputNamespaceName,
+                outputPath);
 
             var compilationResult = compilation == null ? null : await compilation();
+            var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, lastContractCompilationResult)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
@@ -67,15 +73,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
             IEnumerable<MetadataReference>? additionalMetadataReferences = null,
             IEnumerable<string>? sharedSourceDirectories = null,
             IEnumerable<string>? typesToKeep = null,
-            bool includeXmlDocs = false)
+            bool includeXmlDocs = false,
+            string? inputNamespaceName = null,
+            string? outputPath = null)
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
+            outputPath = outputPath ?? Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             if (includeXmlDocs)
             {
                 configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
             }
             // initialize the singleton instance of the generator
-            var mockGenerator = new Mock<CodeModelGenerator>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
+            var mockGenerator = new Mock<CodeModelGenerator>(new GeneratorContext(Configuration.Load(outputPath, configuration))) { CallBase = true };
 
             mockGenerator.Setup(p => p.Emitter).Returns(new Emitter(Console.OpenStandardOutput()));
 
@@ -103,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Mock<InputLibrary> mockInputLibrary = new Mock<InputLibrary>() { CallBase = true };
             mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
-                "Sample",
+                inputNamespaceName ?? "Sample",
                 models: inputModelTypes,
                 enums: inputEnumTypes));
 
@@ -111,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             mockGenerator.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             if (additionalMetadataReferences != null)
