@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             var compilationResult = compilation == null ? null : await compilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, null)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
@@ -149,7 +149,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
             mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
