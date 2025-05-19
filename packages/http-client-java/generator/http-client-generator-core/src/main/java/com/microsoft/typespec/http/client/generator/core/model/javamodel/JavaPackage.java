@@ -301,6 +301,8 @@ public class JavaPackage {
             if (JavaSettings.getInstance().isAzureV1()) {
                 className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
                     packageName, className, "Tests");
+            } else {
+                className = className + "Tests";
             }
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
