@@ -297,12 +297,10 @@ public class JavaPackage {
         try {
             final String packageName = JavaSettings.getInstance().getPackage("generated");
 
-            final String classNameSuffix = "Tests";
-            String className = model.getName() + classNameSuffix;
+            String className = model.getName();
             if (JavaSettings.getInstance().isAzureV1()) {
-                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
-                    // a hack to count "Tests" suffix into the length of the full path
-                    + classNameSuffix, packageName, className);
+                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
+                    packageName, className, "Tests");
             }
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);

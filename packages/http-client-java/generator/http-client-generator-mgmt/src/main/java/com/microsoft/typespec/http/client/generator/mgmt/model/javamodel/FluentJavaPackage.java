@@ -108,13 +108,8 @@ public class FluentJavaPackage extends JavaPackage {
         String className = unitTest.getResourceCollection().getInterfaceType().getName()
             + CodeNamer.toPascalCase(unitTest.getCollectionMethod().getMethodName());
 
-        final String classNameSuffix = "MockTests";
-
-        className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
-            // a hack to count "MockTests" suffix into the length of the full path
-            + classNameSuffix, packageName, className);
-
-        className += classNameSuffix;
+        className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
+                packageName, className, "MockTests");
 
         JavaFile javaFile = getJavaFileFactory().createTestFile(packageName, className);
         FluentMethodMockTestTemplate.ClientMethodInfo info
