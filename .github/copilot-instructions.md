@@ -8,6 +8,12 @@
 - Use `pnpm build` to build every package
 - Use `pnpm -r --filter "<pkgName>..." build` to build to a specific package `<pkgName>`
 
+## Describing changes
+
+- Repo use `@chronus/chronus` for changelogs
+- Use `pnpm change add` to add a change description for the touched packages
+- Types of changes are described in `.chronus/config.yaml`
+
 ## Testserver Generation
 
 - DO read the existing `main.tsp` and `client.tsp` files in the specs repo [here][spector-tests].
