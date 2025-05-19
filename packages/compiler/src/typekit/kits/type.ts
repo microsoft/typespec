@@ -1,4 +1,5 @@
 import { getLocationContext } from "../../core/helpers/location-context.js";
+import { listTypesUnder } from "../../core/helpers/type-utils.js";
 import {
   getMaxItems,
   getMaxLength,
@@ -13,6 +14,7 @@ import { isNeverType } from "../../core/type-utils.js";
 import {
   Entity,
   Enum,
+  Interface,
   Model,
   Namespace,
   Node,
@@ -164,6 +166,32 @@ export interface TypeTypekit {
       kind?: K,
     ) => K extends Type["kind"] ? Extract<Type, { kind: K }> : undefined
   >;
+
+  /**
+   * List all types under the given container that satisfy the filter criteria.
+   * @param container The container to inspect.
+   * @param filter A filter function to select specific types.
+   * @param options Optional settings for the search.
+   * @returns An array of types that match the filter criteria.
+   */
+  listUnder<T extends Type = Type>(
+    container: Namespace | Interface,
+    filter: (type: Type) => type is T,
+    options?: { recursive?: boolean }
+  ): T[];
+
+  /**
+   * List all types under the given container that satisfy the filter criteria.
+   * @param container The container to inspect.
+   * @param filter A filter function to select specific types.
+   * @param options Optional settings for the search.
+   * @returns An array of types that match the filter criteria.
+   */
+  listUnder(
+    container: Namespace | Interface,
+    filter: (type: Type) => boolean,
+    options?: { recursive?: boolean }
+  ): Type[];
 }
 
 interface TypekitExtension {
@@ -345,5 +373,8 @@ defineKit<TypekitExtension>({
       }
       return [type, diagnostics];
     }),
+    listUnder(container, filter, options = {}) {
+      return listTypesUnder(container, filter, options);
+    },
   },
 });
