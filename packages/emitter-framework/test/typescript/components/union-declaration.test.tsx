@@ -277,7 +277,7 @@ describe("Typescript Union Declaration", () => {
               bark: boolean;
             }
 
-            @discriminated(#{ envelope: "none" })
+            @discriminated(#{ envelope: "none", discriminatorPropertyName: "dataKind" })
             @test union Pet {
               cat: Cat,
               dog: Dog,
@@ -306,7 +306,7 @@ describe("Typescript Union Declaration", () => {
                 name: string;
                 bark: boolean;
               }
-              type Pet = {kind: "cat"} & Cat | {kind: "dog"} & Dog;
+              type Pet = {dataKind: "cat"} & Cat | {dataKind: "dog"} & Dog;
             `,
           );
         });

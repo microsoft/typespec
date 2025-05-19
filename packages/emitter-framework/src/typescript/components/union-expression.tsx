@@ -43,14 +43,12 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
               />
             );
           default:
-            // not a discriminated union
             return <TypeExpression type={type.type} />;
         }
       }}
     </ay.For>
   );
 
-  // Handle additional children if present
   if (children || (Array.isArray(children) && children.length)) {
     return (
       <>
@@ -121,5 +119,5 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     return <TypeExpression type={model} />;
   }
 
-  return ay.code`{kind: "${String(props.type.name)}"} & ${efRefkey(props.type.type)}`;
+  return ay.code`{${props.discriminatorPropertyName}: "${String(props.type.name)}"} & ${efRefkey(props.type.type)}`;
 }
