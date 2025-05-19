@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator
             // visit the entire library before generating files
             foreach (var visitor in CodeModelGenerator.Instance.Visitors)
             {
-                visitor.Visit(output);
+                visitor.VisitLibrary(output);
             }
 
             foreach (var outputType in output.TypeProviders)
