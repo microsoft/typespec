@@ -15,6 +15,7 @@ import type {
   InitTemplateLibrary,
   InitTemplateLibrarySpec,
 } from "./init-template.js";
+import { getPackageVersion } from "./package-version.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -119,13 +120,18 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   }
 
   for (const library of config.libraries) {
-    peerDependencies[library.name] = await getPackageVersion(library);
-    devDependencies[library.name] = await getPackageVersion(library);
+    const version = await getPackageVersion({ name: library.name, version: library.version });
+    peerDependencies[library.name] = version;
+    devDependencies[library.name] = version;
   }
 
   for (const key of Object.keys(config.emitters)) {
-    peerDependencies[key] = await getPackageVersion({ name: key, ...config.emitters[key] });
-    devDependencies[key] = await getPackageVersion({ name: key, ...config.emitters[key] });
+    const version = await getPackageVersion({ 
+      name: key, 
+      version: config.emitters[key].version 
+    });
+    peerDependencies[key] = version;
+    devDependencies[key] = version;
   }
 
   const packageJson: PackageJson = {
@@ -190,7 +196,10 @@ async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
   const dependencies: Record<string, string> = {};
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getPackageVersion(library);
+    dependencies[library.name] = await getPackageVersion({ 
+      name: library.name, 
+      version: library.version 
+    });
   }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
@@ -243,27 +252,4 @@ async function writeFile(
   // create folders in case they don't exist
   await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
   return host.writeFile(joinPaths(config.directory, file.destination), content);
-}
-
-async function getPackageVersion(packageInfo: InitTemplateLibrarySpec | { name: string; version?: string }): Promise<string> {
-  // If version is specified and not "latest", use it
-  if (packageInfo.version && packageInfo.version !== "latest") {
-    return packageInfo.version;
-  }
-
-  try {
-    // If version is "latest" or not specified, fetch actual latest version from npm
-    if (!packageInfo.name) {
-      // If we don't have a package name, fall back to "latest"
-      return "latest";
-    }
-    
-    const { fetchLatestPackageManifest } = await import("../package-manger/npm-registry-utils.js");
-    const manifest = await fetchLatestPackageManifest(packageInfo.name);
-    return manifest.version;
-  } catch (error) {
-    // If there's an error fetching the latest version, fall back to "latest"
-    console.warn(`Failed to resolve latest version for ${packageInfo.name}: ${error instanceof Error ? error.message : String(error)}`);
-    return packageInfo.version ?? "latest";
-  }
 }

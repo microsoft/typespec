@@ -1,0 +1,7 @@
+{
+  "type": "patch",
+  "comment": "Template init now resolves actual latest versions instead of putting \"latest\" in the package.json",
+  "packageName": "@typespec/compiler",
+  "email": "automated@github.com",
+  "dependentChangeType": "none"
+}
