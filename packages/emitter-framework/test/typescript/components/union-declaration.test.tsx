@@ -141,7 +141,7 @@ describe("Typescript Union Declaration", () => {
       });
 
       describe("Discriminated Union", () => {
-        it("renders a discriminated union declaration", async () => {
+        it("renders a discriminated union", async () => {
           const { TestUnion } = (await runner.compile(`
             namespace DemoService;
             @discriminated
@@ -176,7 +176,7 @@ describe("Typescript Union Declaration", () => {
         });
       });
 
-      it("renders a discriminated union declaration with custom properties", async () => {
+      it("renders a discriminated union with custom properties", async () => {
         const { TestUnion } = (await runner.compile(`
           namespace DemoService;
             @discriminated(#{ discriminatorPropertyName: "dataKind", envelopePropertyName: "data" })
@@ -263,7 +263,7 @@ describe("Typescript Union Declaration", () => {
       });
 
       describe("Discriminated Union with no envelope", () => {
-        it("renders named discriminated union declarations", async () => {
+        it("renders named discriminated union", async () => {
           const { Pet, Cat, Dog } = (await runner.compile(`
             namespace DemoService;
 
@@ -295,6 +295,7 @@ describe("Typescript Union Declaration", () => {
               </SourceFile>
             </Output>,
           );
+
           assertFileContents(
             res,
             d`
@@ -306,15 +307,19 @@ describe("Typescript Union Declaration", () => {
                 name: string;
                 bark: boolean;
               }
-              type Pet = {dataKind: "cat"} & Cat | {dataKind: "dog"} & Dog;
+              type Pet = {
+                dataKind: "cat"
+              } & Cat | {
+                dataKind: "dog"
+              } & Dog;
             `,
           );
         });
 
-        it("renders a discriminated union declaration with no envelope", async () => {
+        it("renders anonymous discriminated union", async () => {
           const { TestUnion } = (await runner.compile(`
             namespace DemoService;
-            @discriminated(#{ envelope: "none" })
+            @discriminated(#{ envelope: "none", discriminatorPropertyName: "dataKind" })
             @test union TestUnion {
               one: { oneItem: true },
               two: { secondItem: false }
@@ -333,10 +338,10 @@ describe("Typescript Union Declaration", () => {
             res,
             d`
               type TestUnion = {
-                kind: "one";
+                dataKind: "one";
                 oneItem: true;
               } | {
-                kind: "two";
+                dataKind: "two";
                 secondItem: false;
               };
             `,

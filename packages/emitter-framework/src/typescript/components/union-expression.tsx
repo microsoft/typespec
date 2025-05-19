@@ -120,5 +120,18 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     return <TypeExpression type={model} />;
   }
 
-  return ay.code`{${props.discriminatorPropertyName}: "${String(props.type.name)}"} & ${efRefkey(props.type.type)}`;
+  const children = [
+    <ts.ObjectExpression>
+      <ts.ObjectProperty
+        name={props.discriminatorPropertyName}
+        value={<ts.ValueExpression jsValue={props.type.name} />}
+      />
+    </ts.ObjectExpression>,
+    efRefkey(props.type.type),
+  ];
+  return (
+    <ay.For joiner={" & "} each={children}>
+      {(c) => c}
+    </ay.For>
+  );
 }
