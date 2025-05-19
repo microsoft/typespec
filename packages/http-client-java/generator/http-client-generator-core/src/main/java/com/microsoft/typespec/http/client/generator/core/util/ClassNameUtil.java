@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 public final class ClassNameUtil {
@@ -19,7 +20,8 @@ public final class ClassNameUtil {
      * @param classNameSuffix the suffix to the class name, truncate will keep this unchanged
      * @return the truncated class name
      */
-    public static String truncateClassName(String namespace, String directory, String packageName, String className, String classNameSuffix) {
+    public static String truncateClassName(String namespace, String directory, String packageName, String className,
+        String classNameSuffix) {
         // see
         // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
         final int maxPathLength = 260;
@@ -29,7 +31,9 @@ public final class ClassNameUtil {
         // sdk/<group>/<artifact>/<directory>/<package_name>/<class_name><class_name_suffix>.java
 
         final String[] namespaceSegments = namespace.split(Pattern.quote("."));
-        final int groupLength = (namespaceSegments.length > 3 ? namespaceSegments[3] : namespaceSegments[namespaceSegments.length - 1]).length();
+        final int groupLength
+            = (namespaceSegments.length > 3 ? namespaceSegments[3] : namespaceSegments[namespaceSegments.length - 1])
+                .length();
         final int artifactLength = namespace.length() - namespace.indexOf(".") - 1;
 
         final int directoryLength = directory.length();
@@ -46,5 +50,37 @@ public final class ClassNameUtil {
             className = className.substring(0, remainLength);
         }
         return className + classNameSuffix;
+    }
+
+    /**
+     * Gets the directory name for GraalVM config. It uses a shorter directory, when artifactId is too long.
+     *
+     * @param groupId the group ID
+     * @param artifactId the artifact ID
+     * @return the directory name for GraalVM config
+     */
+    public static String getDirectoryNameForGraalVmConfig(String groupId, String artifactId) {
+        String metaInfPath
+            = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
+
+        final String[] artifactIdSegments = artifactId.split(Pattern.quote("-"));
+        final String group = (artifactIdSegments.length > 2
+            ? artifactIdSegments[2]
+            : artifactIdSegments[artifactIdSegments.length - 1]);
+        final int parentDirectoryLength = ("sdk/" + group + "/" + artifactId + "/").length();
+
+        if (parentDirectoryLength + metaInfPath.length() > (248 - 38)) {
+            // see
+            // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
+            String shortenedArtifactId = artifactId;
+            if (artifactId.startsWith("azure-resourcemanager-")) {
+                shortenedArtifactId = artifactId.substring("azure-resourcemanager-".length());
+            }
+            metaInfPath
+                = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, shortenedArtifactId)
+                    .toString();
+        }
+
+        return metaInfPath;
     }
 }

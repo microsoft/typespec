@@ -16,17 +16,23 @@ public class ClassNameUtilTests {
         String name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservices",
             "src/samples/java", "com.azure.resourcemanager.deviceprovisioningservices.generated",
             "IotDpsResourceCheckProvisioningServiceNameAvailability", "Samples");
-        Assertions.assertEquals(maxFileLength, ("sdk/deviceprovisioningservices/azure-resourcemanager-deviceprovisioningservices/src/samples/java/com/azure/resourcemanager/deviceprovisioningservices/generated/" + name + ".java").length());
+        Assertions.assertEquals(maxFileLength,
+            ("sdk/deviceprovisioningservices/azure-resourcemanager-deviceprovisioningservices/src/samples/java/com/azure/resourcemanager/deviceprovisioningservices/generated/"
+                + name + ".java").length());
 
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.recoveryservicessiterecovery",
             "src/test/java", "com.azure.resourcemanager.recoveryservicessiterecovery.generated",
             "InMageRcmUpdateApplianceForReplicationProtectedItemInput", "Tests");
-        Assertions.assertEquals(maxFileLength, ("sdk/recoveryservicessiterecovery/azure-resourcemanager-recoveryservicessiterecovery/src/test/java/com/azure/resourcemanager/recoveryservicessiterecovery/generated/" + name + ".java").length());
+        Assertions.assertEquals(maxFileLength,
+            ("sdk/recoveryservicessiterecovery/azure-resourcemanager-recoveryservicessiterecovery/src/test/java/com/azure/resourcemanager/recoveryservicessiterecovery/generated/"
+                + name + ".java").length());
 
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.kubernetesconfiguration.extensiontypes",
-                "src/test/java", "com.azure.resourcemanager.kubernetesconfiguration.extensiontypes.generated",
-                "ExtensionTypesLocationGetWithResponse", "MockTests");
-        Assertions.assertEquals(maxFileLength, ("sdk/kubernetesconfiguration/azure-resourcemanager-kubernetesconfiguration-extensiontypes/src/test/java/com/azure/resourcemanager/kubernetesconfiguration/extensiontypes/generated/" + name + ".java").length());
+            "src/test/java", "com.azure.resourcemanager.kubernetesconfiguration.extensiontypes.generated",
+            "ExtensionTypesLocationGetWithResponse", "MockTests");
+        Assertions.assertEquals(maxFileLength,
+            ("sdk/kubernetesconfiguration/azure-resourcemanager-kubernetesconfiguration-extensiontypes/src/test/java/com/azure/resourcemanager/kubernetesconfiguration/extensiontypes/generated/"
+                + name + ".java").length());
 
         // do nothing as too little remaining length for class name
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad",
@@ -38,5 +44,12 @@ public class ClassNameUtilTests {
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.datafactory", "src/samples/java",
             "com.azure.resourcemanager.datafactory.generated", "DataFlowDebugSessionAddDataFlow", "Samples");
         Assertions.assertEquals("DataFlowDebugSessionAddDataFlowSamples", name);
+    }
+
+    @Test
+    public void testGetDirectoryNameForGraalVmConfig() {
+        String directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
+            "azure-resourcemanager-kubernetesconfiguration-extensiontypes");
+        Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
     }
 }

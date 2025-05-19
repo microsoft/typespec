@@ -109,7 +109,7 @@ public class FluentJavaPackage extends JavaPackage {
             + CodeNamer.toPascalCase(unitTest.getCollectionMethod().getMethodName());
 
         className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
-                packageName, className, "MockTests");
+            packageName, className, "MockTests");
 
         JavaFile javaFile = getJavaFileFactory().createTestFile(packageName, className);
         FluentMethodMockTestTemplate.ClientMethodInfo info
