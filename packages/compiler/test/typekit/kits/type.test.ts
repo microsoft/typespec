@@ -1,7 +1,7 @@
-import { Test, TestHost, createTestHost } from "../testing/index.js";
-import { Model, Namespace } from "../core/types.js";
+import { Test, TestHost, createTestHost } from "../../../src/testing/index.js";
+import { Model, Namespace } from "../../../src/core/types.js";
 
-describe("listTypesUnder", () => {
+describe("listUnder", () => {
   let host: TestHost;
 
   beforeEach(async () => {
@@ -50,7 +50,7 @@ describe("listTypesUnder", () => {
     expect((types[0] as Model).name).toBe("M2");
   });
   
-  it("recursively searches sub-namespaces by default", async () => {
+  it("recursively searches sub-namespaces", async () => {
     const testCode = `
       namespace A {
         model M1 {}
@@ -71,34 +71,6 @@ describe("listTypesUnder", () => {
     const types = host.program.typespecType.listUnder(A, t => t.kind === "Model");
     
     expect(types.length).toBe(3);
-  });
-  
-  it("only searches the current namespace when recursive is false", async () => {
-    const testCode = `
-      namespace A {
-        model M1 {}
-        
-        namespace B {
-          model M2 {}
-          
-          namespace C {
-            model M3 {}
-          }
-        }
-      }
-    `;
-
-    const { A } = (await host.compile(testCode)) as { A: Namespace };
-    
-    // Should only find models in the A namespace
-    const types = host.program.typespecType.listUnder(
-      A, 
-      t => t.kind === "Model", 
-      { recursive: false }
-    );
-    
-    expect(types.length).toBe(1);
-    expect((types[0] as Model).name).toBe("M1");
   });
   
   it("finds operations in interfaces", async () => {
