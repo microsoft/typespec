@@ -1,5 +1,5 @@
 ﻿using System;
-using Sample.Invalid;
+using Sample.Models; // initially valid
 
 namespace Sample
 {

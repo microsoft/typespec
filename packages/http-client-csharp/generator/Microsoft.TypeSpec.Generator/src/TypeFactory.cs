@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var values = new List<InputEnumTypeValue>();
                 var enumType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
-                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, enumType, null, literal.Value.ToString()));
+                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, null, literal.Value.ToString(), enumType));
                 valueType = enumType;
             }
             LiteralValueTypeCache.Add(literal, valueType);
