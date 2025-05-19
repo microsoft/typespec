@@ -297,12 +297,12 @@ public class JavaPackage {
         try {
             final String packageName = JavaSettings.getInstance().getPackage("generated");
 
-            final String classNameSuffix = "Tests";
-            String className = model.getName() + classNameSuffix;
+            String className = model.getName();
             if (JavaSettings.getInstance().isAzureV1()) {
-                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/tests/java"
-                    // a hack to count "Tests" suffix into the length of the full path
-                    + classNameSuffix, packageName, className);
+                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
+                    packageName, className, "Tests");
+            } else {
+                className = className + "Tests";
             }
 
             JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
@@ -344,8 +344,7 @@ public class JavaPackage {
     }
 
     public final void addGraalVmConfig(String groupId, String artifactId, GraalVmConfig graalVmConfig) {
-        String metaInfPath
-            = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
+        String metaInfPath = ClassNameUtil.getDirectoryNameForGraalVmConfig(groupId, artifactId);
 
         TextFile proxyConfigFile
             = new TextFile(Paths.get(metaInfPath, "proxy-config.json").toString(), graalVmConfig.toProxyConfigJson());
