@@ -1,12 +1,13 @@
 import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
-import { Enum, Union } from "@typespec/compiler";
+import { Enum, Model, Union } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.js";
 import { UnionExpression } from "../../../src/typescript/components/union-expression.js";
+import { InterfaceDeclaration } from "../../../src/typescript/index.js";
 import { assertFileContents } from "../../utils.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
@@ -142,13 +143,13 @@ describe("Typescript Union Declaration", () => {
       describe("Discriminated Union", () => {
         it("renders a discriminated union declaration", async () => {
           const { TestUnion } = (await runner.compile(`
-          namespace DemoService;
-          @discriminated
-          @test union TestUnion {
-            one: { oneItem: true },
-            two: true
-          }
-        `)) as { TestUnion: Union };
+            namespace DemoService;
+            @discriminated
+            @test union TestUnion {
+              one: { oneItem: true },
+              two: true
+            }
+          `)) as { TestUnion: Union };
 
           const res = render(
             <Output program={runner.program}>
@@ -161,15 +162,15 @@ describe("Typescript Union Declaration", () => {
           assertFileContents(
             res,
             d`
-            type TestUnion = {
-              kind: "one";
-              value: {
-                oneItem: true;
+              type TestUnion = {
+                kind: "one";
+                value: {
+                  oneItem: true;
+                };
+              } | {
+                kind: "two";
+                value: true;
               };
-            } | {
-              kind: "two";
-              value: true;
-            };
           `,
           );
         });
@@ -177,13 +178,13 @@ describe("Typescript Union Declaration", () => {
 
       it("renders a discriminated union declaration with custom properties", async () => {
         const { TestUnion } = (await runner.compile(`
-        namespace DemoService;
-        @discriminated(#{ discriminatorPropertyName: "dataKind", envelopePropertyName: "data" })
-        @test union TestUnion {
-          one: { oneItem: true },
-          two: true
-        }
-      `)) as { TestUnion: Union };
+          namespace DemoService;
+            @discriminated(#{ discriminatorPropertyName: "dataKind", envelopePropertyName: "data" })
+            @test union TestUnion {
+              one: { oneItem: true },
+              two: true
+            }
+          `)) as { TestUnion: Union };
 
         const res = render(
           <Output program={runner.program}>
@@ -195,48 +196,152 @@ describe("Typescript Union Declaration", () => {
         assertFileContents(
           res,
           d`
-          type TestUnion = {
-            dataKind: "one";
-            data: {
-              oneItem: true;
+            type TestUnion = {
+              dataKind: "one";
+              data: {
+                oneItem: true;
+              };
+            } | {
+              dataKind: "two";
+              data: true;
             };
-          } | {
-            dataKind: "two";
-            data: true;
-          };
-        `,
+          `,
         );
       });
 
-      it("renders a discriminated union declaration with no envelope", async () => {
-        const { TestUnion } = (await runner.compile(`
-        namespace DemoService;
-        @discriminated(#{ envelope: "none" })
-        @test union TestUnion {
-          one: { oneItem: true },
-          two: { secondItem: false }
-        }
-      `)) as { TestUnion: Union };
+      it("renders a discriminated union with named models", async () => {
+        const { Pet, Cat, Dog } = (await runner.compile(`
+            namespace DemoService;
+            @test model Cat {
+              name: string;
+              meow: boolean;
+            }
+
+            @test model Dog {
+              name: string;
+              bark: boolean;
+            }
+
+            @discriminated
+            @test union Pet {
+              cat: Cat,
+              dog: Dog,
+            }
+          `)) as { Pet: Union; Cat: Model; Dog: Model };
 
         const res = render(
           <Output program={runner.program}>
             <SourceFile path="test.ts">
-              <UnionDeclaration type={TestUnion} />
+              <InterfaceDeclaration type={Cat} />
+              <hbr />
+              <InterfaceDeclaration type={Dog} />
+              <hbr />
+              <UnionDeclaration type={Pet} />
             </SourceFile>
           </Output>,
         );
         assertFileContents(
           res,
           d`
-          type TestUnion = {
-            kind: "one";
-            oneItem: true;
-          } | {
-            kind: "two";
-            secondItem: false;
-          };
-        `,
+              interface Cat {
+                name: string;
+                meow: boolean;
+              }
+              interface Dog {
+                name: string;
+                bark: boolean;
+              }
+              type Pet = {
+                kind: "cat";
+                value: Cat;
+              } | {
+                kind: "dog";
+                value: Dog;
+              };
+            `,
         );
+      });
+
+      describe("Discriminated Union with no envelope", () => {
+        it("renders named discriminated union declarations", async () => {
+          const { Pet, Cat, Dog } = (await runner.compile(`
+            namespace DemoService;
+
+            @test model Cat {
+              name: string;
+              meow: boolean;
+            }
+
+            @test model Dog {
+              name: string;
+              bark: boolean;
+            }
+
+            @discriminated(#{ envelope: "none" })
+            @test union Pet {
+              cat: Cat,
+              dog: Dog,
+            }
+          `)) as { Pet: Union; Cat: Model; Dog: Model };
+
+          const res = render(
+            <Output program={runner.program}>
+              <SourceFile path="test.ts">
+                <InterfaceDeclaration type={Cat} />
+                <hbr />
+                <InterfaceDeclaration type={Dog} />
+                <hbr />
+                <UnionDeclaration type={Pet} />
+              </SourceFile>
+            </Output>,
+          );
+          assertFileContents(
+            res,
+            d`
+              interface Cat {
+                name: string;
+                meow: boolean;
+              }
+              interface Dog {
+                name: string;
+                bark: boolean;
+              }
+              type Pet = {kind: "cat"} & Cat | {kind: "dog"} & Dog;
+            `,
+          );
+        });
+
+        it("renders a discriminated union declaration with no envelope", async () => {
+          const { TestUnion } = (await runner.compile(`
+            namespace DemoService;
+            @discriminated(#{ envelope: "none" })
+            @test union TestUnion {
+              one: { oneItem: true },
+              two: { secondItem: false }
+            }
+          `)) as { TestUnion: Union };
+
+          const res = render(
+            <Output program={runner.program}>
+              <SourceFile path="test.ts">
+                <UnionDeclaration type={TestUnion} />
+              </SourceFile>
+            </Output>,
+          );
+
+          assertFileContents(
+            res,
+            d`
+              type TestUnion = {
+                kind: "one";
+                oneItem: true;
+              } | {
+                kind: "two";
+                secondItem: false;
+              };
+            `,
+          );
+        });
       });
     });
 

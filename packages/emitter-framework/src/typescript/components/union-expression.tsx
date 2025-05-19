@@ -3,6 +3,7 @@ import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { compilerAssert, Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
+import { efRefkey } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.jsx";
 
 export interface UnionExpressionProps {
@@ -107,15 +108,18 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     "Expected all union variants to be models when using a discriminated union with no envelope",
   );
 
-  const model = $.model.create({
-    properties: {
-      [props.discriminatorPropertyName]: $.modelProperty.create({
-        name: props.discriminatorPropertyName,
-        type: $.literal.createString(props.type.name as string),
-      }),
-      ...Object.fromEntries(props.type.type.properties),
-    },
-  });
+  if ($.model.isExpresion(props.type.type)) {
+    const model = $.model.create({
+      properties: {
+        [props.discriminatorPropertyName]: $.modelProperty.create({
+          name: props.discriminatorPropertyName,
+          type: $.literal.createString(props.type.name as string),
+        }),
+        ...Object.fromEntries(props.type.type.properties),
+      },
+    });
+    return <TypeExpression type={model} />;
+  }
 
-  return <TypeExpression type={model} />;
+  return ay.code`{kind: "${String(props.type.name)}"} & ${efRefkey(props.type.type)}`;
 }
