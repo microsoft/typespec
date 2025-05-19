@@ -114,13 +114,13 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   const devDependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    const compilerVersion = await getPackageVersion({ name: "@typespec/compiler", version: "latest" });
+    const compilerVersion = await getPackageVersion({ name: "@typespec/compiler", version: "latest" }, host);
     peerDependencies["@typespec/compiler"] = compilerVersion;
     devDependencies["@typespec/compiler"] = compilerVersion;
   }
 
   for (const library of config.libraries) {
-    const version = await getPackageVersion({ name: library.name, version: library.version });
+    const version = await getPackageVersion({ name: library.name, version: library.version }, host);
     peerDependencies[library.name] = version;
     devDependencies[library.name] = version;
   }
@@ -129,7 +129,7 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
     const version = await getPackageVersion({ 
       name: key, 
       version: config.emitters[key].version 
-    });
+    }, host);
     peerDependencies[key] = version;
     devDependencies[key] = version;
   }
@@ -199,7 +199,7 @@ async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
     dependencies[library.name] = await getPackageVersion({ 
       name: library.name, 
       version: library.version 
-    });
+    }, host);
   }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
