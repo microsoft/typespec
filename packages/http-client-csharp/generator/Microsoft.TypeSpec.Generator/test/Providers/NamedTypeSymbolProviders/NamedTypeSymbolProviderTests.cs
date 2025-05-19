@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 {
@@ -143,6 +145,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
         }
 
+        [TestCaseSource(nameof(TestParametersTestCases))]
+        public void ValidateParameters(Type parameterType, ValueExpression? expectedDefaultValue)
+        {
+            // setup
+            var namedSymbol = new NamedSymbol(parameterType: parameterType, parameterDefaultValue: expectedDefaultValue);
+            _namedSymbol = namedSymbol;
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+
+            var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
+            Assert.IsNotNull(method);
+
+            var parameters = method!.Signature.Parameters;
+            Assert.AreEqual(1, parameters.Count);
+
+            var parameter = parameters[0];
+
+            Type? nullableUnderlyingType = Nullable.GetUnderlyingType(parameterType);
+            var parameterName = nullableUnderlyingType?.Name ?? parameterType.Name;
+            bool isNullable = nullableUnderlyingType != null;
+            bool isSystemType = parameterType.FullName!.StartsWith("System")
+                && (!isNullable || nullableUnderlyingType?.Namespace?.StartsWith("System") == true);
+
+            var expectedType = isSystemType
+                ? new CSharpType(parameterType, isNullable)
+                : new CSharpType(parameterName, parameterType.Namespace!, false, isNullable, null, [], false, false);
+
+            Assert.AreEqual(expectedDefaultValue, parameter.DefaultValue);
+
+            var parameterCsharpType = parameter!.Type;
+            Assert.AreEqual(expectedType.Name, parameterCsharpType.Name);
+            Assert.AreEqual(expectedType.IsNullable, parameterCsharpType.IsNullable);
+            Assert.AreEqual(expectedType.IsList, parameterCsharpType.IsList);
+            Assert.AreEqual(expectedType.Arguments.Count, parameterCsharpType.Arguments.Count);
+            Assert.AreEqual(expectedType.IsCollection, parameterCsharpType.IsCollection);
+            Assert.AreEqual(expectedType.IsFrameworkType, parameterCsharpType.IsFrameworkType);
+
+            for (var i = 0; i < expectedType.Arguments.Count; i++)
+            {
+                Assert.AreEqual(expectedType.Arguments[i].Name, parameterCsharpType.Arguments[i].Name);
+                Assert.AreEqual(expectedType.Arguments[i].IsNullable, parameterCsharpType.Arguments[i].IsNullable);
+            }
+
+            // validate the underlying types aren't nullable
+            if (isNullable && expectedType.IsFrameworkType)
+            {
+                var underlyingType = parameterCsharpType.FrameworkType;
+                Assert.IsTrue(Nullable.GetUnderlyingType(underlyingType) == null);
+            }
+
+        }
+
         [Test]
         public void ValidateMethods()
         {
@@ -215,6 +271,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public enum SomeEnum
         {
             Foo,
+        }
+
+        public static IEnumerable<TestCaseData> TestParametersTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(typeof(int), Literal(2));
+                yield return new TestCaseData(typeof(string), Literal("Foo"));
+                yield return new TestCaseData(typeof(double), Literal(2.2));
+                yield return new TestCaseData(typeof(bool), False);
+                yield return new TestCaseData(typeof(object), Default);
+            }
         }
     }
 }
