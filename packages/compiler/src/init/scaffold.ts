@@ -113,8 +113,9 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   const devDependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    peerDependencies["@typespec/compiler"] = "latest";
-    devDependencies["@typespec/compiler"] = "latest";
+    const compilerVersion = await getPackageVersion({ name: "@typespec/compiler", version: "latest" });
+    peerDependencies["@typespec/compiler"] = compilerVersion;
+    devDependencies["@typespec/compiler"] = compilerVersion;
   }
 
   for (const library of config.libraries) {
@@ -123,8 +124,8 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   }
 
   for (const key of Object.keys(config.emitters)) {
-    peerDependencies[key] = await getPackageVersion(config.emitters[key]);
-    devDependencies[key] = await getPackageVersion(config.emitters[key]);
+    peerDependencies[key] = await getPackageVersion({ name: key, ...config.emitters[key] });
+    devDependencies[key] = await getPackageVersion({ name: key, ...config.emitters[key] });
   }
 
   const packageJson: PackageJson = {
@@ -244,7 +245,25 @@ async function writeFile(
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
-async function getPackageVersion(packageInfo: { version?: string }): Promise<string> {
-  // TODO: Resolve 'latest' version from npm, issue #1919
-  return packageInfo.version ?? "latest";
+async function getPackageVersion(packageInfo: InitTemplateLibrarySpec | { name: string; version?: string }): Promise<string> {
+  // If version is specified and not "latest", use it
+  if (packageInfo.version && packageInfo.version !== "latest") {
+    return packageInfo.version;
+  }
+
+  try {
+    // If version is "latest" or not specified, fetch actual latest version from npm
+    if (!packageInfo.name) {
+      // If we don't have a package name, fall back to "latest"
+      return "latest";
+    }
+    
+    const { fetchLatestPackageManifest } = await import("../package-manger/npm-registry-utils.js");
+    const manifest = await fetchLatestPackageManifest(packageInfo.name);
+    return manifest.version;
+  } catch (error) {
+    // If there's an error fetching the latest version, fall back to "latest"
+    console.warn(`Failed to resolve latest version for ${packageInfo.name}: ${error instanceof Error ? error.message : String(error)}`);
+    return packageInfo.version ?? "latest";
+  }
 }
