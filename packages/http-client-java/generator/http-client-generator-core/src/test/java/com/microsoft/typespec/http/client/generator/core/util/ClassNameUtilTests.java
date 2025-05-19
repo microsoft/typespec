@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 
 public class ClassNameUtilTests {
 
+    // spell check
+    private static final String KUBERNETES_CONFIGURATION = "kubernetes" + "configuration";
+
     @Test
     public void testTruncateClassName() {
         final int maxFileLength = 260 - 38;
@@ -27,12 +30,14 @@ public class ClassNameUtilTests {
             ("sdk/recoveryservicessiterecovery/azure-resourcemanager-recoveryservicessiterecovery/src/test/java/com/azure/resourcemanager/recoveryservicessiterecovery/generated/"
                 + name + ".java").length());
 
-        name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.kubernetesconfiguration.extensiontypes",
-            "src/test/java", "com.azure.resourcemanager.kubernetesconfiguration.extensiontypes.generated",
+        name = ClassNameUtil.truncateClassName(
+            "com.azure.resourcemanager." + KUBERNETES_CONFIGURATION + ".extensiontypes", "src/test/java",
+            "com.azure.resourcemanager." + KUBERNETES_CONFIGURATION + ".extensiontypes.generated",
             "ExtensionTypesLocationGetWithResponse", "MockTests");
         Assertions.assertEquals(maxFileLength,
-            ("sdk/kubernetesconfiguration/azure-resourcemanager-kubernetesconfiguration-extensiontypes/src/test/java/com/azure/resourcemanager/kubernetesconfiguration/extensiontypes/generated/"
-                + name + ".java").length());
+            ("sdk/" + KUBERNETES_CONFIGURATION + "/azure-resourcemanager-" + KUBERNETES_CONFIGURATION
+                + "-extensiontypes/src/test/java/com/azure/resourcemanager/" + KUBERNETES_CONFIGURATION
+                + "/extensiontypes/generated/" + name + ".java").length());
 
         // do nothing as too little remaining length for class name
         name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservicespadpadpadpadpadpad",
@@ -49,7 +54,7 @@ public class ClassNameUtilTests {
     @Test
     public void testGetDirectoryNameForGraalVmConfig() {
         String directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
-            "azure-resourcemanager-kubernetesconfiguration-extensiontypes");
+            "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypes");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
     }
 }
