@@ -108,12 +108,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean getIncludeApiViewProperties() {
-        return includeApiViewProperties;
-    }
-
     public Map<String, PollingSettings> getPolling() {
         return polling;
+    }
+
+    public Boolean getIncludeApiViewProperties() {
+        return includeApiViewProperties;
     }
 
     public Boolean getArm() {

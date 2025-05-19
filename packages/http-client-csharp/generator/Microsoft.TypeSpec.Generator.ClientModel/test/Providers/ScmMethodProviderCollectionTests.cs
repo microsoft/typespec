@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
                     && m.Signature.Name == $"{operation.Name.ToCleanName()}");
             Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(serviceMethod, convenienceMethod!.ServiceMethod);
 
             var convenienceMethodParams = convenienceMethod!.Signature.Parameters;
             Assert.IsNotNull(convenienceMethodParams);
@@ -210,6 +211,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var protocolMethod = methodCollection.FirstOrDefault(
                 m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
             Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(inputServiceMethod, protocolMethod!.ServiceMethod);
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
             if (inBody)
@@ -271,20 +273,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Parameter(
                     "choice",
-                    InputFactory.Enum(
-                        "TestEnum",
-                        useInt ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
-                        values:
-                        useInt ?
-                        [
-                            InputFactory.EnumMember.Int32("Value1", 1),
-                            InputFactory.EnumMember.Int32("Value2", 2),
-                        ] :
-                        [
-                            InputFactory.EnumMember.String("Value1", "value1"),
-                            InputFactory.EnumMember.String("Value2", "value2"),
-                        ],
-                        isExtensible: isExtensible),
+                    useInt
+                        ? InputFactory.Int32Enum("TestEnum", [("Value1", 1), ("Value2", 2)], isExtensible: isExtensible)
+                        : InputFactory.StringEnum("TestEnum", [("Value1", "value1"), ("Value2", "value2")], isExtensible: isExtensible),
                     isRequired: false,
                     location: InputRequestLocation.Query)
             ];

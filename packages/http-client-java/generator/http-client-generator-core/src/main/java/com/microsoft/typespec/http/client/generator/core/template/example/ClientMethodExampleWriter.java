@@ -18,7 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -230,7 +230,7 @@ public class ClientMethodExampleWriter {
                 // List
                 List<Object> values = (List<Object>) modelValue;
                 if (values.size() > 0) {
-                    ListType listType = (ListType) modelClientType;
+                    IterableType listType = (IterableType) modelClientType;
                     IType elementType = listType.getElementType();
                     Object firstItemValue = values.iterator().next();
                     if (firstItemValue != null) {
@@ -264,7 +264,7 @@ public class ClientMethodExampleWriter {
     }
 
     private boolean isList(IType modelClientType, Object modelValue) {
-        return modelClientType instanceof ListType && modelValue instanceof List;
+        return modelClientType instanceof IterableType && modelValue instanceof List;
     }
 
     private boolean isClientModel(IType modelClientType, Object modelValue) {

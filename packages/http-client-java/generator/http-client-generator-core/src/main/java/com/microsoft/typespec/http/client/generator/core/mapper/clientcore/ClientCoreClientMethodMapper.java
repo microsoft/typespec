@@ -36,7 +36,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Exter
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
@@ -55,11 +55,9 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -216,18 +214,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                final boolean isPageable = operation.getExtensions() != null
-                    && operation.getExtensions().getXmsPageable() != null
-                    && shouldGeneratePagingMethods();
-                if (isPageable && JavaSettings.getInstance().isPageSizeEnabled()) {
-                    // remove maxpagesize parameter from client method API, it would be in e.g.
-                    // PagedIterable.iterableByPage(int)
-                    codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
-                            operation.getExtensions().getXmsPageable()))
-                        .collect(Collectors.toList());
-                }
-
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
                 final boolean proxyMethodUsesBinaryData = proxyMethod.getParameters()
@@ -238,7 +224,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .anyMatch(
                         proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
 
-                Set<Parameter> originalParameters = new HashSet<>();
                 for (Parameter parameter : codeModelParameters) {
                     ClientMethodParameter clientMethodParameter
                         = Mappers.getClientParameterMapper().map(parameter, isProtocolMethod);
@@ -308,7 +293,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
                     .methodPageDetails(null);
 
-                if (isPageable) {
+                if (operation.isPageable()) {
                     IType responseType = proxyMethod.getRawResponseBodyType() != null
                         ? proxyMethod.getRawResponseBodyType()
                         : proxyMethod.getResponseBodyType();
@@ -537,7 +522,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
                 .findFirst()
                 .ifPresentOrElse(itemProperty -> {
                     IType listType = itemProperty.getWireType();
-                    IType elementType = ((ListType) listType).getElementType();
+                    IType elementType = ((IterableType) listType).getElementType();
                     // unbranded would use the model, instead of BinaryData, as return type
                     if (isProtocolMethod && settings.isAzureV1()) {
                         returnTypeHolder.asyncRestResponseReturnType = createProtocolPagedRestResponseReturnType();
@@ -708,7 +693,8 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .name(pageMethodName)
             .type(pageMethodType)
             .groupedParameterRequired(false)
-            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
+            .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false))
+            .hidePageableParams(true);
 
         if (settings.getSyncMethods() != JavaSettings.SyncMethodsGeneration.NONE) {
             // generate the overload, if "sync-methods != NONE"
