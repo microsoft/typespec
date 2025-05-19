@@ -106,6 +106,7 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     "Expected all union variants to be models when using a discriminated union with no envelope",
   );
 
+  // This is an anonymous type, so we render its properties along the discriminator property
   if ($.model.isExpresion(props.type.type)) {
     const model = $.model.create({
       properties: {
