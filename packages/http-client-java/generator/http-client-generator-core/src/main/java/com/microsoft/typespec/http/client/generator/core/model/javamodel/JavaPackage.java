@@ -345,6 +345,16 @@ public class JavaPackage {
         String metaInfPath
             = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
 
+        if (metaInfPath.length() > (248 - 38)) {
+            // see
+            // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
+            String shortenedArtifactId = artifactId;
+            if (artifactId.startsWith("azure-resourcemanager-")) {
+                shortenedArtifactId = artifactId.substring("azure-resourcemanager-".length());
+            }
+            metaInfPath = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, shortenedArtifactId).toString();
+        }
+
         TextFile proxyConfigFile
             = new TextFile(Paths.get(metaInfPath, "proxy-config.json").toString(), graalVmConfig.toProxyConfigJson());
         textFiles.add(proxyConfigFile);
