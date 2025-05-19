@@ -239,12 +239,10 @@ export class TspLanguageClient {
     srcFolder: string,
     outputFolder: string,
   ): Promise<ExecOutput | undefined> {
-    // If the path contains spaces, it will cause compilation failure, so quotes are required
-    const escapedMainTspFile = mainTspFile.includes(" ") ? `"${mainTspFile}"` : mainTspFile;
     const result = await this.runCliCommand(
       [
         "compile",
-        escapedMainTspFile,
+        mainTspFile,
         "--emit=@typespec/openapi3",
         "--option",
         "@typespec/openapi3.file-type=json",

@@ -257,7 +257,11 @@
     "test:e2e": "pnpm test:web",
     "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
+  },
   "devDependencies": {
+    "@types/cross-spawn": "~6.0.6",
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.13.11",
     "@types/semver": "^7.5.8",

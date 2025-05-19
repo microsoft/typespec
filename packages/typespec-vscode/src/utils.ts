@@ -1,5 +1,6 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
-import { spawn, SpawnOptions } from "child_process";
+import { SpawnOptions } from "child_process";
+import { spawn } from "cross-spawn";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
@@ -230,13 +231,10 @@ export function spawnExecution(
   env?: NodeJS.ProcessEnv,
   on?: spawnExecutionEvents,
 ): Promise<ExecOutput> {
-  const shell = process.platform === "win32";
-  const cmd = shell && exe.includes(" ") ? `"${exe}"` : exe;
   let stdout = "";
   let stderr = "";
 
   const options: SpawnOptions = {
-    shell,
     stdio: "pipe",
     windowsHide: true,
     cwd,
@@ -244,7 +242,7 @@ export function spawnExecution(
   if (env) {
     options.env = { ...process.env, ...env };
   }
-  const child = spawn(cmd, args, options);
+  const child = spawn(exe, args, options);
 
   child.stdout!.on("data", (data) => {
     stdout += data.toString();
