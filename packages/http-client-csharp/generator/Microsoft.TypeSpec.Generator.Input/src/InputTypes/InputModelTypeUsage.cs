@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         Xml = 512,
         Exception = 1024,
         LroInitial = 2048,
-        LroFinalEnvelope = 4096,
+        LroPolling = 4096,
+        LroFinalEnvelope = 8192,
     }
 }

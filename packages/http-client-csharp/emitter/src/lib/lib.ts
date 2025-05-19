@@ -53,6 +53,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       onlyUnsupportedAuthProvided: `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     },
   },
+  "baseline-contract-missing": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"message"}`,
+    },
+  },
   "client-namespace-conflict": {
     severity: "warning",
     messages: {
