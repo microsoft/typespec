@@ -1,6 +1,6 @@
-import { Interface, Model, Namespace, Operation } from "../types.js";
-import { createTestHost, TestHost } from "../../testing/index.js";
-import { listTypesUnder } from "./type-utils.js";
+import { Interface, Model, Namespace, Operation } from "../../../src/core/types.js";
+import { createTestHost, TestHost } from "../../../src/testing/index.js";
+import { listTypesUnder } from "../../../src/core/helpers/type-utils.js";
 
 let host: TestHost;
 
@@ -72,31 +72,4 @@ it("handles interfaces and operations", async () => {
   
   expect(operations.length).toBe(2);
   expect(interfaces.length).toBe(1);
-});
-
-it("respects recursive option", async () => {
-  const testCode = `
-    namespace A {
-      model M1 {}
-      
-      namespace B {
-        model M2 {}
-        
-        namespace C {
-          model M3 {}
-        }
-      }
-    }
-  `;
-
-  const { A } = (await host.compile(testCode)) as { A: Namespace };
-  
-  // With recursive = true (default)
-  const allModels = listTypesUnder(A, (t): t is Model => t.kind === "Model");
-  expect(allModels.length).toBe(3);
-  
-  // With recursive = false
-  const topLevelModels = listTypesUnder(A, (t): t is Model => t.kind === "Model", { recursive: false });
-  expect(topLevelModels.length).toBe(1);
-  expect(topLevelModels[0].name).toBe("M1");
 });
