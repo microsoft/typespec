@@ -16,7 +16,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
@@ -24,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(GetCustomCodeView);
             _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(GetLastContractView);
             _inputType = inputType;
         }
 
@@ -35,9 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), BuildName());
+
+        private protected virtual TypeProvider? GetLastContractView()
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? LastContractView => _lastContractView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {

@@ -140,8 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             InputModelProperty[] inheritanceProperties = properties.Concat(new[]
             {
                 InputFactory.Property("EnumProp",
-                    InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true,
-                        values: [InputFactory.EnumMember.String("foo", "bar")]), isDiscriminator: true)
+                    InputFactory.StringEnum("inputEnum", [("foo", "bar")], isExtensible: true), isDiscriminator: true)
             }).ToArray();
 
             var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "foo");

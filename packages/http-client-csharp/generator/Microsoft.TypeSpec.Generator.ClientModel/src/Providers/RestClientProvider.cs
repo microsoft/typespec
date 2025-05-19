@@ -129,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this,
-                xmlDocProvider: XmlDocProvider.Empty);
+                xmlDocProvider: XmlDocProvider.Empty,
+                serviceMethod: serviceMethod);
         }
 
         private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
@@ -219,8 +220,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
-                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                ValueExpression toStringExpression;
+                if (type == null || type.IsLiteral || type.Equals(typeof(string)))
+                {
+                    toStringExpression = valueExpression;
+                }
+                else
+                {
+                    toStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                }
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
@@ -267,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         if (inputParameter.Explode)
                         {
-                            statement = new ForeachStatement("param", valueExpression.AsDictionary(paramType),
+                            statement = new ForEachStatement("param", valueExpression.AsDictionary(paramType),
                                 out KeyValuePairExpression item)
                             {
                                 uri.AppendQuery(item.Key, item.Value, true).Terminate()
@@ -278,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             statement = new[]
                             {
                                 Declare("list", New.List<object>(), out var list),
-                                new ForeachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                                new ForEachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
                                 {
                                     list.Add(item.Key),
                                     list.Add(item.Value)
@@ -294,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        statement = new ForeachStatement("param", valueExpression.As(paramType), out VariableExpression item)
+                        statement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item)
                         {
                             uri.AppendQuery(Literal(inputParameter.NameInRequest), item, true).Terminate()
                         };

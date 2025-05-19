@@ -1,4 +1,4 @@
-import TelemetryReporter from "@vscode/extension-telemetry";
+import { TelemetryReporter } from "@vscode/extension-telemetry";
 import { inspect } from "util";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
@@ -16,7 +16,7 @@ import {
 } from "./telemetry-event.js";
 
 export class TelemetryClient {
-  private _client: TelemetryReporter.default | undefined;
+  private _client: TelemetryReporter | undefined;
   // The maximum number of telemetry error to log to avoid too much noise from it when
   // the telemetry doesn't work for some reason
   private readonly MAX_LOG_TELEMETRY_ERROR = 5;
@@ -44,7 +44,7 @@ export class TelemetryClient {
       this._client = undefined;
     } else {
       try {
-        this._client = new TelemetryReporter.default(key);
+        this._client = new TelemetryReporter(key);
       } catch (err) {
         this.logErrorWhenLoggingTelemetry(
           `Failed to initialize telemetry client with key, error: ${inspect(err)}`,

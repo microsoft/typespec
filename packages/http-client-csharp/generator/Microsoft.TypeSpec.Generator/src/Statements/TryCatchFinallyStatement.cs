@@ -4,27 +4,28 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
-        public TryStatement Try { get; private set; }
-        public IReadOnlyList<CatchStatement> Catches { get; private set; }
-        public FinallyStatement? Finally { get; private set; }
+        public TryExpression Try { get; private set; }
+        public IReadOnlyList<CatchExpression> Catches { get; private set; }
+        public FinallyExpression? Finally { get; private set; }
 
-        public TryCatchFinallyStatement(TryStatement @try, IReadOnlyList<CatchStatement> catches, FinallyStatement? @finally)
+        public TryCatchFinallyStatement(TryExpression @try, IReadOnlyList<CatchExpression> catches, FinallyExpression? @finally)
         {
             Try = @try;
             Catches = catches;
             Finally = @finally;
         }
 
-        public TryCatchFinallyStatement(TryStatement @try) : this(@try, Array.Empty<CatchStatement>(), null)
+        public TryCatchFinallyStatement(TryExpression @try) : this(@try, Array.Empty<CatchExpression>(), null)
         {
         }
 
-        public TryCatchFinallyStatement(TryStatement @try, CatchStatement @catch, FinallyStatement? @finally = null) : this(@try, new[] { @catch }, @finally)
+        public TryCatchFinallyStatement(TryExpression @try, CatchExpression @catch, FinallyExpression? @finally = null) : this(@try, new[] { @catch }, @finally)
         {
         }
 
@@ -40,10 +41,37 @@ namespace Microsoft.TypeSpec.Generator.Statements
             Finally?.Write(writer);
         }
 
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            var updated = visitor.VisitTryCatchFinallyStatement(this, methodProvider);
+
+            if (updated is not TryCatchFinallyStatement updatedTryCatchFinallyStatement)
+            {
+                return updated?.Accept(visitor, methodProvider);
+            }
+
+            var newTry = updatedTryCatchFinallyStatement.Try.Accept(visitor, methodProvider);
+
+            var newCatches = new List<CatchExpression>(updatedTryCatchFinallyStatement.Catches.Count);
+            foreach (var catchStatement in updatedTryCatchFinallyStatement.Catches)
+            {
+                var updatedCatch = catchStatement.Accept(visitor, methodProvider);
+                newCatches.Add(updatedCatch);
+            }
+
+            var newFinally = updatedTryCatchFinallyStatement.Finally?.Accept(visitor, methodProvider);
+
+            Try = newTry;
+            Catches = newCatches;
+            Finally = newFinally;
+
+            return this;
+        }
+
         public void Update(
-            TryStatement? @try = null,
-            IReadOnlyList<CatchStatement>? catches = null,
-            FinallyStatement? @finally = null)
+            TryExpression? @try = null,
+            IReadOnlyList<CatchExpression>? catches = null,
+            FinallyExpression? @finally = null)
         {
             if (@try != null)
             {
