@@ -387,6 +387,18 @@ namespace Microsoft.TypeSpec.Generator
                 return project;
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
+
+            var emptyNamespaces = root!
+                .DescendantNodes()
+                .OfType<NamespaceDeclarationSyntax>()
+                .Where(ns => !ns.Members.OfType<MemberDeclarationSyntax>().Any())
+                .ToList();
+
+            if (emptyNamespaces.Any())
+            {
+                root = root.RemoveNodes(emptyNamespaces, SyntaxRemoveOptions.KeepNoTrivia);
+            }
+
             document = document.WithSyntaxRoot(root!);
             return document.Project;
         }
@@ -448,7 +460,7 @@ namespace Microsoft.TypeSpec.Generator
             return result;
         }
 
-        private async Task<bool> IsRootDocument(Document document)
+        protected virtual async Task<bool> IsRootDocument(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
             // a document is a root document, when

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -29,11 +30,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 });
 
             var project = workspace.AddProject(projectInfo);
-            project = project.AddDocument("RemovesInvalidUsings.cs", Helpers.GetExpectedFromFile()).Project;
-            var postProcessor = new PostProcessor(typesToKeep: []);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            project = project.AddDocument(
+                "RemovesInvalidUsings.cs",
+                File.ReadAllText(Path.Join(folder, "RemovesInvalidUsings.cs"))).Project;
+            project = project.AddDocument(
+                "Model.cs",
+                File.ReadAllText(Path.Join(folder, "Model.cs"))).Project;
+            var postProcessor = new TestPostProcessor("RemovesInvalidUsings.cs");
 
             var resultProject = await postProcessor.RemoveAsync(project);
-            var doc= resultProject.GetDocument(project.DocumentIds.Single())!;
+            var doc= resultProject.Documents
+                .Single(d => d.Name == "RemovesInvalidUsings.cs");
             var root = await doc.GetSyntaxRootAsync();
             var compilation = (CompilationUnitSyntax)root!;
 
@@ -44,19 +52,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 .ToList();
             CollectionAssert.Contains(typeNames, "KeepMe");
 
-            var namespaces = compilation
-                .DescendantNodes()
-                .OfType<NamespaceDeclarationSyntax>()
-                .Select(n => n.Name.ToString())
-                .ToList();
-            CollectionAssert.DoesNotContain(namespaces, "Sample.Invalid");
-
             var usings = compilation.Usings.Select(u => u.Name!.ToString()).ToList();
             // The invalid using should be removed
-            CollectionAssert.DoesNotContain(usings, "Sample.Invalid");
-
+            CollectionAssert.DoesNotContain(usings, "Sample.Models");
             CollectionAssert.Contains(usings, "System");
-            CollectionAssert.Contains(namespaces, "Sample");
+        }
+
+        [Test]
+        public async Task DoesNotRemoveValidUsings()
+        {
+            MockHelpers.LoadMockGenerator();
+            var workspace = new AdhocWorkspace();
+            var projectInfo = ProjectInfo.Create(
+                    ProjectId.CreateNewId(),
+                    VersionStamp.Create(),
+                    name: "TestProj",
+                    assemblyName: "TestProj",
+                    language: LanguageNames.CSharp)
+                .WithMetadataReferences(new[]
+                {
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+                });
+
+            var project = workspace.AddProject(projectInfo);
+            var folder = Helpers.GetAssetFileOrDirectoryPath(false);
+            project = project.AddDocument(
+                "DoesNotRemoveValidUsings.cs",
+                File.ReadAllText(Path.Join(folder, "DoesNotRemoveValidUsings.cs"))).Project;
+            project = project.AddDocument(
+                "Model.cs",
+                File.ReadAllText(Path.Join(folder, "Model.cs"))).Project;
+            var postProcessor = new TestPostProcessor("DoesNotRemoveValidUsings.cs");
+
+            var resultProject = await postProcessor.RemoveAsync(project);
+            var doc= resultProject.Documents
+                .Single(d => d.Name == "DoesNotRemoveValidUsings.cs");
+            var root = await doc.GetSyntaxRootAsync();
+            var compilation = (CompilationUnitSyntax)root!;
+
+            var typeNames = compilation
+                .DescendantNodes()
+                .OfType<BaseTypeDeclarationSyntax>()
+                .Select(t => t.Identifier.Text)
+                .ToList();
+            CollectionAssert.Contains(typeNames, "KeepMe");
+
+            var usings = compilation.Usings.Select(u => u.Name!.ToString()).ToList();
+            CollectionAssert.Contains(usings, "Sample.Models");
+            CollectionAssert.Contains(usings, "System");
+        }
+
+        private class TestPostProcessor : PostProcessor
+        {
+            private readonly string _rootFile;
+
+            public TestPostProcessor(string rootFile) : base([])
+            {
+                _rootFile = rootFile;
+            }
+
+            protected override Task<bool> IsRootDocument(Document document)
+            {
+                return document.Name == _rootFile ? Task.FromResult(true) : Task.FromResult(false);
+            }
         }
     }
 }
