@@ -499,6 +499,38 @@ op op1(): void;
   });
 });
 
+describe("Spec with no operations should still compile", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Model should be returned even though no operations", async () => {
+    const program = await typeSpecCompile(
+      `
+@doc("Foo model")
+@usage(Usage.output)
+model Foo {
+  Bar: string;
+}
+
+`,
+      runner,
+      { IsVersionNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const models = root.models;
+    const model = models.find((m) => m.name === "Foo");
+    ok(model);
+    strictEqual(model?.properties.length, 1);
+    strictEqual(model?.properties[0].name, "Bar");
+    strictEqual(root.clients.length, 0);
+  });
+});
+
 describe("Header property", () => {
   let runner: TestHost;
 

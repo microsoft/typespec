@@ -80,6 +80,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
+    # test for include-api-view-properties
+    $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp

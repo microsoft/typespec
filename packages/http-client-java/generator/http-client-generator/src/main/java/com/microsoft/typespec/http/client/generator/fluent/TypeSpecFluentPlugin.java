@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
@@ -90,9 +91,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
         FluentJavaPackage javaPackage = handleTemplate(client);
         handleFluentLite(codeModel, client, javaPackage, apiVersion);
 
-        TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-            apiVersion, collectCrossLanguageDefinitions(client));
-        javaPackage.addTypeSpecMetadata(metadata);
+        if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
+            TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
+                apiVersion, collectCrossLanguageDefinitions(client));
+            javaPackage.addTypeSpecMetadata(metadata);
+        }
 
         return javaPackage;
     }
@@ -219,9 +222,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
         client.getServiceClient()
             .getMethodGroupClients()
             .forEach(methodGroupClient -> methodGroupClient.getClientMethods().forEach(method -> {
-                crossLanguageDefinitionsMap.put(
-                    interfacePackage + "." + methodGroupClient.getInterfaceName() + "." + method.getName(),
-                    method.getCrossLanguageDefinitionId());
+                if (method.getMethodVisibility() == JavaVisibility.Public) {
+                    crossLanguageDefinitionsMap.put(
+                        interfacePackage + "." + methodGroupClient.getInterfaceName() + "." + method.getName(),
+                        method.getCrossLanguageDefinitionId());
+                }
             }));
 
         // Client model

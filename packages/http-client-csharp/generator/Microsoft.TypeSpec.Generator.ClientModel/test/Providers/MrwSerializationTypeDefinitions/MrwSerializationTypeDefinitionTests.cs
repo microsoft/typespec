@@ -704,7 +704,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             bool hasString = false;
             bool hasCollection = false;
             bool hasDictionary = false;
-            foreach (var statement in method.BodyStatements!.Flatten())
+            foreach (var statement in method.BodyStatements!)
             {
                 if (statement.ToDisplayString().Contains("readOnlyInt"))
                 {

@@ -568,8 +568,10 @@ $(program).model.getDiscriminatedUnion
  *
  * @param filter - An optional filter to apply to the input model's properties.
  */
-$(program).model.getEffectiveModel(model: Model,
-filter: (property: ModelProperty) => boolean): Model;
+$(program).model.getEffectiveModel(
+  model: Model,
+  filter: (property: ModelProperty) => boolean
+): Model;
 ```
 
 ### getProperties
@@ -580,10 +582,12 @@ filter: (property: ModelProperty) => boolean): Model;
  *
  * @param model - model to get the properties from
  */
-$(program).model.getProperties(model: Model,
-options: {
-        includeExtended?: boolean;
-    }): RekeyableMap<string, ModelProperty>;
+$(program).model.getProperties(
+  model: Model,
+  options: {
+          includeExtended?: boolean;
+      }
+): RekeyableMap<string, ModelProperty>;
 ```
 
 ### is
@@ -654,8 +658,10 @@ $(program).modelProperty.getFormat(property: ModelProperty): string | undefined;
 /**
  * Get the visibility of the model property.
  */
-$(program).modelProperty.getVisibilityForClass(property: ModelProperty,
-visibilityClass: Enum): Set<EnumMember>;
+$(program).modelProperty.getVisibilityForClass(
+  property: ModelProperty,
+  visibilityClass: Enum
+): Set<EnumMember>;
 ```
 
 ### is
@@ -1407,10 +1413,12 @@ $(program).type.getDoc(type: Type): string | undefined;
 /**
  * Get the name of this type in the specified encoding.
  */
-$(program).type.getEncodedName(type: Type & {
-        name: string;
-    },
-encoding: string): string;
+$(program).type.getEncodedName(
+  type: Type & {
+          name: string;
+      },
+  encoding: string
+): string;
 ```
 
 ### getPlausibleName
@@ -1666,8 +1674,10 @@ $(program).union.createFromEnum(type: Enum): Union;
  *
  * @param filterFn - Function to filter the union variants
  */
-$(program).union.filter(union: Union,
-filterFn: (variant: UnionVariant) => boolean): Union;
+$(program).union.filter(
+  union: Union,
+  filterFn: (variant: UnionVariant) => boolean
+): Union;
 ```
 
 ### getDiscriminatedUnion <Badge variant="note" text="Diagnosable" />

@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void BodyHasSetterValidation(string name, InputModelType inputModel, bool expectedHasSetter, TypeSignatureModifiers? typeSignatureModifiers = null)
         {
             var collectionProperty = inputModel.Properties.Single();
-            var property = new PropertyProvider(collectionProperty, new TestTypeProvider(typeSignatureModifiers));
+            var property = new PropertyProvider(collectionProperty, new TestTypeProvider(declarationModifiers: typeSignatureModifiers));
 
             Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
         }
