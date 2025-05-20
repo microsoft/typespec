@@ -76,11 +76,18 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           getDirectoryPath(packageFileUri.fsPath),
         );
 
-        if (this.shouldOfferPackageInstallation(targetPackage, packageJsonFolder, packageJson)) {
-          actions.push(
-            this.createInstallPackageCodeAction(diagnostic, targetPackage, packageJsonFolder),
-          );
-        }
+        const pkgNameInPkgFile = this.isPackageInPackageJson(targetPackage, packageJson);
+
+        // Whether there is or not the package.json file, the installation command will be created;
+        // when there is no package.json file, the user will be given a clear message prompt.
+        actions.push(
+          this.createInstallPackageCodeAction(
+            diagnostic,
+            targetPackage,
+            pkgNameInPkgFile,
+            packageJsonFolder,
+          ),
+        );
       }
     }
 
@@ -88,37 +95,29 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   }
 
   /**
-   * Determines if a package should be installed based on the following criteria:
-   * - No package.json found in parent directories, OR
-   * - The target is a npm package (not a local path or absolute path) that exists
-   *   in package.json dependencies but isn't installed
+   * Determines whether the given packageName is in the package.json file.
    *
-   * @param targetPackage The package to check for installation
-   * @param packageJsonFolder The folder containing package.json, if found
-   * @param packageJson The parsed package.json contents, if found
-   * @returns True if the package should be installed
+   * - targetPackage is not a relative or absolute path
+   * - if it's listed in the package.json's dependencies, devDependencies, or peerDependencies.
+   *
+   * @param targetPackage - The name of the package to check.
+   * @param packageJson - The parsed package.json file content or undefined if not available.
+   * @returns True if packageName is in package.json file, false otherwise.
    */
-  private shouldOfferPackageInstallation(
+  private isPackageInPackageJson(
     targetPackage: string,
-    packageJsonFolder: string | undefined,
     packageJson: PackageJson | undefined,
   ): boolean {
-    if (packageJsonFolder === undefined) {
-      return true;
-    }
-
     if (
       !targetPackage.startsWith("./") &&
       !targetPackage.startsWith("../") &&
       !isPathAbsolute(targetPackage) &&
       packageJson
     ) {
-      // Add `false` to resolve the error of returning `boolean|undefined` type
-      return (
+      return !!(
         (packageJson.peerDependencies && targetPackage in packageJson.peerDependencies) ||
         (packageJson.dependencies && targetPackage in packageJson.dependencies) ||
-        (packageJson.devDependencies && targetPackage in packageJson.devDependencies) ||
-        false
+        (packageJson.devDependencies && targetPackage in packageJson.devDependencies)
       );
     }
 
@@ -128,6 +127,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   private createInstallPackageCodeAction(
     diagnostic: vscode.Diagnostic,
     pkgName: string,
+    pkgNameInPkgFile: boolean,
     projectFolder?: string,
   ): vscode.CodeAction {
     const action = new vscode.CodeAction(
@@ -137,7 +137,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     action.command = {
       command: CodeActionCommand.NpmInstallPackage,
       title: diagnostic.message,
-      arguments: [projectFolder],
+      arguments: [projectFolder, pkgName, pkgNameInPkgFile],
     };
     action.diagnostics = [diagnostic];
     return action;

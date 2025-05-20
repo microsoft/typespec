@@ -66,10 +66,14 @@ export async function activate(context: ExtensionContext) {
       context.subscriptions.push(
         commands.registerCommand(
           CodeActionCommand.NpmInstallPackage,
-          async (projectFolder: string | undefined) => {
+          async (projectFolder: string | undefined, pkgName: string, pkgNameInPkgFile: boolean) => {
             try {
               if (projectFolder) {
-                await spawnExecutionAndLogToOutput("npm", ["install"], projectFolder);
+                await spawnExecutionAndLogToOutput(
+                  "npm",
+                  pkgNameInPkgFile ? ["install"] : ["install", pkgName],
+                  projectFolder,
+                );
               } else {
                 logger.error(
                   "No package.json file was found, and the dependency package could not be installed",
