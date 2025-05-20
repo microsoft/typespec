@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly string _itemsPropertyName;
         private readonly InputPagingServiceMetadata _paging;
-        private readonly FieldProvider[] _requestFields;
+        private readonly IReadOnlyList<FieldProvider> _requestFields;
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
         private readonly int? _nextTokenParameterIndex;
 
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            _requestFields = fields.ToArray();
+            _requestFields = fields;
 
             _itemModelType = itemModelType;
             _isAsync = isAsync;
@@ -432,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
             $"Create{_operation.Name.ToCleanName()}Request",
             // we replace the first argument (the initialUri) with the nextPageUri
-            [nextPageUri, .. _requestFields[1..]])
+            [nextPageUri, .. _requestFields.Skip(1)])
             .As<PipelineMessage>();
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
