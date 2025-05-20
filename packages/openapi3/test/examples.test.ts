@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
+import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
@@ -233,5 +233,385 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       name: "Fluffy",
       age: 2,
     });
+  });
+
+  describe("parameters", () => {
+    it.each([
+      {
+        desc: "form (undefined)",
+        param: `@query color: string | null`,
+        paramExample: `null`,
+        expectedExample: "?color=",
+      },
+      {
+        desc: "form (string)",
+        param: `@query color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "?color=blue",
+      },
+      {
+        desc: "form (array) explode: false",
+        param: `@query color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "?color=blue,black,brown",
+      },
+      {
+        desc: "form (array) explode: true",
+        param: `@query(#{ explode: true }) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "?color=blue&color=black&color=brown",
+      },
+      {
+        desc: "form (object) explode: false",
+        param: `@query color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "?color=R,100,G,200,B,150",
+      },
+      {
+        desc: "form (object) explode: true",
+        param: `@query(#{ explode: true }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "?R=100&G=200&B=150",
+      },
+      {
+        desc: "spaceDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (string)",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "?color=blue%20black%20brown",
+      },
+      {
+        desc: "spaceDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.spaceDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "?color=R%20100%20G%20200%20B%20150",
+      },
+      {
+        desc: "spaceDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.spaceDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (string)",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "?color=blue%7Cblack%7Cbrown",
+      },
+      {
+        desc: "pipeDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "?color=R%7C100%7CG%7C200%7CB%7C150",
+      },
+      {
+        desc: "pipeDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+    ])(
+      "set example on the query parameter with style $desc",
+      async ({ param, paramExample, expectedExample }) => {
+        const res = await openApiFor(
+          `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        );
+        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      },
+    );
+
+    it.each([
+      {
+        desc: "simple (undefined)",
+        route: "/{color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: "",
+      },
+      {
+        desc: "simple (string)",
+        route: "/{color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "blue",
+      },
+      {
+        desc: "simple (array) explode: false",
+        route: "/{color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (array) explode: true",
+        route: "/{color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (object) explode: false",
+        route: "/{color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R,100,G,200,B,150",
+      },
+      {
+        desc: "simple (object) explode: true",
+        route: "/{color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R=100,G=200,B=150",
+      },
+      {
+        desc: "matrix (undefined)",
+        route: "/{;color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: ";color",
+      },
+      {
+        desc: "matrix (string)",
+        route: "/{;color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: ";color=blue",
+      },
+      {
+        desc: "matrix (array) explode: false",
+        route: "/{;color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ";color=blue,black,brown",
+      },
+      {
+        desc: "matrix (array) explode: true",
+        route: "/{;color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ";color=blue;color=black;color=brown",
+      },
+      {
+        desc: "matrix (object) explode: false",
+        route: "/{;color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ";color=R,100,G,200,B,150",
+      },
+      {
+        desc: "matrix (object) explode: true",
+        route: "/{;color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ";R=100;G=200;B=150",
+      },
+      {
+        desc: "label (undefined)",
+        route: "/{.color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: ".",
+      },
+      {
+        desc: "label (string)",
+        route: "/{.color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: ".blue",
+      },
+      {
+        desc: "label (array) explode: false",
+        route: "/{.color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ".blue,black,brown",
+      },
+      {
+        desc: "label (array) explode: true",
+        route: "/{.color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ".blue.black.brown",
+      },
+      {
+        desc: "label (object) explode: false",
+        route: "/{.color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ".R,100,G,200,B,150",
+      },
+      {
+        desc: "label (object) explode: true",
+        route: "/{.color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ".R=100.G=200.B=150",
+      },
+    ])(
+      "set example on the path parameter with style $desc",
+      async ({ param, route, paramExample, expectedExample }) => {
+        const res: OpenAPI3Document = await openApiFor(
+          `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("${route}")
+          op getColors(${param}): void;
+          `,
+        );
+        expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      },
+    );
+
+    it.each([
+      {
+        desc: "simple (undefined)",
+        param: `@header color: string | null`,
+        paramExample: `null`,
+        expectedExample: "",
+      },
+      {
+        desc: "simple (string)",
+        param: `@header color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "blue",
+      },
+      {
+        desc: "simple (array) explode: false",
+        param: `@header color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (array) explode: true",
+        param: `@header(#{ explode: true }) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (object) explode: false",
+        param: `@header color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R,100,G,200,B,150",
+      },
+      {
+        desc: "simple (object) explode: true",
+        param: `@header(#{ explode: true }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R=100,G=200,B=150",
+      },
+    ])(
+      "set example on the header parameter with style $desc",
+      async ({ param, paramExample, expectedExample }) => {
+        const res: OpenAPI3Document = await openApiFor(
+          `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        );
+        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      },
+    );
+
+    it.each([
+      {
+        desc: "form (undefined)",
+        param: `@cookie color: string | null`,
+        paramExample: `null`,
+        expectedExample: "color=",
+      },
+      {
+        desc: "form (string)",
+        param: `@cookie color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "color=blue",
+      },
+      {
+        desc: "form (array) explode: false",
+        param: `@cookie color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue,black,brown",
+      },
+      {
+        desc: "form (object) explode: false",
+        param: `@cookie color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R,100,G,200,B,150",
+      },
+    ])(
+      "set example on the cookie parameter with style $desc",
+      async ({ param, paramExample, expectedExample }) => {
+        const res: OpenAPI3Document = await openApiFor(
+          `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        );
+        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      },
+    );
   });
 });
