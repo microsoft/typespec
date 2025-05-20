@@ -191,6 +191,34 @@ describe("builtin.is() tests", () => {
     expect(_$.builtin.is(bar.type)).toBe(true);
   });
 
+  it("Model Property reference", async () => {
+    // ------------------------------------------------------------
+    //   - Foo (Model)                     → false
+    //   - Foo.bar (ModelProperty)         → false
+    //   - type of Foo.bar (ModelProperty)     → false
+    //   - type of Foo.bar.type (Intrinsic) → true
+    // ------------------------------------------------------------
+    const { Foo, bar } = (await runner.compile(
+      `
+      @test model Bar {
+         prop: string
+      }
+         
+      @test model Foo {
+        @test bar: Bar.prop;
+      }
+    `,
+    )) as { Foo: Model; bar: ModelProperty };
+
+    program = runner.program;
+    const _$ = $(program);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(bar)).toBe(false);
+    expect(_$.builtin.is(bar.type)).toBe(false);
+    expect(_$.builtin.is((bar.type as ModelProperty).type)).toBe(true);
+  });
+
   it("model property is a union of string | int32", async () => {
     // ------------------------------------------------------------
     //   - Foo (Model)                             → false
@@ -292,15 +320,19 @@ describe("builtin.is() tests", () => {
 
   it("should recognize a model in global.TypeSpec", async () => {
     // ------------------------------------------------------------
-    // Define a direct child of the root namespace called "TypeSpec"
+    // A non-typespec model references a ModelProperty defined in TypeSpec
     // ------------------------------------------------------------
-    const { InTypeSpec } = (await runner.compile(`
+    const { InTypeSpec, Foo } = (await runner.compile(`
       @test namespace TypeSpec {
         @test model InTypeSpec {
           @test foo: string;
         }
       }
-    `)) as { InTypeSpec: Model };
+
+      @test model Foo {
+        @test bar: TypeSpec.InTypeSpec.foo;
+      } 
+    `)) as { InTypeSpec: Model; Foo: Model };
 
     const program = runner.program;
     const _$ = $(program);
@@ -311,6 +343,11 @@ describe("builtin.is() tests", () => {
     expect(_$.builtin.is(prop)).toBe(true);
 
     expect(_$.builtin.is(prop.type)).toBe(true);
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    const bar = Foo.properties.get("bar") as ModelProperty;
+    expect(_$.builtin.is(bar)).toBe(false); // bar is defined outside TypeSpec
+    expect(_$.builtin.is(bar.type)).toBe(true); // TypeSpec.InTypeSpec.foo is deifined inside TypeSpec
   });
 
   it("should NOT recognize a nested TypeSpec namespace", async () => {
