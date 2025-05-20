@@ -1,5 +1,9 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { Model, ModelProperty, Program, Scalar, Union } from "../../src/index.js";
+import {
+  unsafe_mutateSubgraphWithNamespace,
+  unsafe_MutatorWithNamespace,
+} from "../../src/experimental/index.js";
+import { Model, ModelProperty, Namespace, Program, Scalar, Union } from "../../src/index.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner } from "../../src/testing/types.js";
 import { $ } from "../../src/typekit/index.js";
@@ -380,5 +384,51 @@ describe("builtin.is() tests", () => {
 
     const int32Type = _$.builtin.int32;
     expect(_$.builtin.is(int32Type)).toBe(true);
+  });
+
+  it("should work with mutators", async () => {
+    // ------------------------------------------------------------
+    // A non-typespec model references a ModelProperty defined in TypeSpec
+    // ------------------------------------------------------------
+    const mutator: unsafe_MutatorWithNamespace = {
+      name: "test",
+      Namespace: {
+        mutate: (_ns, clone) => {
+          clone.models.delete("Bar");
+        },
+      },
+    };
+
+    (await runner.compile(`
+      namespace TypeSpec {
+        model InTypeSpec {
+          foo: string;
+        }
+      }
+
+      model Foo {
+        bar: TypeSpec.InTypeSpec.foo;
+      } 
+
+      model Bar {}
+    `)) as { InTypeSpec: Model; Foo: Model };
+
+    const program = runner.program;
+    const _$ = $(program);
+
+    const globalNs = program.getGlobalNamespaceType();
+    const mutatedGlobalNs = unsafe_mutateSubgraphWithNamespace(program, [mutator], globalNs)
+      .type as Namespace;
+
+    const Foo = mutatedGlobalNs.models.get("Foo")!;
+    const Bar = mutatedGlobalNs.models.get("Bar");
+
+    expect(Bar).toBeUndefined();
+    expect(Foo).toBeDefined();
+
+    expect(_$.builtin.is(Foo)).toBe(false);
+    expect(_$.builtin.is(Foo.properties.get("bar")!)).toBe(false);
+    expect(_$.builtin.is(Foo.properties.get("bar")!.type)).toBe(true);
+    expect(_$.builtin.is((Foo.properties.get("bar")!.type as ModelProperty).type)).toBe(true);
   });
 });
