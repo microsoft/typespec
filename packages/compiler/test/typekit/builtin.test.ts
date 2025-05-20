@@ -159,3 +159,13 @@ it("can get the builtin utcDateTime type", async () => {
   expect(utcDateTimeType).toBeDefined();
   expect(utcDateTimeType.name).toBe("utcDateTime");
 });
+
+it("returns true for a built-in type", async () => {
+  const utcDateTimeType = $(program).builtin.utcDateTime;
+  expect($(program).builtin.is(utcDateTimeType)).toBe(true);
+});
+
+it("returns false for a non-built-in type", async () => {
+  const stringType = $(program).model.create({ name: "MyModel", properties: {} });
+  expect($(program).builtin.is(stringType)).toBe(false);
+});

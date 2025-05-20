@@ -1,4 +1,4 @@
-import type { Scalar } from "../../core/types.js";
+import type { Scalar, Type } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -6,6 +6,13 @@ import { defineKit } from "../define-kit.js";
  * @typekit builtin
  */
 export interface BuiltinKit {
+  /**
+   * Checks if the given type is a built-in type.
+   * @param type The type to check.
+   * @returns True if the type is a built-in type, false otherwise.
+   */
+  is(type: Type): boolean;
+
   /**
    * Accessor for the string builtin type.
    */
@@ -142,6 +149,9 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   builtin: {
+    is(type: Type): boolean {
+      return this.program.checker.isStdType(type);
+    },
     get string(): Scalar {
       return this.program.checker.getStdType("string");
     },
