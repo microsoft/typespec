@@ -464,6 +464,7 @@ function getParameterDelimitedValue(
   if (explode) return undefined;
 
   const tk = $(program);
+  // cspell: ignore Cblack Cbrown
   /*
     https://spec.openapis.org/oas/v3.0.4.html#style-examples
       array -> ["blue", "black", "brown"]

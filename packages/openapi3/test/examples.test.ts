@@ -325,6 +325,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         desc: "pipeDelimited (array) explode: false",
         param: `@query @encode(ArrayEncoding.pipeDelimited) color: string[]`,
         paramExample: `#["blue", "black", "brown"]`,
+        // cspell:disable-next-line
         expectedExample: "?color=blue%7Cblack%7Cbrown",
       },
       {
