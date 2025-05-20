@@ -35,9 +35,14 @@ export interface OperationExamples {
   responses: Record<string, Record<string, [Example, Type][]>>;
 }
 
+type ResolveOperationExamplesOptions = {
+  enableParameterSerialization: boolean;
+};
+
 export function resolveOperationExamples(
   program: Program,
   operation: HttpOperation | SharedHttpOperation,
+  { enableParameterSerialization }: ResolveOperationExamplesOptions,
 ): OperationExamples {
   const examples = findOperationExamples(program, operation);
   const result: OperationExamples = { requestBody: {}, parameters: {}, responses: {} };
@@ -67,7 +72,12 @@ export function resolveOperationExamples(
       for (const property of op.parameters.properties) {
         if (!isHttpParameterProperty(property)) continue;
 
-        const value = getParameterValue(program, example.parameters, property);
+        const value = getParameterValue(
+          program,
+          example.parameters,
+          property,
+          enableParameterSerialization,
+        );
         if (value) {
           const parameterName = property.options.name;
           result.parameters[parameterName] ??= [];
@@ -268,8 +278,13 @@ function getParameterValue(
   program: Program,
   parameterExamples: Value,
   property: HttpParameterProperties,
+  enableSerialization: boolean = false,
 ): Value | undefined {
   const value = getValueByPath(parameterExamples, property.path);
+  if (!enableSerialization) {
+    return value;
+  }
+
   if (!value) return value;
 
   // Depending on the parameter type, we may need to serialize the value differently.

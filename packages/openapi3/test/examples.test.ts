@@ -235,7 +235,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  describe("parameters", () => {
+  describe("set example on the query parameter with serialization enabled", () => {
     it.each([
       {
         desc: "form (undefined)",
@@ -346,11 +346,9 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: undefined,
       },
-    ])(
-      "set example on the query parameter with style $desc",
-      async ({ param, paramExample, expectedExample }) => {
-        const res = await openApiFor(
-          `
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res = await openApiFor(
+        `
           @opExample(#{
             parameters: #{
               color: ${paramExample},
@@ -359,13 +357,60 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
+        undefined,
+        { "serialize-parameter-examples": true },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
+
+  describe.each(["path", "query", "header", "cookie"])(
+    "set example on the %s parameter without serialization",
+    (paramType) => {
+      it.each([
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `null`,
+          expectedExample: null,
+        },
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `"blue"`,
+          expectedExample: "blue",
+        },
+        {
+          param: `@${paramType} color: string[]`,
+          paramExample: `#["blue", "black", "brown"]`,
+          expectedExample: ["blue", "black", "brown"],
+        },
+        {
+          param: `@${paramType} color: Record<int32>`,
+          paramExample: `#{R: 100, G: 200, B: 150}`,
+          expectedExample: { R: 100, G: 200, B: 150 },
+        },
+      ])("$paramExample", async ({ param, paramExample, expectedExample }) => {
+        const path = paramType === "path" ? "/{color}" : "/";
+        const res = await openApiFor(
+          `
+                @opExample(#{
+                  parameters: #{
+                    color: ${paramExample},
+                  },
+                })
+                @route("/")
+                op getColors(${param}): void;
+              `,
         );
-        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expect((res.paths[path].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
           expectedExample,
         );
-      },
-    );
+      });
+    },
+  );
 
+  describe("set example on the path parameter", () => {
     it.each([
       {
         desc: "simple (undefined)",
@@ -493,11 +538,9 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: ".R=100.G=200.B=150",
       },
-    ])(
-      "set example on the path parameter with style $desc",
-      async ({ param, route, paramExample, expectedExample }) => {
-        const res: OpenAPI3Document = await openApiFor(
-          `
+    ])("$desc", async ({ param, route, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
           @opExample(#{
             parameters: #{
               color: ${paramExample},
@@ -506,13 +549,16 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("${route}")
           op getColors(${param}): void;
           `,
-        );
-        expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
-          expectedExample,
-        );
-      },
-    );
+        undefined,
+        { "serialize-parameter-examples": true },
+      );
+      expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
 
+  describe("set example on the header parameter", () => {
     it.each([
       {
         desc: "simple (undefined)",
@@ -550,11 +596,9 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: "R=100,G=200,B=150",
       },
-    ])(
-      "set example on the header parameter with style $desc",
-      async ({ param, paramExample, expectedExample }) => {
-        const res: OpenAPI3Document = await openApiFor(
-          `
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
           @opExample(#{
             parameters: #{
               color: ${paramExample},
@@ -563,13 +607,16 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
-        );
-        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
-          expectedExample,
-        );
-      },
-    );
+        undefined,
+        { "serialize-parameter-examples": true },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
 
+  describe("set example on the cookie parameter", () => {
     it.each([
       {
         desc: "form (undefined)",
@@ -595,11 +642,9 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: "color=R,100,G,200,B,150",
       },
-    ])(
-      "set example on the cookie parameter with style $desc",
-      async ({ param, paramExample, expectedExample }) => {
-        const res: OpenAPI3Document = await openApiFor(
-          `
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
           @opExample(#{
             parameters: #{
               color: ${paramExample},
@@ -608,11 +653,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(${param}): void;
           `,
-        );
-        expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
-          expectedExample,
-        );
-      },
-    );
+        undefined,
+        { "serialize-parameter-examples": true },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
   });
 });
