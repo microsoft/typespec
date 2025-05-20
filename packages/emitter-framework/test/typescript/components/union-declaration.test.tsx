@@ -243,22 +243,22 @@ describe("Typescript Union Declaration", () => {
         assertFileContents(
           res,
           d`
-              interface Cat {
-                name: string;
-                meow: boolean;
-              }
-              interface Dog {
-                name: string;
-                bark: boolean;
-              }
-              type Pet = {
-                kind: "cat";
-                value: Cat;
-              } | {
-                kind: "dog";
-                value: Dog;
-              };
-            `,
+            interface Cat {
+              name: string;
+              meow: boolean;
+            }
+            interface Dog {
+              name: string;
+              bark: boolean;
+            }
+            type Pet = {
+              kind: "cat";
+              value: Cat;
+            } | {
+              kind: "dog";
+              value: Dog;
+            };
+          `,
         );
       });
 
