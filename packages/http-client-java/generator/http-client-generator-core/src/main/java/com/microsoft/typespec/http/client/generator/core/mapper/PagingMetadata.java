@@ -91,7 +91,7 @@ final class PagingMetadata {
             nextMethods, lroPollResultType, continuationToken, maxPageSizeParameter);
     }
 
-    boolean isNextMethod() {
+    boolean isMethodForNextPage() {
         return operation == nextOperation;
     }
 

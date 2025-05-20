@@ -406,7 +406,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
 
         createSinglePageClientMethods(isSync, baseMethod, pagingMetadata, methods, createMethodArgs);
-        if (pagingMetadata.isNextMethod()) {
+        if (pagingMetadata.isMethodForNextPage()) {
             // If this was the next method there is no streaming methods to be generated.
             return;
         }
