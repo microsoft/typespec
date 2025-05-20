@@ -106,7 +106,7 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     "Expected all union variants to be models when using a discriminated union with no envelope",
   );
 
-  // This is an anonymous type, so we render its properties along the discriminator property
+  // Render anonymous models as a set of properties + the discriminator
   if ($.model.isExpresion(props.type.type)) {
     const model = $.model.create({
       properties: {
@@ -120,6 +120,7 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     return <TypeExpression type={model} />;
   }
 
+  // Render named models as an intersection of the model + the discriminator
   const children = [
     <ts.ObjectExpression>
       <ts.ObjectProperty
