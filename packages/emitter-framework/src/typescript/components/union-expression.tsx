@@ -120,19 +120,15 @@ function NoneEnvelope(props: NoneEnvelopeProps) {
     return <TypeExpression type={model} />;
   }
 
-  // Render named models as an intersection of the model + the discriminator
-  const children = [
-    <ts.ObjectExpression>
-      <ts.ObjectProperty
-        name={props.discriminatorPropertyName}
-        value={<ts.ValueExpression jsValue={props.type.name} />}
-      />
-    </ts.ObjectExpression>,
-    efRefkey(props.type.type),
-  ];
   return (
-    <ay.For joiner={" & "} each={children}>
-      {(c) => c}
-    </ay.For>
+    <ay.List joiner={" & "}>
+      <ts.ObjectExpression>
+        <ts.ObjectProperty
+          name={props.discriminatorPropertyName}
+          value={<ts.ValueExpression jsValue={props.type.name} />}
+        />
+      </ts.ObjectExpression>
+      <>{efRefkey(props.type.type)}</>
+    </ay.List>
   );
 }
