@@ -53,7 +53,10 @@ async function loadTemplate(projectRoot: string, name: string) {
 export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) {
   const content: MarkdownDoc[] = [];
   const renderer = new MarkdownRenderer(refDoc);
-
+  const headerTemplate = await loadTemplate(projectRoot, "header");
+  if (headerTemplate) {
+    content.push(headerTemplate);
+  }
   if (refDoc.description) {
     content.push(refDoc.description);
   }
@@ -74,6 +77,11 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
 
   if (refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     content.push(section("Decorators", renderer.decoratorsSection(refDoc, { includeToc: true })));
+  }
+
+  const footerTemplate = await loadTemplate(projectRoot, "footer");
+  if (footerTemplate) {
+    content.push(footerTemplate);
   }
 
   return renderMarkdowDoc(section(refDoc.name, content));
@@ -384,12 +392,22 @@ export class MarkdownRenderer {
 
   emitterOptions(options: EmitterOptionRefDoc[]) {
     const content = [];
+    content.push(
+      section(`${inlinecode("emitter-output-dir")}`, [
+        `**Type:** ${inlinecode("absolutePath")}`,
+        "",
+        `Defines the emitter output directory. Defaults to \`{output-dir}/${this.refDoc.name}\``,
+        `See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)`,
+      ]),
+    );
     for (const option of options) {
       content.push(
-        section(`${inlinecode(option.name)}`, [`**Type:** ${inlinecode(option.type)}`, ""]),
+        section(`${inlinecode(option.name)}`, [
+          `**Type:** ${inlinecode(option.type)}`,
+          "",
+          option.doc,
+        ]),
       );
-
-      content.push(option.doc);
     }
     return section("Emitter options", content);
   }

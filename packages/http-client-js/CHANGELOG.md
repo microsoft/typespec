@@ -1,5 +1,35 @@
 # Changelog - @typespec/http-client-js
 
+## 0.5.0
+
+### Bump dependencies
+
+- [#7186](https://github.com/microsoft/typespec/pull/7186) Upgrade to alloy 15
+
+
+## 0.4.0
+
+### Features
+
+- [#6875](https://github.com/microsoft/typespec/pull/6875) Upgrade to alloy 0.10.0
+- [#6709](https://github.com/microsoft/typespec/pull/6709) Add support for OAuth2 authentication scheme
+- [#6725](https://github.com/microsoft/typespec/pull/6725) Add paging support
+
+### Bump dependencies
+
+- [#7017](https://github.com/microsoft/typespec/pull/7017) Alloy 0.11
+
+### Bug Fixes
+
+- [#6899](https://github.com/microsoft/typespec/pull/6899) Fix File serialization issue and enable building e2e tests
+
+
+## 0.3.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
 ## 0.2.0
 
 ### Deprecations

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { exec as execCallback } from "child_process";
+import chalk from "chalk";
+import { execFile } from "child_process";
 import { promises, rmSync } from "fs";
 import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -20,9 +21,6 @@ const argv = parseArgs({
   },
 });
 
-// Promisify the exec function
-const exec = promisify(execCallback);
-
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -35,18 +33,57 @@ const GENERATED_FOLDER = argv.values.generatedFolder
 
 interface TspCommand {
   outputDir: string;
-  command: string;
+  command: string[];
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
-  "azure/example/basic": {
-    namespace: "specs.azure.example.basic",
-  },
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
+  "azure/client-generator-core/api-version": {
+    namespace: "specs.azure.clientgenerator.core.apiversion",
+  },
+  "azure/client-generator-core/client-initialization": {
+    namespace: "specs.azure.clientgenerator.core.clientinitialization",
+  },
+  "azure/client-generator-core/deserialize-empty-string-as-null": {
+    namespace: "specs.azure.clientgenerator.core.emptystring",
+  },
+  "azure/client-generator-core/flatten-property": {
+    namespace: "specs.azure.clientgenerator.core.flattenproperty",
+  },
   "azure/client-generator-core/usage": {
     namespace: "specs.azure.clientgenerator.core.usage",
+  },
+  "azure/core/basic": {
+    namespace: "specs.azure.core.basic",
+  },
+  "azure/core/lro/rpc": {
+    namespace: "specs.azure.core.lro.rpc",
+  },
+  "azure/core/lro/standard": {
+    namespace: "specs.azure.core.lro.standard",
+  },
+  "azure/core/model": {
+    namespace: "specs.azure.core.model",
+  },
+  "azure/core/page": {
+    namespace: "specs.azure.core.page",
+  },
+  "azure/core/scalar": {
+    namespace: "specs.azure.core.scalar",
+  },
+  "azure/core/traits": {
+    namespace: "specs.azure.core.traits",
+  },
+  "azure/encode/duration": {
+    namespace: "specs.azure.encode.duration",
+  },
+  "azure/example/basic": {
+    namespace: "specs.azure.example.basic",
+  },
+  "azure/payload/pageable": {
+    namespace: "specs.azure.payload.pageable",
   },
   "client/structure/default": {
     namespace: "client.structure.service",
@@ -222,16 +259,16 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   try {
     rmSync(tspCommand.outputDir, { recursive: true, force: true });
   } catch (error) {
-    console.error(`rm error: ${error}`);
+    console.error(chalk.red(`rm error: ${error}`));
   }
+  const execFileAsync = promisify(execFile);
   try {
-    console.log(`exec: ${tspCommand.command}`);
-    const { stdout, stderr } = await exec(tspCommand.command);
-    if (stdout) console.log(`stdout: ${stdout}`);
-    if (stderr) console.error(`stderr: ${stderr}`);
-  } catch (error) {
-    console.error(`exec error: ${error}`);
-    throw error;
+    console.log(chalk.green(`start tsp ${tspCommand.command.join(" ")}`));
+    await execFileAsync("tsp", tspCommand.command, { shell: true });
+    console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
+  } catch (err) {
+    console.error(chalk.red(`exec error: ${err}`));
+    throw err;
   }
 }
 
@@ -316,7 +353,7 @@ function defaultPackageName(spec: string): string {
 }
 
 interface EmitterConfig {
-  optionsStr: string;
+  options: string[];
   outputDir: string;
 }
 
@@ -344,15 +381,15 @@ function addOptions(
     if (flags.debug) {
       options["debug"] = "true";
     }
-    if (flags.flavor === "unbranded") {
-      options["company-name"] = "Unbranded";
-    }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
+      return [
+        "--option",
+        `${argv.values.emitterName || "@typespec/http-client-python"}.${k}="${v}"`,
+      ];
     });
     emitterConfigs.push({
-      optionsStr: configs.join(" "),
+      options: configs,
       outputDir: options["emitter-output-dir"],
     });
   }
@@ -362,22 +399,26 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   return addOptions(spec, GENERATED_FOLDER, flags).map((option) => {
     return {
       outputDir: option.outputDir,
-      command: `tsp compile ${spec} --emit=${toPosix(PLUGIN_DIR)} ${option.optionsStr}`,
+      command: ["compile", spec, "--emit", toPosix(PLUGIN_DIR), ...option.options],
     };
   });
 }
 
 async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
-  let currentIndex = 0;
-
-  async function worker() {
-    while (currentIndex < tasks.length) {
-      const index = currentIndex++;
-      await tasks[index]();
+  async function worker(start: number, end: number) {
+    while (start < end) {
+      await tasks[start]();
+      start++;
     }
   }
 
-  const workers = new Array(Math.min(poolLimit, tasks.length)).fill(null).map(() => worker());
+  const workers = [];
+  let start = 0;
+  while (start < tasks.length) {
+    const end = Math.min(start + poolLimit, tasks.length);
+    workers.push((async () => await worker(start, end))());
+    start = end;
+  }
   await Promise.all(workers);
 }
 
@@ -411,7 +452,9 @@ const start = performance.now();
 regenerate(argv.values)
   .then(() =>
     console.log(
-      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      chalk.green(
+        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      ),
     ),
   )
-  .catch((error) => console.error(`Regeneration failed: ${error.message}`));
+  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));

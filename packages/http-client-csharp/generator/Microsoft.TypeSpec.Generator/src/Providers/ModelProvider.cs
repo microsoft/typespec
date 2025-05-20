@@ -214,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
                 {
-                    if (!derivedProperty.Type.Equals(property.Type) || !DomainEqual(property, derivedProperty))
+                    if (!DomainEqual(property, derivedProperty))
                     {
                         fields.Add(new FieldProvider(
                             FieldModifiers.Private | FieldModifiers.Protected,
@@ -350,7 +350,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<InputModelType, Dictionary<string, InputModelProperty>> BuildDerivedProperties()
         {
             Dictionary<InputModelType, Dictionary<string, InputModelProperty>> derivedProperties = [];
-            foreach (var derivedModel in _inputModel.DerivedModels)
+            var derivedModels = new List<InputModelType>();
+            EnumerateDerivedModels(_inputModel, derivedModels);
+            foreach (var derivedModel in derivedModels)
             {
                 var derivedModelProperties = derivedModel.Properties;
                 if (derivedModelProperties.Count > 0)
@@ -361,12 +363,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return derivedProperties;
         }
 
+        private void EnumerateDerivedModels(InputModelType inputModel, List<InputModelType> derivedModels)
+        {
+            foreach (var derivedModel in inputModel.DerivedModels)
+            {
+                derivedModels.Add(derivedModel);
+                EnumerateDerivedModels(derivedModel, derivedModels);
+            }
+        }
+
         protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-
-            Dictionary<string, InputModelProperty> baseProperties = _inputModel.BaseModel?.Properties.ToDictionary(p => p.Name) ?? [];
+            Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -384,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                     if (derivedProperty is not null)
                     {
-                        if (derivedProperty.Type.Equals(property.Type) && DomainEqual(property, derivedProperty))
+                        if (DomainEqual(property, derivedProperty))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Virtual;
                         }
@@ -392,7 +402,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var baseProperty = baseProperties.GetValueOrDefault(property.Name);
                     if (baseProperty is not null)
                     {
-                        if (baseProperty.Type.Equals(property.Type) && DomainEqual(baseProperty, property))
+                        if (DomainEqual(baseProperty, property))
                         {
                             outputProperty.Modifiers |= MethodSignatureModifiers.Override;
                         }
@@ -419,8 +429,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. properties];
         }
 
+        private IEnumerable<InputModelType> EnumerateBaseModels()
+        {
+            var model = _inputModel;
+            while (model.BaseModel != null)
+            {
+                yield return model.BaseModel;
+                model = model.BaseModel;
+            }
+        }
+
         private static bool DomainEqual(InputModelProperty baseProperty, InputModelProperty derivedProperty)
         {
+            if (baseProperty.Type.Name != derivedProperty.Type.Name)
+                return false;
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
                 return false;
             var baseNullable = baseProperty.Type is InputNullableType;

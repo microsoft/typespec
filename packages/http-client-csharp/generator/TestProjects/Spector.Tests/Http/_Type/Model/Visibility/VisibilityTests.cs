@@ -38,13 +38,6 @@ namespace TestProjects.Spector.Tests.Http._Type.Model.Visibility
         }
 
         [SpectorTest]
-        public void RequiredPropertiesAreSettable()
-        {
-            var requiredInt = HasProperty(typeof(VisibilityModel), nameof(VisibilityModel.QueryProp), BindingFlags.Public | BindingFlags.Instance);
-            Assert.NotNull(requiredInt.SetMethod);
-        }
-
-        [SpectorTest]
         public void RequiredListsAreNotSettable()
         {
             var requiredStringList = HasProperty(typeof(VisibilityModel), nameof(VisibilityModel.ReadProp), BindingFlags.Public | BindingFlags.Instance);

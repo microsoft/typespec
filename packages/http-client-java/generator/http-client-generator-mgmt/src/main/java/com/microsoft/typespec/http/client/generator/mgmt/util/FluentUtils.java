@@ -7,7 +7,6 @@ import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.ResponseBase;
 import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.http.rest.StreamResponse;
 import com.azure.core.util.Context;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -372,8 +371,6 @@ public class FluentUtils {
             bodyType = type.getTypeArguments()[1];
         } else if (SimpleResponse.class.getSimpleName().equals(type.getName())) {
             bodyType = type.getTypeArguments()[0];
-        } else if (StreamResponse.class.getSimpleName().equals(type.getName())) {
-            bodyType = GenericType.FLUX_BYTE_BUFFER;
         } else {
             log("Unable to determine value type for Response subtype: %s, fallback to typeArguments[0].", type);
             bodyType = type.getTypeArguments()[0];
@@ -404,7 +401,7 @@ public class FluentUtils {
         // for now, avoid binary as response body
 
         IType responseBodyType = clientMethod.getProxyMethod().getResponseBodyType();
-        return !(responseBodyType == ClassType.BINARY_DATA || responseBodyType == GenericType.FLUX_BYTE_BUFFER);
+        return !(responseBodyType == ClassType.BINARY_DATA);
     }
 
     public static boolean requiresExample(ClientMethod clientMethod) {

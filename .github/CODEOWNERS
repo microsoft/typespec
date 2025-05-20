@@ -1,18 +1,28 @@
 # Catch all
 *                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
 
-# This folder is not important and can be modified by anyone
+# Those files/folders can be modified by anyone
 .chronus/changes/
+cspell.yaml
+
+######################
+# Emiter Shared
+######################
+/eng/emitters/                               @m-nash @iscai-msft
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao
 
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @nisha-bhatia
+/docs/samples/client/csharp                  @nisha-bhatia @JoshLove-msft @jorgerangel-msft
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @nisha-bhatia @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
 ######################
 /packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python
@@ -24,11 +34,6 @@
 # JavaScript
 ######################
 /packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
-
-######################
-# Emiter Shared
-######################
-/eng/emitters/                               @m-nash @iscai-msft
 
 ######################
 # IDE

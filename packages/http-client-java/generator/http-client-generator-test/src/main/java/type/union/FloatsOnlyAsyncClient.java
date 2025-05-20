@@ -18,9 +18,9 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.FloatsOnliesImpl;
-import type.union.implementation.models.SendRequest5;
-import type.union.models.GetResponse5;
-import type.union.models.GetResponseProp1;
+import type.union.implementation.models.SendRequest4;
+import type.union.models.GetResponse4;
+import type.union.models.GetResponseProp3;
 
 /**
  * Initializes a new instance of the asynchronous UnionClient type.
@@ -77,7 +77,7 @@ public final class FloatsOnlyAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest5 The sendRequest5 parameter.
+     * @param sendRequest4 The sendRequest4 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -87,8 +87,8 @@ public final class FloatsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest5, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest5, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest4, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest4, requestOptions);
     }
 
     /**
@@ -103,11 +103,11 @@ public final class FloatsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse5> get() {
+    public Mono<GetResponse4> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse5.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse4.class));
     }
 
     /**
@@ -124,11 +124,11 @@ public final class FloatsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> send(GetResponseProp1 prop) {
+    public Mono<Void> send(GetResponseProp3 prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest5 sendRequest5Obj = new SendRequest5(prop);
-        BinaryData sendRequest5 = BinaryData.fromObject(sendRequest5Obj);
-        return sendWithResponse(sendRequest5, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest4 sendRequest4Obj = new SendRequest4(prop);
+        BinaryData sendRequest4 = BinaryData.fromObject(sendRequest4Obj);
+        return sendWithResponse(sendRequest4, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -59,6 +59,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
         }
 
         [Test]
+        public void TestUpdateInvokeInstanceMethodExpression()
+        {
+            // declare the instance method
+            var mockTypeProvider = new Mock<TypeProvider>();
+            var returnInstanceMethod = Return(new InvokeMethodExpression(null, "Bar", [Bool(true), Bool(false), Bool(false)]));
+            var fooMethod = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: typeof(bool),
+                    Parameters: [],
+                    Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { returnInstanceMethod },
+                mockTypeProvider.Object);
+
+            var returnExpression = returnInstanceMethod as ExpressionStatement;
+            Assert.IsNotNull(returnExpression);
+
+            var keyWordExpression = returnExpression!.Expression as KeywordExpression;
+            Assert.IsNotNull(keyWordExpression);
+
+            var invokeMethodExpression = keyWordExpression!.Expression as InvokeMethodExpression;
+            Assert.IsNotNull(invokeMethodExpression);
+
+            invokeMethodExpression!.Update(
+                methodName: "Baz",
+                arguments: [Bool(true)]);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(fooMethod);
+
+            var expectedResult = Helpers.GetExpectedFromFile();
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
+        }
+
+        [Test]
         public void TestNewInstanceExpression()
         {
             // declare the instance method

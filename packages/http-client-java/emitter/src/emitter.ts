@@ -43,7 +43,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         reportDiagnostic(program, {
           code: "unknown-error",
           format: {
-            errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: error.stack`,
+            errorMessage: `Error occurred when building the code model. The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: ${error.stack}\nError: ${error.toString()}`,
           },
           target: NoTarget,
         });
@@ -126,7 +126,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
           reportDiagnostic(program, {
             code: "unknown-error",
             format: {
-              errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.`,
+              errorMessage: `Error occurred while running Java generator. The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission. ${error.stack}\nError: ${error.toString()}`,
             },
             target: NoTarget,
           });

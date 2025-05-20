@@ -485,7 +485,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
     private void addBuilderTraits(ClientBuilder clientBuilder, ServiceClient serviceClient) {
         clientBuilder.addBuilderTrait(ClientBuilderTrait.HTTP_TRAIT);
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.PROXY_TRAIT);
         }
 
@@ -494,7 +494,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.TOKEN_CREDENTIAL_TRAIT);
         }
         if (serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.KEY)) {
-            if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isUseKeyCredential()) {
+            if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isUseKeyCredential()) {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.KEY_CREDENTIAL_TRAIT);
             } else {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.AZURE_KEY_CREDENTIAL_TRAIT);
@@ -513,8 +513,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<String, XmlSequenceWrapper> xmlSequenceWrappers = new LinkedHashMap<>();
         for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
             for (Operation operation : operationGroup.getOperations()) {
-                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-                    operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
+                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
 
                 if (responseBodySchema instanceof ArraySchema) {
                     parseXmlSequenceWrappers((ArraySchema) responseBodySchema, xmlSequenceWrappers, settings);
@@ -554,7 +553,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         xmlSequenceWrappers.computeIfAbsent(modelTypeName, name -> new XmlSequenceWrapper(name, arraySchema, settings));
     }
 
-    static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
+    public static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return null;
         }
@@ -634,6 +633,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.CORE.getPackageName(), true));
+        if (settings.isAzureV2()) {
+            requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.AZURE_CORE_VNEXT_PACKAGE_NAME, true));
+        }
 
         // export packages that contain Client, ClientBuilder, ServiceVersion
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
@@ -701,7 +703,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         return ret;
     }
 
-    static ClassType getClientResponseClassType(Operation method, List<ClientModel> models, JavaSettings settings) {
+    public static ClassType getClientResponseClassType(Operation method, List<ClientModel> models,
+        JavaSettings settings) {
         String name = CodeNamer.getPlural(method.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(method.getLanguage().getJava().getName()) + "Response";
         String packageName = settings.getPackage(settings.getModelsSubpackage());

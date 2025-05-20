@@ -83,7 +83,7 @@ export async function validateDependencies(
   }
 }
 
-function findJavaVersion(output: string): string | undefined {
+export function findJavaVersion(output: string): string | undefined {
   const matches = output.match(/javac ([\d.]+).*/);
   if (matches && matches.length > 1) {
     return matches[1];
@@ -91,14 +91,22 @@ function findJavaVersion(output: string): string | undefined {
   return undefined;
 }
 
-function getJavaMajorVersion(version: string): number {
-  const matches = version.match(/(\d+)\.(\d+)\..*/);
+export function getJavaMajorVersion(version: string): number {
+  let matches = version.match(/(\d+)\.(\d+).*/);
   if (matches && matches.length > 2) {
+    // match pattern "major.minor*"
     if (matches[1] === "1") {
       // "javac 1.8.0_422" -> 8
       return +matches[2];
     } else {
       // "javac 21.0.3" -> 21
+      return +matches[1];
+    }
+  } else {
+    // match pattern "major*"
+    matches = version.match(/(\d+).*/);
+    if (matches && matches.length > 1) {
+      // "javac 24" -> 24
       return +matches[1];
     }
   }

@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.MixedTypesImpl;
-import type.union.implementation.models.SendRequest;
-import type.union.models.GetResponse;
+import type.union.implementation.models.SendRequest9;
+import type.union.models.GetResponse9;
 import type.union.models.MixedTypesCases;
 
 /**
@@ -91,7 +91,7 @@ public final class MixedTypesClient {
      * }
      * </pre>
      * 
-     * @param sendRequest The sendRequest parameter.
+     * @param sendRequest9 The sendRequest9 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -101,8 +101,8 @@ public final class MixedTypesClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest9, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest9, requestOptions);
     }
 
     /**
@@ -117,10 +117,10 @@ public final class MixedTypesClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse get() {
+    public GetResponse9 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse9.class);
     }
 
     /**
@@ -139,8 +139,8 @@ public final class MixedTypesClient {
     public void send(MixedTypesCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest sendRequestObj = new SendRequest(prop);
-        BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
-        sendWithResponse(sendRequest, requestOptions).getValue();
+        SendRequest9 sendRequest9Obj = new SendRequest9(prop);
+        BinaryData sendRequest9 = BinaryData.fromObject(sendRequest9Obj);
+        sendWithResponse(sendRequest9, requestOptions).getValue();
     }
 }

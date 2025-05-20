@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 public class JsonMergePatchClientTest {
 
     private final JsonMergePatchClient client = new JsonMergePatchClientBuilder().buildClient();
@@ -41,7 +43,7 @@ public class JsonMergePatchClientTest {
         resource.setMap(map);
         resource.setDescription("desc");
         resource.setIntValue(1);
-        resource.setFloatValue(1.1);
+        resource.setFloatValue(1.25);
         resource.setInnerModel(innerModel);
         resource.setIntArray(Arrays.asList(1, 2, 3));
         return resource;

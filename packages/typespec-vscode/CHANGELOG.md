@@ -1,5 +1,34 @@
 # Change Log - typespec-vscode
 
+## 1.0.0
+
+### Features
+
+- [#7042](https://github.com/microsoft/typespec/pull/7042) send compile startTime and endTime telemetry
+
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6894](https://github.com/microsoft/typespec/pull/6894) Fix the issue where the emitter version is undefined in telemetry.
+- [#7021](https://github.com/microsoft/typespec/pull/7021) Fix crash when initialize telemetry client
+
+
+## 0.68.0
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6668](https://github.com/microsoft/typespec/pull/6668) Fix error when upgrading to use latest telemetry library
+- [#6690](https://github.com/microsoft/typespec/pull/6690) Fix the issue to log compiler information as an error. And remove PREVIEW prefix for server code emitter
+- [#6694](https://github.com/microsoft/typespec/pull/6694) compiler can be resolved automatically when it's not installed in the root folder of the first opened workspace.
+- [#6620](https://github.com/microsoft/typespec/pull/6620) Update menu item and command text for "Show OpenAPI3 Documentation" and "Import TypeSpec from OpenApi3"
+
+
 ## 0.67.0
 
 ### Features

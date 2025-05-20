@@ -24,6 +24,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
         {
+            foreach (var child in inputClient.Children)
+            {
+                BuildClient(child, clients);
+            }
+
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             if (client == null)
             {
@@ -44,11 +49,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     clients.Add(scmMethod.CollectionDefinition);
                     ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
                 }
-            }
-
-            foreach (var child in inputClient.Children)
-            {
-                BuildClient(child, clients);
             }
         }
 
@@ -76,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
-                .. GetMultipartFormDataBinaryContentDefinition()
+                .. GetMultipartFormDataBinaryContentDefinition(),
+                new ModelReaderWriterContextDefinition()
             ];
         }
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -11,9 +11,9 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import fs, { statSync } from "fs";
-import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 import {
   _minSupportedDotNetSdkVersion,
   configurationFileName,
@@ -23,10 +23,8 @@ import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
-import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { defaultSDKContextOptions } from "./sdk-context-options.js";
-import { CSharpEmitterContext } from "./sdk-context.js";
-import { CodeModel } from "./type/code-model.js";
+import { CSharpEmitterOptions, resolveOptions } from "./options.js";
+import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -57,28 +55,21 @@ function findProjectRoot(path: string): string | undefined {
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
-  const outputFolder = _resolveOutputFolder(context);
+  const outputFolder = context.emitterOutputDir;
 
   /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = {
-      ...(await createSdkContext(
+    const sdkContext = createCSharpEmitterContext(
+      await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        options["sdk-context-options"] ?? defaultSDKContextOptions,
-      )),
-      logger: logger,
-      __typeCache: {
-        crossLanguageDefinitionIds: new Map(),
-        clients: new Map(),
-        types: new Map(),
-        models: new Map(),
-        enums: new Map(),
-      },
-    };
+        options["sdk-context-options"],
+      ),
+      logger,
+    );
     program.reportDiagnostics(sdkContext.diagnostics);
 
     let root = createModel(sdkContext);
@@ -95,19 +86,10 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       await writeCodeModel(sdkContext, root, outputFolder);
 
       const namespace = root.name;
-      const configurations: Configuration = {
-        "output-folder": ".",
-        "package-name": options["package-name"] ?? namespace,
-        "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "disable-xml-docs":
-          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
-      };
+      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
-      await program.host.writeFile(
-        resolvePath(outputFolder, configurationFileName),
-        prettierOutput(JSON.stringify(configurations, null, 2)),
-      );
+      await writeConfiguration(sdkContext, configurations, outputFolder);
 
       const csProjFile = resolvePath(
         outputFolder,
@@ -153,22 +135,37 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   }
 }
 
-/**
- * Write the code model to the output folder.
- * @param context - The CSharp emitter context
- * @param codeModel - The code model
- * @param outputFolder - The output folder
- * @beta
- */
-export async function writeCodeModel(
-  context: CSharpEmitterContext,
-  codeModel: CodeModel,
-  outputFolder: string,
-) {
-  await context.program.host.writeFile(
-    resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(stringifyRefs(codeModel, transformJSONProperties, 1, PreserveType.Objects)),
+export function createConfiguration(
+  options: CSharpEmitterOptions,
+  namespace: string,
+  sdkContext: SdkContext,
+): Configuration {
+  const skipKeys = [
+    "new-project",
+    "update-code-model",
+    "sdk-context-options",
+    "save-inputs",
+    "generator-name",
+    "debug",
+    "logLevel",
+    "generator-name",
+    "api-version",
+    "generate-protocol-methods",
+    "generate-convenience-methods",
+    "emitter-extension-path",
+  ];
+  const derivedOptions = Object.fromEntries(
+    Object.entries(options).filter(([key]) => !skipKeys.includes(key)),
   );
+  return {
+    // spread custom options first so that the predefined options below can override them
+    ...derivedOptions,
+    "package-name": options["package-name"] ?? namespace,
+    "unreferenced-types-handling": options["unreferenced-types-handling"],
+    "disable-xml-docs":
+      options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    license: sdkContext.sdkPackage.licenseInfo,
+  };
 }
 
 /** check the dotnet sdk installation.
@@ -232,37 +229,6 @@ function validateDotNetSdkVersionCore(
     sdkContext.logger.error("Cannot get the installed .NET SDK version.");
     return false;
   }
-}
-
-function transformJSONProperties(this: any, key: string, value: any): any {
-  // convertUsageNumbersToStrings
-  if (this["kind"] === "model" || this["kind"] === "enum") {
-    if (key === "usage" && typeof value === "number") {
-      if (value === 0) {
-        return "None";
-      }
-      const result: string[] = [];
-      for (const prop in UsageFlags) {
-        if (!isNaN(Number(prop))) {
-          if ((value & Number(prop)) !== 0) {
-            result.push(UsageFlags[prop]);
-          }
-        }
-      }
-      return result.join(",");
-    }
-  }
-
-  // skip __raw if there is one
-  if (key === "__raw") {
-    return undefined;
-  }
-
-  return value;
-}
-
-function prettierOutput(output: string) {
-  return output + "\n";
 }
 
 function checkFile(pkgPath: string) {

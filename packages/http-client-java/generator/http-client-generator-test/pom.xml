@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-identity</artifactId>
-      <version>1.15.4</version>
+      <version>1.16.1</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -79,13 +79,13 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.14.10</version>
+      <version>1.17.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-agent</artifactId>
-      <version>1.15.5</version>
+      <version>1.17.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>

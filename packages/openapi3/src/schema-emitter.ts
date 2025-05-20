@@ -36,7 +36,6 @@ import {
   getDiscriminatedUnionFromInheritance,
   getDiscriminator,
   getDoc,
-  getEncode,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -54,7 +53,8 @@ import {
   isSecret,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { capitalize } from "@typespec/compiler/casing";
+import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -79,7 +79,6 @@ import {
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
   includeDerivedModel,
-  isBytesKeptRaw,
   isStdType,
 } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
@@ -288,6 +287,14 @@ export class OpenAPI3SchemaEmitterBase<
     return this.modelDeclaration(model, name);
   }
 
+  unionInstantiation(union: Union, name: string): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.unionLiteral(union);
+    }
+
+    return this.unionDeclaration(union, name);
+  }
+
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       type: "array",
@@ -397,27 +404,9 @@ export class OpenAPI3SchemaEmitterBase<
 
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    const isMultipart = this.getContentType().startsWith("multipart/");
-    if (isMultipart) {
-      if (isBytesKeptRaw(program, prop.type) && getEncode(program, prop) === undefined) {
-        return this.getRawBinarySchema();
-      }
-      if (
-        prop.type.kind === "Model" &&
-        isArrayModelType(program, prop.type) &&
-        isBytesKeptRaw(program, prop.type.indexer.value)
-      ) {
-        return { type: "array", items: this.getRawBinarySchema() };
-      }
-    }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
-      referenceContext:
-        isMultipart &&
-        (prop.type.kind !== "Union" ||
-          ![...prop.type.variants.values()].some((x) => isBytesKeptRaw(program, x.type)))
-          ? { contentType: "application/json" }
-          : {},
+      referenceContext: {},
     });
 
     if (refSchema.kind !== "code") {
@@ -543,6 +532,7 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    const tk = $(this.emitter.getProgram());
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
@@ -561,14 +551,14 @@ export class OpenAPI3SchemaEmitterBase<
       const envelopeVariants = new Map<string, Model>();
 
       for (const [name, variant] of union.variants) {
-        const envelopeModel = $.model.create({
+        const envelopeModel = tk.model.create({
           name: union.type.name + capitalize(name),
           properties: {
-            [union.options.discriminatorPropertyName]: $.modelProperty.create({
+            [union.options.discriminatorPropertyName]: tk.modelProperty.create({
               name: union.options.discriminatorPropertyName,
-              type: $.literal.createString(name),
+              type: tk.literal.createString(name),
             }),
-            [union.options.envelopePropertyName]: $.modelProperty.create({
+            [union.options.envelopePropertyName]: tk.modelProperty.create({
               name: union.options.envelopePropertyName,
               type: variant,
             }),
@@ -871,10 +861,3 @@ export const Builders = {
     return builder;
   },
 } as const;
-
-/**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}

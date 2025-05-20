@@ -22,6 +22,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -57,7 +59,9 @@ words:
   - Dorg
   - Dosgi
   - dotenv
+  - duplicative
   - Dskip
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -83,8 +87,11 @@ words:
   - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
+  - hresult
   - hscs
+  - hsjs
   - HSTS
+  - httpx
   - imple
   - Infima
   - initcs
@@ -143,6 +150,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -153,6 +161,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -176,6 +185,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport
@@ -193,6 +203,7 @@ words:
   - recorda
   - regen
   - rehype
+  - reinjected
   - repr
   - respecify
   - rjust
@@ -250,6 +261,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -262,6 +274,7 @@ words:
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat

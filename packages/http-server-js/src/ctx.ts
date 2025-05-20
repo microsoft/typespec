@@ -27,6 +27,8 @@ import { parseCase } from "./util/case.js";
 import { UnimplementedError } from "./util/error.js";
 import { createOnceQueue, OnceQueue } from "./util/once-queue.js";
 
+import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import { MetadataInfo } from "@typespec/http";
 import { createModule as initializeHelperModule } from "../generated-defs/helpers/index.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;
@@ -135,6 +137,10 @@ export interface JsContext {
   serializations: OnceQueue<SerializableType>;
 
   gensym: (name: string) => string;
+
+  metadataInfo?: MetadataInfo;
+
+  canonicalizationCache: { [vfKey: string]: unsafe_Mutator | undefined };
 }
 
 export async function createInitialContext(
@@ -211,6 +217,8 @@ export async function createInitialContext(
     gensym: (name) => {
       return gensym(jsCtx, name);
     },
+
+    canonicalizationCache: {},
   };
 
   return jsCtx;
@@ -358,6 +366,20 @@ export interface Import {
    */
   from: Module | string;
 }
+
+/**
+ * A module that does not exist and is not emitted. Use this for functions that require a module but you only
+ * want to analyze the type and not emit any relative paths.
+ *
+ * For example, this is used internally to canonicalize operation types, because it calls some functions that
+ * require a module, but canonicalizing the operation does not itself emit any code.
+ */
+export const NoModule: Module = {
+  name: "",
+  cursor: createPathCursor(),
+  imports: [],
+  declarations: [],
+};
 
 /**
  * An output module within the module tree.

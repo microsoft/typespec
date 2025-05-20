@@ -51,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const string UnionKind = "union";
         private const string ModelKind = "model";
         private const string EnumKind = "enum";
+        private const string EnumValueKind = "enumvalue";
         private const string ArrayKind = "array";
         private const string DictionaryKind = "dict";
         private const string NullableKind = "nullable";
@@ -65,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             UnionKind => TypeSpecInputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ModelKind => TypeSpecInputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             EnumKind => TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            EnumValueKind => TypeSpecInputEnumTypeValueConverter.CreateEnumTypeValue(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ArrayKind => TypeSpecInputArrayTypeConverter.CreateListType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             DictionaryKind => TypeSpecInputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, options, _referenceHandler.CurrentResolver),
             UtcDateTimeKind or OffsetDateTimeKind => TypeSpecInputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, name, options, _referenceHandler.CurrentResolver),

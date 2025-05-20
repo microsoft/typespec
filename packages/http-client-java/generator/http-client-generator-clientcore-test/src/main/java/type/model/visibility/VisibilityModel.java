@@ -1,7 +1,7 @@
 package type.model.visibility;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,49 +12,41 @@ import java.util.List;
 /**
  * Output model with visibility properties.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class VisibilityModel implements JsonSerializable<VisibilityModel> {
     /*
      * Required string, illustrating a readonly property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String readProp;
-
-    /*
-     * Required int32, illustrating a query property.
-     */
-    @Metadata(generated = true)
-    private final Integer queryProp;
 
     /*
      * Required string[], illustrating a create property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<String> createProp;
 
     /*
      * Required int32[], illustrating a update property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<Integer> updateProp;
 
     /*
      * Required bool, illustrating a delete property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final Boolean deleteProp;
 
     /**
      * Creates an instance of VisibilityModel class.
      * 
-     * @param queryProp the queryProp value to set.
      * @param createProp the createProp value to set.
      * @param updateProp the updateProp value to set.
      * @param deleteProp the deleteProp value to set.
      */
-    @Metadata(generated = true)
-    public VisibilityModel(Integer queryProp, List<String> createProp, List<Integer> updateProp, Boolean deleteProp) {
-        this.queryProp = queryProp;
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public VisibilityModel(List<String> createProp, List<Integer> updateProp, Boolean deleteProp) {
         this.createProp = createProp;
         this.updateProp = updateProp;
         this.deleteProp = deleteProp;
@@ -65,19 +57,9 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
      * 
      * @return the readProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getReadProp() {
         return this.readProp;
-    }
-
-    /**
-     * Get the queryProp property: Required int32, illustrating a query property.
-     * 
-     * @return the queryProp value.
-     */
-    @Metadata(generated = true)
-    public Integer getQueryProp() {
-        return this.queryProp;
     }
 
     /**
@@ -85,7 +67,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
      * 
      * @return the createProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getCreateProp() {
         return this.createProp;
     }
@@ -95,7 +77,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
      * 
      * @return the updateProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<Integer> getUpdateProp() {
         return this.updateProp;
     }
@@ -105,7 +87,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
      * 
      * @return the deleteProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Boolean isDeleteProp() {
         return this.deleteProp;
     }
@@ -113,11 +95,10 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeNumberField("queryProp", this.queryProp);
         jsonWriter.writeArrayField("createProp", this.createProp, (writer, element) -> writer.writeString(element));
         jsonWriter.writeArrayField("updateProp", this.updateProp, (writer, element) -> writer.writeInt(element));
         jsonWriter.writeBooleanField("deleteProp", this.deleteProp);
@@ -133,11 +114,10 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the VisibilityModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static VisibilityModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String readProp = null;
-            Integer queryProp = null;
             List<String> createProp = null;
             List<Integer> updateProp = null;
             Boolean deleteProp = null;
@@ -147,8 +127,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
                 if ("readProp".equals(fieldName)) {
                     readProp = reader.getString();
-                } else if ("queryProp".equals(fieldName)) {
-                    queryProp = reader.getNullable(JsonReader::getInt);
                 } else if ("createProp".equals(fieldName)) {
                     createProp = reader.readArray(reader1 -> reader1.getString());
                 } else if ("updateProp".equals(fieldName)) {
@@ -159,8 +137,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
                     reader.skipChildren();
                 }
             }
-            VisibilityModel deserializedVisibilityModel
-                = new VisibilityModel(queryProp, createProp, updateProp, deleteProp);
+            VisibilityModel deserializedVisibilityModel = new VisibilityModel(createProp, updateProp, deleteProp);
             deserializedVisibilityModel.readProp = readProp;
 
             return deserializedVisibilityModel;

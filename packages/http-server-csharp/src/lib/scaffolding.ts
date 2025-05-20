@@ -1,6 +1,6 @@
 import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
-import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpCollectionType, CSharpType, LibrarySourceFile } from "./interfaces.js";
 import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
@@ -15,7 +15,7 @@ export interface BusinessLogicMethod {
   methodName: string;
   methodParams: string;
   returnTypeName: string;
-  returnType: CSharpType;
+  returnType: CSharpType | CSharpCollectionType;
   instantiatedReturnType?: string;
 }
 
@@ -33,7 +33,7 @@ export function getScaffoldingHelpers(
       filename: "Program.cs",
       emitter: emitter,
       getContents: () => getProjectStartup(useSwagger, openApiPath, hasMockRegistration),
-      path: "..",
+      path: ".",
       conditional: true,
     }),
   ];
@@ -43,14 +43,14 @@ export function getScaffoldingHelpers(
         filename: "IInitializer.cs",
         emitter: emitter,
         getContents: getInitializerInterface,
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
       new LibrarySourceFile({
         filename: "Initializer.cs",
         emitter: emitter,
         getContents: getInitializerImplementation,
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -73,7 +73,7 @@ export function getBusinessLogicImplementations(
         filename: `${impl.className}.cs`,
         emitter: emitter,
         getContents: () => getBusinessLogicImplementation(impl),
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -85,7 +85,7 @@ export function getBusinessLogicImplementations(
         filename: "MockRegistration.cs",
         emitter: emitter,
         getContents: () => getMockRegistration(mocks),
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -94,20 +94,34 @@ export function getBusinessLogicImplementations(
   return sourceFiles;
 }
 
-function getReturnStatement(returnType: CSharpType): string {
+function getReturnStatement(
+  returnType: CSharpType | CSharpCollectionType,
+  instantiated: string,
+): string {
+  if (returnType.name === "JsonObject") {
+    return `return Task.FromResult(new JsonObject());`;
+  }
+  if (returnType.name === "JsonNode") {
+    return `return Task.FromResult(new JsonObject() as JsonNode);`;
+  }
   if (returnType.isValueType && returnType.isNullable) {
-    return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
+    return `return Task.FromResult(_initializer.Initialize(typeof(${instantiated})) as ${instantiated} ?? default);`;
   }
   if (returnType.isValueType) {
-    return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
+    return `return Task.FromResult<${instantiated}>(default);`;
   }
+
   if (returnType.isCollection) {
-    return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
+    if (returnType instanceof CSharpCollectionType) {
+      return `return Task.FromResult<${instantiated}>(${returnType.getImplementationType()});`;
+    }
+    return `return Task.FromResult<${instantiated}>([]);`;
   }
+
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
   } else if (returnType.isClass) {
-    return `return Task.FromResult(_initializer.Initialize<${returnType.getTypeReference()}>());`;
+    return `return Task.FromResult(_initializer.Initialize<${instantiated}>());`;
   } else {
     return `throw new NotImplementedException();`;
   }
@@ -117,7 +131,7 @@ function getBusinessLogicImplementation(mock: BusinessLogicImplementation): stri
   for (const method of mock.methods) {
     const methodCode: string =
       method.instantiatedReturnType !== undefined
-        ? getReturnStatement(method.returnType)
+        ? getReturnStatement(method.returnType, method.instantiatedReturnType)
         : "return Task.CompletedTask;";
     methods.push(`        public ${method.returnTypeName} ${method.methodName}( ${method.methodParams})
         {
@@ -126,14 +140,7 @@ function getBusinessLogicImplementation(mock: BusinessLogicImplementation): stri
   }
   return `${GeneratedFileHeaderWithNullable}
 
-using System;
-using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;${mock.methods.some((m) => m.methodParams.includes("MultipartReader")) ? `\nusing Microsoft.AspNetCore.WebUtilities;` : ""}
-using ${mock.namespace}.Models;
-using TypeSpec.Helpers;
+${mock.usings.flatMap((u) => `using ${u};`).join("\n")}
 
 namespace ${mock.namespace}
 {
@@ -186,7 +193,14 @@ ${mocks
   })
   .flatMap((e) => `using ${e};`)
   .join("\n")}
-using ${mocks[0].namespace};
+${mocks
+  .filter((m) => {
+    const result: boolean = !cache.has(m.namespace);
+    cache.set(m.namespace, m.namespace);
+    return result;
+  })
+  .flatMap((t) => `using ${t.namespace};`)
+  .join("\n")}
 
 namespace TypeSpec.Helpers
 {
@@ -223,7 +237,10 @@ using TypeSpec.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+  options.Filters.Add<HttpServiceExceptionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 ${useSwagger ? "builder.Services.AddSwaggerGen();" : ""}
 ${hasMocks ? "MockRegistration.Register(builder);" : ""}
@@ -428,6 +445,19 @@ namespace TypeSpec.Helpers
                 var element = type.GetElementType();
                 if (element == null) return null;
                 return CacheAndReturn(type, Array.CreateInstance(element, 0));
+            }
+            if (type.IsGenericType)
+            {
+                var elementType = type.GetGenericArguments()[0];
+                if (elementType == null) return null;
+                
+                if (type.GetGenericTypeDefinition() == typeof(IEnumerable<>)){
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)));
+                }
+                if (type.GetGenericTypeDefinition() == typeof(ISet<>))
+                {
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType)));
+                }
             }
             if (type.IsClass)
             {

@@ -43,6 +43,7 @@ import {
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
 import {
+  InitializedByFlags,
   SdkArrayType,
   SdkBodyModelPropertyType,
   SdkBodyParameter,
@@ -53,7 +54,6 @@ import {
   SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
-  SdkEmitterOptions,
   SdkEnumType,
   SdkEnumValueType,
   SdkHeaderParameter,
@@ -151,12 +151,12 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
-  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
   trace,
 } from "./utils.js";
+import { getFilteredApiVersions, getServiceApiVersions } from "./versioning-utils.js";
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
@@ -168,7 +168,7 @@ export interface EmitterOptionsDev {
   "service-versions"?: string[]; // consider to remove
 
   // license
-  license?: SdkEmitterOptions["license"];
+  license?: License;
 
   // sample and test
   "generate-samples"?: boolean;
@@ -215,7 +215,6 @@ export class CodeModelBuilder {
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
   private baseJavaNamespace!: string;
-  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptionsDev;
   private codeModel: CodeModel;
@@ -304,16 +303,12 @@ export class CodeModelBuilder {
       });
     }
 
-    // java namespace
+    // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core,
+    // or some model (e.g. Options, FileDetails) that is created in this emitter.
+    // otherwise, the clientNamespace from SdkType will be used.
     if (this.options.namespace) {
-      // legacy mode, clientNamespace from TCGC will be ignored
-      this.legacyJavaNamespace = true;
       this.baseJavaNamespace = this.options.namespace;
     } else {
-      this.legacyJavaNamespace = false;
-      // baseJavaNamespace is used for model from Azure.Core/Azure.ResourceManager but cannot be mapped to azure-core,
-      // or some model (e.g. Options, FileDetails) that is created in this emitter.
-      // otherwise, the clientNamespace from SdkType will be used.
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
@@ -365,9 +360,8 @@ export class CodeModelBuilder {
               serializedName: arg.serializedName,
             },
           },
-          // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
           extensions: {
-            "x-ms-skip-url-encoding": schema instanceof UriSchema,
+            "x-ms-skip-url-encoding": arg.allowReserved,
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
@@ -385,32 +379,16 @@ export class CodeModelBuilder {
         switch (scheme.type) {
           case "oauth2":
             {
-              if (this.isBranded()) {
-                const oauth2Scheme = new OAuth2SecurityScheme({
-                  scopes: [],
-                });
-                scheme.flows.forEach((it) =>
-                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-                );
-                (oauth2Scheme as any).flows = scheme.flows;
-                securitySchemes.push(oauth2Scheme);
-              } else {
-                // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
-                reportDiagnostic(this.program, {
-                  code: "auth-scheme-not-supported",
-                  messageId: "oauth2Unbranded",
-                  target: serviceNamespace,
-                });
-
-                const keyScheme = new KeySecurityScheme({
-                  name: "authorization",
-                });
-                (keyScheme as any).prefix = "Bearer";
-                securitySchemes.push(keyScheme);
-              }
+              const oauth2Scheme = new OAuth2SecurityScheme({
+                scopes: [],
+              });
+              scheme.flows.forEach((it) =>
+                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+              );
+              (oauth2Scheme as any).flows = scheme.flows;
+              securitySchemes.push(oauth2Scheme);
             }
             break;
-
           case "apiKey":
             {
               if (scheme.in === "header") {
@@ -465,7 +443,18 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
+    return (
+      this.options["flavor"]?.toLocaleLowerCase() === "azure" ||
+      this.options["flavor"]?.toLocaleLowerCase() === "azurev2"
+    );
+  }
+
+  private isAzureV1(): boolean {
     return this.options["flavor"]?.toLocaleLowerCase() === "azure";
+  }
+
+  private isAzureV2(): boolean {
+    return this.options["flavor"]?.toLocaleLowerCase() === "azurev2";
   }
 
   private processModels() {
@@ -532,9 +521,13 @@ export class CodeModelBuilder {
         name &&
         // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
         !(
-          this.isBranded() &&
-          (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-            schema.language.default?.namespace?.startsWith("Azure."))
+          (
+            this.isBranded() &&
+            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+              schema.language.default?.namespace?.startsWith("Azure.") ||
+              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
+              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
+          ) // because azure core v2 uses clientcore types
         )
       ) {
         if (!nameCount.has(name)) {
@@ -591,6 +584,7 @@ export class CodeModelBuilder {
 
   private processClients() {
     // preprocess group-etag-headers
+
     this.options["group-etag-headers"] = this.options["group-etag-headers"] ?? true;
 
     const sdkPackage = this.sdkContext.sdkPackage;
@@ -627,7 +621,7 @@ export class CodeModelBuilder {
     codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
     // versioning
-    const versions = client.apiVersions;
+    const versions = getServiceApiVersions(this.program, client);
     if (versions && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
         this.apiVersion = versions[versions.length - 1];
@@ -643,7 +637,7 @@ export class CodeModelBuilder {
       }
 
       codeModelClient.apiVersions = [];
-      for (const version of this.getFilteredApiVersions(
+      for (const version of getFilteredApiVersions(
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],
@@ -696,7 +690,7 @@ export class CodeModelBuilder {
 
     // preprocess operation groups and operations
     // operations without operation group
-    const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
+    const serviceMethodsWithoutSubClient = client.methods;
     let codeModelGroup = new OperationGroup("");
     codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
@@ -713,12 +707,19 @@ export class CodeModelBuilder {
       // subclient, no operation group
       for (const subClient of subClients) {
         const codeModelSubclient = this.processClient(subClient);
-        codeModelClient.addSubClient(codeModelSubclient);
+        const buildMethodPublic = Boolean(
+          subClient.clientInitialization.initializedBy & InitializedByFlags.Individually,
+        );
+        const parentAccessorPublic = Boolean(
+          subClient.clientInitialization.initializedBy & InitializedByFlags.Parent ||
+            subClient.clientInitialization.initializedBy === InitializedByFlags.Default,
+        );
+        codeModelClient.addSubClient(codeModelSubclient, buildMethodPublic, parentAccessorPublic);
       }
     } else {
       // operations under operation groups
       for (const subClient of subClients) {
-        const serviceMethods = this.listServiceMethodsUnderClient(subClient);
+        const serviceMethods = subClient.methods;
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
@@ -779,9 +780,8 @@ export class CodeModelBuilder {
   ): SdkClientType<SdkHttpOperation>[] {
     const isRootClient = !client.parent;
     const subClients: SdkClientType<SdkHttpOperation>[] = [];
-    for (const method of client.methods) {
-      if (method.kind === "clientaccessor") {
-        const subClient = method.response;
+    if (client.children) {
+      for (const subClient of client.children) {
         if (!isRootClient) {
           // if it is not root client, append the parent client's name
           subClient.name =
@@ -799,42 +799,6 @@ export class CodeModelBuilder {
       }
     }
     return subClients;
-  }
-
-  private listServiceMethodsUnderClient(
-    client: SdkClientType<SdkHttpOperation>,
-  ): SdkServiceMethod<SdkHttpOperation>[] {
-    const methods: SdkServiceMethod<SdkHttpOperation>[] = [];
-    for (const method of client.methods) {
-      if (method.kind !== "clientaccessor") {
-        methods.push(method);
-      }
-    }
-    return methods;
-  }
-
-  /**
-   * Filter api-versions for "ServiceVersion".
-   * TODO(xiaofei) pending TCGC design: https://github.com/Azure/typespec-azure/issues/965
-   *
-   * @param pinnedApiVersion the api-version to use as filter base
-   * @param versions api-versions to filter
-   * @returns filtered api-versions
-   */
-  private getFilteredApiVersions(
-    pinnedApiVersion: string | undefined,
-    versions: string[],
-    excludePreview: boolean = false,
-  ): string[] {
-    if (!pinnedApiVersion) {
-      return versions;
-    }
-    return versions
-      .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter(
-        (version) =>
-          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
-      );
   }
 
   private needToSkipProcessingOperation(
@@ -1441,10 +1405,17 @@ export class CodeModelBuilder {
         }
       }
 
+      let parameterName = param.name;
       const parameterOnClient = param.onClient;
+      if (parameterOnClient) {
+        // use parameter name from client parameter, as the name could be an alias
+        if (param.correspondingMethodParams) {
+          parameterName = param.correspondingMethodParams[0].name;
+        }
+      }
 
       const nullable = param.type.kind === "nullable";
-      const parameter = new Parameter(param.name, param.doc ?? "", schema, {
+      const parameter = new Parameter(parameterName, param.doc ?? "", schema, {
         summary: param.summary,
         implementation: parameterOnClient
           ? ImplementationLocation.Client
@@ -1791,6 +1762,13 @@ export class CodeModelBuilder {
           : "Specifies HTTP options for conditional requests.";
 
         // group schema
+
+        let coreNamespace = this.namespace;
+        if (this.isAzureV1()) {
+          coreNamespace = "com.azure.core.http";
+        } else {
+          coreNamespace = "io.clientcore.core.http.models";
+        }
         const requestConditionsSchema = this.codeModel.schemas.add(
           new GroupSchema(schemaName, schemaDescription, {
             language: {
@@ -1798,7 +1776,7 @@ export class CodeModelBuilder {
                 namespace: this.namespace,
               },
               java: {
-                namespace: "com.azure.core.http",
+                namespace: coreNamespace,
               },
             },
           }),
@@ -2703,7 +2681,6 @@ export class CodeModelBuilder {
     }
 
     if (prop.kind === "property" && prop.serializationOptions.multipart) {
-      // TODO: handle MultipartOptions.isMulti
       if (prop.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(prop);
       } else if (
@@ -3000,6 +2977,7 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.namespace;
 
+    // we still keep the mapping of models from TypeSpec namespace and Azure namespace to "baseJavaNamespace"
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
       if (this.isBranded()) {
@@ -3038,7 +3016,7 @@ export class CodeModelBuilder {
       }
     }
 
-    if (this.legacyJavaNamespace || !clientNamespace) {
+    if (!clientNamespace) {
       return this.baseJavaNamespace;
     } else {
       return this.escapeJavaNamespace(clientNamespace.toLowerCase());

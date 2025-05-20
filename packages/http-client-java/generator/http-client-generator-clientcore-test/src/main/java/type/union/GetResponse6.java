@@ -1,7 +1,7 @@
 package type.union;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,21 +11,21 @@ import java.io.IOException;
 /**
  * The GetResponse6 model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class GetResponse6 implements JsonSerializable<GetResponse6> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
-    private final GetResponseProp2 prop;
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private final EnumsOnlyCases prop;
 
     /**
      * Creates an instance of GetResponse6 class.
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
-    private GetResponse6(GetResponseProp2 prop) {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private GetResponse6(EnumsOnlyCases prop) {
         this.prop = prop;
     }
 
@@ -34,19 +34,19 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
-    public GetResponseProp2 getProp() {
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public EnumsOnlyCases getProp() {
         return this.prop;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeNumberField("prop", this.prop == null ? null : this.prop.toInt());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -59,16 +59,16 @@ public final class GetResponse6 implements JsonSerializable<GetResponse6> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the GetResponse6.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static GetResponse6 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            GetResponseProp2 prop = null;
+            EnumsOnlyCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = GetResponseProp2.fromInt(reader.getInt());
+                    prop = EnumsOnlyCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

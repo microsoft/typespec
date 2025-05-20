@@ -1,11 +1,20 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { ModelProperty, NoTarget, Type, compilerAssert } from "@typespec/compiler";
+import {
+  ModelProperty,
+  NoTarget,
+  Type,
+  compilerAssert,
+  isArrayModelType,
+  isRecordModelType,
+} from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import {
   HttpOperation,
   HttpOperationParameter,
   getHeaderFieldName,
+  getHttpOperation,
   isBody,
   isHeader,
   isStatusCode,
@@ -33,7 +42,12 @@ import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";
-import { requiresJsonSerialization } from "../../common/serialization/json.js";
+import {
+  requiresJsonSerialization,
+  transposeExpressionFromJson,
+} from "../../common/serialization/json.js";
+import { getFullyQualifiedTypeName } from "../../util/name.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -84,11 +98,14 @@ function* emitRawServerOperation(
   module: Module,
   responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
-  const op = operation.operation;
+  let op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
   const containerNameCase = parseCase(container.name);
+
+  op = canonicalizeHttpOperation(ctx, op);
+  [operation] = getHttpOperation(ctx.program, op);
 
   module.imports.push({
     binder: [containerNameCase.pascalCase],
@@ -191,7 +208,7 @@ function* emitRawServerOperation(
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.property?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation,
       module,
       { altName: defaultBodyTypeName },
     );
@@ -229,7 +246,48 @@ function* emitRawServerOperation(
         let value: string;
 
         if (requiresJsonSerialization(ctx, module, body.type)) {
-          value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+          if (body.type.kind === "Model" && isArrayModelType(ctx.program, body.type)) {
+            const innerTypeName = emitTypeReference(
+              ctx,
+              body.type.indexer.value,
+              body.type,
+              module,
+              { requireDeclaration: true },
+            );
+            yield `        const __arrayBody = JSON.parse(body);`;
+            yield `        if (!Array.isArray(__arrayBody)) {`;
+            yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
+            yield `            ${names.ctx},`;
+            yield `            ${JSON.stringify(operation.path)},`;
+            yield `            "expected JSON array in request body",`;
+            yield `          );`;
+            yield `          return reject();`;
+            yield `        }`;
+            value = `__arrayBody.map((item) => ${innerTypeName}.fromJsonObject(JSON.parse(item)))`;
+          } else if (body.type.kind === "Model" && isRecordModelType(ctx.program, body.type)) {
+            const innerTypeName = emitTypeReference(
+              ctx,
+              body.type.indexer.value,
+              body.type,
+              module,
+              { requireDeclaration: true },
+            );
+
+            yield `        const __recordBody = JSON.parse(body);`;
+            yield `        if (typeof __recordBody !== "object" || __recordBody === null) {`;
+            yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
+            yield `            ${names.ctx},`;
+            yield `            ${JSON.stringify(operation.path)},`;
+            yield `            "expected JSON object in request body",`;
+            yield `          );`;
+            yield `          return reject();`;
+            yield `        }`;
+            value = `Object.fromEntries(Object.entries(__recordBody).map(([key, value]) => [key, ${innerTypeName}.fromJsonObject(value)]))`;
+          } else if (body.type.kind === "Scalar") {
+            value = transposeExpressionFromJson(ctx, body.type, `JSON.parse(body)`, module);
+          } else {
+            value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+          }
         } else {
           value = `JSON.parse(body)`;
         }
@@ -250,7 +308,7 @@ function* emitRawServerOperation(
 
         break;
       }
-      case "multipart/form-data":
+      case "multipart/form-data": {
         if (body.bodyKind === "multipart") {
           yield* indent(
             emitMultipart(ctx, module, operation, body, names.ctx, bodyName, bodyTypeName),
@@ -259,7 +317,88 @@ function* emitRawServerOperation(
           yield* indent(emitMultipartLegacy(names.ctx, bodyName, bodyTypeName));
         }
         break;
+      }
+      case "text/plain": {
+        const string = ctx.program.checker.getStdType("string");
+        const assignable = $(ctx.program).type.isAssignableTo(
+          body.type,
+          string,
+          body.property ?? body.type,
+        );
+        if (!assignable) {
+          const name =
+            ("namespace" in body.type &&
+              body.type.namespace &&
+              getFullyQualifiedTypeName(body.type)) ||
+            ("name" in body.type && typeof body.type.name === "string" && body.type.name) ||
+            "<unknown>";
+          reportDiagnostic(ctx.program, {
+            code: "unrecognized-media-type",
+            target: body.property ?? body.type,
+            format: {
+              mediaType: contentType,
+              type: name,
+            },
+          });
+        }
+
+        yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
+        yield `    const chunks: Array<Buffer> = [];`;
+        yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+        yield `    ${names.ctx}.request.on("end", function finalize() {`;
+        yield `      try {`;
+        yield `        const body = Buffer.concat(chunks).toString();`;
+        yield `        resolve(body);`;
+        yield `      } catch (e) {`;
+        yield `        ${names.ctx}.errorHandlers.onInvalidRequest(`;
+        yield `          ${names.ctx},`;
+        yield `          ${JSON.stringify(operation.path)},`;
+        yield `          "invalid text in request body",`;
+        yield `        );`;
+        yield `        reject(e);`;
+        yield `      }`;
+        yield `    });`;
+        yield `    ${names.ctx}.request.on("error", reject);`;
+        yield `  }) as string;`;
+        yield "";
+        break;
+      }
+      case "application/octet-stream":
       default:
+        {
+          if (!ctx.program.checker.isStdType(body.type, "bytes")) {
+            const name =
+              ("namespace" in body.type &&
+                body.type.namespace &&
+                getFullyQualifiedTypeName(body.type)) ||
+              ("name" in body.type && typeof body.type.name === "string" && body.type.name) ||
+              "<unknown>";
+
+            reportDiagnostic(ctx.program, {
+              code: "unrecognized-media-type",
+              target: body.property ?? body.type,
+              format: {
+                mediaType: contentType,
+                type: name,
+              },
+            });
+          }
+          yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
+          yield `    const chunks: Array<Buffer> = [];`;
+          yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+          yield `    ${names.ctx}.request.on("end", function finalize() {`;
+          yield `      try {`;
+          yield `        const body = Buffer.concat(chunks);`;
+          yield `        resolve(body);`;
+          yield `      } catch (e) {`;
+          yield `        reject(e);`;
+          yield `      }`;
+          yield `    });`;
+          yield `    ${names.ctx}.request.on("error", reject);`;
+          yield `  }) as Buffer;`;
+          yield "";
+          break;
+        }
         throw new UnimplementedError(`request deserialization for content-type: '${contentType}'`);
     }
 
@@ -274,6 +413,7 @@ function* emitRawServerOperation(
   for (const param of parameters) {
     let paramBaseExpression;
     const paramNameCase = parseCase(param.name);
+    const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
     if (isBodyField) {
@@ -290,9 +430,9 @@ function* emitRawServerOperation(
 
         const encoder = jsScalar.http[httpOperationParam.type];
 
-        paramBaseExpression = encoder.decode(paramNameCase.camelCase);
+        paramBaseExpression = encoder.decode(paramNameSafe);
       } else {
-        paramBaseExpression = paramNameCase.camelCase;
+        paramBaseExpression = paramNameSafe;
       }
     }
 
@@ -304,7 +444,7 @@ function* emitRawServerOperation(
     }
   }
 
-  const paramLines = requiredParams.map((p) => `${p},`);
+  const paramLines = requiredParams.map((p) => `${keywordSafe(p)},`);
 
   if (hasOptions) {
     paramLines.push(
@@ -515,6 +655,7 @@ function* emitHeaderParamBinding(
   parameter: Extract<HttpOperationParameter, { type: "header" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
+  const name = keywordSafe(nameCase.camelCase);
   const headerName = parameter.name.toLowerCase();
 
   // See https://nodejs.org/api/http.html#messageheaders
@@ -523,10 +664,10 @@ function* emitHeaderParamBinding(
 
   const assertion = canBeArrayType ? "" : " as string | undefined";
 
-  yield `const ${nameCase.camelCase} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
+  yield `const ${name} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
 
   if (!parameter.param.optional) {
-    yield `if (${nameCase.camelCase} === undefined) {`;
+    yield `if (${name} === undefined) {`;
     // prettier-ignore
     yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required header '${headerName}'");`;
     yield "}";
@@ -550,11 +691,13 @@ function* emitQueryParamBinding(
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
+  const name = keywordSafe(nameCase.camelCase);
+
   // UrlSearchParams annoyingly returns null for missing parameters instead of undefined.
-  yield `const ${nameCase.camelCase} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
+  yield `const ${name} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
-    yield `if (!${nameCase.camelCase}) {`;
+    yield `if (!${name}) {`;
     yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";

@@ -73,7 +73,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeOffsetValueParameter, _formatParameter)),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var dateTimeValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var writeStringDateTime = new MethodProvider(
@@ -84,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippets.ToString(dateTimeValueParameter, _formatParameter)),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var timeSpanValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
             var writeStringTimeSpan = new MethodProvider(
@@ -95,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, timeSpanValueParameter, _formatParameter],
                     Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippets.ToString(timeSpanValueParameter, _formatParameter)),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
             var value = charValueParameter.As<char>();
@@ -107,7 +110,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, charValueParameter],
                     Description: null, ReturnDescription: null),
                 writer.WriteStringValue(value.InvokeToString(new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)))),
-                this);
+                this,
+                XmlDocProvider.Empty);
 
             return
             [
@@ -169,7 +173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new(JsonValueKindSnippets.Object, new MethodBodyStatement[]
                 {
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
-                    new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
+                    new ForEachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
                         dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), jsonProperty.Property(nameof(JsonProperty.Value)).Invoke("GetObject"))
                     },
@@ -178,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new(JsonValueKindSnippets.Array, new MethodBodyStatement[]
                 {
                     Declare("list", New.List<object>(), out var list),
-                    new ForeachStatement("item", element.EnumerateArray(), out var item)
+                    new ForEachStatement("item", element.EnumerateArray(), out var item)
                     {
                         list.Add(item.Invoke("GetObject"))
                     },
@@ -186,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }),
                 SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported value kind {0}", [element.ValueKind()]))))
             };
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildGetBytesFromBase64()
@@ -212,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ))
             };
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildGetDateTimeOffsetMethodProvider()
@@ -230,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SwitchCaseExpression.Default(TypeFormattersSnippets.ParseDateTimeOffset(element.GetString(), _formatParameter))
                 );
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildGetTimeSpanMethodProvider()
@@ -245,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
             var body = TypeFormattersSnippets.ParseTimeSpan(element.GetString(), _formatParameter);
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildGetCharMethodProvider()
@@ -271,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind()])))
                 );
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildThrowNonNullablePropertyIsNullMethodProvider()
@@ -289,7 +293,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var property = _propertyParameter.As<JsonProperty>();
             var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name()])));
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildGetRequiredStringMethodProvider()
@@ -311,7 +315,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Return(value)
             };
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         #endregion
@@ -352,7 +356,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             };
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildWriteNumberValueMethodProvider()
@@ -375,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteNumberValue(value.ToUnixTimeSeconds())
             };
 
-            return new MethodProvider(signature, body, this);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildWriteObjectValueMethodProvider()
@@ -388,7 +392,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 writer.WriteObjectValue(value.As<object>(), options)
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildWriteObjectValueMethodGeneric()
@@ -498,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<KeyValuePair<string, object>>), "enumerable", enumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartObject(),
-                    new ForeachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
+                    new ForEachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
                     {
                         writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
                         writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
@@ -510,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable", objectEnumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartArray(),
-                    new ForeachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                    new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
                     {
                         writer.WriteObjectValue(item.As<object>(), options)
                     },
@@ -527,7 +532,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SwitchCaseStatement.Default(Throw(New.NotSupportedException(new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()]))))
             });
 
-            return new MethodProvider(signature, new SwitchStatement(value, cases), this);
+            return new MethodProvider(signature, new SwitchStatement(value, cases), this, XmlDocProvider.Empty);
 
             static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableExpression, MethodBodyStatement> bodyFunc)
             {

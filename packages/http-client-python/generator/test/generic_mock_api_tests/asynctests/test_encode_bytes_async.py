@@ -98,12 +98,6 @@ async def test_header(client: BytesClient):
     )
 
 
-@pytest.fixture
-def png_data() -> bytes:
-    with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
-        return file_in.read()
-
-
 @pytest.mark.asyncio
 async def test_request_body(client: BytesClient, png_data: bytes):
     await client.request_body.default(

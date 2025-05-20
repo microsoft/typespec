@@ -33,29 +33,29 @@ final class ProxyMethodParameterProcessor {
     }
 
     /**
-     * Processes the given request to extract and organize proxy method parameters.
+     * Processes the {@code operation} and the given request to create and organize proxy method parameters.
      *
      * @param request the request to process.
      * @param contentType the content type of the request.
-     * @return a {@link Result} object containing the processed parameters.
+     * @return a {@link Result} object containing the proxy method parameters.
      */
     Result process(Request request, String contentType) {
         final List<ProxyMethodParameter> parameters = new ArrayList<>();
         final List<ProxyMethodParameter> allParameters = new ArrayList<>();
         final List<String> specialHeaderParameterNames;
-        final boolean isJsonPatch = contentType.startsWith(APPLICATION_JSON_PATCH);
 
         // Content-Type Parameter.
         //
         if (settings.isDataPlaneClient()) {
             if (operationHasSingleContentType && !hasContentTypeHeader(request) && !hasRequiredBody(request)) {
                 final Parameter contentTypeParameter = MethodUtil.createContentTypeParameter(request, operation);
-                allParameters.add(Mappers.getProxyParameterMapper().map(contentTypeParameter));
+                allParameters.add(toProxyMethodParameter(contentTypeParameter, false));
             }
         }
 
         // Http Parameters.
         //
+        final boolean isJsonPatch = contentType.startsWith(APPLICATION_JSON_PATCH);
         for (Parameter parameter : getHttpParameters(request)) {
             parameter.setOperation(operation);
             final ProxyMethodParameter proxyMethodParameter = toProxyMethodParameter(parameter, isJsonPatch);
@@ -91,20 +91,23 @@ final class ProxyMethodParameterProcessor {
 
         // RequestOptions Parameter.
         //
-        if (settings.isDataPlaneClient()) {
-            final ProxyMethodParameter requestOptions = ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER;
-            allParameters.add(requestOptions);
-            parameters.add(requestOptions);
+        if (settings.isAzureV2() || !settings.isAzureV1()) {
+            final ProxyMethodParameter contextParameter = ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER;
+            allParameters.add(contextParameter);
+            parameters.add(contextParameter);
+        } else if (settings.isDataPlaneClient()) {
+            final ProxyMethodParameter requestOptionsParameter = ProxyMethodParameter.REQUEST_OPTIONS_PARAMETER;
+            allParameters.add(requestOptionsParameter);
+            parameters.add(requestOptionsParameter);
         }
 
         // Context Parameter.
         //
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
             final ProxyMethodParameter contextParameter = ProxyMethodParameter.CONTEXT_PARAMETER;
             allParameters.add(contextParameter);
             parameters.add(contextParameter);
         }
-
         return new Result(parameters, allParameters, specialHeaderParameterNames);
     }
 

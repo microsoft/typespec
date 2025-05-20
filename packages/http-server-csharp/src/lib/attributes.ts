@@ -1,9 +1,5 @@
 import {
   Enum,
-  ModelProperty,
-  Program,
-  Scalar,
-  Type,
   getEncode,
   getFormat,
   getMaxItems,
@@ -12,7 +8,13 @@ import {
   getMinItems,
   getMinValue,
   getMinValueExclusive,
+  isArrayModelType,
+  ModelProperty,
+  Program,
   resolveEncodedName,
+  Scalar,
+  Type,
+  Union,
 } from "@typespec/compiler";
 import { camelCase } from "change-case";
 import {
@@ -26,8 +28,9 @@ import {
   RawValue,
   StringValue,
 } from "./interfaces.js";
-import { getStringConstraint, isArrayType } from "./type-helpers.js";
-import { getCSharpTypeForScalar } from "./utils.js";
+
+import { getEnumType, getStringConstraint, isArrayType } from "./type-helpers.js";
+import { ExtendedIntrinsicScalarName, getCSharpTypeForScalar, isStringEnumType } from "./utils.js";
 
 export const JsonNamespace: string = "System.Text.Json";
 
@@ -127,17 +130,23 @@ export function getEncodingAttributes(program: Program, type: ModelProperty): At
       case "duration":
         result.push(getJsonConverterAttribute("TimeSpanDurationConverter"));
         break;
-      default:
-        if (propertyType.encoding !== undefined) {
-          switch (propertyType.encoding.name.toLowerCase()) {
-            case "base64url":
-              result.push(getJsonConverterAttribute("Base64UrlJsonConverter"));
-              break;
-            case "unixtimestamp":
-              result.push(getJsonConverterAttribute("UnixEpochDateTimeOffsetConverter"));
-              break;
-          }
+      case "bytes":
+        if (
+          propertyType.encoding !== undefined &&
+          propertyType.encoding.name.toLowerCase() === "base64url"
+        ) {
+          result.push(getJsonConverterAttribute("Base64UrlJsonConverter"));
         }
+        break;
+      case "utcDateTime":
+      case "offsetDateTime":
+        if (
+          propertyType.encoding !== undefined &&
+          propertyType.encoding.name.toLowerCase() === "unixTimestamp"
+        ) {
+          result.push(getJsonConverterAttribute("UnixEpochDateTimeOffsetConverter"));
+        }
+        break;
     }
   }
 
@@ -146,29 +155,44 @@ export function getEncodingAttributes(program: Program, type: ModelProperty): At
 
 type WireEncoding = { name: string; wireType: Type };
 
-type ScalarWithEncoding = { scalar: Scalar; encoding?: WireEncoding };
+type ScalarWithEncoding = {
+  scalar: Scalar & { name: ExtendedIntrinsicScalarName };
+  encoding?: WireEncoding;
+};
 
 function getScalarType(program: Program, property: ModelProperty): ScalarWithEncoding | undefined {
-  if (property.type.kind !== "Scalar") return undefined;
-  let scalarType = property.type;
-  let encoding: WireEncoding | undefined =
-    getScalarEncoding(program, property) || getScalarEncoding(program, scalarType);
-  while (scalarType.baseScalar !== undefined) {
-    scalarType = scalarType.baseScalar;
-    if (encoding === undefined) {
-      encoding = getScalarEncoding(program, scalarType);
+  function getScalarEncoding(scalar: Scalar | ModelProperty): WireEncoding | undefined {
+    const encode = getEncode(program, scalar);
+    if (encode === undefined) {
+      switch (scalar.kind) {
+        case "ModelProperty":
+          if (scalar.type.kind === "Scalar") {
+            return getScalarEncoding(scalar.type);
+          }
+          return undefined;
+        case "Scalar":
+          if (scalar.baseScalar) {
+            return getScalarEncoding(scalar.baseScalar);
+          }
+          return undefined;
+      }
     }
+    return { name: encode.encoding ?? "string", wireType: encode.type };
   }
-  return { scalar: scalarType, encoding: encoding };
-}
-
-function getScalarEncoding(
-  program: Program,
-  scalar: Scalar | ModelProperty,
-): WireEncoding | undefined {
-  const encode = getEncode(program, scalar);
-  if (encode === undefined) return undefined;
-  return { name: encode.encoding ?? "string", wireType: encode.type };
+  function getStdScalarType(
+    scalar: Scalar,
+  ): (Scalar & { name: ExtendedIntrinsicScalarName }) | undefined {
+    if (program.checker.isStdType(scalar)) return scalar;
+    if (scalar.baseScalar) return getStdScalarType(scalar.baseScalar);
+    return undefined;
+  }
+  if (property.type.kind !== "Scalar") return undefined;
+  const stdScalar: (Scalar & { name: ExtendedIntrinsicScalarName }) | undefined = getStdScalarType(
+    property.type,
+  );
+  if (stdScalar === undefined) return undefined;
+  const encoding: WireEncoding | undefined = getScalarEncoding(property);
+  return { scalar: stdScalar, encoding: encoding };
 }
 
 function getTypeType(): CSharpType {
@@ -283,9 +307,16 @@ export function getArrayConstraintAttribute(
   const minItems: number | undefined = getMinItems(program, type);
   const maxItems = getMaxItems(program, type);
   if (minItems === undefined && maxItems === undefined) return undefined;
+  if (type.kind !== "ModelProperty" || type.type.kind !== "Model") return undefined;
+  if (!isArrayModelType(program, type.type)) return undefined;
+  const arrayType = type.type;
+  const elementType = arrayType.indexer.value;
+  if (elementType.kind !== "Scalar") return undefined;
+  const scalarType = getCSharpTypeForScalar(program, elementType);
+  if (scalarType === undefined) return undefined;
   const attr: Attribute = new Attribute(
     new AttributeType({
-      name: "ArrayConstraint",
+      name: `ArrayConstraint<${scalarType.getTypeReference()}>`,
       namespace: HelperNamespace,
     }),
     [],
@@ -460,7 +491,7 @@ export function getSafeIntAttribute(type: Scalar): Attribute | undefined {
   return attr;
 }
 
-function getEnumAttribute(type: Enum, cSharpName?: string): Attribute {
+function getEnumAttribute(type: Enum | Union, cSharpName?: string): Attribute {
   return new Attribute(
     new AttributeType({
       name: `JsonConverter(typeof(JsonStringEnumConverter))`,
@@ -474,7 +505,12 @@ export function getAttributes(program: Program, type: Type, cSharpName?: string)
   const result: Set<Attribute> = new Set<Attribute>();
   switch (type.kind) {
     case "Enum":
-      result.add(getEnumAttribute(type, cSharpName));
+      if (getEnumType(type) === "string") result.add(getEnumAttribute(type, cSharpName));
+      break;
+    case "Union":
+      if (isStringEnumType(program, type)) {
+        result.add(getEnumAttribute(type, cSharpName));
+      }
       break;
     case "Model":
       break;

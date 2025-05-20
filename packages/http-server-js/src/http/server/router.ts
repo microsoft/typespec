@@ -7,7 +7,9 @@ import {
   HttpService,
   HttpVerb,
   OperationContainer,
+  getHeaderFieldName,
   getHttpOperation,
+  isHeader,
 } from "@typespec/http";
 import {
   createOrGetModuleForNamespace,
@@ -22,9 +24,8 @@ import { HttpContext } from "../index.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as routerHelper } from "../../../generated-defs/helpers/router.js";
-import { parseHeaderValueParameters } from "../../helpers/header.js";
-import { reportDiagnostic } from "../../lib.js";
-import { UnimplementedError } from "../../util/error.js";
+import { differentiateModelTypes, writeCodeTree } from "../../util/differentiate.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 /**
  * Emit a router for the HTTP operations defined in a given service.
@@ -134,12 +135,12 @@ function* emitRouterDefinition(
   yield `export function create${routerName}(`;
 
   for (const [param] of backends.values()) {
-    yield `  ${param.camelCase}: ${param.pascalCase},`;
+    yield `  ${keywordSafe(param.camelCase)}: ${param.pascalCase},`;
   }
 
   yield `  options: RouterOptions<{`;
   for (const [param] of backends.values()) {
-    yield `    ${param.camelCase}: ${param.pascalCase}<HttpContext>,`;
+    yield `    ${keywordSafe(param.camelCase)}: ${param.pascalCase}<HttpContext>,`;
   }
   yield `  }> = {}`;
   yield `): ${routerName} {`;
@@ -261,7 +262,9 @@ function* emitRouteHandler(
 
   yield `if (path.length === 0) {`;
   if (routeTree.operations.size > 0) {
-    yield* indent(emitRouteOperationDispatch(ctx, routeHandlers, routeTree.operations, backends));
+    yield* indent(
+      emitRouteOperationDispatch(ctx, routeHandlers, routeTree.operations, backends, module),
+    );
   } else {
     // Not found
     yield `  return ${onRouteNotFound}(ctx);`;
@@ -318,6 +321,7 @@ function* emitRouteOperationDispatch(
   routeHandlers: string,
   operations: Map<HttpVerb, RouteOperation[]>,
   backends: Map<OperationContainer, [ReCase, string]>,
+  module: Module,
 ): Iterable<string> {
   yield `switch (request.method) {`;
   for (const [verb, operationList] of operations.entries()) {
@@ -328,7 +332,7 @@ function* emitRouteOperationDispatch(
         backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
       );
 
-      const backendMemberName = backend.camelCase;
+      const backendMemberName = keywordSafe(backend.camelCase);
 
       const parameters =
         operation.parameters.length > 0
@@ -339,11 +343,10 @@ function* emitRouteOperationDispatch(
       yield `    return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
     } else {
       // Shared route
-      const route = getHttpOperation(ctx.program, operationList[0].operation)[0].path;
       yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
       yield* indent(
         indent(
-          emitRouteOperationDispatchMultiple(ctx, routeHandlers, operationList, route, backends),
+          emitRouteOperationDispatchMultiple(ctx, routeHandlers, operationList, backends, module),
         ),
       );
     }
@@ -366,64 +369,50 @@ function* emitRouteOperationDispatchMultiple(
   ctx: HttpContext,
   routeHandlers: string,
   operations: RouteOperation[],
-  route: string,
   backends: Map<OperationContainer, [ReCase, string]>,
+  module: Module,
 ): Iterable<string> {
-  const usedContentTypes = new Set<string>();
-  const contentTypeMap = new Map<RouteOperation, string>();
+  const differentiated = differentiateModelTypes(
+    ctx,
+    module,
+    new Set(operations.map((op) => op.operation.parameters)),
+    {
+      renderPropertyName(prop): string {
+        return getHeaderFieldName(ctx.program, prop);
+      },
+      filter(prop): boolean {
+        return isHeader(ctx.program, prop);
+      },
+      else: {
+        kind: "verbatim",
+        body: [`return ctx.errorHandlers.onRequestNotFound(ctx);`],
+      },
+    },
+  );
 
-  for (const operation of operations) {
-    const [httpOperation] = getHttpOperation(ctx.program, operation.operation);
-    const operationContentType = httpOperation.parameters.parameters.find(
-      (param) => param.type === "header" && param.name.toLowerCase() === "content-type",
-    )?.param.type;
-
-    if (!operationContentType || operationContentType.kind !== "String") {
-      throw new UnimplementedError(
-        "Only string content-types are supported for route differentiation.",
+  yield* writeCodeTree(ctx, differentiated, {
+    referenceModelProperty(p) {
+      const headerName = getHeaderFieldName(ctx.program, p);
+      return `request.headers["${headerName}"]`;
+    },
+    *renderResult(type) {
+      const operation = operations.find((op) => op.operation.parameters === type)!;
+      const [backend] = backends.get(operation.container)!;
+      const operationName = keywordSafe(
+        backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
       );
-    }
 
-    if (usedContentTypes.has(operationContentType.value)) {
-      reportDiagnostic(ctx.program, {
-        code: "undifferentiable-route",
-        target: httpOperation.operation,
-      });
-    }
+      const backendMemberName = keywordSafe(backend.camelCase);
 
-    usedContentTypes.add(operationContentType.value);
+      const parameters =
+        operation.parameters.length > 0
+          ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
+          : "";
 
-    contentTypeMap.set(operation, operationContentType.value);
-  }
-
-  const contentTypeName = ctx.gensym("contentType");
-
-  yield `const ${contentTypeName} = parseHeaderValueParameters(request.headers["content-type"])?.value;`;
-
-  yield `switch (${contentTypeName}) {`;
-
-  for (const [operation, contentType] of contentTypeMap.entries()) {
-    const [backend] = backends.get(operation.container)!;
-    const operationName = keywordSafe(
-      backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase,
-    );
-
-    const backendMemberName = backend.camelCase;
-
-    const parameters =
-      operation.parameters.length > 0
-        ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
-        : "";
-
-    const contentTypeValue = parseHeaderValueParameters(contentType).value;
-
-    yield `  case ${JSON.stringify(contentTypeValue)}:`;
-    yield `    return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
-  }
-
-  yield `  default:`;
-  yield `    return ctx.errorHandlers.onInvalidRequest(ctx, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${${contentTypeName}}"\`);`;
-  yield "}";
+      yield `return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
+    },
+    subject: "(request.headers)",
+  });
 }
 
 /**
@@ -497,11 +486,13 @@ interface RouteParameter {
 function createRouteTree(ctx: HttpContext, service: HttpService): RouteTree {
   // First get the Route for each operation in the service.
   const routes = service.operations.map(function (operation) {
-    const segments = getRouteSegments(ctx, operation);
+    const canonicalOperation = canonicalizeHttpOperation(ctx, operation.operation);
+    const [httpOperation] = getHttpOperation(ctx.program, canonicalOperation);
+    const segments = getRouteSegments(ctx, httpOperation);
     return {
-      operation: operation.operation,
+      operation: canonicalOperation,
       container: operation.container,
-      verb: operation.verb,
+      verb: httpOperation.verb,
       parameters: segments.filter((segment) => typeof segment !== "string"),
       segments,
     } as Route;

@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +11,7 @@ import java.util.Set;
 /**
  * Represents a security scheme.
  */
-public class Scheme implements JsonSerializable<Scheme> {
+public class Scheme {
     private Scheme.SecuritySchemeType type;
     // OAuth2
     private Set<String> scopes = new HashSet<>();
@@ -133,46 +128,6 @@ public class Scheme implements JsonSerializable<Scheme> {
      */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("type", type == null ? null : type.toString())
-            .writeArrayField("scopes", scopes, JsonWriter::writeString)
-            .writeStringField("name", name)
-            .writeStringField("in", in)
-            .writeStringField("prefix", prefix)
-            .writeArrayField("flows", flows, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Scheme instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Scheme instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Scheme fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Scheme::new, (scheme, fieldName, reader) -> {
-            if ("type".equals(fieldName)) {
-                scheme.type = SecuritySchemeType.fromValue(reader.getString());
-            } else if ("scopes".equals(fieldName)) {
-                List<String> scopes = reader.readArray(JsonReader::getString);
-                scheme.scopes = scopes == null ? null : new HashSet<>(scopes);
-            } else if ("name".equals(fieldName)) {
-                scheme.name = reader.getString();
-            } else if ("in".equals(fieldName)) {
-                scheme.in = reader.getString();
-            } else if ("prefix".equals(fieldName)) {
-                scheme.prefix = reader.getString();
-            } else if ("flows".equals(fieldName)) {
-                scheme.flows = reader.readArray(OAuth2Flow::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 
     /**

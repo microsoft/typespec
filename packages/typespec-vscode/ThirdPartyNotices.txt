@@ -8,76 +8,19 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. @nevware21/ts-async version 0.5.4 (https://github.com/nevware21/ts-async)
-2. @nevware21/ts-utils version 0.11.8 (https://github.com/nevware21/ts-utils)
-3. ajv version 8.17.1 (ajv-validator/ajv)
-4. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
-5. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
-6. change-case version 5.4.4 (https://github.com/blakeembrey/change-case)
-7. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
-8. fast-uri version 3.0.6 (https://github.com/fastify/fast-uri)
-9. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
-10. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
-11. mustache version 4.2.0 (https://github.com/janl/mustache.js)
-12. semver version 7.7.1 (https://github.com/npm/node-semver)
-13. which version 5.0.0 (https://github.com/npm/node-which)
-14. yaml version 2.7.0 (github:eemeli/yaml)
-
-
-%% @nevware21/ts-async NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-MIT License
-
-Copyright (c) 2022 NevWare21 Solutions LLC
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-=====================================================");
-END OF @nevware21/ts-async NOTICES AND INFORMATION
-
-
-%% @nevware21/ts-utils NOTICES AND INFORMATION BEGIN HERE
-=====================================================
-MIT License
-
-Copyright (c) 2022 NevWare21 Solutions LLC
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-=====================================================");
-END OF @nevware21/ts-utils NOTICES AND INFORMATION
+1. ajv version 8.17.1 (ajv-validator/ajv)
+2. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
+3. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
+4. change-case version 5.4.4 (https://github.com/blakeembrey/change-case)
+5. fast-deep-equal version 3.1.3 (https://github.com/epoberezkin/fast-deep-equal)
+6. fast-uri version 3.0.6 (https://github.com/fastify/fast-uri)
+7. isexe version 3.1.1 (https://github.com/isaacs/isexe)
+8. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
+9. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
+10. mustache version 4.2.0 (https://github.com/janl/mustache.js)
+11. semver version 7.7.2 (https://github.com/npm/node-semver)
+12. which version 5.0.0 (https://github.com/npm/node-which)
+13. yaml version 2.7.1 (github:eemeli/yaml)
 
 
 %% ajv NOTICES AND INFORMATION BEGIN HERE
@@ -257,6 +200,28 @@ The complete list of contributors can be found at:
 END OF fast-uri NOTICES AND INFORMATION
 
 
+%% isexe NOTICES AND INFORMATION BEGIN HERE
+=====================================================
+The ISC License
+
+Copyright (c) 2016-2022 Isaac Z. Schlueter and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+=====================================================");
+END OF isexe NOTICES AND INFORMATION
+
+
 %% json-schema-traverse NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 MIT License
@@ -371,27 +336,19 @@ END OF which NOTICES AND INFORMATION
 
 %% yaml NOTICES AND INFORMATION BEGIN HERE
 =====================================================
-    MIT License
+Copyright Eemeli Aro <eemeli@gmail.com>
 
-    Copyright (c) Microsoft Corporation. All rights reserved.
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
 
 =====================================================");
 END OF yaml NOTICES AND INFORMATION

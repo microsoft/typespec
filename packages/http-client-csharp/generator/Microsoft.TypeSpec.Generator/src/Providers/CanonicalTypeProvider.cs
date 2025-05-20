@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             !customProperty.Body.HasSetter,
                             customProperty.Type.IsNullable,
                             false,
-                            serializedName ?? customProperty.Name.ToVariableName());;
+                            serializedName ?? customProperty.Name.ToVariableName());
                     }
                     else
                     {
@@ -163,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             true,
                             customField.Type.IsNullable,
                             false,
-                            serializedName ?? customField.Name.ToVariableName());;
+                            serializedName ?? customField.Name.ToVariableName());
                     }
                     else
                     {
@@ -232,6 +232,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
             {
+                if (specType is InputLiteralType literalType)
+                {
+                    specType = literalType.ValueType;
+                }
                 return new CSharpType(
                     customType.Name,
                     customType.Namespace,
@@ -253,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 InputNullableType nullableType => GetEnumValueType(nullableType.Type),
                 InputEnumType enumType => enumType.ValueType,
-                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                InputLiteralType literalType => GetEnumValueType(CodeModelGenerator.Instance.TypeFactory.GetLiteralValueType(literalType)),
                 InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
                 InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
                 _ => null

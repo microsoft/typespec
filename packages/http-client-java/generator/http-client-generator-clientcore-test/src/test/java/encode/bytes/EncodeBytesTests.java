@@ -58,8 +58,8 @@ public class EncodeBytesTests {
 
     @Test
     public void testRequestBody() {
-        requestClient.octetStream(BinaryData.fromBytes(PNG));
-        requestClient.customContentType(BinaryData.fromBytes(PNG));
+        requestClient.octetStream(BinaryData.fromBytes(PNG), PNG.length);
+        requestClient.customContentType(BinaryData.fromBytes(PNG), PNG.length);
         requestClient.base64(DATA);
         requestClient.base64url(DATA);
     }
@@ -76,14 +76,13 @@ public class EncodeBytesTests {
 //        bytes = responseClient.base64();
 //        Assertions.assertArrayEquals(DATA, bytes);
 
-        // TODO: bug in tcgc https://github.com/Azure/typespec-azure/pull/2411
-//        byte[] bytes = responseClient.base64url();
-//        Assertions.assertArrayEquals(DATA, bytes);
+        byte[] bytes = responseClient.base64url();
+        Assertions.assertArrayEquals(DATA, bytes);
     }
 
     @Test
     public void testBodyDefault() {
-        requestClient.defaultMethod(BinaryData.fromBytes(PNG));
+        requestClient.defaultMethod(BinaryData.fromBytes(PNG), PNG.length);
 
         BinaryData png = responseClient.defaultMethod();
         Assertions.assertArrayEquals(PNG, png.toBytes());

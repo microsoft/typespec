@@ -9,7 +9,7 @@ function getBadgeForLibraryStability(stability: LibraryStability | undefined): B
     case "beta":
       return { text: "beta", variant: "caution" };
     case "alpha":
-      return { text: "beta", variant: "caution" };
+      return { text: "alpha", variant: "caution" };
     case "stable":
     default:
       return undefined;
@@ -71,6 +71,7 @@ const sidebar: SidebarItem[] = [
       "handbook/formatter",
       "handbook/package-manager",
       "handbook/reproducibility",
+      "handbook/breaking-change-policy",
       {
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
@@ -125,6 +126,7 @@ const sidebar: SidebarItem[] = [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
         "libraries/http/operations",
+        "libraries/http/files",
         "libraries/http/content-types",
         "libraries/http/multipart",
         "libraries/http/encoding",
@@ -198,13 +200,31 @@ const sidebar: SidebarItem[] = [
             [],
             "preview",
           ),
-          createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
           createLibraryReferenceStructure(
             "emitters/clients/http-client-csharp",
             "CSharp",
             false,
             [],
             "preview",
+          ),
+        ],
+      },
+      {
+        label: "Servers",
+        items: [
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-csharp",
+            "ASP.Net",
+            false,
+            ["emitters/servers/http-server-csharp/project"],
+            "alpha",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-js",
+            "JavaScript",
+            false,
+            ["emitters/servers/http-server-js/project"],
+            "alpha",
           ),
         ],
       },

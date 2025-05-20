@@ -1,6 +1,6 @@
 import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createHttpTestRunner } from "./../../test-host.js";
 
@@ -26,11 +26,12 @@ describe("HttpRequest Body Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     expect((body as Model).properties.size).toBe(3);
   });
 
@@ -40,11 +41,12 @@ describe("HttpRequest Body Parameters", () => {
       @post
       @test op createFoo(@body foo: int32): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     expect(body.properties.size).toBe(1);
     expect(body.properties.get("foo")!.name).toBe("foo");
   });
@@ -65,9 +67,10 @@ describe("HttpRequest Body Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
     expect((body as Model).properties.size).toBe(3);
     const properties = Array.from(body.properties.values())
@@ -96,11 +99,12 @@ describe("HttpRequest Body Parameters", () => {
       @post
       @test op createFoo(@body foo: Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     // Should have a single property called foo
     expect(body.properties.size).toBe(1);
     expect((body.properties.get("foo")?.type as Model).name).toBe("Foo");
@@ -118,11 +122,12 @@ describe("HttpRequest Body Parameters", () => {
       @post
       @test op createFoo(foo: Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
-    expect($.model.is(body)).toBe(true);
+    expect(tk.model.is(body)).toBe(true);
     expect((body as Model).properties.size).toBe(1);
     expect(((body as Model).properties.get("foo")?.type as any).name).toBe("Foo");
   });
@@ -141,12 +146,13 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)!;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(headers).toBeUndefined();
     expect(path).toBeUndefined();
@@ -166,23 +172,24 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
 
     const requestIdProperty = headers!.properties.get("requestId");
     const idProperty = path!.properties.get("id");
     const dataProperty = query!.properties.get("data");
 
-    expect($.modelProperty.getHttpHeaderOptions(requestIdProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpHeaderOptions(requestIdProperty!)).toStrictEqual({
       explode: true,
       name: "request-id",
       type: "header",
     });
 
-    expect($.modelProperty.getHttpPathOptions(idProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpPathOptions(idProperty!)).toStrictEqual({
       allowReserved: true,
       explode: false,
       name: "id",
@@ -190,7 +197,7 @@ describe("HttpRequest Get Parameters", () => {
       type: "path",
     });
 
-    expect($.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
+    expect(tk.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
       explode: true,
       name: "data",
       type: "query",
@@ -209,12 +216,13 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path")!;
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as Model;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path")!;
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(2);
     expect(path).toBeDefined();
@@ -236,12 +244,13 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header")!;
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query");
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as Model;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header")!;
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query");
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(1);
     expect(headers).toBeDefined();
@@ -264,12 +273,13 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const body = $.httpRequest.getBodyParameters(httpOperation)! as Model;
-    const headers = $.httpRequest.getParameters(httpOperation, "header");
-    const path = $.httpRequest.getParameters(httpOperation, "path");
-    const query = $.httpRequest.getParameters(httpOperation, "query")!;
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const body = tk.httpRequest.getBodyParameters(httpOperation)! as Model;
+    const headers = tk.httpRequest.getParameters(httpOperation, "header");
+    const path = tk.httpRequest.getParameters(httpOperation, "path");
+    const query = tk.httpRequest.getParameters(httpOperation, "query")!;
     expect(body).toBeDefined();
     expect(body.properties.size).toBe(1);
     expect(query).toBeDefined();
@@ -292,9 +302,10 @@ describe("HttpRequest Get Parameters", () => {
       @post
       @test op createFoo(...Foo): void;
     `)) as { createFoo: Operation; Foo: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(createFoo);
-    const headerAndQuery = $.httpRequest.getParameters(httpOperation, ["header", "query"]);
+    const httpOperation = tk.httpOperation.get(createFoo);
+    const headerAndQuery = tk.httpRequest.getParameters(httpOperation, ["header", "query"]);
     expect(headerAndQuery).toBeDefined();
     expect(headerAndQuery!.properties.size).toBe(2);
     expect(headerAndQuery!.properties.get("id")?.name).toBe("id");

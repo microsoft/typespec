@@ -1,15 +1,20 @@
 ---
-slug: 2024-11-04-typespec-at-lseg
+slug: typespec-at-lseg
+redirect_slug: 2024-11-04-typespec-at-lseg
 title: "Enhancing API design at the London Stock Exchange Group"
 image: ./tsp_lseg_360x360.png
-description: In the fast-paced world of financial services, having consistent and efficient APIs and SDKs is crucial. At Microsoft, we’ve been working closely with LSEG (London Stock Exchange Group) to streamline their development process using TypeSpec. This collaboration has been very beneficial and educational for both sides, and we’re excited to share our insights with you.
+description: In the fast-paced world of financial services, having consistent and efficient APIs and SDKs is crucial. At Microsoft, we've been working closely with LSEG (London Stock Exchange Group) to streamline their development process using TypeSpec. This collaboration has been very beneficial and educational for both sides, and we're excited to share our insights with you.
 publishDate: 2024-11-04
 authors:
   - name: Mario Guerra
-    title: Senior Product Manager
-    socials:
-      x: https://x.com/_marioguerra_
-      github: https://github.com/mario-guerra
+    title: Senior Product Manager @ Microsoft
+    avatar: assets/img/authors/mario_guerra.png
+  - name: Samuel Schwalm
+    title: Director of Product Management @ LSEG
+    avatar: assets/img/authors/default.png
+  - name: Olivier Davant
+    title: Product Manager @ LSEG
+    avatar: assets/img/authors/default.png
 ---
 
 <!-- cspell:ignore LSEG, lseg, Schwalm, Davant -->
@@ -85,14 +90,3 @@ TypeSpec has been a transformative tool for LSEG, bringing consistency, efficien
 ## About LSEG Microsoft Partnership
 
 LSEG and Microsoft have launched a 10-year strategic partnership to co-develop next-generation data and analytics and cloud infrastructure solutions. Our partnership will accelerate value creation in financial markets and empower financial services organizations by offering interoperable, secure, and compliant solutions that will transform data, analytics, and workflow experiences. [Learn more about our strategic partnership.](https://www.lseg.com/en/microsoft-partnership)
-
-## About the Authors
-
-**Mario Guerra**  
-Mario is a Senior Product Manager at Microsoft, focusing on API development with TypeSpec.
-
-**Samuel Schwalm**  
-Samuel is a Director of Product Management at LSEG, focusing on API design and integration.
-
-**Olivier Davant**  
-Olivier is a Product Manager at LSEG, overseeing the implementation of the Python and TypeScript SDKs.

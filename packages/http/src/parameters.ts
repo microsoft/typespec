@@ -5,7 +5,8 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb } from "./decorators.js";
+import { getOperationVerb, getPatchOptions, getPathOptions } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
@@ -74,6 +75,17 @@ function getOperationParametersForVerb(
           isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
 
         if (!uriParam) {
+          const pathOptions = getPathOptions(program, param);
+          if (pathOptions && param.optional) {
+            return {
+              type: "path",
+              name: pathOptions.name,
+              explode: false,
+              allowReserved: false,
+              style: operatorToStyle["/"],
+            };
+          }
+
           return undefined;
         }
 
@@ -104,6 +116,22 @@ function getOperationParametersForVerb(
       },
     }),
   );
+  const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
+  // TODO: remove in 6month after 1.0.0. (November 2025)
+  if (
+    verb === "patch" &&
+    resolvedBody &&
+    implicitOptionality === undefined &&
+    !isMergePatchBody(program, resolvedBody?.type) &&
+    !resolvedBody.contentTypes.includes("application/merge-patch+json") // Above statement doesn't detect Spread merge patch
+  ) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "patch-implicit-optional",
+        target: operation,
+      }),
+    );
+  }
 
   for (const item of metadata) {
     switch (item.kind) {
@@ -115,16 +143,6 @@ function getOperationParametersForVerb(
         });
         break;
       case "path":
-        if (item.property.optional) {
-          diagnostics.add(
-            createDiagnostic({
-              code: "optional-path-param",
-              format: { paramName: item.property.name },
-              target: item.property,
-            }),
-          );
-        }
-      // eslint-disable-next-line no-fallthrough
       case "query":
       case "cookie":
       case "header":

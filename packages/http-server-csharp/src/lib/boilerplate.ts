@@ -67,6 +67,11 @@ export function getSerializationSourceFiles(
       emitter: emitter,
       getContents: getJsonProvider,
     }),
+    new LibrarySourceFile({
+      filename: "HttpServiceException.cs",
+      emitter: emitter,
+      getContents: getHttpServiceException,
+    }),
   );
   return sourceFiles;
 }
@@ -325,44 +330,52 @@ function getArrayConstraintConverter(): string {
 
         public override JsonConverter? CreateConverter(Type typeToConvert)
         {
-            return new ConstrainedArrayConverter<T>(_minItems, _maxItems);
+            if (typeof(ISet<T>).IsAssignableFrom(typeToConvert))
+            {
+                return new ConstrainedSetConverter<T>(_minItems, _maxItems);
+            }
+            else if (typeToConvert.IsArray && typeToConvert.GetElementType() == typeof(T))
+            {
+                return new ConstrainedStandardArrayConverter<T>(_minItems, _maxItems);
+            }
+            else 
+            {
+                return new ConstrainedEnumerableConverter<T>(_minItems, _maxItems);
+            }
         }
-
-        
     }
 
-    public class ConstrainedArrayConverter<T> : JsonConverter<T[]>
+    public abstract class ConstrainedCollectionConverter<T, TCollection> : JsonConverter<TCollection>
     {
-        public ConstrainedArrayConverter(int? min, int? max) : base()
+        protected ConstrainedCollectionConverter(int? min, int? max) 
         {
             _minItems = min;
             _maxItems = max;
         }
 
-        internal int? _minItems, _maxItems;
+        protected int? _minItems, _maxItems;
         public JsonConverter<T>? InnerConverter { get; set; }
 
-        public virtual Func<ConstrainedArrayConverter<T>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T>;
+        public virtual Func<ConstrainedCollectionConverter<T, TCollection>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T, TCollection>;
 
-
-        internal bool ValidateMin(int count)
+        protected bool ValidateMin(int count)
         {
             return !_minItems.HasValue || count >= _minItems.Value;
         }
 
-        internal bool ValidateMax(int count)
+        protected bool ValidateMax(int count)
         {
             return !_maxItems.HasValue || count <= _maxItems.Value;
         }
 
-        internal void ValidateRange(int count)
+        protected void ValidateRange(int count)
         {
             if (!ValidateMax(count) || !ValidateMin(count))
             {
                 throw new JsonException($"Number of array elements not in range [{(_minItems.HasValue ? _minItems.Value : 0)}, {(_maxItems.HasValue ? _maxItems.Value : Array.MaxLength)}]");
             }
         }
-        public override T[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TCollection? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var _innerConverter = InnerConverterFactory(this, options);
             if (reader.TokenType != JsonTokenType.StartArray) { throw new JsonException("Expected start of array"); }
@@ -377,30 +390,52 @@ function getArrayConstraintConverter(): string {
                 count++;
             }
 
-            return list.ToArray();
-
+            return ConvertToCollection(list);
 
         }
 
-        public override void Write(Utf8JsonWriter writer, T[] value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer,  TCollection value, JsonSerializerOptions options)
         {
             var _innerConverter = InnerConverterFactory(this, options);
             writer.WriteStartArray();
-            for (int i = 0; i < value.Length; ++i)
-                _innerConverter.Write(writer, value[i], options);
+            foreach (var item in GetEnumerable(value))
+                _innerConverter.Write(writer, item, options);
             writer.WriteEndArray();
         }
+      
+        protected abstract TCollection ConvertToCollection(List<T> list);
+        protected abstract IEnumerable<T> GetEnumerable(TCollection collection);
+    }
+
+    public class ConstrainedEnumerableConverter<T> : ConstrainedCollectionConverter<T, IEnumerable<T>>
+    {
+        public ConstrainedEnumerableConverter(int? min, int? max) : base(min, max) { }
+        protected override IEnumerable<T> ConvertToCollection(List<T> list) => list;
+        protected override IEnumerable<T> GetEnumerable(IEnumerable<T> collection) => collection;
+    }
+
+    public class ConstrainedSetConverter<T> : ConstrainedCollectionConverter<T, ISet<T>>
+    {
+        public ConstrainedSetConverter(int? min, int? max) : base(min, max) { }
+        protected override ISet<T> ConvertToCollection(List<T> list) => new HashSet<T>(list);
+        protected override IEnumerable<T> GetEnumerable(ISet<T> collection) => collection;
+    }
+
+    public class ConstrainedStandardArrayConverter<T> : ConstrainedCollectionConverter<T, T[]>
+    {
+        public ConstrainedStandardArrayConverter(int? min, int? max) : base(min, max) { }
+        protected override T[] ConvertToCollection(List<T> list) => list.ToArray();
+        protected override IEnumerable<T> GetEnumerable(T[] collection) => collection;
     }
 
     internal static class ConverterHelpers
     {
-        internal static JsonConverter<T> GetStandardInnerConverter<T>(this ConstrainedArrayConverter<T> converter, JsonSerializerOptions options)
+        internal static JsonConverter<T> GetStandardInnerConverter<T, TCollection>(this ConstrainedCollectionConverter<T, TCollection> converter, JsonSerializerOptions options)
         {
             if (converter.InnerConverter == null)
             {
                 converter.InnerConverter = (JsonConverter<T>)options.GetConverter(typeof(T));
             }
-
             return converter.InnerConverter;
         }
     }
@@ -434,9 +469,23 @@ public class NumericArrayConstraintAttribute<T> : ArrayConstraintAttribute<T> wh
 
     public override JsonConverter? CreateConverter(Type typeToConvert)
     {
-        var result = base.CreateConverter(typeToConvert) as ConstrainedArrayConverter<T>;
-        if (result != null) result.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
-        return result;
+        var result = base.CreateConverter(typeToConvert);
+        var resultSet = result as ConstrainedSetConverter<T>;
+        if (resultSet != null) { 
+            resultSet.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultSet;
+        }
+        var resultEnumerable = result as ConstrainedEnumerableConverter<T>;
+        if (resultEnumerable != null) { 
+            resultEnumerable.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultEnumerable;
+        }
+        var resultStandardArray = result as ConstrainedStandardArrayConverter<T>;
+        if (resultStandardArray != null) { 
+            resultStandardArray.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultStandardArray;
+        }  
+        throw new InvalidOperationException($"Cannot create converter for {typeToConvert} with {this}");    
     }
   }
 }`;
@@ -464,11 +513,27 @@ public class StringArrayConstraintAttribute : ArrayConstraintAttribute<string>
     public int MaxItemLength { get { return _maxItemLength.HasValue ? _maxItemLength.Value : 0; } set { _maxItemLength = value; } }
     public string? Pattern { get; set; }
 
-    override public JsonConverter<string[]> CreateConverter(Type typeToConvert)
+    override public JsonConverter? CreateConverter(Type typeToConvert)
     {
-        var result = base.CreateConverter(typeToConvert) as ConstrainedArrayConverter<string>;
-        result!.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
-        return result;
+        var result = base.CreateConverter(typeToConvert);
+        var resultSet = result as ConstrainedSetConverter<string>;
+        if (resultSet != null) { 
+            resultSet.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultSet;
+        }
+
+        var resultEnumerable = result as ConstrainedEnumerableConverter<string>;
+        if (resultEnumerable != null) { 
+            resultEnumerable.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultEnumerable;
+        }
+
+        var resultStandardArray = result as ConstrainedStandardArrayConverter<string>;
+        if (resultStandardArray != null) { 
+            resultStandardArray.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultStandardArray;
+        }  
+        throw new InvalidOperationException($"Cannot create converter for {typeToConvert} with {this}");    
     }
 }
   }`;
@@ -693,5 +758,64 @@ namespace TypeSpec.Helpers
         }
     }
 }
+`;
+}
+
+function getHttpServiceException(): string {
+  return `${GeneratedFileHeaderWithNullable}
+
+  using Microsoft.AspNetCore.Mvc;
+  using Microsoft.AspNetCore.Mvc.Filters;
+
+  namespace TypeSpec.Helpers
+  {
+    /// <summary>
+    /// Represents an HTTP response exception with a status code and optional value.
+    /// </summary>
+    public class HttpServiceException : Exception
+    {
+      /// <summary>
+      /// Initializes a new instance of the HttpServiceException class.
+      /// </summary>
+      /// <param name="statusCode">The HTTP status code.</param>
+      /// <param name="value">The optional value to include in the response.</param>
+      public HttpServiceException(int statusCode, object? value = null, Dictionary<string, string>? headers = null) =>
+          (StatusCode, Value, Headers) = (statusCode, value, headers ?? new Dictionary<string, string>());
+
+      public int StatusCode { get; }
+
+      public object? Value { get; }
+
+      public Dictionary<string, string> Headers { get; } 
+    }
+
+    /// <summary>
+    /// An action filter that handles HttpServiceException and converts it to an HTTP response.
+    /// </summary>
+    public class HttpServiceExceptionFilter : IActionFilter, IOrderedFilter
+    {
+      public int Order => int.MaxValue - 10;
+
+      public void OnActionExecuting(ActionExecutingContext context) { }
+
+      public void OnActionExecuted(ActionExecutedContext context)
+      {
+        if (context.Exception is HttpServiceException httpServiceException)
+        {
+            foreach (var header in httpServiceException.Headers)
+            {
+                context.HttpContext.Response.Headers.Append(header.Key, header.Value.ToString());
+            }
+
+            context.Result = new ObjectResult(httpServiceException.Value)
+            {
+                StatusCode = httpServiceException.StatusCode
+            };
+
+            context.ExceptionHandled = true;
+        }
+      }
+    }
+  }
 `;
 }

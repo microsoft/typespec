@@ -1,0 +1,5 @@
+emit:
+  - "@typespec/http-client-csharp"
+options:
+  "@typespec/http-client-csharp":
+    emitter-output-dir: "{project-root}/SampleClient"

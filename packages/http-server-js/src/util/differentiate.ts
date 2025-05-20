@@ -20,6 +20,7 @@ import {
   isNeverType,
   isUnknownType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
@@ -112,7 +113,7 @@ export interface Switch {
  */
 export interface Verbatim {
   kind: "verbatim";
-  body: Iterable<string>;
+  body: Iterable<string> | (() => Iterable<string>);
 }
 
 /**
@@ -297,7 +298,7 @@ export function differentiateUnion(
 
   if (variants.some((v) => isUnknownType(v.type))) {
     // Collapse the whole union to `unknown`.
-    return { kind: "result", type: ctx.program.checker.anyType };
+    return { kind: "result", type: $(ctx.program).intrinsic.any };
   }
 
   if (!discriminator) {
@@ -380,7 +381,7 @@ export function differentiateTypes(
   const intrinsics = (categories.Intrinsic as (VoidType | NullType)[]) ?? [];
 
   if (literals.length + scalars.length + intrinsics.length === 0) {
-    return differentiateModelTypes(ctx, module, select(models, cases), renderPropertyName);
+    return differentiateModelTypes(ctx, module, select(models, cases), { renderPropertyName });
   } else {
     const branches: IfBranch[] = [];
 
@@ -505,7 +506,7 @@ export function differentiateTypes(
       branches,
       else:
         models.length > 0
-          ? differentiateModelTypes(ctx, module, select(models, cases), renderPropertyName)
+          ? differentiateModelTypes(ctx, module, select(models, cases), { renderPropertyName })
           : undefined,
     };
   }
@@ -590,6 +591,38 @@ function overlaps(range: IntegerRange, other: IntegerRange): boolean {
 }
 
 /**
+ * Optional paramters for model differentiation.
+ */
+interface DifferentiateModelOptions {
+  /**
+   * A function that converts a model property reference over the subject to a string.
+   *
+   * Default: `(prop) => prop.name`
+   */
+  renderPropertyName?: (prop: ModelProperty) => string;
+
+  /**
+   * A filter function that determines which properties to consider for differentiation.
+   *
+   * Default: `() => true`
+   */
+  filter?: (prop: ModelProperty) => boolean;
+
+  /**
+   * The default case to use if no other cases match.
+   *
+   * Default: undefined.
+   */
+  else?: CodeTree | undefined;
+}
+
+const DEFAULT_DIFFERENTIATE_OPTIONS = {
+  renderPropertyName: PROPERTY_ID,
+  filter: () => true,
+  else: undefined,
+} as const;
+
+/**
  * Differentiate a set of model types based on their properties. This function returns a CodeTree that will test an input
  * "subject" and determine which of the cases it matches, executing the corresponding code block.
  *
@@ -602,8 +635,15 @@ export function differentiateModelTypes(
   ctx: JsContext,
   module: Module,
   models: Set<Model>,
-  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
+  options?: DifferentiateModelOptions,
+): CodeTree;
+export function differentiateModelTypes(
+  ctx: JsContext,
+  module: Module,
+  models: Set<Model>,
+  _options: DifferentiateModelOptions = {},
 ): CodeTree {
+  const options = { ...DEFAULT_DIFFERENTIATE_OPTIONS, ..._options };
   // Horrible n^2 operation to get the unique properties of all models in the map, but hopefully n is small, so it should
   // be okay until you have a lot of models to differentiate.
 
@@ -623,14 +663,14 @@ export function differentiateModelTypes(
   for (const model of models) {
     const props = new Set<string>();
 
-    for (const prop of getAllProperties(model)) {
+    for (const prop of getAllProperties(model).filter(options.filter)) {
       // Don't consider optional properties for differentiation.
       if (prop.optional) continue;
 
       // Ignore properties that have no parseable name.
       if (isUnspeakable(prop.name)) continue;
 
-      const renderedPropName = renderPropertyName(prop) as RenderedPropertyName;
+      const renderedPropName = options.renderPropertyName(prop) as RenderedPropertyName;
 
       // CASE - literal value
 
@@ -716,7 +756,7 @@ export function differentiateModelTypes(
 
   const branches: IfBranch[] = [];
 
-  let defaultCase: Model | undefined = undefined;
+  let defaultCase: CodeTree | undefined = options.else;
 
   for (const [model, unique] of uniqueProps) {
     const literals = uniqueLiterals.get(model);
@@ -727,14 +767,11 @@ export function differentiateModelTypes(
           code: "undifferentiable-model",
           target: model,
         });
-        return {
-          kind: "result",
-          type: defaultCase,
-        };
+        return defaultCase;
       } else {
         // Allow a single default case. This covers more APIs that have a single model that is not differentiated by a
         // unique property, in which case we can make it the `else` case.
-        defaultCase = model;
+        defaultCase = { kind: "result", type: model };
         continue;
       }
     }
@@ -744,7 +781,7 @@ export function differentiateModelTypes(
       const firstUniqueLiteral = literals.values().next().value as RenderedPropertyName;
 
       const property = [...model.properties.values()].find(
-        (p) => (renderPropertyName(p) as RenderedPropertyName) === firstUniqueLiteral,
+        (p) => (options.renderPropertyName(p) as RenderedPropertyName) === firstUniqueLiteral,
       )!;
 
       branches.push({
@@ -752,7 +789,7 @@ export function differentiateModelTypes(
           kind: "binary-op",
           left: {
             kind: "binary-op",
-            left: { kind: "literal", value: renderPropertyName(property) },
+            left: { kind: "literal", value: options.renderPropertyName(property) },
             operator: "in",
             right: SUBJECT,
           },
@@ -774,7 +811,7 @@ export function differentiateModelTypes(
       const firstUniqueRange = ranges.values().next().value as RenderedPropertyName;
 
       const property = [...model.properties.values()].find(
-        (p) => renderPropertyName(p) === firstUniqueRange,
+        (p) => options.renderPropertyName(p) === firstUniqueRange,
       )!;
 
       const range = [...propertyRanges.get(firstUniqueRange)!.entries()].find(
@@ -786,7 +823,7 @@ export function differentiateModelTypes(
           kind: "binary-op",
           left: {
             kind: "binary-op",
-            left: { kind: "literal", value: renderPropertyName(property) },
+            left: { kind: "literal", value: options.renderPropertyName(property) },
             operator: "in",
             right: SUBJECT,
           },
@@ -817,12 +854,7 @@ export function differentiateModelTypes(
   return {
     kind: "if-chain",
     branches,
-    else: defaultCase
-      ? {
-          kind: "result",
-          type: defaultCase,
-        }
-      : undefined,
+    else: defaultCase,
   };
 }
 
@@ -903,7 +935,11 @@ export function* writeCodeTree(
       break;
     }
     case "verbatim":
-      yield* tree.body;
+      if (typeof tree.body === "function") {
+        yield* tree.body();
+      } else {
+        yield* tree.body;
+      }
       break;
     default:
       throw new UnreachableError("writeCodeTree for " + (tree satisfies never as CodeTree).kind, {

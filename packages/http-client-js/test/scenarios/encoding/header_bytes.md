@@ -69,7 +69,7 @@ export async function defaultEncoding(
   const httpRequestOptions = {
     headers: {
       ...(options?.value && {
-        value: encodeUint8Array(options?.value, "base64")!,
+        value: encodeUint8Array(options.value, "base64")!,
       }),
     },
   };

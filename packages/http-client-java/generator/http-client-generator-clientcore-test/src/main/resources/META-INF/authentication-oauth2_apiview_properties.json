@@ -3,10 +3,6 @@
   "CrossLanguageDefinitionId": {
     "authentication.oauth2.InvalidAuth": "Authentication.OAuth2.InvalidAuth",
     "authentication.oauth2.OAuth2Client": "Authentication.OAuth2",
-    "authentication.oauth2.OAuth2Client.invalid": "Authentication.OAuth2.invalid",
-    "authentication.oauth2.OAuth2Client.invalidWithResponse": "Authentication.OAuth2.invalid",
-    "authentication.oauth2.OAuth2Client.valid": "Authentication.OAuth2.valid",
-    "authentication.oauth2.OAuth2Client.validWithResponse": "Authentication.OAuth2.valid",
     "authentication.oauth2.OAuth2ClientBuilder": "Authentication.OAuth2"
   }
 }

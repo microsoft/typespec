@@ -27,6 +27,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
+import { capitalize } from "@typespec/compiler/casing";
 import {
   map,
   matchType,
@@ -1006,13 +1007,6 @@ function isArray(t: Type) {
 }
 
 /**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}
-
-/**
  * Gets the syntactic return type target for an operation.
  *
  * Helps us squiggle the right things for operation return types.
@@ -1021,7 +1015,7 @@ function capitalize<S extends string>(s: S) {
  * emitters to implement this functionality.
  */
 function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
-  const signature = op.node.signature;
+  const signature = op.node!.signature;
   switch (signature.kind) {
     case SyntaxKind.OperationSignatureDeclaration:
       return signature.returnType;
@@ -1030,7 +1024,7 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
     default:
       const __exhaust: never = signature;
       throw new Error(
-        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`,
+        `Internal Emitter Error: reached unreachable operation signature: ${op.node?.signature.kind}`,
       );
   }
 }
@@ -1043,7 +1037,9 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
  */
 function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
   const node = property.node;
-
+  if (node === undefined) {
+    return property;
+  }
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
     case SyntaxKind.ObjectLiteralProperty:
@@ -1053,7 +1049,7 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`,
+        `Internal Emitter Error: reached unreachable model property node: ${property.node?.kind}`,
       );
   }
 }

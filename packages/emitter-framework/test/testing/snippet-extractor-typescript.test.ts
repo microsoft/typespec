@@ -8,8 +8,8 @@ import {
 
 describe("TypeScript Snippet Extractor", () => {
   let extractor: SnippetExtractor;
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createTypeScriptExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnipperExtractor(await createTypeScriptExtractorConfig());
   });
 
   it("should extract a class", async () => {
@@ -137,8 +137,8 @@ describe("TypeScript Snippet Extractor", () => {
 
 describe("TypeScript Snippet Extractor - Enums", () => {
   let extractor: SnippetExtractor;
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createTypeScriptExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnipperExtractor(await createTypeScriptExtractorConfig());
   });
 
   it("should extract a basic enum", async () => {
