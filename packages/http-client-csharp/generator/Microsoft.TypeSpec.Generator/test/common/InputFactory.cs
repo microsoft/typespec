@@ -14,17 +14,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description", enumType);
             }
 
             public static InputEnumTypeValue Float32(string name, float value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
             }
 
             public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, enumType, "", $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
             }
         }
 
