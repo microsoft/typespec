@@ -139,6 +139,8 @@ async function downloadLicenseForKnownPackages(packageName: string): Promise<str
     // change-case package doesn't have license file in the npm package directly
     "change-case":
       "https://raw.githubusercontent.com/blakeembrey/change-case/refs/heads/main/LICENSE",
+    "cross-spawn":
+      "https://raw.githubusercontent.com/moxystudio/node-cross-spawn/refs/heads/master/LICENSE",
   };
 
   const url = knownPackageList[packageName];
