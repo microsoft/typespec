@@ -1254,12 +1254,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ProxyMethod restAPIMethod, boolean useFullClassName) {
         commentBlock.description(clientMethod.getDescription());
         List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-        for (ClientMethodParameter parameter : methodParameters) {
-            commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+        if (clientMethod.isPageStreamingType()) {
+            final MethodPageDetails methodPageDetails = clientMethod.getMethodPageDetails();
+            for (ClientMethodParameter parameter : methodParameters) {
+                if (!methodPageDetails.shouldHideParameter(parameter)) {
+                    commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+                }
+            }
+        } else {
+            for (ClientMethodParameter parameter : methodParameters) {
+                commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+            }
         }
-        if (restAPIMethod != null
-            && clientMethod.getParametersDeclaration() != null
-            && !clientMethod.getParametersDeclaration().isEmpty()) {
+        if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
         }
         generateJavadocExceptions(clientMethod, commentBlock, useFullClassName);

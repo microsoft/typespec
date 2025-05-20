@@ -115,7 +115,7 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
             for (ClientMethodParameter parameter : methodParameters) {
                 comment.param(parameter.getName(), parameter.getDescription());
             }
-            if (clientMethod.getParametersDeclaration() != null && !clientMethod.getParametersDeclaration().isEmpty()) {
+            if (clientMethod.hasParameterDeclaration()) {
                 comment.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
             }
             if (restAPIMethod != null) {
