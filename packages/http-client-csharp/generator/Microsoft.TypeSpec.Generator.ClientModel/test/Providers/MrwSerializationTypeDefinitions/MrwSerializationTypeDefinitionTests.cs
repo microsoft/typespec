@@ -647,7 +647,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodParameters = methodSignature?.Parameters;
             Assert.AreEqual(1, methodParameters?.Count);
-            Assert.IsNull(methodSignature?.ReturnType);
+            Assert.IsTrue(methodSignature?.ReturnType!.Equals(typeof(BinaryContent)));
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
@@ -678,7 +678,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(1, methodParameters?.Count);
             var clientResultParameter = methodParameters?[0];
             Assert.AreEqual(new CSharpType(typeof(ClientResult)), clientResultParameter?.Type);
-            Assert.IsNull(methodSignature?.ReturnType);
+            Assert.IsTrue(methodSignature?.ReturnType!.Equals(model.Type));
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
@@ -704,7 +704,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             bool hasString = false;
             bool hasCollection = false;
             bool hasDictionary = false;
-            foreach (var statement in method.BodyStatements!.Flatten())
+            foreach (var statement in method.BodyStatements!)
             {
                 if (statement.ToDisplayString().Contains("readOnlyInt"))
                 {

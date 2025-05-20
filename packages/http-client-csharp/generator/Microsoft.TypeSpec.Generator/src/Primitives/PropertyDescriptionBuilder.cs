@@ -16,12 +16,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// This method is used to create the description for the property.
         /// If the property is of type <see cref="BinaryData"/>, then an additional description will be appended.
         /// </summary>
-        /// <param name="property"> The property for which the description is being constructed.</param>
         /// <param name="type">The CSharpType of the property.</param>
         /// <param name="serializationFormat">The serialization format of the property.</param>
-        /// <param name="isPropertyReadOnly">Flag used to determine if the property <paramref name="property"/> is read-only.</param>
+        /// <param name="description">The property description</param>
         /// <returns>The formatted property description string.</returns>
-        internal static XmlDocSummaryStatement BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, FormattableString description)
+        internal static XmlDocSummaryStatement BuildPropertyDescription(CSharpType type, SerializationFormat serializationFormat, FormattableString description)
         {
             var innerStatements = type.ContainsBinaryData ? CreateBinaryDataExtraDescription(type, serializationFormat) : Array.Empty<XmlDocStatement>();
             return new XmlDocSummaryStatement([description], [.. innerStatements]);
@@ -46,7 +45,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 if (item.IsLiteral && item.Literal != null)
                 {
                     var literalValue = item.Literal;
-                    if (item.FrameworkType == typeof(string))
+                    var literalUnderlyingType = item.IsFrameworkType ?
+                        item.FrameworkType :
+                        item.UnderlyingEnumType;
+                    if (literalUnderlyingType == typeof(string))
                     {
                         description = new XmlDocStatement("description", [$"{literalValue:L}"]);
                     }

@@ -323,5 +323,8 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     ...simpleTypesMap.values(),
   ];
   codeModel["crossLanguagePackageId"] = ignoreDiagnostics(getCrossLanguagePackageId(sdkContext));
+  if ((sdkContext.emitContext.options as any).flavor === "azure") {
+    codeModel["metadata"] = sdkPackage.metadata;
+  }
   return codeModel;
 }

@@ -16,6 +16,7 @@ from .imports import ImportType, FileImport, TypingSection
 from .parameter_list import ParameterList
 from .model_type import ModelType
 from .list_type import ListType
+from .parameter import Parameter
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -59,6 +60,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
         self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
+        self.next_link_reinjected_parameters: List[Parameter] = [
+            Parameter.from_yaml(p, code_model) for p in yaml_data.get("nextLinkReInjectedParameters", [])
+        ]
 
     @property
     def has_continuation_token(self) -> bool:
@@ -118,9 +122,17 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
         if async_mode:
-            file_import.add_submodule_import("typing", "AsyncIterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            default_paging_submodule = f"{'async_' if self.code_model.is_azure_flavor else ''}paging"
+            file_import.add_submodule_import(
+                f"{self.code_model.core_library}.{default_paging_submodule}",
+                "AsyncItemPaged",
+                ImportType.SDKCORE,
+                TypingSection.CONDITIONAL,
+            )
         else:
-            file_import.add_submodule_import("typing", "Iterable", ImportType.STDLIB, TypingSection.CONDITIONAL)
+            file_import.add_submodule_import(
+                f"{self.code_model.core_library}.paging", "ItemPaged", ImportType.SDKCORE, TypingSection.CONDITIONAL
+            )
         if (
             self.next_request_builder
             and self.code_model.options["builders_visibility"] == "embedded"

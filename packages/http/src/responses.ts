@@ -14,7 +14,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";

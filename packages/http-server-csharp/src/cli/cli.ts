@@ -51,6 +51,13 @@ async function main() {
             description: "Path to the directory where the project will be created.",
             type: "string",
           })
+          .option("collection-type", {
+            description:
+              "Specifies the type of collection to use: 'array' or 'enumerable'. If not specified, 'array' will be used by default.",
+            type: "string",
+            default: "array",
+            choices: ["array", "enumerable"],
+          })
           .positional("path-to-spec", {
             description: "The path to the TypeSpec spec or TypeSpec project directory",
             type: "string",
@@ -64,6 +71,7 @@ async function main() {
         const useSwagger: boolean = args["use-swaggerui"];
         const overwrite: boolean = args["overwrite"];
         const projectName: string = args["project-name"];
+        const collectionType: string = args["collectionType"] ?? "array";
         const httpPort: number = args["http-port"] || (await getFreePort(5000, 5999));
         const httpsPort: number = args["https-port"] || (await getFreePort(7000, 7999));
         console.log(
@@ -91,6 +99,12 @@ async function main() {
         }
         if (httpsPort) {
           compileArgs.push("--option", `@typespec/http-server-csharp.https-port=${httpsPort}`);
+        }
+        if (collectionType) {
+          compileArgs.push(
+            "--option",
+            `@typespec/http-server-csharp.collection-type=${collectionType}`,
+          );
         }
 
         const swaggerArgs: string[] = [

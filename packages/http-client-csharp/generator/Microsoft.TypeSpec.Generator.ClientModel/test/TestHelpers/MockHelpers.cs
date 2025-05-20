@@ -26,10 +26,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
+            Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<Task<Compilation>>? compilation = null,
             string? configuration = null)
         {
             var mockGenerator = LoadMockGenerator(
+                inputLiterals: inputLiterals,
                 inputEnums: inputEnums,
                 inputModels: inputModels,
                 clients: clients,
@@ -37,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             var compilationResult = compilation == null ? null : await compilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, null)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
@@ -49,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<CSharpType>? matchConditionsType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
+            Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
@@ -59,9 +62,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
             RequestContentApi? requestContentApi = null,
-            Func<InputAuth>? auth = null)
+            Func<InputAuth>? auth = null,
+            bool includeXmlDocs = false)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
+            IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
@@ -71,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var mockInputNs = new Mock<InputNamespace>(
                 "Sample",
                 inputNsApiVersions,
+                inputNsLiterals,
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
@@ -108,6 +114,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var clientModelInstance = typeof(ScmCodeModelGenerator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
+            if (includeXmlDocs)
+            {
+                configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
+            }
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
@@ -139,7 +149,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
             mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);

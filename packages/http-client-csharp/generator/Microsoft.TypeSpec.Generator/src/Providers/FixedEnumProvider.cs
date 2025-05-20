@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
 
-            if (input.Accessibility == "internal")
+            if (input.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }

@@ -11,7 +11,7 @@ using System.Globalization;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The Thing_requiredLiteralFloat. </summary>
+    /// <summary> The ThingRequiredLiteralFloat. </summary>
     public readonly partial struct ThingRequiredLiteralFloat : IEquatable<ThingRequiredLiteralFloat>
     {
         private readonly float _value;
@@ -42,11 +42,11 @@ namespace SampleTypeSpec
         /// <param name="value"> The value. </param>
         public static implicit operator ThingRequiredLiteralFloat(float value) => new ThingRequiredLiteralFloat(value);
 
-        /// <param name="obj"> The object to compare. </param>
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is ThingRequiredLiteralFloat other && Equals(other);
 
-        /// <param name="other"> The instance to compare. </param>
+        /// <inheritdoc/>
         public bool Equals(ThingRequiredLiteralFloat other) => Equals(_value, other._value);
 
         /// <inheritdoc/>

@@ -60,8 +60,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var memberParameter = new ParameterProvider("member", FormattableStringHelpers.Empty, typeof(string));
-            var parameterParameters = new ParameterProvider("parameters", FormattableStringHelpers.Empty, typeof(Type[]), isParams: true);
+            var memberParameter = new ParameterProvider("member", $"The member to suppress.", typeof(string));
+            var parameterParameters = new ParameterProvider("parameters", $"The types of the parameters of the member.", typeof(Type[]), isParams: true);
 
             return
             [

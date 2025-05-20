@@ -20,6 +20,7 @@ import {
   isNeverType,
   isUnknownType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
@@ -297,7 +298,7 @@ export function differentiateUnion(
 
   if (variants.some((v) => isUnknownType(v.type))) {
     // Collapse the whole union to `unknown`.
-    return { kind: "result", type: ctx.program.checker.anyType };
+    return { kind: "result", type: $(ctx.program).intrinsic.any };
   }
 
   if (!discriminator) {

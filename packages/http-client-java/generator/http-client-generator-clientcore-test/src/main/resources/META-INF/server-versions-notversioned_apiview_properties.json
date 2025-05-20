@@ -2,12 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "server.versions.notversioned.NotVersionedClient": "Server.Versions.NotVersioned",
-    "server.versions.notversioned.NotVersionedClient.withPathApiVersion": "Server.Versions.NotVersioned.withPathApiVersion",
-    "server.versions.notversioned.NotVersionedClient.withPathApiVersionWithResponse": "Server.Versions.NotVersioned.withPathApiVersion",
-    "server.versions.notversioned.NotVersionedClient.withQueryApiVersion": "Server.Versions.NotVersioned.withQueryApiVersion",
-    "server.versions.notversioned.NotVersionedClient.withQueryApiVersionWithResponse": "Server.Versions.NotVersioned.withQueryApiVersion",
-    "server.versions.notversioned.NotVersionedClient.withoutApiVersion": "Server.Versions.NotVersioned.withoutApiVersion",
-    "server.versions.notversioned.NotVersionedClient.withoutApiVersionWithResponse": "Server.Versions.NotVersioned.withoutApiVersion",
     "server.versions.notversioned.NotVersionedClientBuilder": "Server.Versions.NotVersioned"
   }
 }

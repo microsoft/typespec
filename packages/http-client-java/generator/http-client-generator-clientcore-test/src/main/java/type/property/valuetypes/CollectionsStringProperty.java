@@ -1,7 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,12 +12,12 @@ import java.util.List;
 /**
  * Model with collection string properties.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class CollectionsStringProperty implements JsonSerializable<CollectionsStringProperty> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<String> property;
 
     /**
@@ -25,7 +25,7 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
      * 
      * @param property the property value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsStringProperty(List<String> property) {
         this.property = property;
     }
@@ -35,7 +35,7 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<String> getProperty() {
         return this.property;
     }
@@ -43,7 +43,7 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -60,7 +60,7 @@ public final class CollectionsStringProperty implements JsonSerializable<Collect
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the CollectionsStringProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static CollectionsStringProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             List<String> property = null;

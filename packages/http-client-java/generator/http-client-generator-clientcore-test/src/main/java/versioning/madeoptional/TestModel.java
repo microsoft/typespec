@@ -1,7 +1,7 @@
 package versioning.madeoptional;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * The TestModel model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class TestModel implements JsonSerializable<TestModel> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String prop;
 
     /*
      * The changedProp property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String changedProp;
 
     /**
@@ -30,7 +30,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TestModel(String prop) {
         this.prop = prop;
     }
@@ -40,7 +40,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProp() {
         return this.prop;
     }
@@ -50,7 +50,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
      * 
      * @return the changedProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getChangedProp() {
         return this.changedProp;
     }
@@ -61,7 +61,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
      * @param changedProp the changedProp value to set.
      * @return the TestModel object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public TestModel setChangedProp(String changedProp) {
         this.changedProp = changedProp;
         return this;
@@ -70,7 +70,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -88,7 +88,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the TestModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static TestModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String prop = null;

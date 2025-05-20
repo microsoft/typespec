@@ -1,4 +1,4 @@
-import { Children, code, For, mapJoin, Refkey, refkey } from "@alloy-js/core";
+import { Children, code, For, mapJoin, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Discriminator,
@@ -9,11 +9,12 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { Typekit } from "@typespec/compiler/experimental/typekit";
+import { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import {
   ArraySerializerRefkey,
   DateDeserializerRefkey,
@@ -35,9 +36,12 @@ export interface UnionTransformProps {
 }
 function UnionTransformExpression(props: UnionTransformProps) {
   const { $ } = useTsp();
-  const discriminator = $.type.getDiscriminator(props.type);
+  const discriminator = $.union.getDiscriminatedUnion(props.type);
+  const discriminatorProperty = discriminator?.options.discriminatorPropertyName && {
+    propertyName: discriminator.options.discriminatorPropertyName,
+  };
 
-  if (!discriminator) {
+  if (!discriminatorProperty) {
     // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
@@ -47,7 +51,11 @@ function UnionTransformExpression(props: UnionTransformProps) {
   }
 
   return (
-    <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />
+    <DiscriminateExpression
+      type={props.type}
+      discriminator={discriminatorProperty}
+      target={props.target}
+    />
   );
 }
 
@@ -118,11 +126,11 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";
   const functionName = props.name ? props.name : `${baseName}${functionSuffix}`;
   const itemType =
-    props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
+    props.target === "application" ? "any" : <ts.Reference refkey={efRefkey(props.type)} />;
 
   let transformExpression: Children;
   if ($.model.is(props.type)) {
-    const discriminator = $.type.getDiscriminator(props.type);
+    const discriminator = $.model.getDiscriminatedUnion(props.type);
 
     transformExpression = discriminator ? (
       <DiscriminateExpression
@@ -145,7 +153,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
     });
   }
 
-  const returnType = props.target === "application" ? refkey(props.type) : "any";
+  const returnType = props.target === "application" ? efRefkey(props.type) : "any";
 
   const ref = props.refkey ?? getTypeTransformerRefkey(props.type, props.target);
 
@@ -169,7 +177,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
  * @returns the refkey for the TypeTransformer function
  */
 export function getTypeTransformerRefkey(type: Type, target: "application" | "transport") {
-  return refkey(type, target);
+  return efRefkey(type, target);
 }
 
 export interface ModelTransformExpressionProps {
@@ -191,7 +199,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
     });
   }
 
-  if ($.model.getSpreadType(props.type)) {
+  if ($.model.getIndexType(props.type)) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-spread-model-transformation-nyi",
       target: props.type,
@@ -356,7 +364,7 @@ export function TypeTransformCall(props: TypeTransformCallProps): Children {
   }
   let itemName: Children = itemPath.join(".");
   if (props.castInput) {
-    itemName = code`${itemName} as ${refkey(props.type)}`;
+    itemName = code`${itemName} as ${efRefkey(props.type)}`;
   }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.model.is(transformType) && $.array.is(transformType)) {

@@ -28,7 +28,6 @@ granted herein, whether by implication, estoppel or otherwise.
 18. which version 5.0.0 (https://github.com/npm/node-which)
 19. yaml version 2.7.0 (github:eemeli/yaml)
 
-
 %% ajv NOTICES AND INFORMATION BEGIN HERE
 =====================================================
 The MIT License (MIT)
