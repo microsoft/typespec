@@ -47,43 +47,20 @@ namespace Microsoft.TypeSpec.Generator
             return type;
         }
 
-        internal InputType GetLiteralValueType(InputLiteralType literal)
-        {
-            if (LiteralValueTypeCache.TryGetValue(literal, out var valueType))
-            {
-                return valueType;
-            }
-
-            // we only convert the literal into enum when it is not a boolean
-            if (literal.ValueType.Kind == InputPrimitiveTypeKind.Boolean)
-            {
-                valueType = literal.ValueType;
-            }
-            else
-            {
-                var values = new List<InputEnumTypeValue>();
-                var enumType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
-                values.Add(new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, enumType, null, literal.Value.ToString()));
-                valueType = enumType;
-            }
-            LiteralValueTypeCache.Add(literal, valueType);
-            return valueType;
-        }
-
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
             {
                 case InputLiteralType literalType:
-                    var input = CreateCSharpType(GetLiteralValueType(literalType));
+                    var input = CreateCSharpType(literalType.ValueType);
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
-                case InputEnumTypeValue enumValueType:
-                    // for enum value, we redirect to its corresponding enum type as a literal
-                    var enumValue = CreateCSharpType(enumValueType.EnumType);
-                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
-                    break;
+                // case InputEnumTypeValue enumValueType:
+                //     // for enum value, we redirect to its corresponding enum type as a literal
+                //     var enumValue = CreateCSharpType(enumValueType.EnumType);
+                //     type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
+                //     break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)
