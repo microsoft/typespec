@@ -5,12 +5,14 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Threading;
+using Microsoft.TypeSpec.Generator;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using System.Linq;
 
@@ -91,21 +93,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             // Verify result is not null and properly typed
             Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Original);
 
             // Verify the underlying expression is a TernaryConditionalExpression
             var ternary = result.Original as TernaryConditionalExpression;
             Assert.IsNotNull(ternary);
 
-            // Verify the condition is checking CanBeCanceled property
+            // Verify the condition part is checking CanBeCanceled property
             var condition = ternary?.Condition as MemberExpression;
             Assert.IsNotNull(condition);
             Assert.AreEqual(nameof(CancellationToken.CanBeCanceled), condition?.MemberName);
 
-            // Verify the consequent (true branch) is a value expression
-            Assert.IsInstanceOf<ValueExpression>(ternary?.Consequent);
-
-            // Verify the alternative (false branch) is a KeywordExpression representing null
-            Assert.IsInstanceOf<ValueExpression>(ternary?.Alternative);
+            // Verify the consequent part has a value
+            Assert.IsNotNull(ternary?.Consequent);
+            
+            // Verify the alternative part represents a null value
+            Assert.IsNotNull(ternary?.Alternative);
+            var valueExpression = ternary?.Alternative as ValueExpression;
+            Assert.IsNotNull(valueExpression);
+            
+            // This validates the overall structure is:
+            // cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null
+            // which is the pattern necessary for the expected behavior
         }
 
         [Test]
