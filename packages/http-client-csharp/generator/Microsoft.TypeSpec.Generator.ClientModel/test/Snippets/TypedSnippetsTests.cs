@@ -4,6 +4,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -11,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 {
@@ -75,6 +77,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             }
 
             Assert.AreEqual(arg, untyped?.Arguments[0]);
+        }
+
+        [Test]
+        public void IHttpRequestOptionsApiSnippets_FromCancellationToken()
+        {
+            // Create a parameter for cancellationToken
+            var cancellationTokenParam = new ParameterProvider("cancellationToken", $"The cancellation token.", typeof(CancellationToken));
+            var cancellationToken = cancellationTokenParam.As<CancellationToken>();
+
+            // Call the method under test
+            var result = IHttpRequestOptionsApiSnippets.FromCancellationToken(cancellationToken);
+
+            // Verify result is not null and properly typed
+            Assert.IsNotNull(result);
+
+            // Verify the underlying expression is a TernaryConditionalExpression
+            var ternary = result.Original as TernaryConditionalExpression;
+            Assert.IsNotNull(ternary);
+
+            // Verify the condition is checking CanBeCanceled property
+            var condition = ternary?.Condition as MemberExpression;
+            Assert.IsNotNull(condition);
+            Assert.AreEqual(nameof(CancellationToken.CanBeCanceled), condition?.MemberName);
+
+            // Verify the consequent (true branch) is a value expression
+            Assert.IsInstanceOf<ValueExpression>(ternary?.Consequent);
+
+            // Verify the alternative (false branch) is a KeywordExpression representing null
+            Assert.IsInstanceOf<ValueExpression>(ternary?.Alternative);
         }
 
         [Test]
