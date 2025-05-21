@@ -29,12 +29,6 @@ export type IsActivitySender = {
   };
 };
 
-export type IsAuthoredBy = {
-  isAuthoredBy: {
-    user: string;
-  };
-};
-
 export type IsAction = {
   isAction: {
     action: // Issues
@@ -91,7 +85,6 @@ export type Condition =
   | HasLabel
   | LabelRemoved
   | IncludesModifiedFiles
-  | IsAuthoredBy
   | Or
   | And
   | Not
@@ -107,12 +100,6 @@ export function payloadType(payloadType: PayloadType["payloadType"]): PayloadTyp
 export function isActivitySender(data: IsActivitySender["isActivitySender"]): IsActivitySender {
   return {
     isActivitySender: data,
-  };
-}
-
-export function isAuthoredBy(user: string): IsAuthoredBy {
-  return {
-    isAuthoredBy: { user },
   };
 }
 
