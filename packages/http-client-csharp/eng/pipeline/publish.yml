@@ -47,3 +47,28 @@ extends:
               inputs:
                 useGlobalJson: true
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      - stage: CreateAzureSdkForNetPR
+        displayName: Create PR for azure-sdk-for-net
+        dependsOn: CSharp_Publish
+        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: CreatePR
+            steps:
+              - checkout: self
+
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              
+              - script: |
+                  node ./packages/internal-build-utils/cmd/cli.js create-azure-sdk-for-net-pr \
+                  --packagePath $(Build.SourcesDirectory)/packages/http-client-csharp \
+                  --pullRequestUrl "https://github.com/microsoft/typespec/pull/$(System.PullRequest.PullRequestNumber)" \
+                  --packageUrl "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/@typespec/http-client-csharp/-/typespec-http-client-csharp-$(packageVersion).tgz" \
+                  --githubToken $(azure-sdk-build-github-token)
+                displayName: Create PR in azure-sdk-for-net
+                env:
+                  packageVersion: $(Build.BuildNumber)
