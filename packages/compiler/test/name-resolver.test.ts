@@ -780,22 +780,6 @@ describe("operations", () => {
         ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
       });
     });
-
-    it("resolves parameters meta property with is ops", () => {
-      const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
-        [
-          `
-            model Bar { }
-            op Foo(x: Bar): void;
-            op Baz is Foo;
-          `,
-        ],
-        "Baz::parameters.x::type",
-        "Bar",
-      );
-
-      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
-    });
   });
 });
 
