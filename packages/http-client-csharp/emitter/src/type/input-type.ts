@@ -135,7 +135,7 @@ export interface InputModelType extends InputTypeBase {
   serializationOptions: SerializationOptions;
 }
 
-export interface InputModelPropertyTypeBase extends DecoratedType {
+export interface InputPropertyTypeBase extends DecoratedType {
   type: InputType;
   name: string;
   doc?: string;
@@ -150,7 +150,7 @@ export interface InputModelPropertyTypeBase extends DecoratedType {
   access?: AccessFlags;
 }
 
-export interface InputModelProperty extends InputModelPropertyTypeBase {
+export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
   discriminator: boolean;
   serializedName: string;
@@ -166,7 +166,7 @@ export type InputHttpParameter =
   | InputHeaderParameter
   | InputBodyParameter;
 
-export interface InputQueryParameter extends InputModelPropertyTypeBase {
+export interface InputQueryParameter extends InputPropertyTypeBase {
   kind: "query";
   collectionFormat?: CollectionFormat;
   serializedName: string;
@@ -174,7 +174,7 @@ export interface InputQueryParameter extends InputModelPropertyTypeBase {
   explode: boolean;
 }
 
-export interface InputPathParameter extends InputModelPropertyTypeBase {
+export interface InputPathParameter extends InputPropertyTypeBase {
   kind: "path";
   explode: boolean;
   style: "simple" | "label" | "matrix" | "fragment" | "path";
@@ -183,14 +183,14 @@ export interface InputPathParameter extends InputModelPropertyTypeBase {
   correspondingMethodParams: InputProperty[];
 }
 
-export interface InputHeaderParameter extends InputModelPropertyTypeBase {
+export interface InputHeaderParameter extends InputPropertyTypeBase {
   kind: "header";
   collectionFormat?: CollectionFormat;
   serializedName: string;
   correspondingMethodParams: InputProperty[];
 }
 
-export interface InputBodyParameter extends InputModelPropertyTypeBase {
+export interface InputBodyParameter extends InputPropertyTypeBase {
   kind: "body";
   serializedName: string;
   contentTypes: string[];
