@@ -543,10 +543,14 @@ export async function emitCode(
   tel: OperationTelemetryEvent,
 ): Promise<ResultCode> {
   if (!tspLanguageClient) {
-    logger.error(`LSP client is not started. Emitting Cancelled.`, [], {
-      showOutput: true,
-      showPopup: true,
-    });
+    logger.error(
+      `LSP client is not started. Make sure typespec compiler has been installed. Emitting Cancelled.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
     return ResultCode.Cancelled;
   }
   const isSupport = await isCompilerSupport(tspLanguageClient);
