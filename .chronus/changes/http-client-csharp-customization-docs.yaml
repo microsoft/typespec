@@ -1,0 +1,4 @@
+type: feature
+title: Add documentation for customizing generated C# code
+package: '@typespec/http-client-csharp'
+description: Ported documentation from autorest.csharp about customizing the generated code to TypeSpec's http-client-csharp documentation
