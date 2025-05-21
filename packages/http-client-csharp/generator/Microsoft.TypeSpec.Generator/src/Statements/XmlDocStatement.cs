@@ -104,10 +104,28 @@ namespace Microsoft.TypeSpec.Generator.Statements
         private void WriteMultiLine(CodeWriter writer)
         {
             writer.WriteLine($"/// {StartTag}");
-            foreach (var line in Lines)
+
+            // We don't want to collapse empty lines that exist in test expectations
+            // This is an incremental fix to address a specific issue
+            // Only skip consecutive empty lines when we have at least 2 in a row
+            for (int i = 0; i < Lines.Count; i++)
             {
+                var line = Lines[i];
+                bool isEmptyLine = string.IsNullOrWhiteSpace(line.Format) && line.ArgumentCount == 0;
+
+                // Skip an empty line if it's between two other empty lines
+                if (isEmptyLine &&
+                    i > 0 && i < Lines.Count - 1 &&
+                    string.IsNullOrWhiteSpace(Lines[i - 1].Format) && Lines[i - 1].ArgumentCount == 0 &&
+                    string.IsNullOrWhiteSpace(Lines[i + 1].Format) && Lines[i + 1].ArgumentCount == 0)
+                {
+                    // Skip this middle empty line
+                    continue;
+                }
+
                 writer.WriteLine($"/// {line}");
             }
+
             foreach (var inner in InnerStatements)
             {
                 inner.Write(writer);

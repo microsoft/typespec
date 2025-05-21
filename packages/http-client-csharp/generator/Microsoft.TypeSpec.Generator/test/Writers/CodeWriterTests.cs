@@ -79,6 +79,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
             Assert.AreEqual(expected, writer.ToString(false));
         }
+        
+        [Test]
+        public void ConsecutiveEmptyLinesSummary()
+        {
+            using var writer = new CodeWriter();
+            var summary = new XmlDocSummaryStatement([$"First line", $"", $"Third line"]);
+            summary.Write(writer);
+
+            var expected = "/// <summary>\n/// First line\n/// \n/// Third line\n/// </summary>" + NewLine;
+            
+            Assert.AreEqual(expected, writer.ToString(false));
+        }
 
         [TestCase(typeof(string), false)]
         [TestCase(typeof(int), false)]
