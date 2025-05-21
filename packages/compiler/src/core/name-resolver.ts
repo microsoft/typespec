@@ -751,7 +751,6 @@ export function createResolver(program: Program): NameResolver {
         targetTable.set("parameters", sym);
       }
     } else {
-      console.log("Bind");
       const { finalSymbol: sig } = resolveTypeReference(node.signature.baseOperation);
       if (sig) {
         const sigTable = getAugmentedSymbolTable(sig.metatypeMembers!);
