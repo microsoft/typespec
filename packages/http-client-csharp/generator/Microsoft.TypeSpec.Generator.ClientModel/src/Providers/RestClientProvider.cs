@@ -220,15 +220,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 string? format;
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
-                ValueExpression toStringExpression;
-                if (type == null || type.IsLiteral || type.Equals(typeof(string)))
-                {
-                    toStringExpression = valueExpression;
-                }
-                else
-                {
-                    toStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                }
+                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ?
+                	valueExpression :
+                	valueExpression.ConvertToString(Literal(format));
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
