@@ -22,6 +22,19 @@ export type PayloadType = {
     | "Pull_Request_Review_Comment";
 };
 
+export type IsActivitySender = {
+  isActivitySender: {
+    user?: string;
+    issueAuthor?: boolean;
+  };
+};
+
+export type IsAuthoredBy = {
+  isAuthoredBy: {
+    user: string;
+  };
+};
+
 export type IsAction = {
   isAction: {
     action: // Issues
@@ -72,11 +85,13 @@ export type FilesMatchPattern = {
 
 export type Condition =
   | PayloadType
+  | IsActivitySender
   | IsAction
   | LabelAdded
   | HasLabel
   | LabelRemoved
   | IncludesModifiedFiles
+  | IsAuthoredBy
   | Or
   | And
   | Not
@@ -86,6 +101,18 @@ export type Condition =
 export function payloadType(payloadType: PayloadType["payloadType"]): PayloadType {
   return {
     payloadType,
+  };
+}
+
+export function isActivitySender(data: IsActivitySender["isActivitySender"]): IsActivitySender {
+  return {
+    isActivitySender: data,
+  };
+}
+
+export function isAuthoredBy(user: string): IsAuthoredBy {
+  return {
+    isAuthoredBy: { user },
   };
 }
 

@@ -9,6 +9,9 @@ configuration:
     eventResponderTasks:
       - if:
           - payloadType: Pull_Request
+          - not:
+              isAuthoredBy:
+                user: Copilot
         then:
           - if:
               - includesModifiedFiles:
