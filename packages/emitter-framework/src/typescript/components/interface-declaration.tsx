@@ -45,9 +45,11 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const extendsType = props.extends ?? getExtendsType($, props.type);
+  const doc = props.doc ?? $.type.getDoc(props.type);
 
   return (
     <ts.InterfaceDeclaration
+      doc={doc}
       default={props.default}
       export={props.export}
       kind={props.kind}
