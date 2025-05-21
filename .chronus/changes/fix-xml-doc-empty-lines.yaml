@@ -1,4 +1,0 @@
-type: fix
-message: Fix extra line break in C# XML comments when generating documentation.
-packages:
-  - "@typespec/http-client-csharp"
