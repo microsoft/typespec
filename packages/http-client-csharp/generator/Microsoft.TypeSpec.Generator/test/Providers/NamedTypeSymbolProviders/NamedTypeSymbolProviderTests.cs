@@ -196,7 +196,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 var underlyingType = parameterCsharpType.FrameworkType;
                 Assert.IsTrue(Nullable.GetUnderlyingType(underlyingType) == null);
             }
-
         }
 
         [Test]

@@ -151,6 +151,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(backwardCompatibilityMethod);
 
             // validate the signature of the backward compatibility method
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            var printedAttribute = attributes[0].ToDisplayString();
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                printedAttribute);
+
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(3, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
@@ -173,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n\nreturn new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp?.ToList(), default, additionalBinaryDataProperties: null);\n",
+                "return PublicModel1(stringProp, modelProp, listProp, dictProp: default);\n",
                 result);
 
             _instance = currentInstance;

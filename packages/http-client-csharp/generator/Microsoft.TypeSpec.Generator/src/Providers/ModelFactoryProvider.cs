@@ -177,6 +177,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     methodsToAdd.Add(builtMethod);
                 }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
+                }
             }
 
             return [.. methodsToAdd];
@@ -203,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var model = GetModelToInstantiateForFactoryMethod(modelProvider);
-                if (model?.Type.AreNamesEqual(previousMethodReturnType) == true)
+                if (model != null && previousMethodReturnType.AreNamesEqual(model.Type))
                 {
                     modelToInstantiate = model;
                     break;
@@ -243,9 +247,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentMethodParameterCount = currentMethod.Parameters.Count;
             var previousParameterCount = previousMethod.Parameters.Count;
 
-            if (currentMethodParameterCount <= previousParameterCount ||
-                (previousMethod.ReturnType is null) != (currentMethod.ReturnType is null) ||
-                (previousMethod.ReturnType != null && !previousMethod.ReturnType.AreNamesEqual(currentMethod.ReturnType)))
+            if (currentMethodParameterCount <= previousParameterCount || !Equals(previousMethod.ReturnType, currentMethod.ReturnType))
             {
                 return false;
             }

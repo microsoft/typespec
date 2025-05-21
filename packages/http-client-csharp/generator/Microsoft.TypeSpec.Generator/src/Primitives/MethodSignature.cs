@@ -64,14 +64,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                     return false;
                 }
 
-                if (x.ReturnType != null && y.ReturnType != null && !x.ReturnType.IsNameMatch(y.ReturnType))
+                if (x.ReturnType != null && y.ReturnType != null && !x.ReturnType.AreNamesEqual(y.ReturnType))
                 {
                     return false;
                 }
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    if (!x.Parameters[i].Type.IsNameMatch(y.Parameters[i].Type))
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
                     {
                         return false;
                     }
