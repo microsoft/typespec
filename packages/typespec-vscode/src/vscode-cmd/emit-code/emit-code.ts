@@ -12,6 +12,7 @@ import { getDirectoryPath } from "../../path-utils.js";
 import telemetryClient from "../../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
+import { TspLanguageClient } from "../../tsp-language-client.js";
 import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
@@ -460,6 +461,7 @@ async function doEmit(
           });
           return ResultCode.Fail;
         }
+
         const compileResult = await tspLanguageClient.compileProject(
           {
             uri: getVscodeUriFromPath(mainTspFile),
@@ -540,6 +542,25 @@ export async function emitCode(
   uri: vscode.Uri,
   tel: OperationTelemetryEvent,
 ): Promise<ResultCode> {
+  if (!tspLanguageClient) {
+    logger.error(
+      `LSP client is not started. Make sure typespec compiler has been installed. Emitting Cancelled.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return ResultCode.Cancelled;
+  }
+  const isSupport = await isCompilerSupport(tspLanguageClient);
+  if (!isSupport) {
+    logger.info(
+      "Compiling project via the language server is not supported in the current version of TypeSpec Compiler. Emitting Cancelled.",
+    );
+    tel.lastStep = "Check compiler capability";
+    return ResultCode.Cancelled;
+  }
   let tspProjectFile: string = "";
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
@@ -796,4 +817,22 @@ export async function emitCode(
       return ResultCode.Cancelled;
     }
   }
+}
+
+async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
+  if (
+    client.initializeResult?.serverInfo?.version === undefined ||
+    client.initializeResult?.customCapacities?.internalCompile !== true
+  ) {
+    logger.error(
+      `Compiling project via the language server is not supported in the current version of TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 1.0.0"}). Please upgrade to a version later than 1.0.0 (by npm install @typespec/compiler) and try again.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
+    return false;
+  }
+  return true;
 }
