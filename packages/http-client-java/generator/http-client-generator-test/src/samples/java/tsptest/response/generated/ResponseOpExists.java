@@ -13,8 +13,8 @@ public class ResponseOpExists {
         ResponseClient responseClient
             = new ResponseClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildClient();
-        // BEGIN:tsptest.response.generated.exists.responseopexists
+        // BEGIN:tsptest.response.generated.exists.response-op-exists
         boolean response = responseClient.exists();
-        // END:tsptest.response.generated.exists.responseopexists
+        // END:tsptest.response.generated.exists.response-op-exists
     }
 }
