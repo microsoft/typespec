@@ -256,6 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return type switch
             {
                 InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputEnumTypeValue enumValueType => enumValueType.ValueType,
                 InputEnumType enumType => enumType.ValueType,
                 InputLiteralType inputLiteral => inputLiteral.ValueType,
                 InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
