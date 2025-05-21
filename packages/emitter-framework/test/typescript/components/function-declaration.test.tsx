@@ -77,7 +77,7 @@ describe("Typescript Function Declaration", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
-      it("creates a function with overriden JSDoc", async () => {
+      it("creates a function with overridden JSDoc", async () => {
         const program = await getProgram(`
         namespace DemoService;
         /**
