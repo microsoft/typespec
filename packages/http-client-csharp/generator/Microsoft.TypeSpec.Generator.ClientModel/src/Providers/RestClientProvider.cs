@@ -515,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. statusCodes.OrderBy(i => i)];
         }
 
-        internal MethodProvider GetCreateRequestMethod(InputOperation operation)
+        public MethodProvider GetCreateRequestMethod(InputOperation operation)
         {
             _ = Methods; // Ensure methods are built
             return MethodCache[operation];

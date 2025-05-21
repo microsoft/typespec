@@ -38,3 +38,8 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "csharp"
+      AdditionalInitializeSteps:
+        - task: UseDotNet@2
+          inputs:
+            useGlobalJson: true
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

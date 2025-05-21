@@ -52,6 +52,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
         private Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
+        private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
+        private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
+
         private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
 
         protected override FormattableString Description { get; }
@@ -504,6 +507,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
+        public ScmMethodProviderCollection GetMethodCollectionByOperation(InputOperation operation)
+        {
+            _ = Methods; // Ensure methods are built
+            return MethodCache[operation];
+        }
+
         protected override ScmMethodProvider[] BuildMethods()
         {
             var subClients = _subClients.Value;
@@ -515,6 +524,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(serviceMethod, this);
                 if (clientMethods != null)
                 {
+                    MethodCache[serviceMethod.Operation] = clientMethods;
                     methods.AddRange(clientMethods);
                 }
             }
