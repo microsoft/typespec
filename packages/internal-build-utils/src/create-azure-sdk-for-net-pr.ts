@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { execSync } from "child_process";
-import { mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, writeFileSync, readFileSync } from "fs";
 import { join, resolve } from "path";
 import { DefaultHttpClientFetch } from "./http-client.js";
 
@@ -52,7 +52,7 @@ export async function createAzureSdkForNetPr(options: Options): Promise<void> {
 
     // Read package info
     const packageJsonPath = resolve(packagePath, "package.json");
-    const packageJsonContent = require(packageJsonPath);
+    const packageJsonContent = JSON.parse(readFileSync(packageJsonPath, "utf8"));
     const packageVersion = packageJsonContent.version;
     console.log(`Using package version: ${packageVersion}`);
 
@@ -70,13 +70,12 @@ export async function createAzureSdkForNetPr(options: Options): Promise<void> {
     // Update the dependency in Directory.Packages.props (this is the file that usually contains dependency versions in Azure SDK)
     console.log(`Updating dependency version in Directory.Packages.props...`);
     const propsFilePath = join(tempDir, "Directory.Packages.props");
-    const propsFileContent = require("fs").readFileSync(propsFilePath, "utf8");
+    const propsFileContent = readFileSync(propsFilePath, "utf8");
 
     // Update the appropriate package reference in the file
-    // This is a simple replacement and might need to be improved based on the exact structure of the file
     const updatedContent = propsFileContent.replace(
       /<PackageVersion Include="Microsoft\.TypeSpec\.Generator\.ClientModel".*?>(.*?)<\/PackageVersion>/g,
-      `<PackageVersion Include="Microsoft.TypeSpec.Generator.ClientModel">$packageVersion</PackageVersion>`
+      `<PackageVersion Include="Microsoft.TypeSpec.Generator.ClientModel">${packageVersion}</PackageVersion>`
     );
     
     // Write the updated file back

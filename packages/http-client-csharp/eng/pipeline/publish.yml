@@ -51,7 +51,7 @@ extends:
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
         dependsOn: CSharp_Publish
-        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranchName'], 'main'))
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -67,7 +67,7 @@ extends:
                   node ./packages/internal-build-utils/cmd/cli.js create-azure-sdk-for-net-pr \
                   --packagePath $(Build.SourcesDirectory)/packages/http-client-csharp \
                   --pullRequestUrl "https://github.com/microsoft/typespec/pull/$(System.PullRequest.PullRequestNumber)" \
-                  --packageUrl "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/@typespec/http-client-csharp/-/typespec-http-client-csharp-$(packageVersion).tgz" \
+                  --packageUrl "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/nuget/v3/flat2/Microsoft.TypeSpec.Generator.ClientModel/$(packageVersion)" \
                   --githubToken $(azure-sdk-build-github-token)
                 displayName: Create PR in azure-sdk-for-net
                 env:
