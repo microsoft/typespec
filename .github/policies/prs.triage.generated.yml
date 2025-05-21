@@ -10,7 +10,7 @@ configuration:
       - if:
           - payloadType: Pull_Request
           - not:
-              isAuthoredBy:
+              isActivitySender:
                 user: Copilot
         then:
           - if:
