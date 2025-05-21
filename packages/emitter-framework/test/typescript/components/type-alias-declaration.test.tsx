@@ -37,6 +37,78 @@ describe("Typescript Type Alias Declaration", () => {
         expect(actualContent).toBe(expectedContent);
       });
 
+      it("creates a type alias declaration with JSDoc", async () => {
+        const program = await getProgram(`
+        namespace DemoService;
+        /**
+         * Type to represent a date
+         */
+        scalar MyDate extends utcDateTime;
+        `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+
+        const res = render(
+          <Output program={program}>
+            <SourceFile path="test.ts">
+              <TypeAliasDeclaration type={scalar} />
+            </SourceFile>
+          </Output>,
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+        const expectedContent = await format(
+          `
+          /**
+           * Type to represent a date
+           */
+          type MyDate = Date;`,
+          {
+            parser: "typescript",
+          },
+        );
+        expect(actualContent).toBe(expectedContent);
+      });
+
+      it("can override JSDoc", async () => {
+        const program = await getProgram(`
+        namespace DemoService;
+        /**
+         * Type to represent a date
+         */
+        scalar MyDate extends utcDateTime;
+        `);
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const scalar = Array.from((namespace as Namespace).scalars.values())[0];
+
+        const res = render(
+          <Output program={program}>
+            <SourceFile path="test.ts">
+              <TypeAliasDeclaration doc={"Overridden Doc"} type={scalar} />
+            </SourceFile>
+          </Output>,
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+        const expectedContent = await format(
+          `
+          /**
+           * Overridden Doc
+           */
+          type MyDate = Date;`,
+          {
+            parser: "typescript",
+          },
+        );
+        expect(actualContent).toBe(expectedContent);
+      });
+
       it("creates a type alias declaration for a utcDateTime with unixTimeStamp encoding", async () => {
         const program = await getProgram(`
         namespace DemoService;
