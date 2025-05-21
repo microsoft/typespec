@@ -124,10 +124,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            // Parameter is required and will be part of the method signature.
-            if (parameter.isRequired()
-                || MethodUtil.shouldHideParameterInPageable(clientMethod.getMethodPageDetails(), parameter)) {
+            if (parameter.isRequired()) {
+                // Parameter is required and will be part of the method signature.
+                continue;
+            }
+            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
                 continue;
             }
 
@@ -1012,9 +1016,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         for (ClientMethodParameter parameter : methodParameters) {
             commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
         }
-        if (restAPIMethod != null
-            && clientMethod.getParametersDeclaration() != null
-            && !clientMethod.getParametersDeclaration().isEmpty()) {
+        if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
         }
         generateJavadocExceptions(clientMethod, commentBlock, useFullClassName);
