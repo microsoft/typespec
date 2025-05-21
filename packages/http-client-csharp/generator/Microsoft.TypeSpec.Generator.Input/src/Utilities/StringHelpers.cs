@@ -8,15 +8,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.TypeSpec.Generator
+namespace Microsoft.TypeSpec.Generator.Input.Utilities
 {
-    internal static class StringExtensions
+    public static class StringHelpers
     {
         private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
         private static readonly Regex HumanizedCamelCaseRegex = new Regex(@"([A-Z])", RegexOptions.Compiled);
 
         [return: NotNullIfNotNull("name")]
-        public static string ToCleanName(this string name, bool isCamelCase = true)
+        public static string ToCleanIdentifierName(this string name, bool isCamelCase = true)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         [return: NotNullIfNotNull(nameof(name))]
-        public static string ToVariableName(this string name) => ToCleanName(name, isCamelCase: false);
+        public static string ToVariableName(this string name) => name.ToCleanIdentifierName(isCamelCase: false);
 
         public static GetPathPartsEnumerator GetFormattableStringFormatParts(string? format) => new GetPathPartsEnumerator(format);
 

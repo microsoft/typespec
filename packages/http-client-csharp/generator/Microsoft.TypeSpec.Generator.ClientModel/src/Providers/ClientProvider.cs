@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -170,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ns = ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
 
             // figure out if this namespace has been changed for this client
-            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
+            if (!StringHelpers.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
@@ -239,7 +240,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToCleanName();
+        protected override string BuildName() => _inputClient.Name.ToCleanIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -463,16 +464,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanName());
+            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanIdentifierName());
             foreach (var f in Fields)
             {
                 if (f == _apiVersionField && ClientOptions.Value.VersionProperty != null)
                 {
                     body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.Value.VersionProperty.Name)).Terminate());
                 }
-                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanIdentifierName(), out var optionsProperty))
                 {
-                    clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
+                    clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanIdentifierName(), out optionsProperty);
                 }
             }
 

@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -39,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputPagingServiceMetadata _paging;
         private readonly IReadOnlyList<FieldProvider> _requestFields;
         private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
+        private readonly string _createRequestMethodName;
         private readonly int? _nextTokenParameterIndex;
 
         public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
@@ -52,7 +54,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _operation = serviceMethod.Operation;
             _paging = serviceMethod.PagingMetadata;
 
-            _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
+            var createRequestMethodSignature = _client.RestClient.GetCreateRequestMethod(_operation).Signature;
+            _createRequestParameters = createRequestMethodSignature.Parameters;
+            _createRequestMethodName = createRequestMethodSignature.Name;
 
             var fields = new List<FieldProvider>();
             for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
@@ -122,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{_client.Type.Name}{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
+            => $"{_client.Type.Name}{_operation.Name.ToCleanIdentifierName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
@@ -430,7 +434,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
-            $"Create{_operation.Name.ToCleanName()}Request",
+            _createRequestMethodName,
             // we replace the first argument (the initialUri) with the nextPageUri
             [nextPageUri, .. _requestFields.Skip(1)])
             .As<PipelineMessage>();
@@ -442,20 +446,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Replace the nextToken field with the nextToken variable
             arguments[_nextTokenParameterIndex!.Value] = nextToken;
 
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
-                .As<PipelineMessage>();
+            return _clientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForSingle()
         {
             ValueExpression[] arguments = [.. _requestFields.Select(f => f.AsValueExpression)];
 
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
-                .As<PipelineMessage>();
+            return _clientField.Invoke(_createRequestMethodName, arguments).As<PipelineMessage>();
         }
     }
 }
