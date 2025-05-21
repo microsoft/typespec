@@ -751,6 +751,7 @@ export function createResolver(program: Program): NameResolver {
         targetTable.set("parameters", sym);
       }
     } else {
+      console.log("Bind");
       const { finalSymbol: sig } = resolveTypeReference(node.signature.baseOperation);
       if (sig) {
         const sigTable = getAugmentedSymbolTable(sig.metatypeMembers!);
@@ -1294,7 +1295,7 @@ export function createResolver(program: Program): NameResolver {
       while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
         const baseResult = resolveTypeReference(node.signature.baseOperation);
         if (baseResult.resolutionResult & ResolutionResultFlags.Resolved) {
-          node = baseSym!.declarations[0] as OperationStatementNode;
+          node = baseResult.resolvedSymbol!.declarations[0] as OperationStatementNode;
         } else {
           return baseResult;
         }
