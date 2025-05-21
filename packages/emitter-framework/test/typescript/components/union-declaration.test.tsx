@@ -65,6 +65,37 @@ describe("Typescript Union Declaration", () => {
         );
       });
 
+      it("creates a union declaration with JSDoc", async () => {
+        const { TestUnion } = (await runner.compile(`
+          namespace DemoService;
+          /**
+           * Test Union
+           */
+          @test union TestUnion {
+            one: "one",
+            two: "two"
+          }
+        `)) as { TestUnion: Union };
+
+        const res = render(
+          <Output program={runner.program}>
+            <SourceFile path="test.ts">
+              <UnionDeclaration type={TestUnion} />
+            </SourceFile>
+          </Output>,
+        );
+
+        assertFileContents(
+          res,
+          d`
+            /**
+             * Test Union
+             */
+            type TestUnion = "one" | "two";
+          `,
+        );
+      });
+
       it("creates a union declaration with name override", async () => {
         const { TestUnion } = (await runner.compile(`
           namespace DemoService;
