@@ -564,7 +564,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return true;
         }
 
-        internal bool IsNameMatch(CSharpType other)
+        private bool IsNameMatch(CSharpType other)
         {
             if (string.IsNullOrEmpty(Namespace))
             {
