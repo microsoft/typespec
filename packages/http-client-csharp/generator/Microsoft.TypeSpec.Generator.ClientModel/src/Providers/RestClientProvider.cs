@@ -221,8 +221,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ValueExpression valueExpression;
                 GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ?
-                	valueExpression : 
-                	TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+                	valueExpression :
+                	valueExpression.ConvertToString(Literal(format));
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
