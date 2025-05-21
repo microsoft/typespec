@@ -105,20 +105,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 methods.Add(new MethodProvider(signature, statements, this, docs));
             }
 
-            return [.. methods, .. BuildMethodsForBackCompatability(methods)];
+            return BuildMethodsForBackCompatibility(methods);
         }
 
-        private MethodProvider[] BuildMethodsForBackCompatability(List<MethodProvider> methods)
+        private MethodProvider[] BuildMethodsForBackCompatibility(List<MethodProvider> originalMethods)
         {
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
-                return [];
+                return [.. originalMethods];
             }
 
-            List<MethodProvider> methodsToAdd = [];
-            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. methods, .. CustomCodeView?.Methods ?? []])
+            List<MethodProvider> methodsToAdd = originalMethods;
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. originalMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
+            HashSet<MethodSignature> methodsToRemove = [];
 
             foreach (var previousMethod in LastContractView.Methods)
             {
@@ -140,6 +141,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool foundCompatibleOverload = false;
                 foreach (var currentOverload in currentOverloads)
                 {
+                    // If the parameter ordering is the only difference, just use the previous method
+                    if (ContainsSameParameters(previousMethod.Signature, currentOverload)
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, out MethodProvider? replacedMethod))
+                    {
+                        methodsToAdd.Add(replacedMethod);
+                        methodsToRemove.Add(currentOverload);
+                        foundCompatibleOverload = true;
+                        break;
+                    }
+
                     if (TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentOverload, out var arguments))
                     {
                         var signature = new MethodSignature(
@@ -178,7 +189,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [.. methodsToAdd];
+            int methodsToRemoveCount = methodsToRemove.Count;
+            if (methodsToRemoveCount == 0)
+            {
+                return [.. methodsToAdd];
+            }
+
+            int methodsToAddCount = methodsToAdd.Count;
+            List<MethodProvider> factoryMethods = new(methodsToAddCount - methodsToRemoveCount);
+            for (var i = 0; i < methodsToAddCount; i++)
+            {
+                if (!methodsToRemove.Contains(methodsToAdd[i].Signature))
+                {
+                    factoryMethods.Add(methodsToAdd[i]);
+                }
+            }
+
+            return [.. factoryMethods];
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(
@@ -443,6 +470,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Validation = ParameterValidationType.None,
             };
+        }
+
+        private static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
+        {
+            var count = method1.Parameters.Count;
+            if (count != method2.Parameters.Count)
+            {
+                return false;
+            }
+
+            HashSet<ParameterProvider> method1Parameters = [.. method1.Parameters];
+            for ( var i = 0; i < count; i++)
+            {
+                if (!method1Parameters.Contains(method2.Parameters[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool IsEnumDiscriminator(ParameterProvider parameter) =>
