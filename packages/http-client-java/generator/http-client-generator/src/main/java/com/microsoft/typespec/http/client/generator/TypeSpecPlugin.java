@@ -228,6 +228,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
         }
+        if (options.getUseEclipseLanguageServer() != null) {
+            SETTINGS_MAP.put("use-eclipse-language-server", emitterOptions.getUseEclipseLanguageServer());
+        }
         if (options.getUseRestProxy() != null) {
             SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
         }
