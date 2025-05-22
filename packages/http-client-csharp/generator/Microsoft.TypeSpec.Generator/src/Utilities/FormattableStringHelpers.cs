@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -132,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator
             // For instance, when the format string is all \n, it will produce n+1 segments (because we did not omit empty entries).
             Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
             ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
-            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in InternalStringExtensions.GetFormattableStringFormatParts(formatSpan))
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formatSpan))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)

@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
+using PublicStringExtensions = Microsoft.TypeSpec.Generator.Input.Extensions.StringExtensions;
 using Microsoft.TypeSpec.Generator.Utilities;
+using InternalStringExtensions = Microsoft.TypeSpec.Generator.Utilities.StringExtensions;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -159,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase(".Foo", "Foo", ExpectedResult = true)]
         public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
         {
-            return StringExtensions.IsLastNamespaceSegmentTheSame(left, right);
+            return PublicStringExtensions.IsLastNamespaceSegmentTheSame(left, right);
         }
 
         public record Part(string Value, bool IsLiteral, int ArgumentIndex);

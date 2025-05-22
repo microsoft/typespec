@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
-    internal static class InternalStringExtensions
+    internal static class StringExtensions
     {
         public static GetPathPartsEnumerator GetFormattableStringFormatParts(string? format) => new GetPathPartsEnumerator(format);
 
