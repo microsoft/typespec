@@ -10,11 +10,6 @@ on:
       - "website/**"
   # Allow manual triggering
   workflow_dispatch:
-    inputs:
-      run:
-        description: "Run this workflow"
-        required: false
-        default: "true"
 
 # This check is optional by default
 concurrency:
@@ -64,3 +59,6 @@ jobs:
       
       - name: Test
         run: pnpm test
+        
+      - name: E2E Test
+        run: pnpm test:e2e
