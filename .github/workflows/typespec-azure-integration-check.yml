@@ -42,7 +42,7 @@ jobs:
       
       - name: Install pnpm
         uses: pnpm/action-setup@v3
-        
+      
       - name: Clone Azure/typespec-azure repo
         run: |
           echo "::group::Cloning Azure/typespec-azure repository"
@@ -87,8 +87,10 @@ jobs:
                 echo "Extracted section:"
                 echo "$SUBMODULE_SECTION"
                 
-                CORE_SUBMODULE_PATH=$(echo "$SUBMODULE_SECTION" | grep "path = " | sed 's/.*path = \(.*\)/\1/g' | tr -d ' ')
-                CORE_SUBMODULE_NAME=$(echo "$SUBMODULE_SECTION" | grep -E '^\[submodule "([^"]+)"\]' | sed -E 's/^\[submodule "([^"]+)"\]/\1/')
+                CORE_SUBMODULE_PATH=$(echo "$SUBMODULE_SECTION" | grep "path = " | 
+                  sed 's/.*path = \(.*\)/\1/g' | tr -d ' ')
+                CORE_SUBMODULE_NAME=$(echo "$SUBMODULE_SECTION" | 
+                  grep -E '^\[submodule "([^"]+)"\]' | sed -E 's/^\[submodule "([^"]+)"\]/\1/')
                 break
               fi
             done < .gitmodules
@@ -102,7 +104,8 @@ jobs:
             echo -e "\nNo direct reference to microsoft/typespec found, looking for core-related submodules..."
             
             # Look for submodule paths with "core" in their name
-            CORE_PATHS=$(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | grep -i 'core' || true)
+            CORE_PATHS=$(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | 
+              grep -i 'core' || true)
             if [ -n "$CORE_PATHS" ]; then
               echo "Found core-related paths:"
               echo "$CORE_PATHS"
@@ -110,7 +113,8 @@ jobs:
               # Take the first matching core path
               CORE_LINE=$(echo "$CORE_PATHS" | head -n 1)
               CORE_SUBMODULE_PATH=$(echo "$CORE_LINE" | awk '{print $2}')
-              CORE_SUBMODULE_NAME=$(echo "$CORE_LINE" | sed 's/^submodule\.\(.*\)\.path$/\1/')
+              CORE_SUBMODULE_NAME=$(echo "$CORE_LINE" | 
+                sed 's/^submodule\.\(.*\)\.path$/\1/')
             fi
           fi
           
@@ -122,7 +126,8 @@ jobs:
               echo "Checking for path: $path"
               if grep -q "path = $path" .gitmodules 2>/dev/null; then
                 CORE_SUBMODULE_PATH="$path"
-                CORE_SUBMODULE_NAME=$(git config -f .gitmodules --get-regexp "^submodule\..*\.path$" | grep "$path" | sed 's/^submodule\.\(.*\)\.path$/\1/')
+                CORE_SUBMODULE_NAME=$(git config -f .gitmodules --get-regexp "^submodule\..*\.path$" | 
+                  grep "$path" | sed 's/^submodule\.\(.*\)\.path$/\1/')
                 echo "Found match at path: $path, name: $CORE_SUBMODULE_NAME"
                 break
               fi
@@ -151,7 +156,8 @@ jobs:
           
           # Point the submodule to our local copy
           echo "Configuring submodule to use local PR changes..."
-          git config -f .gitmodules "submodule.${{ env.CORE_SUBMODULE_NAME }}.url" "$GITHUB_WORKSPACE/typespec"
+          git config -f .gitmodules "submodule.${{ env.CORE_SUBMODULE_NAME }}.url" \
+            "$GITHUB_WORKSPACE/typespec"
           
           # Initialize and update submodules
           echo "Updating submodules..."
@@ -175,7 +181,8 @@ jobs:
           # Go back to the typespec-azure root
           cd $GITHUB_WORKSPACE/typespec-azure
           
-          echo -e "\n✅ Successfully updated ${{ env.CORE_SUBMODULE_PATH }} submodule to PR commit: ${{ github.event.pull_request.head.sha }}"
+          echo -e "\n✅ Successfully updated ${{ env.CORE_SUBMODULE_PATH }} submodule to PR commit: \
+            ${{ github.event.pull_request.head.sha }}"
           echo "::endgroup::"
       
       - name: Install dependencies for typespec-azure
@@ -205,7 +212,7 @@ jobs:
           
           echo "✅ Build successful"
           echo "::endgroup::"
-        
+      
       - name: Run tests for typespec-azure
         run: |
           echo "::group::Running tests"
@@ -216,12 +223,14 @@ jobs:
           
           echo "✅ Tests passed"
           echo "::endgroup::"
-          
+      
       - name: Report build result
         if: always()
         run: |
           if [[ ${{ job.status }} == "success" ]]; then
-            echo "✅ Azure/typespec-azure integration check passed successfully. The changes in this PR are compatible!"
+            echo "✅ Azure/typespec-azure integration check passed successfully. \
+              The changes in this PR are compatible!"
           else
-            echo "❌ Azure/typespec-azure integration check failed. Please check the logs for more details."
+            echo "❌ Azure/typespec-azure integration check failed. \
+              Please check the logs for more details."
           fi
