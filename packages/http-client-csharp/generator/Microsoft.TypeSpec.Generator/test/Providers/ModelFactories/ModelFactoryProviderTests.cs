@@ -228,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "\nreturn new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
+                "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
 
             _instance = currentInstance;

@@ -100,13 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     parameters,
                     returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
-                var collectionInitialization = GetCollectionInitialization(signature);
-                var statements = new MethodBodyStatements(
-                [
-                    .. collectionInitialization,
-                    collectionInitialization.Count > 0 ? MethodBodyStatement.EmptyLine : MethodBodyStatement.Empty,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature, fullConstructor, binaryDataParam)]))
-                ]);
+                MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
             }
@@ -220,15 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
-            var body = new MethodBodyStatements(
-            [
-                .. GetCollectionInitialization(previousMethod.Signature),
-                MethodBodyStatement.EmptyLine,
-                Return(New.Instance(
-                    modelToInstantiate.Type,
-                    [ ..GetCtorArgs(modelToInstantiate, previousMethod.Signature, fullCtor, binaryDataParam)]))
-            ]);
+            MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
                 previousMethod.Signature,
@@ -237,6 +223,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 previousMethod.XmlDocs);
 
             return true;
+        }
+
+        private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
+        {
+            var collectionInitialization = GetCollectionInitialization(signature);
+            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
+            var body = new MethodBodyStatements(
+            [
+                .. collectionInitialization,
+                collectionInitialization.Count > 0 ? MethodBodyStatement.EmptyLine : MethodBodyStatement.Empty,
+                Return(New.Instance(
+                    modelToInstantiate.Type,
+                    [ ..GetCtorArgs(modelToInstantiate, signature, fullCtor, binaryDataParam)]))
+            ]);
+            return body;
         }
 
         private static bool TryBuildMethodArgumentsForOverload(
