@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EnvDTE;
+using Microsoft.Internal.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
@@ -66,8 +67,10 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         private readonly IVsFolderWorkspaceService _workspaceService;
         private readonly SVsServiceProvider _serviceProvider;
+        private readonly IVsTelemetryService? _telemetryService;
         private string? _workspaceFolder;
         private string? _configuredTypeSpecServerPath;
+        private string? _tspFilePath;
 
         [ImportingConstructor]
         public LanguageClient(
@@ -75,6 +78,7 @@ namespace Microsoft.TypeSpec.VisualStudio
         {
             _workspaceService = workspaceService;
             _serviceProvider = serviceProvider;
+            _telemetryService = serviceProvider.GetService(typeof(SVsTelemetryService)) as IVsTelemetryService;
         }
 
         public async Task<Connection?> ActivateAsync(CancellationToken token)
@@ -144,7 +148,45 @@ namespace Microsoft.TypeSpec.VisualStudio
 
         public Task OnServerInitializedAsync()
         {
+            string typespecCompilerVersion = GetTypespecVersion();
+            if (_telemetryService != null && !string.IsNullOrWhiteSpace(typespecCompilerVersion))
+            {
+                IVsTelemetryEvent telemetryEvent = _telemetryService.CreateEvent("vs/typespec/vs-extension/start-extension");
+                telemetryEvent.SetStringProperty("vs.typespec.compiler.version", typespecCompilerVersion);
+                _telemetryService.GetDefaultSession().PostEvent(telemetryEvent);
+            }
             return Task.CompletedTask;
+        }
+
+        private string GetTypespecVersion()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(_tspFilePath))
+                {
+                    Debugger.Log(0, null, "tsp-server version parsing exception" );
+                    return "";
+                }
+
+                ProcessStartInfo processStartInfo = new()
+                {
+                    FileName = "node.exe",
+                    Arguments = $"{_tspFilePath} --version",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+
+                using Process process = Process.Start(processStartInfo);
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                return output.Trim();
+            }
+            catch (Exception ex)
+            {
+                Debugger.Log(0, null, "tsp-server version exception: " + ex.Message);
+                return "";
+            }
         }
 
         private void LogStderrMessage(string? message)
@@ -166,7 +208,7 @@ namespace Microsoft.TypeSpec.VisualStudio
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetDevelopmentTypeSpecServerPath()
+        private static (string,string) GetDevelopmentTypeSpecServerPath()
         {
             // Even when debugging, we get deployed to an extension folder outside the
             // source tree, so we stash the source directory in a file in debug builds
@@ -174,7 +216,8 @@ namespace Microsoft.TypeSpec.VisualStudio
             // the source tree.
             var thisDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var srcDir = File.ReadAllText(Path.Combine(thisDir, "DebugSourceDirectory.txt")).Trim();
-            return Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "entrypoints", "server.js"));
+            return (Path.GetFullPath(Path.Combine(srcDir, "..", "..", "compiler", "entrypoints", "server.js")),
+                    Path.GetFullPath(Path.Combine(srcDir,"..", "..",  "compiler", "cmd", "tsp.js")));
         }
 #endif
 
@@ -189,7 +232,7 @@ namespace Microsoft.TypeSpec.VisualStudio
             if (InDevelopmentMode())
             {
                 // NOTE: --no-lazy is not supported as environment variable, so we pass it in command line.
-                var module = GetDevelopmentTypeSpecServerPath();
+                (var module,_tspFilePath) = GetDevelopmentTypeSpecServerPath();
                 return ("node.exe", $"{options} {module} {args}", env);
             }
 #endif
@@ -227,6 +270,7 @@ namespace Microsoft.TypeSpec.VisualStudio
                 }
                 else
                 {
+                    _tspFilePath= Path.Combine(serverPath, "cmd", "tsp.js");
                     serverPath = Path.Combine(serverPath, "cmd", "tsp-server.js");
                 }
             }
