@@ -3,7 +3,7 @@
 
 using System.ClientModel.Primitives;
 using System.IO;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 

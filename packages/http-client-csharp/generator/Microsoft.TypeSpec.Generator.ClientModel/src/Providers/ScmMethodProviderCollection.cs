@@ -11,7 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
-            _cleanOperationName = serviceMethod.Operation.Name.ToCleanIdentifierName();
+            _cleanOperationName = serviceMethod.Operation.Name.ToIdentifierName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
 

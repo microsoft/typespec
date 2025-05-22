@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -90,8 +90,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToCleanIdentifierName()}Property"
-                : inputProperty.Name.ToCleanIdentifierName();
+                ? $"{inputProperty.Name.ToIdentifierName()}Property"
+                : inputProperty.Name.ToIdentifierName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);

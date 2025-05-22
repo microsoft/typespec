@@ -3,7 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -114,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase("yield", true)]
         public void TestIsCSharpKeyword(string name, bool isKeyword)
         {
-            var result = StringHelpers.IsCSharpKeyword(name);
+            var result = InternalStringExtensions.IsCSharpKeyword(name);
             Assert.AreEqual(isKeyword, result);
         }
 
@@ -134,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         public void ValidateGetFormattableStringFormatParts(string format, IReadOnlyList<Part> parts)
         {
             var i = 0;
-            foreach (var (span, isLiteral, index) in StringHelpers.GetFormattableStringFormatParts(format))
+            foreach (var (span, isLiteral, index) in InternalStringExtensions.GetFormattableStringFormatParts(format))
             {
                 Assert.AreEqual(parts[i].Value, span.ToString());
                 Assert.AreEqual(parts[i].IsLiteral, isLiteral);
@@ -158,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TestCase(".Foo", "Foo", ExpectedResult = true)]
         public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
         {
-            return StringHelpers.IsLastNamespaceSegmentTheSame(left, right);
+            return StringExtensions.IsLastNamespaceSegmentTheSame(left, right);
         }
 
         public record Part(string Value, bool IsLiteral, int ArgumentIndex);

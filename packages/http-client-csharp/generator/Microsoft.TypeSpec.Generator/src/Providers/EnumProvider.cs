@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType.Name.ToCleanIdentifierName();
+        protected override string BuildName() => _inputType.Name.ToIdentifierName();
         protected override FormattableString Description { get; }
 
         protected override TypeProvider[] BuildSerializationProviders()

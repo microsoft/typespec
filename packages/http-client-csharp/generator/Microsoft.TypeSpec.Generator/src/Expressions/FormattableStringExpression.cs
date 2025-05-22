@@ -3,7 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -31,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         {
             writer.AppendRaw("$\"");
             var argumentCount = 0;
-            foreach ((var span, bool isLiteral) in StringHelpers.GetFormattableStringFormatParts(Format))
+            foreach ((var span, bool isLiteral) in InternalStringExtensions.GetFormattableStringFormatParts(Format))
             {
                 if (isLiteral)
                 {
@@ -52,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         private static void Validate(string format, IReadOnlyList<ValueExpression> args)
         {
             var count = 0;
-            foreach (var (_, isLiteral) in StringHelpers.GetFormattableStringFormatParts(format))
+            foreach (var (_, isLiteral) in InternalStringExtensions.GetFormattableStringFormatParts(format))
             {
                 if (!isLiteral)
                     count++;

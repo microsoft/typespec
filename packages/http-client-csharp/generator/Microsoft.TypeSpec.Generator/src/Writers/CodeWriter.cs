@@ -8,11 +8,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
-using Microsoft.TypeSpec.Generator.Input.Utilities;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator
@@ -80,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator
             const string declarationFormatString = ":D"; // :D :)
             const string identifierFormatString = ":I";
             const string crefFormatString = ":C"; // wraps content into "see cref" tag, available only in xmlDoc
-            foreach ((var span, bool isLiteral, int index) in StringHelpers.GetFormattableStringFormatParts(formattableString.Format))
+            foreach ((var span, bool isLiteral, int index) in InternalStringExtensions.GetFormattableStringFormatParts(formattableString.Format))
             {
                 if (isLiteral)
                 {
@@ -684,7 +685,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return AppendRaw(identifier.ToXmlDocIdentifierName());
             }
-            if (StringHelpers.IsCSharpKeyword(identifier))
+            if (InternalStringExtensions.IsCSharpKeyword(identifier))
             {
                 AppendRaw("@");
             }
