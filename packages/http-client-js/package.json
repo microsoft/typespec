@@ -33,9 +33,9 @@
       "types": "./dist/src/testing/index.d.ts",
       "default": "./dist/src/testing/index.js"
     },
-    "./experimental": {
-      "types": "./dist/src/experimental/index.d.ts",
-      "default": "./dist/src/experimental/index.js"
+    "./components": {
+      "types": "./dist/src/components/index.d.ts",
+      "default": "./dist/src/components/index.js"
     }
   },
   "keywords": [
