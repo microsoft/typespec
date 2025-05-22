@@ -13,6 +13,7 @@
 - Repo use `@chronus/chronus` for changelogs
 - Use `pnpm change add` to add a change description for the touched packages
 - Types of changes are described in `.chronus/config.yaml`
+- Use `pnpm format` to format all files
 
 ## Testserver Generation
 
