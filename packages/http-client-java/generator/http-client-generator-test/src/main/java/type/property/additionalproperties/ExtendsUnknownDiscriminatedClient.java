@@ -46,7 +46,7 @@ public final class ExtendsUnknownDiscriminatedClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }
@@ -75,7 +75,7 @@ public final class ExtendsUnknownDiscriminatedClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }

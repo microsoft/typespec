@@ -45,7 +45,7 @@ public final class UnknownArrayAsyncClient {
      * <pre>
      * {@code
      * {
-     *     property: BinaryData (Required)
+     *     property: Object (Required)
      * }
      * }
      * </pre>
@@ -70,7 +70,7 @@ public final class UnknownArrayAsyncClient {
      * <pre>
      * {@code
      * {
-     *     property: BinaryData (Required)
+     *     property: Object (Required)
      * }
      * }
      * </pre>

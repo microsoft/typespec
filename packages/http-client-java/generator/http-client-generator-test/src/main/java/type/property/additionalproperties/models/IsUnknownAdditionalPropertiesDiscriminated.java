@@ -6,7 +6,6 @@ package type.property.additionalproperties.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
-import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -37,7 +36,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
      * The model is Record<unknown> with a discriminator.
      */
     @Generated
-    private Map<String, BinaryData> additionalProperties;
+    private Map<String, Object> additionalProperties;
 
     /**
      * Creates an instance of IsUnknownAdditionalPropertiesDiscriminated class.
@@ -75,7 +74,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
      * @return the additionalProperties value.
      */
     @Generated
-    public Map<String, BinaryData> getAdditionalProperties() {
+    public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
@@ -87,7 +86,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
      */
     @Generated
     public IsUnknownAdditionalPropertiesDiscriminated
-        setAdditionalProperties(Map<String, BinaryData> additionalProperties) {
+        setAdditionalProperties(Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
         return this;
     }
@@ -102,13 +101,8 @@ public class IsUnknownAdditionalPropertiesDiscriminated
         jsonWriter.writeStringField("name", this.name);
         jsonWriter.writeStringField("kind", this.kind);
         if (additionalProperties != null) {
-            for (Map.Entry<String, BinaryData> additionalProperty : additionalProperties.entrySet()) {
-                jsonWriter.writeFieldName(additionalProperty.getKey());
-                if (additionalProperty.getValue() == null) {
-                    jsonWriter.writeNull();
-                } else {
-                    additionalProperty.getValue().writeTo(jsonWriter);
-                }
+            for (Map.Entry<String, Object> additionalProperty : additionalProperties.entrySet()) {
+                jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
             }
         }
         return jsonWriter.writeEndObject();
@@ -155,7 +149,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
         return jsonReader.readObject(reader -> {
             String name = null;
             String kind = null;
-            Map<String, BinaryData> additionalProperties = null;
+            Map<String, Object> additionalProperties = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -169,8 +163,7 @@ public class IsUnknownAdditionalPropertiesDiscriminated
                         additionalProperties = new LinkedHashMap<>();
                     }
 
-                    additionalProperties.put(fieldName,
-                        reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
+                    additionalProperties.put(fieldName, reader.readUntyped());
                 }
             }
             IsUnknownAdditionalPropertiesDiscriminated deserializedIsUnknownAdditionalPropertiesDiscriminated

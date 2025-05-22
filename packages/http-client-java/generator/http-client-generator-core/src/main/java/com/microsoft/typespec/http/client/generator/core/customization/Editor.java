@@ -53,7 +53,8 @@ public final class Editor {
      * @return Whether the package exists
      */
     public boolean packageExists(String packageName) {
-        return contents.keySet().stream().anyMatch(fileName -> fileName.startsWith(packageName.replace(".", "/")));
+        String toFind = "src/main/java/" + packageName.replace('.', '/') + "/";
+        return contents.keySet().stream().anyMatch(fileName -> fileName.startsWith(toFind));
     }
 
     /**
@@ -64,7 +65,7 @@ public final class Editor {
      * @return Whether the class exists
      */
     public boolean classExists(String packageName, String className) {
-        String fileName = packageName.replace(".", "/") + "/" + className + ".java";
+        String fileName = "src/main/java/" + packageName.replace('.', '/') + "/" + className + ".java";
         return contents.containsKey(fileName);
     }
 
@@ -75,7 +76,7 @@ public final class Editor {
      * @return the list of classes in the package
      */
     public List<String> classesInPackage(String packageName) {
-        String packagePath = packageName.replace(".", "/");
+        String packagePath = "src/main/java/" + packageName.replace(".", "/") + "/";
         return contents.keySet()
             .stream()
             .filter(fileName -> fileName.startsWith(packagePath))

@@ -17,7 +17,7 @@ public abstract class JavaParserCodeCustomization implements CodeCustomization {
 
     JavaParserCodeCustomization(Editor editor, String packageName, String className) {
         this.editor = editor;
-        this.fileName = packageName + "/" + className + ".java";
+        this.fileName = "src/main/java/" + packageName.replace('.', '/') + "/" + className + ".java";
     }
 
     @Override

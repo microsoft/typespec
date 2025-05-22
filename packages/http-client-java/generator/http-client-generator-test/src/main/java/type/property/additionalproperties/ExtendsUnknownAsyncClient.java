@@ -47,7 +47,7 @@ public final class ExtendsUnknownAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }
@@ -75,7 +75,7 @@ public final class ExtendsUnknownAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }

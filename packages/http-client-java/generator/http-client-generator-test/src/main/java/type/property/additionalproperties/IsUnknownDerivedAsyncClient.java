@@ -47,7 +47,7 @@ public final class IsUnknownDerivedAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
@@ -77,7 +77,7 @@ public final class IsUnknownDerivedAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)

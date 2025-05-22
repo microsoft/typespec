@@ -43,7 +43,7 @@ public final class UnknownAsyncClient {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * Object
      * }
      * </pre>
      * 
@@ -66,7 +66,7 @@ public final class UnknownAsyncClient {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * Object
      * }
      * </pre>
      * 
@@ -96,10 +96,11 @@ public final class UnknownAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> get() {
+    public Mono<Object> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(Object.class));
     }
 
     /**
@@ -116,9 +117,9 @@ public final class UnknownAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> put(BinaryData body) {
+    public Mono<Void> put(Object body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(body, requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

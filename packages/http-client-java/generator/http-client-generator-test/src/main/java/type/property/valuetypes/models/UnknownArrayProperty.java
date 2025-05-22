@@ -6,7 +6,6 @@ package type.property.valuetypes.models;
 
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
-import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -22,7 +21,7 @@ public final class UnknownArrayProperty implements JsonSerializable<UnknownArray
      * Property
      */
     @Generated
-    private final BinaryData property;
+    private final Object property;
 
     /**
      * Creates an instance of UnknownArrayProperty class.
@@ -30,7 +29,7 @@ public final class UnknownArrayProperty implements JsonSerializable<UnknownArray
      * @param property the property value to set.
      */
     @Generated
-    public UnknownArrayProperty(BinaryData property) {
+    public UnknownArrayProperty(Object property) {
         this.property = property;
     }
 
@@ -40,7 +39,7 @@ public final class UnknownArrayProperty implements JsonSerializable<UnknownArray
      * @return the property value.
      */
     @Generated
-    public BinaryData getProperty() {
+    public Object getProperty() {
         return this.property;
     }
 
@@ -51,8 +50,7 @@ public final class UnknownArrayProperty implements JsonSerializable<UnknownArray
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeFieldName("property");
-        this.property.writeTo(jsonWriter);
+        jsonWriter.writeUntypedField("property", this.property);
         return jsonWriter.writeEndObject();
     }
 
@@ -68,13 +66,13 @@ public final class UnknownArrayProperty implements JsonSerializable<UnknownArray
     @Generated
     public static UnknownArrayProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            BinaryData property = null;
+            Object property = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("property".equals(fieldName)) {
-                    property = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
+                    property = reader.readUntyped();
                 } else {
                     reader.skipChildren();
                 }

@@ -45,7 +45,7 @@ public final class IsUnknownClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }
@@ -73,7 +73,7 @@ public final class IsUnknownClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }

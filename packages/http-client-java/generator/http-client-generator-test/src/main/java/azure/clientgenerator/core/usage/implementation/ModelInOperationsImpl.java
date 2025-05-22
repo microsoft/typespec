@@ -393,7 +393,7 @@ public final class ModelInOperationsImpl {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * Object
      * }
      * </pre>
      * 
@@ -427,7 +427,7 @@ public final class ModelInOperationsImpl {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * Object
      * }
      * </pre>
      * 

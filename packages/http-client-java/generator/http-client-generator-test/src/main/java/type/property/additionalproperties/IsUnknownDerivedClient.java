@@ -45,7 +45,7 @@ public final class IsUnknownDerivedClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)
@@ -75,7 +75,7 @@ public final class IsUnknownDerivedClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      *     index: int (Required)
      *     age: Double (Optional)

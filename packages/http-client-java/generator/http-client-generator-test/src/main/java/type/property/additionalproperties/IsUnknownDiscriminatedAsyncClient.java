@@ -48,7 +48,7 @@ public final class IsUnknownDiscriminatedAsyncClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }
@@ -77,7 +77,7 @@ public final class IsUnknownDiscriminatedAsyncClient {
      *     kind: String (Required)
      *     name: String (Required)
      *      (Optional): {
-     *         String: BinaryData (Required)
+     *         String: Object (Required)
      *     }
      * }
      * }

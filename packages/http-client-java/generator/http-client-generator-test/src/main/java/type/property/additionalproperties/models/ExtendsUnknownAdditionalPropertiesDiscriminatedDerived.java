@@ -6,7 +6,6 @@ package type.property.additionalproperties.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.annotation.Generated;
-import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
@@ -105,13 +104,8 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
         jsonWriter.writeStringField("kind", this.kind);
         jsonWriter.writeNumberField("age", this.age);
         if (getAdditionalProperties() != null) {
-            for (Map.Entry<String, BinaryData> additionalProperty : getAdditionalProperties().entrySet()) {
-                jsonWriter.writeFieldName(additionalProperty.getKey());
-                if (additionalProperty.getValue() == null) {
-                    jsonWriter.writeNull();
-                } else {
-                    additionalProperty.getValue().writeTo(jsonWriter);
-                }
+            for (Map.Entry<String, Object> additionalProperty : getAdditionalProperties().entrySet()) {
+                jsonWriter.writeUntypedField(additionalProperty.getKey(), additionalProperty.getValue());
             }
         }
         return jsonWriter.writeEndObject();
@@ -134,7 +128,7 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
             int index = 0;
             String kind = "derived";
             Double age = null;
-            Map<String, BinaryData> additionalProperties = null;
+            Map<String, Object> additionalProperties = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -152,8 +146,7 @@ public final class ExtendsUnknownAdditionalPropertiesDiscriminatedDerived
                         additionalProperties = new LinkedHashMap<>();
                     }
 
-                    additionalProperties.put(fieldName,
-                        reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
+                    additionalProperties.put(fieldName, reader.readUntyped());
                 }
             }
             ExtendsUnknownAdditionalPropertiesDiscriminatedDerived deserializedExtendsUnknownAdditionalPropertiesDiscriminatedDerived
