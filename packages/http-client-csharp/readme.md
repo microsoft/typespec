@@ -169,7 +169,7 @@ namespace Azure.Service.Models
 
 ### Rename a model class
 
-Define a class with a desired name and mark it with `[CodeGenModel("OriginalName")]`.
+Define a class with a desired name and mark it with `[CodeGenType("OriginalName")]`.
 
 ```csharp
 // Generated code before (Generated/Models/Model.cs):
@@ -181,7 +181,7 @@ namespace Azure.Service.Models
 // Add customized model (NewModelClassName.cs)
 namespace Azure.Service.Models
 {
-    [CodeGenModel("Model")]
+    [CodeGenType("Model")]
     public partial class NewModelClassName { }
 }
 
@@ -194,7 +194,7 @@ namespace Azure.Service.Models
 
 ### Change a model or client namespace
 
-Define a class with a desired namespace and mark it with `[CodeGenModel("OriginalName")]`.
+Define a class with a desired namespace and mark it with `[CodeGenType("OriginalName")]`.
 
 The same approach works for a client, if marked with `[CodeGenClient("ClientName")]`.
 
@@ -208,7 +208,7 @@ namespace Azure.Service.Models
 // Add customized model (Model.cs)
 namespace Azure.Service
 {
-    [CodeGenModel("Model")]
+    [CodeGenType("Model")]
     public partial class Model { }
 }
 
@@ -443,7 +443,7 @@ namespace Azure.Service.Models
 
 ### Renaming an enum
 
-Redefine an enum with a new name and all the members mark it with `[CodeGenModel("OriginEnumName")]`.
+Redefine an enum with a new name and all the members mark it with `[CodeGenType("OriginEnumName")]`.
 
 **NOTE: because enums can't be partial all values have to be copied**
 
@@ -462,7 +462,7 @@ namespace Azure.Service.Models
 // Add customized model (WallColors.cs)
 namespace Azure.Service.Models
 {
-    [CodeGenModel("Colors")]
+    [CodeGenType("Colors")]
     public enum WallColors
     {
         Red,
