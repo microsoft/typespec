@@ -126,10 +126,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     parameters,
                     returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
+                var collectionInitialization = GetCollectionInitialization(signature);
                 var statements = new MethodBodyStatements(
                 [
-                    .. GetCollectionInitialization(signature),
-                    MethodBodyStatement.EmptyLine,
+                    .. collectionInitialization,
+                    collectionInitialization.Count > 0 ? MethodBodyStatement.EmptyLine : MethodBodyStatement.Empty,
                     Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature, fullConstructor, binaryDataParam)]))
                 ]);
 
