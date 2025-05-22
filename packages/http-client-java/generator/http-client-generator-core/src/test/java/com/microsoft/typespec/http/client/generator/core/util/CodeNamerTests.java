@@ -32,6 +32,12 @@ public class CodeNamerTests {
 
         Assertions.assertEquals("ONE_ZEROMINUTELY", CodeNamer.getEnumMemberName("_10minutely"));
 
+        Assertions.assertEquals("DOLLAR_SIGN_100_GIFT_CARD", CodeNamer.getEnumMemberName("$100 Gift Card"));
+
+        Assertions.assertEquals("PERCENT_SIGN_50_OFF", CodeNamer.getEnumMemberName("%50 Off"));
+
+        Assertions.assertEquals("NUMBER_SIGN_10_TRENDING", CodeNamer.getEnumMemberName("#10 Trending"));
+
         Assertions.assertEquals("_", CodeNamer.getEnumMemberName("_"));
     }
 }
