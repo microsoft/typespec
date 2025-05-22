@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
                 var name = _isApiVersionEnum
                     ? inputValue.Name.ToApiVersionMemberName()
-                    : inputValue.Name.ToCleanName();
+                    : inputValue.Name.ToIdentifierName();
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;

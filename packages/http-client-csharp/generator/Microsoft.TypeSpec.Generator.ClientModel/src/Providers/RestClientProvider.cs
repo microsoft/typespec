@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -44,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToCleanName();
+        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
@@ -92,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var parameters = GetMethodParameters(serviceMethod, MethodType.CreateRequest);
             var operation = serviceMethod.Operation;
             var signature = new MethodSignature(
-                $"Create{operation.Name.ToCleanName()}Request",
+                $"Create{operation.Name.ToIdentifierName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
@@ -182,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         null,
                         MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
-                        classifierBackingField.Name.Substring(1).ToCleanName(),
+                        classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
                             classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
                         this)
@@ -358,12 +359,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
-            Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
+            Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.NameInRequest));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
             string? endpoint = ClientProvider.EndpointParameterName;
             int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap, operation);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap, operation);
+            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
+            AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
             return statements;
         }
 
@@ -372,7 +373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int offset,
             ScopedApi uri,
             List<MethodBodyStatement> statements,
-            Dictionary<string, InputParameter> inputParamHash,
+            Dictionary<string, InputParameter> inputParamMap,
             Dictionary<string, ParameterProvider> paramMap,
             InputOperation operation)
         {
@@ -405,7 +406,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    inputParam = inputParamHash[paramName];
+                    inputParam = inputParamMap[paramName];
                     if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);

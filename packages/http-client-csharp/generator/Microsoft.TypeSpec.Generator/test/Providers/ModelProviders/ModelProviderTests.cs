@@ -885,10 +885,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                "ModelWithNonBodyPropertyKinds",
                properties:
                [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
-                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
-                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
-                    InputFactory.Property("snake", InputFactory.StringEnum("snake", [("value", "value")], isExtensible: true), isRequired: true, isReadOnly: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
+                    InputFactory.PathParameter("bird", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.HeaderParameter("snake", InputFactory.StringEnum("snake", [("value", "value")], isExtensible: true), isRequired: true, isReadOnly: true),
                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                ]);
             var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
