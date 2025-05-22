@@ -61,7 +61,9 @@ op test(@body input: Pet): Pet;
     const discriminatorProperty = petModel?.properties.find(
       (p) => p === petModel?.discriminatorProperty,
     );
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.type.kind, "string");
     strictEqual(discriminatorProperty.optional, false);
@@ -140,7 +142,9 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");
@@ -232,7 +236,9 @@ op test(@body input: Pet): Pet;
     strictEqual("kind", pet?.discriminatorProperty?.name);
     // assert we have a property corresponding to the discriminator property above on the base model
     const discriminatorProperty = pet?.properties.find((p) => p === pet?.discriminatorProperty);
-    strictEqual(discriminatorProperty?.name, "kind");
+    ok(discriminatorProperty);
+    strictEqual(discriminatorProperty.kind, "property");
+    strictEqual(discriminatorProperty.name, "kind");
     strictEqual(discriminatorProperty.serializedName, "kind");
     strictEqual(discriminatorProperty.doc, "The kind of the pet");
     strictEqual(discriminatorProperty.type.kind, "enum");

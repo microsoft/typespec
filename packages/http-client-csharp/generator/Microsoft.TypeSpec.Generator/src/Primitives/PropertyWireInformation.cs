@@ -26,25 +26,25 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyWireInformation"/> class.
         /// </summary>
-        /// <param name="inputModelProperty">The input model property.</param>
-        internal PropertyWireInformation(InputModelProperty inputModelProperty)
-            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputModelProperty.Type), inputModelProperty.SerializedName)
+        /// <param name="inputProperty">The input model property.</param>
+        internal PropertyWireInformation(InputProperty inputProperty)
+            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type), inputProperty.SerializedName)
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
-            IsRequired = inputModelProperty.IsRequired;
-            IsReadOnly = inputModelProperty.IsReadOnly;
-            IsNullable = inputModelProperty.Type is InputNullableType;
-            IsDiscriminator = inputModelProperty.IsDiscriminator;
-            Location = ToPropertyLocation(inputModelProperty.Kind);
+            IsRequired = inputProperty.IsRequired;
+            IsReadOnly = inputProperty.IsReadOnly;
+            IsNullable = inputProperty.Type is InputNullableType;
+            IsDiscriminator = inputProperty is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
+            Location = ToPropertyLocation(inputProperty);
         }
 
-        private static PropertyLocation ToPropertyLocation(InputModelPropertyKind kind)
-            => kind switch
+        private static PropertyLocation ToPropertyLocation(InputProperty inputProperty)
+            => inputProperty switch
             {
-                InputModelPropertyKind.Header => PropertyLocation.Header,
-                InputModelPropertyKind.Property => PropertyLocation.Body,
-                InputModelPropertyKind.Query => PropertyLocation.Query,
-                InputModelPropertyKind.Path => PropertyLocation.Path,
+                InputHeaderParameter => PropertyLocation.Header,
+                InputModelProperty => PropertyLocation.Body,
+                InputQueryParameter => PropertyLocation.Query,
+                InputPathParameter => PropertyLocation.Path,
                 _ => PropertyLocation.Unknown,
             };
     }
