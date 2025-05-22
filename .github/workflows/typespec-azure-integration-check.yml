@@ -47,19 +47,14 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v3
       
-      - name: Update core submodule to PR changes
-        run: |
-          # Core submodule is located at ./core
-          echo "Updating core submodule to PR changes"
+      - name: Checkout TypeSpec PR code
+        uses: actions/checkout@v4
+        with:
+          path: typespec-pr
+          ref: ${{ github.event.pull_request.head.sha }}
           
-          # Point the submodule to our PR changes
-          git config -f .gitmodules submodule.core.url "$GITHUB_WORKSPACE"
-          
-          # Navigate to the core submodule directory
-          cd core
-          
-          # Use the PR changes
-          git checkout ${{ github.event.pull_request.head.sha }}
+      - name: Replace core submodule with PR code
+        run: rm -rf core && cp -r typespec-pr core
       
       - name: Install
         run: pnpm install
