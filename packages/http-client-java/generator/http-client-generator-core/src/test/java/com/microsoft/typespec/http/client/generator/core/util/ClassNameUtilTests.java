@@ -56,5 +56,9 @@ public class ClassNameUtilTests {
         String directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
             "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypes");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
+
+        directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
+            "azure-resourcemanager-" + "recovery" + "services" + "data" + "replication");
+        Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
     }
 }

@@ -68,8 +68,10 @@ public final class ClassNameUtil {
             ? artifactIdSegments[2]
             : artifactIdSegments[artifactIdSegments.length - 1]);
         final int parentDirectoryLength = ("sdk/" + group + "/" + artifactId + "/").length();
+        final int fileNameLength = "/reflect-config.json".length();
 
-        if (parentDirectoryLength + metaInfPath.length() > (248 - 38)) {
+        if (parentDirectoryLength + metaInfPath.length() > (248 - 38)
+            || parentDirectoryLength + metaInfPath.length() + fileNameLength > (260 - 38)) {
             // see
             // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
             String shortenedArtifactId = artifactId;
