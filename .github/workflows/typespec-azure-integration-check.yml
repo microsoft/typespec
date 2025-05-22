@@ -33,28 +33,22 @@ jobs:
       !startsWith(github.head_ref, 'revert-')
     
     steps:
-      - name: Checkout TypeSpec repo
-        uses: actions/checkout@v4
-      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24.x # Using current LTS
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-      
       - name: Checkout Azure/typespec-azure repo
         uses: actions/checkout@v4
         with:
           repository: Azure/typespec-azure
-          path: typespec-azure
           submodules: true
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
       
       - name: Update core submodule to PR changes
         run: |
-          cd typespec-azure
-          
           # Core submodule is located at ./core
           echo "Updating core submodule to PR changes"
           
@@ -66,39 +60,15 @@ jobs:
           
           # Use the PR changes
           git checkout ${{ github.event.pull_request.head.sha }}
-          
-          # Go back to the typespec-azure root
-          cd $GITHUB_WORKSPACE/typespec-azure
       
-      - name: Install dependencies for typespec-azure
+      - name: Install
         run: |
-          echo "::group::Installing dependencies"
-          cd typespec-azure
-          
-          echo "Node.js version:"
-          node --version
-          
-          echo "pnpm version:"
-          pnpm --version
-          
-          echo "Installing dependencies..."
           pnpm install
-          
-          echo "✅ Dependencies installed"
-          echo "::endgroup::"
       
       - name: Build
         run: |
-          cd typespec-azure
           pnpm build
       
-      - name: Run tests for typespec-azure
+      - name: Test
         run: |
-          echo "::group::Running tests"
-          cd typespec-azure
-          
-          echo "Running tests..."
           pnpm test
-          
-          echo "✅ Tests passed"
-          echo "::endgroup::"
