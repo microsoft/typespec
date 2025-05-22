@@ -387,10 +387,10 @@ public class JavaSettings {
         this.shareJsonSerializableCode = getBooleanValue(host, "share-jsonserializable-code", false);
 
         // Whether to use object for unknown.
-        this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", true);
+        this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
 
         // Whether to use Eclipse Language Server when running code customizations.
-        this.useEclipseLanguageServer = getBooleanValue(host, "use-eclipse-language-server", false);
+        this.useEclipseLanguageServer = getBooleanValue(host, "use-eclipse-language-server", true);
     }
 
     private void updateFlavorFactories() {

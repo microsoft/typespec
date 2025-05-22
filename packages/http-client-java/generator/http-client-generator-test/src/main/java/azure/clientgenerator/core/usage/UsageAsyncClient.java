@@ -171,7 +171,7 @@ public final class UsageAsyncClient {
      * 
      * <pre>
      * {@code
-     * Object
+     * BinaryData
      * }
      * </pre>
      * 

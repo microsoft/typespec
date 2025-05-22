@@ -47,7 +47,7 @@ public final class IsUnknownAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }
@@ -75,7 +75,7 @@ public final class IsUnknownAsyncClient {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }

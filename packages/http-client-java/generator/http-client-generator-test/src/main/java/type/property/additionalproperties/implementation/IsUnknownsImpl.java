@@ -106,7 +106,7 @@ public final class IsUnknownsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }
@@ -134,7 +134,7 @@ public final class IsUnknownsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }
@@ -162,7 +162,7 @@ public final class IsUnknownsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }
@@ -192,7 +192,7 @@ public final class IsUnknownsImpl {
      * {
      *     name: String (Required)
      *      (Optional): {
-     *         String: Object (Required)
+     *         String: BinaryData (Required)
      *     }
      * }
      * }

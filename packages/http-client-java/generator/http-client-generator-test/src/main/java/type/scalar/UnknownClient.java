@@ -41,7 +41,7 @@ public final class UnknownClient {
      * 
      * <pre>
      * {@code
-     * Object
+     * BinaryData
      * }
      * </pre>
      * 
@@ -64,7 +64,7 @@ public final class UnknownClient {
      * 
      * <pre>
      * {@code
-     * Object
+     * BinaryData
      * }
      * </pre>
      * 
@@ -94,10 +94,10 @@ public final class UnknownClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Object get() {
+    public BinaryData get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(Object.class);
+        return getWithResponse(requestOptions).getValue();
     }
 
     /**
@@ -113,9 +113,9 @@ public final class UnknownClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Object body) {
+    public void put(BinaryData body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putWithResponse(body, requestOptions).getValue();
     }
 }

@@ -168,7 +168,7 @@ public final class UsageClient {
      * 
      * <pre>
      * {@code
-     * Object
+     * BinaryData
      * }
      * </pre>
      * 
