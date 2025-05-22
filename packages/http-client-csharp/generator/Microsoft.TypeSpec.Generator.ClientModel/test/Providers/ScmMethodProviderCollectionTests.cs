@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -350,6 +351,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
             }
+        }
+
+        [Test]
+        public void RequestBodyConstructedUsingReadOnlyMemoryBinaryContentHelpers()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => new CSharpType(typeof(ReadOnlyMemory<int>)));
+            var inputType = InputFactory.Array(InputPrimitiveType.Int32);
+
+            var parameter = InputFactory.Parameter("data", inputType, isRequired: true);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "data") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
         }
 
         [TestCaseSource(nameof(RequestBodyTypesSource))]
