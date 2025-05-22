@@ -223,7 +223,9 @@ function printStats(stats: Stats) {
   ) {
     const group: any = base[groupName];
     printKV(groupName, runtimeStr(group["total"] ?? 0), indent);
-    for (const [key, value] of Object.entries(group[itemsKey])) {
+    for (const [key, value] of Object.entries(group[itemsKey]).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    )) {
       if (typeof value === "number") {
         printRuntime(group[itemsKey], key, indent + 2);
       }
