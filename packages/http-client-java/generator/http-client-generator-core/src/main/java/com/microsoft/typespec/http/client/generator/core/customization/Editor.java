@@ -44,7 +44,43 @@ public final class Editor {
         for (Map.Entry<String, String> content : contents.entrySet()) {
             addFile(content.getKey(), content.getValue());
         }
+    }
 
+    /**
+     * Checks if the package exists in the editor.
+     *
+     * @param packageName the package name
+     * @return Whether the package exists
+     */
+    public boolean packageExists(String packageName) {
+        return contents.keySet().stream().anyMatch(fileName -> fileName.startsWith(packageName.replace(".", "/")));
+    }
+
+    /**
+     * Checks if a class exists in the editor.
+     *
+     * @param packageName the package name of the class
+     * @param className the class name
+     * @return Whether the class exists
+     */
+    public boolean classExists(String packageName, String className) {
+        String fileName = packageName.replace(".", "/") + "/" + className + ".java";
+        return contents.containsKey(fileName);
+    }
+
+    /**
+     * Lists all classes in a package.
+     *
+     * @param packageName the package name
+     * @return the list of classes in the package
+     */
+    public List<String> classesInPackage(String packageName) {
+        String packagePath = packageName.replace(".", "/");
+        return contents.keySet()
+            .stream()
+            .filter(fileName -> fileName.startsWith(packagePath))
+            .map(fileName -> fileName.substring(packagePath.length() + 1, fileName.length() - 5))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -85,10 +121,7 @@ public final class Editor {
 
         try {
             boolean fileCreated = newFile.createNewFile();
-
-            try (BufferedWriter writer = Files.newBufferedWriter(newFile.toPath())) {
-                writer.write(content);
-            }
+            Files.writeString(newFile.toPath(), content);
 
             if (fileCreated || isReplace) {
                 contents.put(name, content);
@@ -198,7 +231,7 @@ public final class Editor {
         List<String> replacementLineContent = splitContentIntoLines(newContent);
 
         // Add the change.
-        if (replacementLineContent.size() > 0) {
+        if (!replacementLineContent.isEmpty()) {
             for (int i = 0; i != replacementLineContent.size() - 1; i++) {
                 if (i > 0) {
                     stringBuilder.append(indent);
