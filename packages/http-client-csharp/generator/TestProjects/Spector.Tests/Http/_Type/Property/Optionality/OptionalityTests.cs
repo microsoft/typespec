@@ -352,7 +352,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.Optionality
         public Task FloatLiteralGetAll() => Test(async (host) =>
         {
             var response = await new OptionalClient(host, null).GetFloatLiteralClient().GetAllAsync();
-            Assert.AreEqual(FloatLiteralPropertyProperty._125, response.Value.Property);
+            Assert.AreEqual(1.25, response.Value.Property);
         });
 
         [SpectorTest]
@@ -367,7 +367,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.Optionality
         {
             FloatLiteralProperty data = new()
             {
-                Property = new FloatLiteralPropertyProperty(1.25f)
+                Property = 1.25f
             };
             var response = await new OptionalClient(host, null).GetFloatLiteralClient().PutAllAsync(data);
             Assert.AreEqual(204, response.GetRawResponse().Status);
@@ -384,7 +384,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.Optionality
         public Task IntLiteralGetAll() => Test(async (host) =>
         {
             var response = await new OptionalClient(host, null).GetIntLiteralClient().GetAllAsync();
-            Assert.AreEqual(IntLiteralPropertyProperty._1, response.Value.Property);
+            Assert.AreEqual(1, response.Value.Property);
         });
 
         [SpectorTest]
@@ -416,7 +416,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.Optionality
         public Task StringLiteralGetAll() => Test(async (host) =>
         {
             var response = await new OptionalClient(host, null).GetStringLiteralClient().GetAllAsync();
-            Assert.AreEqual(StringLiteralPropertyProperty.Hello, response.Value.Property);
+            Assert.AreEqual("hello", response.Value.Property);
         });
 
         [SpectorTest]

@@ -7,9 +7,11 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -210,7 +212,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
-                parameterSymbol.Type.GetCSharpType());
+                parameterSymbol.Type.GetCSharpType(),
+                defaultValue: CreateDefaultValue(parameterSymbol));
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -226,6 +229,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsAsync)
             {
                 modifiers |= MethodSignatureModifiers.Async;
+            }
+            if (methodSymbol.IsStatic)
+            {
+                modifiers |= MethodSignatureModifiers.Static;
             }
         }
 
@@ -305,6 +312,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
             return typeSymbol.GetCSharpType();
+        }
+
+        private static ValueExpression? CreateDefaultValue(IParameterSymbol parameterSymbol)
+        {
+            if (!parameterSymbol.HasExplicitDefaultValue)
+            {
+                return null;
+            }
+
+            var explicitDefaultValue = parameterSymbol.ExplicitDefaultValue;
+            if (explicitDefaultValue == null)
+            {
+                return Default;
+            }
+
+            return explicitDefaultValue switch
+            {
+                string stringValue => Literal(stringValue),
+                bool boolValue => boolValue ? True : False,
+                int intValue => Int(intValue),
+                double doubleValue => Double(doubleValue),
+                _ => null
+            };
         }
     }
 }

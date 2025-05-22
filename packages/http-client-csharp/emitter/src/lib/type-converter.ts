@@ -11,9 +11,11 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHttpParameter,
+  SdkHeaderParameter,
   SdkModelPropertyType,
   SdkModelType,
+  SdkPathParameter,
+  SdkQueryParameter,
   SdkTupleType,
   SdkType,
   SdkUnionType,
@@ -31,10 +33,14 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
+  InputHeaderParameter,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
+  InputPathParameter,
   InputPrimitiveType,
+  InputProperty,
+  InputQueryParameter,
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
@@ -133,25 +139,24 @@ export function fromSdkModelType(
       ? fromSdkType(sdkContext, modelType.additionalProperties)
       : undefined;
 
-    const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
+    const properties: InputProperty[] = [];
     for (const property of modelType.properties) {
       const ourProperty = fromSdkModelProperty(sdkContext, property);
 
-      if (!ourProperty) {
-        continue;
+      if (ourProperty) {
+        properties.push(ourProperty);
       }
-      propertiesDict.set(property, ourProperty);
     }
 
     inputModelType.discriminatorProperty = modelType.discriminatorProperty
-      ? propertiesDict.get(modelType.discriminatorProperty)
+      ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
       : undefined;
 
     inputModelType.baseModel = modelType.baseModel
       ? fromSdkModelType(sdkContext, modelType.baseModel)
       : undefined;
 
-    inputModelType.properties = Array.from(propertiesDict.values()).flat();
+    inputModelType.properties = properties;
 
     if (modelType.discriminatedSubtypes) {
       const discriminatedSubtypes: Record<string, InputModelType> = {};
@@ -167,42 +172,95 @@ export function fromSdkModelType(
 
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
-    property: SdkModelPropertyType,
-  ): InputModelProperty | undefined {
-    switch (property.kind) {
-      case "property":
-        return fromSdkBodyModelProperty(sdkContext, property);
-      case "header":
-      case "query":
-      case "path":
-        return fromSdkHttpParameterModelProperty(sdkContext, property);
-      default:
-        return undefined;
+    sdkProperty: SdkModelPropertyType,
+  ): InputProperty | undefined {
+    // TODO -- this returns undefined because some properties we do not support yet.
+    let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
+    if (property) {
+      return property;
     }
+    switch (sdkProperty.kind) {
+      case "property":
+        property = fromSdkBodyModelProperty(sdkContext, sdkProperty);
+        break;
+      case "header":
+        property = fromSdkHeaderParameter(sdkContext, sdkProperty);
+        break;
+      case "query":
+        property = fromSdkQueryParameter(sdkContext, sdkProperty);
+        break;
+      case "path":
+        property = fromSdkPathParameter(sdkContext, sdkProperty);
+        break;
+    }
+
+    if (property) {
+      sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
+    }
+
+    return property;
   }
 
-  function fromSdkHttpParameterModelProperty(
+  function fromSdkHeaderParameter(
     sdkContext: CSharpEmitterContext,
-    property: SdkHttpParameter,
-  ): InputModelProperty {
-    const targetType = property.type;
-
-    const modelHeaderProperty: InputModelProperty = {
+    property: SdkHeaderParameter,
+  ): InputHeaderParameter {
+    return {
       kind: property.kind,
       name: property.name,
       serializedName: property.serializedName,
       summary: property.summary,
       doc: property.doc,
-      type: fromSdkType(sdkContext, targetType),
+      type: fromSdkType(sdkContext, property.type),
       optional: property.optional,
       readOnly: isReadOnly(property),
       decorators: property.decorators,
       crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      discriminator: false,
-      flatten: false,
+      collectionFormat: property.collectionFormat,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
     };
+  }
 
-    return modelHeaderProperty;
+  function fromSdkQueryParameter(
+    sdkContext: CSharpEmitterContext,
+    property: SdkQueryParameter,
+  ): InputQueryParameter {
+    return {
+      kind: property.kind,
+      name: property.name,
+      serializedName: property.serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, property.type),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
+      explode: property.explode,
+    };
+  }
+
+  function fromSdkPathParameter(
+    sdkContext: CSharpEmitterContext,
+    property: SdkPathParameter,
+  ): InputPathParameter {
+    return {
+      kind: property.kind,
+      name: property.name,
+      serializedName: property.serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, property.type),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      explode: property.explode,
+      style: property.style,
+      allowReserved: property.allowReserved,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
+    };
   }
 
   function fromSdkBodyModelProperty(

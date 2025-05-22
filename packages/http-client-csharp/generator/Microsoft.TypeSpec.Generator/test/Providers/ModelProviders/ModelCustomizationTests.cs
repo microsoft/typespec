@@ -795,5 +795,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task CanChangeFrameworkTypeToCustomEnum()
+        {
+            // simulates a constant literal value that comes in from the emitter as an enum value
+            var inputEnum = InputFactory.EnumMember.String("mockInputEnum", "val1", InputFactory.StringEnum("foo", []));
+            var modelProp = InputFactory.Property("prop1", inputEnum);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+            Assert.AreEqual(1, modelProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("Prop1", modelProvider.CustomCodeView.Properties[0].Name);
+            Assert.AreEqual("CustomEnum", modelProvider.CustomCodeView.Properties[0].Type.Name);
+
+            Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
+        }
     }
 }
