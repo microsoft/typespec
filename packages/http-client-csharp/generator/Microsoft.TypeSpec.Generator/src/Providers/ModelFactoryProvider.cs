@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -72,41 +74,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (modelProvider is null)
                     continue;
 
-                var fullConstructor = modelProvider.FullConstructor;
-                if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                    || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
-                {
-                    continue;
-                }
-
-                var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
-                    : modelProvider;
+                var typeToInstantiate = GetModelToInstantiateForFactoryMethod(modelProvider);
                 if (typeToInstantiate is null)
-                    continue;
-
-                var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
-
-                // Use a custom constructor if the generated full constructor was suppressed or customized
-                if (!modelProvider.Constructors.Contains(fullConstructor))
                 {
-                    foreach (var constructor in modelProvider.CanonicalView.Constructors)
-                    {
-                        var customCtorParamCount = constructor.Signature.Parameters.Count;
-                        var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
-
-                        if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
-                            && customCtorParamCount >= fullCtorParamCount)
-                        {
-                            binaryDataParam = constructor.Signature.Parameters
-                                .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
-
-                            fullConstructor = constructor;
-                            break;
-                        }
-                    }
+                    continue;
                 }
 
+                var (binaryDataParam, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
@@ -135,7 +109,177 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
             }
-            return [.. methods];
+
+            return [.. methods, .. BuildMethodsForBackCompatability(methods)];
+        }
+
+        private MethodProvider[] BuildMethodsForBackCompatability(List<MethodProvider> methods)
+        {
+            if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
+            {
+                return [];
+            }
+
+            List<MethodProvider> methodsToAdd = [];
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. methods, .. CustomCodeView?.Methods ?? []])
+               .Select(m => m.Signature)
+               .ToHashSet(MethodSignature.MethodSignatureComparer);
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                List<MethodSignature> currentOverloads = [];
+                // Attempt to find an updated method in the current contract to call
+                foreach (var currentMethodSignature in currentMethodSignatures)
+                {
+                    if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
+                    {
+                        currentOverloads.Add(currentMethodSignature);
+                    }
+                }
+
+                bool foundCompatibleOverload = false;
+                foreach (var currentOverload in currentOverloads)
+                {
+                    if (TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentOverload, out var arguments))
+                    {
+                        var signature = new MethodSignature(
+                            previousMethod.Signature.Name,
+                            previousMethod.Signature.Description,
+                            previousMethod.Signature.Modifiers,
+                            previousMethod.Signature.ReturnType,
+                            previousMethod.Signature.ReturnDescription,
+                            previousMethod.Signature.Parameters,
+                            Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
+
+                        var callToOverload = Return(new InvokeMethodExpression(null, currentOverload, arguments));
+                        methodsToAdd.Add(new MethodProvider(
+                            signature,
+                            callToOverload,
+                            this,
+                            previousMethod.XmlDocs));
+                        foundCompatibleOverload = true;
+                        break;
+                    }
+                }
+
+                if (foundCompatibleOverload)
+                {
+                    continue;
+                }
+
+                // If no compatible overload found, try to add the previous method by instantiating the model directly.
+                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, out var builtMethod))
+                {
+                    methodsToAdd.Add(builtMethod);
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
+                }
+            }
+
+            return [.. methodsToAdd];
+        }
+
+        private bool TryBuildCompatibleMethodForPreviousContract(
+            MethodProvider previousMethod,
+            [NotNullWhen(true)] out MethodProvider? builtMethod)
+        {
+            builtMethod = null;
+            var previousMethodReturnType = previousMethod.Signature.ReturnType;
+            if (previousMethodReturnType is null)
+            {
+                return false;
+            }
+
+            ModelProvider? modelToInstantiate = null;
+            foreach (var inputModel in _models)
+            {
+                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+                if (modelProvider is null)
+                {
+                    continue;
+                }
+
+                var model = GetModelToInstantiateForFactoryMethod(modelProvider);
+                if (model != null && previousMethodReturnType.AreNamesEqual(model.Type))
+                {
+                    modelToInstantiate = model;
+                    break;
+                }
+            }
+
+            if (modelToInstantiate is null)
+            {
+                return false;
+            }
+
+            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
+            var body = new MethodBodyStatements(
+            [
+                .. GetCollectionInitialization(previousMethod.Signature),
+                MethodBodyStatement.EmptyLine,
+                Return(New.Instance(
+                    modelToInstantiate.Type,
+                    [ ..GetCtorArgs(modelToInstantiate, previousMethod.Signature, fullCtor, binaryDataParam)]))
+            ]);
+
+            builtMethod = new MethodProvider(
+                previousMethod.Signature,
+                body,
+                this,
+                previousMethod.XmlDocs);
+
+            return true;
+        }
+
+        private static bool TryBuildMethodArgumentsForOverload(
+            MethodSignature previousMethod,
+            MethodSignature currentMethod,
+            [NotNullWhen(true)] out IReadOnlyList<ValueExpression>? overloadArguments)
+        {
+            overloadArguments = null;
+            var currentMethodParameterCount = currentMethod.Parameters.Count;
+            var previousParameterCount = previousMethod.Parameters.Count;
+
+            if (currentMethodParameterCount <= previousParameterCount || !Equals(previousMethod.ReturnType, currentMethod.ReturnType))
+            {
+                return false;
+            }
+
+            var currentParameters = currentMethod.Parameters.ToHashSet();
+            foreach (var parameter in previousMethod.Parameters)
+            {
+                if (!currentParameters.Contains(parameter))
+                {
+                    return false;
+                }
+            }
+
+            // Build the arguments for the overload
+            var previousParameters = previousMethod.Parameters.ToHashSet();
+            List<ValueExpression> arguments = new(currentMethodParameterCount);
+
+            foreach (var parameter in currentMethod.Parameters)
+            {
+                if (!previousParameters.TryGetValue(parameter, out var previousParameter))
+                {
+                    // Parameter not in previous method, use default value
+                    arguments.Add(Snippet.PositionalReference(parameter, parameter.DefaultValue ?? Default));
+                }
+                else
+                {
+                    arguments.Add(previousParameter);
+                }
+            }
+
+            overloadArguments = arguments;
+            return true;
         }
 
         private static IReadOnlyList<ValueExpression> GetCtorArgs(
@@ -173,6 +317,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         expressions.Add(modelProvider.DiscriminatorValueExpression);
                     }
+                    else
+                    {
+                        expressions.Add(ctorParam.DefaultValue ?? Default);
+                    }
                 }
                 else
                 {
@@ -192,6 +340,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. expressions];
+        }
+
+        private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
+        {
+            var fullConstructor = modelProvider.FullConstructor;
+            if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
+            {
+                return null;
+            }
+
+            return modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
+                : modelProvider;
+        }
+
+        private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(
+            ModelProvider modelProvider)
+        {
+            var fullConstructor = modelProvider.FullConstructor;
+            var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
+
+            // Use a custom constructor if the generated full constructor was suppressed or customized
+            if (!modelProvider.Constructors.Contains(fullConstructor))
+            {
+                foreach (var constructor in modelProvider.CanonicalView.Constructors)
+                {
+                    var customCtorParamCount = constructor.Signature.Parameters.Count;
+                    var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
+
+                    if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
+                        && customCtorParamCount >= fullCtorParamCount)
+                    {
+                        binaryDataParam = constructor.Signature.Parameters
+                            .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
+
+                        fullConstructor = constructor;
+                        break;
+                    }
+                }
+            }
+
+            return (binaryDataParam, fullConstructor);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetCollectionInitialization(MethodSignature signature)
