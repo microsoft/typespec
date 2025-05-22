@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -91,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
-                var cleanBaseName = Name.ToCleanName();
+                var cleanBaseName = Name.ToIdentifierName();
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
                     $"Unknown{cleanBaseName}",
