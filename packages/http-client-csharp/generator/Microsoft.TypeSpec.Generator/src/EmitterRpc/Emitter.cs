@@ -66,8 +66,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                 {
                     code = code,
                     message = message,
+                    crossLanguageDefinitionId = targetCrossLanguageDefinitionId,
                     severity = GetString(severity),
-                    crossLanguageDefinitionId = targetCrossLanguageDefinitionId
                 });
             }
             else
