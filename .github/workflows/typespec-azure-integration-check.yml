@@ -62,13 +62,10 @@ jobs:
           git checkout ${{ github.event.pull_request.head.sha }}
       
       - name: Install
-        run: |
-          pnpm install
+        run: pnpm install
       
       - name: Build
-        run: |
-          pnpm build
+        run: pnpm build
       
       - name: Test
-        run: |
-          pnpm test
+        run: pnpm test
