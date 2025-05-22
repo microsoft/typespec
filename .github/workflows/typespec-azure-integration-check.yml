@@ -33,6 +33,9 @@ jobs:
       !startsWith(github.head_ref, 'revert-')
     
     steps:
+      - name: Checkout TypeSpec repo
+        uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
