@@ -358,12 +358,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
-            Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
+            Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.NameInRequest));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
             string? endpoint = ClientProvider.EndpointParameterName;
             int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamHash, paramMap, operation);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamHash, paramMap, operation);
+            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
+            AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
             return statements;
         }
 
@@ -372,7 +372,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int offset,
             ScopedApi uri,
             List<MethodBodyStatement> statements,
-            Dictionary<string, InputParameter> inputParamHash,
+            Dictionary<string, InputParameter> inputParamMap,
             Dictionary<string, ParameterProvider> paramMap,
             InputOperation operation)
         {
@@ -405,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    inputParam = inputParamHash[paramName];
+                    inputParam = inputParamMap[paramName];
                     if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);

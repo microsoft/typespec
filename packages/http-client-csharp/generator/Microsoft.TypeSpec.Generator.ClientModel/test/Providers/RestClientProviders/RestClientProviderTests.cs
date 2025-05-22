@@ -403,6 +403,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void TestBuildCreateRequestMethodWithPathParameters()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true, nameInRequest: "someOtherName"),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
             var classifier = $"PipelineMessageClassifier{parsedStatusCodes}";
