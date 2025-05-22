@@ -113,8 +113,10 @@ function AuthScheme(props: AuthSchemeProps) {
       );
     case "apiKey":
       if (props.scheme.in !== "header") {
-        reportDiagnostic($.program, { code: "non-model-parts", target: props.client.service });
-        return null;
+        reportDiagnostic($.program, {
+          code: "key-credential-non-header-not-implemented",
+          target: props.client.service,
+        });
       }
 
       return (
