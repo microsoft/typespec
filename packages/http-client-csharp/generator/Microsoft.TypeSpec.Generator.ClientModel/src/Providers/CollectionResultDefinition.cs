@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -97,7 +98,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.MissingItemsProperty,
                     $"Missing items property: {itemsPropertyName}",
-                    _operation.CrossLanguageDefinitionId);
+                    _operation.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
             }
             _itemsPropertyName = itemsModelPropertyName ?? itemsPropertyName;
 

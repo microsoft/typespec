@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             });
         }
 
-        public void ReportDiagnostic(string code, string message, string? targetCrossLanguageDefinitionId = null)
+        public void ReportDiagnostic(string code, string message, string? targetCrossLanguageDefinitionId = null, EmitterDiagnosticSeverity severity = EmitterDiagnosticSeverity.Warning)
         {
             if (targetCrossLanguageDefinitionId != null)
             {
@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                 {
                     code = code,
                     message = message,
+                    severity = GetString(severity),
                     crossLanguageDefinitionId = targetCrossLanguageDefinitionId
                 });
             }
@@ -75,8 +76,19 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                 {
                     code = code,
                     message = message,
+                    severity = GetString(severity),
                 });
             }
+        }
+
+        private static string GetString(EmitterDiagnosticSeverity severity)
+        {
+            return severity switch
+            {
+                EmitterDiagnosticSeverity.Error => "error",
+                EmitterDiagnosticSeverity.Warning => "warning",
+                _ => throw new ArgumentOutOfRangeException(nameof(severity), severity, null)
+            };
         }
 
         private void Dispose(bool disposing)
