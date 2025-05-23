@@ -56,86 +56,224 @@ export interface DiagnosticMatch {
 /**
  * Validate the diagnostic array contains exactly the given diagnostics.
  * @param diagnostics Array of the diagnostics
+ * @param match The diagnostic match(es) to validate against
+ * @param options Options for validation
+ * @param options.strict When true, expects exactly the same number of diagnostics as matches
+ * @param options.fixedOrder When true, diagnostics must appear in the same order as matches. When false, order is ignored.
  */
 export function expectDiagnostics(
   diagnostics: readonly Diagnostic[],
   match: DiagnosticMatch | DiagnosticMatch[],
-  options = {
-    strict: true,
-  },
+  options: {
+    strict?: boolean;
+    fixedOrder?: boolean;
+  } = {},
 ) {
+  // Set defaults
+  const { strict = true, fixedOrder = true } = options;
+
   const array = isArray(match) ? match : [match];
 
-  if (options.strict && array.length !== diagnostics.length) {
+  if (strict && array.length !== diagnostics.length) {
     fail(
       `Expected ${array.length} diagnostics but found ${diagnostics.length}:\n ${formatDiagnostics(
         diagnostics,
       )}`,
     );
   }
-  for (let i = 0; i < array.length; i++) {
-    const diagnostic = diagnostics[i];
-    const expectation = array[i];
-    const sep = "-".repeat(100);
-    const message = `Diagnostics found:\n${sep}\n${formatDiagnostics(diagnostics)}\n${sep}`;
-    if (expectation.code !== undefined) {
-      strictEqual(
-        diagnostic.code,
-        expectation.code,
-        `Diagnostic at index ${i} has non matching code.\n${message}`,
+
+  if (fixedOrder) {
+    // Original behavior: match diagnostics in order
+    for (let i = 0; i < array.length; i++) {
+      const diagnostic = diagnostics[i];
+      const expectation = array[i];
+      validateDiagnosticMatch(diagnostic, expectation, i, diagnostics);
+    }
+  } else {
+    // New behavior: match diagnostics in any order
+    const remainingDiagnostics = [...diagnostics];
+    const unmatchedExpectations: number[] = [];
+
+    for (let i = 0; i < array.length; i++) {
+      const expectation = array[i];
+      let matchFound = false;
+
+      for (let j = remainingDiagnostics.length - 1; j >= 0; j--) {
+        const diagnostic = remainingDiagnostics[j];
+        if (doesDiagnosticMatch(diagnostic, expectation)) {
+          remainingDiagnostics.splice(j, 1);
+          matchFound = true;
+          break;
+        }
+      }
+
+      if (!matchFound) {
+        unmatchedExpectations.push(i);
+      }
+    }
+
+    if (unmatchedExpectations.length > 0) {
+      const sep = "-".repeat(100);
+      const message = `Diagnostics found:\n${sep}\n${formatDiagnostics(diagnostics)}\n${sep}`;
+      fail(
+        `Could not find matches for expectations at indices: ${unmatchedExpectations.join(", ")}.\n${message}`,
       );
     }
 
-    if (expectation.message !== undefined) {
+    // When strict mode is enabled but fixedOrder is false, check for extra diagnostics
+    if (strict && remainingDiagnostics.length > 0) {
+      const sep = "-".repeat(100);
+      const message = `Extra unmatched diagnostics found:\n${sep}\n${formatDiagnostics(remainingDiagnostics)}\n${sep}`;
+      fail(message);
+    }
+  }
+}
+
+/**
+ * Validates that a diagnostic matches the expected criteria
+ */
+function validateDiagnosticMatch(
+  diagnostic: Diagnostic,
+  expectation: DiagnosticMatch,
+  index: number,
+  allDiagnostics: readonly Diagnostic[],
+) {
+  const sep = "-".repeat(100);
+  const message = `Diagnostics found:\n${sep}\n${formatDiagnostics(allDiagnostics)}\n${sep}`;
+
+  if (expectation.code !== undefined) {
+    strictEqual(
+      diagnostic.code,
+      expectation.code,
+      `Diagnostic at index ${index} has non matching code.\n${message}`,
+    );
+  }
+
+  if (expectation.message !== undefined) {
+    matchStrOrRegex(
+      diagnostic.message,
+      expectation.message,
+      `Diagnostic at index ${index} has non matching message.\n${message}`,
+    );
+  }
+  if (expectation.severity !== undefined) {
+    strictEqual(
+      diagnostic.severity,
+      expectation.severity,
+      `Diagnostic at index ${index} has non matching severity.\n${message}`,
+    );
+  }
+  if (
+    expectation.file !== undefined ||
+    expectation.pos !== undefined ||
+    expectation.end !== undefined
+  ) {
+    if (diagnostic.target === NoTarget) {
+      fail(`Diagnostics at index ${index} expected to have a target.\n${message}`);
+    }
+    const source = getSourceLocation(diagnostic.target);
+
+    if (!source) {
+      fail(`Diagnostics at index ${index} expected to have a valid source location.\n${message}`);
+      return; // This will never be reached, but helps TypeScript understand control flow
+    }
+
+    if (expectation.file !== undefined) {
       matchStrOrRegex(
-        diagnostic.message,
-        expectation.message,
-        `Diagnostic at index ${i} has non matching message.\n${message}`,
+        source.file.path,
+        typeof expectation.file === "string"
+          ? resolveVirtualPath(expectation.file)
+          : expectation.file,
+        `Diagnostics at index ${index} has non matching file.\n${message}`,
       );
     }
-    if (expectation.severity !== undefined) {
+
+    if (expectation.pos !== undefined) {
       strictEqual(
-        diagnostic.severity,
-        expectation.severity,
-        `Diagnostic at index ${i} has non matching severity.\n${message}`,
+        source.pos,
+        expectation.pos,
+        `Diagnostic at index ${index} has non-matching start position.`,
       );
     }
+
+    if (expectation.end !== undefined) {
+      strictEqual(
+        source.end,
+        expectation.end,
+        `Diagnostic at index ${index} has non-matching end position.`,
+      );
+    }
+  }
+}
+
+/**
+ * Checks if a diagnostic matches the expected criteria without throwing errors
+ */
+function doesDiagnosticMatch(diagnostic: Diagnostic, expectation: DiagnosticMatch): boolean {
+  try {
+    if (expectation.code !== undefined && diagnostic.code !== expectation.code) {
+      return false;
+    }
+
+    if (expectation.message !== undefined) {
+      if (typeof expectation.message === "string") {
+        if (diagnostic.message !== expectation.message) {
+          return false;
+        }
+      } else {
+        if (!expectation.message.test(diagnostic.message)) {
+          return false;
+        }
+      }
+    }
+
+    if (expectation.severity !== undefined && diagnostic.severity !== expectation.severity) {
+      return false;
+    }
+
     if (
       expectation.file !== undefined ||
       expectation.pos !== undefined ||
       expectation.end !== undefined
     ) {
       if (diagnostic.target === NoTarget) {
-        fail(`Diagnostics at index ${i} expected to have a target.\n${message}`);
+        return false;
       }
       const source = getSourceLocation(diagnostic.target);
 
+      if (!source) {
+        return false;
+      }
+
       if (expectation.file !== undefined) {
-        matchStrOrRegex(
-          source.file.path,
+        const expectedFile =
           typeof expectation.file === "string"
             ? resolveVirtualPath(expectation.file)
-            : expectation.file,
-          `Diagnostics at index ${i} has non matching file.\n${message}`,
-        );
+            : expectation.file;
+
+        if (typeof expectedFile === "string") {
+          if (source.file.path !== expectedFile) {
+            return false;
+          }
+        } else {
+          if (!expectedFile.test(source.file.path)) {
+            return false;
+          }
+        }
       }
 
-      if (expectation.pos !== undefined) {
-        strictEqual(
-          source.pos,
-          expectation.pos,
-          `Diagnostic at index ${i} has non-matching start position.`,
-        );
+      if (expectation.pos !== undefined && source.pos !== expectation.pos) {
+        return false;
       }
 
-      if (expectation.end !== undefined) {
-        strictEqual(
-          source.end,
-          expectation.end,
-          `Diagnostic at index ${i} has non-matching end position.`,
-        );
+      if (expectation.end !== undefined && source.end !== expectation.end) {
+        return false;
       }
     }
+
+    return true;
+  } catch {
+    return false;
   }
 }
 
