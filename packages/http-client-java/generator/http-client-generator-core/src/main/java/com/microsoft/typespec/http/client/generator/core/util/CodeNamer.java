@@ -94,6 +94,15 @@ public class CodeNamer {
             return name;
         }
 
+        // Special handling for inputs that start with special characters followed by numbers
+        if (name.length() > 1 && !Character.isLetterOrDigit(name.charAt(0)) && Character.isDigit(name.charAt(1))) {
+            // Convert the first character to its word form
+            String firstCharReplacement = getBasicLatinCharacter(name.charAt(0));
+            if (firstCharReplacement != null) {
+                name = firstCharReplacement + "_" + name.substring(1);
+            }
+        }
+
         // trim leading and trailing '_'
         if ((name.startsWith("_") || name.endsWith("_")) && !name.chars().allMatch(c -> c == '_')) {
             StringBuilder sb = new StringBuilder(name);
