@@ -282,6 +282,13 @@ describe("emitter", () => {
     });
   });
 
+  it("pipe outputs", async () => {
+    const res = await await EmitterTester.pipe((x) => x.outputs["Foo.model"]).compile(
+      `model Foo {}`,
+    );
+    expect(res).toEqual("Foo");
+  });
+
   it("add extra files via fs api", async () => {
     const tester = await EmitterTester.createInstance();
     tester.fs.add("foo.tsp", "model Foo {}");

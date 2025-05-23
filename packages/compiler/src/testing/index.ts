@@ -10,7 +10,6 @@ export {
 } from "./rule-tester.js";
 export { extractCursor, extractSquiggles } from "./source-utils.js";
 export type { TestHostOptions } from "./test-compiler-host.js";
-export { createTester } from "./test-host-v2.js";
 export { createTestHost, createTestRunner, findFilesFromPattern } from "./test-host.js";
 export {
   createTestLibrary,
@@ -21,6 +20,7 @@ export {
   trimBlankLines,
   type TestWrapperOptions,
 } from "./test-utils.js";
+export { createTester } from "./tester.js";
 export type {
   BasicTestRunner,
   EmitterTester,

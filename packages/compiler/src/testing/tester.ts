@@ -128,13 +128,14 @@ interface TesterInternalParams {
 }
 
 interface EmitterTesterInternalParams extends TesterInternalParams {
+  outputProcess?: (result: any) => any;
   emitter: string;
 }
 
-function createTesterBuilder<I extends TesterInternalParams, O extends TesterBuilder<unknown>>(
-  params: I,
-  create: (values: I) => O,
-): TesterBuilder<O> {
+function createTesterBuilder<
+  const I extends TesterInternalParams,
+  const O extends TesterBuilder<unknown>,
+>(params: I, create: (values: I) => O): TesterBuilder<O> {
   return {
     files,
     wrap,
@@ -198,7 +199,7 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   };
 
   function emit(emitter: string, options?: Record<string, unknown>): EmitterTester {
-    return createEmitterTesterInternal({
+    return createEmitterTesterInternal<TestEmitterCompileResult>({
       ...params,
       emitter,
       compilerOptions: options
@@ -218,20 +219,33 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   }
 }
 
-function createEmitterTesterInternal(params: EmitterTesterInternalParams): EmitterTester {
+function createEmitterTesterInternal<Result>(
+  params: EmitterTesterInternalParams,
+): EmitterTester<Result> {
   return {
     ...createCompilable(async (...args) => {
-      const instance = await createEmitterTesterInstance(params);
+      const instance = await createEmitterTesterInstance<Result>(params);
       return instance.compileAndDiagnose(...args);
     }),
-    ...createTesterBuilder(params, createEmitterTesterInternal),
+    ...createTesterBuilder<EmitterTesterInternalParams, EmitterTester<Result>>(
+      params,
+      createEmitterTesterInternal,
+    ),
+    pipe: <O>(cb: (previous: Result) => O): EmitterTester<O> => {
+      return createEmitterTesterInternal({
+        ...params,
+        outputProcess: async (result) => {
+          return params.outputProcess ? cb(params.outputProcess(result)) : cb(result);
+        },
+      });
+    },
     createInstance: () => createEmitterTesterInstance(params),
   };
 }
 
-async function createEmitterTesterInstance(
+async function createEmitterTesterInstance<Result>(
   params: EmitterTesterInternalParams,
-): Promise<EmitterTesterInstance> {
+): Promise<EmitterTesterInstance<Result>> {
   const tester = await createTesterInstance(params);
   return {
     fs: tester.fs,
@@ -244,7 +258,7 @@ async function createEmitterTesterInstance(
   async function compileAndDiagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
-  ): Promise<[TestEmitterCompileResult, readonly Diagnostic[]]> {
+  ): Promise<[Result, readonly Diagnostic[]]> {
     if (options?.options?.emit !== undefined) {
       throw new Error("Cannot set emit in options.");
     }
@@ -268,13 +282,13 @@ async function createEmitterTesterInstance(
         outputs[relativePath] = value;
       }
     }
-    return [
-      {
-        ...result,
-        outputs,
-      },
-      diagnostics,
-    ];
+
+    const prep = {
+      ...result,
+      outputs,
+    };
+    const final = params.outputProcess ? params.outputProcess(prep) : prep;
+    return [final, diagnostics];
   }
 }
 

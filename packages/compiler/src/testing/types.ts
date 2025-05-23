@@ -108,24 +108,25 @@ export interface TestEmitterCompileResult {
   readonly outputs: Record<string, string>;
 }
 
-export interface OutputTestable {
-  compile(
-    code: string | Record<string, string>,
-    options?: TestCompileOptions,
-  ): Promise<TestEmitterCompileResult>;
+export interface OutputTestable<Result> {
+  compile(code: string | Record<string, string>, options?: TestCompileOptions): Promise<Result>;
   compileAndDiagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
-  ): Promise<[TestEmitterCompileResult, readonly Diagnostic[]]>;
+  ): Promise<[Result, readonly Diagnostic[]]>;
   diagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
   ): Promise<readonly Diagnostic[]>;
 }
-export interface OutputTester extends OutputTestable, TesterBuilder<OutputTester> {}
+
 /** Alternate version of the tester which runs the configured emitter */
-export interface EmitterTester extends OutputTester {
-  createInstance(): Promise<EmitterTesterInstance>;
+export interface EmitterTester<Result = TestEmitterCompileResult>
+  extends OutputTestable<Result>,
+    TesterBuilder<EmitterTester<Result>> {
+  pipe<O>(cb: (result: Result) => O): EmitterTester<O>;
+
+  createInstance(): Promise<EmitterTesterInstance<Result>>;
 }
 
 export interface TesterInstanceBase {
@@ -139,7 +140,7 @@ export interface TesterInstanceBase {
 export interface TesterInstance extends TesterInstanceBase, Testable {}
 
 /** Instance of an emitter tester */
-export interface EmitterTesterInstance extends TesterInstanceBase, OutputTestable {}
+export interface EmitterTesterInstance<Result> extends TesterInstanceBase, OutputTestable<Result> {}
 
 // #endregion
 
