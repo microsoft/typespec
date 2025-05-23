@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -170,11 +171,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ns = ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
 
             // figure out if this namespace has been changed for this client
-            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
+            if (!IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
+        }
+
+        /// <summary>
+        /// Checks if two namespaces share the same last segment
+        /// </summary>
+        /// <param name="left">the first namespace</param>
+        /// <param name="right">the second namespace</param>
+        /// <returns></returns>
+        internal static bool IsLastNamespaceSegmentTheSame(string left, string right)
+        {
+            // finish this via Span API
+            var leftSpan = left.AsSpan();
+            var rightSpan = right.AsSpan();
+            // swap if left is longer, we ensure left is the shorter one
+            if (leftSpan.Length > rightSpan.Length)
+            {
+                var temp = leftSpan;
+                leftSpan = rightSpan;
+                rightSpan = temp;
+            }
+            for (int i = 1; i <= leftSpan.Length; i++)
+            {
+                var lc = leftSpan[^i];
+                var rc = rightSpan[^i];
+                // check if each char is the same from the right-most side
+                // if both of them are dot, we finished scanning the last segment - and if we could be here, meaning all of them are the same, return true.
+                if (lc == '.' && rc == '.')
+                {
+                    return true;
+                }
+                // if these are different - there is one different character, return false.
+                if (lc != rc)
+                {
+                    return false;
+                }
+            }
+
+            // we come here because we run out of characters in left - which means left does not have a dot.
+            // if they have the same length, they are identical, return true
+            if (leftSpan.Length == rightSpan.Length)
+            {
+                return true;
+            }
+            // otherwise, right is longer, we check its next character, if it is the dot, return true, otherwise return false.
+            return rightSpan[^(leftSpan.Length + 1)] == '.';
         }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
@@ -239,7 +285,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.Name.ToCleanName();
+        protected override string BuildName() => _inputClient.Name.ToIdentifierName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -463,16 +509,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanName());
+            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
                 if (f == _apiVersionField && ClientOptions.Value.VersionProperty != null)
                 {
                     body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.Value.VersionProperty.Name)).Terminate());
                 }
-                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
+                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
                 {
-                    clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
+                    clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out optionsProperty);
                 }
             }
 
