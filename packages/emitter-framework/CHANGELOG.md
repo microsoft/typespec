@@ -1,5 +1,16 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.7.1
+
+### Bump dependencies
+
+- [#7363](https://github.com/microsoft/typespec/pull/7363) Upgrade alloy 16
+
+### Bug Fixes
+
+- [#7321](https://github.com/microsoft/typespec/pull/7321) Use wasm version of tree sitter for snippet extractor
+
+
 ## 0.7.0
 
 ### Bump dependencies

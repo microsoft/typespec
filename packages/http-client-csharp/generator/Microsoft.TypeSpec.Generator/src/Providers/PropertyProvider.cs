@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -18,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        private readonly InputModelProperty? _inputProperty;
+        private readonly InputProperty? _inputProperty;
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
 
@@ -53,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        internal static bool TryCreate(InputModelProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
+        internal static bool TryCreate(InputProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             if (type == null)
@@ -65,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        public PropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType)
+        public PropertyProvider(InputProperty inputProperty, TypeProvider enclosingType)
         : this(
             inputProperty,
             CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
@@ -73,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private PropertyProvider(InputModelProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
+        private PropertyProvider(InputProperty inputProperty, CSharpType propertyType, TypeProvider enclosingType)
         {
             _inputProperty = inputProperty;
             if (!inputProperty.IsRequired && !propertyType.IsCollection)
@@ -87,14 +88,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
-            Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            IsDiscriminator = IsDiscriminatorProperty(inputProperty);
+            Modifiers = IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToCleanName()}Property"
-                : inputProperty.Name.ToCleanName();
+                ? $"{inputProperty.Name.ToIdentifierName()}Property"
+                : inputProperty.Name.ToIdentifierName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
-            IsDiscriminator = inputProperty.IsDiscriminator;
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
@@ -164,12 +165,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
+        private static bool IsDiscriminatorProperty(InputProperty inputProperty)
+        {
+            return inputProperty is InputModelProperty mp && mp.IsDiscriminator;
+        }
+
         /// <summary>
         /// Returns true if the property has a setter.
         /// </summary>
-        protected virtual bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        protected virtual bool PropertyHasSetter(CSharpType type, InputProperty inputProperty)
         {
-            if (inputProperty.IsDiscriminator)
+            if (IsDiscriminatorProperty(inputProperty))
             {
                 return true;
             }
@@ -212,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputModelProperty inputProperty)
+        private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
                 return null;

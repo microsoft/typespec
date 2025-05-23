@@ -19,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -28,7 +27,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
@@ -296,52 +294,6 @@ public class MethodUtil {
             .filter(p -> !p.isConstant() && !p.isFromClient())
             .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Checks if the parameter should be hidden from API, for pageable operation.
-     *
-     * @param parameter the parameter
-     * @param xmsPageable the detail of pageable operation in CodeModel
-     * @return whether the parameter should be hidden from API
-     */
-    public static boolean shouldHideParameterInPageable(Parameter parameter, XmsPageable xmsPageable) {
-        boolean hide = false;
-        if (xmsPageable.getContinuationToken() != null
-            && parameter == xmsPageable.getContinuationToken().getParameter()) {
-            hide = true;
-        }
-        if (JavaSettings.getInstance().isPageSizeEnabled() && isMaxPageSizeParameter(parameter)) {
-            hide = true;
-        }
-        return hide;
-    }
-
-    public static boolean shouldHideParameterInPageable(MethodPageDetails methodPageDetails,
-        ClientMethodParameter parameter) {
-        boolean isContinuationToken = methodPageDetails != null
-            && methodPageDetails.getContinuationToken() != null
-            && parameter.getName().equals(methodPageDetails.getContinuationToken().getRequestParameter().getName());
-        boolean isMaxPageSize
-            = JavaSettings.getInstance().isPageSizeEnabled() && "maxpagesize".equals(parameter.getName());
-        return isContinuationToken || isMaxPageSize;
-    }
-
-    /**
-     * Checks if the parameter is "maxpagesize".
-     * <p>
-     * It checks if the serialized name is "maxpagesize", or client name is "maxPageSize".
-     *
-     * @param parameter the parameter
-     * @return whether the parameter is "maxpagesize".
-     */
-    private static boolean isMaxPageSizeParameter(Parameter parameter) {
-        return parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
-        // query parameter
-            && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
-            // serialized name == maxpagesize, or relax a bit, client name == maxPageSize
-            && (Objects.equals(parameter.getLanguage().getDefault().getSerializedName(), "maxpagesize")
-                || Objects.equals(SchemaUtil.getJavaName(parameter), "maxPageSize"));
     }
 
     /**

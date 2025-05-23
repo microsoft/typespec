@@ -73,13 +73,15 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
-    # enable sync-stack
-    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=true"""
+    # rename model
+    $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
+    # test for include-api-view-properties
+    $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -168,11 +170,11 @@ Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("R
 
 Remove-Item ./tsp-output -Recurse -Force
 
-if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_properties.json) {
+if (Test-Path ./src/main/resources/META-INF/client-structure-service_metadata.json) {
   # client structure is generated from multiple client.tsp files and the last one to execute overwrites
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
-  Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+  Remove-Item ./src/main/resources/META-INF/client-structure-service_metadata.json -Force
 }
 
 if ($ExitCode -ne 0) {
