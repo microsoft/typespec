@@ -10,6 +10,7 @@ import {
   getLocationContext,
   Model,
   navigateProgram,
+  ObjectValue,
   Program,
 } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
@@ -174,6 +175,7 @@ describe("extract values", () => {
       const ${t.object("foo")} = #{};
     `);
     expect(res.foo.valueKind).toBe("ObjectValue");
+    expectTypeOf(res.foo).toExtend<ObjectValue>();
   });
 
   it("array", async () => {

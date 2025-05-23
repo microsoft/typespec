@@ -1,16 +1,23 @@
-import {
+import type {
+  ArrayValue,
   BooleanLiteral,
+  BooleanValue,
   Entity,
   Enum,
   EnumMember,
+  EnumValue,
   Interface,
   Model,
   ModelProperty,
   Namespace,
   NumericLiteral,
+  NumericValue,
+  ObjectValue,
   Operation,
   Scalar,
+  ScalarValue,
   StringLiteral,
+  StringValue,
   Type,
   Union,
   UnionVariant,
@@ -129,8 +136,13 @@ export const t = {
 
   // Values
   value: valueMarker<Value>(),
-  object: valueMarker<Value>("ObjectValue"),
-  array: valueMarker<Value>("ArrayValue"),
+  object: valueMarker<ObjectValue>("ObjectValue"),
+  array: valueMarker<ArrayValue>("ArrayValue"),
+  numericValue: valueMarker<NumericValue>("NumericValue"),
+  stringValue: valueMarker<StringValue>("StringValue"),
+  booleanValue: valueMarker<BooleanValue>("BooleanValue"),
+  scalarValue: valueMarker<ScalarValue>("ScalarValue"),
+  enumValue: valueMarker<EnumValue>("EnumValue"),
 };
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
