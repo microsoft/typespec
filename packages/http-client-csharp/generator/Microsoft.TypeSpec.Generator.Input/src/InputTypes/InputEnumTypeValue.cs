@@ -5,19 +5,26 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputEnumTypeValue : InputType
     {
-        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, InputEnumType enumType, string? summary, string? doc) : base(name)
+        // We only access these types from an InputEnumType and in the Values setter the owner is always set so we can safely assume they are not null.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        public InputEnumTypeValue(string name, object value, InputPrimitiveType valueType, string? summary, string? doc, InputEnumType? enumType = default) : base(name)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         {
             Name = name;
             Value = value;
             ValueType = valueType;
-            EnumType = enumType;
+            // EnumType will be set when the value is applied to an enum type if this parameter is null
+            if (enumType is not null)
+            {
+                EnumType = enumType;
+            }
             Summary = summary;
             Doc = doc;
         }
 
         public object Value { get; }
         public InputPrimitiveType ValueType { get; }
-        public InputEnumType EnumType { get; }
+        public InputEnumType EnumType { get; internal set; }
         public string? Summary { get; }
         public string? Doc { get; }
 

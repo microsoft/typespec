@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator
     /// </summary>
     public abstract class LibraryVisitor
     {
-        internal virtual void Visit(OutputLibrary library)
+        protected internal virtual void VisitLibrary(OutputLibrary library)
         {
             // Ensure all types are built before visiting them
             foreach (var type in library.TypeProviders)
@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The original input model property.</param>
         /// <param name="propertyProvider">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected internal virtual PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
+        protected internal virtual PropertyProvider? PreVisitProperty(InputProperty property, PropertyProvider? propertyProvider)
         {
             return propertyProvider;
         }
@@ -188,11 +188,6 @@ namespace Microsoft.TypeSpec.Generator
             return statements;
         }
 
-        protected virtual MethodBodyStatement? VisitStatement(MethodBodyStatement statement, MethodProvider method)
-        {
-            return statement;
-        }
-
         protected internal virtual MethodBodyStatement? VisitExpressionStatement(ExpressionStatement statement, MethodProvider method)
         {
             return statement;
@@ -246,11 +241,6 @@ namespace Microsoft.TypeSpec.Generator
         protected internal virtual MethodBodyStatement? VisitXmlDocInheritStatement(XmlDocInheritStatement statement, MethodProvider method)
         {
             return statement;
-        }
-
-        protected internal virtual ValueExpression VisitExpression(ValueExpression expression, MethodProvider method)
-        {
-            return expression;
         }
 
         protected internal virtual ValueExpression? VisitMemberExpression(MemberExpression expression, MethodProvider method)

@@ -175,11 +175,13 @@ export function createLinter(
 
     const timer = startTimer();
     for (const rule of enabledRules.values()) {
+      const createTiming = startTimer();
       const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+      stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
         const timedCb = (...args: any[]) => {
           const duration = time(() => (cb as any)(...args));
-          stats.runtime.rules[rule.id] = (stats.runtime.rules[rule.id] ?? 0) + duration;
+          stats.runtime.rules[rule.id] += duration;
         };
         eventEmitter.on(name as any, timedCb);
       }

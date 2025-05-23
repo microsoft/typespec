@@ -14,8 +14,8 @@ public class ResponseOpListStrings {
         ResponseClient responseClient
             = new ResponseClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildClient();
-        // BEGIN:tsptest.response.generated.liststrings.responseopliststrings
+        // BEGIN:tsptest.response.generated.list-strings.response-op-list-strings
         PagedIterable<String> response = responseClient.listStrings();
-        // END:tsptest.response.generated.liststrings.responseopliststrings
+        // END:tsptest.response.generated.list-strings.response-op-list-strings
     }
 }
