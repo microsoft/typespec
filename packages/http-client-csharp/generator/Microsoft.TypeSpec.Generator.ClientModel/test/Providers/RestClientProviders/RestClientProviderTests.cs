@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -46,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var method = restClientProvider.Methods![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual($"Create{inputOperation.Name.ToIdentifierName()}Request", signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
@@ -171,7 +172,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 [
                     InputFactory.Parameter(
                         "header",
-                        isValueType ? InputFactory.Enum("header", InputPrimitiveType.String) : InputPrimitiveType.String,
+                        isValueType ? InputFactory.StringEnum("header", [("value", "value")]) : InputPrimitiveType.String,
                         location: InputRequestLocation.Header,
                         isRequired: isRequired),
                     InputFactory.Parameter(
@@ -390,6 +391,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var operation = InputFactory.Operation(
                 "sampleOp",
                 parameters: parameters);
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestBuildCreateRequestMethodWithPathParameters()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.Parameter("p1", InputPrimitiveType.String, location: InputRequestLocation.Path, isRequired: true, nameInRequest: "someOtherName"),
+                InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true, delimiter: " "),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: InputRequestLocation.Path, isRequired: true),
+            ];
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: parameters,
+                uri: "/{someOtherName}/{p2}/{p3}");
 
             var client = InputFactory.Client(
                 "TestClient",
@@ -734,16 +761,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             InputParameter enumApiVersionParameter = InputFactory.Parameter(
                 "apiVersion",
-                InputFactory.Enum(
+                InputFactory.StringEnum(
                     "InputEnum",
-                    InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    isExtensible: true,
-                    values:
                     [
-                        InputFactory.EnumMember.String("value1", "value1"),
-                        InputFactory.EnumMember.String("value2", "value2")
-                    ]),
+                        ("value1", "value1"),
+                        ("value2", "value2")
+                    ],
+                    usage: InputModelTypeUsage.Input,
+                    isExtensible: true),
                 location: InputRequestLocation.Uri,
                 isRequired: true,
                 kind: InputParameterKind.Client,

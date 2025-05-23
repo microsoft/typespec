@@ -60,9 +60,9 @@ public class FluentExample implements Comparable<FluentExample> {
     }
 
     public String getClassName() {
-        String className = groupName + methodName + "Samples";
+        String className = groupName + methodName;
         return ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/samples/java",
-            this.getPackageName(), className);
+            this.getPackageName(), className, "Samples");
     }
 
     @Override

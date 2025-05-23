@@ -370,7 +370,7 @@ export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
   target: DiagnosticTarget | typeof NoTarget,
 ): monaco.IRange {
-  const loc = typespecCompiler.getSourceLocation(target);
+  const loc = typespecCompiler.getSourceLocation(target, { locateId: true });
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {
     return {
       startLineNumber: 1,

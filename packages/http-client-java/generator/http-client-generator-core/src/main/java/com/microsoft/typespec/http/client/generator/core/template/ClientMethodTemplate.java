@@ -182,7 +182,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (parameterWireType != ClassType.BASE_64_URL
                 && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
                 // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = ClassType.STRING;
             }
 
@@ -363,7 +363,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (parameterWireType != ClassType.BASE_64_URL
                 && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
                 // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData &&
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
+                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
                 parameterWireType = (parameter.getExplode()) ? new ListType(ClassType.STRING) : ClassType.STRING;
             }
 
@@ -490,7 +490,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             if (parameter.getWireType().isUsedInXml()
-                && parameterClientType instanceof ListType
+                && parameterClientType instanceof IterableType
                 && (parameterLocation
                     == RequestParameterLocation.BODY /* || parameterLocation == RequestParameterLocation.FormData */)) {
                 function.line("%s %s = new %s(%s);", parameter.getWireType(), parameterWireName,
@@ -1254,12 +1254,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ProxyMethod restAPIMethod, boolean useFullClassName) {
         commentBlock.description(clientMethod.getDescription());
         List<ClientMethodParameter> methodParameters = clientMethod.getMethodInputParameters();
-        for (ClientMethodParameter parameter : methodParameters) {
-            commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+        if (clientMethod.isPageStreamingType()) {
+            final MethodPageDetails methodPageDetails = clientMethod.getMethodPageDetails();
+            for (ClientMethodParameter parameter : methodParameters) {
+                if (!methodPageDetails.shouldHideParameter(parameter)) {
+                    commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+                }
+            }
+        } else {
+            for (ClientMethodParameter parameter : methodParameters) {
+                commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
+            }
         }
-        if (restAPIMethod != null
-            && clientMethod.getParametersDeclaration() != null
-            && !clientMethod.getParametersDeclaration().isEmpty()) {
+        if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
         }
         generateJavadocExceptions(clientMethod, commentBlock, useFullClassName);
@@ -1768,8 +1775,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
@@ -1807,8 +1814,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
@@ -1848,7 +1855,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         return serviceVersion;
     }
 
-    private static String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+    protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
         StringBuilder expression = new StringBuilder();
         expression.append("if (pagingOptions.getOffset() != null) {")
             .append(

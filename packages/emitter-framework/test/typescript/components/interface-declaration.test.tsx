@@ -9,6 +9,200 @@ import { getProgram } from "../test-host.js";
 
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {
+    it("declares an interface with multi line docs, explicit docs passed", async () => {
+      const program = await getProgram(`
+          namespace DemoService;
+
+          /**
+           * This is a test
+           * with multiple lines
+           */
+          model Foo {
+            knownProp: string;
+          }
+          `);
+
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const models = Array.from((namespace as Namespace).models.values());
+
+      const res = render(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <List hardline>
+              {models.map((model) => (
+                <InterfaceDeclaration
+                  export
+                  type={model}
+                  doc={["This is an overridden doc comment\nwith multiple lines"]}
+                />
+              ))}
+            </List>
+          </SourceFile>
+        </Output>,
+      );
+
+      const testFile = res.contents.find((file) => file.path === "test.ts");
+      assert(testFile, "test.ts file not rendered");
+      const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+      const expectedContent = await format(
+        `
+            /**
+             * This is an overridden doc comment
+             * with multiple lines
+             */
+            export interface Foo {
+              knownProp: string;
+            }
+            `,
+        {
+          parser: "typescript",
+        },
+      );
+
+      expect(actualContent).toBe(expectedContent);
+    });
+    it("declares an interface with multi line docs", async () => {
+      const program = await getProgram(`
+          namespace DemoService;
+
+          /**
+           * This is a test
+           * with multiple lines
+           */
+          model Foo {
+            knownProp: string;
+          }
+          `);
+
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const models = Array.from((namespace as Namespace).models.values());
+
+      const res = render(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <List hardline>
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </List>
+          </SourceFile>
+        </Output>,
+      );
+
+      const testFile = res.contents.find((file) => file.path === "test.ts");
+      assert(testFile, "test.ts file not rendered");
+      const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+      const expectedContent = await format(
+        `
+            /**
+             * This is a test
+             * with multiple lines
+             */
+            export interface Foo {
+              knownProp: string;
+            }
+            `,
+        {
+          parser: "typescript",
+        },
+      );
+
+      expect(actualContent).toBe(expectedContent);
+    });
+    it("declares an interface with @doc", async () => {
+      const program = await getProgram(`
+          namespace DemoService;
+
+          @doc("This is a test")
+          model Foo {
+            knownProp: string;
+          }
+          `);
+
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const models = Array.from((namespace as Namespace).models.values());
+
+      const res = render(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <List hardline>
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </List>
+          </SourceFile>
+        </Output>,
+      );
+
+      const testFile = res.contents.find((file) => file.path === "test.ts");
+      assert(testFile, "test.ts file not rendered");
+      const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+      const expectedContent = await format(
+        `
+            /**
+             * This is a test
+             */
+            export interface Foo {
+              knownProp: string;
+            }
+            `,
+        {
+          parser: "typescript",
+        },
+      );
+
+      expect(actualContent).toBe(expectedContent);
+    });
+    it("declares an interface with doc", async () => {
+      const program = await getProgram(`
+          namespace DemoService;
+
+          /**
+           * This is a test
+           */
+          model Foo {
+            @doc("This is a known property")
+            knownProp: string;
+          }
+          `);
+
+      const [namespace] = program.resolveTypeReference("DemoService");
+      const models = Array.from((namespace as Namespace).models.values());
+
+      const res = render(
+        <Output program={program}>
+          <SourceFile path="test.ts">
+            <List hardline>
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </List>
+          </SourceFile>
+        </Output>,
+      );
+
+      const testFile = res.contents.find((file) => file.path === "test.ts");
+      assert(testFile, "test.ts file not rendered");
+      const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+      const expectedContent = await format(
+        `
+            /**
+             * This is a test
+             */
+            export interface Foo {
+              /**
+               * This is a known property
+               */
+              knownProp: string;
+            }
+            `,
+        {
+          parser: "typescript",
+        },
+      );
+
+      expect(actualContent).toBe(expectedContent);
+    });
     describe("Bound to Model", () => {
       it("creates an interface that extends a model for Record spread", async () => {
         const program = await getProgram(`
@@ -623,8 +817,19 @@ describe("Typescript Interface", () => {
         const program = await getProgram(`
         namespace DemoService;
     
+        /**
+         * Operations for Widget
+         */
         interface WidgetOperations {
-          op getName(id: string): Widget;
+          /**
+           * Get the name of the widget
+           */
+          op getName(
+            /**
+             * The id of the widget
+             */
+             id: string
+          ): Widget;
         }
 
         model Widget {
@@ -653,14 +858,23 @@ describe("Typescript Interface", () => {
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
-          `export interface WidgetOperations {
-          getName(id: string): Widget;
-        }
-        export interface Widget {
-          id: string;
-          weight: number;
-          color: "blue" | "red";
-        }`,
+          `
+          /**
+           * Operations for Widget
+           */
+          export interface WidgetOperations {
+            /**
+             * Get the name of the widget
+             * 
+             * @param {string} id - The id of the widget
+             */
+            getName(id: string): Widget;
+          }
+          export interface Widget {
+            id: string;
+            weight: number;
+            color: "blue" | "red";
+          }`,
           {
             parser: "typescript",
           },

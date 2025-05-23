@@ -42,7 +42,7 @@
   "dependencies": {
     "@pnpm/workspace.find-packages": "^1000.0.17",
     "cross-spawn": "^7.0.6",
-    "cspell": "^8.17.5",
+    "cspell": "^9.0.1",
     "semver": "^7.7.1",
     "strip-json-comments": "~5.0.1",
     "yargs": "~17.7.2"

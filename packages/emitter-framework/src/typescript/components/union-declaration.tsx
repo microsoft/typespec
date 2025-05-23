@@ -1,3 +1,4 @@
+import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
 import { useTsp } from "../../core/context/tsp-context.js";
@@ -7,6 +8,7 @@ import { UnionExpression } from "./union-expression.js";
 
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Union | Enum;
+  doc?: Children;
   name?: string;
 }
 
@@ -29,8 +31,9 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
 
   const name = ts.useTSNamePolicy().getName(originalName!, "type");
 
+  const doc = props.doc ?? $.type.getDoc(type);
   return (
-    <ts.TypeDeclaration {...props} name={name} refkey={refkeys}>
+    <ts.TypeDeclaration doc={doc} {...props} name={name} refkey={refkeys}>
       <UnionExpression type={type}>{coreProps.children}</UnionExpression>
     </ts.TypeDeclaration>
   );

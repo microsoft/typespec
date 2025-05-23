@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -32,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected EnumProvider(InputEnumType input)
         {
             _inputType = input;
-            _deprecated = input.Deprecated;
+            _deprecated = input.Deprecation;
             IsExtensible = input.IsExtensible;
             Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? FormattableStringHelpers.Empty;
         }
@@ -48,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType.Name.ToCleanName();
+        protected override string BuildName() => _inputType.Name.ToIdentifierName();
         protected override FormattableString Description { get; }
 
         protected override TypeProvider[] BuildSerializationProviders()
