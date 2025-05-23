@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AutoRest.CSharp.Common.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -82,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             foreach (var client in clients)
             {
-                var cleanName = client.Name.ToCleanName();
+                var cleanName = client.Name.ToIdentifierName();
                 client.Name = BuildClientName(cleanName, parentNames);
 
                 var lastSegment = GetLastSegment(client.Namespace);

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -44,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var signature = method.Signature;
             Assert.IsNotNull(signature);
             var operation = serviceMethod.Operation;
-            Assert.AreEqual(operation.Name.ToCleanName(), signature.Name);
+            Assert.AreEqual(operation.Name.ToIdentifierName(), signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
@@ -52,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{operation.Name.ToCleanName()}");
+                    && m.Signature.Name == $"{operation.Name.ToIdentifierName()}");
             Assert.IsNotNull(convenienceMethod);
             Assert.AreEqual(serviceMethod, convenienceMethod!.ServiceMethod);
 
@@ -87,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = serviceMethod.Operation;
             var asyncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{operation.Name.ToCleanName()}Async");
+                    && m.Signature.Name == $"{operation.Name.ToIdentifierName()}Async");
             Assert.IsNotNull(asyncConvenienceMethod);
 
             var asyncConvenienceMethodParameters = asyncConvenienceMethod!.Signature.Parameters;
@@ -100,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var syncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                   && m.Signature.Name == operation.Name.ToCleanName());
+                   && m.Signature.Name == operation.Name.ToIdentifierName());
             Assert.IsNotNull(syncConvenienceMethod);
 
             var syncConvenienceMethodParameters = syncConvenienceMethod!.Signature.Parameters;

@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientProviders
 {
@@ -46,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var method = restClientProvider.Methods![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual($"Create{inputOperation.Name.ToIdentifierName()}Request", signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);

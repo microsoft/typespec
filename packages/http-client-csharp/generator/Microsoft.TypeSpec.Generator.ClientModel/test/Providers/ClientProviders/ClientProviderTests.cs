@@ -22,6 +22,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [TestCase("Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar", ExpectedResult = false)]
+        [TestCase("Foo", "_Foo", ExpectedResult = false)]
+        [TestCase("_Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "Bar.Foo", ExpectedResult = true)]
+        [TestCase("Bar.Foo", "Foo", ExpectedResult = true)]
+        [TestCase("Foo", "Bar._Foo", ExpectedResult = false)]
+        [TestCase("Bar._Foo", "Foo", ExpectedResult = false)]
+        [TestCase("Foo", "/Foo", ExpectedResult = false)]
+        [TestCase("/Foo", "Foo", ExpectedResult = false)]
+        [TestCase(".Foo", ".Foo", ExpectedResult = true)]
+        [TestCase("Foo", ".Foo", ExpectedResult = true)]
+        [TestCase(".Foo", "Foo", ExpectedResult = true)]
+        public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
+        {
+            return ClientProvider.IsLastNamespaceSegmentTheSame(left, right);
+        }
+
         private const string SubClientsCategory = "WithSubClients";
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";

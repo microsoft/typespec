@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>Microsoft.TypeSpec.Generator.Input</PackageId>
@@ -8,10 +8,6 @@
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.TypeSpec.Generator\src\Shared\StringExtensions.cs" LinkBase="Shared" />
   </ItemGroup>
 
 </Project>
