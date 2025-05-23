@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   azure-integration-check:
-    name: Check Azure/typespec-azure compatibility
+    name: Azure/typespec-azure
     runs-on: ubuntu-latest
     # Only run if not from dependabot, publish, backmerge, or revert branches
     if: |
