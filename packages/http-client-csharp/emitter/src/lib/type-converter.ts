@@ -368,10 +368,7 @@ function fromSdkModelType(
   }
 }
 
-function fromSdkEnumType(
-  sdkContext: CSharpEmitterContext,
-  enumType: SdkEnumType,
-): InputEnumType {
+function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
   const enumName = enumType.name;
   let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
   if (!inputEnumType) {
