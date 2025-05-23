@@ -9,31 +9,19 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputXmlNamespaceOptionsConverter : JsonConverter<InputXmlNamespaceOptions>
     {
-        private readonly TypeSpecReferenceHandler _referenceHandler;
-
-        public InputXmlNamespaceOptionsConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputXmlNamespaceOptionsConverter()
         {
-            _referenceHandler = referenceHandler;
         }
 
         public override InputXmlNamespaceOptions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputXmlNamespaceOptions>(_referenceHandler.CurrentResolver) ?? ReadInputXmlNamespaceOptions(ref reader, null, options, _referenceHandler.CurrentResolver);
+            => ReadInputXmlNamespaceOptions(ref reader, options);
 
         public override void Write(Utf8JsonWriter writer, InputXmlNamespaceOptions value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputXmlNamespaceOptions ReadInputXmlNamespaceOptions(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputXmlNamespaceOptions ReadInputXmlNamespaceOptions(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            if (id == null)
-            {
-                reader.TryReadReferenceId(ref id);
-            }
-
-            id = id ?? throw new JsonException();
-
-            // create an empty options to resolve circular references
-            var nsOptions = new InputXmlNamespaceOptions(null!, null!);
-            resolver.AddReference(id, nsOptions);
+            reader.Read(); // we are at the StartObject token
 
             string? ns = null;
             string? prefix = null;
@@ -49,10 +37,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            nsOptions.Namespace = ns ?? throw new JsonException("XmlNamespaceOptions must have namespace");
-            nsOptions.Prefix = prefix ?? throw new JsonException("XmlNamespaceOptions must have prefix");
-
-            return nsOptions;
+            return new InputXmlNamespaceOptions(
+                ns ?? throw new JsonException("XmlNamespaceOptions must have namespace"),
+                prefix ?? throw new JsonException("XmlNamespaceOptions must have prefix")
+            );
         }
     }
 }
