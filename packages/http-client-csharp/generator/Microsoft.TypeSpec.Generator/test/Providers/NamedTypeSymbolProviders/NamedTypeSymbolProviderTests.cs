@@ -279,8 +279,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 yield return new TestCaseData(typeof(int), Literal(2));
                 yield return new TestCaseData(typeof(string), Literal("Foo"));
                 yield return new TestCaseData(typeof(double), Literal(2.2));
+                yield return new TestCaseData(typeof(double?), Literal(2.2));
+                yield return new TestCaseData(typeof(float), Literal(2.2f));
+                yield return new TestCaseData(typeof(float?), Literal(2.2f));
+                yield return new TestCaseData(typeof(long), Long(2));
                 yield return new TestCaseData(typeof(bool), False);
                 yield return new TestCaseData(typeof(object), Default);
+                yield return new TestCaseData(typeof(BinaryData), Default);
             }
         }
     }
