@@ -4,10 +4,10 @@ This directory contains the GitHub workflows used for TypeSpec repository CI/CD 
 
 ## Available Workflows
 
-| Workflow | Description |
-|----------|-------------|
-| `consistency.yml` | Ensures code consistency, including changelog, spellcheck, formatting, and linting |
-| `codeql.yml` | Runs CodeQL analysis for code security |
+| Workflow                               | Description                                                                        |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| `consistency.yml`                      | Ensures code consistency, including changelog, spellcheck, formatting, and linting |
+| `codeql.yml`                           | Runs CodeQL analysis for code security                                             |
 | `typespec-azure-integration-check.yml` | Optional CI check that verifies compatibility with Azure/typespec-azure repository |
 
 ## TypeSpec-Azure Integration Check
@@ -24,6 +24,7 @@ The `typespec-azure-integration-check.yml` workflow verifies that changes in the
 ### When It Runs
 
 This check runs on:
+
 - Pull requests to the main branch
 - Manual triggers via workflow_dispatch
 
@@ -35,4 +36,3 @@ This check runs on:
 ### Configuration
 
 This is an optional check that won't block PRs from being merged. It only runs on Linux with Node LTS (20.x) to minimize resource usage while still catching compatibility issues.
-
