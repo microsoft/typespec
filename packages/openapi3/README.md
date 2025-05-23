@@ -125,14 +125,6 @@ If true, then for models emitted as object schemas we default `additionalPropert
 OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
 Default: `false`
 
-### `serialize-parameter-examples`
-
-**Type:** `boolean`
-
-If true, then examples on parameters will be serialized based on the parameter's prescribed serialization strategy.
-Default: `false`
-See https://spec.openapis.org/oas/v3.0.4.html#style-examples
-
 ## Decorators
 
 ### TypeSpec.OpenAPI
