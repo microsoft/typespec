@@ -1,4 +1,4 @@
-name: Azure TypeSpec Integration Check
+name: Integration
 
 on:
   pull_request:
