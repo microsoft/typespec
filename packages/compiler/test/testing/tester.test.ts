@@ -14,7 +14,7 @@ import {
 } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
-import { createTester } from "../../src/testing/test-host-v2.js";
+import { createTester } from "../../src/testing/tester.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
 
