@@ -4,15 +4,15 @@ This directory contains the GitHub workflows used for TypeSpec repository CI/CD 
 
 ## Available Workflows
 
-| Workflow                               | Description                                                                        |
-| -------------------------------------- | ---------------------------------------------------------------------------------- |
-| `consistency.yml`                      | Ensures code consistency, including changelog, spellcheck, formatting, and linting |
-| `codeql.yml`                           | Runs CodeQL analysis for code security                                             |
-| `typespec-azure-integration-check.yml` | Optional CI check that verifies compatibility with Azure/typespec-azure repository |
+| Workflow                   | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `consistency.yml`          | Ensures code consistency, including changelog, spellcheck, formatting, and linting |
+| `codeql.yml`               | Runs CodeQL analysis for code security                                             |
+| `external-integration.yml` | Optional CI check that verifies compatibility with Azure/typespec-azure repository |
 
 ## TypeSpec-Azure Integration Check
 
-The `typespec-azure-integration-check.yml` workflow verifies that changes in the TypeSpec repository do not break compatibility with the Azure/typespec-azure repository, which depends on TypeSpec as a core dependency.
+The `external-integration.yml` workflow verifies that changes in the TypeSpec repository do not break compatibility with the Azure/typespec-azure repository, which depends on TypeSpec as a core dependency.
 
 ### How It Works
 
@@ -35,4 +35,4 @@ This check runs on:
 
 ### Configuration
 
-This is an optional check that won't block PRs from being merged. It only runs on Linux with Node LTS (20.x) to minimize resource usage while still catching compatibility issues.
+This is an optional check that won't block PRs from being merged. It only runs on Linux with Node LTS (24.x) to minimize resource usage while still catching compatibility issues.
