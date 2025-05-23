@@ -3,7 +3,7 @@ import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
 import { resolveVersions } from "../src/versioning.js";
-import { createVersioningTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
 describe("versioning: VersioningTimeline", () => {
   function generateLibraryNamespace(name: string, versions: string[]) {
@@ -22,7 +22,6 @@ describe("versioning: VersioningTimeline", () => {
     }
 
     const libNamespaceNames = libraryVersions.map((_, i) => `TestLibNs_${i}`);
-    const runner = await createVersioningTestRunner();
     const content = [
       `@versioned(Versions) namespace TestServiceNs {
           enum Versions {
@@ -33,17 +32,15 @@ describe("versioning: VersioningTimeline", () => {
       }`,
       ...libraryVersions.map((x, i) => generateLibraryNamespace(libNamespaceNames[i], x)),
     ].join("\n");
-    await runner.compile(content);
+    const { program } = await Tester.compile(content);
 
-    const serviceNamespace = runner.program
-      .getGlobalNamespaceType()
-      .namespaces.get("TestServiceNs")!;
+    const serviceNamespace = program.getGlobalNamespaceType().namespaces.get("TestServiceNs")!;
     const libNamespaces: Namespace[] = libNamespaceNames.map(
-      (x) => runner.program.getGlobalNamespaceType().namespaces.get(x)!,
+      (x) => program.getGlobalNamespaceType().namespaces.get(x)!,
     );
-    const resolutions = resolveVersions(runner.program, serviceNamespace);
+    const resolutions = resolveVersions(program, serviceNamespace);
     const timeline = new VersioningTimeline(
-      runner.program,
+      program,
       resolutions.map((x) => x.versions),
     );
     const timelineMatrix: string[][] = [];

@@ -1,29 +1,18 @@
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
-import {
-  BasicTestRunner,
-  createTestHost,
-  createTestWrapper,
-  expectDiagnosticEmpty,
-  TestHost,
-} from "@typespec/compiler/testing";
+import { createDiagnosticCollector, Diagnostic, Program, resolvePath } from "@typespec/compiler";
+import { createTester, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import {
   getAllHttpServices,
   HttpOperation,
   HttpOperationParameter,
   HttpVerb,
 } from "../src/index.js";
-import { HttpTestLibrary } from "../src/testing/index.js";
 import { RouteResolutionOptions } from "../src/types.js";
 
-export async function createHttpTestHost(): Promise<TestHost> {
-  return createTestHost({
-    libraries: [HttpTestLibrary],
-  });
-}
-export async function createHttpTestRunner(): Promise<BasicTestRunner> {
-  const host = await createHttpTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Http"] });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http"],
+})
+  .importLibraries()
+  .using("Http");
 
 export interface RouteDetails {
   path: string;
@@ -82,7 +71,7 @@ export async function compileOperations(
 }
 
 export interface CompileOperationsResult {
-  runner: BasicTestRunner;
+  program: Program;
   operations: HttpOperation[];
   diagnostics: readonly Diagnostic[];
 }
@@ -91,19 +80,15 @@ export async function compileOperationsFull(
   code: string,
   routeOptions?: RouteResolutionOptions,
 ): Promise<CompileOperationsResult> {
-  const runner = await createHttpTestRunner();
   const diagnostics = createDiagnosticCollector();
-  diagnostics.pipe(
-    await runner.compileAndDiagnose(
+  const { program } = diagnostics.pipe(
+    await Tester.compileAndDiagnose(
       `@service(#{title: "Test Service"}) namespace TestService;
     ${code}`,
-      {
-        noEmit: true,
-      },
     ),
   );
-  const services = diagnostics.pipe(getAllHttpServices(runner.program, routeOptions));
-  return { runner, operations: services[0].operations, diagnostics: diagnostics.diagnostics };
+  const services = diagnostics.pipe(getAllHttpServices(program, routeOptions));
+  return { operations: services[0].operations, diagnostics: diagnostics.diagnostics, program };
 }
 
 export async function diagnoseOperations(
@@ -118,22 +103,17 @@ export async function getOperationsWithServiceNamespace(
   code: string,
   routeOptions?: RouteResolutionOptions,
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
-  const runner = await createHttpTestRunner();
-  await runner.compileAndDiagnose(
+  const [{ program }, _] = await Tester.compileAndDiagnose(
     `@service(#{title: "Test Service"}) namespace TestService;
     ${code}`,
-    {
-      noEmit: true,
-    },
   );
-  const [services] = getAllHttpServices(runner.program, routeOptions);
-  return [services[0].operations, runner.program.diagnostics];
+  const [services] = getAllHttpServices(program, routeOptions);
+  return [services[0].operations, program.diagnostics];
 }
 
 export async function getOperations(code: string): Promise<HttpOperation[]> {
-  const runner = await createHttpTestRunner();
-  await runner.compile(code);
-  const [services, diagnostics] = getAllHttpServices(runner.program);
+  const { program } = await Tester.compile(code);
+  const [services, diagnostics] = getAllHttpServices(program);
 
   expectDiagnosticEmpty(diagnostics);
   return services[0].operations;
