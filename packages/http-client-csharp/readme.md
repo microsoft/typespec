@@ -138,3 +138,7 @@ License information for the generated client code.
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
+
+## Customizing the generated code
+
+For detailed instructions on how to customize the generated C# code, see the [Customization Guide](./.tspd/docs/customization.md) in the package documentation.
