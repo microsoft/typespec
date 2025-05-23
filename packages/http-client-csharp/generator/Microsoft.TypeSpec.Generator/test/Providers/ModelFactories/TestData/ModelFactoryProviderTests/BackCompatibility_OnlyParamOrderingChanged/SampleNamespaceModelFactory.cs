@@ -26,12 +26,6 @@ namespace Sample
 
 namespace Sample.Models
 {
-    public partial class PublicModel1
-    { }
-
-    public partial class PublicModel2
-    { }
-
     public partial class Thing
     { }
 }

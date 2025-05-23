@@ -115,11 +115,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return [.. originalMethods];
             }
 
-            List<MethodProvider> methodsToAdd = originalMethods;
+            List<MethodProvider> factoryMethods = originalMethods;
             HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. originalMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
-            HashSet<MethodSignature> methodsToRemove = [];
 
             foreach (var previousMethod in LastContractView.Methods)
             {
@@ -145,8 +144,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (ContainsSameParameters(previousMethod.Signature, currentOverload)
                         && TryBuildCompatibleMethodForPreviousContract(previousMethod, out MethodProvider? replacedMethod))
                     {
-                        methodsToAdd.Add(replacedMethod);
-                        methodsToRemove.Add(currentOverload);
+                        factoryMethods.Add(replacedMethod);
+
+                        var factoryMethodToRemove = factoryMethods
+                            .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
+                        if (factoryMethodToRemove != null)
+                        {
+                            factoryMethods.Remove(factoryMethodToRemove);
+                        }
+
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -163,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
 
                         var callToOverload = Return(new InvokeMethodExpression(null, currentOverload, arguments));
-                        methodsToAdd.Add(new MethodProvider(
+                        factoryMethods.Add(new MethodProvider(
                             signature,
                             callToOverload,
                             this,
@@ -181,27 +187,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
                 if (TryBuildCompatibleMethodForPreviousContract(previousMethod, out var builtMethod))
                 {
-                    methodsToAdd.Add(builtMethod);
+                    factoryMethods.Add(builtMethod);
                 }
                 else
                 {
                     CodeModelGenerator.Instance.Emitter.Info($"Unable to create a backward compatible model factory method for {previousMethod.Signature.FullMethodName}.");
-                }
-            }
-
-            int methodsToRemoveCount = methodsToRemove.Count;
-            if (methodsToRemoveCount == 0)
-            {
-                return [.. methodsToAdd];
-            }
-
-            int methodsToAddCount = methodsToAdd.Count;
-            List<MethodProvider> factoryMethods = new(methodsToAddCount - methodsToRemoveCount);
-            for (var i = 0; i < methodsToAddCount; i++)
-            {
-                if (!methodsToRemove.Contains(methodsToAdd[i].Signature))
-                {
-                    factoryMethods.Add(methodsToAdd[i]);
                 }
             }
 
@@ -481,9 +471,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             HashSet<ParameterProvider> method1Parameters = [.. method1.Parameters];
-            for ( var i = 0; i < count; i++)
+            foreach (var method2Param in method2.Parameters)
             {
-                if (!method1Parameters.Contains(method2.Parameters[i]))
+                if (!method1Parameters.Contains(method2Param))
                 {
                     return false;
                 }
