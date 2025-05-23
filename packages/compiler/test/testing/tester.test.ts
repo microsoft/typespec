@@ -271,6 +271,17 @@ describe("emitter", () => {
     });
   });
 
+  it("can use same chai methods", async () => {
+    const res = await await EmitterTester.wrap(
+      (x) => `model Test {}\n${x}\nmodel Test2 {}`,
+    ).compile(`model Foo {}`);
+    expect(res.outputs).toEqual({
+      "Foo.model": "Foo",
+      "Test.model": "Test",
+      "Test2.model": "Test2",
+    });
+  });
+
   it("add extra files via fs api", async () => {
     const tester = await EmitterTester.createInstance();
     tester.fs.add("foo.tsp", "model Foo {}");

@@ -25,6 +25,7 @@ import type {
   TestEmitterCompileResult,
   TestFileSystem,
   Tester,
+  TesterBuilder,
   TesterInstance,
 } from "./types.js";
 
@@ -130,32 +131,19 @@ interface EmitterTesterInternalParams extends TesterInternalParams {
   emitter: string;
 }
 
-function createEmitterTesterInternal(params: EmitterTesterInternalParams): EmitterTester {
+function createTesterBuilder<I extends TesterInternalParams, O extends TesterBuilder<unknown>>(
+  params: I,
+  create: (values: I) => O,
+): TesterBuilder<O> {
   return {
-    ...createCompilable(async (...args) => {
-      const instance = await createEmitterTesterInstance(params);
-      return instance.compileAndDiagnose(...args);
-    }),
-    createInstance: () => createEmitterTesterInstance(params),
-  };
-}
-
-function createTesterInternal(params: TesterInternalParams): Tester {
-  return {
-    ...createCompilable(async (...args) => {
-      const instance = await createTesterInstance(params);
-      return instance.compileAndDiagnose(...args);
-    }),
     files,
     wrap,
     importLibraries,
     import: importFn,
     using,
-    emit,
-    createInstance,
   };
 
-  function files(files: Record<string, MockFile>): Tester {
+  function files(files: Record<string, MockFile>): O {
     const fs = async () => {
       const fs = (await params.fs()).clone();
       for (const [name, value] of Object.entries(files)) {
@@ -164,38 +152,51 @@ function createTesterInternal(params: TesterInternalParams): Tester {
       fs.freeze();
       return fs;
     };
-    return createTesterInternal({
+    return create({
       ...params,
       fs,
     });
   }
-  function wrap(fn: (x: string) => string): Tester {
-    return createTesterInternal({
+  function wrap(fn: (x: string) => string): O {
+    return create({
       ...params,
       wraps: [...(params.wraps ?? []), fn],
     });
   }
 
-  function importLibraries(): Tester {
-    return createTesterInternal({
+  function importLibraries(): O {
+    return create({
       ...params,
       imports: [...(params.imports ?? []), ...params.libraries],
     });
   }
 
-  function importFn(...imports: string[]): Tester {
-    return createTesterInternal({
+  function importFn(...imports: string[]): O {
+    return create({
       ...params,
       imports: [...(params.imports ?? []), ...imports],
     });
   }
 
-  function using(...usings: string[]): Tester {
-    return createTesterInternal({
+  function using(...usings: string[]): O {
+    return create({
       ...params,
       usings: [...(params.usings ?? []), ...usings],
     });
   }
+}
+
+function createTesterInternal(params: TesterInternalParams): Tester {
+  return {
+    ...createCompilable(async (...args) => {
+      const instance = await createTesterInstance(params);
+      return instance.compileAndDiagnose(...args);
+    }),
+    ...createTesterBuilder(params, createTesterInternal),
+    emit,
+    createInstance,
+  };
+
   function emit(emitter: string, options?: Record<string, unknown>): EmitterTester {
     return createEmitterTesterInternal({
       ...params,
@@ -215,6 +216,17 @@ function createTesterInternal(params: TesterInternalParams): Tester {
   function createInstance(): Promise<TesterInstance> {
     return createTesterInstance(params);
   }
+}
+
+function createEmitterTesterInternal(params: EmitterTesterInternalParams): EmitterTester {
+  return {
+    ...createCompilable(async (...args) => {
+      const instance = await createEmitterTesterInstance(params);
+      return instance.compileAndDiagnose(...args);
+    }),
+    ...createTesterBuilder(params, createEmitterTesterInternal),
+    createInstance: () => createEmitterTesterInstance(params),
+  };
 }
 
 async function createEmitterTesterInstance(

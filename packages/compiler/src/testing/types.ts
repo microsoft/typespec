@@ -4,6 +4,8 @@ import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
 import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
 // #region Test file system
+
+/** Represent a mock file. Use `mockFile` function to construct */
 export type MockFile = string | JsFile;
 
 export interface JsFile {
@@ -16,7 +18,14 @@ export interface TestFileSystem {
   readonly fs: Map<string, string>;
   readonly compilerHost: CompilerHost;
 
-  /** Add a mock test file */
+  /**
+   * Add a mock test file
+   * @example
+   * ```ts
+   * fs.add("foo.tsp", "model Foo {}");
+   * fs.add("foo.js", mockFile.js({ Foo: { bar: 1 } }));
+   * ```
+   */
   add(path: string, content: MockFile): void;
 
   /** Prefer using {@link add} */
@@ -38,7 +47,6 @@ export interface TestFileSystem {
 //#endregion
 
 // #region Tester
-
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The program created in this test compilation. */
   readonly program: Program;
@@ -46,14 +54,6 @@ export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** File system */
   readonly fs: TestFileSystem;
 } & Record<string, Entity>;
-
-export interface TestEmitterCompileResult {
-  /** The program created in this test compilation. */
-  readonly program: Program;
-
-  /** Files written to the emitter output dir. */
-  readonly outputs: Record<string, string>;
-}
 
 export interface TestCompileOptions {
   /** Optional compiler options */
@@ -76,18 +76,21 @@ interface Testable {
   ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]>;
 }
 
-// Immutable structure meant to be reused
-export interface Tester extends Testable {
+export interface TesterBuilder<T> {
   /** Extend with the given list of files */
-  files(files: Record<string, MockFile>): Tester;
+  files(files: Record<string, MockFile>): T;
   /** Auto import all libraries defined in this tester. */
-  importLibraries(): Tester;
+  importLibraries(): T;
   /** Import the given paths */
-  import(...imports: string[]): Tester;
+  import(...imports: string[]): T;
   /** Add using statement for the given namespaces. */
-  using(...names: string[]): Tester;
+  using(...names: string[]): T;
   /** Wrap the code of the `main.tsp` file */
-  wrap(fn: (x: string) => string): Tester;
+  wrap(fn: (x: string) => string): T;
+}
+
+// Immutable structure meant to be reused
+export interface Tester extends Testable, TesterBuilder<Tester> {
   /**
    * Create an emitter tester
    * @param options - Options to pass to the emitter
@@ -97,7 +100,15 @@ export interface Tester extends Testable {
   createInstance(): Promise<TesterInstance>;
 }
 
-export interface OutputTester {
+export interface TestEmitterCompileResult {
+  /** The program created in this test compilation. */
+  readonly program: Program;
+
+  /** Files written to the emitter output dir. */
+  readonly outputs: Record<string, string>;
+}
+
+export interface OutputTestable {
   compile(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
@@ -111,20 +122,25 @@ export interface OutputTester {
     options?: TestCompileOptions,
   ): Promise<readonly Diagnostic[]>;
 }
+export interface OutputTester extends OutputTestable, TesterBuilder<OutputTester> {}
 /** Alternate version of the tester which runs the configured emitter */
 export interface EmitterTester extends OutputTester {
   createInstance(): Promise<EmitterTesterInstance>;
 }
 
-export interface EmitterTesterInstance extends OutputTester {
+export interface TesterInstanceBase {
+  /** Program created. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
   get program(): Program;
-  readonly fs: TestFileSystem;
-}
 
-export interface TesterInstance extends Testable {
-  get program(): Program;
+  /** File system used */
   readonly fs: TestFileSystem;
 }
+/** Instance of a tester.  */
+export interface TesterInstance extends TesterInstanceBase, Testable {}
+
+/** Instance of an emitter tester */
+export interface EmitterTesterInstance extends TesterInstanceBase, OutputTestable {}
+
 // #endregion
 
 // #region Legacy Test host
