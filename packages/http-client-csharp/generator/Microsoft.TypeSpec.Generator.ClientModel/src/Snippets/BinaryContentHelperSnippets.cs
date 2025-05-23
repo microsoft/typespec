@@ -15,9 +15,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ValueExpression FromDictionary(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromDictionary", body);
 
-        public static ValueExpression FromReadOnlyMemory(ValueExpression body)
-            => Static<BinaryContentHelperDefinition>().Invoke("FromEnumerable", body.Property("Span"));
-
         public static ValueExpression FromObject(ValueExpression body)
             => Static<BinaryContentHelperDefinition>().Invoke("FromObject", body);
     }
