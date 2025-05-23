@@ -7,6 +7,7 @@
 - Use `pnpm install` to install dependencies
 - Use `pnpm build` to build every package
 - Use `pnpm -r --filter "<pkgName>..." build` to build to a specific package `<pkgName>`
+- Use `pnpm format` to format all files
 
 ## Describing changes
 
