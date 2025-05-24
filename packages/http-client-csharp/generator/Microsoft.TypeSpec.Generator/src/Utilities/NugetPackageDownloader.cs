@@ -38,11 +38,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public NugetPackageDownloader(
             string packageName,
             string packageVersion,
-            IEnumerable<string> targetFrameworks,
+            IEnumerable<string>? targetFrameworks,
             ISettings settings)
         {
             _nugetSettings = settings;
-            _targetFrameworks = [.. targetFrameworks];
+            _targetFrameworks = targetFrameworks is null
+                ? [ ..PreferredDotNetFrameworkVersions ]
+                : [.. targetFrameworks];
             _availableSources = GetPrimaryPackageSources(settings);
             _globalNugetPackagePath = SettingsUtility.GetGlobalPackagesFolder(settings);
             // cspell: disable-next-line
