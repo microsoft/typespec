@@ -18,7 +18,7 @@ import tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner;
  * The response of a TopLevelArmResource list operation.
  */
 @Immutable
-public final class TopLevelArmResourceListResult implements JsonSerializable<TopLevelArmResourceListResult> {
+public final class ResourceListResult implements JsonSerializable<ResourceListResult> {
     /*
      * The TopLevelArmResource items on this page
      */
@@ -30,9 +30,9 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
     private String nextLink;
 
     /**
-     * Creates an instance of TopLevelArmResourceListResult class.
+     * Creates an instance of ResourceListResult class.
      */
-    private TopLevelArmResourceListResult() {
+    private ResourceListResult() {
     }
 
     /**
@@ -61,14 +61,13 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
     public void validate() {
         if (value() == null) {
             throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property value in model TopLevelArmResourceListResult"));
+                .log(new IllegalArgumentException("Missing required property value in model ResourceListResult"));
         } else {
             value().forEach(e -> e.validate());
         }
     }
 
-    private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourceListResult.class);
+    private static final ClientLogger LOGGER = new ClientLogger(ResourceListResult.class);
 
     /**
      * {@inheritDoc}
@@ -82,18 +81,17 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
     }
 
     /**
-     * Reads an instance of TopLevelArmResourceListResult from the JsonReader.
+     * Reads an instance of ResourceListResult from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of TopLevelArmResourceListResult if the JsonReader was pointing to an instance of it, or null
-     * if it was pointing to JSON null.
+     * @return An instance of ResourceListResult if the JsonReader was pointing to an instance of it, or null if it was
+     * pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the TopLevelArmResourceListResult.
+     * @throws IOException If an error occurs while reading the ResourceListResult.
      */
-    public static TopLevelArmResourceListResult fromJson(JsonReader jsonReader) throws IOException {
+    public static ResourceListResult fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            TopLevelArmResourceListResult deserializedTopLevelArmResourceListResult
-                = new TopLevelArmResourceListResult();
+            ResourceListResult deserializedResourceListResult = new ResourceListResult();
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -101,15 +99,15 @@ public final class TopLevelArmResourceListResult implements JsonSerializable<Top
                 if ("value".equals(fieldName)) {
                     List<TopLevelArmResourceInner> value
                         = reader.readArray(reader1 -> TopLevelArmResourceInner.fromJson(reader1));
-                    deserializedTopLevelArmResourceListResult.value = value;
+                    deserializedResourceListResult.value = value;
                 } else if ("nextLink".equals(fieldName)) {
-                    deserializedTopLevelArmResourceListResult.nextLink = reader.getString();
+                    deserializedResourceListResult.nextLink = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
 
-            return deserializedTopLevelArmResourceListResult;
+            return deserializedResourceListResult;
         });
     }
 }

@@ -100,28 +100,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     parameters,
                     returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
-                var statements = new MethodBodyStatements(
-                [
-                    .. GetCollectionInitialization(signature),
-                    MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature, fullConstructor, binaryDataParam)]))
-                ]);
+                MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
             }
 
-            return [.. methods, .. BuildMethodsForBackCompatability(methods)];
+            return BuildMethodsForBackCompatibility(methods);
         }
 
-        private MethodProvider[] BuildMethodsForBackCompatability(List<MethodProvider> methods)
+        private MethodProvider[] BuildMethodsForBackCompatibility(List<MethodProvider> originalMethods)
         {
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
-                return [];
+                return [.. originalMethods];
             }
 
-            List<MethodProvider> methodsToAdd = [];
-            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. methods, .. CustomCodeView?.Methods ?? []])
+            List<MethodProvider> factoryMethods = originalMethods;
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. originalMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
                .ToHashSet(MethodSignature.MethodSignatureComparer);
 
@@ -145,6 +140,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool foundCompatibleOverload = false;
                 foreach (var currentOverload in currentOverloads)
                 {
+                    // If the parameter ordering is the only difference, just use the previous method
+                    if (ContainsSameParameters(previousMethod.Signature, currentOverload)
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, out MethodProvider? replacedMethod))
+                    {
+                        factoryMethods.Add(replacedMethod);
+
+                        var factoryMethodToRemove = factoryMethods
+                            .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
+                        if (factoryMethodToRemove != null)
+                        {
+                            factoryMethods.Remove(factoryMethodToRemove);
+                        }
+
+                        foundCompatibleOverload = true;
+                        break;
+                    }
+
                     if (TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentOverload, out var arguments))
                     {
                         var signature = new MethodSignature(
@@ -157,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
 
                         var callToOverload = Return(new InvokeMethodExpression(null, currentOverload, arguments));
-                        methodsToAdd.Add(new MethodProvider(
+                        factoryMethods.Add(new MethodProvider(
                             signature,
                             callToOverload,
                             this,
@@ -175,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
                 if (TryBuildCompatibleMethodForPreviousContract(previousMethod, out var builtMethod))
                 {
-                    methodsToAdd.Add(builtMethod);
+                    factoryMethods.Add(builtMethod);
                 }
                 else
                 {
@@ -183,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [.. methodsToAdd];
+            return [.. factoryMethods];
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(
@@ -219,15 +231,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
-            var body = new MethodBodyStatements(
-            [
-                .. GetCollectionInitialization(previousMethod.Signature),
-                MethodBodyStatement.EmptyLine,
-                Return(New.Instance(
-                    modelToInstantiate.Type,
-                    [ ..GetCtorArgs(modelToInstantiate, previousMethod.Signature, fullCtor, binaryDataParam)]))
-            ]);
+            MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
                 previousMethod.Signature,
@@ -236,6 +240,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 previousMethod.XmlDocs);
 
             return true;
+        }
+
+        private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
+        {
+            var collectionInitialization = GetCollectionInitialization(signature);
+            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
+            var body = new MethodBodyStatements(
+            [
+                .. collectionInitialization,
+                collectionInitialization.Count > 0 ? MethodBodyStatement.EmptyLine : MethodBodyStatement.Empty,
+                Return(New.Instance(
+                    modelToInstantiate.Type,
+                    [ ..GetCtorArgs(modelToInstantiate, signature, fullCtor, binaryDataParam)]))
+            ]);
+            return body;
         }
 
         private static bool TryBuildMethodArgumentsForOverload(
@@ -441,6 +460,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Validation = ParameterValidationType.None,
             };
+        }
+
+        private static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
+        {
+            var count = method1.Parameters.Count;
+            if (count != method2.Parameters.Count)
+            {
+                return false;
+            }
+
+            HashSet<ParameterProvider> method1Parameters = [.. method1.Parameters];
+            foreach (var method2Param in method2.Parameters)
+            {
+                if (!method1Parameters.Contains(method2Param))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool IsEnumDiscriminator(ParameterProvider parameter) =>

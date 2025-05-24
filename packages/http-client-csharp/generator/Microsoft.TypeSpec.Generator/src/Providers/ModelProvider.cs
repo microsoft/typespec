@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -138,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildName() => _inputModel.Name.ToIdentifierName();
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -294,7 +295,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     null,
                     MethodSignatureModifiers.Public,
                     propertyType,
-                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToCleanName(),
+                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToIdentifierName(),
                     assignment,
                     this)
                 {
@@ -325,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var name = !containsAdditionalTypeProperties
                     ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
-                    : RawDataField.Name.ToCleanName();
+                    : RawDataField.Name.ToIdentifierName();
                 var type = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? additionalPropsType.OutputType
                     : additionalPropsType;
@@ -943,7 +944,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 name += additionalPropertiesValueType.Name;
             }
 
-            return $"_additional{name.ToCleanName()}Properties";
+            return $"_additional{name.ToIdentifierName()}Properties";
         }
     }
 }
