@@ -26,7 +26,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private InputOperationResponseHeader CreateOperationResponseHeader(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
             string? name = null;
             string? nameInResponse = null;
             string? summary = null;
@@ -34,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? type = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("nameInResponse", ref nameInResponse)
                     || reader.TryReadString("summary", ref summary)

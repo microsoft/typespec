@@ -3,7 +3,6 @@
 
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { resolvePath } from "@typespec/compiler";
-import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
@@ -23,8 +22,83 @@ export async function writeCodeModel(
 ) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(stringifyRefs(codeModel, transformJSONProperties, 1, PreserveType.Objects)),
+    prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2)),
   );
+}
+
+/**
+ * This function builds a json from code model with refs and ids in it.
+ * @param context - The CSharp emitter context
+ * @param codeModel - The code model to build
+ */
+function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
+  const typesToRef = new Set<any>([
+    ...context.__typeCache.clients.values(),
+    ...context.__typeCache.methods.values(),
+    ...context.__typeCache.operations.values(),
+    ...context.__typeCache.responses.values(),
+    ...context.__typeCache.properties.values(),
+    ...context.__typeCache.types.values(),
+  ]);
+  const objectsIds = new Map<any, string>();
+
+  return doBuildJson(context, codeModel);
+
+  function doBuildJson(context: CSharpEmitterContext, obj: any): any {
+    // check if this is a primitive type or null or undefined
+    if (!obj || typeof obj !== "object") {
+      return obj;
+    }
+    // we switch here for object, arrays and primitives
+    if (Array.isArray(obj)) {
+      // array types
+      return obj.map((item) => doBuildJson(context, item));
+    } else {
+      // this is an object
+      if (shouldHaveRef(obj)) {
+        // we will add the $id property to the object if this is the first time we see it
+        // or returns a $ref if we have seen it before
+        let id = objectsIds.get(obj);
+        if (id) {
+          // we have seen this object before
+          return {
+            $ref: id,
+          };
+        } else {
+          // this is the first time we see this object
+          id = (objectsIds.size + 1).toString();
+          objectsIds.set(obj, id);
+          return handleObject(context, obj, id);
+        }
+      } else {
+        // this is not an object to ref
+        return handleObject(context, obj, undefined);
+      }
+    }
+  }
+
+  function handleObject(context: CSharpEmitterContext, obj: any, id: string | undefined): any {
+    const result: any = id === undefined ? {} : { $id: id };
+
+    for (const property in obj) {
+      const v = obj[property];
+      result[property] = doBuildJson(context, v);
+    }
+
+    return result;
+  }
+
+  function shouldHaveRef(obj: any): boolean {
+    return typesToRef.has(obj);
+    // // it needs to be an object
+    // if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
+    //   return false;
+    // }
+
+    // // if it contains a `kind` property, we will include it as a ref
+    // return "kind" in obj;
+    // // TODO -- exclude the example objects
+  }
 }
 
 export async function writeConfiguration(

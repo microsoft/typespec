@@ -27,7 +27,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private InputOperationResponse CreateOperationResponse(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
         {
-            var isFirstProperty = id == null;
             IReadOnlyList<int>? statusCodes = null;
             InputType? bodyType = null;
             IReadOnlyList<InputOperationResponseHeader>? headers = null;
@@ -35,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? contentTypes = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadComplexType("statusCodes", options, ref statusCodes)
                     || reader.TryReadComplexType("bodyType", options, ref bodyType)
                     || reader.TryReadComplexType("headers", options, ref headers)

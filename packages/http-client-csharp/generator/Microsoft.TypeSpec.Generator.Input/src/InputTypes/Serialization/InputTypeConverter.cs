@@ -30,10 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? kind = null;
             string? name = null;
             InputType? result = null;
-            var isFirstProperty = true;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isIdOrNameOrKind = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                var isIdOrNameOrKind = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("name", ref name);
 
