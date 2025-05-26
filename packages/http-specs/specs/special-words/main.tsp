@@ -171,7 +171,7 @@ interface Operations {
   @opNameScenario("const") `const`(): void;
   @opNameScenario("date") date(): void;
   @opNameScenario("debugger") `debugger`(): void;
-  @opNameScenario("declare") declare(): void;
+  @opNameScenario("declare") `declare`(): void;
   @opNameScenario("default") `default`(): void;
   @opNameScenario("delete") `delete`(): void;
   @opNameScenario("do") `do`(): void;
@@ -236,7 +236,7 @@ interface Parameters {
   @paramNameScenario("const") withConst(@query `const`: string): void;
   @paramNameScenario("date") withDate(@query date: string): void;
   @paramNameScenario("debugger") withDebugger(@query `debugger`: string): void;
-  @paramNameScenario("declare") withDeclare(@query declare: string): void;
+  @paramNameScenario("declare") withDeclare(@query `declare`: string): void;
   @paramNameScenario("default") withDefault(@query `default`: string): void;
   @paramNameScenario("delete") withDelete(@query `delete`: string): void;
   @paramNameScenario("do") withDo(@query `do`: string): void;
@@ -334,7 +334,7 @@ namespace Models {
   model `const` is Base;
   model date is Base;
   model `debugger` is Base;
-  model declare is Base;
+  model `declare` is Base;
   model `default` is Base;
   model `delete` is Base;
   model `do` is Base;
@@ -418,7 +418,7 @@ namespace Models {
   @modelNameScenario("const") op withConst(@body body: `const`): void;
   @modelNameScenario("date") op withDate(@body body: date): void;
   @modelNameScenario("debugger") op withDebugger(@body body: `debugger`): void;
-  @modelNameScenario("declare") op withDeclare(@body body: declare): void;
+  @modelNameScenario("declare") op withDeclare(@body body: `declare`): void;
   @modelNameScenario("default") op withDefault(@body body: `default`): void;
   @modelNameScenario("delete") op withDelete(@body body: `delete`): void;
   @modelNameScenario("do") op withDo(@body body: `do`): void;
