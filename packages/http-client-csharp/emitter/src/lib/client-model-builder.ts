@@ -18,11 +18,6 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
-  const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
-  const models = fromSdkModels(sdkContext, sdkPackage.models);
-  // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
-  const constants = Array.from(sdkContext.__typeCache.constants.values());
-
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
   const rootClients = sdkPackage.clients;
@@ -33,6 +28,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       : (rootClients[0]?.apiVersions ?? []);
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+  
+  const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
+  const models = fromSdkModels(sdkContext, sdkPackage.models);
+  // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
+  const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
   // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
