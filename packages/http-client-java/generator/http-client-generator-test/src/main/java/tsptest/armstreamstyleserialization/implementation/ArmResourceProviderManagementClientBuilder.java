@@ -15,10 +15,10 @@ import com.azure.core.util.serializer.SerializerAdapter;
 import java.time.Duration;
 
 /**
- * A builder for creating a new instance of the ArmStreamStyleSerializationClientImpl type.
+ * A builder for creating a new instance of the ArmResourceProviderManagementClientImpl type.
  */
-@ServiceClientBuilder(serviceClients = { ArmStreamStyleSerializationClientImpl.class })
-public final class ArmStreamStyleSerializationClientBuilder {
+@ServiceClientBuilder(serviceClients = { ArmResourceProviderManagementClientImpl.class })
+public final class ArmResourceProviderManagementClientBuilder {
     /*
      * Service host
      */
@@ -28,9 +28,9 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets Service host.
      * 
      * @param endpoint the endpoint value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder endpoint(String endpoint) {
+    public ArmResourceProviderManagementClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
         return this;
     }
@@ -44,9 +44,9 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets The ID of the target subscription. The value must be an UUID.
      * 
      * @param subscriptionId the subscriptionId value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder subscriptionId(String subscriptionId) {
+    public ArmResourceProviderManagementClientBuilder subscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
         return this;
     }
@@ -60,9 +60,9 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets The environment to connect to.
      * 
      * @param environment the environment value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder environment(AzureEnvironment environment) {
+    public ArmResourceProviderManagementClientBuilder environment(AzureEnvironment environment) {
         this.environment = environment;
         return this;
     }
@@ -76,9 +76,9 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets The HTTP pipeline to send requests through.
      * 
      * @param pipeline the pipeline value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder pipeline(HttpPipeline pipeline) {
+    public ArmResourceProviderManagementClientBuilder pipeline(HttpPipeline pipeline) {
         this.pipeline = pipeline;
         return this;
     }
@@ -92,9 +92,9 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets The default poll interval for long-running operation.
      * 
      * @param defaultPollInterval the defaultPollInterval value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder defaultPollInterval(Duration defaultPollInterval) {
+    public ArmResourceProviderManagementClientBuilder defaultPollInterval(Duration defaultPollInterval) {
         this.defaultPollInterval = defaultPollInterval;
         return this;
     }
@@ -108,19 +108,19 @@ public final class ArmStreamStyleSerializationClientBuilder {
      * Sets The serializer to serialize an object into a string.
      * 
      * @param serializerAdapter the serializerAdapter value.
-     * @return the ArmStreamStyleSerializationClientBuilder.
+     * @return the ArmResourceProviderManagementClientBuilder.
      */
-    public ArmStreamStyleSerializationClientBuilder serializerAdapter(SerializerAdapter serializerAdapter) {
+    public ArmResourceProviderManagementClientBuilder serializerAdapter(SerializerAdapter serializerAdapter) {
         this.serializerAdapter = serializerAdapter;
         return this;
     }
 
     /**
-     * Builds an instance of ArmStreamStyleSerializationClientImpl with the provided parameters.
+     * Builds an instance of ArmResourceProviderManagementClientImpl with the provided parameters.
      * 
-     * @return an instance of ArmStreamStyleSerializationClientImpl.
+     * @return an instance of ArmResourceProviderManagementClientImpl.
      */
-    public ArmStreamStyleSerializationClientImpl buildClient() {
+    public ArmResourceProviderManagementClientImpl buildClient() {
         String localEndpoint = (endpoint != null) ? endpoint : "https://management.azure.com";
         AzureEnvironment localEnvironment = (environment != null) ? environment : AzureEnvironment.AZURE;
         HttpPipeline localPipeline = (pipeline != null)
@@ -131,7 +131,7 @@ public final class ArmStreamStyleSerializationClientBuilder {
         SerializerAdapter localSerializerAdapter = (serializerAdapter != null)
             ? serializerAdapter
             : SerializerFactory.createDefaultManagementSerializerAdapter();
-        ArmStreamStyleSerializationClientImpl client = new ArmStreamStyleSerializationClientImpl(localPipeline,
+        ArmResourceProviderManagementClientImpl client = new ArmResourceProviderManagementClientImpl(localPipeline,
             localSerializerAdapter, localDefaultPollInterval, localEnvironment, localEndpoint, this.subscriptionId);
         return client;
     }

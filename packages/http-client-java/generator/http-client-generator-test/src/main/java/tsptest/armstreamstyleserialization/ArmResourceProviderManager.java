@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import tsptest.armstreamstyleserialization.fluent.ArmStreamStyleSerializationClient;
-import tsptest.armstreamstyleserialization.implementation.ArmStreamStyleSerializationClientBuilder;
+import tsptest.armstreamstyleserialization.fluent.ArmResourceProviderManagementClient;
+import tsptest.armstreamstyleserialization.implementation.ArmResourceProviderManagementClientBuilder;
 import tsptest.armstreamstyleserialization.implementation.FishesImpl;
 import tsptest.armstreamstyleserialization.implementation.FunctionsImpl;
 import tsptest.armstreamstyleserialization.implementation.PrioritiesImpl;
@@ -43,10 +43,10 @@ import tsptest.armstreamstyleserialization.models.Priorities;
 import tsptest.armstreamstyleserialization.models.TopLevelArmResources;
 
 /**
- * Entry point to ArmStreamStyleSerializationManager.
+ * Entry point to ArmResourceProviderManager.
  * Arm Resource Provider management API.
  */
-public final class ArmStreamStyleSerializationManager {
+public final class ArmResourceProviderManager {
     private Fishes fishes;
 
     private TopLevelArmResources topLevelArmResources;
@@ -55,13 +55,12 @@ public final class ArmStreamStyleSerializationManager {
 
     private Priorities priorities;
 
-    private final ArmStreamStyleSerializationClient clientObject;
+    private final ArmResourceProviderManagementClient clientObject;
 
-    private ArmStreamStyleSerializationManager(HttpPipeline httpPipeline, AzureProfile profile,
-        Duration defaultPollInterval) {
+    private ArmResourceProviderManager(HttpPipeline httpPipeline, AzureProfile profile, Duration defaultPollInterval) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
-        this.clientObject = new ArmStreamStyleSerializationClientBuilder().pipeline(httpPipeline)
+        this.clientObject = new ArmResourceProviderManagementClientBuilder().pipeline(httpPipeline)
             .endpoint(profile.getEnvironment().getResourceManagerEndpoint())
             .subscriptionId(profile.getSubscriptionId())
             .defaultPollInterval(defaultPollInterval)
@@ -69,39 +68,38 @@ public final class ArmStreamStyleSerializationManager {
     }
 
     /**
-     * Creates an instance of ArmStreamStyleSerialization service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param credential the credential to use.
      * @param profile the Azure profile for client.
-     * @return the ArmStreamStyleSerialization service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
-    public static ArmStreamStyleSerializationManager authenticate(TokenCredential credential, AzureProfile profile) {
+    public static ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
         Objects.requireNonNull(credential, "'credential' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
         return configure().authenticate(credential, profile);
     }
 
     /**
-     * Creates an instance of ArmStreamStyleSerialization service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param httpPipeline the {@link HttpPipeline} configured with Azure authentication credential.
      * @param profile the Azure profile for client.
-     * @return the ArmStreamStyleSerialization service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
-    public static ArmStreamStyleSerializationManager authenticate(HttpPipeline httpPipeline, AzureProfile profile) {
+    public static ArmResourceProviderManager authenticate(HttpPipeline httpPipeline, AzureProfile profile) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
-        return new ArmStreamStyleSerializationManager(httpPipeline, profile, null);
+        return new ArmResourceProviderManager(httpPipeline, profile, null);
     }
 
     /**
-     * Gets a Configurable instance that can be used to create ArmStreamStyleSerializationManager with optional
-     * configuration.
+     * Gets a Configurable instance that can be used to create ArmResourceProviderManager with optional configuration.
      * 
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new ArmStreamStyleSerializationManager.Configurable();
+        return new ArmResourceProviderManager.Configurable();
     }
 
     /**
@@ -209,13 +207,13 @@ public final class ArmStreamStyleSerializationManager {
         }
 
         /**
-         * Creates an instance of ArmStreamStyleSerialization service API entry point.
+         * Creates an instance of Arm Resource Provider service API entry point.
          *
          * @param credential the credential to use.
          * @param profile the Azure profile for client.
-         * @return the ArmStreamStyleSerialization service API instance.
+         * @return the Arm Resource Provider service API instance.
          */
-        public ArmStreamStyleSerializationManager authenticate(TokenCredential credential, AzureProfile profile) {
+        public ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
@@ -268,7 +266,7 @@ public final class ArmStreamStyleSerializationManager {
             HttpPipeline httpPipeline = new HttpPipelineBuilder().httpClient(httpClient)
                 .policies(policies.toArray(new HttpPipelinePolicy[0]))
                 .build();
-            return new ArmStreamStyleSerializationManager(httpPipeline, profile, defaultPollInterval);
+            return new ArmResourceProviderManager(httpPipeline, profile, defaultPollInterval);
         }
     }
 
@@ -321,12 +319,12 @@ public final class ArmStreamStyleSerializationManager {
     }
 
     /**
-     * Gets wrapped service client ArmStreamStyleSerializationClient providing direct access to the underlying
+     * Gets wrapped service client ArmResourceProviderManagementClient providing direct access to the underlying
      * auto-generated API implementation, based on Azure REST API.
      * 
-     * @return Wrapped service client ArmStreamStyleSerializationClient.
+     * @return Wrapped service client ArmResourceProviderManagementClient.
      */
-    public ArmStreamStyleSerializationClient serviceClient() {
+    public ArmResourceProviderManagementClient serviceClient() {
         return this.clientObject;
     }
 }
