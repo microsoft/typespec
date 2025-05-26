@@ -41,19 +41,19 @@ $generateScript = {
 
   if ($LASTEXITCODE -ne 0) {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  FAILED (Time elapsed: $($timer.ToString()))
-  $([String]::Join("`n", $generateOutput))
-  "
+    ========================
+    $tspCommand
+    ========================
+    FAILED (Time elapsed: $($timer.ToString()))
+    $([String]::Join("`n", $generateOutput))
+    "
   } else {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  SUCCEEDED (Time elapsed: $($timer.ToString()))
-  "
+    ========================
+    $tspCommand
+    ========================
+    SUCCEEDED (Time elapsed: $($timer.ToString()))
+    "
   }
 
   if ($global:ExitCode -ne 0) {
