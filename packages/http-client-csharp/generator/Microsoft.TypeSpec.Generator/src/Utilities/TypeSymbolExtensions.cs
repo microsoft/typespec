@@ -13,6 +13,7 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string GlobalPrefix = "global::";
         private const string NullableTypeName = "System.Nullable";
+        private const string TupleTypeName = "System.ValueTuple";
 
         public static bool IsSameType(this INamedTypeSymbol symbol, CSharpType type)
         {
@@ -104,6 +105,13 @@ namespace Microsoft.TypeSpec.Generator
             if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
             {
                 return GetFullyQualifiedName(arrayTypeSymbol.ElementType) + "[]";
+            }
+
+            // Handle tuples
+            if (typeSymbol.IsTupleType && typeSymbol is INamedTypeSymbol tupleTypeSymbol)
+            {
+                string[] elementTypes = [.. tupleTypeSymbol.TupleElements.Select(e => GetFullyQualifiedName(e.Type))];
+                return $"{TupleTypeName}`{elementTypes.Length}[{string.Join(", ", elementTypes)}]";
             }
 
             // Handle generic types
