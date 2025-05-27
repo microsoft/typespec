@@ -392,6 +392,19 @@ describe("global graph mutation", () => {
     );
     expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
   });
+
+  it("mutate property reference", async () => {
+    const type = await globalMutate(`
+      model A {
+        prop: string;
+      }
+      model B { bar: A.prop; };
+    `);
+
+    const MutatedA = type.models.get("A")!;
+    const MutatedB = type.models.get("B")!;
+    expectTypeEquals(MutatedA.properties.get("prop"), MutatedB.properties.get("bar")!.type);
+  });
 });
 
 describe("decorators", () => {
