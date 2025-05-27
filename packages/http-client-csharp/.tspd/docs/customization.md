@@ -55,8 +55,6 @@ namespace Azure.Service.Models
 
 Define a class with a desired namespace and mark it with `[CodeGenType("OriginalName")]`.
 
-The same approach works for a client, if marked with `[CodeGenClient("ClientName")]`.
-
 ```csharp
 // Generated code before (Generated/Models/Model.cs):
 namespace Azure.Service.Models
@@ -393,7 +391,7 @@ namespace Azure.Service.Operations
 
 ## Rename a client
 
-Define a partial client class with a new name and mark it with `[CodeGenClient("OriginalName")]`
+Define a partial client class with a new name and mark it with `[CodeGenType("OriginalName")]`
 
 ```csharp
 // Generated code before (Generated/Operations/ServiceClient.cs):
@@ -405,7 +403,7 @@ namespace Azure.Service.Operations
 // Add customized model (TableClient.cs)
 namespace Azure.Service.Operations
 {
-    [CodeGenClient("ServiceClient")]
+    [CodeGenType("ServiceClient")]
     public partial class TableClient { }
 }
 
