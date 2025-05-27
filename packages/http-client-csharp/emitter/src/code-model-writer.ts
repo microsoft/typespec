@@ -81,6 +81,9 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     const result: any = id === undefined ? {} : { $id: id };
 
     for (const property in obj) {
+      if (property === "__raw") {
+        continue; // skip __raw property
+      }
       const v = obj[property];
       result[property] = doBuildJson(context, v);
     }
@@ -90,14 +93,6 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
 
   function shouldHaveRef(obj: any): boolean {
     return typesToRef.has(obj);
-    // // it needs to be an object
-    // if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
-    //   return false;
-    // }
-
-    // // if it contains a `kind` property, we will include it as a ref
-    // return "kind" in obj;
-    // // TODO -- exclude the example objects
   }
 }
 
