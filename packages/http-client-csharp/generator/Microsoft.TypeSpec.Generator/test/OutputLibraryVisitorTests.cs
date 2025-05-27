@@ -195,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", [parameter]),
                 Snippet.Return(parameter), new TestTypeProvider());
 
-            var updatedMethod = testMethod.Accept(new MethodVisitor());
+            testMethod.Accept(new MethodVisitor());
 
             Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
             Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
