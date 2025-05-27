@@ -1,6 +1,7 @@
 import yargs from "yargs";
 import { generateThirdPartyNotice } from "./generate-third-party-notice.js";
 import { bumpVersionsForPR, bumpVersionsForPrerelease } from "./prerelease.js";
+import { createAzureSdkForNetPr } from "./create-azure-sdk-for-net-pr.js";
 
 main().catch((e) => {
   // eslint-disable-next-line no-console
@@ -48,5 +49,36 @@ async function main() {
             demandOption: true,
           }),
       (args) => bumpVersionsForPR(args.workspaceRoot, args.pr, args.buildNumber),
+    )
+    .command(
+      "create-azure-sdk-for-net-pr",
+      "Create PR in azure-sdk-for-net to update http-client-csharp dependency",
+      (cmd) =>
+        cmd
+          .option("packagePath", {
+            type: "string",
+            description: "Path to the http-client-csharp package",
+            demandOption: true,
+          })
+          .option("pullRequestUrl", {
+            type: "string",
+            description: "URL of the PR in typespec repository",
+            demandOption: true,
+          })
+          .option("packageUrl", {
+            type: "string",
+            description: "URL to the published NuGet package",
+            demandOption: true,
+          })
+          .option("githubToken", {
+            type: "string",
+            description: "GitHub token for authentication",
+            demandOption: true,
+          })
+          .option("branchName", {
+            type: "string",
+            description: "Branch name to create in azure-sdk-for-net",
+          }),
+      (args) => createAzureSdkForNetPr(args),
     ).argv;
 }
