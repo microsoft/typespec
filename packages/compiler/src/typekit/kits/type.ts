@@ -248,6 +248,12 @@ defineKit<TypekitExtension>({
             constructors: copyMap(type.constructors as any),
           });
           break;
+        case "Tuple":
+          clone = this.program.checker.createType({
+            ...type,
+            values: [...type.values],
+          });
+          break;
         default:
           clone = this.program.checker.createType({
             ...type,
