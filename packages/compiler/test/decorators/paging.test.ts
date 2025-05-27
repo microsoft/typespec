@@ -47,8 +47,7 @@ it("@list decorator handle recursive models without infinite loop", async () => 
         @nextLink next: string;
       }
 
-      @list
-      op foo(): MyPage;
+      @list op foo(): MyPage;
     `);
   expectDiagnosticEmpty(diagnostics);
 });
