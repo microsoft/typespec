@@ -26,7 +26,6 @@ namespace Microsoft.TypeSpec.Generator
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
-            var generatedTestOutputPath = CodeModelGenerator.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
@@ -73,7 +72,6 @@ namespace Microsoft.TypeSpec.Generator
 
             // Delete any old generated files
             DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
-            DeleteDirectory(generatedTestOutputPath, _filesToKeep);
 
             await generatedCodeWorkspace.PostProcessAsync();
 
