@@ -2,7 +2,7 @@
   "name": "@typespec/monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "scripts": {
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
@@ -83,5 +83,9 @@
       "resolutions"
     ]
   },
-  "pnpm": {}
+  "pnpm": {
+    "overrides": {
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5"
+    }
+  }
 }
