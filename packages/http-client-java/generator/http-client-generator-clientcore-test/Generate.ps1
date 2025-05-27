@@ -32,26 +32,27 @@ $generateScript = {
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
-  # output of "tsp compile" seems trigger powershell error or exit, hence the ">$null 2>&1"
+  # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
-  Invoke-Expression $tspCommand >$null 2>&1
+  $generateOutput = Invoke-Expression $tspCommand 2>&1
   $timer.Stop()
 
   $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
 
   if ($LASTEXITCODE -ne 0) {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  FAILED (Time elapsed: $($timer.ToString()))
+    ========================
+    $tspCommand
+    ========================
+    FAILED (Time elapsed: $($timer.ToString()))
+    $([String]::Join("`n", $generateOutput))
     "
   } else {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  SUCCEEDED (Time elapsed: $($timer.ToString()))
+    ========================
+    $tspCommand
+    ========================
+    SUCCEEDED (Time elapsed: $($timer.ToString()))
     "
   }
 

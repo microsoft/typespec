@@ -69,15 +69,19 @@ $generateScript = {
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
+    # test service-name
+    $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
-    # enable sync-stack
-    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=true"""
+    # rename model
+    $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
+    # test service-name
+    $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
@@ -100,26 +104,27 @@ $generateScript = {
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
-  # output of "tsp compile" seems trigger powershell error or exit, hence the ">$null 2>&1"
+  # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
-  Invoke-Expression $tspCommand >$null 2>&1
+  $generateOutput = Invoke-Expression $tspCommand 2>&1
   $timer.Stop()
 
   $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
 
   if ($LASTEXITCODE -ne 0) {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  FAILED (Time elapsed: $($timer.ToString()))
+    ========================
+    $tspCommand
+    ========================
+    FAILED (Time elapsed: $($timer.ToString()))
+    $([String]::Join("`n", $generateOutput))
     "
   } else {
     Write-Host "
-  ========================
-  $tspCommand
-  ========================
-  SUCCEEDED (Time elapsed: $($timer.ToString()))
+    ========================
+    $tspCommand
+    ========================
+    SUCCEEDED (Time elapsed: $($timer.ToString()))
     "
   }
 

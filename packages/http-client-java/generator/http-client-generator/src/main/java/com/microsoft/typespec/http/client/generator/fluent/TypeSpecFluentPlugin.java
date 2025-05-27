@@ -66,6 +66,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", emitterOptions.getStreamStyleSerialization());
         SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        if (emitterOptions.getRenameModel() != null) {
+            SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
+        }
         if (emitterOptions.getUseEclipseLanguageServer() != null) {
             SETTINGS_MAP.put("use-eclipse-language-server", emitterOptions.getUseEclipseLanguageServer());
         }
