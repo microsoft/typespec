@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
-        public string Name { get; }
+        public string Name { get; private set; }
         public FormattableString Description { get; }
         public CSharpType Type { get; set; }
 
@@ -236,6 +236,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _asVariable = AsExpression,
             };
+        }
+
+        /// <summary>
+        /// Updates the parameter with the given name.
+        /// </summary>
+        /// <param name="name">Name to update.</param>
+        public void Update(string? name = null)
+        {
+            if (name is not null)
+            {
+                Name = name;
+                _asVariable?.Update(name: name);
+            }
         }
     }
 }
