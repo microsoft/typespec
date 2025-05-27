@@ -55,9 +55,9 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@alloy-js/core": "^0.16.0",
-    "@alloy-js/markdown": "^0.16.0",
-    "@alloy-js/typescript": "^0.16.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/markdown": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@microsoft/api-extractor-model": "^7.30.6",
     "@microsoft/tsdoc": "^0.15.1",
     "@microsoft/tsdoc-config": "^0.17.1",
