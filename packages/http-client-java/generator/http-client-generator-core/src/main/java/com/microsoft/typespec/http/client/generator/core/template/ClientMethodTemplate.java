@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
@@ -38,7 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,54 +66,45 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * Adds validations to the client method.
      *
      * @param function The client method code block.
-     * @param expressionsToCheck Expressions to validate as non-null.
-     * @param validateExpressions Expressions to validate with a custom validation (key is the expression, value is the
-     * validation).
-     * @param clientMethodType type of the client method
+     * @param clientMethod the client method to add parameter validations for.
      * @param settings AutoRest generation settings, used to determine if validations should be added.
      */
-    protected static void addValidations(JavaBlock function, List<String> expressionsToCheck,
-        Map<String, String> validateExpressions, ClientMethodType clientMethodType, JavaSettings settings) {
+    protected static void addValidations(JavaBlock function, ClientMethod clientMethod, JavaSettings settings) {
         if (!settings.isClientSideValidations()) {
             return;
         }
+        final boolean isSync = JavaSettings.getInstance().isSyncStackEnabled() && clientMethod.getType().isSync();
+        // Parameter expressions to validate for non-null value.
+        final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
+        // Parameter expressions for custom validation (key is the expression, value is the validation).
+        final Map<String, String> validateParamExpressions = new HashMap<>(clientMethod.getValidateExpressions());
 
-        // Iteration of validateExpressions uses expressionsToCheck effectively as a set lookup, may as well turn the
-        // expressionsToCheck to a set.
-        Set<String> expressionsToCheckSet = new LinkedHashSet<>(expressionsToCheck);
-
-        for (String expressionToCheck : expressionsToCheckSet) {
-            // TODO (alzimmer): Need to discuss if this can be changed to the more appropriate NullPointerException.
-            String exceptionExpression = "new IllegalArgumentException(\"Parameter " + expressionToCheck
-                + " is required and cannot be null.\")";
-
-            // TODO (alzimmer): Determine if the assumption being made here are always true.
-            // 1. Assumes that the expression is nullable.
-            // 2. Assumes that the client method returns a reactive response.
-            // 3. Assumes that the reactive response is a Mono.
-            JavaIfBlock nullCheck = function.ifBlock(expressionToCheck + " == null", ifBlock -> {
-                if (JavaSettings.getInstance().isSyncStackEnabled() && clientMethodType.isSync()) {
+        for (String paramReferenceExpression : paramReferenceExpressions) {
+            final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
+                final String paramRequiredException = "new IllegalArgumentException(\"Parameter "
+                    + paramReferenceExpression + " is required and cannot be null.\")";
+                if (isSync) {
                     if (settings.isUseClientLogger()) {
-                        ifBlock.line("throw LOGGER.atError().log(" + exceptionExpression + ");");
+                        ifBlock.line("throw LOGGER.atError().log(" + paramRequiredException + ");");
                     } else {
-                        ifBlock.line("throw " + exceptionExpression + ";");
+                        ifBlock.line("throw " + paramRequiredException + ";");
                     }
                 } else {
-                    ifBlock.methodReturn("Mono.error(" + exceptionExpression + ")");
+                    ifBlock.methodReturn("Mono.error(" + paramRequiredException + ")");
                 }
             });
 
-            String potentialValidateExpression = validateExpressions.get(expressionToCheck);
-            if (potentialValidateExpression != null) {
-                nullCheck.elseBlock(elseBlock -> elseBlock.line(potentialValidateExpression + ";"));
+            final String validateParamExpression = validateParamExpressions.remove(paramReferenceExpression);
+            if (validateParamExpression != null) {
+                nullCheck.elseBlock(elseBlock -> elseBlock.line(validateParamExpression + ";"));
             }
         }
 
-        for (Map.Entry<String, String> validateExpression : validateExpressions.entrySet()) {
-            if (!expressionsToCheckSet.contains(validateExpression.getKey())) {
-                function.ifBlock(validateExpression.getKey() + " != null",
-                    ifBlock -> ifBlock.line(validateExpression.getValue() + ";"));
-            }
+        for (Map.Entry<String, String> e : validateParamExpressions.entrySet()) {
+            final String paramReferenceExpression = e.getKey();
+            final String validateParamExpression = e.getValue();
+            function.ifBlock(paramReferenceExpression + " != null",
+                ifBlock -> ifBlock.line(validateParamExpression + ";"));
         }
     }
 
@@ -128,15 +120,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
 
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            // Parameter is required and will be part of the method signature.
             if (parameter.isRequired()) {
+                // Parameter is required and will be part of the method signature.
                 continue;
             }
-
-            IType parameterClientType = parameter.getClientType();
-            String defaultValue = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(),
-                JavaSettings.getInstance());
-            function.line("final %s %s = %s;", parameterClientType, parameter.getName(),
+            final String defaultValue = parameterDefaultValueExpression(parameter);
+            function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
                 defaultValue == null ? "null" : defaultValue);
         }
     }
@@ -146,36 +135,24 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param function The client method code block.
      * @param clientMethod The client method.
-     * @param proxyMethodAndConstantParameters Proxy method constant parameters.
      * @param settings AutoRest generation settings.
      */
     protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> proxyMethodAndConstantParameters, JavaSettings settings) {
-        addOptionalAndConstantVariables(function, clientMethod, proxyMethodAndConstantParameters, settings, true, true,
-            true);
-    }
-
-    /**
-     * Add optional and constant variables.
-     *
-     * @param function The client method code block.
-     * @param clientMethod The client method.
-     * @param proxyMethodAndConstantParameters Proxy method constant parameters.
-     * @param settings AutoRest generation settings.
-     * @param addOptional Whether optional variable instantiations are added, initialized to default or null.
-     * @param addConstant Whether constant variables are added, initialized to default.
-     * @param ignoreParameterNeedConvert When adding optional/constant variable, ignore those which need conversion from
-     * client type to wire type. Let "ConvertClientTypesToWireTypes" handle them.
-     */
-    protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> proxyMethodAndConstantParameters, JavaSettings settings, boolean addOptional,
-        boolean addConstant, boolean ignoreParameterNeedConvert) {
-        for (ProxyMethodParameter parameter : proxyMethodAndConstantParameters) {
-            IType parameterWireType = parameter.getWireType();
-            if (parameter.isNullable()) {
-                parameterWireType = parameterWireType.asNullable();
+        JavaSettings settings) {
+        final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+        for (ProxyMethodParameter parameter : proxyMethodParameters) {
+            if (parameter.isFromClient()) {
+                // parameter is scoped to the client, hence no local variable instantiation for it.
+                continue;
             }
-            IType parameterClientType = parameter.getClientType();
+
+            IType parameterWireType;
+            if (parameter.isNullable()) {
+                parameterWireType = parameter.getWireType().asNullable();
+            } else {
+                parameterWireType = parameter.getWireType();
+            }
+            final IType parameterClientType = parameter.getClientType();
 
             // TODO (alzimmer): There are a few similar transforms like this but they all have slight nuances on output.
             // This always turns ArrayType and ListType into String, the case further down this file may not.
@@ -186,16 +163,15 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 parameterWireType = ClassType.STRING;
             }
 
-            // If the parameter isn't required and the client method only uses required parameters optional
+            // If the parameter isn't required and the client method only uses required parameters, optional
             // parameters are omitted and will need to instantiated in the method.
             boolean optionalOmitted = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
 
             // Optional variables and constants are always null if their wire type and client type differ and applying
             // conversions between the types is ignored.
-            boolean alwaysNull
-                = ignoreParameterNeedConvert && parameterWireType != parameterClientType && optionalOmitted;
+            boolean alwaysNull = parameterWireType != parameterClientType && optionalOmitted;
 
-            // Constants should be included if the parameter is a constant and it's either required or optional
+            // Constants should be included if the parameter is a constant, and it's either required or optional
             // constants aren't generated as enums.
             boolean includeConstant
                 = parameter.isConstant() && (!settings.isOptionalConstantAsEnum() || parameter.isRequired());
@@ -203,27 +179,22 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // Client methods only add local variable instantiations when the parameter isn't passed by the caller,
             // isn't always null, is an optional parameter that was omitted or is a constant that is either required
             // or AutoRest isn't generating with optional constant as enums.
-            if (!parameter.isFromClient()
-                && !alwaysNull
-                && ((addOptional && optionalOmitted) || (addConstant && includeConstant))) {
-                String defaultValue
-                    = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(), settings);
+            if (!alwaysNull && (optionalOmitted || includeConstant)) {
+                final String defaultValue = parameterDefaultValueExpression(parameter);
                 function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
                     defaultValue == null ? "null" : defaultValue);
             }
         }
     }
 
-    private static String parameterDefaultValueExpression(IType parameterClientType, String parameterDefaultValue,
-        JavaSettings settings) {
-        String defaultValue;
-        if (settings.isNullByteArrayMapsToEmptyArray() && parameterClientType == ArrayType.BYTE_ARRAY) {
+    private static String parameterDefaultValueExpression(MethodParameter parameter) {
+        final IType clientType = parameter.getClientType();
+        if (clientType == ArrayType.BYTE_ARRAY && JavaSettings.getInstance().isNullByteArrayMapsToEmptyArray()) {
             // there's no EMPTY_BYTE_ARRAY in clients, unlike that in models
-            defaultValue = "new byte[0]";
+            return "new byte[0]";
         } else {
-            defaultValue = parameterClientType.defaultValueExpression(parameterDefaultValue);
+            return clientType.defaultValueExpression(parameter.getDefaultValue());
         }
-        return defaultValue;
     }
 
     /**
@@ -345,11 +316,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param function The client method code block.
      * @param clientMethod The client method.
-     * @param autoRestMethodRetrofitParameters Rest API method parameters.
      */
-    protected static void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> autoRestMethodRetrofitParameters) {
-        for (ProxyMethodParameter parameter : autoRestMethodRetrofitParameters) {
+    protected static void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod) {
+        final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+        for (ProxyMethodParameter parameter : proxyMethodParameters) {
             IType parameterWireType = parameter.getWireType();
 
             if (parameter.isNullable()) {
@@ -595,10 +565,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         JavaSettings settings = JavaSettings.getInstance();
 
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
-        // IType restAPIMethodReturnBodyClientType = restAPIMethod.getReturnType().getClientType();
-
-        // MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
-
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
 
         switch (clientMethod.getType()) {
@@ -611,46 +577,46 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     }
                 } else {
                     if (settings.isDataPlaneClient()) {
-                        generateProtocolPagingSync(clientMethod, typeBlock, restAPIMethod, settings);
+                        generateProtocolPagingSync(clientMethod, typeBlock, settings);
                     } else {
-                        generatePagingSync(clientMethod, typeBlock, restAPIMethod, settings);
+                        generatePagingSync(clientMethod, typeBlock, settings);
                     }
                 }
                 break;
 
             case PagingAsync:
                 if (settings.isDataPlaneClient()) {
-                    generateProtocolPagingAsync(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateProtocolPagingAsync(clientMethod, typeBlock, settings);
                 } else {
-                    generatePagingAsync(clientMethod, typeBlock, restAPIMethod, settings);
+                    generatePagingAsync(clientMethod, typeBlock, settings);
                 }
                 break;
 
             case PagingSyncSinglePage:
                 if (settings.isDataPlaneClient()) {
-                    generateProtocolPagingSinglePage(clientMethod, typeBlock, restAPIMethod.toSync(), settings);
+                    generateProtocolPagingSinglePage(clientMethod, typeBlock, settings);
                 } else {
-                    generatePagedSinglePage(clientMethod, typeBlock, restAPIMethod.toSync(), settings);
+                    generatePagedSinglePage(clientMethod, typeBlock, settings);
                 }
                 break;
 
             case PagingAsyncSinglePage:
                 if (settings.isDataPlaneClient()) {
-                    generateProtocolPagingAsyncSinglePage(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateProtocolPagingAsyncSinglePage(clientMethod, typeBlock, settings);
                 } else {
-                    generatePagedAsyncSinglePage(clientMethod, typeBlock, restAPIMethod, settings);
+                    generatePagedAsyncSinglePage(clientMethod, typeBlock, settings);
                 }
                 break;
 
             case LongRunningAsync:
-                generateLongRunningAsync(clientMethod, typeBlock, restAPIMethod, settings);
+                generateLongRunningAsync(clientMethod, typeBlock, settings);
                 break;
 
             case LongRunningSync:
                 if (settings.isSyncStackEnabled()) {
-                    generateLongRunningPlainSync(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateLongRunningPlainSync(clientMethod, typeBlock, settings);
                 } else {
-                    generateSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateSyncMethod(clientMethod, typeBlock, settings);
                 }
                 break;
 
@@ -658,7 +624,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (settings.isDataPlaneClient()) {
                     generateProtocolLongRunningBeginAsync(clientMethod, typeBlock);
                 } else {
-                    generateLongRunningBeginAsync(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateLongRunningBeginAsync(clientMethod, typeBlock, settings);
                 }
                 break;
 
@@ -667,7 +633,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     if (settings.isDataPlaneClient()) {
                         generateProtocolLongRunningBeginSync(clientMethod, typeBlock);
                     } else {
-                        generateLongRunningBeginSync(clientMethod, typeBlock, restAPIMethod, settings);
+                        generateLongRunningBeginSync(clientMethod, typeBlock, settings);
                     }
                 } else {
                     generateLongRunningBeginSyncOverAsync(clientMethod, typeBlock);
@@ -675,7 +641,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 break;
 
             case Resumable:
-                generateResumable(clientMethod, typeBlock, restAPIMethod, settings);
+                generateResumable(clientMethod, typeBlock, settings);
                 break;
 
             case SimpleSync:
@@ -688,18 +654,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             case SimpleSyncRestResponse:
                 if (settings.isSyncStackEnabled()) {
-                    generatePlainSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
+                    generatePlainSyncMethod(clientMethod, typeBlock, settings);
                 } else {
-                    generateSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
+                    generateSyncMethod(clientMethod, typeBlock, settings);
                 }
                 break;
 
             case SimpleAsyncRestResponse:
-                generateSimpleAsyncRestResponse(clientMethod, typeBlock, restAPIMethod, settings);
+                generateSimpleAsyncRestResponse(clientMethod, typeBlock, settings);
                 break;
 
             case SimpleAsync:
-                generateSimpleAsync(clientMethod, typeBlock, restAPIMethod, settings);
+                generateSimpleAsync(clientMethod, typeBlock, settings);
                 break;
 
             case SendRequestAsync:
@@ -712,9 +678,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generateProtocolPagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        generatePagingSync(clientMethod, typeBlock, restAPIMethod, settings);
+    protected void generateProtocolPagingSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        generatePagingSync(clientMethod, typeBlock, settings);
     }
 
     protected void generateProtocolPagingPlainSync(ClientMethod clientMethod, JavaType typeBlock,
@@ -794,25 +759,24 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generateProtocolPagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        generatePagingAsync(clientMethod, typeBlock, restAPIMethod, settings);
+    protected void generateProtocolPagingAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        generatePagingAsync(clientMethod, typeBlock, settings);
     }
 
     protected void generateProtocolPagingAsyncSinglePage(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
-        generatePagedAsyncSinglePage(clientMethod, typeBlock, restAPIMethod, settings);
+        JavaSettings settings) {
+        generatePagedAsyncSinglePage(clientMethod, typeBlock, settings);
     }
 
     protected void generateProtocolPagingSinglePage(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
-        generatePagedSinglePage(clientMethod, typeBlock, restAPIMethod, settings);
+        JavaSettings settings) {
+        generatePagedSinglePage(clientMethod, typeBlock, settings);
     }
 
-    private void generatePagedSinglePage(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
+    private void generatePagedSinglePage(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod().toSync();
 
+        addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             if (!settings.isSyncStackEnabled()) {
                 function.methodReturn(
@@ -821,11 +785,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 return;
             }
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestOptionsLocal = false;
             if (settings.isDataPlaneClient()) {
@@ -913,8 +876,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
@@ -966,8 +928,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -1006,19 +967,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
     }
 
-    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
             ProxyMethodParameter parameter = restAPIMethod.getParameters().get(0);
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
+            addValidations(function, clientMethod, settings);
             function.methodReturn("service." + restAPIMethod.getName() + "(" + parameter.getName() + ")");
         });
     }
 
-    protected void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);
@@ -1089,8 +1049,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }));
     }
 
-    protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String asyncMethodName = MethodNamer.getSimpleAsyncMethodName(clientMethod.getName());
         if (clientMethod.getType() == ClientMethodType.SimpleSyncRestResponse) {
             asyncMethodName = clientMethod.getProxyMethod().getSimpleAsyncRestResponseMethodName();
@@ -1167,17 +1126,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    protected void generatePlainSyncMethod(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        String effectiveProxyMethodName = clientMethod.getProxyMethod().getName();
+    protected void generatePlainSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+        String effectiveProxyMethodName = restAPIMethod.getName();
+
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestOptionsLocal = false;
             if (settings.isDataPlaneClient()) {
@@ -1283,9 +1242,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         return paramJavadoc;
     }
 
-    protected void generatePagedAsyncSinglePage(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generatePagedAsyncSinglePage(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
 
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             if (clientMethod.hasWithContextOverload()) {
@@ -1301,11 +1260,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 return;
             }
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestOptionsLocal = false;
             if (settings.isDataPlaneClient()) {
@@ -1464,7 +1422,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     protected void generateSimpleAsyncRestResponse(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+        JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             if (clientMethod.hasWithContextOverload()) {
@@ -1480,11 +1440,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 return;
             }
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestOptionsLocal = false;
             if (settings.isDataPlaneClient()) {
@@ -1510,11 +1469,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateLongRunningAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
 
     }
 
@@ -1523,11 +1480,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningPlainSync(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generateLongRunningPlainSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
 
     }
 
@@ -1536,11 +1491,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningBeginAsync(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generateLongRunningBeginAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String contextParam;
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
             contextParam = "context";
@@ -1584,11 +1537,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         String contextParam;
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
