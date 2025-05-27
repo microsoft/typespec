@@ -187,9 +187,9 @@ namespace Azure.Service.Models
 }
 ```
 
-## Preserve raw Json value of a property
+## Preserve Raw Json Value of a Property
 
-Use the approach to change a model property type to change property type to `JsonElement`.
+Use the approach to change a model property type to `JsonElement`.
 
 ```csharp
 // Generated code before (Generated/Models/Model.cs):
