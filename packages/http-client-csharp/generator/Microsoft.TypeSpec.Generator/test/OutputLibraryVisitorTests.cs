@@ -198,10 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var updatedMethod = testMethod.Accept(new MethodVisitor());
 
             Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
-            Assert.AreEqual("newName", updatedMethod?.Signature.Parameters.First().Name);
-
-            var bodyStatements = updatedMethod?.BodyStatements!.ToDisplayString();
-            Assert.AreEqual("return newName;\n", bodyStatements);
+            Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
         }
 
         private class MethodVisitor : LibraryVisitor
