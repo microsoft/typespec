@@ -338,6 +338,7 @@ describe("global graph mutation", () => {
     Namespace: noop,
     Interface: noop,
     Model: noop,
+    Tuple: noop,
     Union: noop,
     UnionVariant: noop,
     Enum: noop,
@@ -404,6 +405,34 @@ describe("global graph mutation", () => {
     const MutatedA = type.models.get("A")!;
     const MutatedB = type.models.get("B")!;
     expectTypeEquals(MutatedA.properties.get("prop"), MutatedB.properties.get("bar")!.type);
+  });
+
+  it("mutate property reference in tuple", async () => {
+    const type = await globalMutate(`
+      model A {
+        prop: string;
+      }
+      model B { bar: [A.prop]; };
+    `);
+
+    const MutatedA = type.models.get("A")!;
+    const MutatedB = type.models.get("B")!;
+    const barProp: any = MutatedB.properties.get("bar");
+    expectTypeEquals(MutatedA.properties.get("prop"), barProp.type.values[0]);
+  });
+
+  it("mutate in tuple", async () => {
+    const type = await globalMutate(`
+      model A {
+        prop: string;
+      }
+      model B { bar: [A]; };
+    `);
+
+    const MutatedA = type.models.get("A")!;
+    const MutatedB = type.models.get("B")!;
+    const barProp: any = MutatedB.properties.get("bar");
+    expectTypeEquals(MutatedA, barProp.type.values[0]);
   });
 });
 
