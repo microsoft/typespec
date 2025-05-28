@@ -20,27 +20,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
         public string Name { get; private set; }
-        public FormattableString Description { get; }
+        public FormattableString Description { get; private set; }
         public CSharpType Type { get; set; }
 
         /// <summary>
         /// The default value of the parameter.
         /// </summary>
         public ValueExpression? DefaultValue { get; set; }
-        public ValueExpression? InitializationValue { get; init; }
-        public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
-        public bool IsRef { get; }
-        public bool IsOut { get; }
-        public bool IsParams { get; }
+        public ValueExpression? InitializationValue { get; private set; }
+        public ParameterValidationType Validation { get; set; } = ParameterValidationType.None;
+        public bool IsRef { get; private set; }
+        public bool IsOut { get; private set; }
+        public bool IsParams { get; private set; }
 
-        internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
-        public WireInformation WireInfo { get; }
-        public ParameterLocation Location { get; }
+        internal IReadOnlyList<AttributeStatement> Attributes { get; private set; } = [];
+        public WireInformation WireInfo { get; private set; }
+        public ParameterLocation Location { get; private set; }
 
         /// <summary>
         /// This property tracks which property this parameter is constructed from.
         /// </summary>
-        public PropertyProvider? Property { get; }
+        public PropertyProvider? Property { get; private set; }
 
         /// <summary>
         /// This property tracks which field this parameter is constructed from.
@@ -241,13 +241,93 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <summary>
         /// Updates the parameter with the given name.
         /// </summary>
-        /// <param name="name">Name to update.</param>
-        public void Update(string? name = null)
+        public void Update(
+            string? name = null,
+            FormattableString? description = null,
+            CSharpType? type = null,
+            ValueExpression? defaultValue = null,
+            bool? isRef = null,
+            bool? isOut = null,
+            bool? isParams = null,
+            IReadOnlyList<AttributeStatement>? attributes = null,
+            PropertyProvider? property = null,
+            FieldProvider? field = null,
+            ValueExpression? initializationValue = null,
+            ParameterLocation? location = null,
+            WireInformation? wireInfo = null,
+            ParameterValidationType? validation = null)
         {
             if (name is not null)
             {
                 Name = name;
                 _asVariable?.Update(name: name);
+            }
+
+            if (description is not null)
+            {
+                Description = description;
+            }
+
+            if (type is not null)
+            {
+                Type = type;
+                _asVariable?.Update(type: type);
+            }
+
+            if (defaultValue is not null)
+            {
+                DefaultValue = defaultValue;
+            }
+
+            if (isRef is not null)
+            {
+                IsRef = isRef.Value;
+                _asVariable?.Update(isRef: IsRef);
+            }
+
+            if (isOut is not null)
+            {
+                IsOut = isOut.Value;
+            }
+
+            if (isParams is not null)
+            {
+                IsParams = isParams.Value;
+            }
+
+            if (attributes is not null)
+            {
+                Attributes = attributes;
+            }
+
+            if (property is not null)
+            {
+                Property = property;
+            }
+
+            if (field is not null)
+            {
+                Field = field;
+            }
+
+            if (initializationValue is not null)
+            {
+                InitializationValue = initializationValue;
+            }
+
+            if (location is not null)
+            {
+                Location = location.Value;
+            }
+
+            if (wireInfo is not null)
+            {
+                WireInfo = wireInfo;
+            }
+
+            if (validation is not null)
+            {
+                Validation = validation.Value;
             }
         }
     }
