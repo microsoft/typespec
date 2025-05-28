@@ -31,6 +31,7 @@ import { FileSystemCache } from "./file-system-cache.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
+import { getVsCodeSettings } from "./vscode-settings.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -94,6 +95,21 @@ export function createCompileService({
 
   return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
+  /**
+   * Get the vscode configuration value
+   * @param configKey Configuration key name
+   * @param defaultValue default value
+   * @returns Configure value, return the default value if it does not exist
+   */
+  async function getVsCodeConfigValue<T>(
+    configKey: string,
+    defaultValue?: T,
+  ): Promise<T | undefined> {
+    const settings = getVsCodeSettings();
+    const value = settings.getSetting<T>(configKey);
+    return value !== undefined ? value : defaultValue;
+  }
+
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
   }
@@ -124,6 +140,7 @@ export function createCompileService({
     runOptions?: {
       bypassCache?: boolean;
       trackAction?: boolean;
+      emittersFromVsCodeSettings?: boolean;
     },
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
@@ -139,6 +156,16 @@ export function createCompileService({
       ...serverOptions,
       ...(additionalOptions ?? {}),
     };
+
+    if (runOptions === undefined || (runOptions && runOptions.emittersFromVsCodeSettings)) {
+      const settingEmitters = await getVsCodeConfigValue<Array<string>>(
+        "emitRequiredForCompile",
+        [],
+      );
+      if (settingEmitters) {
+        options.emit = settingEmitters;
+      }
+    }
 
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
