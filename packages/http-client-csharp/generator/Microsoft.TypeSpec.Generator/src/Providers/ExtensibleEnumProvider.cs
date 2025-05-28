@@ -84,7 +84,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
-                var value = enumValue.Value;
                 var field = enumValue.Field;
                 properties[index++] = new PropertyProvider(
                     description: field.Description,
