@@ -28,7 +28,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       : (rootClients[0]?.apiVersions ?? []);
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
-  
+
   const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
   const models = fromSdkModels(sdkContext, sdkPackage.models);
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
