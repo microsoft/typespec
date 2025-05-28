@@ -237,25 +237,31 @@ function findPagingProperties<K extends "input" | "output">(
   const acceptableProps = source === "input" ? inputProps : outputProps;
   const duplicateTracker = new DuplicateTracker<string, ModelProperty>();
   const data: Record<string, PagingProperty> = {};
-  navigateProperties(base, (property, path) => {
-    const kind = diags.pipe(getPagingProperty(program, property));
-    if (kind === undefined) {
-      return;
-    }
-    duplicateTracker.track(kind, property);
-    if (acceptableProps.has(kind)) {
-      data[kind] = { property, path };
-    } else {
-      diags.add(
-        createDiagnostic({
-          code: "invalid-paging-prop",
-          messageId: source === "input" ? "input" : "output",
-          format: { kind },
-          target: property,
-        }),
-      );
-    }
-  });
+  let current: Type | undefined = base;
+  do {
+    navigateProperties(current, (property, path) => {
+      const kind = diags.pipe(getPagingProperty(program, property));
+      if (kind === undefined) {
+        return;
+      }
+      duplicateTracker.track(kind, property);
+      if (acceptableProps.has(kind)) {
+        data[kind] = { property, path };
+      } else {
+        diags.add(
+          createDiagnostic({
+            code: "invalid-paging-prop",
+            messageId: source === "input" ? "input" : "output",
+            format: { kind },
+            target: property,
+          }),
+        );
+      }
+    });
+
+    current = current.kind === "Model" ? current.baseModel : undefined;
+  } while (current);
+
   for (const [key, duplicates] of duplicateTracker.entries()) {
     for (const prop of duplicates) {
       diags.add(

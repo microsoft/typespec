@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ignoreDiagnostics, ModelProperty, Operation } from "../../src/index.js";
 import { getPagingOperation, PagingOperation } from "../../src/lib/paging.js";
-import { expectDiagnostics } from "../../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner } from "../../src/testing/types.js";
 
@@ -37,6 +37,20 @@ it("emit error if missing pageItems property", async () => {
     code: "missing-paging-items",
     message: `Paged operation 'list' return type must have a property annotated with @pageItems.`,
   });
+});
+
+it("identifies inherited paging properties", async () => {
+  const diagnostics = await runner.diagnose(`
+    model ListTestResult {
+      @pageItems
+      values: string[];
+    }
+    model ExtendedListTestResult extends ListTestResult {}
+
+    @list op testOp(): ExtendedListTestResult;
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
 });
 
 describe("emit conflict diagnostic if multiple properties are annotated with teh same property marker", () => {
