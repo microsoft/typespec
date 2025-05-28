@@ -50,5 +50,86 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool GenerateConvenient { get; internal set; }
         public bool GenerateProtocol { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
+
+        public void Update(
+            string? name = null,
+            string? accessibility = null,
+            string[]? apiVersions = null,
+            string? documentation = null,
+            string? summary = null,
+            InputOperation? operation = null,
+            IEnumerable<InputParameter>? parameters = null,
+            InputServiceMethodResponse? response = null,
+            InputServiceMethodResponse? exception = null,
+            bool? isOverride = null,
+            bool? generateConvenient = null,
+            bool? generateProtocol = null,
+            string? crossLanguageDefinitionId = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+
+            if (accessibility != null)
+            {
+                Accessibility = accessibility;
+            }
+
+            if (apiVersions != null)
+            {
+                ApiVersions = apiVersions;
+            }
+
+            if (documentation != null)
+            {
+                Documentation = documentation;
+            }
+
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+
+            if (operation != null)
+            {
+                Operation = operation;
+            }
+
+            if (parameters != null)
+            {
+                Parameters = new List<InputParameter>(parameters);
+            }
+
+            if (response != null)
+            {
+                Response = response;
+            }
+
+            if (exception != null)
+            {
+                Exception = exception;
+            }
+
+            if (isOverride.HasValue)
+            {
+                IsOverride = isOverride.Value;
+            }
+
+            if (generateConvenient.HasValue)
+            {
+                GenerateConvenient = generateConvenient.Value;
+            }
+
+            if (generateProtocol.HasValue)
+            {
+                GenerateProtocol = generateProtocol.Value;
+            }
+
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+        }
     }
 }

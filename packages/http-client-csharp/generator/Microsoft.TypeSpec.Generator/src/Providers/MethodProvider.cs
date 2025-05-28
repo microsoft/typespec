@@ -114,6 +114,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return updated.Accept(visitor);
             }
 
+            Signature = updated.Signature;
+
             if (BodyExpression != null)
             {
                 var expression = BodyExpression.Accept(visitor, this);
