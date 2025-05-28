@@ -2230,18 +2230,7 @@
                       200
                     ],
                     "bodyType": {
-                      "$id": "170",
-                      "kind": "array",
-                      "name": "Array",
-                      "valueType": {
-                        "$id": "171",
-                        "kind": "decimal",
-                        "name": "decimal",
-                        "crossLanguageDefinitionId": "TypeSpec.decimal",
-                        "decorators": []
-                      },
-                      "crossLanguageDefinitionId": "TypeSpec.Array",
-                      "decorators": []
+                      "$ref": "153"
                     },
                     "headers": [],
                     "isErrorResponse": false,
@@ -2261,7 +2250,7 @@
               },
               "parameters": [
                 {
-                  "$id": "172",
+                  "$id": "170",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -2280,7 +2269,7 @@
               ],
               "response": {
                 "type": {
-                  "$ref": "170"
+                  "$ref": "153"
                 }
               },
               "isOverride": false,
@@ -2289,19 +2278,19 @@
               "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.prepareVerify"
             },
             {
-              "$id": "173",
+              "$id": "171",
               "kind": "basic",
               "name": "verify",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "174",
+                "$id": "172",
                 "name": "verify",
                 "resourceName": "Decimal128Verify",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "175",
+                    "$id": "173",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "type": {
@@ -2318,11 +2307,11 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "176",
+                    "$id": "174",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
-                      "$id": "177",
+                      "$id": "175",
                       "kind": "decimal",
                       "name": "decimal",
                       "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -2341,7 +2330,7 @@
                 ],
                 "responses": [
                   {
-                    "$id": "178",
+                    "$id": "176",
                     "statusCodes": [
                       204
                     ],
@@ -2363,7 +2352,7 @@
               },
               "parameters": [
                 {
-                  "$id": "179",
+                  "$id": "177",
                   "name": "contentType",
                   "nameInRequest": "content-type",
                   "type": {
@@ -2380,11 +2369,11 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "180",
+                  "$id": "178",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
-                    "$id": "181",
+                    "$id": "179",
                     "kind": "decimal",
                     "name": "decimal",
                     "crossLanguageDefinitionId": "TypeSpec.decimal",

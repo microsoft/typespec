@@ -314,18 +314,7 @@
             "$id": "34",
             "kind": "nullable",
             "type": {
-              "$id": "35",
-              "kind": "array",
-              "name": "Array1",
-              "valueType": {
-                "$id": "36",
-                "kind": "int32",
-                "name": "int32",
-                "crossLanguageDefinitionId": "TypeSpec.int32",
-                "decorators": []
-              },
-              "crossLanguageDefinitionId": "TypeSpec.Array",
-              "decorators": []
+              "$ref": "28"
             },
             "namespace": ""
           },
@@ -342,23 +331,23 @@
           }
         },
         {
-          "$id": "37",
+          "$id": "35",
           "kind": "property",
           "name": "optionalStringRecord",
           "serializedName": "optionalStringRecord",
           "doc": "Optional readonly string dictionary.",
           "type": {
-            "$id": "38",
+            "$id": "36",
             "kind": "dict",
             "keyType": {
-              "$id": "39",
+              "$id": "37",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
               "decorators": []
             },
             "valueType": {
-              "$id": "40",
+              "$id": "38",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string",
@@ -383,31 +372,31 @@
   ],
   "clients": [
     {
-      "$id": "41",
+      "$id": "39",
       "kind": "client",
       "name": "VisibilityClient",
       "namespace": "Type.Model.Visibility",
       "doc": "Illustrates models with visibility properties.",
       "methods": [
         {
-          "$id": "42",
+          "$id": "40",
           "kind": "basic",
           "name": "getModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "43",
+            "$id": "41",
             "name": "getModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "44",
+                "$id": "42",
                 "name": "queryProp",
                 "nameInRequest": "queryProp",
                 "doc": "Required int32, illustrating a query property.",
                 "type": {
-                  "$id": "45",
+                  "$id": "43",
                   "kind": "int32",
                   "name": "int32",
                   "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -424,7 +413,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "46",
+                "$id": "44",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -442,7 +431,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "47",
+                "$id": "45",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -459,7 +448,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "48",
+                "$id": "46",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -478,7 +467,7 @@
             ],
             "responses": [
               {
-                "$id": "49",
+                "$id": "47",
                 "statusCodes": [
                   200
                 ],
@@ -506,7 +495,7 @@
           },
           "parameters": [
             {
-              "$id": "50",
+              "$id": "48",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -523,7 +512,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "51",
+              "$id": "49",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -541,7 +530,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "52",
+              "$id": "50",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -569,24 +558,24 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.getModel"
         },
         {
-          "$id": "53",
+          "$id": "51",
           "kind": "basic",
           "name": "headModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "54",
+            "$id": "52",
             "name": "headModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "55",
+                "$id": "53",
                 "name": "queryProp",
                 "nameInRequest": "queryProp",
                 "doc": "Required int32, illustrating a query property.",
                 "type": {
-                  "$id": "56",
+                  "$id": "54",
                   "kind": "int32",
                   "name": "int32",
                   "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -603,7 +592,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "57",
+                "$id": "55",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -621,7 +610,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "58",
+                "$id": "56",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -640,7 +629,7 @@
             ],
             "responses": [
               {
-                "$id": "59",
+                "$id": "57",
                 "statusCodes": [
                   200
                 ],
@@ -662,7 +651,7 @@
           },
           "parameters": [
             {
-              "$id": "60",
+              "$id": "58",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -679,7 +668,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "61",
+              "$id": "59",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -704,19 +693,19 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.headModel"
         },
         {
-          "$id": "62",
+          "$id": "60",
           "kind": "basic",
           "name": "putModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "63",
+            "$id": "61",
             "name": "putModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "64",
+                "$id": "62",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -734,7 +723,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "65",
+                "$id": "63",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -753,7 +742,7 @@
             ],
             "responses": [
               {
-                "$id": "66",
+                "$id": "64",
                 "statusCodes": [
                   204
                 ],
@@ -775,7 +764,7 @@
           },
           "parameters": [
             {
-              "$id": "67",
+              "$id": "65",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -792,7 +781,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "68",
+              "$id": "66",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -817,19 +806,19 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.putModel"
         },
         {
-          "$id": "69",
+          "$id": "67",
           "kind": "basic",
           "name": "patchModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "70",
+            "$id": "68",
             "name": "patchModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "71",
+                "$id": "69",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -847,7 +836,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "72",
+                "$id": "70",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -866,7 +855,7 @@
             ],
             "responses": [
               {
-                "$id": "73",
+                "$id": "71",
                 "statusCodes": [
                   204
                 ],
@@ -888,7 +877,7 @@
           },
           "parameters": [
             {
-              "$id": "74",
+              "$id": "72",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -905,7 +894,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "75",
+              "$id": "73",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -930,19 +919,19 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.patchModel"
         },
         {
-          "$id": "76",
+          "$id": "74",
           "kind": "basic",
           "name": "postModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "77",
+            "$id": "75",
             "name": "postModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "78",
+                "$id": "76",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -960,7 +949,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "79",
+                "$id": "77",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -979,7 +968,7 @@
             ],
             "responses": [
               {
-                "$id": "80",
+                "$id": "78",
                 "statusCodes": [
                   204
                 ],
@@ -1001,7 +990,7 @@
           },
           "parameters": [
             {
-              "$id": "81",
+              "$id": "79",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -1018,7 +1007,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "82",
+              "$id": "80",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -1043,19 +1032,19 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.postModel"
         },
         {
-          "$id": "83",
+          "$id": "81",
           "kind": "basic",
           "name": "deleteModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "84",
+            "$id": "82",
             "name": "deleteModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "85",
+                "$id": "83",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -1073,7 +1062,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "86",
+                "$id": "84",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -1092,7 +1081,7 @@
             ],
             "responses": [
               {
-                "$id": "87",
+                "$id": "85",
                 "statusCodes": [
                   204
                 ],
@@ -1114,7 +1103,7 @@
           },
           "parameters": [
             {
-              "$id": "88",
+              "$id": "86",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -1131,7 +1120,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "89",
+              "$id": "87",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -1156,19 +1145,19 @@
           "crossLanguageDefinitionId": "Type.Model.Visibility.deleteModel"
         },
         {
-          "$id": "90",
+          "$id": "88",
           "kind": "basic",
           "name": "putReadOnlyModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "91",
+            "$id": "89",
             "name": "putReadOnlyModel",
             "resourceName": "Visibility",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "92",
+                "$id": "90",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -1186,7 +1175,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "93",
+                "$id": "91",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1203,7 +1192,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "94",
+                "$id": "92",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -1222,7 +1211,7 @@
             ],
             "responses": [
               {
-                "$id": "95",
+                "$id": "93",
                 "statusCodes": [
                   200
                 ],
@@ -1250,7 +1239,7 @@
           },
           "parameters": [
             {
-              "$id": "96",
+              "$id": "94",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -1267,7 +1256,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "97",
+              "$id": "95",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -1285,7 +1274,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "98",
+              "$id": "96",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {

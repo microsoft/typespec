@@ -451,19 +451,7 @@
           "name": "map",
           "serializedName": "map",
           "type": {
-            "$id": "44",
-            "kind": "dict",
-            "keyType": {
-              "$id": "45",
-              "kind": "string",
-              "name": "string",
-              "crossLanguageDefinitionId": "TypeSpec.string",
-              "decorators": []
-            },
-            "valueType": {
-              "$ref": "25"
-            },
-            "decorators": []
+            "$ref": "23"
           },
           "optional": true,
           "readOnly": false,
@@ -478,19 +466,12 @@
           }
         },
         {
-          "$id": "46",
+          "$id": "44",
           "kind": "property",
           "name": "array",
           "serializedName": "array",
           "type": {
-            "$id": "47",
-            "kind": "array",
-            "name": "ArrayInnerModel",
-            "valueType": {
-              "$ref": "25"
-            },
-            "crossLanguageDefinitionId": "TypeSpec.Array",
-            "decorators": []
+            "$ref": "31"
           },
           "optional": true,
           "readOnly": false,
@@ -505,12 +486,12 @@
           }
         },
         {
-          "$id": "48",
+          "$id": "45",
           "kind": "property",
           "name": "intValue",
           "serializedName": "intValue",
           "type": {
-            "$id": "49",
+            "$id": "46",
             "kind": "int32",
             "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -529,12 +510,12 @@
           }
         },
         {
-          "$id": "50",
+          "$id": "47",
           "kind": "property",
           "name": "floatValue",
           "serializedName": "floatValue",
           "type": {
-            "$id": "51",
+            "$id": "48",
             "kind": "float32",
             "name": "float32",
             "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -553,7 +534,7 @@
           }
         },
         {
-          "$id": "52",
+          "$id": "49",
           "kind": "property",
           "name": "innerModel",
           "serializedName": "innerModel",
@@ -573,23 +554,12 @@
           }
         },
         {
-          "$id": "53",
+          "$id": "50",
           "kind": "property",
           "name": "intArray",
           "serializedName": "intArray",
           "type": {
-            "$id": "54",
-            "kind": "array",
-            "name": "Array",
-            "valueType": {
-              "$id": "55",
-              "kind": "int32",
-              "name": "int32",
-              "crossLanguageDefinitionId": "TypeSpec.int32",
-              "decorators": []
-            },
-            "crossLanguageDefinitionId": "TypeSpec.Array",
-            "decorators": []
+            "$ref": "38"
           },
           "optional": true,
           "readOnly": false,
@@ -608,28 +578,28 @@
   ],
   "clients": [
     {
-      "$id": "56",
+      "$id": "51",
       "kind": "client",
       "name": "JsonMergePatchClient",
       "namespace": "Payload.JsonMergePatch",
       "doc": "Test for merge-patch+json content-type",
       "methods": [
         {
-          "$id": "57",
+          "$id": "52",
           "kind": "basic",
           "name": "createResource",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Test content-type: application/merge-patch+json with required body",
           "operation": {
-            "$id": "58",
+            "$id": "53",
             "name": "createResource",
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with required body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "59",
+                "$id": "54",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -647,7 +617,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "60",
+                "$id": "55",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -664,7 +634,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "61",
+                "$id": "56",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -683,7 +653,7 @@
             ],
             "responses": [
               {
-                "$id": "62",
+                "$id": "57",
                 "statusCodes": [
                   200
                 ],
@@ -711,7 +681,7 @@
           },
           "parameters": [
             {
-              "$id": "63",
+              "$id": "58",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -728,7 +698,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "64",
+              "$id": "59",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -746,7 +716,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "65",
+              "$id": "60",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -774,21 +744,21 @@
           "crossLanguageDefinitionId": "Payload.JsonMergePatch.createResource"
         },
         {
-          "$id": "66",
+          "$id": "61",
           "kind": "basic",
           "name": "updateResource",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Test content-type: application/merge-patch+json with required body",
           "operation": {
-            "$id": "67",
+            "$id": "62",
             "name": "updateResource",
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with required body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "68",
+                "$id": "63",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "type": {
@@ -805,7 +775,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "69",
+                "$id": "64",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -822,7 +792,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "70",
+                "$id": "65",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -841,7 +811,7 @@
             ],
             "responses": [
               {
-                "$id": "71",
+                "$id": "66",
                 "statusCodes": [
                   200
                 ],
@@ -869,7 +839,7 @@
           },
           "parameters": [
             {
-              "$id": "72",
+              "$id": "67",
               "name": "contentType",
               "nameInRequest": "content-type",
               "type": {
@@ -886,7 +856,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "73",
+              "$id": "68",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -903,7 +873,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "74",
+              "$id": "69",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -931,21 +901,21 @@
           "crossLanguageDefinitionId": "Payload.JsonMergePatch.updateResource"
         },
         {
-          "$id": "75",
+          "$id": "70",
           "kind": "basic",
           "name": "updateOptionalResource",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Test content-type: application/merge-patch+json with optional body",
           "operation": {
-            "$id": "76",
+            "$id": "71",
             "name": "updateOptionalResource",
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with optional body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "77",
+                "$id": "72",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "type": {
@@ -962,7 +932,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "78",
+                "$id": "73",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -979,7 +949,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "79",
+                "$id": "74",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -998,7 +968,7 @@
             ],
             "responses": [
               {
-                "$id": "80",
+                "$id": "75",
                 "statusCodes": [
                   200
                 ],
@@ -1026,7 +996,7 @@
           },
           "parameters": [
             {
-              "$id": "81",
+              "$id": "76",
               "name": "contentType",
               "nameInRequest": "content-type",
               "type": {
@@ -1043,7 +1013,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "82",
+              "$id": "77",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -1060,7 +1030,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "83",
+              "$id": "78",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
