@@ -345,127 +345,46 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String parameterName = parameter.getParameterReference();
             String parameterWireName = parameter.getParameterReferenceConverted();
 
+            final boolean alwaysNull = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
+            final RequestParameterLocation location = parameter.getRequestParameterLocation();
+
             boolean addedConversion = false;
-            boolean alwaysNull = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
-
-            RequestParameterLocation parameterLocation = parameter.getRequestParameterLocation();
-            if (parameterLocation != RequestParameterLocation.BODY &&
-            // parameterLocation != RequestParameterLocation.FormData &&
-                (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
-
+            if (location != RequestParameterLocation.BODY) {
                 if (parameterClientType == ArrayType.BYTE_ARRAY) {
-                    String expression = "null";
-                    if (!alwaysNull) {
-                        String methodCall = (parameterWireType == ClassType.STRING)
-                            ? "Base64Util.encodeToString"
-                            : (ClassType.BASE_64_URL.getName() + ".encode");
-                        expression = methodCall + "(" + parameterName + ")";
+                    // The only expected 'ArrayType' is 'ArrayType.BYTE_ARRAY' (See definition of ArrayType).
+                    if (alwaysNull) {
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, "null");
+                    } else {
+                        final String expression = byteArrayToBase64UrlEncodedString(parameterName, parameterWireType);
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, expression);
                     }
-
-                    function.line(parameterWireType + " " + parameterWireName + " = " + expression + ";");
                     addedConversion = true;
                 } else if (parameterClientType instanceof IterableType) {
-                    boolean alreadyNullChecked
-                        = clientMethod.getRequiredNullableParameterExpressions().contains(parameterName);
-                    IType elementType = ((IterableType) parameterClientType).getElementType();
-                    String expression;
+                    boolean shouldNullCheck
+                        = !clientMethod.getRequiredNullableParameterExpressions().contains(parameterName);
                     if (alwaysNull) {
-                        expression = "null";
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, "null");
                     } else if (!parameter.getExplode()) {
-                        CollectionFormat collectionFormat = parameter.getCollectionFormat();
-                        String delimiter = ClassType.STRING.defaultValueExpression(collectionFormat.getDelimiter());
-                        if (elementType instanceof EnumType) {
-                            // EnumTypes should provide a toString implementation that represents the wire value.
-                            // Circumvent the use of JacksonAdapter and handle this manually.
-
-                            // If the parameter is null, the converted value is null.
-                            // Otherwise, convert the parameter to a string, mapping each element to the toString
-                            // value, finally joining with the collection format.
-                            EnumType enumType = (EnumType) elementType;
-                            // Not enums will be backed by Strings. Get the backing value before converting to string
-                            // it, this
-                            // will prevent using the enum name rather than the enum value when it isn't a String-based
-                            // enum. Ex, a long-based enum with value 100 called HIGH will return "100" rather than
-                            // "HIGH".
-                            String enumToString = enumType.getElementType() == ClassType.STRING
-                                ? "paramItemValue"
-                                : "paramItemValue == null ? null : paramItemValue." + enumType.getToMethodName() + "()";
-                            if (alreadyNullChecked) {
-                                expression = parameterName + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(" + enumToString + ", \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            } else {
-                                expression = "(" + parameterName + " == null) ? null : " + parameterName + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(" + enumToString + ", \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            }
-                        } else {
-                            if (elementType == ClassType.STRING
-                                || (elementType instanceof ClassType && ((ClassType) elementType).isBoxedType())) {
-                                String streamSource = parameterName;
-                                if (!alreadyNullChecked) {
-                                    streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
-                                }
-                                expression = streamSource + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            } else {
-                                // this logic depends on rawType of proxy method parameter be List<WireType>
-                                // alternative would be check wireType of client method parameter
-                                IType elementWireType = parameter.getRawType() instanceof IterableType
-                                    ? ((IterableType) parameter.getRawType()).getElementType()
-                                    : elementType;
-
-                                String serializeIterableInput = parameterName;
-                                if (elementWireType != elementType) {
-                                    // convert List<ClientType> to List<WireType>, if necessary
-                                    serializeIterableInput = String.format(
-                                        "%s.stream().map(paramItemValue -> %s).collect(Collectors.toList())",
-                                        parameterName, elementWireType.convertFromClientType("paramItemValue"));
-                                }
-
-                                // convert List<WireType> to String
-                                if (JavaSettings.getInstance().isAzureV1()) {
-                                    // Always use serializeIterable as Iterable supports both Iterable and List.
-                                    expression = String.format(
-                                        "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
-                                        serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
-                                } else {
-                                    String streamSource = serializeIterableInput;
-                                    if (!alreadyNullChecked) {
-                                        streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
-                                    }
-                                    // mostly code from
-                                    // https://github.com/Azure/azure-sdk-for-java/blob/e1f8f21b1111f8ac9372e0b039f3de92485a5a66/sdk/core/azure-core/src/main/java/com/azure/core/util/serializer/JacksonAdapter.java#L250-L304
-                                    String serializeItemValueCode
-                                        = TemplateUtil.loadTextFromResource("ClientMethodSerializeItemValue.java");
-                                    expression = streamSource + ".stream().map(" + serializeItemValueCode
-                                        + ").collect(Collectors.joining(" + delimiter + "))";
-                                }
-                            }
-                        }
+                        final IterableType iterableType = (IterableType) parameterClientType;
+                        final String iterableToStringExpression = iterableToDelimitedStringOfWireValues(parameterName,
+                            shouldNullCheck, iterableType, parameter);
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, iterableToStringExpression);
                     } else {
-                        if (alreadyNullChecked) {
-                            expression
-                                = parameterName + ".stream()\n" + "    .map(item -> Objects.toString(item, \"\"))\n"
-                                    + "    .collect(Collectors.toList())";
-                        } else {
-                            expression = "(" + parameterName + " == null) ? new ArrayList<>()\n" + ": " + parameterName
-                                + ".stream().map(item -> Objects.toString(item, \"\")).collect(Collectors.toList())";
-                        }
+                        String iterableToListExpression
+                            = iterableToWireStringValuesList(parameterName, shouldNullCheck);
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, iterableToListExpression);
                     }
-                    function.line("%s %s = %s;", parameterWireType, parameterWireName, expression);
                     addedConversion = true;
                 }
-            }
-
-            if (parameter.getWireType().isUsedInXml()
-                && parameterClientType instanceof IterableType
-                && (parameterLocation
-                    == RequestParameterLocation.BODY /* || parameterLocation == RequestParameterLocation.FormData */)) {
-                function.line("%s %s = new %s(%s);", parameter.getWireType(), parameterWireName,
-                    parameter.getWireType(), alwaysNull ? "null" : parameterName);
-                addedConversion = true;
+            } else {
+                // RequestParameterLocation.BODY
+                if (parameterClientType instanceof IterableType) {
+                    if (parameter.getWireType().isUsedInXml()) {
+                        function.line("%s %s = new %s(%s);", parameter.getWireType(), parameterWireName,
+                            parameter.getWireType(), alwaysNull ? "null" : parameterName);
+                        addedConversion = true;
+                    }
+                }
             }
 
             if (!addedConversion) {
@@ -474,6 +393,176 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     parameter.isConstant() || alwaysNull));
             }
         }
+    }
+
+    /**
+     * Obtain the Java code that converts an iterable to a delimited string of wire values.
+     *
+     * @param parameterName the name of the parameter to convert.
+     * @param shouldNullCheck whether to check if the parameter is null before converting it.
+     * @param iterableType the type of the iterable to convert.
+     * @param parameter the proxy method parameter that is being converted.
+     * @return Java code that converts an iterable to a delimited string of wire values.
+     */
+    private static String iterableToDelimitedStringOfWireValues(String parameterName, boolean shouldNullCheck,
+        IterableType iterableType, ProxyMethodParameter parameter) {
+        final IType elementType = iterableType.getElementType();
+        final boolean isEnumElementType = elementType instanceof EnumType;
+        final boolean isPrimitiveElementType = elementType == ClassType.STRING
+            || (elementType instanceof ClassType && ((ClassType) elementType).isBoxedType());
+        final CollectionFormat collectionFormat = parameter.getCollectionFormat();
+        final String delimiter = ClassType.STRING.defaultValueExpression(collectionFormat.getDelimiter());
+
+        final String iterableToStringExpression;
+        if (isEnumElementType) {
+            final EnumType enumType = (EnumType) elementType;
+            iterableToStringExpression
+                = enumIterableToDelimitedStringOfWireValues(parameterName, shouldNullCheck, delimiter, enumType);
+        } else if (isPrimitiveElementType) {
+            iterableToStringExpression
+                = primitiveIterableToDelimitedStringOfWireValues(parameterName, shouldNullCheck, delimiter);
+        } else {
+            iterableToStringExpression = modelIterableToDelimitedStringOfWireValues(parameterName, shouldNullCheck,
+                delimiter, collectionFormat, elementType, parameter);
+        }
+        return iterableToStringExpression;
+    }
+
+    /**
+     * Obtain the Java code that converts an enum iterable parameter to a string of delimiter seperated wire values.
+     *
+     * @param parameterName the name of the enum iterable parameter to convert.
+     * @param shouldCheckNull whether to check if the parameter is null before converting it.
+     * @param delimiter the delimiter to use when joining the enum values into a string.
+     * @param enumType the enum type of the parameter to convert.
+     * @return Java code that converts an enum iterable parameter to a string of delimiter separated values.
+     */
+    private static String enumIterableToDelimitedStringOfWireValues(String parameterName, boolean shouldCheckNull,
+        String delimiter, EnumType enumType) {
+        // EnumTypes should provide a 'toString' implementation that represents the wire value.
+        //
+        // If the parameter is null, the converted value is null. Otherwise, convert the parameter to a string,
+        // mapping each element to the toString value, finally joining with the delimiter (collection format).
+        //
+        // Not all enums will be backed by Strings. Get the backing value before converting to string, this will prevent
+        // using the enum name rather than the enum value when it isn't a String-based enum. Ex, a long-based enum with
+        // value 100 called HIGH will return "100" rather than "HIGH".
+        //
+        final String enumToString = enumType.getElementType() == ClassType.STRING
+            ? "paramItemValue"
+            : "paramItemValue == null ? null : paramItemValue." + enumType.getToMethodName() + "()";
+        final String streamToString = parameterName + ".stream()" + ".map(paramItemValue -> Objects.toString("
+            + enumToString + ", \"\"))" + ".collect(Collectors.joining(" + delimiter + "))";
+        if (shouldCheckNull) {
+            return "(" + parameterName + " == null) ? null : " + streamToString;
+        } else {
+            return streamToString;
+        }
+    }
+
+    /**
+     * Obtain the Java code that converts a primitive iterable parameter to a string of delimiter seperated string wire
+     * values.
+     * <p>
+     * The primitive types are Boolean, Byte, Integer, Long, Float, Double, String.
+     * </p>
+     * 
+     * @param parameterName the name of the primitive iterable parameter to convert.
+     * @param shouldCheckNull whether to check if the parameter is null before converting it.
+     * @param delimiter the delimiter to use when joining the enum values into a string.
+     * @return Java code that converts a primitive iterable parameter to a string of delimiter separated values.
+     */
+    private static String primitiveIterableToDelimitedStringOfWireValues(String parameterName, boolean shouldCheckNull,
+        String delimiter) {
+        final String streamToString
+            = parameterName + ".stream()" + ".map(paramItemValue -> Objects.toString(paramItemValue, \"\"))"
+                + ".collect(Collectors.joining(" + delimiter + "))";
+        if (shouldCheckNull) {
+            return "(" + parameterName + " == null) ? null : " + streamToString;
+        } else {
+            return streamToString;
+        }
+    }
+
+    /**
+     * Obtain the Java code that converts an iterable of model types to a delimited string of serialized wire values.
+     *
+     * @param parameterName the name of the parameter to convert.
+     * @param shouldCheckNull whether to check if the parameter is null before converting it.
+     * @param delimiter the delimiter to use when joining the deserialized model values into a string.
+     * @param collectionFormat the collection format to use when serializing the iterable to a string.
+     * @param elementType the type of the elements in the iterable.
+     * @param parameter the proxy method parameter that is being converted.
+     * @return Java code that converts an iterable of model types to a delimited string of wire values.
+     */
+    private static String modelIterableToDelimitedStringOfWireValues(String parameterName, boolean shouldCheckNull,
+        String delimiter, CollectionFormat collectionFormat, IType elementType, ProxyMethodParameter parameter) {
+        // this logic depends on rawType of proxy method parameter be List<WireType>
+        // alternative would be to check wireType of client method parameter.
+        IType elementWireType = parameter.getRawType() instanceof IterableType
+            ? ((IterableType) parameter.getRawType()).getElementType()
+            : elementType;
+
+        final String iterableToSerialize;
+        if (elementWireType != elementType) {
+            // convert List<ClientType> to List<WireType>.
+            iterableToSerialize = parameterName + ".stream()" + ".map(paramItemValue -> "
+                + elementWireType.convertFromClientType("paramItemValue") + ")" + ".collect(Collectors.toList())";
+        } else {
+            iterableToSerialize = parameterName;
+        }
+
+        // Use serializer to convert List<WireType> to String.
+        //
+        if (JavaSettings.getInstance().isAzureV1()) {
+            // Always use serializeIterable as Iterable supports both Iterable and List.
+            return String.format(
+                "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
+                iterableToSerialize, collectionFormat.toString().toUpperCase(Locale.ROOT));
+        } else {
+            // mostly code from
+            // https://github.com/Azure/azure-sdk-for-java/blob/e1f8f21b1111f8ac9372e0b039f3de92485a5a66/sdk/core/azure-core/src/main/java/com/azure/core/util/serializer/JacksonAdapter.java#L250-L304
+            final String serializeItemValueCode
+                = TemplateUtil.loadTextFromResource("ClientMethodSerializeItemValue.java");
+            final String streamToString = iterableToSerialize + ".stream()" + ".map(" + serializeItemValueCode + ")"
+                + ".collect(Collectors.joining(" + delimiter + "))";
+            if (shouldCheckNull) {
+                return "(" + parameterName + " == null) ? null : " + streamToString;
+            } else {
+                return streamToString;
+            }
+        }
+    }
+
+    /**
+     * Obtain the Java code that converts an iterable to a list of string values.
+     * 
+     * @param parameterName the name of the iterable parameter to convert.
+     * @param shouldCheckNull whether to use an empty list if the parameter value is null.
+     * @return Java code that converts an iterable to a list of string values.
+     */
+    private static String iterableToWireStringValuesList(String parameterName, boolean shouldCheckNull) {
+        final String stringList = parameterName + ".stream()" + ".map(item -> Objects.toString(item, \"\"))"
+            + ".collect(Collectors.toList())";
+        if (shouldCheckNull) {
+            return "(" + parameterName + " == null) ? new ArrayList<>()" + ": " + stringList;
+        } else {
+            return stringList;
+        }
+    }
+
+    /**
+     * Obtain the Java code that converts a parameter of type byte[] to a Base64 URL encoded string.
+     *
+     * @param parameterName the name of the byte[] parameter to convert.
+     * @param wireType the wire type of the parameter, used to determine the method to call for encoding.
+     * @return Java code that converts a byte[] parameter to a Base64 URL encoded string.
+     */
+    private static String byteArrayToBase64UrlEncodedString(String parameterName, IType wireType) {
+        final String methodCall = (wireType == ClassType.STRING)
+            ? "Base64Util.encodeToString"
+            : (ClassType.BASE_64_URL.getName() + ".encode");
+        return methodCall + "(" + parameterName + ")";
     }
 
     private static boolean addSpecialHeadersToRequestOptions(JavaBlock function, ClientMethod clientMethod) {
