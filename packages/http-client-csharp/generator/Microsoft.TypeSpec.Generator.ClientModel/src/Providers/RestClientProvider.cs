@@ -466,8 +466,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var paramProvider = paramMap[inputParam.Name];
-                GetParamInfo(paramProvider, out type, out format, out valueExpression);
+                if (paramMap.TryGetValue(inputParam.Name, out var paramProvider))
+                {
+                    GetParamInfo(paramProvider, out type, out format, out valueExpression);
+                }
+                else
+                {
+                    format = null;
+                    valueExpression = Null;
+                }
             }
         }
 
@@ -555,7 +562,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
+                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
+                if (parameter is null)
+                {
+                    continue;
+                }
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
@@ -581,9 +592,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     parameter.SpreadSource = spreadSource;
                 }
-
-                if (parameter is null)
-                    continue;
 
                 switch (parameter.Location)
                 {

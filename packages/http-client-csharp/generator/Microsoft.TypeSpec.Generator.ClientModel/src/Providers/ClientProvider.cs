@@ -445,14 +445,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<ParameterProvider> requiredParameters = [];
 
-            ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
             {
-                currentParam = null;
                 if (parameter.IsRequired && !parameter.IsEndpoint && !parameter.IsApiVersion)
                 {
-                    currentParam = CreateParameter(parameter);
-                    requiredParameters.Add(currentParam);
+                    ParameterProvider? currentParam = CreateParameter(parameter);
+                    if (currentParam != null)
+                    {
+                        requiredParameters.Add(currentParam);
+                    }
                 }
             }
 
@@ -462,10 +463,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return requiredParameters;
         }
 
-        private ParameterProvider CreateParameter(InputParameter parameter)
+        private ParameterProvider? CreateParameter(InputParameter parameter)
         {
             var param = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(parameter);
-            param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            if (param != null)
+            {
+                param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
+            }
+
             return param;
         }
 
