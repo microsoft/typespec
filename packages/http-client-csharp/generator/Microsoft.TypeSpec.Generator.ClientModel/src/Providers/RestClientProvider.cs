@@ -152,7 +152,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new IfElseStatement(
                             new IfStatement(ScmKnownParameters.NextPage.NotEqual(Null))
                             {
-                                uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                                uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
+                                request.SetUri(uri)
                             },
                             new MethodBodyStatements([..statements]))
                     };

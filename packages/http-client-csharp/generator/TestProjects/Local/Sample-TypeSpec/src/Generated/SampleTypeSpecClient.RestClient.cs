@@ -346,6 +346,7 @@ namespace SampleTypeSpec
             if (nextPage != null)
             {
                 uri.Reset(nextPage);
+                request.Uri = uri.ToUri();
             }
             else
             {
