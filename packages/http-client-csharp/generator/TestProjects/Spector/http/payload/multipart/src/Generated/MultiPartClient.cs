@@ -9,7 +9,7 @@ using Payload.MultiPart._FormData;
 
 namespace Payload.MultiPart
 {
-    /// <summary></summary>
+    /// <summary> Test for multipart. </summary>
     public partial class MultiPartClient
     {
         private readonly Uri _endpoint;

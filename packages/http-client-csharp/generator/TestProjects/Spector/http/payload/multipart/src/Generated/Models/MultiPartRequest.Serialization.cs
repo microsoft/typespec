@@ -12,14 +12,11 @@ using System.Text.Json;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class MultiPartRequest : IStreamModel<MultiPartRequest>, IJsonModel<MultiPartRequest>
+    public partial class MultiPartRequest : IJsonModel<MultiPartRequest>
     {
         internal MultiPartRequest()
         {
         }
-
-        private string _boundary;
-        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
 
         void IJsonModel<MultiPartRequest>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
@@ -41,29 +38,21 @@ namespace Payload.MultiPart.Models
             writer.WritePropertyName("id"u8);
             writer.WriteStringValue(Id);
             writer.WritePropertyName("profileImage"u8);
-            if (Optional.IsDefined(ProfileImage.Contents))
-            {
-#if NET6_0_OR_GREATER
-                writer.WriteRawValue(ProfileImage.Contents);
-#else
-                using (JsonDocument document = JsonDocument.Parse(ProfileImage.Contents))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-#endif
-            }
-            else
-            {
-#if NET6_0_OR_GREATER
-                writer.WriteRawValue(global::System.BinaryData.FromStream(ProfileImage.File));
-#else
-                using (JsonDocument document = JsonDocument.Parse(BinaryData.FromStream(ProfileImage.File)))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-#endif
 
+            using MemoryStream stream = new MemoryStream();
+            ProfileImage.WriteTo(stream);
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
             }
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(global::System.BinaryData.FromStream(stream));
+#else
+            using (JsonDocument document = JsonDocument.Parse(BinaryData.FromStream(stream)))
+            {
+                JsonSerializer.Serialize(writer, document.RootElement);
+            }
+#endif
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -102,7 +91,7 @@ namespace Payload.MultiPart.Models
                 return null;
             }
             string id = default;
-            MultiPartFileWithOptionalMetadata profileImage = default;
+            FileBinaryContent profileImage = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var property in element.EnumerateObject())
             {
@@ -113,7 +102,7 @@ namespace Payload.MultiPart.Models
                 }
                 if (property.NameEquals("profileImage"u8))
                 {
-                    profileImage = new MultiPartFileWithOptionalMetadata(BinaryData.FromString(property.Value.GetRawText()));
+                    profileImage = new FileBinaryContent(BinaryData.FromString(property.Value.GetRawText()));
                     continue;
                 }
                 if (options.Format != "W")
@@ -132,27 +121,8 @@ namespace Payload.MultiPart.Models
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options);
-                case "MPFD-ContentType":
-                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(MultiPartRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        void IStreamModel<MultiPartRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
-        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<MultiPartRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    ModelReaderWriter.Write(this, stream, options);
-                    return;
-                case "MPFD":
-                    WriteTo(stream);
-                    return;
                 default:
                     throw new FormatException($"The model {nameof(MultiPartRequest)} does not support writing '{options.Format}' format.");
             }
@@ -186,41 +156,30 @@ namespace Payload.MultiPart.Models
             {
                 return null;
             }
-            return multiPartRequest.ToMultipartContent();
+
+            return BinaryContent.Create(multiPartRequest, ModelSerializationExtensions.WireOptions);
         }
 
-        internal MultiPartFormDataBinaryContent ToMultipartContent()
+        internal BinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new(Boundary);
+            List<BinaryContent> parts = [];
+            parts.Add(BinaryContent.CreateMultipartFormDataPart("id", Id));
+            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
 
-            content.Add("id", Id);
-            content.Add("profileImage", ProfileImage);
-
-            return content;
-        }
-
-        private BinaryData SerializeMultipartContentType()
-        {
-            using MultiPartFormDataBinaryContent content = new(Boundary);
-            return BinaryData.FromString(content.ContentType);
+            return BinaryContent.CreateMultipartFormDataContent(parts);
         }
 
         private BinaryData SerializeMultipart()
         {
             using MemoryStream stream = new MemoryStream();
+            using BinaryContent content = ToMultipartContent();
 
-            WriteTo(stream);
+            content.WriteTo(stream);
             if (stream.CanSeek)
             {
                 stream.Seek(0, SeekOrigin.Begin);
             }
             return BinaryData.FromStream(stream);
-        }
-
-        private void WriteTo(Stream stream)
-        {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
-            content.WriteTo(stream);
         }
     }
 }

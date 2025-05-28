@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using Payload.MultiPart;
 
 namespace Payload.MultiPart._FormData.HttpParts.ContentType
 {
