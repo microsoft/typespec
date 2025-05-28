@@ -219,8 +219,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 CSharpType? type;
                 string? format;
-                ValueExpression valueExpression;
+                ValueExpression? valueExpression;
                 GetParamInfo(paramMap, operation, inputParameter, out type, out format, out valueExpression);
+                if (valueExpression == null)
+                {
+                    continue;
+                }
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ?
                 	valueExpression :
                 	valueExpression.ConvertToString(Literal(format));
@@ -256,8 +260,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
 
                 string? format;
-                ValueExpression valueExpression;
+                ValueExpression? valueExpression;
                 GetParamInfo(paramMap, operation, inputParameter, out var paramType, out format, out valueExpression);
+                if (valueExpression == null)
+                {
+                    continue;
+                }
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
                 ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
@@ -398,7 +406,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
                 CSharpType? type;
                 string? format;
-                ValueExpression valueExpression;
+                ValueExpression? valueExpression;
                 InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
@@ -410,6 +418,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                        if (valueExpression == null)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
@@ -451,7 +463,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
+        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             if (inputParam.Kind == InputParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
@@ -472,8 +484,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
+                    type = null;
                     format = null;
-                    valueExpression = Null;
+                    valueExpression = null;
                 }
             }
         }
