@@ -107,7 +107,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
 
             return new ScmMethodProvider(
                 signature,
@@ -117,15 +116,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
-                    Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    pagingServiceMethod?.PagingMetadata.NextLink != null ?
-                        uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
-                        uri.Reset(ClientProvider.EndpointField).Terminate(),
-                    .. ConditionallyAppendPathParameters(operation, pagingServiceMethod?.PagingMetadata, uri, paramMap),
-                    .. AppendQueryParameters(uri, operation, paramMap),
-                    request.SetUri(uri),
-                    .. AppendHeaderParameters(request, operation, paramMap),
-                    .. GetSetContent(request, signature.Parameters),
+                    BuildRequest(serviceMethod, request, paramMap, signature),
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
@@ -134,24 +125,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 serviceMethod: serviceMethod);
         }
 
-        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(
-            InputOperation operation,
-            InputPagingServiceMetadata? pagingMetadata,
-            ScopedApi uri, Dictionary<string,
-            ParameterProvider> paramMap)
+        private MethodBodyStatement BuildRequest(
+            InputServiceMethod serviceMethod,
+            HttpRequestApi request,
+            Dictionary<string, ParameterProvider> paramMap,
+            MethodSignature signature)
         {
-            if (pagingMetadata?.NextLink != null)
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
+            var operation = serviceMethod.Operation;
+            var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
+
+            MethodBodyStatement[] statements =
+            [
+                uri.Reset(ClientProvider.EndpointField).Terminate(),
+                .. AppendPathParameters(uri, operation, paramMap),
+                .. AppendQueryParameters(uri, operation, paramMap),
+                request.SetUri(uri),
+                .. AppendHeaderParameters(request, operation, paramMap),
+                .. GetSetContent(request, signature.Parameters)
+            ];
+            if (pagingServiceMethod?.PagingMetadata.NextLink != null)
             {
-                return
-                [
-                    new IfStatement(ScmKnownParameters.NextPage.Equal(Null))
+                return new[]
                     {
-                        new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
-                    }
-                ];
+                        declareUri,
+                        new IfElseStatement(
+                            new IfStatement(ScmKnownParameters.NextPage.NotEqual(Null))
+                            {
+                                uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                            },
+                            new MethodBodyStatements([..statements]))
+                    };
             }
 
-            return AppendPathParameters(uri, operation, paramMap);
+            return new MethodBodyStatements([declareUri, .. statements]);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
