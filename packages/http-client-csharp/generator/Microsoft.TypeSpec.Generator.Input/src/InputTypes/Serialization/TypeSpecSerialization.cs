@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             if (inputNamespace != null)
             {
-                UpdateClientsName(inputNamespace, inputNamespace.Clients, new List<string>());
+                UpdateClientsName(inputNamespace, inputNamespace.RootClients, new List<string>());
             }
 
             return inputNamespace;
