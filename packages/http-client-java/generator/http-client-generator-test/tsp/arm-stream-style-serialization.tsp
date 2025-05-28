@@ -8,9 +8,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 using TypeSpec.Versioning;
-using Azure.Core;
 using Azure.ResourceManager;
-using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 
 @armProviderNamespace

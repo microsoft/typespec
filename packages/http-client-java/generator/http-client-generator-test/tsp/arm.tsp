@@ -315,6 +315,7 @@ interface ModelInterfaceSameName {
   get is ArmResourceRead<ModelInterfaceDifferentName>;
 }
 
+@@clientName(TspTest.ArmResourceProvider, "ArmClient");
 @@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
 @@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");
 @@flattenProperty(TrackedResource.properties);

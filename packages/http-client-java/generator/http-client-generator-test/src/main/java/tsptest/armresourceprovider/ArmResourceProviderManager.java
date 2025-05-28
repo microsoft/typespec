@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import tsptest.armresourceprovider.fluent.ArmResourceProviderClient;
-import tsptest.armresourceprovider.implementation.ArmResourceProviderClientBuilder;
+import tsptest.armresourceprovider.fluent.ArmClient;
+import tsptest.armresourceprovider.implementation.ArmClientBuilder;
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
@@ -67,12 +67,12 @@ public final class ArmResourceProviderManager {
 
     private ModelInterfaceSameNames modelInterfaceSameNames;
 
-    private final ArmResourceProviderClient clientObject;
+    private final ArmClient clientObject;
 
     private ArmResourceProviderManager(HttpPipeline httpPipeline, AzureProfile profile, Duration defaultPollInterval) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
-        this.clientObject = new ArmResourceProviderClientBuilder().pipeline(httpPipeline)
+        this.clientObject = new ArmClientBuilder().pipeline(httpPipeline)
             .endpoint(profile.getEnvironment().getResourceManagerEndpoint())
             .subscriptionId(profile.getSubscriptionId())
             .defaultPollInterval(defaultPollInterval)
@@ -80,11 +80,11 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Creates an instance of ArmResourceProvider service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param credential the credential to use.
      * @param profile the Azure profile for client.
-     * @return the ArmResourceProvider service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
     public static ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
         Objects.requireNonNull(credential, "'credential' cannot be null.");
@@ -93,11 +93,11 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Creates an instance of ArmResourceProvider service API entry point.
+     * Creates an instance of Arm Resource Provider service API entry point.
      * 
      * @param httpPipeline the {@link HttpPipeline} configured with Azure authentication credential.
      * @param profile the Azure profile for client.
-     * @return the ArmResourceProvider service API instance.
+     * @return the Arm Resource Provider service API instance.
      */
     public static ArmResourceProviderManager authenticate(HttpPipeline httpPipeline, AzureProfile profile) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' cannot be null.");
@@ -219,11 +219,11 @@ public final class ArmResourceProviderManager {
         }
 
         /**
-         * Creates an instance of ArmResourceProvider service API entry point.
+         * Creates an instance of Arm Resource Provider service API entry point.
          *
          * @param credential the credential to use.
          * @param profile the Azure profile for client.
-         * @return the ArmResourceProvider service API instance.
+         * @return the Arm Resource Provider service API instance.
          */
         public ArmResourceProviderManager authenticate(TokenCredential credential, AzureProfile profile) {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
@@ -373,12 +373,12 @@ public final class ArmResourceProviderManager {
     }
 
     /**
-     * Gets wrapped service client ArmResourceProviderClient providing direct access to the underlying auto-generated
-     * API implementation, based on Azure REST API.
+     * Gets wrapped service client ArmClient providing direct access to the underlying auto-generated API
+     * implementation, based on Azure REST API.
      * 
-     * @return Wrapped service client ArmResourceProviderClient.
+     * @return Wrapped service client ArmClient.
      */
-    public ArmResourceProviderClient serviceClient() {
+    public ArmClient serviceClient() {
         return this.clientObject;
     }
 }

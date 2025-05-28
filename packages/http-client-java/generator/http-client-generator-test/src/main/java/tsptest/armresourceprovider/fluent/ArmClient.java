@@ -8,9 +8,9 @@ import com.azure.core.http.HttpPipeline;
 import java.time.Duration;
 
 /**
- * The interface for ArmResourceProviderClient class.
+ * The interface for ArmClient class.
  */
-public interface ArmResourceProviderClient {
+public interface ArmClient {
     /**
      * Gets Service host.
      * 
