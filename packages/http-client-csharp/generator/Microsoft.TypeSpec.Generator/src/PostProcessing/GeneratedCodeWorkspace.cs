@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -281,10 +282,8 @@ namespace Microsoft.TypeSpec.Generator
                 return null;
 
             var targetFrameworksValue = projectRoot.Properties
-                .SingleOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
-            HashSet<string> parsedTargetFrameworks = targetFrameworksValue != null
-                ? [.. targetFrameworksValue.Split(';')]
-                : [];
+                .FirstOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
+            HashSet<string>? parsedTargetFrameworks = ParseNetTargetFrameworks(targetFrameworksValue);
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
@@ -298,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
                 {
-                    if (!parsedTargetFrameworks.Contains(preferredTargetFramework))
+                    if (parsedTargetFrameworks != null && !parsedTargetFrameworks.Contains(preferredTargetFramework))
                         continue;
 
                     nugetFolderPathToAssembly = Path.Combine(
@@ -335,6 +334,20 @@ namespace Microsoft.TypeSpec.Generator
                     $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
                 return null;
             }
+        }
+
+        private static HashSet<string>? ParseNetTargetFrameworks(string? targetFrameworksValue)
+        {
+            if (string.IsNullOrEmpty(targetFrameworksValue))
+            {
+                return null;
+            }
+
+            var parsedFrameworks = targetFrameworksValue.Split(';')
+                .Where(framework => framework.StartsWith("net"))
+                .ToHashSet();
+
+            return parsedFrameworks.Count > 0 ? parsedFrameworks : null;
         }
     }
 }

@@ -164,7 +164,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)

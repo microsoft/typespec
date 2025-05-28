@@ -53,7 +53,20 @@ it("identifies inherited paging properties", async () => {
   expectDiagnosticEmpty(diagnostics);
 });
 
-describe("emit conflict diagnostic if multiple properties are annotated with teh same property marker", () => {
+it("@list decorator handle recursive models without infinite loop", async () => {
+  const diagnostics = await runner.diagnose(`
+      model MyPage {
+        selfRef?: MyPage;
+        @pageItems items: string[];
+        @nextLink next: string;
+      }
+
+      @list op foo(): MyPage;
+    `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
+describe("emit conflict diagnostic if multiple properties are annotated with the same property marker", () => {
   it.each([
     ["offset", "int32"],
     ["pageSize", "int32"],

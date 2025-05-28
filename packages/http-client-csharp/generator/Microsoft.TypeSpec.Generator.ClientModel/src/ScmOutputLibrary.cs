@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClientTypes()
         {
-            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
             var clients = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {

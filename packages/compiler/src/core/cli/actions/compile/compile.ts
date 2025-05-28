@@ -207,37 +207,45 @@ function printStats(stats: Stats) {
   printRuntimeStats(stats.runtime);
 
   function printRuntimeStats(stats: RuntimeStats) {
-    printRuntime(stats, "loader", 4);
-    printRuntime(stats, "resolver", 4);
-    printRuntime(stats, "checker", 4);
-    printGroup(stats, "validation", "validators", 4);
-    printGroup(stats, "linter", "rules", 4);
-    printGroup(stats, "emit", "emitters", 4);
+    printRuntime(stats, "loader", Performance.stage, 4);
+    printRuntime(stats, "resolver", Performance.stage, 4);
+    printRuntime(stats, "checker", Performance.stage, 4);
+    printGroup(stats, "validation", "validators", Performance.validator, 4);
+    printGroup(stats, "linter", "rules", Performance.lintingRule, 4);
+    printGroup(stats, "emit", "emitters", Performance.stage, 4);
   }
 
   function printGroup<K extends keyof RuntimeStats, L extends keyof RuntimeStats[K]>(
     base: RuntimeStats,
     groupName: K,
     itemsKey: L,
+    perf: readonly [number, number],
     indent: number = 0,
   ) {
     const group: any = base[groupName];
     printKV(groupName, runtimeStr(group["total"] ?? 0), indent);
-    for (const [key, value] of Object.entries(group[itemsKey])) {
+    for (const [key, value] of Object.entries(group[itemsKey]).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    )) {
       if (typeof value === "number") {
-        printRuntime(group[itemsKey], key, indent + 2);
+        printRuntime(group[itemsKey], key, perf, indent + 2);
       }
     }
   }
-  function printRuntime(base: any, key: string, indent: number = 0) {
-    printKV(key, runtimeStr(base[key]), indent);
+  function printRuntime(
+    base: any,
+    key: string,
+    perf: readonly [number, number],
+    indent: number = 0,
+  ) {
+    printKV(key, runtimeStr(base[key], perf), indent);
   }
 
-  function runtimeStr(runtime: number) {
+  function runtimeStr(runtime: number, perf: readonly [number, number] = Performance.stage) {
     const str = `${Math.round(runtime)}ms`;
-    if (runtime > 1000) {
+    if (runtime > perf[1]) {
       return pc.red(str);
-    } else if (runtime > 500) {
+    } else if (runtime > perf[0]) {
       return pc.yellow(str);
     }
     return pc.green(str);
@@ -247,6 +255,12 @@ function printStats(stats: Stats) {
     print(`${" ".repeat(indent)}${pc.gray(key)}: ${value}`);
   }
 }
+
+const Performance = {
+  stage: [200, 400],
+  lintingRule: [10, 20],
+  validator: [10, 20],
+} as const;
 
 function print(message: string) {
   // eslint-disable-next-line no-console

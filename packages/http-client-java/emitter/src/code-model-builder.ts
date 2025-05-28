@@ -71,6 +71,7 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
+  getClientNameOverride,
   getHttpOperationParameter,
   isSdkBuiltInKind,
   isSdkIntKind,
@@ -602,6 +603,16 @@ export class CodeModelBuilder {
       clientName = clientNameSegments.at(-1)!;
       const clientSubNamespace = clientNameSegments.slice(0, -1).join(".").toLowerCase();
       javaNamespace = javaNamespace + "." + clientSubNamespace;
+    }
+
+    if (this.isArm()) {
+      if (
+        this.options["service-name"] &&
+        !getClientNameOverride(this.sdkContext, client.__raw.type)
+      ) {
+        // When no `@clientName` override, use "service-name" to infer the client name
+        clientName = this.options["service-name"].replace(/\s+/g, "") + "ManagementClient";
+      }
     }
 
     const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
