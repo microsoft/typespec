@@ -128,3 +128,18 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQuery
   createTests("query", "header");
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_noPagination = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/no-pagination",
+    method: "get",
+    request: {},
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+      }),
+    },
+    kind: "MockApiDefinition",
+  },
+]);
