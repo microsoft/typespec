@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -96,6 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(SomeEnum), true)]
         [TestCase(typeof(SomeEnum?), true)]
         [TestCase(typeof(IDictionary<string, SomeEnum>))]
+        [TestCase(typeof((List<PropertyType> Values, string Foo, int Bar)))]
         public void ValidatePropertyTypes(Type propertyType, bool isEnum = false)
         {
             // setup
