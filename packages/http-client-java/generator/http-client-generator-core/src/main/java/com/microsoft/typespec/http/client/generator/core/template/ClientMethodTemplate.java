@@ -145,14 +145,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
                 continue;
             }
-
+            final IType parameterClientType = parameter.getClientType();
             IType parameterWireType;
             if (parameter.isNullable()) {
                 parameterWireType = parameter.getWireType().asNullable();
             } else {
                 parameterWireType = parameter.getWireType();
             }
-            final IType parameterClientType = parameter.getClientType();
 
             // TODO (alzimmer): There are a few similar transforms like this but they all have slight nuances on output.
             // This always turns ArrayType and ListType into String, the case further down this file may not.
@@ -320,33 +319,44 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected static void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
-            IType parameterWireType = parameter.getWireType();
+            final RequestParameterLocation location = parameter.getRequestParameterLocation();
+            final IType parameterClientType = parameter.getClientType();
 
+            IType parameterWireType;
             if (parameter.isNullable()) {
-                parameterWireType = parameterWireType.asNullable();
+                parameterWireType = parameter.getWireType().asNullable();
+            } else {
+                parameterWireType = parameter.getWireType();
             }
 
-            IType parameterClientType = parameter.getClientType();
-
-            // TODO (alzimmer): Reconcile the logic here with that earlier in the file.
-            // This check parameter explosion but earlier in the file it doesn't.
-            if (parameterWireType != ClassType.BASE_64_URL
-                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
-                // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData &&
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
-                parameterWireType = (parameter.getExplode()) ? new ListType(ClassType.STRING) : ClassType.STRING;
+            if (location != RequestParameterLocation.BODY) {
+                if (parameterClientType == ArrayType.BYTE_ARRAY) {
+                    if (parameterWireType != ClassType.BASE_64_URL) {
+                        // A byte[] with wire-type not as Base64-encoded URL is converted to Base64-encoded 'String'.
+                        // Refer byteArrayToBase64Encoded(..)
+                        parameterWireType = ClassType.STRING;
+                    }
+                } else if (parameterClientType instanceof IterableType) {
+                    if (!parameter.getExplode()) {
+                        // Iterable gets converted to a delimited 'String' of wire values.
+                        // Refer iterableToDelimitedStringOfWireValues(..)
+                        parameterWireType = ClassType.STRING;
+                    } else {
+                        // Iterable gets converted to 'List<String>'.
+                        // Refer iterableToWireStringValuesList(..)'
+                        parameterWireType = new ListType(ClassType.STRING);
+                    }
+                }
             }
 
-            // If the wire type and client type are the same there is no conversion needed.
             if (parameterWireType == parameterClientType) {
+                // If the wire type and client type are the same there is no conversion needed.
                 continue;
             }
 
-            String parameterName = parameter.getParameterReference();
-            String parameterWireName = parameter.getParameterReferenceConverted();
-
+            final String parameterName = parameter.getParameterReference();
+            final String parameterWireName = parameter.getParameterReferenceConverted();
             final boolean alwaysNull = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
-            final RequestParameterLocation location = parameter.getRequestParameterLocation();
 
             boolean addedConversion = false;
             if (location != RequestParameterLocation.BODY) {
@@ -355,7 +365,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     if (alwaysNull) {
                         function.line("%s %s = %s;", parameterWireType, parameterWireName, "null");
                     } else {
-                        final String expression = byteArrayToBase64UrlEncodedString(parameterName, parameterWireType);
+                        final String expression = byteArrayToBase64Encoded(parameterName, parameterWireType);
                         function.line("%s %s = %s;", parameterWireType, parameterWireName, expression);
                     }
                     addedConversion = true;
@@ -552,17 +562,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
-     * Obtain the Java code that converts a parameter of type byte[] to a Base64 URL encoded string.
+     * Obtain the Java code that converts a parameter of type byte[] to Base64 encoded form (encoded as string or url).
      *
      * @param parameterName the name of the byte[] parameter to convert.
-     * @param wireType the wire type of the parameter, used to determine the method to call for encoding.
-     * @return Java code that converts a byte[] parameter to a Base64 URL encoded string.
+     * @param wireType the wire type of the parameter, used to determine whether to encode as a string or url.
+     * @return Java code that converts a byte[] parameter to Base64 encoded form.
      */
-    private static String byteArrayToBase64UrlEncodedString(String parameterName, IType wireType) {
-        final String methodCall = (wireType == ClassType.STRING)
-            ? "Base64Util.encodeToString"
-            : (ClassType.BASE_64_URL.getName() + ".encode");
-        return methodCall + "(" + parameterName + ")";
+    private static String byteArrayToBase64Encoded(String parameterName, IType wireType) {
+        if ((wireType == ClassType.STRING)) {
+            // byte[] to Base64-encoded String.
+            return "Base64Util.encodeToString" + "(" + parameterName + ")";
+        } else {
+            // byte[] to Base64-encoded URL.
+            return ClassType.BASE_64_URL.getName() + ".encode" + "(" + parameterName + ")";
+        }
     }
 
     private static boolean addSpecialHeadersToRequestOptions(JavaBlock function, ClientMethod clientMethod) {
