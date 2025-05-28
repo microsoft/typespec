@@ -4,52 +4,69 @@
 package com.microsoft.typespec.http.client.generator.core.customization;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import org.eclipse.lsp4j.SymbolInformation;
 
 /**
- * Base interface for all code based customizations.
+ * Base class for all code based customizations.
  */
-public interface CodeCustomization {
+public abstract class CodeCustomization {
+    final Editor editor;
+    final EclipseLanguageClient languageClient;
+    final SymbolInformation symbol;
+    final String fileUri;
+    final String fileName;
+
+    CodeCustomization(Editor editor, EclipseLanguageClient languageClient, SymbolInformation symbol) {
+        this.editor = editor;
+        this.languageClient = languageClient;
+        this.symbol = symbol;
+        this.fileUri = symbol.getLocation().getUri();
+        int i = fileUri.toString().indexOf("src/main/java/");
+        this.fileName = fileUri.toString().substring(i);
+    }
 
     /**
      * The Editor managing the state of the CodeCustomization.
      *
      * @return The Editor.
      */
-    Editor getEditor();
+    public final Editor getEditor() {
+        return editor;
+    }
 
     /**
      * The EclipseLanguageClient managing validation of the CodeCustomization.
-     * <p>
-     * If {@link JavaSettings#isUseEclipseLanguageServer()} returns true, an {@link EclipseLanguageClient} instance will
-     * be returned, otherwise this returns null.
      *
      * @return The EclipseLanguageClient.
      */
-    EclipseLanguageClient getLanguageClient();
+    public final EclipseLanguageClient getLanguageClient() {
+        return languageClient;
+    }
 
     /**
      * The SymbolInformation managing information about the CodeCustomization.
-     * <p>
-     * If {@link JavaSettings#isUseEclipseLanguageServer()} returns true, a {@link SymbolInformation} instance will be
-     * returned, otherwise this returns null.
      *
      * @return The SymbolInformation.
      */
-    SymbolInformation getSymbol();
+    public final SymbolInformation getSymbol() {
+        return symbol;
+    }
 
     /**
      * The URI of the file containing where the code for the CodeCustomization exists.
      *
      * @return The URI of the file.
      */
-    String getFileUri();
+    public final String getFileUri() {
+        return fileUri;
+    }
 
     /**
      * The name of the file containing where the code for the CodeCustomization exists.
      *
      * @return The name of the file.
      */
-    String getFileName();
+    public final String getFileName() {
+        return fileName;
+    }
 }

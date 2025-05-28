@@ -1,14 +1,8 @@
 # re-build http-client-java
-Push-Location (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
-try {
-  ./Setup.ps1
-} finally {
-  Pop-Location
-}
+Set-Location (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
 
-Push-Location $PSScriptRoot
-try {
-  npm run clean && npm install
-} finally {
-  Pop-Location
-}
+./Setup.ps1
+
+Set-Location $PSScriptRoot
+
+npm run clean && npm install

@@ -6,11 +6,9 @@ package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
-import com.github.javaparser.JavaParser;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
-import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
@@ -388,9 +386,6 @@ public class JavaSettings {
 
         // Whether to use object for unknown.
         this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
-
-        // Whether to use Eclipse Language Server when running code customizations.
-        this.useEclipseLanguageServer = getBooleanValue(host, "use-eclipse-language-server", true);
     }
 
     private void updateFlavorFactories() {
@@ -1508,24 +1503,6 @@ public class JavaSettings {
 
     public boolean isUseObjectForUnknown() {
         return useObjectForUnknown;
-    }
-
-    private final boolean useEclipseLanguageServer;
-
-    /**
-     * If there is {@link Postprocessor} code customizations to run, this determines whether to use the Eclipse Language
-     * Server to run the code customizations.
-     * <p>
-     * This is a temporary setting until the Eclipse Language Server is removed and code customizations use
-     * {@link JavaParser} to run customizations. Switching to {@link JavaParser} will make customizations run faster but
-     * be more complicated to implement, where the latter part is okay as they're meant to be a "break the glass"
-     * situation where Swagger / TypeSpec definitions cannot convey what is required in code. Until this feature flag
-     * was added, code customizations were commonly used to gloss over issues with the Swagger / TypeSpec definitions.
-     *
-     * @return Whether to use the Eclipse Language Server to run the code customizations.
-     */
-    public boolean isUseEclipseLanguageServer() {
-        return useEclipseLanguageServer;
     }
 
     private static final String DEFAULT_CODE_GENERATION_HEADER

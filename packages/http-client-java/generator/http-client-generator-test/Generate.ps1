@@ -94,13 +94,6 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/CustomizationTest.java"""
   }
 
-  # Test customization using only JavaParser for one of the TypeSpec definitions - naming-javaparser.tsp
-  if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
-      # Add the customization-class option for Java emitter
-      $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
-      $tspOptions += " --option ""@typespec/http-client-java.use-eclipse-language-server=false"""
-  }
-
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
@@ -133,67 +126,62 @@ $generateScript = {
   }
 }
 
-Push-Location $PSScriptRoot
-try {
-  ./Setup.ps1
+./Setup.ps1
 
-  New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
+New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
-  if (Test-Path ./src/main/java/tsptest/partialupdate) {
-    Copy-Item -Path ./src/main/java/tsptest/partialupdate -Destination ./existingcode/src/main/java/tsptest/partialupdate -Recurse -Force
-  }
+if (Test-Path ./src/main/java/tsptest/partialupdate) {
+  Copy-Item -Path ./src/main/java/tsptest/partialupdate -Destination ./existingcode/src/main/java/tsptest/partialupdate -Recurse -Force
+}
 
-  if (Test-Path ./src/main) {
-    Remove-Item ./src/main -Recurse -Force
-  }
-  if (Test-Path ./src/samples) {
-    Remove-Item ./src/samples -Recurse -Force
-  }
-  if (Test-Path ./src/test) {
-    Get-ChildItem -Path ./src/test -Recurse -Directory | Where-Object {$_.Name -match "^generated$"} | Remove-Item -Recurse -Force
-  }
-  if (Test-Path ./tsp-output) {
-    Remove-Item ./tsp-output -Recurse -Force
-  }
-
-  # generate for other local test sources except partial update
-  $job = Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*" | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
-
-  $job | Wait-Job -Timeout 600
-  $job | Receive-Job
-
-  # partial update test
-  npx --no-install tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
-  Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
-  Remove-Item ./existingcode -Recurse -Force
-
-  # generate for http-specs/azure-http-specs test sources
-  Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
-  Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
-  # remove xml tests, emitter has not supported xml model
-  Remove-Item ./specs/payload/xml -Recurse -Force
-
-  $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
-
-  $job | Wait-Job -Timeout 1200
-  $job | Receive-Job
-
-  Remove-Item ./specs -Recurse -Force
-
-  Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")
-
+if (Test-Path ./src/main) {
+  Remove-Item ./src/main -Recurse -Force
+}
+if (Test-Path ./src/samples) {
+  Remove-Item ./src/samples -Recurse -Force
+}
+if (Test-Path ./src/test) {
+  Get-ChildItem -Path ./src/test -Recurse -Directory | Where-Object {$_.Name -match "^generated$"} | Remove-Item -Recurse -Force
+}
+if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force
+}
 
-  if (Test-Path ./src/main/resources/META-INF/client-structure-service_metadata.json) {
-    # client structure is generated from multiple client.tsp files and the last one to execute overwrites
-    # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
-    # causes git diff check to fail as the checked in file is not the same as the generated one.
-    Remove-Item ./src/main/resources/META-INF/client-structure-service_metadata.json -Force
-  }
+# generate for other local test sources except partial update
+$job = Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*" | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
-  if ($ExitCode -ne 0) {
-    throw "Failed to generate from tsp"
-  }
-} finally {
-  Pop-Location
+$job | Wait-Job -Timeout 600
+$job | Receive-Job
+
+# partial update test
+npx --no-install tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
+Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
+Remove-Item ./existingcode -Recurse -Force
+
+# generate for http-specs/azure-http-specs test sources
+Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
+Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
+# remove xml tests, emitter has not supported xml model
+Remove-Item ./specs/payload/xml -Recurse -Force
+
+$job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+
+$job | Wait-Job -Timeout 1200
+$job | Receive-Job
+
+Remove-Item ./specs -Recurse -Force
+
+Copy-Item -Path ./tsp-output/*/src -Destination ./ -Recurse -Force -Exclude @("ReadmeSamples.java", "module-info.java")
+
+Remove-Item ./tsp-output -Recurse -Force
+
+if (Test-Path ./src/main/resources/META-INF/client-structure-service_metadata.json) {
+  # client structure is generated from multiple client.tsp files and the last one to execute overwrites
+  # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
+  # causes git diff check to fail as the checked in file is not the same as the generated one.
+  Remove-Item ./src/main/resources/META-INF/client-structure-service_metadata.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }
