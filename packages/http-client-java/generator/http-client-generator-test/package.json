@@ -31,7 +31,7 @@
     "@typespec/streams": "0.70.0",
     "@azure-tools/typespec-azure-core": "0.56.0",
     "@azure-tools/typespec-client-generator-core": "0.56.2",
-    "@azure-tools/typespec-azure-resource-manager": "0.56.1",
+    "@azure-tools/typespec-azure-resource-manager": "0.56.2",
     "@azure-tools/typespec-autorest": "0.56.0"
   },
   "private": true
