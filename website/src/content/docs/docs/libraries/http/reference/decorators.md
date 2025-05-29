@@ -229,9 +229,8 @@ op read(@header accept: string): {
   @header("ETag") eTag: string;
 };
 op create(
-  @header({
+  @header(#{
     name: "X-Color",
-    format: "csv",
   })
   colors: string[],
 ): void;
