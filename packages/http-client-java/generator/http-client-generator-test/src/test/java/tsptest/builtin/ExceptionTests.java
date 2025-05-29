@@ -5,8 +5,11 @@ package tsptest.builtin;
 
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaders;
+import com.azure.core.models.ResponseError;
 import com.azure.core.test.http.MockHttpResponse;
 import java.nio.charset.StandardCharsets;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
@@ -24,11 +27,7 @@ public class ExceptionTests {
         try {
             client.read("q", "q").block();
         } catch (ResourceNotFoundException e) {
-            // TODO (weidxu) fix
-            // org.opentest4j.AssertionFailedError:
-            // Expected :class com.azure.core.models.ResponseError
-            // Actual :class java.util.LinkedHashMap
-            // Assertions.assertEquals(ResponseError.class, e.getValue().getClass());
+             Assertions.assertEquals(ResponseError.class, e.getValue().getClass());
         }
     }
 }
