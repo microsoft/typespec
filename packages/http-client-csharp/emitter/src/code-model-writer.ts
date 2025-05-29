@@ -41,10 +41,11 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     ...context.__typeCache.types.values(),
   ]);
   const objectsIds = new Map<any, string>();
+  const stack: any[] = [];
 
-  return doBuildJson(codeModel);
+  return doBuildJson(codeModel, stack);
 
-  function doBuildJson(obj: any): any {
+  function doBuildJson(obj: any, stack: any[]): any {
     // check if this is a primitive type or null or undefined
     if (!obj || typeof obj !== "object") {
       return obj;
@@ -52,7 +53,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     // we switch here for object, arrays and primitives
     if (Array.isArray(obj)) {
       // array types
-      return obj.map((item) => doBuildJson(item));
+      return obj.map((item) => doBuildJson(item, stack));
     } else {
       // this is an object
       if (shouldHaveRef(obj)) {
@@ -68,27 +69,36 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
           // this is the first time we see this object
           id = (objectsIds.size + 1).toString();
           objectsIds.set(obj, id);
-          return handleObject(obj, id);
+          return handleObject(obj, id, stack);
         }
       } else {
         // this is not an object to ref
-        return handleObject(obj, undefined);
+        return handleObject(obj, undefined, stack);
       }
     }
   }
 
-  // TODO -- we need to detect cyclical references here and break them.
-  function handleObject(obj: any, id: string | undefined): any {
+  function handleObject(obj: any, id: string | undefined, stack: any[]): any {
+    if (stack.includes(obj)) {
+      // we have a cyclical reference, we should not continue
+      context.logger.warn(
+        `Cyclical reference detected in the code model (id: ${id}).`
+      );
+      return undefined;
+    }
+
     const result: any = id === undefined ? {} : { $id: id };
+    stack.push(obj);
 
     for (const property in obj) {
       if (property === "__raw") {
         continue; // skip __raw property
       }
       const v = obj[property];
-      result[property] = doBuildJson(v);
+      result[property] = doBuildJson(v, stack);
     }
 
+    stack.pop();
     return result;
   }
 
