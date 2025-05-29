@@ -15,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientOptionsProvider : TypeProvider
+    public class ClientOptionsProvider : TypeProvider
     {
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
