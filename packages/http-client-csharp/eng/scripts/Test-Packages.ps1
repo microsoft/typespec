@@ -34,7 +34,7 @@ try {
         Set-StrictMode -Version 1
 
         Write-Host "Setting up workspace" -ForegroundColor Cyan
-        Invoke "pnpm setup:min" $packageRoot/../..
+        Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
 
         Invoke-LoggedCommand "npm run build" -GroupOutput
         # run E2E Test for TypeSpec emitter
