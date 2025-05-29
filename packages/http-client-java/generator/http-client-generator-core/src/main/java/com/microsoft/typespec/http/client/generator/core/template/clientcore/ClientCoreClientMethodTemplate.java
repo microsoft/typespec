@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.util.CoreUtils;
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -17,8 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
@@ -29,7 +26,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
@@ -39,9 +35,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -57,60 +51,6 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     public static ClientCoreClientMethodTemplate getInstance() {
         return INSTANCE;
-    }
-
-    /**
-     * Adds validations to the client method.
-     *
-     * @param function The client method code block.
-     * @param expressionsToCheck Expressions to validate as non-null.
-     * @param validateExpressions Expressions to validate with a custom validation (key is the expression, value is the
-     * validation).
-     * @param settings AutoRest generation settings, used to determine if validations should be added.
-     */
-    protected static void addValidations(JavaBlock function, List<String> expressionsToCheck,
-        Map<String, String> validateExpressions, JavaSettings settings) {
-        if (!settings.isClientSideValidations()) {
-            return;
-        }
-
-        // Iteration of validateExpressions uses expressionsToCheck effectively as a set lookup, may as well turn the
-        // expressionsToCheck to a set.
-        Set<String> expressionsToCheckSet = new LinkedHashSet<>(expressionsToCheck);
-
-        for (String expressionToCheck : expressionsToCheckSet) {
-            // TODO (alzimmer): Need to discuss if this can be changed to the more appropriate NullPointerException.
-            String exceptionExpression = "new IllegalArgumentException(\"Parameter " + expressionToCheck
-                + " is required and cannot be null.\")";
-
-            // TODO (alzimmer): Determine if the assumption being made here are always true.
-            // 1. Assumes that the expression is nullable.
-            // 2. Assumes that the client method returns a reactive response.
-            // 3. Assumes that the reactive response is a Mono.
-            JavaIfBlock nullCheck = function.ifBlock(expressionToCheck + " == null", ifBlock -> {
-                if (JavaSettings.getInstance().isSyncStackEnabled()) {
-                    if (settings.isUseClientLogger()) {
-                        ifBlock.line("throw LOGGER.atError().log(" + exceptionExpression + ");");
-                    } else {
-                        ifBlock.line("throw " + exceptionExpression + ";");
-                    }
-                } else {
-                    ifBlock.methodReturn("Mono.error(" + exceptionExpression + ")");
-                }
-            });
-
-            String potentialValidateExpression = validateExpressions.get(expressionToCheck);
-            if (potentialValidateExpression != null) {
-                nullCheck.elseBlock(elseBlock -> elseBlock.line(potentialValidateExpression + ";"));
-            }
-        }
-
-        for (Map.Entry<String, String> validateExpression : validateExpressions.entrySet()) {
-            if (!expressionsToCheckSet.contains(validateExpression.getKey())) {
-                function.ifBlock(validateExpression.getKey() + " != null",
-                    ifBlock -> ifBlock.line(validateExpression.getValue() + ";"));
-            }
-        }
     }
 
     /**
@@ -143,79 +83,6 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
     }
 
-    /**
-     * Adds optional variable instantiations and constant variables into the client method.
-     *
-     * @param function The client method code block.
-     * @param clientMethod The client method.
-     * @param proxyMethodAndConstantParameters Proxy method constant parameters.
-     * @param settings AutoRest generation settings.
-     */
-    protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> proxyMethodAndConstantParameters, JavaSettings settings) {
-        addOptionalAndConstantVariables(function, clientMethod, proxyMethodAndConstantParameters, settings, true, true,
-            true);
-    }
-
-    /**
-     * Add optional and constant variables.
-     *
-     * @param function The client method code block.
-     * @param clientMethod The client method.
-     * @param proxyMethodAndConstantParameters Proxy method constant parameters.
-     * @param settings AutoRest generation settings.
-     * @param addOptional Whether optional variable instantiations are added, initialized to default or null.
-     * @param addConstant Whether constant variables are added, initialized to default.
-     * @param ignoreParameterNeedConvert When adding optional/constant variable, ignore those which need conversion from
-     * client type to wire type. Let "ConvertClientTypesToWireTypes" handle them.
-     */
-    protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> proxyMethodAndConstantParameters, JavaSettings settings, boolean addOptional,
-        boolean addConstant, boolean ignoreParameterNeedConvert) {
-        for (ProxyMethodParameter parameter : proxyMethodAndConstantParameters) {
-            IType parameterWireType = parameter.getWireType();
-            if (parameter.isNullable()) {
-                parameterWireType = parameterWireType.asNullable();
-            }
-            IType parameterClientType = parameter.getClientType();
-
-            // TODO (alzimmer): There are a few similar transforms like this but they all have slight nuances on output.
-            // This always turns ArrayType and ListType into String, the case further down this file may not.
-            if (parameterWireType != ClassType.BASE_64_URL
-                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
-                // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
-                parameterWireType = ClassType.STRING;
-            }
-
-            // If the parameter isn't required and the client method only uses required parameters optional
-            // parameters are omitted and will need to instantiated in the method.
-            boolean optionalOmitted = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
-
-            // Optional variables and constants are always null if their wire type and client type differ and applying
-            // conversions between the types is ignored.
-            boolean alwaysNull
-                = ignoreParameterNeedConvert && parameterWireType != parameterClientType && optionalOmitted;
-
-            // Constants should be included if the parameter is a constant and it's either required or optional
-            // constants aren't generated as enums.
-            boolean includeConstant
-                = parameter.isConstant() && (!settings.isOptionalConstantAsEnum() || parameter.isRequired());
-
-            // Client methods only add local variable instantiations when the parameter isn't passed by the caller,
-            // isn't always null, is an optional parameter that was omitted or is a constant that is either required
-            // or AutoRest isn't generating with optional constant as enums.
-            if (!parameter.isFromClient()
-                && !alwaysNull
-                && ((addOptional && optionalOmitted) || (addConstant && includeConstant))) {
-                String defaultValue
-                    = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(), settings);
-                function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
-                    defaultValue == null ? "null" : defaultValue);
-            }
-        }
-    }
-
     private static String parameterDefaultValueExpression(IType parameterClientType, String parameterDefaultValue,
         JavaSettings settings) {
         String defaultValue;
@@ -235,8 +102,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
      * @param clientMethod The client method.
      * @param settings AutoRest generation settings.
      */
-    protected static void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod,
-        JavaSettings settings) {
+    protected void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod, JavaSettings settings) {
         for (ParameterTransformation transformation : clientMethod.getParameterTransformations().asList()) {
             if (!transformation.hasMappings()) {
                 // the case that this flattened parameter is not original parameter from any other parameters
@@ -353,168 +219,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
     }
 
-    /**
-     * Converts the type represented to the client into the type that is sent over the wire to the service.
-     *
-     * @param function The client method code block.
-     * @param clientMethod The client method.
-     * @param autoRestMethodRetrofitParameters Rest API method parameters.
-     */
-    protected static void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod,
-        List<ProxyMethodParameter> autoRestMethodRetrofitParameters) {
-        for (ProxyMethodParameter parameter : autoRestMethodRetrofitParameters) {
-            IType parameterWireType = parameter.getWireType();
-
-            if (parameter.isNullable()) {
-                parameterWireType = parameterWireType.asNullable();
-            }
-
-            IType parameterClientType = parameter.getClientType();
-
-            // TODO (alzimmer): Reconcile the logic here with that earlier in the file.
-            // This check parameter explosion but earlier in the file it doesn't.
-            if (parameterWireType != ClassType.BASE_64_URL
-                && parameter.getRequestParameterLocation() != RequestParameterLocation.BODY
-                // && parameter.getRequestParameterLocation() != RequestParameterLocation.FormData &&
-                && (parameterClientType instanceof ArrayType || parameterClientType instanceof ListType)) {
-                parameterWireType = (parameter.getExplode()) ? new ListType(ClassType.STRING) : ClassType.STRING;
-            }
-
-            // If the wire type and client type are the same there is no conversion needed.
-            if (parameterWireType == parameterClientType) {
-                continue;
-            }
-
-            String parameterName = parameter.getParameterReference();
-            String parameterWireName = parameter.getParameterReferenceConverted();
-
-            boolean addedConversion = false;
-            boolean alwaysNull = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
-
-            RequestParameterLocation parameterLocation = parameter.getRequestParameterLocation();
-            if (parameterLocation != RequestParameterLocation.BODY &&
-            // parameterLocation != RequestParameterLocation.FormData &&
-                (parameterClientType instanceof ArrayType || parameterClientType instanceof IterableType)) {
-
-                if (parameterClientType == ArrayType.BYTE_ARRAY) {
-                    String expression = "null";
-                    if (!alwaysNull) {
-                        expression = (parameterWireType == ClassType.STRING)
-                            ? "new String(Base64.getEncoder().encode(" + parameterName + "))"
-                            : (ClassType.BASE_64_URL.getName() + ".encode(" + parameterName + ")");
-                    }
-
-                    function.line(parameterWireType + " " + parameterWireName + " = " + expression + ";");
-                    addedConversion = true;
-                } else if (parameterClientType instanceof IterableType) {
-                    boolean alreadyNullChecked
-                        = clientMethod.getRequiredNullableParameterExpressions().contains(parameterName);
-                    IType elementType = ((IterableType) parameterClientType).getElementType();
-                    String expression;
-                    if (alwaysNull) {
-                        expression = "null";
-                    } else if (!parameter.getExplode()) {
-                        CollectionFormat collectionFormat = parameter.getCollectionFormat();
-                        String delimiter = ClassType.STRING.defaultValueExpression(collectionFormat.getDelimiter());
-                        if (elementType instanceof EnumType) {
-                            // EnumTypes should provide a toString implementation that represents the wire value.
-                            // Circumvent the use of JacksonAdapter and handle this manually.
-
-                            // If the parameter is null, the converted value is null.
-                            // Otherwise, convert the parameter to a string, mapping each element to the toString
-                            // value, finally joining with the collection format.
-                            EnumType enumType = (EnumType) elementType;
-                            // Not enums will be backed by Strings. Get the backing value before converting to string
-                            // it, this
-                            // will prevent using the enum name rather than the enum value when it isn't a String-based
-                            // enum. Ex, a long-based enum with value 100 called HIGH will return "100" rather than
-                            // "HIGH".
-                            String enumToString = enumType.getElementType() == ClassType.STRING
-                                ? "paramItemValue"
-                                : "paramItemValue == null ? null : paramItemValue." + enumType.getToMethodName() + "()";
-                            if (alreadyNullChecked) {
-                                expression = parameterName + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(" + enumToString + ", \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            } else {
-                                expression = "(" + parameterName + " == null) ? null : " + parameterName + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(" + enumToString + ", \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            }
-                        } else {
-                            if (elementType == ClassType.STRING
-                                || (elementType instanceof ClassType && ((ClassType) elementType).isBoxedType())) {
-                                String streamSource = parameterName;
-                                if (!alreadyNullChecked) {
-                                    streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
-                                }
-                                expression = streamSource + ".stream()\n"
-                                    + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                    + "    .collect(Collectors.joining(" + delimiter + "))";
-                            } else {
-                                // this logic depends on rawType of proxy method parameter be List<WireType>
-                                // alternative would be check wireType of client method parameter
-                                IType elementWireType = parameter.getRawType() instanceof IterableType
-                                    ? ((IterableType) parameter.getRawType()).getElementType()
-                                    : elementType;
-
-                                String serializeIterableInput = parameterName;
-                                if (elementWireType != elementType) {
-                                    // convert List<ClientType> to List<WireType>, if necessary
-                                    serializeIterableInput = String.format(
-                                        "%s.stream().map(paramItemValue -> %s).collect(Collectors.toList())",
-                                        parameterName, elementWireType.convertFromClientType("paramItemValue"));
-                                }
-
-                                // convert List<WireType> to String
-                                if (JavaSettings.getInstance().isAzureV1()) {
-                                    // Always use serializeIterable as Iterable supports both Iterable and List.
-                                    expression = String.format(
-                                        "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
-                                        serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
-                                } else {
-                                    String streamSource = serializeIterableInput;
-                                    if (!alreadyNullChecked) {
-                                        streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
-                                    }
-                                    // mostly code from
-                                    // https://github.com/Azure/azure-sdk-for-java/blob/e1f8f21b1111f8ac9372e0b039f3de92485a5a66/sdk/core/azure-core/src/main/java/com/azure/core/util/serializer/JacksonAdapter.java#L250-L304
-                                    String serializeItemValueCode
-                                        = TemplateUtil.loadTextFromResource("ClientMethodSerializeItemValue.java");
-                                    expression = streamSource + ".stream().map(" + serializeItemValueCode
-                                        + ").collect(Collectors.joining(" + delimiter + "))";
-                                }
-                            }
-                        }
-                    } else {
-                        if (alreadyNullChecked) {
-                            expression
-                                = parameterName + ".stream()\n" + "    .map(item -> Objects.toString(item, \"\"))\n"
-                                    + "    .collect(Collectors.toList())";
-                        } else {
-                            expression = "(" + parameterName + " == null) ? new ArrayList<>()\n" + ": " + parameterName
-                                + ".stream().map(item -> Objects.toString(item, \"\")).collect(Collectors.toList())";
-                        }
-                    }
-                    function.line("%s %s = %s;", parameterWireType, parameterWireName, expression);
-                    addedConversion = true;
-                }
-            }
-
-            if (parameter.getWireType().isUsedInXml()
-                && parameterClientType instanceof ListType
-                && (parameterLocation
-                    == RequestParameterLocation.BODY /* || parameterLocation == RequestParameterLocation.FormData */)) {
-                function.line("%s %s = new %s(%s);", parameter.getWireType(), parameterWireName,
-                    parameter.getWireType(), alwaysNull ? "null" : parameterName);
-                addedConversion = true;
-            }
-
-            if (!addedConversion) {
-                function.line(parameter.convertFromClientType(parameterName, parameterWireName,
-                    clientMethod.getOnlyRequiredParameters() && !parameter.isRequired(),
-                    parameter.isConstant() || alwaysNull));
-            }
+    @Override
+    protected String byteArrayToBase64Encoded(String parameterName, IType wireType) {
+        if ((wireType == ClassType.STRING)) {
+            // byte[] to Base64-encoded String.
+            return "new String(Base64.getEncoder().encode(" + parameterName + "))";
+        } else {
+            // byte[] to Base64-encoded URL.
+            return ClassType.BASE_64_URL.getName() + ".encode" + "(" + parameterName + ")";
         }
     }
 
@@ -620,7 +332,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 throw new UnsupportedOperationException("Async methods are not supported");
 
             case PagingSyncSinglePage:
-                generatePagedSinglePage(clientMethod, typeBlock, restAPIMethod.toSync(), settings);
+                generatePagedSinglePage(clientMethod, typeBlock, settings);
                 break;
 
             case PagingAsyncSinglePage:
@@ -630,18 +342,18 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 throw new UnsupportedOperationException("Async methods are not supported");
 
             case LongRunningSync:
-                generateLongRunningSync(clientMethod, typeBlock, restAPIMethod, settings);
+                generateLongRunningSync(clientMethod, typeBlock, settings);
                 break;
 
             case LongRunningBeginAsync:
                 throw new UnsupportedOperationException("Async methods are not supported");
 
             case LongRunningBeginSync:
-                generateLongRunningBeginSync(clientMethod, typeBlock, restAPIMethod, settings);
+                generateLongRunningBeginSync(clientMethod, typeBlock, settings);
                 break;
 
             case Resumable:
-                generateResumable(clientMethod, typeBlock, restAPIMethod, settings);
+                generateResumable(clientMethod, typeBlock, settings);
                 break;
 
             case SimpleSync:
@@ -649,7 +361,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
                 break;
 
             case SimpleSyncRestResponse:
-                generatePlainSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
+                generatePlainSyncMethod(clientMethod, typeBlock, settings);
                 break;
 
             case SimpleAsyncRestResponse:
@@ -666,16 +378,15 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
     }
 
-    private void generatePagedSinglePage(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
+    private void generatePagedSinglePage(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod().toSync();
 
+        addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestOptionsLocal = addSpecialHeadersToRequestOptions(function, clientMethod);
 
@@ -816,13 +527,13 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
     }
 
-    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
             ProxyMethodParameter parameter = restAPIMethod.getParameters().get(0);
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+            addValidations(function, clientMethod, settings);
             function.methodReturn("service." + restAPIMethod.getName() + "(" + parameter.getName() + ")");
         });
     }
@@ -935,17 +646,16 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         });
     }
 
-    protected void generatePlainSyncMethod(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
-        String effectiveProxyMethodName = clientMethod.getProxyMethod().getName();
+    protected void generatePlainSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+        String effectiveProxyMethodName = restAPIMethod.getName();
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
-            addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
-            addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
+            addValidations(function, clientMethod, settings);
+            addOptionalAndConstantVariables(function, clientMethod, settings);
             applyParameterTransformations(function, clientMethod, settings);
-            convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
+            convertClientTypesToWireTypes(function, clientMethod);
 
             boolean requestContextLocal = false;
 
@@ -1129,11 +839,9 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateLongRunningSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
 
     }
 
@@ -1157,11 +865,11 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
      *
      * @param clientMethod client method
      * @param typeBlock type block
-     * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         String contextParam;
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
