@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
             clients.Add(client);
             clients.Add(client.RestClient);
-            var clientOptions = client.ClientOptions.Value;
+            var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
                 clients.Add(clientOptions);
