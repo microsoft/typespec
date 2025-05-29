@@ -50,7 +50,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(ParameterValidationType.None, parameter!.Validation);
         }
 
         [Test]
@@ -59,7 +60,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            Assert.IsTrue(parameter.Type.Equals(typeof(IList<string>)));
+            Assert.IsNotNull(parameter);
+            Assert.IsTrue(parameter!.Type.Equals(typeof(IList<string>)));
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
 
@@ -100,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            var publicParameter = parameter.ToPublicInputParameter();
+            Assert.IsNotNull(parameter);
+            var publicParameter = parameter!.ToPublicInputParameter();
 
             Assert.AreEqual(parameter, publicParameter);
             Assert.AreEqual(parameter.Attributes, publicParameter.Attributes);
@@ -126,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
-            var refParemeter = parameter.WithRef();
+            Assert.IsNotNull(parameter);
+            var refParemeter = parameter!.WithRef();
 
             Assert.AreEqual(parameter, refParemeter);
             Assert.AreEqual(parameter.Attributes, refParemeter.Attributes);
