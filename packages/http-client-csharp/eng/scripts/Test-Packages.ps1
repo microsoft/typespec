@@ -33,6 +33,9 @@ try {
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
 
+        Write-Host "Installing pnpm" -ForegroundColor Cyan
+        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
+
         Write-Host "Setting up workspace" -ForegroundColor Cyan
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
 
