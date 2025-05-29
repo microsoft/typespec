@@ -563,11 +563,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider.ClientOptions.Value);
+                Assert.IsNull(clientProvider.ClientOptions);
             }
             else
             {
-                Assert.IsNotNull(clientProvider.ClientOptions.Value);
+                Assert.IsNotNull(clientProvider.ClientOptions);
             }
         }
 
