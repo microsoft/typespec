@@ -337,14 +337,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         parameterWireType = ClassType.STRING;
                     }
                 } else if (parameterClientType instanceof IterableType) {
-                    if (!parameter.getExplode()) {
-                        // Iterable gets converted to a delimited 'String' of wire values.
-                        // Refer iterableToDelimitedStringOfWireValues(..)
-                        parameterWireType = ClassType.STRING;
-                    } else {
+                    if (parameter.getExplode()) {
                         // Iterable gets converted to 'List<String>'.
                         // Refer iterableToWireStringValuesList(..)'
                         parameterWireType = new ListType(ClassType.STRING);
+                    } else {
+                        // Iterable gets converted to a delimited 'String' of wire values.
+                        // Refer iterableToDelimitedStringOfWireValues(..)
+                        parameterWireType = ClassType.STRING;
                     }
                 }
             }
@@ -374,15 +374,15 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         = !clientMethod.getRequiredNullableParameterExpressions().contains(parameterName);
                     if (alwaysNull) {
                         function.line("%s %s = %s;", parameterWireType, parameterWireName, "null");
-                    } else if (!parameter.getExplode()) {
+                    } else if (parameter.getExplode()) {
+                        String iterableToListExpression
+                            = iterableToWireStringValuesList(parameterName, shouldNullCheck);
+                        function.line("%s %s = %s;", parameterWireType, parameterWireName, iterableToListExpression);
+                    } else {
                         final IterableType iterableType = (IterableType) parameterClientType;
                         final String iterableToStringExpression = iterableToDelimitedStringOfWireValues(parameterName,
                             shouldNullCheck, iterableType, parameter);
                         function.line("%s %s = %s;", parameterWireType, parameterWireName, iterableToStringExpression);
-                    } else {
-                        String iterableToListExpression
-                            = iterableToWireStringValuesList(parameterName, shouldNullCheck);
-                        function.line("%s %s = %s;", parameterWireType, parameterWireName, iterableToListExpression);
                     }
                     addedConversion = true;
                 }
@@ -406,9 +406,26 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     /**
+     * Obtain the Java code that converts an iterable to a list of string values.
+     *
+     * @param parameterName the name of the iterable parameter to convert.
+     * @param shouldCheckNull whether to use an empty list if the parameter value is null.
+     * @return Java code that converts an iterable to a list of string values.
+     */
+    private static String iterableToWireStringValuesList(String parameterName, boolean shouldCheckNull) {
+        final String stringList = parameterName + ".stream()" + ".map(item -> Objects.toString(item, \"\"))"
+            + ".collect(Collectors.toList())";
+        if (shouldCheckNull) {
+            return "(" + parameterName + " == null) ? new ArrayList<>()" + ": " + stringList;
+        } else {
+            return stringList;
+        }
+    }
+
+    /**
      * Obtain the Java code that converts an iterable to a delimited string of wire values.
      *
-     * @param parameterName the name of the parameter to convert.
+     * @param parameterName the name of the iterable parameter to convert.
      * @param shouldNullCheck whether to check if the parameter is null before converting it.
      * @param iterableType the type of the iterable to convert.
      * @param parameter the proxy method parameter that is being converted.
@@ -497,7 +514,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     /**
      * Obtain the Java code that converts an iterable of model types to a delimited string of serialized wire values.
      *
-     * @param parameterName the name of the parameter to convert.
+     * @param parameterName the name of the iterable parameter to convert.
      * @param shouldCheckNull whether to check if the parameter is null before converting it.
      * @param delimiter the delimiter to use when joining the deserialized model values into a string.
      * @param collectionFormat the collection format to use when serializing the iterable to a string.
@@ -541,23 +558,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             } else {
                 return streamToString;
             }
-        }
-    }
-
-    /**
-     * Obtain the Java code that converts an iterable to a list of string values.
-     * 
-     * @param parameterName the name of the iterable parameter to convert.
-     * @param shouldCheckNull whether to use an empty list if the parameter value is null.
-     * @return Java code that converts an iterable to a list of string values.
-     */
-    private static String iterableToWireStringValuesList(String parameterName, boolean shouldCheckNull) {
-        final String stringList = parameterName + ".stream()" + ".map(item -> Objects.toString(item, \"\"))"
-            + ".collect(Collectors.toList())";
-        if (shouldCheckNull) {
-            return "(" + parameterName + " == null) ? new ArrayList<>()" + ": " + stringList;
-        } else {
-            return stringList;
         }
     }
 
