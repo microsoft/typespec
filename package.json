@@ -36,7 +36,8 @@
     "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts",
     "validate-scenarios": "pnpm -r --filter=@typespec/http-specs run validate-scenarios",
     "validate-mock-apis": "pnpm -r --filter=@typespec/http-specs run validate-mock-apis",
-    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary"
+    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary",
+    "install-conflict": "git checkout upstream/main -- pnpm-lock.yaml && pnpm install"
   },
   "devDependencies": {
     "@chronus/chronus": "^1.0.1",
