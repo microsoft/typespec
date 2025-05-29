@@ -114,16 +114,22 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param function The client method code block.
      * @param clientMethod The client method.
      */
-    protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
+    protected void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
         if (!clientMethod.getOnlyRequiredParameters()) {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             if (parameter.isRequired()) {
                 // Parameter is required and will be part of the method signature.
                 continue;
             }
+            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
+                continue;
+            }
+
             final String defaultValue = parameterDefaultValueExpression(parameter);
             function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
                 defaultValue == null ? "null" : defaultValue);

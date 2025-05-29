@@ -8,7 +8,6 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -51,48 +50,6 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     public static ClientCoreClientMethodTemplate getInstance() {
         return INSTANCE;
-    }
-
-    /**
-     * Adds optional variable instantiations into the client method.
-     *
-     * @param function The client method code block.
-     * @param clientMethod The client method.
-     */
-    protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
-        if (!clientMethod.getOnlyRequiredParameters()) {
-            return;
-        }
-
-        final MethodPageDetails pageDetails
-            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
-        for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            if (parameter.isRequired()) {
-                // Parameter is required and will be part of the method signature.
-                continue;
-            }
-            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
-                continue;
-            }
-
-            IType parameterClientType = parameter.getClientType();
-            String defaultValue = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(),
-                JavaSettings.getInstance());
-            function.line("final %s %s = %s;", parameterClientType, parameter.getName(),
-                defaultValue == null ? "null" : defaultValue);
-        }
-    }
-
-    private static String parameterDefaultValueExpression(IType parameterClientType, String parameterDefaultValue,
-        JavaSettings settings) {
-        String defaultValue;
-        if (settings.isNullByteArrayMapsToEmptyArray() && parameterClientType == ArrayType.BYTE_ARRAY) {
-            // there's no EMPTY_BYTE_ARRAY in clients, unlike that in models
-            defaultValue = "new byte[0]";
-        } else {
-            defaultValue = parameterClientType.defaultValueExpression(parameterDefaultValue);
-        }
-        return defaultValue;
     }
 
     /**
