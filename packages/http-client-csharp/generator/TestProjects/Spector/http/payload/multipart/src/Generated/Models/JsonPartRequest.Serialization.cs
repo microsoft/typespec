@@ -5,41 +5,25 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class JsonPartRequest : IStreamModel<JsonPartRequest>
+    public partial class JsonPartRequest : IPersistableModel<JsonPartRequest>
     {
         internal JsonPartRequest()
         {
         }
-        private string _boundary;
-        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
+
         BinaryData IPersistableModel<JsonPartRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<JsonPartRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "MPFD-ContentType":
-                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(JsonPartRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        void IStreamModel<JsonPartRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
-        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<JsonPartRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    WriteTo(stream);
-                    return;
                 default:
                     throw new FormatException($"The model {nameof(JsonPartRequest)} does not support writing '{options.Format}' format.");
             }
@@ -70,20 +54,13 @@ namespace Payload.MultiPart.Models
             return jsonPartRequest.ToMultipartContent();
         }
 
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual BinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new(Boundary);
+            List<BinaryContent> parts = [];
+            parts.Add(BinaryContent.CreateMultipartFormDataPart("address", Address));
+            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
 
-            content.Add("address", Address);
-            content.Add("profileImage", ProfileImage);
-
-            return content;
-        }
-
-        private BinaryData SerializeMultipartContentType()
-        {
-            using MultiPartFormDataBinaryContent content = new(Boundary);
-            return BinaryData.FromString(content.ContentType);
+            return BinaryContent.CreateMultipartFormDataContent(parts);
         }
 
         private BinaryData SerializeMultipart()
@@ -100,7 +77,7 @@ namespace Payload.MultiPart.Models
 
         private void WriteTo(Stream stream)
         {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+            using BinaryContent content = ToMultipartContent();
             content.WriteTo(stream);
         }
     }

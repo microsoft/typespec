@@ -2,32 +2,83 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Payload.MultiPart.Models
 {
     public partial class ComplexHttpPartsModelRequest
     {
-        public ComplexHttpPartsModelRequest(string id, Address address, MultiPartFileWithRequiredMetadata profileImage, IEnumerable<Address> previousAddresses, IEnumerable<MultiPartFileWithRequiredMetadata> pictures)
+        public ComplexHttpPartsModelRequest(string id, Address address, string profileImageFilename, string profileImageContentType, string profileImagePath, IEnumerable<Address> previousAddresses, IEnumerable<FileBinaryContent> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
+            Argument.AssertNotNullOrEmpty(profileImageContentType, nameof(profileImageContentType));
+            Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
+            Argument.AssertNotNull(previousAddresses, nameof(previousAddresses));
+            Argument.AssertNotNull(pictures, nameof(pictures));
+
+            Id = id;
+            Address = address;
+            ProfileImage = new(profileImagePath)
+            {
+                Filename = profileImageFilename,
+                ContentType = profileImageContentType
+            };
+            PreviousAddresses = previousAddresses.ToList();
+            Pictures = pictures.ToList();
+        }
+
+        public ComplexHttpPartsModelRequest(string id, Address address, string profileImageFilename, string profileImageContentType, Stream profileImage, IEnumerable<Address> previousAddresses, IEnumerable<FileBinaryContent> pictures)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
+            Argument.AssertNotNullOrEmpty(profileImageContentType, nameof(profileImageContentType));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
             Argument.AssertNotNull(previousAddresses, nameof(previousAddresses));
             Argument.AssertNotNull(pictures, nameof(pictures));
 
             Id = id;
             Address = address;
-            ProfileImage = profileImage;
+            ProfileImage = new(profileImage)
+            {
+                Filename = profileImageFilename,
+                ContentType = profileImageContentType
+            };
+            PreviousAddresses = previousAddresses.ToList();
+            Pictures = pictures.ToList();
+        }
+
+        public ComplexHttpPartsModelRequest(string id, Address address, string profileImageFilename, string profileImageContentType, BinaryData profileImage, IEnumerable<Address> previousAddresses, IEnumerable<FileBinaryContent> pictures)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNullOrEmpty(profileImageFilename, nameof(profileImageFilename));
+            Argument.AssertNotNullOrEmpty(profileImageContentType, nameof(profileImageContentType));
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+            Argument.AssertNotNull(previousAddresses, nameof(previousAddresses));
+            Argument.AssertNotNull(pictures, nameof(pictures));
+
+            Id = id;
+            Address = address;
+            ProfileImage = new(profileImage)
+            {
+                Filename = profileImageFilename,
+                ContentType = profileImageContentType
+            };
             PreviousAddresses = previousAddresses.ToList();
             Pictures = pictures.ToList();
         }
 
         public string Id { get; }
         public Address Address { get; }
-        public MultiPartFileWithRequiredMetadata ProfileImage { get; }
+        public FileBinaryContent ProfileImage { get; }
         public IList<Address> PreviousAddresses { get; }
-        public IList<MultiPartFileWithRequiredMetadata> Pictures { get; }
+        public IList<FileBinaryContent> Pictures { get; }
     }
 }

@@ -11,34 +11,20 @@ using System.Text.Json;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FloatRequest : IStreamModel<FloatRequest>
+    public partial class FloatRequest : IPersistableModel<FloatRequest>
     {
-        private string _boundary;
-        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
+        internal FloatRequest()
+        {
+        }
+
         BinaryData IPersistableModel<FloatRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<FloatRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "MPFD-ContentType":
-                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(FloatRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        void IStreamModel<FloatRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
-        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    WriteTo(stream);
-                    return;
                 default:
                     throw new FormatException($"The model {nameof(FloatRequest)} does not support writing '{options.Format}' format.");
             }
@@ -69,18 +55,15 @@ namespace Payload.MultiPart.Models
             return floatRequest.ToMultipartContent();
         }
 
-        internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
+        internal virtual BinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new(Boundary);
+            List<BinaryContent> parts = [];
 
-            content.Add("temperature", Temperature.Temperature, Temperature.ContentType.ToString());
-            return content;
-        }
+            var temperaturePart = BinaryContent.CreateMultipartFormDataPart("temperature", Temperature);
+            temperaturePart.ContentType = "text/plain";
+            parts.Add(temperaturePart);
 
-        private BinaryData SerializeMultipartContentType()
-        {
-            using MultiPartFormDataBinaryContent content = new(Boundary);
-            return BinaryData.FromString(content.ContentType);
+            return BinaryContent.CreateMultipartFormDataContent(parts);
         }
 
         private BinaryData SerializeMultipart()
@@ -97,7 +80,7 @@ namespace Payload.MultiPart.Models
 
         private void WriteTo(Stream stream)
         {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+            using BinaryContent content = ToMultipartContent();
             content.WriteTo(stream);
         }
     }

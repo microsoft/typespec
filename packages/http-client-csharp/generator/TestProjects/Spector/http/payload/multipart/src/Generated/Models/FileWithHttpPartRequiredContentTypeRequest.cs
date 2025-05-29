@@ -2,18 +2,54 @@
 
 #nullable disable
 
+using System;
+using System.ClientModel;
+using System.IO;
+
 namespace Payload.MultiPart.Models
 {
     public partial class FileWithHttpPartRequiredContentTypeRequest
     {
-        public FileWithHttpPartRequiredContentTypeRequest(MultiPartFileWithRequiredMetadata profileImage)
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, string profileImagePath)
         {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+            Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
+
+            ProfileImage = new(profileImagePath)
+            {
+                ContentType = contentType,
+                Filename = filename,
+            };
+        }
+
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, Stream profileImage)
+        {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = profileImage;
+            ProfileImage = new(profileImage)
+            {
+                ContentType = contentType,
+                Filename = filename,
+            };
+        }
+
+        public FileWithHttpPartRequiredContentTypeRequest(string filename, string contentType, BinaryData profileImage)
+        {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+            ProfileImage = new(profileImage)
+            {
+                ContentType = contentType,
+                Filename = filename,
+            };
         }
 
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFileWithRequiredMetadata ProfileImage { get; }
+        public FileBinaryContent ProfileImage { get; }
     }
 }

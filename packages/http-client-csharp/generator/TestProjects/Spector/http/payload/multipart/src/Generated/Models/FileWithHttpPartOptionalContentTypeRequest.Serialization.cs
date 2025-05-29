@@ -11,34 +11,19 @@ using System.Text;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileWithHttpPartOptionalContentTypeRequest : IStreamModel<FileWithHttpPartOptionalContentTypeRequest>
+    public partial class FileWithHttpPartOptionalContentTypeRequest : IPersistableModel<FileWithHttpPartOptionalContentTypeRequest>
     {
-        private string _boundary;
-        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
+        internal FileWithHttpPartOptionalContentTypeRequest()
+        {
+        }
         BinaryData IPersistableModel<FileWithHttpPartOptionalContentTypeRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<FileWithHttpPartOptionalContentTypeRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "MPFD-ContentType":
-                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
-                default:
-                    throw new FormatException($"The model {nameof(FileWithHttpPartOptionalContentTypeRequest)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        void IStreamModel<FileWithHttpPartOptionalContentTypeRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
-        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FileWithHttpPartOptionalContentTypeRequest>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "MPFD":
-                    WriteTo(stream);
-                    return;
                 default:
                     throw new FormatException($"The model {nameof(FileWithHttpPartOptionalContentTypeRequest)} does not support writing '{options.Format}' format.");
             }
@@ -69,19 +54,12 @@ namespace Payload.MultiPart.Models
             return fileWithHttpPartOptionalContentTypeRequest.ToMultipartContent();
         }
 
-        internal MultiPartFormDataBinaryContent ToMultipartContent()
+        internal BinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new(Boundary);
+            List<BinaryContent> parts = [];
+            parts.Add(BinaryContent.CreateMultipartFormDataPart("profileImage", ProfileImage));
 
-            content.Add("profileImage", ProfileImage);
-
-            return content;
-        }
-
-        private BinaryData SerializeMultipartContentType()
-        {
-            using MultiPartFormDataBinaryContent content = new(Boundary);
-            return BinaryData.FromString(content.ContentType);
+            return BinaryContent.CreateMultipartFormDataContent(parts);
         }
 
         private BinaryData SerializeMultipart()
@@ -98,7 +76,7 @@ namespace Payload.MultiPart.Models
 
         private void WriteTo(Stream stream)
         {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+            using BinaryContent content = ToMultipartContent();
             content.WriteTo(stream);
         }
     }

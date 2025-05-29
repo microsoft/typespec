@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace Payload.MultiPart.Models
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
-        public JsonPartRequest(Address address, MultiPartFileWithOptionalMetadata profileImage)
+        public JsonPartRequest(Address address, FileBinaryContent profileImage)
         {
             Argument.AssertNotNull(address, nameof(address));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -22,7 +23,7 @@ namespace Payload.MultiPart.Models
             ProfileImage = profileImage;
         }
 
-        internal JsonPartRequest(Address address, MultiPartFileWithOptionalMetadata profileImage, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal JsonPartRequest(Address address, FileBinaryContent profileImage, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Address = address;
             ProfileImage = profileImage;
@@ -32,6 +33,6 @@ namespace Payload.MultiPart.Models
         /// <summary> Gets the address. </summary>
         public Address Address { get; }
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
+        public FileBinaryContent ProfileImage { get; }
     }
 }

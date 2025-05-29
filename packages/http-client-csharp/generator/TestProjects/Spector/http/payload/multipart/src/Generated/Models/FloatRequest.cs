@@ -6,11 +6,11 @@ namespace Payload.MultiPart.Models
 {
     public partial class FloatRequest
     {
-        public FloatRequest(FloatRequestTemperature temperature)
+        public FloatRequest(float temperature)
         {
             Temperature = temperature;
         }
 
-        public FloatRequestTemperature Temperature { get; }
+        public float Temperature { get; }
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace Payload.MultiPart.Models
     /// <summary> The BinaryArrayPartsRequest. </summary>
     public partial class BinaryArrayPartsRequest
     {
-        public BinaryArrayPartsRequest(string id, IEnumerable<MultiPartFileWithOptionalMetadata> pictures)
+
+        public BinaryArrayPartsRequest(string id, IEnumerable<FileBinaryContent> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(pictures, nameof(pictures));
@@ -23,6 +25,6 @@ namespace Payload.MultiPart.Models
         /// <summary> Gets the id. </summary>
         public string Id { get; }
         /// <summary> Gets the pictures. </summary>
-        public IList<MultiPartFileWithOptionalMetadata> Pictures { get; }
+        public IList<FileBinaryContent> Pictures { get; }
     }
 }

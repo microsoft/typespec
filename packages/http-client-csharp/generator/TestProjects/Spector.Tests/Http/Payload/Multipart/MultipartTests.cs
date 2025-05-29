@@ -22,21 +22,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         private string SampleJpgPath = Path.Combine(SpectorServer.GetSpecDirectory(), "assets", "image.jpg");
 
         [SpectorTest]
-        public Task Basic() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add("123", "id");
-
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task BasicProtocol() => Test(async (host) =>
+        public Task BasicBSL() => Test(async (host) =>
         {
             // use the internal BCL type to create a MultipartFormDataContent
             using MultipartFormDataContent multipartContent = new()
@@ -62,588 +48,596 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         });
 
         [SpectorTest]
+        public Task BasicProtocol() => Test(async (host) =>
+        {
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            using BinaryContent profileImagePart = BinaryContent.CreateMultipartFormDataPart("profileImage", new FileBinaryContent(imageStream) { Filename = "profileImage"});
+            using BinaryContent idPart = BinaryContent.CreateMultipartFormDataPart("id", "123");
+
+            using BinaryContent content = BinaryContent.CreateMultipartFormDataContent([idPart, profileImagePart]);
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(content, content.ContentType);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
         public Task BasicConv() => Test(async (host) =>
         {
             var id = "123";
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-
-            // using stream
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "profileImage.jpg",
-            };
-            var request = new MultiPartRequest(id, profileImage);
+            var request = new MultiPartRequest(id, SampleJpgPath);
+            request.ProfileImage.Filename = "profileImage.jpg";
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [SpectorTest]
-        public Task JsonPart() => Test(async (host) =>
-        {
-            var id = "123";
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-
-            // using stream
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "profileImage.jpg",
-            };
-            var request = new MultiPartRequest(id, profileImage);
-
-            // get the content type
-            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
-            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(request, contentType.ToString());
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [Test]
-        public Task BasicMRWRequestAsStream() => Test(async (host) =>
-        {
-            var id = "123";
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-
-            // using stream
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "profileImage.jpg",
-            };
-            var request = new MultiPartRequest(id, profileImage);
-
-            // get the content type
-            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
-            using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
-            customStream.Seek(0, SeekOrigin.Begin);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(customStream), contentType.ToString());
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task JsonPartConv() => Test(async (host) =>
-        {
-            Address address = new Address("X");
-
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            var request = new JsonPartRequest(address, profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().JsonPartAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task CheckFileNameAndContentType() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add("123", "id");
-
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream, "profileImage", "hello.jpg", "image/jpg");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task CheckFileNameAndContentTypeConv() => Test(async (host) =>
-        {
-            var id = "123";
-
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "hello.jpg",
-                ContentType = "image/jpg"
-            };
-            var request = new MultiPartRequest(id, profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task CheckFileNameAndContentTypeConvUsingBinaryData() => Test(async (host) =>
-        {
-            var id = "123";
-
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var data = BinaryData.FromStream(imageStream);
-            var profileImage = new MultiPartFileWithOptionalMetadata(data)
-            {
-                Filename = "hello.jpg",
-                ContentType = "image/jpg"
-            };
-            var request = new MultiPartRequest(id, profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task FileArrayAndBasic() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add("123", "id");
-            content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
-
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream1, "profileImage", "profileImage", "application/octet-stream");
-            content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
-
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream3, "pictures", "pictures", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task FileArrayAndBasicConv() => Test(async (host) =>
-        {
-            var id = "123";
-            Address address = new Address("X");
-
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            var pictures = new List<MultiPartFileWithOptionalMetadata>()
-            {
-                new(imageStream2) { Filename = "sample.png" },
-                new(imageStream3) { Filename = "sample.png" },
-            };
-
-            var request = new ComplexPartsRequest(id, address, profileImage, pictures);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsImageJpegContentType() => Test(async (host) =>
-        {
-            var id = "123";
-            Address address = new Address("X");
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-
-            // using stream
-            var profileImage = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream))
-            {
-                Filename = "profileImage.jpg",
-            };
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            var pictures = new List<MultiPartFileWithOptionalMetadata>()
-            {
-                 new(BinaryData.FromStream(imageStream2)) { Filename = "sample.png" },
-                 new(BinaryData.FromStream(imageStream3)) { Filename = "sample.png" },
-            };
-
-            var request = new ComplexPartsRequest(id, address, profileImage, pictures);
-            using MemoryStream customStream = new();
-            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
-            customStream.Seek(0, SeekOrigin.Begin);
-
-            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .FileArrayAndBasicAsync(BinaryContent.Create(customStream), contentType);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsImageJpegContentTypeConv() => Test(async (host) =>
-        {
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new FileSpecificContentType(imageStream, "hello.jpg");
-            var request = new FileWithHttpPartSpecificContentTypeRequest(profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .ImageJpegContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsOptionalContentType() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent contentWithNoContentType = new MultiPartFormDataBinaryContent();
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            contentWithNoContentType.Add(imageStream1, "profileImage", "hello.jpg");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .OptionalContentTypeAsync(contentWithNoContentType, contentWithNoContentType.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-
-            using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
-            await using var imageStream2 = File.OpenRead(SampleJpgPath);
-            contentWithContentType.Add(imageStream2, "profileImage", "hello.jpg", "application/octet-stream");
-
-            response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .OptionalContentTypeAsync(contentWithContentType, contentWithContentType.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsOptionalContentTypeConv() => Test(async (host) =>
-        {
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithRequiredFilename(imageStream1, "hello.jpg");
-            var request = new FileWithHttpPartOptionalContentTypeRequest(profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .OptionalContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-
-            await using var imageStream2 = File.OpenRead(SampleJpgPath);
-            var profileImage2 = new MultiPartFileWithRequiredFilename(imageStream2, "hello.jpg")
-            {
-                ContentType = "application/octet-stream"
-            };
-            request = new FileWithHttpPartOptionalContentTypeRequest(profileImage2);
-
-            response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .OptionalContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsRequiredContentType() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream, "profileImage", "hello.jpg", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .RequiredContentTypeAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsRequiredContentTypeConv() => Test(async (host) =>
-        {
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithRequiredMetadata(imageStream, "hello.jpg", "application/octet-stream");
-            var file = new MultiPartFileWithRequiredFilename(imageStream, "hello.jpg");
-            var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsContentTypeClient()
-                .RequiredContentTypeAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsJsonArrayAndFileArray() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add("123", "id");
-            content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
-
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream1, "profileImage", "hello.jpg", "application/octet-stream");
-            content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream2, "pictures", "hello.jpg", "application/octet-stream");
-
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream3, "pictures", "hello.jpg", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-               .GetFormDataHttpPartsClient()
-               .GetFormDataHttpPartsContentTypeClient()
-               .RequiredContentTypeAsync(request, contentType);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [Test]
-        public Task HttpPartsRequiredContentTypeMRWAsStream() => Test(async (host) =>
-        {
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithRequiredMetadata(BinaryData.FromStream(imageStream), "hello.jpg", "application/octet-stream");
-            var file = new MultiPartFileWithRequiredFilename(imageStream, "hello.jpg");
-            var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
-
-            using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
-            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-            customStream.Seek(0, SeekOrigin.Begin);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-               .GetFormDataHttpPartsClient()
-               .GetFormDataHttpPartsContentTypeClient()
-               .RequiredContentTypeAsync(BinaryContent.Create(customStream), contentType);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        [Ignore("")]
-        public Task HttpPartsJsonArrayAndFileArrayConv() => Test(async (host) =>
-        {
-            string id = "123";
-            var address1 = new Address("X");
-            var address2 = new Address("Y");
-            var previousAddresses = new List<Address>() { address1, address2 };
-
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream");
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            var pictures = new List<MultiPartFileWithRequiredMetadata>()
-            {
-                new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream"),
-                new MultiPartFileWithRequiredMetadata(imageStream2, "profile2.jpg", "application/octet-stream")
-            };
-
-            var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .JsonArrayAndFileArrayAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsNonStringFloat() => Test(async (host) =>
-        {
-            string id = "123";
-            var address1 = new Address("X");
-            var address2 = new Address("Y");
-            var previousAddresses = new List<Address>() { address1, address2 };
-
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream");
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            await using var imageStream3 = File.OpenRead(SamplePngPath);
-            var pictures = new List<MultiPartFileWithRequiredMetadata>()
-            {
-                new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream"),
-                new MultiPartFileWithRequiredMetadata(imageStream2, "profile2.jpg", "application/octet-stream")
-            };
-
-            var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
-            using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
-
-            Assert.IsNotNull(customStream);
-        });
-
-        [SpectorTest]
-        public Task HttpPartsNonStringFloatAsync() => Test(async (host) =>
-        {
-            var temperature = new FloatRequestTemperature(0.5f);
-            var request = new FloatRequest(temperature);
-            var response = await new MultiPartClient(host, null).GetFormDataClient()
-                .GetFormDataHttpPartsClient()
-                .GetFormDataHttpPartsNonStringClient()
-                .FloatAsync(request);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task BinaryArrayParts() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add("123", "id");
-            await using var imageStream1 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream1, "pictures", "pictures", "application/octet-stream");
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task BinaryArrayPartsConv() => Test(async (host) =>
-        {
-            var id = "123";
-            await using var imageStream1 = File.OpenRead(SamplePngPath);
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var pictures = new List<MultiPartFileWithOptionalMetadata>()
-            {
-                new(imageStream1) { Filename = "pictures" },
-                new(imageStream2) { Filename = "pictures" },
-            };
-            var request = new BinaryArrayPartsRequest(id, pictures);
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(request);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task AnonymousModel() => Test(async (host) =>
-        {
-            using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(content, content.ContentType, null);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task AnonymousModelConv() => Test(async (host) =>
-        {
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImageFileDetails = new MultiPartFileWithOptionalMetadata(imageStream)
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task AnonymousModelConvUsingBinaryData() => Test(async (host) =>
-        {
-            await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImageFileDetails = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream))
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
-
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
-        public Task MultiBinaryPartsWithPicture()
-            => MultiBinaryParts(true);
-        [SpectorTest]
-        public Task MultiBinaryPartsWithPictureConv()
-            => MultiBinaryPartsConv(true);
-        [SpectorTest]
-        public Task MultiBinaryPartsWithPictureConvUsingBinaryData()
-            => MultiBinaryPartsConvUsingBinaryData(true);
-
-        [SpectorTest]
-        public Task MultiBinaryPartsWithoutPicture()
-            => MultiBinaryParts(false);
-
-        [SpectorTest]
-        public Task MultiBinaryPartsWithoutPictureConv()
-            => MultiBinaryPartsConv(false);
-
-        [SpectorTest]
-        public Task MultiBinaryPartsWithoutPictureConvUsingBinaryData()
-            => MultiBinaryPartsConvUsingBinaryData(false);
-
-        [Test]
-        public Task MultiBinaryPartsMRW() => Test(async (host) =>
-        {
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var picture = new MultiPartFileWithOptionalMetadata(imageStream2)
-            {
-                Filename = "picture.jpg",
-            };
-            var request = new MultiBinaryPartsRequest(profileImage);
-            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-            var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request, contentType);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        private Task MultiBinaryPartsConv(bool hasPicture) => Test(async (host) =>
-        {
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var picture = new MultiPartFileWithOptionalMetadata(imageStream2)
-            {
-                Filename = "picture.jpg",
-            };
-            var request = new MultiBinaryPartsRequest(profileImage);
-            if (hasPicture)
-            {
-                request.Picture = picture;
-            }
-            var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        private Task MultiBinaryPartsConvUsingBinaryData(bool hasPicture) => Test(async (host) =>
-        {
-            await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream1))
-            {
-                Filename = "profileImage.jpg",
-            };
-
-            await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var picture = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream2))
-            {
-                Filename = "picture.jpg",
-            };
-            var request = new MultiBinaryPartsRequest(profileImage);
-            if (hasPicture)
-            {
-                request.Picture = picture;
-            }
-            var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
+        //[SpectorTest]
+        //public Task JsonPart() => Test(async (host) =>
+        //{
+        //    var id = "123";
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+
+        //    // using stream
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+        //    var request = new MultiPartRequest(id, profileImage);
+
+        //    // get the content type
+        //    var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(request, contentType.ToString());
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[Test]
+        //public Task BasicMRWRequestAsStream() => Test(async (host) =>
+        //{
+        //    var id = "123";
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+
+        //    // using stream
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+        //    var request = new MultiPartRequest(id, profileImage);
+
+        //    // get the content type
+        //    var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
+        //    using var customStream = new MemoryStream();
+        //    ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
+        //    customStream.Seek(0, SeekOrigin.Begin);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(customStream), contentType.ToString());
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task JsonPartConv() => Test(async (host) =>
+        //{
+        //    Address address = new Address("X");
+
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    var request = new JsonPartRequest(address, profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().JsonPartAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task CheckFileNameAndContentType() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    content.Add("123", "id");
+
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    content.Add(imageStream, "profileImage", "hello.jpg", "image/jpg");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(content, content.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task CheckFileNameAndContentTypeConv() => Test(async (host) =>
+        //{
+        //    var id = "123";
+
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
+        //    {
+        //        Filename = "hello.jpg",
+        //        ContentType = "image/jpg"
+        //    };
+        //    var request = new MultiPartRequest(id, profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task CheckFileNameAndContentTypeConvUsingBinaryData() => Test(async (host) =>
+        //{
+        //    var id = "123";
+
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var data = BinaryData.FromStream(imageStream);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(data)
+        //    {
+        //        Filename = "hello.jpg",
+        //        ContentType = "image/jpg"
+        //    };
+        //    var request = new MultiPartRequest(id, profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task FileArrayAndBasic() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    content.Add("123", "id");
+        //    content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
+
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    content.Add(imageStream1, "profileImage", "profileImage", "application/octet-stream");
+        //    content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
+
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream3, "pictures", "pictures", "application/octet-stream");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(content, content.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task FileArrayAndBasicConv() => Test(async (host) =>
+        //{
+        //    var id = "123";
+        //    Address address = new Address("X");
+
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    var pictures = new List<MultiPartFileWithOptionalMetadata>()
+        //    {
+        //        new(imageStream2) { Filename = "sample.png" },
+        //        new(imageStream3) { Filename = "sample.png" },
+        //    };
+
+        //    var request = new ComplexPartsRequest(id, address, profileImage, pictures);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsImageJpegContentType() => Test(async (host) =>
+        //{
+        //    var id = "123";
+        //    Address address = new Address("X");
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+
+        //    // using stream
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream))
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    var pictures = new List<MultiPartFileWithOptionalMetadata>()
+        //    {
+        //         new(BinaryData.FromStream(imageStream2)) { Filename = "sample.png" },
+        //         new(BinaryData.FromStream(imageStream3)) { Filename = "sample.png" },
+        //    };
+
+        //    var request = new ComplexPartsRequest(id, address, profileImage, pictures);
+        //    using MemoryStream customStream = new();
+        //    ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
+        //    customStream.Seek(0, SeekOrigin.Begin);
+
+        //    var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .FileArrayAndBasicAsync(BinaryContent.Create(customStream), contentType);
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsImageJpegContentTypeConv() => Test(async (host) =>
+        //{
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new FileSpecificContentType(imageStream, "hello.jpg");
+        //    var request = new FileWithHttpPartSpecificContentTypeRequest(profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .ImageJpegContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsOptionalContentType() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent contentWithNoContentType = new MultiPartFormDataBinaryContent();
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    contentWithNoContentType.Add(imageStream1, "profileImage", "hello.jpg");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .OptionalContentTypeAsync(contentWithNoContentType, contentWithNoContentType.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+
+        //    using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
+        //    await using var imageStream2 = File.OpenRead(SampleJpgPath);
+        //    contentWithContentType.Add(imageStream2, "profileImage", "hello.jpg", "application/octet-stream");
+
+        //    response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .OptionalContentTypeAsync(contentWithContentType, contentWithContentType.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsOptionalContentTypeConv() => Test(async (host) =>
+        //{
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithRequiredFilename(imageStream1, "hello.jpg");
+        //    var request = new FileWithHttpPartOptionalContentTypeRequest(profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .OptionalContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+
+        //    await using var imageStream2 = File.OpenRead(SampleJpgPath);
+        //    var profileImage2 = new MultiPartFileWithRequiredFilename(imageStream2, "hello.jpg")
+        //    {
+        //        ContentType = "application/octet-stream"
+        //    };
+        //    request = new FileWithHttpPartOptionalContentTypeRequest(profileImage2);
+
+        //    response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .OptionalContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsRequiredContentType() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    content.Add(imageStream, "profileImage", "hello.jpg", "application/octet-stream");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .RequiredContentTypeAsync(content, content.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsRequiredContentTypeConv() => Test(async (host) =>
+        //{
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithRequiredMetadata(imageStream, "hello.jpg", "application/octet-stream");
+        //    var file = new MultiPartFileWithRequiredFilename(imageStream, "hello.jpg");
+        //    var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsContentTypeClient()
+        //        .RequiredContentTypeAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsJsonArrayAndFileArray() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    content.Add("123", "id");
+        //    content.Add("{\"city\":\"X\"}", "address", contentType: "application/json");
+
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    content.Add(imageStream1, "profileImage", "hello.jpg", "application/octet-stream");
+        //    content.Add("[{\"city\":\"Y\"},{\"city\":\"Z\"}]", "previousAddresses", contentType: "application/json");
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream2, "pictures", "hello.jpg", "application/octet-stream");
+
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream3, "pictures", "hello.jpg", "application/octet-stream");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //       .GetFormDataHttpPartsClient()
+        //       .GetFormDataHttpPartsContentTypeClient()
+        //       .RequiredContentTypeAsync(request, contentType);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[Test]
+        //public Task HttpPartsRequiredContentTypeMRWAsStream() => Test(async (host) =>
+        //{
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithRequiredMetadata(BinaryData.FromStream(imageStream), "hello.jpg", "application/octet-stream");
+        //    var file = new MultiPartFileWithRequiredFilename(imageStream, "hello.jpg");
+        //    var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
+
+        //    using var customStream = new MemoryStream();
+        //    ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
+        //    var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
+        //    customStream.Seek(0, SeekOrigin.Begin);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //       .GetFormDataHttpPartsClient()
+        //       .GetFormDataHttpPartsContentTypeClient()
+        //       .RequiredContentTypeAsync(BinaryContent.Create(customStream), contentType);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //[Ignore("")]
+        //public Task HttpPartsJsonArrayAndFileArrayConv() => Test(async (host) =>
+        //{
+        //    string id = "123";
+        //    var address1 = new Address("X");
+        //    var address2 = new Address("Y");
+        //    var previousAddresses = new List<Address>() { address1, address2 };
+
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream");
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    var pictures = new List<MultiPartFileWithRequiredMetadata>()
+        //    {
+        //        new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream"),
+        //        new MultiPartFileWithRequiredMetadata(imageStream2, "profile2.jpg", "application/octet-stream")
+        //    };
+
+        //    var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .JsonArrayAndFileArrayAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsNonStringFloat() => Test(async (host) =>
+        //{
+        //    string id = "123";
+        //    var address1 = new Address("X");
+        //    var address2 = new Address("Y");
+        //    var previousAddresses = new List<Address>() { address1, address2 };
+
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream");
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    await using var imageStream3 = File.OpenRead(SamplePngPath);
+        //    var pictures = new List<MultiPartFileWithRequiredMetadata>()
+        //    {
+        //        new MultiPartFileWithRequiredMetadata(imageStream1, "profile.jpg", "application/octet-stream"),
+        //        new MultiPartFileWithRequiredMetadata(imageStream2, "profile2.jpg", "application/octet-stream")
+        //    };
+
+        //    var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
+        //    using var customStream = new MemoryStream();
+        //    ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
+
+        //    Assert.IsNotNull(customStream);
+        //});
+
+        //[SpectorTest]
+        //public Task HttpPartsNonStringFloatAsync() => Test(async (host) =>
+        //{
+        //    var temperature = new FloatRequestTemperature(0.5f);
+        //    var request = new FloatRequest(temperature);
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient()
+        //        .GetFormDataHttpPartsClient()
+        //        .GetFormDataHttpPartsNonStringClient()
+        //        .FloatAsync(request);
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task BinaryArrayParts() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    content.Add("123", "id");
+        //    await using var imageStream1 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream1, "pictures", "pictures", "application/octet-stream");
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    content.Add(imageStream2, "pictures", "pictures", "application/octet-stream");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(content, content.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task BinaryArrayPartsConv() => Test(async (host) =>
+        //{
+        //    var id = "123";
+        //    await using var imageStream1 = File.OpenRead(SamplePngPath);
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    var pictures = new List<MultiPartFileWithOptionalMetadata>()
+        //    {
+        //        new(imageStream1) { Filename = "pictures" },
+        //        new(imageStream2) { Filename = "pictures" },
+        //    };
+        //    var request = new BinaryArrayPartsRequest(id, pictures);
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(request);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task AnonymousModel() => Test(async (host) =>
+        //{
+        //    using MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    content.Add(imageStream, "profileImage", "profileImage", "application/octet-stream");
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(content, content.ContentType, null);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task AnonymousModelConv() => Test(async (host) =>
+        //{
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImageFileDetails = new MultiPartFileWithOptionalMetadata(imageStream)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task AnonymousModelConvUsingBinaryData() => Test(async (host) =>
+        //{
+        //    await using var imageStream = File.OpenRead(SampleJpgPath);
+        //    var profileImageFileDetails = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream))
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
+
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithPicture()
+        //    => MultiBinaryParts(true);
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithPictureConv()
+        //    => MultiBinaryPartsConv(true);
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithPictureConvUsingBinaryData()
+        //    => MultiBinaryPartsConvUsingBinaryData(true);
+
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithoutPicture()
+        //    => MultiBinaryParts(false);
+
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithoutPictureConv()
+        //    => MultiBinaryPartsConv(false);
+
+        //[SpectorTest]
+        //public Task MultiBinaryPartsWithoutPictureConvUsingBinaryData()
+        //    => MultiBinaryPartsConvUsingBinaryData(false);
+
+        //[Test]
+        //public Task MultiBinaryPartsMRW() => Test(async (host) =>
+        //{
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    var picture = new MultiPartFileWithOptionalMetadata(imageStream2)
+        //    {
+        //        Filename = "picture.jpg",
+        //    };
+        //    var request = new MultiBinaryPartsRequest(profileImage);
+        //    var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request, contentType);
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //private Task MultiBinaryPartsConv(bool hasPicture) => Test(async (host) =>
+        //{
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    var picture = new MultiPartFileWithOptionalMetadata(imageStream2)
+        //    {
+        //        Filename = "picture.jpg",
+        //    };
+        //    var request = new MultiBinaryPartsRequest(profileImage);
+        //    if (hasPicture)
+        //    {
+        //        request.Picture = picture;
+        //    }
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
+
+        //private Task MultiBinaryPartsConvUsingBinaryData(bool hasPicture) => Test(async (host) =>
+        //{
+        //    await using var imageStream1 = File.OpenRead(SampleJpgPath);
+        //    var profileImage = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream1))
+        //    {
+        //        Filename = "profileImage.jpg",
+        //    };
+
+        //    await using var imageStream2 = File.OpenRead(SamplePngPath);
+        //    var picture = new MultiPartFileWithOptionalMetadata(BinaryData.FromStream(imageStream2))
+        //    {
+        //        Filename = "picture.jpg",
+        //    };
+        //    var request = new MultiBinaryPartsRequest(profileImage);
+        //    if (hasPicture)
+        //    {
+        //        request.Picture = picture;
+        //    }
+        //    var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
+        //    Assert.AreEqual(204, response.GetRawResponse().Status);
+        //});
     }
 }

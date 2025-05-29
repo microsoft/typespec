@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Payload.MultiPart.Models
     /// <summary> The MultiBinaryPartsRequest. </summary>
     public partial class MultiBinaryPartsRequest
     {
-        public MultiBinaryPartsRequest(MultiPartFileWithOptionalMetadata profileImage)
+        public MultiBinaryPartsRequest(FileBinaryContent profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -20,8 +21,8 @@ namespace Payload.MultiPart.Models
         }
 
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
+        public FileBinaryContent ProfileImage { get; }
         /// <summary> Gets or sets the picture. </summary>
-        public MultiPartFileWithOptionalMetadata Picture { get; set; }
+        public FileBinaryContent Picture { get; set; }
     }
 }

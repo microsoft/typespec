@@ -2,18 +2,48 @@
 
 #nullable disable
 
+using System.IO;
+using System;
+using System.ClientModel;
+
 namespace Payload.MultiPart.Models
 {
     public partial class FileWithHttpPartOptionalContentTypeRequest
     {
-        public FileWithHttpPartOptionalContentTypeRequest(MultiPartFileWithRequiredFilename profileImage)
+        public FileWithHttpPartOptionalContentTypeRequest(string filename, string profileImagePath)
         {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
+
+            ProfileImage = new(profileImagePath)
+            {
+                Filename = filename,
+            };
+        }
+
+        public FileWithHttpPartOptionalContentTypeRequest(string filename, Stream profileImage)
+        {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-            ProfileImage = profileImage;
+            ProfileImage = new(profileImage)
+            {
+                Filename = filename,
+            };
+        }
+
+        public FileWithHttpPartOptionalContentTypeRequest(string filename, BinaryData profileImage)
+        {
+            Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+            ProfileImage = new(profileImage)
+            {
+                Filename = filename,
+            };
         }
 
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFileWithRequiredFilename ProfileImage { get; }
+        public FileBinaryContent ProfileImage { get; }
     }
 }
