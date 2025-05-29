@@ -18,10 +18,10 @@ public final class FunctionsImpl implements Functions {
 
     private final FunctionsClient innerClient;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     public FunctionsImpl(FunctionsClient innerClient,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerClient = innerClient;
         this.serviceManager = serviceManager;
     }
@@ -49,7 +49,7 @@ public final class FunctionsImpl implements Functions {
         return this.innerClient;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

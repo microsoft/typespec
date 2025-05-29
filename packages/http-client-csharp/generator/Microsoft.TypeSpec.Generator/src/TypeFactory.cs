@@ -193,10 +193,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public ParameterProvider CreateParameter(InputParameter parameter)
+        public ParameterProvider? CreateParameter(InputParameter parameter)
             => CreateParameterCore(parameter);
 
-        protected virtual ParameterProvider CreateParameterCore(InputParameter parameter)
+        protected virtual ParameterProvider? CreateParameterCore(InputParameter parameter)
             => new ParameterProvider(parameter);
 
         /// <summary>

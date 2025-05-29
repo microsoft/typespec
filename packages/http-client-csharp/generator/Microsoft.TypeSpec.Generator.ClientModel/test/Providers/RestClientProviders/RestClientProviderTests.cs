@@ -244,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var bodyStatements = method?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
             /* verify that it will use client _apiVersion field to append query parameter. */
-            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
+            Assert.IsTrue(bodyStatements!.Any(s => s.ToDisplayString() == "uri.AppendQuery(\"apiVersion\", _apiVersion, true);\n"));
         }
 
         [TestCaseSource(nameof(ValidateApiVersionPathParameterTestCases))]
@@ -259,7 +259,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var bodyStatements = method?.BodyStatements as MethodBodyStatements;
             Assert.IsNotNull(bodyStatements);
             /* verify that it will use client _apiVersion field to append query parameter. */
-            Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
+            Assert.IsTrue(bodyStatements!.Any(s => s.ToDisplayString() == "uri.AppendPath(_apiVersion, true);\n"));
         }
 
         [TestCaseSource(nameof(ValidateClientResponseClassifiersTestCases))]

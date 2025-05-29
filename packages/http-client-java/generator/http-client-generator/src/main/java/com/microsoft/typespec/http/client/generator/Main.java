@@ -161,7 +161,7 @@ public class Main {
         // handle customization
         // write output
         // java files
-        new Postprocessor(typeSpecPlugin).postProcess(javaFiles);
+        new Postprocessor(typeSpecPlugin, settings.isUseEclipseLanguageServer()).postProcess(javaFiles);
 
         // XML include POM
         javaPackage.getXmlFiles()

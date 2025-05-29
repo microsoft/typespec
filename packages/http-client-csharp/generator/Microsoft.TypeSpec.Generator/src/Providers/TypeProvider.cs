@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+        public string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
 
         private string? _relativeFilePath;
 
