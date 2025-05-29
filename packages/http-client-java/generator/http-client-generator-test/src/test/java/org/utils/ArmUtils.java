@@ -5,7 +5,6 @@ package org.utils;
 
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
-import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.core.http.policy.AddDatePolicy;
 import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.HttpLogDetailLevel;
@@ -21,7 +20,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import reactor.netty.http.client.HttpClient;
 
 public final class ArmUtils {
 
@@ -41,11 +39,7 @@ public final class ArmUtils {
         policies.add(new AddDatePolicy());
         // no ArmChallengeAuthenticationPolicy
         policies.add(new HttpLoggingPolicy(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)));
-        return new HttpPipelineBuilder()
-            .httpClient(new NettyAsyncHttpClientBuilder(
-                HttpClient.create().httpResponseDecoder(decoder -> decoder.maxHeaderSize(1024 * 16))).build())
-            .policies(policies.toArray(new HttpPipelinePolicy[0]))
-            .build();
+        return new HttpPipelineBuilder().policies(policies.toArray(new HttpPipelinePolicy[0])).build();
     }
 
     public static AzureProfile getAzureProfile() {
