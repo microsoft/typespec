@@ -1,0 +1,28 @@
+{
+  "itemPropertySegments": ["things"],
+  "continuationToken": {
+    "parameter": {
+      "$id": "598",
+      "name": "token",
+      "nameInRequest": "token",
+      "type": {
+        "$id": "599",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "location": "Query",
+      "isApiVersion": false,
+      "isContentType": false,
+      "isEndpoint": false,
+      "explode": false,
+      "isRequired": false,
+      "kind": "Method",
+      "decorators": [],
+      "skipUrlEncoding": false
+    },
+    "responseSegments": ["next-token"],
+    "responseLocation": "Header"
+  }
+}
