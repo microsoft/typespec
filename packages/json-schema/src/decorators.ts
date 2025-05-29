@@ -108,7 +108,30 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
  * @param program TypeSpec program
  */
 export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
-  return [...(program.stateSet(JsonSchemaStateKeys.JsonSchema) || [])] as (Namespace | Model)[];
+  const types: (Model | Namespace)[] = [];
+
+  function visitNamespace(ns: Namespace) {
+    if (getJsonSchema(program, ns)) {
+      types.push(ns);
+    }
+
+    for (const member of ns.models.values()) {
+      visitModel(member);
+    }
+    for (const member of ns.namespaces.values()) {
+      visitNamespace(member);
+    }
+  }
+
+  function visitModel(model: Model) {
+    if (isJsonSchemaDeclaration(program, model)) {
+      types.push(model);
+    }
+  }
+
+  visitNamespace(program.getGlobalNamespaceType());
+
+  return types;
 }
 
 export const [
