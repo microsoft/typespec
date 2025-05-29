@@ -42,9 +42,9 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   ]);
   const objectsIds = new Map<any, string>();
 
-  return doBuildJson(context, codeModel);
+  return doBuildJson(codeModel);
 
-  function doBuildJson(context: CSharpEmitterContext, obj: any): any {
+  function doBuildJson(obj: any): any {
     // check if this is a primitive type or null or undefined
     if (!obj || typeof obj !== "object") {
       return obj;
@@ -52,7 +52,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     // we switch here for object, arrays and primitives
     if (Array.isArray(obj)) {
       // array types
-      return obj.map((item) => doBuildJson(context, item));
+      return obj.map((item) => doBuildJson(item));
     } else {
       // this is an object
       if (shouldHaveRef(obj)) {
@@ -68,16 +68,17 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
           // this is the first time we see this object
           id = (objectsIds.size + 1).toString();
           objectsIds.set(obj, id);
-          return handleObject(context, obj, id);
+          return handleObject(obj, id);
         }
       } else {
         // this is not an object to ref
-        return handleObject(context, obj, undefined);
+        return handleObject(obj, undefined);
       }
     }
   }
 
-  function handleObject(context: CSharpEmitterContext, obj: any, id: string | undefined): any {
+  // TODO -- we need to detect cyclical references here and break them.
+  function handleObject(obj: any, id: string | undefined): any {
     const result: any = id === undefined ? {} : { $id: id };
 
     for (const property in obj) {
@@ -85,7 +86,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
         continue; // skip __raw property
       }
       const v = obj[property];
-      result[property] = doBuildJson(context, v);
+      result[property] = doBuildJson(v);
     }
 
     return result;
