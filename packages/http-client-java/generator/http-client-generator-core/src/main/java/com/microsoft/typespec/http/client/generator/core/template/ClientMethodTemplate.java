@@ -39,7 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         // Parameter expressions to validate for non-null value.
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
-        final Map<String, String> validateParamExpressions = new HashMap<>(clientMethod.getValidateExpressions());
+        final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
 
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
