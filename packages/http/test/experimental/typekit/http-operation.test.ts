@@ -1,22 +1,15 @@
-import { Model, Operation } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { assert, beforeEach, describe, expect, it } from "vitest";
-import { createHttpTestRunner } from "./../../test-host.js";
+import { assert, describe, expect, it } from "vitest";
+import { Tester } from "./../../test-host.js";
 
 // Activate  Http TypeKit augmentation
 import "../../../src/experimental/typekit/index.js";
 
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createHttpTestRunner();
-});
-
 describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -24,18 +17,18 @@ describe("httpOperation:getResponses", () => {
       }
 
       @error
-      @test model Error {
+      model ${t.model("Error")} {
         message: string;
         code: int32
       }
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | Error;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | Error;
+    `);
 
-    const httpOperation = $(runner.program).httpOperation.get(getFoo);
-    const responses = $(runner.program).httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -44,8 +37,8 @@ describe("httpOperation:getResponses", () => {
   });
 
   it("should get responses with multiple status codes", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -54,11 +47,11 @@ describe("httpOperation:getResponses", () => {
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | void;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | void;
+    `);
 
-    const httpOperation = $(runner.program).httpOperation.get(getFoo);
-    const responses = $(runner.program).httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -67,8 +60,8 @@ describe("httpOperation:getResponses", () => {
   });
 
   it("should get responses with multiple status codes and contentTypes", async () => {
-    const { getFoo } = (await runner.compile(`
-      @test model Foo {
+    const { getFoo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
         @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
@@ -76,18 +69,18 @@ describe("httpOperation:getResponses", () => {
       }
 
       @error
-      @test model Error {
+      model ${t.model("Error")} {
         message: string;
         code: int32
       }
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
-    `)) as { getFoo: Operation; Foo: Model; Error: Model };
+      op ${t.op("getFoo")}(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
+    `);
 
-    const httpOperation = $(runner.program).httpOperation.get(getFoo);
-    const responses = $(runner.program).httpOperation.flattenResponses(httpOperation);
+    const httpOperation = $(program).httpOperation.get(getFoo);
+    const responses = $(program).httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -99,15 +92,15 @@ describe("httpOperation:getResponses", () => {
 });
 
 it("should get diagnostics from httpOperation.get", async () => {
-  const [{ getFoo }] = await runner.compileAndDiagnose(`
+  const [{ getFoo, program }, _] = await Tester.compileAndDiagnose(t.code`
     @route("/foo/{missing-param}")
     @get
-    @test op getFoo(): Foo | Error;
+    op ${t.op("getFoo")}(): void;
   `);
 
   assert.ok(getFoo.kind === "Operation");
 
-  const [httpOperation, diagnostics] = $(runner.program).httpOperation.get.withDiagnostics(getFoo);
+  const [httpOperation, diagnostics] = $(program).httpOperation.get.withDiagnostics(getFoo);
 
   expect(httpOperation).toBeDefined();
   expectDiagnostics(diagnostics, {

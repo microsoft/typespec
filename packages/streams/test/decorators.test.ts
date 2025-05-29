@@ -1,38 +1,36 @@
 import type { Model } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { getStreamOf } from "../src/decorators.js";
-import { createStreamsTestRunner } from "./test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createStreamsTestRunner();
-});
+import { Tester } from "./test-host.js";
 
 describe("@streamOf", () => {
   it("provides stream protocol type", async () => {
-    const { Blob } = await runner.compile(`@test @streamOf(string) model Blob {}`);
+    const { Blob, program } = await Tester.compile(t.code`
+      @streamOf(string)
+      model ${t.model("Blob")} {}
+    `);
 
-    expect(getStreamOf(runner.program, Blob as Model)).toMatchObject({
+    expect(getStreamOf(program, Blob as Model)).toMatchObject({
       kind: "Scalar",
       name: "string",
     });
   });
 
   it("returns undefined if model is not decorated", async () => {
-    const { Blob } = await runner.compile(`@test model Blob {}`);
+    const { Blob, program } = await Tester.compile(t.code`
+      model ${t.model("Blob")} {}
+    `);
 
-    expect(getStreamOf(runner.program, Blob as Model)).toBeUndefined();
+    expect(getStreamOf(program, Blob as Model)).toBeUndefined();
   });
 
   it("is automatically set on the Stream model", async () => {
-    const { CustomStream, Message } = await runner.compile(
-      `
-      @test model Message { id: string, text: string }
-      @test model CustomStream is Stream<Message> {}`,
-    );
+    const { CustomStream, Message, program } = await Tester.compile(t.code`
+      model ${t.model("Message")} { id: string, text: string }
+      model ${t.model("CustomStream")} is Stream<Message> {}
+    `);
 
-    expect(getStreamOf(runner.program, CustomStream as Model)).toBe(Message);
+    expect(getStreamOf(program, CustomStream as Model)).toBe(Message);
   });
 });
