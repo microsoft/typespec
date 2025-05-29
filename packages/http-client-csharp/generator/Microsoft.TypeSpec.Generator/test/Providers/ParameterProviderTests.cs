@@ -154,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void CanCallInvokeWithTypeArgs()
         {
-            var expression = new ParameterProvider("someParam",$"", typeof(object));
+            var expression = new ParameterProvider("someParam", $"", typeof(object));
             var invokeExpression = expression.Invoke("SomeMethod", [Int(1)], [typeof(string)]);
 
             Assert.IsNotNull(invokeExpression.TypeArguments);
