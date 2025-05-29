@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
@@ -147,6 +149,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.AreEqual(false, refParemeter.IsOut);
             Assert.AreEqual(true, refParemeter.IsRef);
+        }
+
+        [Test]
+        public void CanCallInvokeWithTypeArgs()
+        {
+            var expression = new ParameterProvider("someParam", $"", typeof(object));
+            var invokeExpression = expression.Invoke("SomeMethod", [Int(1)], [typeof(string)]);
+
+            Assert.IsNotNull(invokeExpression.TypeArguments);
+            Assert.IsTrue(invokeExpression.TypeArguments![0].Equals(typeof(string)));
         }
     }
 }
