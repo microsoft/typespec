@@ -1,7 +1,7 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "tsptest.armresourceprovider.fluent.ArmResourceProviderClient": "TspTest.ArmResourceProvider",
+    "tsptest.armresourceprovider.fluent.ArmClient": "TspTest.ArmResourceProvider",
     "tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient": "TspTest.ArmResourceProvider.ChildExtensionResourceInterface",
     "tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient.beginCreateOrUpdate": "Azure.ResourceManager.ChildExtensionResourceInterface.createOrUpdate",
     "tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient.beginDelete": "Azure.ResourceManager.ChildExtensionResourceInterface.delete",
@@ -64,7 +64,7 @@
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner": "TspTest.ArmResourceProvider.TopLevelArmResource",
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceProperties": "TspTest.ArmResourceProvider.TopLevelArmResourceProperties",
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceUpdateProperties": "Azure.ResourceManager.Foundations.ResourceUpdateModelProperties",
-    "tsptest.armresourceprovider.implementation.ArmResourceProviderClientBuilder": "TspTest.ArmResourceProvider",
+    "tsptest.armresourceprovider.implementation.ArmClientBuilder": "TspTest.ArmResourceProvider",
     "tsptest.armresourceprovider.implementation.models.ChildExtensionResourceListResult": "Azure.ResourceManager.ResourceListResult",
     "tsptest.armresourceprovider.implementation.models.ChildResourceListResult": "Azure.ResourceManager.ResourceListResult",
     "tsptest.armresourceprovider.implementation.models.OperationListResult": "Azure.ResourceManager.CommonTypes.OperationListResult",

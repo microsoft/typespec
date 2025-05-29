@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -96,6 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         [TestCase(typeof(SomeEnum), true)]
         [TestCase(typeof(SomeEnum?), true)]
         [TestCase(typeof(IDictionary<string, SomeEnum>))]
+        [TestCase(typeof((List<PropertyType> Values, string Foo, int Bar)))]
         public void ValidatePropertyTypes(Type propertyType, bool isEnum = false)
         {
             // setup
@@ -279,8 +281,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 yield return new TestCaseData(typeof(int), Literal(2));
                 yield return new TestCaseData(typeof(string), Literal("Foo"));
                 yield return new TestCaseData(typeof(double), Literal(2.2));
+                yield return new TestCaseData(typeof(double?), Literal(2.2));
+                yield return new TestCaseData(typeof(float), Literal(2.2f));
+                yield return new TestCaseData(typeof(float?), Literal(2.2f));
+                yield return new TestCaseData(typeof(long), Long(2));
                 yield return new TestCaseData(typeof(bool), False);
                 yield return new TestCaseData(typeof(object), Default);
+                yield return new TestCaseData(typeof(BinaryData), Default);
             }
         }
     }

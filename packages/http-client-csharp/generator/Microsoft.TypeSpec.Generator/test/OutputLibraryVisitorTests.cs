@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -184,6 +185,36 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<FieldProvider>("VisitField", Times.Never(), mockFieldProvider.Object);
+        }
+
+        [Test]
+        public void VisitMethodToRenameParameterName()
+        {
+            var parameter = new ParameterProvider("oldName", $"", typeof(string));
+            var testMethod = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", [parameter]),
+                Snippet.Return(parameter), new TestTypeProvider());
+
+            testMethod.Accept(new MethodVisitor());
+
+            Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
+            Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
+        }
+
+        private class MethodVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                // Rename the parameter to "newName"
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    if (parameter.Name == "oldName")
+                    {
+                        parameter.Update("newName");
+                    }
+                }
+                return base.VisitMethod(method);
+            }
         }
     }
 }

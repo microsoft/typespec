@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
-            Func<InputParameter, ParameterProvider>? createParameterCore = null,
+            Func<InputParameter, ParameterProvider?>? createParameterCore = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             if (createParameterCore is not null)
             {
-                mockTypeFactory.Protected().Setup<ParameterProvider>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
+                mockTypeFactory.Protected().Setup<ParameterProvider?>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
             }
 
             if (createSerializationsCore is not null)
