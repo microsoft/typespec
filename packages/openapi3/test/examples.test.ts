@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
+import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
@@ -232,6 +232,122 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
+    });
+  });
+
+  describe.each(["path", "query", "header", "cookie"])(
+    "set example on the %s parameter without serialization",
+    (paramType) => {
+      it.each([
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `null`,
+          expectedExample: null,
+        },
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `"blue"`,
+          expectedExample: "blue",
+        },
+        {
+          param: `@${paramType} color: string[]`,
+          paramExample: `#["blue", "black", "brown"]`,
+          expectedExample: ["blue", "black", "brown"],
+        },
+        {
+          param: `@${paramType} color: Record<int32>`,
+          paramExample: `#{R: 100, G: 200, B: 150}`,
+          expectedExample: { R: 100, G: 200, B: 150 },
+        },
+      ])("$paramExample", async ({ param, paramExample, expectedExample }) => {
+        const path = paramType === "path" ? "/{color}" : "/";
+        const res = await openApiFor(
+          `
+                @opExample(#{
+                  parameters: #{
+                    color: ${paramExample},
+                  },
+                })
+                @route("/")
+                op getColors(${param}): void;
+              `,
+        );
+        expect((res.paths[path].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      });
+    },
+  );
+
+  it("supports multiple examples on parameter without serialization enabled", async () => {
+    const res = await openApiFor(
+      `
+          @opExample(#{
+            parameters: #{
+              color: "green",
+            },
+          }, #{ title: "MyExample" })
+          @opExample(#{
+            parameters: #{
+              color: "red",
+            },
+          }, #{ title: "MyExample2" })
+          @route("/")
+          op getColors(@query color: string): void;
+          `,
+    );
+    expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
+      MyExample: {
+        summary: "MyExample",
+        value: "green",
+      },
+      MyExample2: {
+        summary: "MyExample2",
+        value: "red",
+      },
+    });
+  });
+
+  it("supports encoding", async () => {
+    const res = await openApiFor(`
+      @opExample(#{
+        parameters: #{
+          dob: plainDate.fromISO("2021-01-01"),
+          utc: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          utcAsUnix: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          dur: duration.fromISO("PT1H"),
+        }
+      }, #{ title: "Test Example"})
+      @route("/")
+      op getDates(...Test): void;
+
+      model Test {
+        @query
+        dob: plainDate;
+        
+        @query
+        utc: utcDateTime;
+
+        @query
+        @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+        utcAsUnix: utcDateTime;
+
+        @query
+        @encode(DurationKnownEncoding.seconds, int32)
+        dur: duration;
+      }
+    `);
+    expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: "2021-01-01" },
+    });
+    expect((res.components.parameters["Test.utc"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: "2021-01-01T00:00:00Z" },
+    });
+    expect((res.components.parameters["Test.utcAsUnix"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: 1609459200 },
+    });
+    expect((res.components.parameters["Test.dur"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: 3600 },
     });
   });
 });

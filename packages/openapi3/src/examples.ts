@@ -17,10 +17,16 @@ import type {
 } from "@typespec/http";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
-import { isSharedHttpOperation, SharedHttpOperation } from "./util.js";
+import {
+  HttpParameterProperties,
+  isHttpParameterProperty,
+  isSharedHttpOperation,
+  SharedHttpOperation,
+} from "./util.js";
 
 export interface OperationExamples {
   requestBody: Record<string, [Example, Type][]>;
+  parameters: Record<string, [Example, Type][]>;
   responses: Record<string, Record<string, [Example, Type][]>>;
 }
 
@@ -29,7 +35,7 @@ export function resolveOperationExamples(
   operation: HttpOperation | SharedHttpOperation,
 ): OperationExamples {
   const examples = findOperationExamples(program, operation);
-  const result: OperationExamples = { requestBody: {}, responses: {} };
+  const result: OperationExamples = { requestBody: {}, parameters: {}, responses: {} };
   if (examples.length === 0) {
     return result;
   }
@@ -50,6 +56,28 @@ export function resolveOperationExamples(
         ]);
       }
     }
+
+    if (example.parameters) {
+      // iterate over properties
+      for (const property of op.parameters.properties) {
+        if (!isHttpParameterProperty(property)) continue;
+
+        const value = getParameterValue(program, example.parameters, property);
+        if (value) {
+          const parameterName = property.options.name;
+          result.parameters[parameterName] ??= [];
+          result.parameters[parameterName].push([
+            {
+              value,
+              title: example.title,
+              description: example.description,
+            },
+            property.property as Type,
+          ]);
+        }
+      }
+    }
+
     if (example.returnType && op.responses) {
       const match = findResponseForExample(program, example.returnType, op.responses);
       if (match) {
@@ -228,6 +256,15 @@ export function getBodyValue(value: Value, properties: HttpProperty[]): Value | 
     return getValueByPath(value, bodyProperty.path);
   }
 
+  return value;
+}
+
+function getParameterValue(
+  program: Program,
+  parameterExamples: Value,
+  property: HttpParameterProperties,
+): Value | undefined {
+  const value = getValueByPath(parameterExamples, property.path);
   return value;
 }
 
