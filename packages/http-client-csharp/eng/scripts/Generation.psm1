@@ -61,9 +61,8 @@ function Get-TspCommand {
 }
 
 function Refresh-Build {
-    Write-Host "Regenerating docs and building emitter and generator" -ForegroundColor Cyan
-    # regen docs will also build the emitter
-    Invoke "npm run regen-docs"
+    Write-Host "Building emitter" -ForegroundColor Cyan
+    Invoke "npm run build:emitter"
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
