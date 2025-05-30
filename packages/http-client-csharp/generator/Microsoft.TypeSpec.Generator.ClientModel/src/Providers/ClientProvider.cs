@@ -457,7 +457,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             if (authField is not null)
-                requiredParameters.Add(authField.AsParameter);
+            {
+                var authParameter = authField.AsParameter;
+                authParameter.Update(name: "credential");
+                requiredParameters.Add(authParameter);
+            }
 
             return requiredParameters;
         }

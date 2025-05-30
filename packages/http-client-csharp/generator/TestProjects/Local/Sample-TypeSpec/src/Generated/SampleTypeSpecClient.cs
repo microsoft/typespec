@@ -32,26 +32,26 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new SampleTypeSpecClientOptions())
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, SampleTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
+            Argument.AssertNotNull(credential, nameof(credential));
 
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _keyCredential = keyCredential;
+            _keyCredential = credential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
