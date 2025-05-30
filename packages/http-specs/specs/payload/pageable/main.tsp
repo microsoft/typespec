@@ -57,6 +57,27 @@ namespace ServerDrivenPagination {
 
     @nextLink next?: url;
   };
+  
+  @scenario
+  @scenarioDoc("""
+    Test case for a list operation without nextLink or continuationToken.
+    
+    Expected route: /payload/pageable/server-driven-pagination/no-pagination
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" }
+      ]
+    }
+    ```
+    """)
+  @route("/no-pagination")
+  @list
+  op noPagination(): {
+    @pageItems
+    pets: Pet[];
+  };
 
   @route("/continuationtoken")
   namespace ContinuationToken {
