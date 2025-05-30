@@ -98,6 +98,15 @@
               "additionalProperties": false
             }
           },
+          "typespec.emitRequiredForCompile": {
+            "type": "array",
+            "default": [],
+            "description": "List of emitter names that should be run during compilation.",
+            "scope": "machine-overridable",
+            "items": {
+              "type": "string"
+            }
+          },
           "typespec.trace.server": {
             "scope": "window",
             "type": "string",

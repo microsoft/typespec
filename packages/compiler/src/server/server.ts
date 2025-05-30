@@ -17,6 +17,7 @@ import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
+import { initializeVsCodeSettings, updateVsCodeSettings } from "./vscode-settings.js";
 
 let server: Server | undefined = undefined;
 
@@ -26,12 +27,12 @@ let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
 try {
-  main();
+  await main();
 } catch (e) {
   fatalError(e);
 }
 
-function main() {
+async function main() {
   // Redirect all console stdout output to stderr since LSP pipe uses stdout
   // and writing to stdout for anything other than LSP protocol will break
   // things badly.
@@ -106,11 +107,22 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+    // Initialize vscode settings
+    await initializeVsCodeSettings(connection, host);
     s.initialized(params);
+  });
+
+  connection.onDidChangeConfiguration(async (params) => {
+    // Update vscode settings
+    if (params.settings && params.settings.typespec) {
+      updateVsCodeSettings(params.settings.typespec);
+    }
+
+    s.log({ level: `debug`, message: `Configuration changed`, detail: params.settings });
   });
 
   connection.onDocumentFormatting(profile(s.formatDocument));
