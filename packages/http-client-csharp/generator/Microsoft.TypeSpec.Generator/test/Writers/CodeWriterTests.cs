@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -167,6 +169,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
             var result = codeWriter.ToString(false);
             Assert.AreEqual("public String() : base(\"test\")", result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_GenericConstraints()
+        {
+            var t = typeof(IEnumerable<>).GetGenericArguments()[0];
+            var methodSignature = new MethodSignature(
+                "TestMethod",
+                $"To test a method with generic constraints",
+                MethodSignatureModifiers.Public,
+                typeof(void),
+                null,
+                [],
+                null,
+                [new CSharpType(t)],
+                [
+                    new WhereExpression(t, [typeof(BinaryData), typeof(Stream)]),
+                ]);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("public global::System.Void TestMethod<T>()\n    where T : global::System.BinaryData, global::System.IO.Stream", result);
         }
 
         [Test]
