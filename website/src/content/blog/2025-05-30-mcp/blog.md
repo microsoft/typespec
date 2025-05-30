@@ -1,7 +1,7 @@
 ---
 slug: 2025-05-30-typespec-mcp
 title: "API-first MCP servers with TypeSpec"
-description: "Build MCP servers quickly and easily with TypeSpec"
+description: "We are previewing a few libraries and emitters for authoring MCP servers with TypeSpec. Describe MCP server endpoints using decorators and generate a server implementation in JavaScript. Use the TypeSpec MCP server to help get set up."
 publishDate: 2025-05-30
 authors:
   - name: Brian Terlson
