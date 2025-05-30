@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -185,13 +183,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 null,
                 [new CSharpType(t)],
                 [
-                    new WhereExpression(t, [typeof(BinaryData), typeof(Stream)]),
+                    new WhereExpression(t, [typeof(BinaryData), typeof(IDisposable)]),
                 ]);
             using var codeWriter = new CodeWriter();
             codeWriter.WriteMethodDeclarationNoScope(methodSignature);
 
             var result = codeWriter.ToString(false);
-            Assert.AreEqual("public global::System.Void TestMethod<T>()\n    where T : global::System.BinaryData, global::System.IO.Stream", result);
+            Assert.AreEqual("public global::System.Void TestMethod<T>()\n    where T : global::System.BinaryData, global::System.IDisposable", result);
         }
 
         [Test]
