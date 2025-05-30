@@ -48,6 +48,7 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
+import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
@@ -714,13 +715,38 @@ export function createServer(host: ServerHost): Server {
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
-    const markdown: MarkupContent = {
-      kind: MarkupKind.Markdown,
-      value: sym && sym.length > 0 ? getSymbolDetails(program, sym[0]) : "",
-    };
-    return {
-      contents: markdown,
-    };
+    if (!sym || sym.length === 0) {
+      return { contents: { kind: MarkupKind.Markdown, value: "" } };
+    } else {
+      const type = sym[0].type ?? program.checker.getTypeOrValueForNode(getSymNode(sym[0]));
+      const modelHasExtendOrIs: boolean =
+        type !== null &&
+        "kind" in type &&
+        type.kind === "Model" &&
+        (type.baseModel !== undefined ||
+          type.sourceModel !== undefined ||
+          type.sourceModels.length > 0);
+      const interfaceHasExtendOrIs: boolean =
+        type !== null &&
+        "kind" in type &&
+        type.kind === "Interface" &&
+        type.sourceInterfaces.length > 0;
+      const includeFullDefinition = modelHasExtendOrIs || interfaceHasExtendOrIs;
+      const markdown: MarkupContent = {
+        kind: MarkupKind.Markdown,
+        value:
+          sym && sym.length > 0
+            ? getSymbolDetails(program, sym[0], {
+                includeSignature: true,
+                includeParameterTags: true,
+                includeFullDefinition,
+              })
+            : "",
+      };
+      return {
+        contents: markdown,
+      };
+    }
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
@@ -796,6 +822,7 @@ export function createServer(host: ServerHost): Server {
     const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
+      includeFullDefinition: false,
     });
     if (doc) {
       help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
@@ -874,6 +901,7 @@ export function createServer(host: ServerHost): Server {
     const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
+      includeFullDefinition: false,
     });
     if (doc) {
       help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };

@@ -17,6 +17,7 @@ export function getSymbolDetails(
   options = {
     includeSignature: true,
     includeParameterTags: true,
+    includeFullDefinition: false,
   },
 ): string {
   const lines = [];
@@ -42,6 +43,14 @@ export function getSymbolDetails(
         );
       }
     }
+  }
+  if (options.includeFullDefinition) {
+    lines.push(`\n\n*Full Definition:*\n`);
+    lines.push(
+      getSymbolSignature(program, symbol, {
+        includeBody: true,
+      }),
+    );
   }
   return lines.join("\n\n");
 }
