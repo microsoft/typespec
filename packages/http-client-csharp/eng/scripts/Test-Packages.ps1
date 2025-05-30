@@ -39,7 +39,7 @@ try {
         Write-Host "Setting up workspace" -ForegroundColor Cyan
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
 
-        Invoke-LoggedCommand "npm run build" -GroupOutput
+        Invoke-LoggedCommand "npm run build && npm run regen-docs" -GroupOutput
         # run E2E Test for TypeSpec emitter
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
