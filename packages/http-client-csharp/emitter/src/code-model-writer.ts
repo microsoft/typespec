@@ -81,9 +81,7 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   function handleObject(obj: any, id: string | undefined, stack: any[]): any {
     if (stack.includes(obj)) {
       // we have a cyclical reference, we should not continue
-      context.logger.warn(
-        `Cyclical reference detected in the code model (id: ${id}).`
-      );
+      context.logger.warn(`Cyclical reference detected in the code model (id: ${id}).`);
       return undefined;
     }
 
