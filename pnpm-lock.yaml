@@ -1797,6 +1797,21 @@ importers:
         specifier: ^3.1.2
         version: 3.1.4(@types/debug@4.1.12)(@types/node@22.13.17)(@vitest/ui@3.1.4)(happy-dom@17.5.6)(jsdom@25.0.1)(tsx@4.19.4)(yaml@2.8.0)
 
+  packages/smoke-http-specs:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
+      '@typespec/rest':
+        specifier: workspace:^
+        version: link:../rest
+      '@typespec/versioning':
+        specifier: workspace:^
+        version: link:../versioning
+
   packages/spec:
     devDependencies:
       '@types/node':
