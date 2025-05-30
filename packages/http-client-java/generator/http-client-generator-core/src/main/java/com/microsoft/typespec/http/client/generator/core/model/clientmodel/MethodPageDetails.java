@@ -68,7 +68,8 @@ public final class MethodPageDetails {
     }
 
     public boolean nonNullNextLink() {
-        return getNextLinkName() != null && !getNextLinkName().isEmpty();
+        final String nextLinkName = getNextLinkName();
+        return nextLinkName != null && !nextLinkName.isEmpty();
     }
 
     public boolean shouldHideParameter(ClientMethodParameter parameter) {

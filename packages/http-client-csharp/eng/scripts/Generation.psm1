@@ -1,6 +1,6 @@
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+$packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 
-function Invoke($command, $executePath=$repoRoot)
+function Invoke($command, $executePath=$packageRoot)
 {
     Write-Host "> $command"
     Push-Location $executePath
@@ -61,8 +61,9 @@ function Get-TspCommand {
 }
 
 function Refresh-Build {
-    Write-Host "Building emitter and generator" -ForegroundColor Cyan
-    Invoke "npm run build:emitter"
+    Write-Host "Regenerating docs and building emitter and generator" -ForegroundColor Cyan
+    # regen docs will also build the emitter
+    Invoke "npm run regen-docs"
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
@@ -70,7 +71,7 @@ function Refresh-Build {
 
     # we don't want to build the entire solution because the test projects might not build until after regeneration
     # generating Microsoft.TypeSpec.Generator.ClientModel.csproj is enough
-    Invoke "dotnet build $repoRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel/src"
+    Invoke "dotnet build $packageRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel/src"
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
