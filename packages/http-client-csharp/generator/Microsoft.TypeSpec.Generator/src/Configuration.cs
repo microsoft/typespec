@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        internal string PackageName { get; }
+        public string PackageName { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
