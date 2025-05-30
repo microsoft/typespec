@@ -35,10 +35,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
 
-        protected override string BuildName() => base.BuildName();
-
-        protected override FormattableString Description => base.Description;
-
         protected override TypeProvider[] BuildSerializationProviders()
         {
             return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this)];

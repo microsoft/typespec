@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string ApiVersionEnumName = "ServiceVersion";
         private const string ApiVersionEnumDescription = "The version of the service to use.";
 
-        internal ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
+        public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
 
         protected override string BuildName() => ApiVersionEnumName;
         protected override FormattableString Description => $"{ApiVersionEnumDescription}";
