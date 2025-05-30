@@ -6,6 +6,7 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - agentic
   - aiohttp
   - alzimmer
   - amqp
@@ -229,6 +230,7 @@ words:
   - swaggerui
   - syncpack
   - TCGC
+  - terlson
   - timegm
   - tomli
   - triaging
