@@ -461,13 +461,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // when there is any auth, the second should be auth parameter
                 var authParam = primaryCtorParams?[1];
                 Assert.IsNotNull(authParam);
-                if (authParam?.Name == "keyCredential")
+                if (authParam?.Type.Equals(typeof(ApiKeyCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(ApiKeyCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
-                else if (authParam?.Name == "tokenCredential")
+                else if (authParam?.Type.Equals(typeof(FakeTokenCredential)) == true)
                 {
-                    Assert.AreEqual(new CSharpType(typeof(FakeTokenCredential)), authParam?.Type);
+                    Assert.AreEqual("credential", authParam.Name);
                 }
                 else
                 {
@@ -501,7 +501,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 // auth should be the only parameter if endpoint is optional when there is auth
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[0].Name);
                 }
                 else
                 {
@@ -515,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
                 if (_hasSupportedAuth)
                 {
-                    Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
+                    Assert.AreEqual("credential", ctorParams?[1].Name);
                 }
             }
 
