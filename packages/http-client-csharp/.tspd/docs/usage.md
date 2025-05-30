@@ -5,4 +5,4 @@
 
 ### Customizing Generated Code
 
-For detailed instructions on how to customize the generated C# code, see the [Customization Guide](./customization.md).
+For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
