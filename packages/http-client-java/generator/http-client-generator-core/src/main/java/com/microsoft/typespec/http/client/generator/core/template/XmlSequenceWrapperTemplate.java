@@ -41,6 +41,9 @@ public class XmlSequenceWrapperTemplate implements IJavaTemplate<XmlSequenceWrap
 
         Set<String> imports = xmlSequenceWrapper.getImports();
 
+        Annotation.METADATA.addImportsTo(imports);
+        Annotation.METADATA_PROPERTIES.addImportsTo(imports);
+
         if (settings.isStreamStyleSerialization()) {
             ClassType.XML_READER.addImportsTo(imports, false);
             ClassType.XML_SERIALIZABLE.addImportsTo(imports, false);
