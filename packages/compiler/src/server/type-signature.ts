@@ -120,26 +120,16 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
   const parameters = [...type.parameters.properties.values()].map((p) =>
     getModelPropertySignature(p, false /* includeQualifier */),
   );
-  if (includeQualifier) {
-    return `op ${getTypeName(type)}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
-  } else {
-    let opName = printIdentifier(type.name, "allow-reserved");
-    if (type.node && type.node.templateParameters.length > 0) {
-      // template
-      const params = type.node.templateParameters.map((t) =>
-        printIdentifier(t.id.sv, "allow-reserved"),
-      );
-      opName += `<${params.join(", ")}>`;
-    }
-    return `op ${opName}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
-  }
+  return `op ${getTypeName(type, {
+    includeInterfacePrefix: includeQualifier,
+  })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
 function getInterfaceSignature(type: Interface, includeBody: boolean) {
   if (includeBody) {
     const INDENT = "  ";
     const opDescs = Array.from(type.operations).map(
-      ([name, op]) => INDENT + getOperationSignature(op),
+      ([name, op]) => INDENT + getOperationSignature(op, false /* includeQualifier */) + ";",
     );
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDescs.join("\n")}\n}`;
   } else {

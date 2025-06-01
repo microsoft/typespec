@@ -718,20 +718,24 @@ export function createServer(host: ServerHost): Server {
     if (!sym || sym.length === 0) {
       return { contents: { kind: MarkupKind.Markdown, value: "" } };
     } else {
-      const type = sym[0].type ?? program.checker.getTypeOrValueForNode(getSymNode(sym[0]));
-      const modelHasExtendOrIs: boolean =
-        type !== null &&
-        "kind" in type &&
-        type.kind === "Model" &&
-        (type.baseModel !== undefined ||
-          type.sourceModel !== undefined ||
-          type.sourceModels.length > 0);
-      const interfaceHasExtendOrIs: boolean =
-        type !== null &&
-        "kind" in type &&
-        type.kind === "Interface" &&
-        type.sourceInterfaces.length > 0;
-      const includeFullDefinition = modelHasExtendOrIs || interfaceHasExtendOrIs;
+      // Only show full definition if the symbol is a model or interface that has extends or is clauses.
+      // Avoid showing full definition in other cases which can be long and not useful
+      let includeExpandedDefinition = false;
+      const sn = getSymNode(sym[0]);
+      if (sn.kind !== SyntaxKind.AliasStatement) {
+        const type = sym[0].type ?? program.checker.getTypeOrValueForNode(sn);
+        if (type && "kind" in type) {
+          const modelHasExtendOrIs: boolean =
+            type.kind === "Model" &&
+            (type.baseModel !== undefined ||
+              type.sourceModel !== undefined ||
+              type.sourceModels.length > 0);
+          const interfaceHasExtend: boolean =
+            type.kind === "Interface" && type.sourceInterfaces.length > 0;
+          includeExpandedDefinition = modelHasExtendOrIs || interfaceHasExtend;
+        }
+      }
+
       const markdown: MarkupContent = {
         kind: MarkupKind.Markdown,
         value:
@@ -739,7 +743,7 @@ export function createServer(host: ServerHost): Server {
             ? getSymbolDetails(program, sym[0], {
                 includeSignature: true,
                 includeParameterTags: true,
-                includeFullDefinition,
+                includeExpandedDefinition,
               })
             : "",
       };
@@ -822,7 +826,6 @@ export function createServer(host: ServerHost): Server {
     const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
-      includeFullDefinition: false,
     });
     if (doc) {
       help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
@@ -901,7 +904,6 @@ export function createServer(host: ServerHost): Server {
     const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
-      includeFullDefinition: false,
     });
     if (doc) {
       help.signatures[0].documentation = { kind: MarkupKind.Markdown, value: doc };
