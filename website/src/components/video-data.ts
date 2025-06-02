@@ -3,7 +3,7 @@ export const videoData = [
     url: "https://www.youtube.com/embed/mV-llh3O3W8",
     featured: true,
     thumbnail: "https://via.placeholder.com/300x200",
-  }, 
+  },
   {
     url: "https://www.youtube.com/embed/yfCYrKaojDo",
     featured: false,
