@@ -499,7 +499,7 @@ function getParameterDelimitedValue(
       if (!isSerializableScalarValue(value)) continue;
       pairs.push(`${value.value}`);
     }
-    return tk.value.createString(`?${name}=${encodeURIComponent(pairs.join(delimiter))}`);
+    return tk.value.createString(`${name}=${encodeURIComponent(pairs.join(delimiter))}`);
   }
 
   if (tk.value.isObject(originalValue)) {
@@ -508,7 +508,7 @@ function getParameterDelimitedValue(
       if (!isSerializableScalarValue(value)) continue;
       pairs.push(`${key}${delimiter}${value.value}`);
     }
-    return tk.value.createString(`?${name}=${encodeURIComponent(pairs.join(delimiter))}`);
+    return tk.value.createString(`${name}=${encodeURIComponent(pairs.join(delimiter))}`);
   }
 
   return undefined;
@@ -535,7 +535,6 @@ function getParameterFormValue(
     | true    | ?color=blue   | ?color=blue&color=black&color=brown | ?R=100&G=200&B=150       |
   */
 
-  const qPrefix = isCookie ? "" : "?";
   const prefix = explode ? "" : `${name}=`;
   if (tk.value.isArray(originalValue)) {
     const sep = explode ? "&" : ",";
@@ -544,7 +543,7 @@ function getParameterFormValue(
       if (!isSerializableScalarValue(value)) continue;
       pairs.push(explode ? `${name}=${value.value}` : `${value.value}`);
     }
-    return tk.value.createString(`${qPrefix}${prefix}${pairs.join(sep)}`);
+    return tk.value.createString(`${prefix}${pairs.join(sep)}`);
   }
 
   if (tk.value.isObject(originalValue)) {
@@ -555,16 +554,16 @@ function getParameterFormValue(
       if (!isSerializableScalarValue(value)) continue;
       pairs.push(`${key}${sep}${value.value}`);
     }
-    return tk.value.createString(`${qPrefix}${prefix}${pairs.join(joiner)}`);
+    return tk.value.createString(`${prefix}${pairs.join(joiner)}`);
   }
 
   if (isSerializableScalarValue(originalValue)) {
-    return tk.value.createString(`${qPrefix}${name}=${originalValue.value}`);
+    return tk.value.createString(`${name}=${originalValue.value}`);
   }
 
   // null is treated as the 'undefined' value
   if (tk.value.isNull(originalValue)) {
-    return tk.value.createString(`${qPrefix}${name}=`);
+    return tk.value.createString(`${name}=`);
   }
 
   return;

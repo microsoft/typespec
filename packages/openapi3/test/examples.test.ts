@@ -285,37 +285,37 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         desc: "form (undefined)",
         param: `@query color: string | null`,
         paramExample: `null`,
-        expectedExample: "?color=",
+        expectedExample: "color=",
       },
       {
         desc: "form (string)",
         param: `@query color: string`,
         paramExample: `"blue"`,
-        expectedExample: "?color=blue",
+        expectedExample: "color=blue",
       },
       {
         desc: "form (array) explode: false",
         param: `@query color: string[]`,
         paramExample: `#["blue", "black", "brown"]`,
-        expectedExample: "?color=blue,black,brown",
+        expectedExample: "color=blue,black,brown",
       },
       {
         desc: "form (array) explode: true",
         param: `@query(#{ explode: true }) color: string[]`,
         paramExample: `#["blue", "black", "brown"]`,
-        expectedExample: "?color=blue&color=black&color=brown",
+        expectedExample: "color=blue&color=black&color=brown",
       },
       {
         desc: "form (object) explode: false",
         param: `@query color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
-        expectedExample: "?color=R,100,G,200,B,150",
+        expectedExample: "color=R,100,G,200,B,150",
       },
       {
         desc: "form (object) explode: true",
         param: `@query(#{ explode: true }) color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
-        expectedExample: "?R=100&G=200&B=150",
+        expectedExample: "R=100&G=200&B=150",
       },
       {
         desc: "spaceDelimited (undefined)",
@@ -333,7 +333,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         desc: "spaceDelimited (array) explode: false",
         param: `@query @encode(ArrayEncoding.spaceDelimited) color: string[]`,
         paramExample: `#["blue", "black", "brown"]`,
-        expectedExample: "?color=blue%20black%20brown",
+        expectedExample: "color=blue%20black%20brown",
       },
       {
         desc: "spaceDelimited (array) explode: true",
@@ -345,7 +345,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         desc: "spaceDelimited (object) explode: false",
         param: `@query @encode(ArrayEncoding.spaceDelimited) color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
-        expectedExample: "?color=R%20100%20G%20200%20B%20150",
+        expectedExample: "color=R%20100%20G%20200%20B%20150",
       },
       {
         desc: "spaceDelimited (object) explode: true",
@@ -370,7 +370,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         param: `@query @encode(ArrayEncoding.pipeDelimited) color: string[]`,
         paramExample: `#["blue", "black", "brown"]`,
         // cspell:disable-next-line
-        expectedExample: "?color=blue%7Cblack%7Cbrown",
+        expectedExample: "color=blue%7Cblack%7Cbrown",
       },
       {
         desc: "pipeDelimited (array) explode: true",
@@ -382,7 +382,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         desc: "pipeDelimited (object) explode: false",
         param: `@query @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
-        expectedExample: "?color=R%7C100%7CG%7C200%7CB%7C150",
+        expectedExample: "color=R%7C100%7CG%7C200%7CB%7C150",
       },
       {
         desc: "pipeDelimited (object) explode: true",
@@ -684,11 +684,11 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
       MyExample: {
         summary: "MyExample",
-        value: "?color=green",
+        value: "color=green",
       },
       MyExample2: {
         summary: "MyExample2",
-        value: "?color=red",
+        value: "color=red",
       },
     });
   });
