@@ -211,7 +211,7 @@ export function resolveOptions(
     outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
     openapiVersions,
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
-    serializeParameterExamples: resolvedOptions["serialize-parameter-examples"] ?? false,
+    parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
   };
 }
 
@@ -224,7 +224,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   includeXTypeSpecName: "inline-only" | "never";
   safeintStrategy: "double-int" | "int64";
   sealObjectSchemas: boolean;
-  serializeParameterExamples: boolean;
+  parameterExamplesStrategy?: "data" | "serialized";
 }
 
 function createOAPIEmitter(
@@ -735,7 +735,7 @@ function createOAPIEmitter(
     const verb = operations[0].verb;
     const path = operations[0].path;
     const examples = resolveOperationExamples(program, shared, {
-      enableParameterSerialization: options.serializeParameterExamples,
+      parameterExamplesStrategy: options.parameterExamplesStrategy,
     });
     const oai3Operation: OpenAPI3Operation = {
       operationId: computeSharedOperationId(shared),
@@ -815,7 +815,7 @@ function createOAPIEmitter(
     }
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     const examples = resolveOperationExamples(program, operation, {
-      enableParameterSerialization: options.serializeParameterExamples,
+      parameterExamplesStrategy: options.parameterExamplesStrategy,
     });
     const oai3Operation: OpenAPI3Operation = {
       operationId: resolveOperationId(program, operation.operation),

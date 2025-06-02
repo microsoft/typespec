@@ -235,6 +235,22 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
+  it("does not set examples on parameters by default", async () => {
+    const res = await openApiFor(
+      `
+                @opExample(#{
+                  parameters: #{
+                    color: "blue",
+                  },
+                })
+                @route("/")
+                op getColors(@query color: string): void;
+              `,
+    );
+    expect((res.paths["/"].get?.parameters[0] as OpenAPI3Parameter).example).toBeUndefined();
+    expect((res.paths["/"].get?.parameters[0] as OpenAPI3Parameter).examples).toBeUndefined();
+  });
+
   describe.each(["path", "query", "header", "cookie"])(
     "set example on the %s parameter without serialization",
     (paramType) => {
@@ -271,6 +287,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
                 @route("/")
                 op getColors(${param}): void;
               `,
+          undefined,
+          { "experimental-parameter-examples": "data" },
         );
         expect((res.paths[path].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
           expectedExample,
@@ -402,7 +420,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           op getColors(${param}): void;
           `,
         undefined,
-        { "serialize-parameter-examples": true },
+        { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
         expectedExample,
@@ -550,7 +568,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           op getColors(${param}): void;
           `,
         undefined,
-        { "serialize-parameter-examples": true },
+        { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
         expectedExample,
@@ -608,7 +626,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           op getColors(${param}): void;
           `,
         undefined,
-        { "serialize-parameter-examples": true },
+        { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
         expectedExample,
@@ -654,7 +672,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           op getColors(${param}): void;
           `,
         undefined,
-        { "serialize-parameter-examples": true },
+        { "experimental-parameter-examples": "serialized" },
       );
       expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
         expectedExample,
@@ -679,7 +697,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           op getColors(@query color: string): void;
           `,
       undefined,
-      { "serialize-parameter-examples": true },
+      { "experimental-parameter-examples": "serialized" },
     );
     expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
       MyExample: {
@@ -709,6 +727,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           @route("/")
           op getColors(@query color: string): void;
           `,
+      undefined,
+      { "experimental-parameter-examples": "data" },
     );
     expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
       MyExample: {
@@ -723,7 +743,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   });
 
   it("supports encoding", async () => {
-    const res = await openApiFor(`
+    const res = await openApiFor(
+      `
       @opExample(#{
         parameters: #{
           dob: plainDate.fromISO("2021-01-01"),
@@ -750,7 +771,10 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         @encode(DurationKnownEncoding.seconds, int32)
         dur: duration;
       }
-    `);
+    `,
+      undefined,
+      { "experimental-parameter-examples": "data" },
+    );
     expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).examples).toEqual({
       "Test Example": { summary: "Test Example", value: "2021-01-01" },
     });

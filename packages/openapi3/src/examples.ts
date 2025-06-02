@@ -19,6 +19,7 @@ import type {
   HttpProperty,
   HttpStatusCodeRange,
 } from "@typespec/http";
+import { ExperimentalParameterExamplesStrategy } from "./lib.js";
 import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
@@ -36,13 +37,13 @@ export interface OperationExamples {
 }
 
 type ResolveOperationExamplesOptions = {
-  enableParameterSerialization: boolean;
+  parameterExamplesStrategy?: ExperimentalParameterExamplesStrategy;
 };
 
 export function resolveOperationExamples(
   program: Program,
   operation: HttpOperation | SharedHttpOperation,
-  { enableParameterSerialization }: ResolveOperationExamplesOptions,
+  { parameterExamplesStrategy }: ResolveOperationExamplesOptions,
 ): OperationExamples {
   const examples = findOperationExamples(program, operation);
   const result: OperationExamples = { requestBody: {}, parameters: {}, responses: {} };
@@ -76,7 +77,7 @@ export function resolveOperationExamples(
           program,
           example.parameters,
           property,
-          enableParameterSerialization,
+          parameterExamplesStrategy,
         );
         if (value) {
           const parameterName = property.options.name;
@@ -278,14 +279,18 @@ function getParameterValue(
   program: Program,
   parameterExamples: Value,
   property: HttpParameterProperties,
-  enableSerialization: boolean = false,
+  parameterExamplesStrategy?: ExperimentalParameterExamplesStrategy,
 ): Value | undefined {
-  const value = getValueByPath(parameterExamples, property.path);
-  if (!enableSerialization) {
-    return value;
+  if (!parameterExamplesStrategy) {
+    return;
   }
 
-  if (!value) return value;
+  const value = getValueByPath(parameterExamples, property.path);
+  if (!value) return;
+
+  if (parameterExamplesStrategy === "data") {
+    return value;
+  }
 
   // Depending on the parameter type, we may need to serialize the value differently.
   // https://spec.openapis.org/oas/v3.0.4.html#style-examples
@@ -485,12 +490,12 @@ function getParameterDelimitedValue(
       array -> ["blue", "black", "brown"]
       object -> { "R": 100, "G": 200, "B": 150 }
 
-    | style | explode | string | array                       | object                             |
-    | ----- | ------- | ------ | --------------------------- | ---------------------------------- |
-    | pipe  | false   | n/a    | ?color=blue%7Cblack%7Cbrown | ?color=R%7C100%7CG%7C200%7CB%7C150 |
-    | pipe  | true    | n/a    | n/a                         | n/a                                |
-    | space | false   | n/a    | ?color=blue%20black%20brown | ?color=R%20100%20G%20200%20B%20150 |
-    | space | true    | n/a    | n/a                         | n/a                                |
+    | style | explode | string | array                      | object                            |
+    | ----- | ------- | ------ | -------------------------- | ----------------------------------|
+    | pipe  | false   | n/a    | color=blue%7Cblack%7Cbrown | color=R%7C100%7CG%7C200%7CB%7C150 |
+    | pipe  | true    | n/a    | n/a                        | n/a                               |
+    | space | false   | n/a    | color=blue%20black%20brown | color=R%20100%20G%20200%20B%20150 |
+    | space | true    | n/a    | n/a                        | n/a                               |
   */
 
   if (tk.value.isArray(originalValue)) {
@@ -529,10 +534,10 @@ function getParameterFormValue(
       array -> ["blue", "black", "brown"]
       object -> { "R": 100, "G": 200, "B": 150 }
 
-    | explode | string        | array                               | object                   |
-    | ------- | ------------- | ----------------------------------- | ------------------------ |
-    | false   | ?color=blue   | ?color=blue,black,brown             | ?color=R,100,G,200,B,150 |
-    | true    | ?color=blue   | ?color=blue&color=black&color=brown | ?R=100&G=200&B=150       |
+    | explode | string       | array                              | object                  |
+    | ------- | ------------ | ---------------------------------- | ----------------------- |
+    | false   | color=blue   | color=blue,black,brown             | color=R,100,G,200,B,150 |
+    | true    | color=blue   | color=blue&color=black&color=brown | R=100&G=200&B=150       |
   */
 
   const prefix = explode ? "" : `${name}=`;

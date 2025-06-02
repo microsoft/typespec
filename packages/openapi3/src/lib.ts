@@ -2,6 +2,7 @@ import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/c
 
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0";
+export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
@@ -83,11 +84,12 @@ export interface OpenAPI3EmitterOptions {
   "seal-object-schemas"?: boolean;
 
   /**
-   * If true, then examples on parameters will be serialized based on the parameter's prescribed serialization strategy.
-   * @default false
+   * Determines how to emit examples on parameters.
+   *
+   * Note: This is an experimental feature and may change in future versions.
    * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples
    */
-  "serialize-parameter-examples"?: boolean;
+  "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -187,13 +189,13 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "Default: `false`",
       ].join("\n"),
     },
-    "serialize-parameter-examples": {
-      type: "boolean",
+    "experimental-parameter-examples": {
+      type: "string",
+      enum: ["data", "serialized"],
       nullable: true,
-      default: false,
       description: [
-        "If true, then examples on parameters will be serialized based on the parameter's prescribed serialization strategy.",
-        "Default: `false`",
+        "Determines how to emit examples on parameters.",
+        "Note: This is an experimental feature and may change in future versions.",
         "See https://spec.openapis.org/oas/v3.0.4.html#style-examples",
       ].join("\n"),
     },
