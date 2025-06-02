@@ -298,21 +298,27 @@ function navigateProperties(
   type: Type,
   callback: (prop: ModelProperty, path: ModelProperty[]) => void,
   path: ModelProperty[] = [],
+  visited: Set<Type> = new Set(),
 ): void {
+  if (visited.has(type)) return;
+  visited.add(type);
   switch (type.kind) {
     case "Model":
       for (const prop of type.properties.values()) {
         callback(prop, [...path, prop]);
-        navigateProperties(prop.type, callback, [...path, prop]);
+        navigateProperties(prop.type, callback, [...path, prop], visited);
+      }
+      if (type.baseModel) {
+        navigateProperties(type.baseModel, callback, path, visited);
       }
       break;
     case "Union":
       for (const member of type.variants.values()) {
-        navigateProperties(member, callback, path);
+        navigateProperties(member, callback, path, visited);
       }
       break;
     case "UnionVariant":
-      navigateProperties(type.type, callback, path);
+      navigateProperties(type.type, callback, path, visited);
       break;
   }
 }

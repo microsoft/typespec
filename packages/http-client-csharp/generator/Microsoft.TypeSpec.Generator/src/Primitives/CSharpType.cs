@@ -549,10 +549,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 return false;
             }
 
-            if (Namespace != other.Namespace)
-                return false;
-
-            if (Name != other.Name)
+            if (!IsNameMatch(other))
                 return false;
 
             if (Arguments.Count != other.Arguments.Count)
@@ -565,6 +562,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return true;
+        }
+
+        private bool IsNameMatch(CSharpType other)
+        {
+            if (string.IsNullOrEmpty(Namespace))
+            {
+                return Name == other.Name;
+            }
+
+            return FullyQualifiedName == other.FullyQualifiedName;
         }
 
         // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198

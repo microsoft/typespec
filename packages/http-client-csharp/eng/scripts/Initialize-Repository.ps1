@@ -17,17 +17,6 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    # install dotnet
-    if ($IsWindows) {
-        # download and run https://dot.net/v1/dotnet-install.ps1
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
-        ./dotnet-install.ps1 -Version '8.0.204'
-    }
-    else {
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
-        bash ./dotnet-install.sh --version 8.0.204
-    }
-
     # install and list npm packages
   
     if ($BuildArtifactsPath) {

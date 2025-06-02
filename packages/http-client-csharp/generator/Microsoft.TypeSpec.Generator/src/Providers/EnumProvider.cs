@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -15,7 +16,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
         {
-            var fixedEnumProvider = new FixedEnumProvider(input, declaringType);
+            bool isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
+            var fixedEnumProvider = isApiVersionEnum
+                ? new ApiVersionEnumProvider(input, declaringType)
+                : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
 
             // Check to see if there is custom code that customizes the enum.
@@ -48,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType.Name.ToCleanName();
+        protected override string BuildName() => _inputType.Name.ToIdentifierName();
         protected override FormattableString Description { get; }
 
         protected override TypeProvider[] BuildSerializationProviders()

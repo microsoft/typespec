@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -140,24 +141,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 Assert.AreEqual(parts[i].ArgumentIndex, index);
                 i++;
             }
-        }
-
-        [TestCase("Foo", "Foo", ExpectedResult = true)]
-        [TestCase("Foo", "Bar", ExpectedResult = false)]
-        [TestCase("Foo", "_Foo", ExpectedResult = false)]
-        [TestCase("_Foo", "Foo", ExpectedResult = false)]
-        [TestCase("Foo", "Bar.Foo", ExpectedResult = true)]
-        [TestCase("Bar.Foo", "Foo", ExpectedResult = true)]
-        [TestCase("Foo", "Bar._Foo", ExpectedResult = false)]
-        [TestCase("Bar._Foo", "Foo", ExpectedResult = false)]
-        [TestCase("Foo", "/Foo", ExpectedResult = false)]
-        [TestCase("/Foo", "Foo", ExpectedResult = false)]
-        [TestCase(".Foo", ".Foo", ExpectedResult = true)]
-        [TestCase("Foo", ".Foo", ExpectedResult = true)]
-        [TestCase(".Foo", "Foo", ExpectedResult = true)]
-        public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
-        {
-            return StringExtensions.IsLastNamespaceSegmentTheSame(left, right);
         }
 
         public record Part(string Value, bool IsLiteral, int ArgumentIndex);

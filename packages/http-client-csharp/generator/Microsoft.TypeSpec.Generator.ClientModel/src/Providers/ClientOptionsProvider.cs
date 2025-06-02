@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -14,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientOptionsProvider : TypeProvider
+    public class ClientOptionsProvider : TypeProvider
     {
         private const string LatestVersionFieldName = "LatestVersion";
         private const string VersionPropertyName = "Version";
@@ -139,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             description,
                             MethodSignatureModifiers.Public,
                             type,
-                            p.Name.ToCleanName(),
+                            p.Name.ToIdentifierName(),
                             new AutoPropertyBody(true),
                             this));
                     }

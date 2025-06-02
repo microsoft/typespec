@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             var compilationResult = compilation == null ? null : await compilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, null)) { CallBase = true };
             mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
-            Func<InputParameter, ParameterProvider>? createParameterCore = null,
+            Func<InputParameter, ParameterProvider?>? createParameterCore = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputLiteralType>>? inputLiterals = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             if (createParameterCore is not null)
             {
-                mockTypeFactory.Protected().Setup<ParameterProvider>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
+                mockTypeFactory.Protected().Setup<ParameterProvider?>("CreateParameterCore", ItExpr.IsAny<InputParameter>()).Returns(createParameterCore);
             }
 
             if (createSerializationsCore is not null)
@@ -149,7 +149,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
             mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);

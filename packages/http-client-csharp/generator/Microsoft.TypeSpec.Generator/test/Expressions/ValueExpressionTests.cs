@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using NuGet.ContentModel;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -104,6 +105,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             //double cast should use the same object
             var scopedString4 = scopedString1.As<string>();
             Assert.IsTrue(ReferenceEquals(scopedString1, scopedString4));
+        }
+
+        [Test]
+        public void CanCallInvokeWithTypeArgs()
+        {
+            var expression = new VariableExpression(typeof(object), "someVariable");
+            var invokeExpression = expression.Invoke("SomeMethod", [Int(1)], [typeof(string)]);
+
+            Assert.IsNotNull(invokeExpression.TypeArguments);
+            Assert.IsTrue(invokeExpression.TypeArguments![0].Equals(typeof(string)));
         }
 
         public static IEnumerable<TestCaseData> CSharpTypeOperatorEqualsTestCases

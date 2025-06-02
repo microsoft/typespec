@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -51,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = inputValue.Name.ToCleanName();
+                var valueName = inputValue.Name.ToIdentifierName();
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
@@ -83,7 +84,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
-                var value = enumValue.Value;
                 var field = enumValue.Field;
                 properties[index++] = new PropertyProvider(
                     description: field.Description,

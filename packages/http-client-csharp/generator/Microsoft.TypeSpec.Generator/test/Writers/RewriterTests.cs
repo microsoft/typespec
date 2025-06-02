@@ -33,10 +33,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                     {
                         invokeMethodExpression.Terminate()
                     },
-                    new TestTypeProvider()),
-                new MethodProvider(
-                    new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, null, $"", []),
-                    bodyStatements: new [] {MethodBodyStatement.Empty},
                     new TestTypeProvider())
             };
             var type = new TestTypeProvider(methods: methods);
@@ -78,10 +74,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
     {
         public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
         {
-            if (node.Expression is MemberAccessExpressionSyntax memberAccess)
+            if (node.Expression is MemberAccessExpressionSyntax)
             {
-                var newMemberAccess = memberAccess.WithName(SyntaxFactory.IdentifierName("Foo"));
-                return node.WithExpression(newMemberAccess);
+                var newMemberAccess = SyntaxFactory.InvocationExpression(
+                    SyntaxFactory.IdentifierName("Foo"),
+                    SyntaxFactory.ArgumentList().AddArguments(
+                            SyntaxFactory.Argument(
+                                SyntaxFactory.ParseExpression("\"bar\"")),
+                            SyntaxFactory.Argument(
+                                SyntaxFactory.ParseExpression("\"baz\""))));
+                return newMemberAccess;
             }
 
             return base.VisitInvocationExpression(node);

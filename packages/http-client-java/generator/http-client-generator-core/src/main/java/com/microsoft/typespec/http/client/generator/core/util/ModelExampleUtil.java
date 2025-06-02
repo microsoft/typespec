@@ -67,7 +67,9 @@ public class ModelExampleUtil {
         ExampleNode node;
         if (type instanceof IterableType) {
             IType elementType = ((IterableType) type).getElementType();
-            if (objectValue instanceof List) {
+            if (objectValue == null) {
+                node = new ListNode(elementType, null);
+            } else if (objectValue instanceof List) {
                 ListNode listNode = new ListNode(elementType, objectValue);
                 node = listNode;
 
@@ -77,12 +79,13 @@ public class ModelExampleUtil {
                     node.getChildNodes().add(childNode);
                 }
             } else {
-                LOGGER.error("Example value is not List type: {}", objectValue);
-                node = new ListNode(elementType, null);
+                throw new IllegalStateException("Example value is not List type: " + objectValue);
             }
         } else if (type instanceof MapType) {
             IType elementType = ((MapType) type).getValueType();
-            if (objectValue instanceof Map) {
+            if (objectValue == null) {
+                node = new MapNode(elementType, null);
+            } else if (objectValue instanceof Map) {
                 MapNode mapNode = new MapNode(elementType, objectValue);
                 node = mapNode;
 
@@ -101,8 +104,7 @@ public class ModelExampleUtil {
                     mapNode.getKeys().add(entry.getKey());
                 }
             } else {
-                LOGGER.error("Example value is not Map type: {}", objectValue);
-                node = new MapNode(elementType, null);
+                throw new IllegalStateException("Example value is not Map type: " + objectValue);
             }
         } else if (type == ClassType.OBJECT) {
             node = new ObjectNode(type, objectValue);

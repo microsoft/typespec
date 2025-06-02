@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
@@ -8,7 +9,9 @@ using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -44,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var signature = method.Signature;
             Assert.IsNotNull(signature);
             var operation = serviceMethod.Operation;
-            Assert.AreEqual(operation.Name.ToCleanName(), signature.Name);
+            Assert.AreEqual(operation.Name.ToIdentifierName(), signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
@@ -52,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{operation.Name.ToCleanName()}");
+                    && m.Signature.Name == $"{operation.Name.ToIdentifierName()}");
             Assert.IsNotNull(convenienceMethod);
             Assert.AreEqual(serviceMethod, convenienceMethod!.ServiceMethod);
 
@@ -87,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = serviceMethod.Operation;
             var asyncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{operation.Name.ToCleanName()}Async");
+                    && m.Signature.Name == $"{operation.Name.ToIdentifierName()}Async");
             Assert.IsNotNull(asyncConvenienceMethod);
 
             var asyncConvenienceMethodParameters = asyncConvenienceMethod!.Signature.Parameters;
@@ -100,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var syncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                   && m.Signature.Name == operation.Name.ToCleanName());
+                   && m.Signature.Name == operation.Name.ToIdentifierName());
             Assert.IsNotNull(syncConvenienceMethod);
 
             var syncConvenienceMethodParameters = syncConvenienceMethod!.Signature.Parameters;
@@ -349,6 +352,72 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             else
             {
                 Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
+            }
+        }
+
+        [Test]
+        public void RequestBodyConstructedUsingReadOnlyMemoryBinaryContentHelpers()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => new CSharpType(typeof(ReadOnlyMemory<int>)));
+            var inputType = InputFactory.Array(InputPrimitiveType.Int32);
+
+            var parameter = InputFactory.Parameter("data", inputType, isRequired: true);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "data") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(convenienceMethod);
+
+            Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
+                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
+        }
+
+        [Test]
+        public void CanRemoveParameterFromMethods()
+        {
+            var parameter1 = InputFactory.Parameter("toRemove", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+            var parameter2 = InputFactory.Parameter("data", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter1, parameter2]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter1, parameter2]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(createParameterCore: parameter =>
+            {
+                if (parameter.Name == "toRemove")
+                {
+                    return null;
+                }
+                return new ParameterProvider(parameter);
+            });
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            foreach (var method in methodCollection)
+            {
+                // Ensure that the parameter "toRemove" is not present in the method signature
+                Assert.IsFalse(method.Signature.Parameters.Any(p => p.Name == "toRemove"));
+            }
+
+            var restClient = client!.RestClient;
+            foreach (var method in restClient.Methods)
+            {
+                // Ensure that the parameter "toRemove" is not present in the rest client method signature
+                Assert.IsFalse(method.Signature.Parameters.Any(p => p.Name == "toRemove"));
             }
         }
 
