@@ -1,8 +1,11 @@
 import {
   BooleanValue,
+  EncodeData,
   Example,
+  getEncode,
   getOpExamples,
   ignoreDiagnostics,
+  ModelProperty,
   NumericValue,
   OpExample,
   Program,
@@ -12,12 +15,13 @@ import {
   Value,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import type {
-  HttpOperation,
-  HttpOperationResponse,
-  HttpOperationResponseContent,
-  HttpProperty,
-  HttpStatusCodeRange,
+import {
+  isHeader,
+  type HttpOperation,
+  type HttpOperationResponse,
+  type HttpOperationResponseContent,
+  type HttpProperty,
+  type HttpStatusCodeRange,
 } from "@typespec/http";
 import { ExperimentalParameterExamplesStrategy } from "./lib.js";
 import { getParameterStyle } from "./parameters.js";
@@ -212,6 +216,41 @@ function findResponseForExample(
   return undefined;
 }
 
+/**
+ * Only returns an encoding if one is not explicitly defined
+ */
+function getDefaultHeaderEncodeAs(program: Program, header: ModelProperty): EncodeData | undefined {
+  // Get existing encoded data if it has been explicitly defined
+  const encodeData = getEncode(program, header);
+  // If there's an explicit encoding, return undefined
+  if (encodeData) return;
+
+  const tk = $(program);
+
+  if (!tk.scalar.isUtcDateTime(header.type) && tk.scalar.isOffsetDateTime(header.type)) {
+    return;
+  }
+
+  if (!tk.scalar.is(header.type)) return;
+
+  // Use the default encoding for date-time headers
+  return {
+    encoding: "rfc7231",
+    type: header.type,
+  };
+}
+
+/**
+ * This function should only be used for special default encodings.
+ */
+function getEncodeAs(program: Program, type: Type): EncodeData | undefined {
+  if (isHeader(program, type)) {
+    return getDefaultHeaderEncodeAs(program, type as ModelProperty);
+  }
+
+  return undefined;
+}
+
 export function getExampleOrExamples(
   program: Program,
   examples: [Example, Type][],
@@ -226,14 +265,16 @@ export function getExampleOrExamples(
     examples[0][0].description === undefined
   ) {
     const [example, type] = examples[0];
-    return { example: serializeValueAsJson(program, example.value, type) };
+    const encodeAs = getEncodeAs(program, type);
+    return { example: serializeValueAsJson(program, example.value, type, encodeAs) };
   } else {
     const exampleObj: Record<string, OpenAPI3Example> = {};
     for (const [index, [example, type]] of examples.entries()) {
+      const encodeAs = getEncodeAs(program, type);
       exampleObj[example.title ?? `example${index}`] = {
         summary: example.title,
         description: example.description,
-        value: serializeValueAsJson(program, example.value, type),
+        value: serializeValueAsJson(program, example.value, type, encodeAs),
       };
     }
     return { examples: exampleObj };

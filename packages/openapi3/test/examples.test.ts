@@ -742,7 +742,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  it("supports encoding", async () => {
+  it("supports encoding in examples", async () => {
     const res = await openApiFor(
       `
       @opExample(#{
@@ -751,6 +751,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           utc: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
           utcAsUnix: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
           dur: duration.fromISO("PT1H"),
+          defaultHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          encodedHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
         }
       }, #{ title: "Test Example"})
       @route("/")
@@ -770,6 +772,13 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         @query
         @encode(DurationKnownEncoding.seconds, int32)
         dur: duration;
+
+        @header
+        defaultHeader: utcDateTime;
+
+        @header
+        @encode(DateTimeKnownEncoding.rfc3339)
+        encodedHeader: utcDateTime;
       }
     `,
       undefined,
@@ -787,5 +796,75 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     expect((res.components.parameters["Test.dur"] as OpenAPI3Parameter).examples).toEqual({
       "Test Example": { summary: "Test Example", value: 3600 },
     });
+    expect((res.components.parameters["Test.defaultHeader"] as OpenAPI3Parameter).examples).toEqual(
+      {
+        "Test Example": { summary: "Test Example", value: "Fri, 01 Jan 2021 00:00:00 GMT" },
+      },
+    );
+    expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).examples).toEqual(
+      {
+        "Test Example": { summary: "Test Example", value: "2021-01-01T00:00:00Z" },
+      },
+    );
+  });
+
+  it("supports encoding in example", async () => {
+    const res = await openApiFor(
+      `
+      @opExample(#{
+        parameters: #{
+          dob: plainDate.fromISO("2021-01-01"),
+          utc: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          utcAsUnix: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          dur: duration.fromISO("PT1H"),
+          defaultHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          encodedHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+        }
+      })
+      @route("/")
+      op getDates(...Test): void;
+
+      model Test {
+        @query
+        dob: plainDate;
+        
+        @query
+        utc: utcDateTime;
+
+        @query
+        @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+        utcAsUnix: utcDateTime;
+
+        @query
+        @encode(DurationKnownEncoding.seconds, int32)
+        dur: duration;
+
+        @header
+        defaultHeader: utcDateTime;
+
+        @header
+        @encode(DateTimeKnownEncoding.rfc3339)
+        encodedHeader: utcDateTime;
+      }
+    `,
+      undefined,
+      { "experimental-parameter-examples": "data" },
+    );
+    expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01",
+    );
+    expect((res.components.parameters["Test.utc"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01T00:00:00Z",
+    );
+    expect((res.components.parameters["Test.utcAsUnix"] as OpenAPI3Parameter).example).toEqual(
+      1609459200,
+    );
+    expect((res.components.parameters["Test.dur"] as OpenAPI3Parameter).example).toEqual(3600);
+    expect((res.components.parameters["Test.defaultHeader"] as OpenAPI3Parameter).example).toEqual(
+      "Fri, 01 Jan 2021 00:00:00 GMT",
+    );
+    expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01T00:00:00Z",
+    );
   });
 });
