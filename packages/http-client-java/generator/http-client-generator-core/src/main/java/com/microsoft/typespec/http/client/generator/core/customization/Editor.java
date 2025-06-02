@@ -80,7 +80,7 @@ public final class Editor {
         return contents.keySet()
             .stream()
             .filter(fileName -> fileName.startsWith(packagePath))
-            .map(fileName -> fileName.substring(packagePath.length() + 1, fileName.length() - 5))
+            .map(fileName -> fileName.substring(packagePath.length(), fileName.length() - 5))
             .collect(Collectors.toList());
     }
 
