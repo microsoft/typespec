@@ -69,6 +69,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (emitterOptions.getRenameModel() != null) {
             SETTINGS_MAP.put("rename-model", emitterOptions.getRenameModel());
         }
+        if (emitterOptions.getUseEclipseLanguageServer() != null) {
+            SETTINGS_MAP.put("use-eclipse-language-server", emitterOptions.getUseEclipseLanguageServer());
+        }
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", emitterOptions.getOutputDir());

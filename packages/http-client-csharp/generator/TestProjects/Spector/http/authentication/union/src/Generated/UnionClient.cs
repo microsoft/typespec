@@ -14,9 +14,9 @@ namespace Authentication.Union
     {
         protected UnionClient() => throw null;
 
-        public UnionClient(ApiKeyCredential keyCredential) : this(new Uri("http://localhost:3000"), keyCredential, new UnionClientOptions()) => throw null;
+        public UnionClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new UnionClientOptions()) => throw null;
 
-        public UnionClient(Uri endpoint, ApiKeyCredential keyCredential, UnionClientOptions options) => throw null;
+        public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
