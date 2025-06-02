@@ -5,12 +5,33 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.IO;
 
 namespace Payload.MultiPart.Models
 {
     /// <summary> The AnonymousModelRequest. </summary>
     public partial class AnonymousModelRequest
     {
+        public AnonymousModelRequest(string profileImagePath)
+        {
+            Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
+
+            ProfileImage = new(profileImagePath);
+
+        }
+        public AnonymousModelRequest(Stream profileImage)
+        {
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+            ProfileImage = new(profileImage);
+        }
+
+        public AnonymousModelRequest(BinaryData profileImage)
+        {
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+            ProfileImage = new(profileImage);
+        }
+
         /// <summary> Initializes a new instance of <see cref="AnonymousModelRequest"/>. </summary>
         /// <param name="profileImage"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="profileImage"/> is null. </exception>

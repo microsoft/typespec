@@ -13,6 +13,27 @@ namespace Payload.MultiPart.Models
     /// <summary> The MultiBinaryPartsRequest. </summary>
     public partial class MultiBinaryPartsRequest
     {
+        public MultiBinaryPartsRequest(string profileImagePath)
+        {
+            Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
+
+            ProfileImage = new(profileImagePath);
+
+        }
+        public MultiBinaryPartsRequest(Stream profileImage)
+        {
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+            ProfileImage = new(profileImage);
+        }
+
+        public MultiBinaryPartsRequest(BinaryData profileImage)
+        {
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+            ProfileImage = new(profileImage);
+        }
+
         public MultiBinaryPartsRequest(FileBinaryContent profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));

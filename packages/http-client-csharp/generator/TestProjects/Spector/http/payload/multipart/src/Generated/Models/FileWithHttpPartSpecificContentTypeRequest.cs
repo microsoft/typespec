@@ -18,7 +18,7 @@ namespace Payload.MultiPart.Models
             ProfileImage = new(profileImagePath)
             {
                 Filename = profileImageFilename,
-                ContentType = "image/png"
+                ContentType = "image/jpg"
             };
         }
 
@@ -30,7 +30,7 @@ namespace Payload.MultiPart.Models
             ProfileImage = new(profileImage)
             {
                 Filename = profileImageFilename,
-                ContentType = "image/png"
+                ContentType = "image/jpg"
             };
         }
 
@@ -42,7 +42,7 @@ namespace Payload.MultiPart.Models
             ProfileImage = new(profileImage)
             {
                 Filename = profileImageFilename,
-                ContentType = "image/png"
+                ContentType = "image/jpg"
             };
         }
 

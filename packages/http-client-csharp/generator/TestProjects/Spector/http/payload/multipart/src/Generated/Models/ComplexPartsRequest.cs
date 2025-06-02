@@ -2,15 +2,52 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Payload.MultiPart.Models
 {
     public partial class ComplexPartsRequest
     {
+        public ComplexPartsRequest(string id, Address address, string profileImagePath, IEnumerable<FileBinaryContent> pictures)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
+            Argument.AssertNotNull(pictures, nameof(pictures));
+
+            Id = id;
+            Address = address;
+            ProfileImage = new(profileImagePath);
+            Pictures = pictures.ToList();
+        }
+
+        public ComplexPartsRequest(string id, Address address, Stream profileImage, IEnumerable<FileBinaryContent> pictures)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+            Argument.AssertNotNull(pictures, nameof(pictures));
+
+            Id = id;
+            ProfileImage = new(profileImage);
+        }
+
+        public ComplexPartsRequest(string id, Address address, BinaryData profileImage, IEnumerable<FileBinaryContent> pictures)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(address, nameof(address));
+            Argument.AssertNotNull(profileImage, nameof(profileImage));
+            Argument.AssertNotNull(pictures, nameof(pictures));
+
+            Id = id;
+            ProfileImage = new(profileImage);
+        }
+
         public ComplexPartsRequest(string id, Address address, FileBinaryContent profileImage, IEnumerable<FileBinaryContent> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
