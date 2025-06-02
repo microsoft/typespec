@@ -81,6 +81,13 @@ export interface OpenAPI3EmitterOptions {
    * @default false
    */
   "seal-object-schemas"?: boolean;
+
+  /**
+   * If true, then examples on parameters will be serialized based on the parameter's prescribed serialization strategy.
+   * @default false
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples
+   */
+  "serialize-parameter-examples"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -178,6 +185,16 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "If true, then for models emitted as object schemas we default `additionalProperties` to false for",
         "OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.",
         "Default: `false`",
+      ].join("\n"),
+    },
+    "serialize-parameter-examples": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: [
+        "If true, then examples on parameters will be serialized based on the parameter's prescribed serialization strategy.",
+        "Default: `false`",
+        "See https://spec.openapis.org/oas/v3.0.4.html#style-examples",
       ].join("\n"),
     },
   },
