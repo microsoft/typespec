@@ -69,7 +69,7 @@ export function ClientClass(props: ClientClassProps) {
         <ClientConstructor client={props.client} />
         <ay.For each={operations} hardline semicolon>
           {(op) => {
-            const parameters = getOperationParameters(op.httpOperation);
+            const parameters = getOperationParameters(op.httpOperation, ay.refkey());
             const args = parameters.flatMap((p) => p.refkey);
             const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
 
@@ -131,7 +131,7 @@ function ClientConstructor(props: ClientConstructorProps) {
   );
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
-  const constructorParameters = buildClientParameters(props.client);
+  const constructorParameters = buildClientParameters(props.client, ay.refkey());
   const args = Object.values(constructorParameters).map((p) => p.refkey);
 
   return (
@@ -154,7 +154,7 @@ function ClientConstructor(props: ClientConstructorProps) {
 }
 
 function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.ParameterDescriptor[]) {
-  const subClientParams = buildClientParameters(subClient).map((p) => p.name);
+  const subClientParams = buildClientParameters(subClient, ay.refkey()).map((p) => p.name);
   return parentParams
     .filter(({ name }) => subClientParams.includes(name))
     .flatMap((p) => (p.refkey ? p.refkey : []));
