@@ -7,7 +7,6 @@ import { createTestCompilerHost, TestHostOptions } from "./test-compiler-host.js
 import { findFilesFromPattern } from "./test-host.js";
 import type { JsFile, MockFile, TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 
-// TODO: can we get rid of this
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   // NB: We should always resolve an absolute path, and there is no absolute
   // path that works across OSes. This ensures that we can still rely on API

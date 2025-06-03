@@ -16,6 +16,7 @@ export interface JsFile {
 export interface TestFileSystem {
   /** Raw files */
   readonly fs: Map<string, string>;
+  /** Compiler host */
   readonly compilerHost: CompilerHost;
 
   /**
