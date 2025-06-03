@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace Microsoft.TypeSpec.Generator;
 
-public class CSharpProjectWriter
+internal class CSharpProjectWriter
 {
     private const char NewLine = '\n';
 
@@ -218,10 +218,5 @@ public class CSharpProjectWriter
     public record CSProjDependencyPackage(string PackageName, string? Version)
     {
         public CSProjDependencyPackage(string packageName) : this(packageName, null) { }
-    }
-
-    public record CSProjCompileInclude(string Include, string? LinkBase)
-    {
-        public CSProjCompileInclude(string include) : this(include, null) { }
     }
 }

@@ -70,6 +70,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return builder.Write();
         }
 
+        private IReadOnlyList<CSProjCompileInclude>? _compileIncludes;
+        public IReadOnlyList<CSProjCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
+
+        protected virtual IReadOnlyList<CSProjCompileInclude> BuildCompileIncludes() => [];
+
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
             new("System.ClientModel", "1.4.1"),
@@ -130,6 +135,11 @@ EndProject
 EndGlobal
 ";
             return string.Format(slnContent, CodeModelGenerator.Instance.Configuration.PackageName);
+        }
+
+        public record CSProjCompileInclude(string Include, string? LinkBase)
+        {
+            public CSProjCompileInclude(string include) : this(include, null) { }
         }
     }
 }
