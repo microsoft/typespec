@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -63,12 +64,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         {
             MockHelpers.LoadMockGenerator();
             var workspace = new AdhocWorkspace();
+            var parseOptions = new CSharpParseOptions(documentationMode: DocumentationMode.Diagnose);
             var projectInfo = ProjectInfo.Create(
                     ProjectId.CreateNewId(),
                     VersionStamp.Create(),
                     name: "TestProj",
                     assemblyName: "TestProj",
-                    language: LanguageNames.CSharp)
+                    language: LanguageNames.CSharp,
+                    parseOptions: parseOptions)
                 .WithMetadataReferences(new[]
                 {
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
@@ -100,6 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var usings = compilation.Usings.Select(u => u.Name!.ToString()).ToList();
             CollectionAssert.Contains(usings, "Sample.Models");
             CollectionAssert.Contains(usings, "System");
+            CollectionAssert.Contains(usings, "Microsoft.TypeSpec.Generator.Tests.Writers");
         }
 
         private class TestPostProcessor : PostProcessor
