@@ -87,7 +87,8 @@ export interface OpenAPI3EmitterOptions {
    * Determines how to emit examples on parameters.
    *
    * Note: This is an experimental feature and may change in future versions.
-   * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules.
+   * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
    */
   "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
 }
@@ -196,7 +197,8 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       description: [
         "Determines how to emit examples on parameters.",
         "Note: This is an experimental feature and may change in future versions.",
-        "See https://spec.openapis.org/oas/v3.0.4.html#style-examples",
+        "See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules",
+        "See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.",
       ].join("\n"),
     },
   },
