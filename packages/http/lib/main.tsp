@@ -363,3 +363,7 @@ model MergePatchCreateOrUpdate<
   T extends Reflection.Model,
   NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
 > {}
+
+/** Omit metadata properties */
+@Private.omitMetadata(T)
+model OmitMetadata<T extends Reflection.Model> {}

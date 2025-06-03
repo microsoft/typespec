@@ -28,6 +28,7 @@ import {
   $includeInapplicableMetadataInPayload,
   $plainData,
 } from "./private.decorators.js";
+import { $omitMetadata } from "./template-decorators.js";
 
 export { $lib } from "./lib.js";
 export { $onValidate } from "./validate.js";
@@ -63,5 +64,6 @@ export const $decorators = {
     applyMergePatch: $applyMergePatch,
     mergePatchModel: $mergePatchModel,
     mergePatchProperty: $mergePatchProperty,
+    omitMetadata: $omitMetadata,
   } satisfies TypeSpecHttpPrivateDecorators,
 };

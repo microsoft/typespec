@@ -23,7 +23,6 @@ import {
 } from "@typespec/compiler";
 
 import {
-  unsafe_MutableType as MutableType,
   unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
@@ -47,6 +46,7 @@ import {
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
+import { cachedMutateSubgraph } from "./utils/cached-mutator.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -63,29 +63,6 @@ export const $mergePatchProperty: MergePatchPropertyDecorator = (
 ) => {
   setMergePatchPropertySource(ctx.program, target, source);
 };
-
-const MUTATOR_RESULT_CACHE = Symbol.for("TypeSpec.Http.MutatorResultCache");
-
-interface MutatorResultCache {
-  [MUTATOR_RESULT_CACHE]?: WeakMap<MutableType, ReturnType<typeof mutateSubgraph>>;
-}
-
-function cachedMutateSubgraph(
-  program: Program,
-  mutator: Mutator,
-  type: MutableType,
-): ReturnType<typeof mutateSubgraph> {
-  const cache = ((mutator as MutatorResultCache)[MUTATOR_RESULT_CACHE] ??= new WeakMap());
-
-  let cached = cache.get(type);
-
-  if (cached) return cached;
-
-  cached = mutateSubgraph(program, [mutator], type);
-
-  cache.set(type, cached);
-  return cached;
-}
 
 const MERGE_PATCH_MUTATOR_CACHE = Symbol.for("TypeSpec.Http.MergePatchMutatorCache");
 
