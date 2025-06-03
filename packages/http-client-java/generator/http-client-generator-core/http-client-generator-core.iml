@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="FacetManager">
+    <facet type="azure" name="Azure">
+      <configuration>
+        <option name="dotAzurePath" value="D:\repo\typespec\packages\http-client-java\generator\http-client-generator-core\.azure" />
+      </configuration>
+    </facet>
+  </component>
+</module>

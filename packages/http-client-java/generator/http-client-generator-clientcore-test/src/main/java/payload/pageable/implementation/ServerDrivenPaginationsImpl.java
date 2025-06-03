@@ -121,20 +121,24 @@ public final class ServerDrivenPaginationsImpl {
     public PagedIterable<Pet> link() {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'offset' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'pageSize' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'pageIndex' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'continuationToken' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             return linkSinglePage();
         }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
@@ -154,20 +158,24 @@ public final class ServerDrivenPaginationsImpl {
         RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'offset' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'pageSize' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'pageIndex' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("method", "link")
+                    .log("'continuationToken' in PagingOptions is not supported.", IllegalArgumentException::new);
             }
             return linkSinglePage(requestContext);
         }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
