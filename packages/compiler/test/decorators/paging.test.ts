@@ -39,6 +39,20 @@ it("emit error if missing pageItems property", async () => {
   });
 });
 
+it("identifies inherited paging properties", async () => {
+  const diagnostics = await runner.diagnose(`
+    model ListTestResult {
+      @pageItems
+      values: string[];
+    }
+    model ExtendedListTestResult extends ListTestResult {}
+
+    @list op testOp(): ExtendedListTestResult;
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("@list decorator handle recursive models without infinite loop", async () => {
   const diagnostics = await runner.diagnose(`
       model MyPage {

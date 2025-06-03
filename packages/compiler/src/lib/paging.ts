@@ -308,6 +308,9 @@ function navigateProperties(
         callback(prop, [...path, prop]);
         navigateProperties(prop.type, callback, [...path, prop], visited);
       }
+      if (type.baseModel) {
+        navigateProperties(type.baseModel, callback, path, visited);
+      }
       break;
     case "Union":
       for (const member of type.variants.values()) {
