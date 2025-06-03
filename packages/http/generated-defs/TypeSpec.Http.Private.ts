@@ -38,6 +38,17 @@ export type OmitMetadataDecorator = (
   context: DecoratorContext,
   target: Model,
   source: Model,
+  nameTemplate: string,
+) => void;
+
+/**
+ * Apply the strip metadata transform.
+ */
+export type StripMetadataDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
 ) => void;
 
 /**
@@ -77,6 +88,7 @@ export type TypeSpecHttpPrivateDecorators = {
   httpPart: HttpPartDecorator;
   applyMergePatch: ApplyMergePatchDecorator;
   omitMetadata: OmitMetadataDecorator;
+  stripMetadata: StripMetadataDecorator;
   includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
   mergePatchModel: MergePatchModelDecorator;
   mergePatchProperty: MergePatchPropertyDecorator;

@@ -364,6 +364,36 @@ model MergePatchCreateOrUpdate<
   NameTemplate extends valueof string = "{name}MergePatchCreateOrUpdate"
 > {}
 
-/** Omit metadata properties */
-@Private.omitMetadata(T)
-model OmitMetadata<T extends Reflection.Model> {}
+/**
+ * Omit metadata properties
+ * @example
+ * ```tsp
+ * model Foo {
+ *  @header a: string;
+ *  @query b: string;
+ *  @path c: string;
+ *  headers: {
+ *    @header foo: string;
+ *    @header bar: string;
+ *  };
+ *  d: string;
+ * }
+ * ```
+ *
+ * will produce a model equivalent to:
+ * ```tsp
+ * {
+ *   headers: {};
+ *   d: string;
+ * }
+ * ```
+ */
+@Private.omitMetadata(T, NameTemplate)
+model OmitMetadata<T extends Reflection.Model, NameTemplate extends valueof string = ""> {}
+
+/** Strip the metadata decorators */
+@Private.stripMetadata(T, NameTemplate)
+model StripMetadata<
+  T extends Reflection.Model,
+  NameTemplate extends valueof string = "{name}Body"
+> {}

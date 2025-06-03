@@ -1,32 +1,33 @@
-import type { DecoratorContext, Model, Program } from "@typespec/compiler";
+import {
+  getTypeName,
+  ModelProperty,
+  type DecoratorContext,
+  type Model,
+  type Program,
+} from "@typespec/compiler";
 import {
   unsafe_MutableType as MutableType,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
+  unsafe_MutatorReplaceFn as MutatorReplaceFn,
 } from "@typespec/compiler/experimental";
-import { MutatorReplaceFn } from "../../compiler/src/experimental/mutators.js";
 import { OmitMetadataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
 import { isMetadata } from "./metadata.js";
-import { cachedMutateSubgraph } from "./utils/cached-mutator.js";
-
-const OMIT_METADATA_CACHE = Symbol.for("TypeSpec.Http.OmitMetadata");
+import { cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
 export const $omitMetadata: OmitMetadataDecorator = (
   ctx: DecoratorContext,
   target: Model,
   source: Model,
+  nameTemplate: string,
 ) => {
-  const mutatorCache = ((ctx.program as any)[OMIT_METADATA_CACHE] ??= {});
-
-  const mutator = createOmitMetadataMutator(ctx.program);
-
+  const mutator = createOmitMetadataMutator(ctx.program, nameTemplate);
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
-
   target.properties = (mutated.type as Model).properties;
 };
 
-function createOmitMetadataMutator(program: Program, nameTemplate: string = ""): Mutator {
-  return createDeepMutator({
+function createOmitMetadataMutator(program: Program, nameTemplate: string): Mutator {
+  return createDeepMutator(nameTemplate, {
     name: `OmitMetadata`,
     Model(original, clone) {
       let mutated = false;
@@ -35,6 +36,41 @@ function createOmitMetadataMutator(program: Program, nameTemplate: string = ""):
           mutated = true;
           clone.properties.delete(prop.name);
         }
+      }
+      return mutated ? clone : original;
+    },
+  });
+}
+
+export const $stripMetadata: OmitMetadataDecorator = (
+  ctx: DecoratorContext,
+  target: Model,
+  source: Model,
+  nameTemplate: string,
+) => {
+  const mutator = createStripMetadataMutator(ctx.program, nameTemplate);
+  const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
+  target.properties = (mutated.type as Model).properties;
+};
+
+function createStripMetadataMutator(program: Program, nameTemplate: string): Mutator {
+  return createDeepMutator(nameTemplate, {
+    name: `StripMetadata`,
+    ModelProperty(original, clone) {
+      let mutated = false;
+      const decorators = clone.decorators.filter((d) => {
+        return (
+          (d.definition?.name === "@query" ||
+            d.definition?.name === "@header" ||
+            d.definition?.name === "@path" ||
+            d.definition?.name === "@cookie" ||
+            d.definition?.name === "@statusCode") &&
+          getTypeName(d.definition.namespace) === "Http"
+        );
+      });
+      if (decorators.length !== clone.decorators.length) {
+        mutated = true;
+        clone.decorators = decorators;
       }
       return mutated ? clone : original;
     },
@@ -53,7 +89,7 @@ type DeepMutator = {
   [Kind in MutableType["kind"]]?: MutatorReplaceFn<Extract<MutableType, { kind: Kind }>>;
 };
 
-function createDeepMutator(mutator: DeepMutator) {
+function createDeepMutator(nameTemplate: string, mutator: DeepMutator) {
   const self: Mutator = {
     name: mutator.name,
     Tuple: {
@@ -72,29 +108,39 @@ function createDeepMutator(mutator: DeepMutator) {
     },
     Model: {
       replace(original: Model, clone: Model, program: Program, realm) {
-        const changed = mutator.Model?.(original, clone, program, realm);
-        let mutated = changed !== original;
-        clone = changed as Model;
-        for (const [name, prop] of clone.properties.entries()) {
+        let mutated = false;
+        if (mutator.Model !== undefined) {
+          const changed = mutator.Model(original, clone, program, realm);
+          mutated = changed !== original;
+          if (mutated) clone = changed as Model;
+        }
+        for (const [name, prop] of original.properties.entries()) {
           const propClone = cachedMutateSubgraph(program, self, prop).type;
-          if (propClone !== prop && propClone && propClone.kind === "ModelProperty") {
+          if (propClone !== prop && propClone.kind === "ModelProperty") {
             mutated = true;
             clone.properties.set(name, propClone);
           }
         }
+        if (mutated) rename(program, clone, nameTemplate);
         return mutated ? clone : original;
       },
     },
     ModelProperty: {
-      replace(original: any, clone: any, program: Program) {
-        if (clone.type) {
-          const typeClone = cachedMutateSubgraph(program, self, clone.type).type;
-          if (typeClone !== clone.type) {
-            clone.type = typeClone;
-            return clone;
-          }
+      replace(original, clone, program, realm) {
+        let mutated = false;
+        if (mutator.ModelProperty !== undefined) {
+          const changed = mutator.ModelProperty(original, clone, program, realm);
+          mutated = changed !== original;
+          if (mutated) clone = changed as ModelProperty;
         }
-        return original;
+        const typeClone = cachedMutateSubgraph(program, self, clone.type as any).type;
+        if (typeClone !== clone.type) {
+          clone.type = typeClone;
+          mutated = true;
+        }
+
+        if (mutated) rename(program, clone, nameTemplate);
+        return mutated ? clone : original;
       },
     },
     Union: {
@@ -107,6 +153,7 @@ function createDeepMutator(mutator: DeepMutator) {
             clone.variants.set(name, variantClone);
           }
         }
+        if (mutated) rename(program, clone, nameTemplate);
         return mutated ? clone : original;
       },
     },
@@ -116,9 +163,11 @@ function createDeepMutator(mutator: DeepMutator) {
           const typeClone = cachedMutateSubgraph(program, self, clone.type).type;
           if (typeClone !== clone.type) {
             clone.type = typeClone;
+            rename(program, clone, nameTemplate);
             return clone;
           }
         }
+
         return original;
       },
     },
@@ -132,6 +181,8 @@ function createDeepMutator(mutator: DeepMutator) {
             clone.members.set(name, memberClone);
           }
         }
+        if (mutated) rename(program, clone, nameTemplate);
+
         return mutated ? clone : original;
       },
     },
@@ -146,6 +197,8 @@ function createDeepMutator(mutator: DeepMutator) {
             clone.operations.set(name, opClone);
           }
         }
+        if (mutated) rename(program, clone, nameTemplate);
+
         return mutated ? clone : original;
       },
     },
@@ -166,6 +219,7 @@ function createDeepMutator(mutator: DeepMutator) {
             clone.returnType = returnClone;
           }
         }
+        if (mutated) rename(program, clone, nameTemplate);
         return mutated ? clone : original;
       },
     },

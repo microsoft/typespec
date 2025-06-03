@@ -46,7 +46,7 @@ import {
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
-import { cachedMutateSubgraph } from "./utils/cached-mutator.js";
+import { cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -423,26 +423,4 @@ function isMergePatchSubject(type: Type): type is MergePatchSubject {
     type.kind === "UnionVariant" ||
     type.kind === "Tuple"
   );
-}
-
-function rename(
-  program: Program,
-  type: Extract<MergePatchSubject, { name?: string }>,
-  nameTemplate: string,
-) {
-  if ($(program).array.is(type) && type.name === "Array") return;
-  if (type.name && nameTemplate) {
-    type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
-  }
-}
-
-function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
-  // Template parameters are not valid source objects, just skip them
-  if (sourceObject.kind === "TemplateParameter") {
-    return formatString;
-  }
-
-  return formatString.replace(/{(\w+)}/g, (_, propName) => {
-    return (sourceObject as any)[propName];
-  });
 }
