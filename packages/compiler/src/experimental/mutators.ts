@@ -651,6 +651,9 @@ function createMutatorEngine(
           mutateProperty(root, "type", mutating, newMutators);
           mutateProperty(root, "sourceProperty", mutating, newMutators);
           break;
+        case "Tuple":
+          mutateSubArray(root, "values", mutating, newMutators);
+          break;
         case "Operation":
           mutateProperty(root, "parameters", mutating, newMutators);
           mutateProperty(root, "returnType", mutating, newMutators);

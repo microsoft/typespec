@@ -310,6 +310,8 @@ stages:
                       # todo update so we can publish publicly to nuget
                       publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
                       nuGetFeedType: internal
+                      # must set useDotNetTask=true on ubuntu-24.04 or later
+                      useDotNetTask: true
 
               - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
                 parameters:

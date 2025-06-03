@@ -100,5 +100,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _xmlDocs = xmlDocProvider;
             }
         }
+
+        internal virtual MethodProvider? Accept(LibraryVisitor visitor)
+        {
+            var updated = visitor.VisitMethod(this);
+            if (updated == null)
+            {
+                return null;
+            }
+
+            if (!ReferenceEquals(updated, this))
+            {
+                return updated.Accept(visitor);
+            }
+
+            Signature = updated.Signature;
+
+            if (BodyExpression != null)
+            {
+                var expression = BodyExpression.Accept(visitor, this);
+                if (!ReferenceEquals(expression, BodyExpression))
+                {
+                    BodyExpression = expression;
+                }
+            }
+            else
+            {
+                var updatedStatements = BodyStatements!.Accept(visitor, this);
+                if (!ReferenceEquals(updatedStatements, BodyStatements))
+                {
+                    BodyStatements = updatedStatements;
+                }
+            }
+
+            return this;
+        }
     }
 }

@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -32,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void ServiceClientWithSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToIdentifierName()}Client"];
             var clientProvider = new MockClientProvider(_testClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -43,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void SubClientWithSingleSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToCleanName()}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToIdentifierName()}Client"];
             var clientProvider = new MockClientProvider(_dogClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -56,9 +57,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             string[] expectedSubClientFactoryMethodNames =
             [
-                $"Get{_dogClient.Name.ToCleanName()}Client",
-                $"Get{_catClient.Name.ToCleanName()}Client",
-                $"Get{_hawkClient.Name.ToCleanName()}"
+                $"Get{_dogClient.Name.ToIdentifierName()}Client",
+                $"Get{_catClient.Name.ToIdentifierName()}Client",
+                $"Get{_hawkClient.Name.ToIdentifierName()}"
             ];
             var clientProvider = new MockClientProvider(_animalClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);

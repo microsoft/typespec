@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -43,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
+        public IReadOnlyList<LibraryRewriter> Rewriters => _rewriters;
+
         [ImportingConstructor]
         public CodeModelGenerator(GeneratorContext context)
         {
@@ -68,6 +71,8 @@ namespace Microsoft.TypeSpec.Generator
         public virtual TypeFactory TypeFactory { get; }
 
         private SourceInputModel? _sourceInputModel;
+        private List<LibraryRewriter> _rewriters = [];
+
         public virtual SourceInputModel SourceInputModel
         {
             get => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
@@ -104,6 +109,11 @@ namespace Microsoft.TypeSpec.Generator
         public void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
+        }
+
+        public void AddRewriter(LibraryRewriter rewriter)
+        {
+            _rewriters.Add(rewriter);
         }
 
         public void AddMetadataReference(MetadataReference reference)

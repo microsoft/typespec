@@ -113,8 +113,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                "ModelWithNonBodyParameters",
                properties:
                [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
-                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
+                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                ]);
 

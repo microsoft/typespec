@@ -9,6 +9,8 @@ import { CompilerHost, Diagnostic, NoTarget } from "../../../types.js";
 export interface CompileCliArgs {
   path?: string;
   pretty?: boolean;
+  /** Print statistics about the compilation(Task duration, types created, etc.) */
+  stats?: boolean;
   "output-dir"?: string;
   "output-path"?: string;
   nostdlib?: boolean;
