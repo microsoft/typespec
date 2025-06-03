@@ -1,3 +1,8 @@
+export {
+  /** @deprecated Using this should be a noop. Prefer new test framework*/
+  StandardTestLibrary,
+} from "./test-compiler-host.js";
+
 export { expectCodeFixOnAst } from "./code-fix-testing.js";
 export { expectDiagnosticEmpty, expectDiagnostics, type DiagnosticMatch } from "./expect.js";
 export { createTestFileSystem, mockFile } from "./fs.js";
