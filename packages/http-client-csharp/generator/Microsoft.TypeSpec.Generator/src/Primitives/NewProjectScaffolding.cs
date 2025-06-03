@@ -66,6 +66,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 builder.PackageReferences.Add(packages);
             }
+            foreach (var compileInclude in CompileIncludes)
+            {
+                builder.CompileIncludes.Add(compileInclude);
+            }
 
             return builder.Write();
         }
