@@ -39,7 +39,24 @@ namespace SampleTypeSpec
             Rename = rename;
         }
 
-        internal Thing(BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, string optionalNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string rename, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredNullableString"> required nullable string. </param>
+        /// <param name="optionalNullableString"> required optional string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="rename"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal Thing(BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int? optionalLiteralInt, float? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, string rename, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             RequiredUnion = requiredUnion;
             RequiredLiteralString = requiredLiteralString;
@@ -104,7 +121,7 @@ namespace SampleTypeSpec
         public BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
+        public string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required nullable string. </summary>
         public string RequiredNullableString { get; set; }
@@ -113,22 +130,22 @@ namespace SampleTypeSpec
         public string OptionalNullableString { get; set; }
 
         /// <summary> required literal int. </summary>
-        public ThingRequiredLiteralInt RequiredLiteralInt { get; } = 123;
+        public int RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public ThingRequiredLiteralFloat RequiredLiteralFloat { get; } = 1.23F;
+        public float RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public ThingOptionalLiteralString? OptionalLiteralString { get; set; }
+        public string OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
+        public int? OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
+        public float? OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool? OptionalLiteralBool { get; set; }

@@ -52,13 +52,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual("\"mockUnion\"", model.RequiredUnion.ToString());
             Assert.AreEqual(parsedWireJson.GetProperty("requiredBadDescription").GetString(), model.RequiredBadDescription);
             Assert.AreEqual(parsedWireJson.GetProperty("requiredNullableList").GetArrayLength(), model.RequiredNullableList.Count);
-            Assert.AreEqual(new ThingRequiredLiteralString(parsedWireJson.GetProperty("requiredLiteralString").GetString()), model.RequiredLiteralString);
-            Assert.AreEqual(new ThingRequiredLiteralInt(parsedWireJson.GetProperty("requiredLiteralInt").GetInt32()), model.RequiredLiteralInt);
-            Assert.AreEqual(new ThingRequiredLiteralFloat(parsedWireJson.GetProperty("requiredLiteralFloat").GetSingle()), model.RequiredLiteralFloat);
+            Assert.AreEqual("accept", model.RequiredLiteralString);
+            Assert.AreEqual(123, model.RequiredLiteralInt);
+            Assert.AreEqual(1.23f, model.RequiredLiteralFloat);
             Assert.AreEqual(parsedWireJson.GetProperty("requiredLiteralBool").GetBoolean(), model.RequiredLiteralBool);
-            Assert.AreEqual(new ThingOptionalLiteralString(parsedWireJson.GetProperty("optionalLiteralString").GetString()), model.OptionalLiteralString);
-            Assert.AreEqual(new ThingOptionalLiteralInt(parsedWireJson.GetProperty("optionalLiteralInt").GetInt32()), model.OptionalLiteralInt);
-            Assert.AreEqual(new ThingOptionalLiteralFloat(parsedWireJson.GetProperty("optionalLiteralFloat").GetSingle()), model.OptionalLiteralFloat);
+            Assert.AreEqual("hi", model.OptionalLiteralString);
+            Assert.AreEqual(456, model.OptionalLiteralInt);
+            Assert.AreEqual(4.56f, model.OptionalLiteralFloat);
             Assert.AreEqual(parsedWireJson.GetProperty("optionalLiteralBool").GetBoolean(), model.OptionalLiteralBool);
             Assert.AreEqual(parsedWireJson.GetProperty("optionalNullableList").GetArrayLength(), model.OptionalNullableList.Count);
 

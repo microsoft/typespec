@@ -54,7 +54,7 @@ export function getTypeSignature(type: Type): string {
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
     case "TemplateParameter":
-      return type.node.id.sv;
+      return (type.node! as any).id.sv;
     case "UnionVariant":
       return `(union variant) ${getUnionVariantSignature(type)}`;
     case "Tuple":

@@ -21,8 +21,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
@@ -109,7 +109,7 @@ abstract class ConvenienceMethodTemplateBase {
             = findParametersForConvenienceMethod(convenienceMethod, protocolMethod);
 
         // RequestOptions
-        methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
+        createEmptyRequestOptions(methodBlock);
 
         // parameter transformation
         final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
@@ -168,9 +168,9 @@ abstract class ConvenienceMethodTemplateBase {
                                     JavaSettings.getInstance())) {
                                 String variableName = writeParameterConversionExpressionWithJsonMergePatchEnabled(
                                     javaBlock, parameterType.toString(), parameter.getName(), expression);
-                                javaBlock.line("requestOptions.setBody(" + variableName + ");");
+                                addRequestCallback(javaBlock, variableName);
                             } else {
-                                javaBlock.line("requestOptions.setBody(" + expression + ");");
+                                addRequestCallback(javaBlock, expression);
                             }
                         };
                         if (!parameter.getClientMethodParameter().isRequired()) {
@@ -204,6 +204,14 @@ abstract class ConvenienceMethodTemplateBase {
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
             typeReferenceStaticClasses);
+    }
+
+    protected void addRequestCallback(JavaBlock javaBlock, String variableName) {
+        javaBlock.line("requestOptions.setBody(" + variableName + ");");
+    }
+
+    protected void createEmptyRequestOptions(JavaBlock methodBlock) {
+        methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
     }
 
     /**
@@ -400,6 +408,7 @@ abstract class ConvenienceMethodTemplateBase {
         ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
         ClassType.BINARY_DATA.addImportsTo(imports, false);
         ClassType.REQUEST_OPTIONS.addImportsTo(imports, false);
+        ClassType.REQUEST_CONTEXT.addImportsTo((imports), false);
         imports.add(Collectors.class.getName());
         imports.add(Objects.class.getName());
         imports.add(FluxUtil.class.getName());
@@ -408,7 +417,7 @@ abstract class ConvenienceMethodTemplateBase {
         imports.add(JacksonAdapter.class.getName());
         imports.add(CollectionFormat.class.getName());
         imports.add(TypeReference.class.getName());
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             imports.add(Type.class.getName());
             imports.add(ParameterizedType.class.getName());
         }
@@ -433,10 +442,10 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected void addGeneratedAnnotation(JavaType typeBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             typeBlock.annotation(Annotation.GENERATED.getName());
         } else {
-            typeBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
+            typeBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
         }
     }
 
@@ -591,7 +600,7 @@ abstract class ConvenienceMethodTemplateBase {
         }
     }
 
-    private static void writeQueryParam(MethodParameter parameter, JavaBlock methodBlock) {
+    protected void writeQueryParam(MethodParameter parameter, JavaBlock methodBlock) {
         Consumer<JavaBlock> writeLine;
         if (parameter.proxyMethodParameter.getExplode()
             && parameter.getClientMethodParameter().getWireType() instanceof IterableType) {
@@ -624,16 +633,10 @@ abstract class ConvenienceMethodTemplateBase {
         }
     }
 
-    private static String getAddQueryParamExpression(MethodParameter parameter, String variable) {
-        // TODO: generic not having 3rd parameter "encoded"
-        if (JavaSettings.getInstance().isBranded()) {
-            return String.format("requestOptions.addQueryParam(%1$s, %2$s, %3$s);",
-                ClassType.STRING.defaultValueExpression(parameter.getSerializedName()), variable,
-                parameter.getProxyMethodParameter().getAlreadyEncoded());
-        } else {
-            return String.format("requestOptions.addQueryParam(%1$s, %2$s);",
-                ClassType.STRING.defaultValueExpression(parameter.getSerializedName()), variable);
-        }
+    protected String getAddQueryParamExpression(MethodParameter parameter, String variable) {
+        return String.format("requestOptions.addQueryParam(%1$s, %2$s, %3$s);",
+            ClassType.STRING.defaultValueExpression(parameter.getSerializedName()), variable,
+            parameter.getProxyMethodParameter().getAlreadyEncoded());
     }
 
     private static String expressionConvertToString(String name, IType type, ProxyMethodParameter parameter) {
@@ -703,8 +706,9 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     private static String expressionConvertToType(String name, MethodParameter convenienceParameter, String mediaType) {
-        if (convenienceParameter.getProxyMethodParameter().getRequestParameterLocation()
-            == RequestParameterLocation.BODY) {
+        if (convenienceParameter.getProxyMethodParameter() != null
+            && convenienceParameter.getProxyMethodParameter().getRequestParameterLocation()
+                == RequestParameterLocation.BODY) {
             IType bodyType = convenienceParameter.getProxyMethodParameter().getRawType();
             if (bodyType instanceof ClassType) {
                 ClientModel model = ClientModelUtil.getClientModel(bodyType.toString());
@@ -761,14 +765,14 @@ abstract class ConvenienceMethodTemplateBase {
                     builder.append(String.format(".serializeFileField(%1$s, %2$s, %3$s, %4$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), fileExpression,
                         contentTypeExpression, filenameExpression));
-                } else if (property.getWireType() instanceof ListType
-                    && isMultipartModel(((ListType) property.getWireType()).getElementType())) {
+                } else if (property.getWireType() instanceof IterableType
+                    && isMultipartModel(((IterableType) property.getWireType()).getElementType())) {
                     // file array
 
                     // For now, we use 3 List, as we do not wish the Helper class refer to different ##FileDetails
                     // model.
                     // Later, if we switch to a shared class in azure-core, we can change the implementation.
-                    String className = ((ListType) property.getWireType()).getElementType().toString();
+                    String className = ((IterableType) property.getWireType()).getElementType().toString();
                     String streamExpressionFormat = "%1$s.stream().map(%2$s::%3$s).collect(Collectors.toList())";
                     String fileExpression
                         = String.format(streamExpressionFormat, propertyGetExpression, className, "getContent");
@@ -822,10 +826,16 @@ abstract class ConvenienceMethodTemplateBase {
         Map<MethodParameter, MethodParameter> parameterMap = new LinkedHashMap<>();
         List<MethodParameter> convenienceParameters = getParameters(convenienceMethod, true);
         Map<String, MethodParameter> clientParameters = getParameters(protocolMethod, false).stream()
-            .collect(Collectors.toMap(MethodParameter::getSerializedName, Function.identity()));
+            .collect(Collectors.toMap(key -> key.getSerializedName() == null ? key.getName() : key.getSerializedName(),
+                Function.identity()));
         for (MethodParameter convenienceParameter : convenienceParameters) {
             String name = convenienceParameter.getSerializedName();
             parameterMap.put(convenienceParameter, clientParameters.get(name));
+        }
+        if (convenienceMethod.isPageStreamingType()) {
+            final MethodPageDetails pageDetails = convenienceMethod.getMethodPageDetails();
+            parameterMap.entrySet()
+                .removeIf(it -> pageDetails.shouldHideParameter(it.getKey().getClientMethodParameter()));
         }
         return parameterMap;
     }

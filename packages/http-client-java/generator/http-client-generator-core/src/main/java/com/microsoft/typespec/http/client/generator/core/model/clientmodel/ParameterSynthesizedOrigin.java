@@ -36,6 +36,11 @@ public enum ParameterSynthesizedOrigin {
     REQUEST_OPTIONS("java:synthesized/RequestOptions"),
 
     /**
+     * RequestContext
+     */
+    REQUEST_CONTEXT("java:synthesized/RequestContext"),
+
+    /**
      * The parameter is not synthesized.
      */
     NONE("none");   // NONE is not defined as m4 output

@@ -16,7 +16,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _customCodeView;
+        private readonly Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
@@ -24,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(GetCustomCodeView);
             _canonicalView = new(BuildCanonicalView);
+            _lastContractView = new(GetLastContractView);
             _inputType = inputType;
         }
 
@@ -35,9 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), BuildName());
+
+        private protected virtual TypeProvider? GetLastContractView()
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? LastContractView => _lastContractView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -82,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+        public string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
 
         private string? _relativeFilePath;
 
@@ -319,8 +325,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement([Description]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement([Description]));
+
             return docs;
         }
 
@@ -374,6 +380,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _relativeFilePath = relativeFilePath;
             }
+
+            // Rebuild the canonical view
+            _canonicalView = new(BuildCanonicalView);
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 

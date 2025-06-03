@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var mockClientProvider = new Mock<ClientProvider>(inputClient) { CallBase = true };
             _ = mockClientProvider.Object.Methods;
 
-            _mockVisitor.Protected().Verify<MethodProviderCollection>("Visit", Times.Once(), inputServiceMethod, ItExpr.IsAny<TypeProvider>(), ItExpr.IsAny<MethodProviderCollection>());
+            _mockVisitor.Protected().Verify<ScmMethodProviderCollection>("Visit", Times.Once(), inputServiceMethod, ItExpr.IsAny<ClientProvider>(), ItExpr.IsAny<ScmMethodProviderCollection>());
         }
 
         [Test]

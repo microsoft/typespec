@@ -1,5 +1,4 @@
 import {
-  $service,
   compilerAssert,
   DecoratorContext,
   getDoc,
@@ -282,7 +281,13 @@ export const tagMetadataDecorator: TagMetadataDecorator = (
   tagMetadata: TagMetadata,
 ) => {
   // Check if the namespace is a service namespace
-  if (!entity.decorators.some((decorator) => decorator.decorator === $service)) {
+  if (
+    !entity.decorators.some(
+      (decorator) =>
+        decorator.definition?.name === "@service" &&
+        decorator.definition?.namespace.name === "TypeSpec",
+    )
+  ) {
     reportDiagnostic(context.program, {
       code: "tag-metadata-target-service",
       format: {

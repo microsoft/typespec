@@ -35,6 +35,7 @@ import java.util.TreeMap;
  */
 public final class ModelTemplateHeaderHelper {
     private static final Map<String, String> HEADER_TO_KNOWN_HTTPHEADERNAME;
+    private static final Map<String, String> CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME;
 
     static {
         Map<String, String> headerToKnownHttpHeaderName = new TreeMap<>(String::compareToIgnoreCase);
@@ -53,7 +54,25 @@ public final class ModelTemplateHeaderHelper {
             }
         }
 
+        Map<String, String> clientCoreHeaderToKnownHttpHeaderName = new TreeMap<>(String::compareToIgnoreCase);
+        for (Field httpHeaderNameConstant : io.clientcore.core.http.models.HttpHeaderName.class.getDeclaredFields()) {
+            if (httpHeaderNameConstant.getType() != io.clientcore.core.http.models.HttpHeaderName.class
+                || !isPublicConstant(httpHeaderNameConstant.getModifiers())) {
+                continue;
+            }
+
+            try {
+                io.clientcore.core.http.models.HttpHeaderName httpHeaderName
+                    = (io.clientcore.core.http.models.HttpHeaderName) httpHeaderNameConstant.get(null);
+                String constantName = httpHeaderNameConstant.getName();
+                clientCoreHeaderToKnownHttpHeaderName.put(httpHeaderName.getCaseInsensitiveName(), constantName);
+            } catch (IllegalAccessException ignored) {
+                // Do nothing.
+            }
+        }
+
         HEADER_TO_KNOWN_HTTPHEADERNAME = Collections.unmodifiableMap(headerToKnownHttpHeaderName);
+        CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME = Collections.unmodifiableMap(clientCoreHeaderToKnownHttpHeaderName);
     }
 
     /**
@@ -107,13 +126,23 @@ public final class ModelTemplateHeaderHelper {
     public static String getHttpHeaderNameInstanceExpression(String headerName) {
         // match the init logic of HEADER_TO_KNOWN_HTTPHEADERNAME
         String caseInsensitiveName = HttpHeaderName.fromString(headerName).getCaseInsensitiveName();
+        if (JavaSettings.getInstance().isAzureV1()) {
 
-        if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
-            // known name
-            return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+            if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
+                // known name
+                return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+            } else {
+                return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            }
         } else {
-            return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            if (CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
+                // known name
+                return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+            } else {
+                return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
+            }
         }
+
     }
 
     /**
@@ -130,7 +159,14 @@ public final class ModelTemplateHeaderHelper {
                 continue;
             }
 
-            if (HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
+            if (JavaSettings.getInstance().isAzureV1()
+                && HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
+                // Header is a well-known HttpHeaderName, don't need to create a private constant.
+                continue;
+            }
+
+            if (!JavaSettings.getInstance().isAzureV1()
+                && CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(property.getSerializedName())) {
                 // Header is a well-known HttpHeaderName, don't need to create a private constant.
                 continue;
             }
@@ -152,7 +188,9 @@ public final class ModelTemplateHeaderHelper {
                 || wireType instanceof GenericType);
 
         // No matter the wire type the rawHeaders will need to be accessed.
-        String knownHttpHeaderNameConstant = HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
+        String knownHttpHeaderNameConstant = JavaSettings.getInstance().isAzureV1()
+            ? HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName())
+            : CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.get(property.getSerializedName());
         String httpHeaderName = knownHttpHeaderNameConstant != null
             ? "HttpHeaderName." + knownHttpHeaderNameConstant
             : CodeNamer.getEnumMemberName(property.getSerializedName());
@@ -209,8 +247,11 @@ public final class ModelTemplateHeaderHelper {
 
         // String is special as the setter is null safe for it, unlike other nullable types.
         if (needsNullGuarding) {
-            javaBlock.ifBlock(property.getName() + " != null",
-                ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"));
+            javaBlock
+                .ifBlock(property.getName() + " != null",
+                    ifBlock -> ifBlock.line("this." + property.getName() + " = " + setter + ";"))
+                .elseBlock(elseBlock -> elseBlock.line(
+                    "this." + property.getName() + " = " + property.getClientType().defaultValueExpression() + ";"));
         } else {
             javaBlock.line("this." + property.getName() + " = " + setter + ";");
         }
@@ -249,8 +290,12 @@ public final class ModelTemplateHeaderHelper {
 
         block.line();
 
-        block.block("for (HttpHeader header : rawHeaders)", body -> {
-            body.line("String headerName = header.getName();");
+        block.block("rawHeaders.stream().forEach(header -> ", body -> {
+            if (JavaSettings.getInstance().isAzureV1()) {
+                body.line("String headerName = header.getName();");
+            } else {
+                body.line("String headerName = header.getName().getValue();");
+            }
             int propertiesSize = properties.size();
             for (int i = 0; i < propertiesSize; i++) {
                 ClientModelProperty property = properties.get(i);
@@ -259,12 +304,13 @@ public final class ModelTemplateHeaderHelper {
                     ifBlock.line("%sHeaderCollection.put(headerName.substring(%d), header.getValue());",
                         property.getName(), property.getHeaderCollectionPrefix().length());
                     if (needsContinue) {
-                        ifBlock.line("continue;");
+                        ifBlock.line("return;");
                     }
                 });
             }
         });
 
+        block.text(");");
         block.line();
 
         for (ClientModelProperty property : properties) {

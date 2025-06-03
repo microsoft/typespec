@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
+import json
 from collections import namedtuple
 import re
 from typing import List, Any, Union
@@ -143,6 +144,13 @@ class JinjaSerializer(ReaderAndWriter):
                         self._serialize_and_write_sample(env, namespace=client_namespace)
                     if self.code_model.options["generate_test"]:
                         self._serialize_and_write_test(env, namespace=client_namespace)
+
+                # add _metadata.json
+                if self.code_model.metadata:
+                    self.write_file(
+                        exec_path / Path("_metadata.json"),
+                        json.dumps(self.code_model.metadata, indent=2),
+                    )
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)

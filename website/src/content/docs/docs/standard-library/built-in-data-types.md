@@ -398,7 +398,6 @@ model ServiceOptions
 | Name | Type | Description |
 |------|------|-------------|
 | title? | [`string`](#string) | Title of the service. |
-| version? | [`string`](#string) | Version of the service. |
 
 ### `Update` {#Update}
 

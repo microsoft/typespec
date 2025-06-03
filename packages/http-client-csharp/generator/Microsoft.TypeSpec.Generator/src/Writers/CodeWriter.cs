@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator
@@ -254,7 +255,7 @@ namespace Microsoft.TypeSpec.Generator
                 docs.Summary.Write(this);
             }
 
-            foreach (var param in docs.Params)
+            foreach (var param in docs.Parameters)
             {
                 param.Write(this);
             }
@@ -751,7 +752,8 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                var isImplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                var isImplicitOrExplicit = isImplicit || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                 if (!isImplicitOrExplicit)
                 {
                     if (method.ReturnType != null)
@@ -768,17 +770,21 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("explicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit))
                     .AppendRawIf("operator ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
 
-                if (isImplicitOrExplicit)
-                {
-                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
-                }
-
                 if (method.ExplicitInterface is not null)
                 {
                     Append($"{method.ExplicitInterface}.");
                 }
 
-                Append($"{methodBase.Name}");
+                if (isImplicit)
+                {
+                    // Implicit operator method name is just the return type.
+                    // But we need to include the actual CSharpType so that the correct namespace using gets written.
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
+                }
+                else
+                {
+                    Append($"{methodBase.Name}");
+                }
 
                 if (method?.GenericArguments != null)
                 {
@@ -818,10 +824,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    foreach (var constraint in constraints)
+                    for (int i = 0; i < constraints.Count; i++)
                     {
+                        var constraint = constraints[i];
                         constraint.Write(this);
-                        AppendRaw(" ");
+                        if (i < constraints.Count - 1)
+                        {
+                            AppendRaw(" ");
+                        }
                     }
                 }
             }

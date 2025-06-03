@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -28,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
 
-            if (input.Accessibility == "internal")
+            if (input.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
@@ -51,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = inputValue.Name.ToCleanName();
+                var valueName = inputValue.Name.ToIdentifierName();
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
@@ -83,7 +84,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var enumValue in EnumValues)
             {
                 var name = enumValue.Name;
-                var value = enumValue.Value;
                 var field = enumValue.Field;
                 properties[index++] = new PropertyProvider(
                     description: field.Description,
@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
@@ -174,12 +174,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 objParameter
                     .Is(new DeclarationExpression(Type, "other", out var other))
                     .And(This.Invoke(nameof(Equals), [other])),
-                this));
+                this,
+                XmlDocProvider.InheritDocs));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
                 Modifiers: MethodSignatureModifiers.Public,
@@ -195,11 +196,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var equalsExpressionBody = IsStringValueType
                             ? Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
                             : Static(EnumUnderlyingType).Invoke(nameof(object.Equals), [valueField, otherValue]);
-            methods.Add(new(equalsSignature, equalsExpressionBody, this));
+            methods.Add(new(equalsSignature, equalsExpressionBody, this, XmlDocProvider.InheritDocs));
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
                 ReturnDescription: null,
@@ -221,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
-                Description: null,
+                Description: FormattableStringHelpers.Empty,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(string),
                 ReturnDescription: null,

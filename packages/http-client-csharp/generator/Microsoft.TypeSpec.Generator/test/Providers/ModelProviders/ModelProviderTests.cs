@@ -696,7 +696,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void InitCtorShouldAssignBaseFieldDerivedRequired()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.StringEnum("enumType", [("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -727,7 +727,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void SerializationCtorShouldNotAssignBaseFieldDerivedRequired()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.StringEnum("enumType", [("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -755,7 +755,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void InitCtorShouldNotAssignBaseFieldBothRequired()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.StringEnum("enumType", [("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -775,12 +775,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(statements!.Statements.Any(s => s.ToDisplayString().Contains("_prop1 =")));
         }
 
-
         [Test]
         public void SerializationCtorShouldNotAssignBaseField()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.StringEnum("enumType", [("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -804,7 +803,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void SerializationCtorShouldNotDuplicateBaseProperties()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+
+            // Updated to use StringEnum with collection expression for values
+            var enumType = InputFactory.StringEnum(
+                "enumType",
+                [("value1", "value1")]
+            );
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -822,7 +826,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void SerializationCtorInitializerHasToStringForEnumParam()
         {
             MockHelpers.LoadMockGenerator();
-            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
+
+            // Updated to use StringEnum with collection expression for values
+            var enumType = InputFactory.StringEnum(
+                "enumType",
+                [("value1", "value1")],
+                isExtensible: true
+            );
             var derivedInputModel = InputFactory.Model("derivedModel", properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -836,7 +846,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var initializer = serializationCtor!.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
-            Assert.AreEqual("prop1.ToString()", initializer.Arguments[0].ToDisplayString());
+            Assert.AreEqual("prop1?.ToString()", initializer.Arguments[0].ToDisplayString());
         }
 
         [Test]
@@ -875,10 +885,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                "ModelWithNonBodyPropertyKinds",
                properties:
                [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
-                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Query),
-                    InputFactory.Property("bird", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Path),
-                    InputFactory.Property("snake", InputFactory.Enum("snake", InputPrimitiveType.String, isExtensible: true), isRequired: true, isReadOnly: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.HeaderParameter("foo", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
+                    InputFactory.PathParameter("bird", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.HeaderParameter("snake", InputFactory.StringEnum("snake", [("value", "value")], isExtensible: true), isRequired: true, isReadOnly: true),
                     InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
                ]);
             var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
@@ -899,6 +909,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var snakeBody = snake!.Body;
             Assert.IsNotNull(snakeBody);
             Assert.IsFalse(snakeBody!.HasSetter);
+        }
+
+        [Test]
+        public void XmlDocsAreWritten()
+        {
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String, doc: "This is prop1")]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+            var writer = new TypeProviderWriter(modelTypeProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

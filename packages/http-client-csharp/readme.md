@@ -10,10 +10,14 @@ npm install @typespec/http-client-csharp
 
 ## Usage
 
-# Prerequisite
+### Prerequisite
 
 - Install [Node.js](https://nodejs.org/download/) 20 or above. (Verify by running `node --version`)
 - Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+
+### Customizing Generated Code
+
+For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
 
 ## Usage
 
@@ -59,9 +63,13 @@ For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/v
 
 **Type:** `boolean`
 
+Set to `false` to skip generation of protocol methods. The default value is `true`.
+
 ### `generate-convenience-methods`
 
 **Type:** `boolean`
+
+Set to `false` to skip generation of convenience methods. The default value is `true`.
 
 ### `unreferenced-types-handling`
 
@@ -97,7 +105,7 @@ Set to `true` to automatically attempt to attach to a debugger when executing th
 
 **Type:** `"info" | "debug" | "verbose"`
 
-Set the log level. The default value is `info`.
+Set the log level for which to collect traces. The default value is `info`.
 
 ### `disable-xml-docs`
 

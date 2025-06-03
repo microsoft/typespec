@@ -9,8 +9,8 @@ import {
 describe("Java Snippet Extractor", () => {
   let extractor: SnippetExtractor;
 
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createJavaExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnipperExtractor(await createJavaExtractorConfig());
   });
 
   it("should extract a class", () => {
@@ -66,8 +66,8 @@ describe("Java Snippet Extractor", () => {
 describe("Java Snippet Extractor - Enums", () => {
   let extractor: SnippetExtractor;
 
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createJavaExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnipperExtractor(await createJavaExtractorConfig());
   });
 
   it("should extract a basic enum", async () => {

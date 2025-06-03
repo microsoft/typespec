@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         public CodeWriterTests()
         {
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(includeXmlDocs: true);
         }
 
         [Test]
@@ -167,6 +167,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
             var result = codeWriter.ToString(false);
             Assert.AreEqual("public String() : base(\"test\")", result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteMethod_GenericConstraints()
+        {
+            var t = typeof(IEnumerable<>).GetGenericArguments()[0];
+            var methodSignature = new MethodSignature(
+                "TestMethod",
+                $"To test a method with generic constraints",
+                MethodSignatureModifiers.Public,
+                typeof(void),
+                null,
+                [],
+                null,
+                [new CSharpType(t)],
+                [
+                    new WhereExpression(t, [typeof(BinaryData), typeof(IDisposable)]),
+                ]);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("public global::System.Void TestMethod<T>()\n    where T : global::System.BinaryData, global::System.IDisposable", result);
         }
 
         [Test]

@@ -8,7 +8,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class UsingScopeStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class UsingScopeStatement : MethodBodyStatement
     {
         public CSharpType? Type { get; }
         public CodeWriterDeclaration Variable { get; }
@@ -30,8 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Statements
         }
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
-        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
         internal override void Write(CodeWriter writer)
         {

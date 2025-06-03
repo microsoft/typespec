@@ -14,10 +14,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,9 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         JavaSettings settings = JavaSettings.getInstance();
 
         if (clientMethod.getType() == ClientMethodType.PagingAsyncSinglePage
-            || clientMethod.getType() == ClientMethodType.PagingSyncSinglePage) {
+            || clientMethod.getType() == ClientMethodType.PagingSyncSinglePage
+            || clientMethod.getMethodVisibilityInWrapperClient() == null
+            || clientMethod.getType() == ClientMethodType.LongRunningSync) {
             return;
         }
 
@@ -111,14 +115,11 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
             for (ClientMethodParameter parameter : methodParameters) {
                 comment.param(parameter.getName(), parameter.getDescription());
             }
-            if (clientMethod.getParametersDeclaration() != null && !clientMethod.getParametersDeclaration().isEmpty()) {
+            if (clientMethod.hasParameterDeclaration()) {
                 comment.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
             }
             if (restAPIMethod != null) {
-                if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
-                    comment.methodThrows(restAPIMethod.getUnexpectedResponseExceptionType().toString(),
-                        "thrown if the request is rejected by server");
-                }
+                generateJavadocExceptions(clientMethod, comment, false);
                 comment.methodThrows("RuntimeException",
                     "all other wrapped checked exceptions if the request fails to be sent");
             }
@@ -126,11 +127,36 @@ public class WrapperClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    private void addGeneratedAnnotation(JavaType typeBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
-            typeBlock.annotation(Annotation.GENERATED.getName());
+    protected static void generateJavadocExceptions(ClientMethod clientMethod, JavaJavadocComment commentBlock,
+        boolean useFullClassName) {
+        ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
+        if (JavaSettings.getInstance().isAzureV1()) {
+            if (restAPIMethod != null && restAPIMethod.getUnexpectedResponseExceptionType() != null) {
+                commentBlock.methodThrows(
+                    useFullClassName
+                        ? restAPIMethod.getUnexpectedResponseExceptionType().getFullName()
+                        : restAPIMethod.getUnexpectedResponseExceptionType().getName(),
+                    "thrown if the request is rejected by server");
+            }
+            if (restAPIMethod != null && restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
+                for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
+                    .entrySet()) {
+                    commentBlock.methodThrows(
+                        useFullClassName ? exception.getKey().getFullName() : exception.getKey().getName(),
+                        String.format("thrown if the request is rejected by server on status code %s",
+                            exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(", "))));
+                }
+            }
         } else {
-            typeBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
+            if (restAPIMethod != null
+                && (restAPIMethod.getUnexpectedResponseExceptionType() != null
+                    || restAPIMethod.getUnexpectedResponseExceptionTypes() != null)) {
+                commentBlock.methodThrows("HttpResponseException", "thrown if the service returns an error");
+            }
         }
+    }
+
+    protected void addGeneratedAnnotation(JavaType typeBlock) {
+        typeBlock.annotation(Annotation.GENERATED.getName());
     }
 }

@@ -1,6 +1,6 @@
 import { Interface, Namespace, StringLiteral, StringValue, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
@@ -294,7 +294,7 @@ describe("getConstructor", () => {
       // The base operation needs to satisfy all overloads, so it should have the most parameters
       // In this test, the base operation should have the endpoint and name parameters both optional
       // in the base constructor.
-      expect(constructor.returnType).toEqual(tk.program.checker.voidType);
+      expect(constructor.returnType).toEqual(tk.intrinsic.void);
       const params = tk.operation.getClientSignature(client, constructor);
       expect(params).toHaveLength(2);
       // Endpoint is required with a default value
@@ -333,7 +333,7 @@ describe("getConstructor", () => {
       const client = tk.clientLibrary.listClients(DemoService)[0];
       const constructor = tk.client.getConstructor(client);
 
-      expect(constructor.returnType).toEqual(tk.program.checker.voidType);
+      expect(constructor.returnType).toEqual(tk.intrinsic.void);
       const params = tk.operation.getClientSignature(client, constructor);
       expect(params).toHaveLength(2);
       // Endpoint is required with a default value

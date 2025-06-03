@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClientTypes()
         {
-            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
             var clients = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {
@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
             clients.Add(client);
             clients.Add(client.RestClient);
-            var clientOptions = client.ClientOptions.Value;
+            var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
                 clients.Add(clientOptions);
@@ -76,7 +76,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
-                .. GetMultipartFormDataBinaryContentDefinition()
+                .. GetMultipartFormDataBinaryContentDefinition(),
+                new ModelReaderWriterContextDefinition()
             ];
         }
 

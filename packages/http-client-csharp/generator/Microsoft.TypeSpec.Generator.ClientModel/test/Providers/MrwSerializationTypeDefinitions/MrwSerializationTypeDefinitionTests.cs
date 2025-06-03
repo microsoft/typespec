@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -647,7 +648,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodParameters = methodSignature?.Parameters;
             Assert.AreEqual(1, methodParameters?.Count);
-            Assert.IsNull(methodSignature?.ReturnType);
+            Assert.IsTrue(methodSignature?.ReturnType!.Equals(typeof(BinaryContent)));
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
@@ -671,14 +672,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(methodSignature);
 
             var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(inputModel.Name.ToCleanName(), methodSignature?.Name);
+            Assert.AreEqual(inputModel.Name.ToIdentifierName(), methodSignature?.Name);
             Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
 
             var methodParameters = methodSignature?.Parameters;
             Assert.AreEqual(1, methodParameters?.Count);
             var clientResultParameter = methodParameters?[0];
             Assert.AreEqual(new CSharpType(typeof(ClientResult)), clientResultParameter?.Type);
-            Assert.IsNull(methodSignature?.ReturnType);
+            Assert.IsTrue(methodSignature?.ReturnType!.Equals(model.Type));
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
@@ -704,7 +705,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             bool hasString = false;
             bool hasCollection = false;
             bool hasDictionary = false;
-            foreach (var statement in method.BodyStatements!.Flatten())
+            foreach (var statement in method.BodyStatements!)
             {
                 if (statement.ToDisplayString().Contains("readOnlyInt"))
                 {
@@ -765,7 +766,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", InputModelPropertyKind.Property, "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false, "requiredInt", new(json: new("requiredInt"))),
+                new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", new(json: new("requiredInt"))),
              };
 
             var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());

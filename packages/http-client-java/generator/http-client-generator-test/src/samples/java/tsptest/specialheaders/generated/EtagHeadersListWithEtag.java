@@ -15,8 +15,8 @@ public class EtagHeadersListWithEtag {
         EtagHeadersClient etagHeadersClient
             = new SpecialHeadersClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildEtagHeadersClient();
-        // BEGIN:tsptest.specialheaders.generated.etagheaderslistwithetag.etagheaderslistwithetag
+        // BEGIN:tsptest.specialheaders.generated.etag-headers-list-with-etag.etag-headers-list-with-etag
         PagedIterable<Resource> response = etagHeadersClient.listWithEtag();
-        // END:tsptest.specialheaders.generated.etagheaderslistwithetag.etagheaderslistwithetag
+        // END:tsptest.specialheaders.generated.etag-headers-list-with-etag.etag-headers-list-with-etag
     }
 }

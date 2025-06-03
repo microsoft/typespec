@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\..\..\packages\http-client-csharp\generator\Microsoft.TypeSpec.Generator.ClientModel\src\Microsoft.TypeSpec.Generator.ClientModel.csproj" />
+    <PackageReference Include="Microsoft.TypeSpec.Generator.ClientModel" Version="1.0.0-alpha.20250523.2" />
   </ItemGroup>
 
   <!-- Copy output to package dist path  -->

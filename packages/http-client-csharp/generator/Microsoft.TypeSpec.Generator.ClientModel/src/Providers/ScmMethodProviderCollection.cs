@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -10,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -19,7 +21,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class ScmMethodProviderCollection : MethodProviderCollection
+    public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
         private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
@@ -30,13 +32,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
+        private IReadOnlyList<ScmMethodProvider>? _methods;
 
         private ClientProvider Client { get; }
+        protected InputServiceMethod ServiceMethod { get; }
+        protected TypeProvider EnclosingType { get; }
+        public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
+
+        public ScmMethodProvider this[int index]
+        {
+            get { return MethodProviders[index]; }
+        }
+
+        public int Count
+        {
+            get { return MethodProviders.Count; }
+        }
+
+        public IEnumerator<ScmMethodProvider> GetEnumerator()
+        {
+            return MethodProviders.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
-            : base(serviceMethod, enclosingType)
         {
-            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
+            ServiceMethod = serviceMethod;
+            EnclosingType = enclosingType;
+            _cleanOperationName = serviceMethod.Operation.Name.ToIdentifierName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
 
@@ -46,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        protected override IReadOnlyList<MethodProvider> BuildMethods()
+        protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
@@ -110,9 +137,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
-            // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod);
+
+            if (convenienceMethod.XmlDocs != null)
+            {
+                var exceptions = new List<XmlDocExceptionStatement>(convenienceMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                convenienceMethod.XmlDocs.Update(exceptions: exceptions);
+            }
+
             return convenienceMethod;
         }
 
@@ -120,6 +153,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             declarations = new Dictionary<string, ValueExpression>();
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+
             foreach (var parameter in convenienceMethodParameters)
             {
                 if (parameter.SpreadSource != null)
@@ -129,17 +164,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.Equals(typeof(string)))
@@ -152,9 +187,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    // else rely on implicit operator to convert to BinaryContent
                 }
             }
 
@@ -215,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
                             .Add(GetElementConversion(elementType, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -236,7 +272,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
                             .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -530,19 +566,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod, isProtocolMethod: true);
 
-            // XmlDocs will be null if the method isn't public
             if (protocolMethod.XmlDocs != null)
             {
-                protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                var exceptions = new List<XmlDocExceptionStatement>(protocolMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
                 ];
                 XmlDocStatement listXmlDoc = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: [.. listItems]);
-                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
+                var summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
+
+                protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
         }

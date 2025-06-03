@@ -1,5 +1,4 @@
 import { codeFrameColumns } from "@babel/code-frame";
-import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { getRelatedLocations, getSourceLocation } from "../diagnostics.js";
@@ -118,7 +117,7 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
   const prePath = options.pathRelativeTo
-    ? relative(options.pathRelativeTo, location.file.path)
+    ? getRelativePathFromDirectory(options.pathRelativeTo, location.file.path, false)
     : location.file.path;
 
   const path = color(options, prePath, pc.cyan);

@@ -16,8 +16,8 @@ public class VersioningOpList {
         VersioningClient versioningClient
             = new VersioningClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildClient();
-        // BEGIN:tsptest.versioning.generated.versioningoplist.versioningoplist
+        // BEGIN:tsptest.versioning.generated.versioning-op-list.versioning-op-list
         PagedIterable<Resource> response = versioningClient.list(Arrays.asList("name=name"), null);
-        // END:tsptest.versioning.generated.versioningoplist.versioningoplist
+        // END:tsptest.versioning.generated.versioning-op-list.versioning-op-list
     }
 }
