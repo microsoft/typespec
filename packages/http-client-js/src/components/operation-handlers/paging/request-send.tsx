@@ -49,6 +49,7 @@ export function getHttpRequestSendParams(httpOperation: HttpOperation) {
 
 export function HttpRequestSend(props: HttpRequestSendProps) {
   const httpOperation = props.httpOperation;
+  const optionsRefkey = getPagingOperationOptionsParameterRefkey(httpOperation);
   const operationUrlRefkey = refkey();
   const requestOptionsVarRefkey = refkey();
   const verb = props.httpOperation.verb;
@@ -68,13 +69,13 @@ export function HttpRequestSend(props: HttpRequestSendProps) {
           <HttpRequest.Url
             httpOperation={props.httpOperation}
             pathVarRefkey={operationUrlRefkey}
-            requestOptionsParamRefkey={ay.refkey()}
+            requestOptionsParamRefkey={optionsRefkey}
           />
 
           <HttpRequestOptions
             httpOperation={props.httpOperation}
             requestOptionsVarRefkey={requestOptionsVarRefkey}
-            requestOptionsParamRefkey={ay.refkey()}
+            requestOptionsParamRefkey={optionsRefkey}
           />
           {code`return await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsVarRefkey} />)});`}
         </StatementList>
