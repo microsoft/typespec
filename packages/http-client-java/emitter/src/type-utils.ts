@@ -360,30 +360,35 @@ function getDecoratorScopedValue<T>(
   decorator: string,
   mapFunc: (d: DecoratorApplication) => T,
 ): T | undefined {
+  // check for decorator that contains "java" scope, e.g. "java" or "python,java"
   let value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "java",
+        scopeContainsJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that contains negative non-"java" scope, e.g. "!python"
   value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "client",
+        scopeContainsNegativeNonJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that does not have scope
   value = type.decorators
     .filter((it) => it.decorator.name === decorator && it.args.length === 1)
     .map((it) => mapFunc(it))
@@ -392,4 +397,18 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   return undefined;
+}
+
+export function scopeContainsJava(scope: string): boolean {
+  return scope
+    .split(",")
+    .map((s) => s.trim())
+    .includes("java");
+}
+
+export function scopeContainsNegativeNonJava(scope: string): boolean {
+  return scope
+    .split(",")
+    .map((s) => s.trim())
+    .some((s) => s.startsWith("!") && s !== "!java");
 }
