@@ -209,37 +209,21 @@ export class OpenAPI3SchemaEmitterBase<
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
     
-    // Check if this model extends an array type
+    // Check if this model extends an array type and get element type
     const extendsArray = model.baseModel && isArrayModelType(program, model.baseModel);
+    const elementType = extendsArray ? model.baseModel!.indexer?.value : undefined;
     
-    let schema: ObjectBuilder<any>;
-    
-    if (extendsArray) {
-      // For models extending arrays, create an array schema using the base array's element type
-      const baseModel = model.baseModel!;
-      const elementType = baseModel.indexer?.value;
-      
-      if (elementType) {
-        schema = new ObjectBuilder({
+    // Create array schema if extending array with valid element type, otherwise object schema
+    const schema: ObjectBuilder<any> = elementType
+      ? new ObjectBuilder({
           type: "array",
           items: this.emitter.emitTypeReference(elementType),
-        });
-      } else {
-        // Fallback to object type if we can't get element type
-        schema = new ObjectBuilder({
+        })
+      : new ObjectBuilder({
           type: "object",
           required: this.#requiredModelProperties(model, visibility),
           properties: this.emitter.emitModelProperties(model),
         });
-      }
-    } else {
-      // For regular models, use object type
-      schema = new ObjectBuilder({
-        type: "object",
-        required: this.#requiredModelProperties(model, visibility),
-        properties: this.emitter.emitModelProperties(model),
-      });
-    }
 
     this.applyModelIndexer(schema, model);
 
@@ -252,7 +236,7 @@ export class OpenAPI3SchemaEmitterBase<
     this.applyDiscriminator(model, schema as any);
     this.#applyExternalDocs(model, schema);
 
-    if (model.baseModel && !extendsArray) {
+    if (model.baseModel && !elementType) {
       // Only add allOf for non-array base models
       schema.set("allOf", Builders.array([this.emitter.emitTypeReference(model.baseModel)]));
     }
