@@ -62,13 +62,58 @@ export interface TestCompileOptions {
 }
 
 interface Testable {
+  /**
+   * Compile the given code and validate no diagnostics(error or warnings) are present.
+   * Use {@link compileAndDiagnose} to get the compiler result and manage diagnostics yourself.
+   *
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns {@link TestCompileResult} with the program and collected entities.
+   *
+   * @example
+   * ```ts
+   * const result = await tester.compile(t.code`model ${t.model("Foo")} { bar: string }`);
+   * // result.program is the program created
+   * // result.Foo is the model Foo created
+   * ```
+   */
   compile<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
   >(
     code: T,
     options?: TestCompileOptions,
   ): Promise<TestCompileResult<GetMarkedEntities<T>>>;
+  /**
+   * Compile the given code and return the list of diagnostics emitted.
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns List of diagnostics emitted.
+   *
+   * @example
+   * ```ts
+   * const diagnostics = await tester.diagnose("model Foo {}");
+   * expectDiagnostics(diagnostics, {
+   *   code: "no-foo",
+   *   message: "Do not use Foo as a model name",
+   * });
+   * ```
+   */
   diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
+
+  /**
+   * Compile the given code and return the collected entities and diagnostics.
+   *
+   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param options Optional test options.
+   * @returns {@link TestCompileResult} with the program and collected entities with the list of diagnostics emitted.
+   *
+   * @example
+   * ```ts
+   * const [result, diagnostics] = await tester.compileAndDiagnose(t.code`model ${t.model("Foo")} { bar: string }`);
+   * // result.program is the program created
+   * // result.Foo is the model Foo created
+   * ```
+   */
   compileAndDiagnose<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
   >(
@@ -125,8 +170,22 @@ export interface OutputTestable<Result> {
 export interface EmitterTester<Result = TestEmitterCompileResult>
   extends OutputTestable<Result>,
     TesterBuilder<EmitterTester<Result>> {
+  /**
+   * Pipe the output of the emitter into a different structure
+   *
+   * @example
+   * ```ts
+   * const MyTester = Tester.emit("my-emitter").pipe((result) => {
+   *  return JSON.parse(result.outputs["output.json"]);
+   * });
+   *
+   * const result = await MyTester.compile("model Foo { bar: string }");
+   * // result is the parsed JSON from the output.json file
+   * ```
+   */
   pipe<O>(cb: (result: Result) => O): EmitterTester<O>;
 
+  /** Create a mutable instance of the tester */
   createInstance(): Promise<EmitterTesterInstance<Result>>;
 }
 
