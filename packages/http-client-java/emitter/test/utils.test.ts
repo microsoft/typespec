@@ -35,9 +35,9 @@ describe("type-utils", () => {
     expect(scopeExplicitlyIncludeJava("java")).toBe(true);
     expect(scopeExplicitlyIncludeJava("python,java")).toBe(true);
     expect(scopeExplicitlyIncludeJava("!python, java")).toBe(true);
-    // java not included
+    // "java" not included
     expect(scopeExplicitlyIncludeJava("python")).toBe(false);
-    // negation handled in "scopeImplicitlyIncludeJava"
+    // negation handled in "scopeImplicitlyIncludeJava" function
     expect(scopeExplicitlyIncludeJava("!java")).toBe(false);
     expect(scopeExplicitlyIncludeJava("!(python,java)")).toBe(false);
     expect(scopeExplicitlyIncludeJava("!(python,csharp)")).toBe(false);
@@ -48,7 +48,7 @@ describe("type-utils", () => {
     expect(scopeImplicitlyIncludeJava("python,!java")).toBe(false);
     expect(scopeImplicitlyIncludeJava("!(python, java)")).toBe(false);
     expect(scopeImplicitlyIncludeJava("!(python,csharp)")).toBe(true);
-    // explicit "java" handled in scopeExplicitlyIncludeJava
+    // explicit "java" handled in "scopeExplicitlyIncludeJava" function
     expect(scopeImplicitlyIncludeJava("java")).toBe(false);
     expect(scopeImplicitlyIncludeJava("python")).toBe(false);
   });

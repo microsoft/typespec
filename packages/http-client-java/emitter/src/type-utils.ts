@@ -400,7 +400,7 @@ function getDecoratorScopedValue<T>(
 }
 
 /**
- * Tests that the scope explitictly includes "java". This is high priority than scope with negation.
+ * Tests that the scope explicitly includes "java". This is of higher priority than scope with negation.
  *
  * @param scope the scope.
  * @returns scope explicitly includes "java".
@@ -420,7 +420,7 @@ export function scopeExplicitlyIncludeJava(scope: string): boolean {
  * E.g. "!python" or "!(python,csharp)".
  *
  * @param scope the scope.
- * @returns
+ * @returns scope implicitly includes "java".
  */
 export function scopeImplicitlyIncludeJava(scope: string): boolean {
   if (scopeIsNegationOfMultiple(scope)) {
