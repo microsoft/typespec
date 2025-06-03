@@ -366,7 +366,7 @@ function getDecoratorScopedValue<T>(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        scopeContainsJava((it.args[1].value as StringLiteral).value),
+        scopeExplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
@@ -380,7 +380,7 @@ function getDecoratorScopedValue<T>(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        scopeContainsNegativeNonJava((it.args[1].value as StringLiteral).value),
+        scopeImplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
@@ -399,16 +399,45 @@ function getDecoratorScopedValue<T>(
   return undefined;
 }
 
-export function scopeContainsJava(scope: string): boolean {
+/**
+ * Tests that the scope explitictly includes "java". This is high priority than scope with negation.
+ *
+ * @param scope the scope.
+ * @returns scope explicitly includes "java".
+ */
+export function scopeExplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    return false;
+  }
   return scope
     .split(",")
     .map((s) => s.trim())
     .includes("java");
 }
 
-export function scopeContainsNegativeNonJava(scope: string): boolean {
-  return scope
-    .split(",")
-    .map((s) => s.trim())
-    .some((s) => s.startsWith("!") && s !== "!java");
+/**
+ * Tests that the scope implicitly includes "java" by having a negation of other languages.
+ * E.g. "!python" or "!(python,csharp)".
+ *
+ * @param scope the scope.
+ * @returns
+ */
+export function scopeImplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    const scopeInNegation = scope.trim().slice(2, -1).trim(); // remove "!(" and ")"
+    return !scopeInNegation
+      .split(",")
+      .map((s) => s.trim())
+      .includes("java");
+  } else {
+    return scope
+      .split(",")
+      .map((s) => s.trim())
+      .some((s) => s.startsWith("!") && s !== "!java");
+  }
+}
+
+function scopeIsNegationOfMultiple(scope: string): boolean {
+  const trimmedScope = scope.trim();
+  return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
 }

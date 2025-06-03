@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scopeContainsJava, scopeContainsNegativeNonJava } from "../src/type-utils.js";
+import { scopeExplicitlyIncludeJava, scopeImplicitlyIncludeJava } from "../src/type-utils.js";
 import { pascalCase, removeClientSuffix, stringArrayContainsIgnoreCase } from "../src/utils.js";
 import { isStableApiVersion } from "../src/versioning-utils.js";
 
@@ -31,18 +31,25 @@ describe("versioning-utils", () => {
 });
 
 describe("type-utils", () => {
-  it("scopeContainsJava", () => {
-    expect(scopeContainsJava("java")).toBe(true);
-    expect(scopeContainsJava("python,java")).toBe(true);
-    expect(scopeContainsJava("!python, java")).toBe(true);
-    expect(scopeContainsJava("!java")).toBe(false);
-    expect(scopeContainsJava("python")).toBe(false);
+  it("scopeExplicitlyIncludeJava", () => {
+    expect(scopeExplicitlyIncludeJava("java")).toBe(true);
+    expect(scopeExplicitlyIncludeJava("python,java")).toBe(true);
+    expect(scopeExplicitlyIncludeJava("!python, java")).toBe(true);
+    // java not included
+    expect(scopeExplicitlyIncludeJava("python")).toBe(false);
+    // negation handled in "scopeImplicitlyIncludeJava"
+    expect(scopeExplicitlyIncludeJava("!java")).toBe(false);
+    expect(scopeExplicitlyIncludeJava("!(python,java)")).toBe(false);
+    expect(scopeExplicitlyIncludeJava("!(python,csharp)")).toBe(false);
   });
 
-  it("scopeContainsNegativeNonJava", () => {
-    expect(scopeContainsNegativeNonJava("java")).toBe(false);
-    expect(scopeContainsNegativeNonJava("!python")).toBe(true);
-    expect(scopeContainsNegativeNonJava("python")).toBe(false);
-    expect(scopeContainsNegativeNonJava("python,!java")).toBe(false);
+  it("scopeImplicitlyIncludeJava", () => {
+    expect(scopeImplicitlyIncludeJava("!python")).toBe(true);
+    expect(scopeImplicitlyIncludeJava("python,!java")).toBe(false);
+    expect(scopeImplicitlyIncludeJava("!(python, java)")).toBe(false);
+    expect(scopeImplicitlyIncludeJava("!(python,csharp)")).toBe(true);
+    // explicit "java" handled in scopeExplicitlyIncludeJava
+    expect(scopeImplicitlyIncludeJava("java")).toBe(false);
+    expect(scopeImplicitlyIncludeJava("python")).toBe(false);
   });
 });
