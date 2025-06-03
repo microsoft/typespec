@@ -256,6 +256,7 @@ model NginxConfigurationResponse
 model NginxConfigurationResponseProperties {
   @visibility(Lifecycle.Read)
   provisioningState?: ProvisioningState;
+
   rootFile?: string;
 }
 
