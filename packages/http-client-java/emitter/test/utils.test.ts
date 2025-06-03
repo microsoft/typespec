@@ -42,6 +42,7 @@ describe("type-utils", () => {
   it("scopeContainsNegativeNonJava", () => {
     expect(scopeContainsNegativeNonJava("java")).toBe(false);
     expect(scopeContainsNegativeNonJava("!python")).toBe(true);
+    expect(scopeContainsNegativeNonJava("python")).toBe(false);
     expect(scopeContainsNegativeNonJava("python,!java")).toBe(false);
   });
 });
