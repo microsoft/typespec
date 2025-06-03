@@ -64,14 +64,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         {
             MockHelpers.LoadMockGenerator();
             var workspace = new AdhocWorkspace();
-            var parseOptions = new CSharpParseOptions(documentationMode: DocumentationMode.Diagnose);
             var projectInfo = ProjectInfo.Create(
                     ProjectId.CreateNewId(),
                     VersionStamp.Create(),
                     name: "TestProj",
                     assemblyName: "TestProj",
-                    language: LanguageNames.CSharp,
-                    parseOptions: parseOptions)
+                    language: LanguageNames.CSharp)
                 .WithMetadataReferences(new[]
                 {
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
