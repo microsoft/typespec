@@ -431,8 +431,8 @@ namespace Microsoft.TypeSpec.Generator
                         {
                             if (cref.Cref is QualifiedCrefSyntax qualifiedCrefSyntax)
                             {
-                                var cleanName = RemoveGlobalAlias(qualifiedCrefSyntax.Container).ToString();
-                                namespacesUsedInXml.Add(cleanName);
+                                var fullyQualifiedName = RemoveGlobalAlias(qualifiedCrefSyntax.Container);
+                                namespacesUsedInXml.Add(fullyQualifiedName.ToString());
                             }
                         }
                     }
