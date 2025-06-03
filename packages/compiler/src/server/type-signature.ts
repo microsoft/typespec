@@ -128,10 +128,10 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
 function getInterfaceSignature(type: Interface, includeBody: boolean) {
   if (includeBody) {
     const INDENT = "  ";
-    const opDescs = Array.from(type.operations).map(
+    const opDesc = Array.from(type.operations).map(
       ([name, op]) => INDENT + getOperationSignature(op, false /* includeQualifier */) + ";",
     );
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDescs.join("\n")}\n}`;
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
   } else {
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
   }
@@ -142,12 +142,12 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
  */
 function getModelSignature(type: Model, includeBody: boolean) {
   if (includeBody) {
-    const propDescs = [];
+    const propDesc = [];
     const INDENT = "  ";
     for (const prop of walkPropertiesInherited(type)) {
-      propDescs.push(INDENT + getModelPropertySignature(prop, false /*includeQualifier*/));
+      propDesc.push(INDENT + getModelPropertySignature(prop, false /*includeQualifier*/));
     }
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDescs.map((d) => `${d};`).join("\n")}\n}`;
+    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
   }
