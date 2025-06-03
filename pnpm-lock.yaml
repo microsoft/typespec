@@ -1022,6 +1022,9 @@ importers:
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.17
+      '@typespec/json-schema':
+        specifier: workspace:^
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:^
         version: link:../openapi
