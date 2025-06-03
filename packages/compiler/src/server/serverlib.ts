@@ -98,6 +98,7 @@ import { resolveModule, ResolveModuleHost } from "../module-resolver/module-reso
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
@@ -130,7 +131,10 @@ import {
   ServerWorkspaceFolder,
 } from "./types.js";
 
-export function createServer(host: ServerHost): Server {
+export function createServer(
+  host: ServerHost,
+  clientConfigsProvider: ClientConfigProvider,
+): Server {
   const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
@@ -158,6 +162,7 @@ export function createServer(host: ServerHost): Server {
     compilerHost,
     serverHost: host,
     log,
+    clientConfigsProvider,
   });
   const currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;

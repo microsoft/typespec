@@ -15,9 +15,9 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
-import { initializeVsCodeSettings, updateVsCodeSettings } from "./vscode-settings.js";
 
 let server: Server | undefined = undefined;
 
@@ -87,7 +87,8 @@ async function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -111,15 +112,16 @@ async function main() {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
-    // Initialize vscode settings
-    await initializeVsCodeSettings(connection, host);
+
+    // Initialize client configurations
+    await clientConfigProvider.initialClientConfig(connection, host);
     s.initialized(params);
   });
 
   connection.onDidChangeConfiguration(async (params) => {
-    // Update vscode settings
+    // Update vscode configurations
     if (params.settings && params.settings.typespec) {
-      updateVsCodeSettings(params.settings.typespec);
+      clientConfigProvider.updateClientConfigs(params.settings.typespec);
     }
 
     s.log({ level: `debug`, message: `Configuration changed`, detail: params.settings });

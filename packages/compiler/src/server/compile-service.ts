@@ -25,13 +25,13 @@ import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { trackActionFunc } from "./server-track-action-task.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
-import { getVsCodeSettings } from "./vscode-settings.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -79,6 +79,7 @@ export interface CompileServiceOptions {
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
   readonly log: (log: ServerLog) => void;
+  readonly clientConfigsProvider?: ClientConfigProvider;
 }
 
 export function createCompileService({
@@ -87,6 +88,7 @@ export function createCompileService({
   fileService,
   fileSystemCache,
   log,
+  clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
@@ -94,21 +96,6 @@ export function createCompileService({
   let configFilePath: string | undefined;
 
   return { compile, getScript, on, notifyChange, getMainFileForDocument };
-
-  /**
-   * Get the vscode configuration value
-   * @param configKey Configuration key name
-   * @param defaultValue default value
-   * @returns Configure value, return the default value if it does not exist
-   */
-  async function getVsCodeConfigValue<T>(
-    configKey: string,
-    defaultValue?: T,
-  ): Promise<T | undefined> {
-    const settings = getVsCodeSettings();
-    const value = settings.getSetting<T>(configKey);
-    return value !== undefined ? value : defaultValue;
-  }
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
@@ -140,7 +127,6 @@ export function createCompileService({
     runOptions?: {
       bypassCache?: boolean;
       trackAction?: boolean;
-      emittersFromVsCodeSettings?: boolean;
     },
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
@@ -157,13 +143,10 @@ export function createCompileService({
       ...(additionalOptions ?? {}),
     };
 
-    if (runOptions === undefined || (runOptions && runOptions.emittersFromVsCodeSettings)) {
-      const settingEmitters = await getVsCodeConfigValue<Array<string>>(
-        "emitRequiredForCompile",
-        [],
-      );
-      if (settingEmitters) {
-        options.emit = settingEmitters;
+    if (additionalOptions?.emit === undefined || additionalOptions?.emit.length === 0) {
+      const configEmits = clientConfigsProvider?.getConfiguration();
+      if (configEmits) {
+        options.emit = configEmits;
       }
     }
 

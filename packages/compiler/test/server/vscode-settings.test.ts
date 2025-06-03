@@ -1,55 +1,94 @@
-import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
-import { getVsCodeSettings, updateVsCodeSettings } from "../../src/server/vscode-settings.js";
+import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
+import {
+  ClientConfigProvider,
+  createClientConfigProvider,
+} from "../../src/server/client-config-provider.js";
 
-describe("compiler: server: vscode-settings", () => {
-  it("gets default empty settings when not initialized", () => {
-    // Reset global settings to default state
-    updateVsCodeSettings({});
+describe("compiler: server: client-config-provider", () => {
+  let configProvider: ClientConfigProvider;
 
-    const settings = getVsCodeSettings();
-
-    // Check default empty settings
-    deepStrictEqual(settings.vscodeSettings, {});
-    strictEqual(settings.getSetting("anything"), undefined);
+  beforeEach(() => {
+    // Create a new client config provider before each test
+    configProvider = createClientConfigProvider();
   });
 
-  it("updates vscode settings correctly", () => {
-    // Start with empty settings
-    updateVsCodeSettings({});
+  it("returns empty configuration when not initialized", () => {
+    const configs = configProvider.getConfiguration();
 
-    // Then update them
-    const newSettings = {
-      updatedSetting: "newValue",
-      anotherSetting: true,
-      nestedSetting: { key: "value" },
-    };
-
-    updateVsCodeSettings(newSettings);
-
-    // Check settings were updated
-    const settings = getVsCodeSettings();
-    strictEqual(settings.vscodeSettings.updatedSetting, "newValue");
-    strictEqual(settings.vscodeSettings.anotherSetting, true);
-    deepStrictEqual(settings.vscodeSettings.nestedSetting, { key: "value" });
-    strictEqual(settings.getSetting("updatedSetting"), undefined);
-    deepStrictEqual(settings.getSetting("nestedSetting"), undefined);
+    // Check if the property exists and is empty
+    strictEqual(typeof configs, "undefined");
+    strictEqual(configs, undefined);
   });
 
-  it("handles case of updating with null or undefined", () => {
-    // Initialize with some settings
-    updateVsCodeSettings({ existing: "value" });
+  it("should update and get configuration correctly", () => {
+    const testConfig = { lsp: { emit: ["openapi3", "json-schema"] } };
 
-    // Update with undefined should result in empty object
-    updateVsCodeSettings(undefined as any);
+    configProvider.updateClientConfigs(testConfig);
+    const retrievedConfig = configProvider.getConfiguration();
 
-    let settings = getVsCodeSettings();
-    deepStrictEqual(settings.vscodeSettings, {});
+    strictEqual(Array.isArray(retrievedConfig), true);
+    strictEqual(retrievedConfig?.length, 2);
+    strictEqual(retrievedConfig?.[0], "openapi3");
+    strictEqual(retrievedConfig?.[1], "json-schema");
+  });
 
-    // Update with null should result in empty object
-    updateVsCodeSettings(null as any);
+  it("should handle empty emit array", () => {
+    const testConfig = { lsp: { emit: [] } };
 
-    settings = getVsCodeSettings();
-    deepStrictEqual(settings.vscodeSettings, {});
+    configProvider.updateClientConfigs(testConfig);
+    const retrievedConfig = configProvider.getConfiguration();
+
+    strictEqual(Array.isArray(retrievedConfig), true);
+    strictEqual(retrievedConfig?.length, 0);
+  });
+
+  it("should handle undefined emit configuration", () => {
+    const testConfig = { lsp: { emit: undefined } };
+
+    configProvider.updateClientConfigs(testConfig);
+    const retrievedConfig = configProvider.getConfiguration();
+
+    strictEqual(retrievedConfig, undefined);
+  });
+
+  it("should handle single emit value", () => {
+    const testConfig = { lsp: { emit: ["openapi3"] } };
+
+    configProvider.updateClientConfigs(testConfig);
+    const retrievedConfig = configProvider.getConfiguration();
+
+    strictEqual(Array.isArray(retrievedConfig), true);
+    strictEqual(retrievedConfig?.length, 1);
+    strictEqual(retrievedConfig?.[0], "openapi3");
+  });
+
+  it("should update existing configuration", () => {
+    const initialConfig = { lsp: { emit: ["openapi3"] } };
+    const updatedConfig = { lsp: { emit: ["json-schema", "yaml"] } };
+
+    configProvider.updateClientConfigs(initialConfig);
+    configProvider.updateClientConfigs(updatedConfig);
+
+    const finalConfig = configProvider.getConfiguration();
+
+    strictEqual(Array.isArray(finalConfig), true);
+    strictEqual(finalConfig?.length, 2);
+    strictEqual(finalConfig?.[0], "json-schema");
+    strictEqual(finalConfig?.[1], "yaml");
+  });
+
+  it("should persist configuration between get calls", () => {
+    const testConfig = { lsp: { emit: ["openapi3", "json-schema"] } };
+
+    configProvider.updateClientConfigs(testConfig);
+
+    // Multiple calls should return the same configuration
+    const config1 = configProvider.getConfiguration();
+    const config2 = configProvider.getConfiguration();
+
+    strictEqual(JSON.stringify(config1), JSON.stringify(config2));
+    strictEqual(config1?.length, 2);
+    strictEqual(config2?.length, 2);
   });
 });

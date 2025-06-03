@@ -98,10 +98,10 @@
               "additionalProperties": false
             }
           },
-          "typespec.emitRequiredForCompile": {
+          "typespec.lsp.emit": {
             "type": "array",
-            "default": [],
-            "description": "List of emitter names that should be run during compilation.",
+            "default": null,
+            "description": "List of emitters that should be included in compilation in typespec LSP server when supporting LSP related functionalities.",
             "scope": "machine-overridable",
             "items": {
               "type": "string"
