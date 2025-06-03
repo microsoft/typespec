@@ -824,10 +824,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    foreach (var constraint in constraints)
+                    for (int i = 0; i < constraints.Count; i++)
                     {
+                        var constraint = constraints[i];
                         constraint.Write(this);
-                        AppendRaw(" ");
+                        if (i < constraints.Count - 1)
+                        {
+                            AppendRaw(" ");
+                        }
                     }
                 }
             }

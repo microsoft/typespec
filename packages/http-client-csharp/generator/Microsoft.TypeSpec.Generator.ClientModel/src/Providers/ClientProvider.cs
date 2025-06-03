@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
@@ -56,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private Dictionary<InputOperation, ScmMethodProviderCollection>? _methodCache;
         private Dictionary<InputOperation, ScmMethodProviderCollection> MethodCache => _methodCache ??= [];
 
-        private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
+        public ParameterProvider? ClientOptionsParameter { get; }
 
         protected override FormattableString Description { get; }
 
@@ -74,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
-            ClientOptionsParameter = new Lazy<ParameterProvider?>(() => ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null);
+            ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -367,7 +366,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var mockingConstructor = ConstructorProviderHelper.BuildMockingConstructor(this);
             // handle sub-client constructors
-            if (ClientOptionsParameter.Value is null)
+            if (ClientOptionsParameter is null)
             {
                 List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
                 foreach (var p in _subClientInternalConstructorParams.Value)
@@ -421,7 +420,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool onlyContainsUnsupportedAuth = false)
             {
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
-                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter.Value];
+                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
                 // If auth exists but it's not supported, we will make the constructor internal.
                 var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
                 var primaryConstructor = new ConstructorProvider(
@@ -458,7 +457,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             if (authField is not null)
-                requiredParameters.Add(authField.AsParameter);
+            {
+                var authParameter = authField.AsParameter;
+                authParameter.Update(name: "credential");
+                requiredParameters.Add(authParameter);
+            }
 
             return requiredParameters;
         }
@@ -476,13 +479,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields)
         {
-            if (ClientOptions is null || ClientOptionsParameter.Value is null)
+            if (ClientOptions is null || ClientOptionsParameter is null)
             {
                 return [MethodBodyStatement.Empty];
             }
 
             List<MethodBodyStatement> body = [
-                ClientOptionsParameter.Value.Assign(ClientOptionsParameter.Value.InitializationValue!, nullCoalesce: true).Terminate(),
+                ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 EndpointField.Assign(_endpointParameter).Terminate()
             ];
@@ -512,14 +515,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
             }
 
-            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
+            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
 
             var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
                 if (f == _apiVersionField && ClientOptions.VersionProperty != null)
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.VersionProperty.Name)).Terminate());
+                    body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
                 }
                 else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
                 {

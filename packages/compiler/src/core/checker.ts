@@ -4459,7 +4459,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return undefined;
     }
-    if (heritageRef.kind !== SyntaxKind.TypeReference) {
+    if (
+      heritageRef.kind !== SyntaxKind.TypeReference &&
+      heritageRef.kind !== SyntaxKind.ArrayExpression
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "extend-model",

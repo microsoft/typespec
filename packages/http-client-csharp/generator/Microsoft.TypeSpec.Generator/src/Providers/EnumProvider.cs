@@ -16,7 +16,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
         {
-            var fixedEnumProvider = new FixedEnumProvider(input, declaringType);
+            bool isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
+            var fixedEnumProvider = isApiVersionEnum
+                ? new ApiVersionEnumProvider(input, declaringType)
+                : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
 
             // Check to see if there is custom code that customizes the enum.
