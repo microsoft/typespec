@@ -1884,6 +1884,8 @@ Two requests need to be tested.
 
 1. Initial request:
    Expected route: /payload/pageable/server-driven-pagination/link
+   Expected request header:
+   Accept: application/json
    Expected response body:
 
 ```json
@@ -1898,6 +1900,8 @@ Two requests need to be tested.
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/link/nextPage
+   Expected request header:
+   Accept: application/json
    Expected response body:
 
 ```json
