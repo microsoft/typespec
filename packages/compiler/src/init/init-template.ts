@@ -16,6 +16,13 @@ export interface InitTemplateInput {
 
 export interface InitTemplate {
   /**
+   * The kind of project this tempolate initialize. This will change things like where dependencies are added.
+   * For example, a library will add dependencies to `peer` and `dev` dependencies, while a project will add them to `dependencies`.
+   * @default "project"
+   */
+  target?: "library" | "project";
+
+  /**
    * Name of the template
    */
   title: string;
@@ -114,6 +121,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
+    target: { type: "string", enum: ["library", "project"], default: "project", nullable: true },
     compilerVersion: { type: "string", nullable: true },
     libraries: {
       type: "array",

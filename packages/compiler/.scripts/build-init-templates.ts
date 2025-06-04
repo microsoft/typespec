@@ -83,6 +83,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     files: [...(await localDir("rest"))],
   },
   "library-ts": {
+    target: "library",
     title: "TypeSpec library",
     description: "Build your own TypeSpec library with custom types, decorators or linters.",
     compilerVersion: minCompilerVersion,
@@ -94,6 +95,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
     ],
   },
   "emitter-ts": {
+    target: "library",
     title: "TypeSpec emitter",
     description: "Create a new package that emits artifacts from TypeSpec.",
     compilerVersion: minCompilerVersion,
