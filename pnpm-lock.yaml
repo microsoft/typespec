@@ -1784,9 +1784,6 @@ importers:
       '@vitest/ui':
         specifier: ^3.1.2
         version: 3.1.4(vitest@3.1.4)
-      autorest:
-        specifier: ~3.7.1
-        version: 3.7.2
       cross-env:
         specifier: ~7.0.3
         version: 7.0.3
@@ -7123,11 +7120,6 @@ packages:
   auto-bind@4.0.0:
     resolution: {integrity: sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==}
     engines: {node: '>=8'}
-
-  autorest@3.7.2:
-    resolution: {integrity: sha512-yEeF0tJjx2fROK9VWIVHKFiUSzD0cxwqnq7z+v7kIIRRZjyOM3rpBS9OPp6tQv5d3mmxPAUNh57G1ZumQNqQGg==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
 
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
@@ -19996,8 +19988,6 @@ snapshots:
   asynckit@0.4.0: {}
 
   auto-bind@4.0.0: {}
-
-  autorest@3.7.2: {}
 
   available-typed-arrays@1.0.7:
     dependencies:
