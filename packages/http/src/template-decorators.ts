@@ -24,6 +24,7 @@ export const $omitMetadata: OmitMetadataDecorator = (
   const mutator = createOmitMetadataMutator(ctx.program, nameTemplate);
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
   target.properties = (mutated.type as Model).properties;
+  target.decorators = target.decorators.filter((d) => d.decorator !== $omitMetadata);
 };
 
 function createOmitMetadataMutator(program: Program, nameTemplate: string): Mutator {
@@ -51,6 +52,7 @@ export const $stripMetadata: OmitMetadataDecorator = (
   const mutator = createStripMetadataMutator(ctx.program, nameTemplate);
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
   target.properties = (mutated.type as Model).properties;
+  target.decorators = target.decorators.filter((d) => d.decorator !== $stripMetadata);
 };
 
 function createStripMetadataMutator(program: Program, nameTemplate: string): Mutator {

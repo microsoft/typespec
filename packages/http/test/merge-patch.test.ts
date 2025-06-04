@@ -74,50 +74,29 @@ async function compileAndDiagnoseWithRunner(
   options?: RouteResolutionOptions,
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   await runner.compileAndDiagnose(
-    `@service(#{title: "Test Service"}) namespace TestService;
+    `@service namespace TestService;
       ${code}`,
-    {
-      noEmit: true,
-    },
   );
   const [services] = getAllHttpServices(runner.program, options);
   return [services[0].operations, runner.program.diagnostics];
 }
 
-describe("metadata tests", () => {
-  async function testMetadata(
-    prop: string,
-    metadataType: string,
-    propValue: string = "string",
-  ): Promise<void> {
+describe("metadata", () => {
+  it("pass metadata through and emit diagnostic if used in @body", async () => {
     const diag = await diagnoseOperations(`
       model Foo {
-        ${metadataType} ${prop}: ${propValue};
+        @header id: string;
         name: string;
         description?: string;
       }
       @patch op update(@body body: MergePatchUpdate<Foo>): void;`);
     expectDiagnostics(diag, {
-      code: "@typespec/http/merge-patch-contains-metadata",
-      message: `The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${metadataType}' decorating property '${prop}'`,
+      code: "@typespec/http/metadata-ignored",
+      message: `header property will be ignored as it is inside of a @body property. Use @bodyRoot instead if wanting to mix.`,
     });
-  }
-  it("emits a diagnostic when mergePatch target contains @path metadata", async () => {
-    await testMetadata("id", "@path");
-  });
-  it("emits a diagnostic when mergePatch target contains @query metadata", async () => {
-    await testMetadata("id", "@query");
-  });
-  it("emits a diagnostic when mergePatch target contains @header metadata", async () => {
-    await testMetadata("id", "@header");
-  });
-  it("emits a diagnostic when mergePatch target contains @cookie metadata", async () => {
-    await testMetadata("id", "@cookie");
-  });
-  it("emits a disgnostic when mergePatch target contains @statusCode metadata", async () => {
-    await testMetadata("code", "@statusCode", "200");
   });
 });
+
 describe("http operation support", () => {
   it("uses the merge-patch content type for explicit body", async () => {
     const [program, diag] = await getOperationsWithServiceNamespace(`
@@ -274,6 +253,61 @@ describe("mutator validation", () => {
     ok(description);
     expect(description.optional).toBe(true);
     expect(checkNullableUnion(runner.program, description!.type)).toBe(true);
+  });
+
+  it("pass metadata properties as they are", async () => {
+    const [ops, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        @header id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@bodyRoot body: MergePatchUpdate<Foo>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = ops[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    expect(bodyType.properties.get("id")?.optional).toBe(false);
+    expect(bodyType.properties.get("id")?.type.kind).toBe("Scalar");
+  });
+
+  it("combine with just OmitMetadata", async () => {
+    const [ops, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        @header id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<OmitMetadata<Foo>>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = ops[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    expect(bodyType.properties.get("id")).toBe(undefined);
+  });
+
+  it("combine with just StripMetadata", async () => {
+    const [ops, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Foo {
+        @header id: string;
+        name: string;
+        description?: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<StripMetadata<Foo>>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = ops[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    expect(bodyType.properties.get("id")?.optional).toBe(true);
   });
 
   function validateResource(model: Model): void {

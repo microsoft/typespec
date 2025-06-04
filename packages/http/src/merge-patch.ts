@@ -36,7 +36,6 @@ import {
   MergePatchModelDecorator,
   MergePatchPropertyDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
-import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import {
   getMergePatchPropertyOverrides,
   MergePatchPropertyOverrides,
@@ -215,6 +214,9 @@ function createMergePatchMutator(
       ModelProperty: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (prop, clone, program, realm) => {
+          if (isMetadata(program, prop)) {
+            return;
+          }
           const decorators: DecoratorApplication[] = [];
           const overrides = getMergePatchPropertyOverrides(program, prop);
           for (const decorator of prop.decorators) {
@@ -263,6 +265,7 @@ function createMergePatchMutator(
             }
             clone.optional =
               overrides?.optional ?? (isDiscriminatedProperty(program, prop) ? false : true);
+            (clone as any).__TRACK = "ABC";
             clone.defaultValue = undefined;
           }
 
@@ -322,30 +325,11 @@ function createMergePatchMutator(
                 clone.properties.delete(key);
                 realm.remove(clonedProp);
               }
-            } else if (!isMetadata(program, prop)) {
+            } else {
               const mutated = mutateSubgraph(program, [mpMutator], prop);
               const mutatedProp = mutated.type as ModelProperty;
               mutatedProp.model = clone;
               clone.properties.set(key, mutatedProp);
-            } else {
-              const decorator: string | undefined = isPathParam(program, prop)
-                ? "@path"
-                : isHeader(program, prop)
-                  ? "@header"
-                  : isCookieParam(program, prop)
-                    ? "@cookie"
-                    : isQueryParam(program, prop)
-                      ? "@query"
-                      : isStatusCode(program, prop)
-                        ? "@statusCode"
-                        : undefined;
-              if (decorator) {
-                reportDiagnostic(program, {
-                  code: "merge-patch-contains-metadata",
-                  target: prop,
-                  format: { metadataType: decorator, propertyName: prop.name },
-                });
-              }
             }
           }
 
