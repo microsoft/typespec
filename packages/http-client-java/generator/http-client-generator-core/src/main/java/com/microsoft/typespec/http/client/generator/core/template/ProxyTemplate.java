@@ -297,14 +297,6 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    private static String serviceInterfaceWithLengthLimit(String serviceInterfaceName) {
-        final int lengthLimit = 20;
-
-        return serviceInterfaceName.length() > lengthLimit
-            ? serviceInterfaceName.substring(0, lengthLimit)
-            : serviceInterfaceName;
-    }
-
     /**
      * Extension to write Headers annotation for proxy method.
      *
