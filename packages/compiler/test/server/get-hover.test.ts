@@ -504,7 +504,6 @@ model TestNs.Dog {
     it("interface with extends", async () => {
       const hover = await getHoverAtCursor(
         `
-          @service(#{title: "RT"})
           namespace TestNs;
           
           interface IActions{
