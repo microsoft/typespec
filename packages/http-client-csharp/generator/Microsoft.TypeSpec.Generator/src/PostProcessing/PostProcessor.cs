@@ -417,41 +417,12 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                // Check for namespace usage in XML documentation
-                var namespacesUsedInXml = new HashSet<string>();
-
-                // Look in documentation comment trivia
-                foreach (var trivia in root.DescendantTrivia()
-                             .Where(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)
-                                         || t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)))
-                {
-                    if (trivia.GetStructure() is DocumentationCommentTriviaSyntax docComment)
-                    {
-                        foreach (var cref in docComment.DescendantNodes().OfType<XmlCrefAttributeSyntax>())
-                        {
-                            if (cref.Cref is QualifiedCrefSyntax qualifiedCrefSyntax)
-                            {
-                                var fullyQualifiedName = RemoveGlobalAlias(qualifiedCrefSyntax.Container);
-                                namespacesUsedInXml.Add(fullyQualifiedName.ToString());
-                            }
-                        }
-                    }
-                }
-
                 var invalidUsings = cu.Usings
                     .Where(u =>
                     {
                         var info = model.GetSymbolInfo(u.Name!);
                         var sym  = info.Symbol;
-                        // If it resolves to a valid namespace, keep it
-                        if (sym?.Kind == SymbolKind.Namespace)
-                        {
-                            return false;
-                        }
-
-                        // If it's used in XML documentation, keep it
-                        var namespaceName = u.Name!.ToString();
-                        return !namespacesUsedInXml.Contains(namespaceName);
+                        return sym is null || sym.Kind != SymbolKind.Namespace;
                     })
                     .ToList();
 
@@ -465,26 +436,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return solution.GetProject(project.Id)!;
-        }
-
-        private static TypeSyntax RemoveGlobalAlias(TypeSyntax type)
-        {
-            switch (type)
-            {
-                case AliasQualifiedNameSyntax { Alias.Identifier.Text: "global" } aliasQualified:
-                    // drop global::
-                    return aliasQualified.Name;
-
-                case QualifiedNameSyntax qualified:
-                    var left = RemoveGlobalAlias(qualified.Left);
-                    return SyntaxFactory.QualifiedName((NameSyntax)left, qualified.Right);
-
-                case GenericNameSyntax generic:
-                    return generic;
-
-                default:
-                    return type;
-            }
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
