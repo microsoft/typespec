@@ -433,7 +433,7 @@ model TestNs.Dog
 *Full Definition:*
 
 \`\`\`typespec
-model TestNs.Dog{
+model TestNs.Dog {
   name: string;
   age: int16;
   tTag: string;
