@@ -20,9 +20,6 @@ import { printIdentifier } from "./syntax-utils.js";
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
-  // Whether to include the interface prefix for operations defined in interfaces.
-  // Default is true
-  includeInterfacePrefix?: boolean;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -237,14 +234,10 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;
   }
-  if (op.interface) {
-    return options?.includeInterfacePrefix === false
-      ? opName
-      : `${getInterfaceName(op.interface, options)}.${opName}`;
-  } else {
-    const prefix = getNamespacePrefix(op.namespace, options);
-    return `${prefix}${opName}`;
-  }
+  const prefix = op.interface
+    ? getInterfaceName(op.interface, options) + "."
+    : getNamespacePrefix(op.namespace, options);
+  return `${prefix}${opName}`;
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
