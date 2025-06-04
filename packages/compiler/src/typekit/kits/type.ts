@@ -14,6 +14,7 @@ import {
   Entity,
   Enum,
   Model,
+  ModelProperty,
   Namespace,
   Node,
   Scalar,
@@ -75,7 +76,7 @@ export interface TypeTypekit {
    * If the type is a TemplateInstance, it will prefix the name with the template arguments.
    * @param type The scalar to get the name of.z
    */
-  getPlausibleName(type: Model | Union | Enum | Scalar): string;
+  getPlausibleName(type: Model | Union | Enum | Scalar | ModelProperty): string;
   /**
    * Gets the maximum value for a numeric or model property type.
    * @param type type to get the maximum value for

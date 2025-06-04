@@ -41,6 +41,14 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
    * Get access of a property
    */
   getAccess(modelProperty: ModelProperty): "public" | "internal";
+
+  /**
+   * Gets the topmost model property that is the source of a given model property.
+   * @param modelProperty Model property to get the root source property for.
+   * @returns The root source model property.
+   * If the model property is a source property, it will return itself.
+   */
+  getRootSourceProperty(modelProperty: ModelProperty): ModelProperty;
 }
 
 interface TypeKit {
@@ -102,6 +110,13 @@ defineKit<TypeKit>({
     },
     getName(modelProperty) {
       return getName(modelProperty);
+    },
+    getRootSourceProperty(modelProperty) {
+      let current = modelProperty;
+      while (current.sourceProperty) {
+        current = current.sourceProperty;
+      }
+      return current;
     },
   },
 });

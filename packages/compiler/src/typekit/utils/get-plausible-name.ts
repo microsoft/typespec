@@ -1,12 +1,14 @@
 import { capitalize } from "../../casing/index.js";
 import { isTemplateInstance } from "../../core/type-utils.js";
-import { Enum, Interface, Model, Scalar, Union } from "../../core/types.js";
+import { Enum, Interface, Model, ModelProperty, Scalar, Union } from "../../core/types.js";
 
 /**
  * Get a plausible name for the given type.
  * @experimental
  */
-export function getPlausibleName(type: Model | Union | Enum | Scalar | Interface): string {
+export function getPlausibleName(
+  type: Model | ModelProperty | Union | Enum | Scalar | Interface,
+): string {
   let name = type.name ?? "TypeExpression";
 
   if (isTemplateInstance(type)) {
