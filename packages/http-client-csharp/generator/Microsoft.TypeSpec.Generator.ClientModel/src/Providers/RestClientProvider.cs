@@ -134,7 +134,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var operation = serviceMethod.Operation;
             var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
-            InputParameter? acceptHeader = operation.Parameters.FirstOrDefault(p => p is { Location: InputRequestLocation.Header, NameInRequest: "Accept" });
 
             MethodBodyStatement[] statements =
             [
@@ -155,9 +154,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             {
                                 uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
                                 request.SetUri(uri),
-                                acceptHeader != null
-                                    ? request.SetHeaders([Literal("Accept"), Literal((acceptHeader.Type as InputLiteralType)?.Value)])
-                                    : MethodBodyStatement.Empty
+                                new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToList())
                             },
                             new MethodBodyStatements([..statements]))
                     };
@@ -220,14 +217,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
             foreach (var inputParameter in operation.Parameters)
             {
                 if (inputParameter.Location != InputRequestLocation.Header)
+                {
                     continue;
+                }
+
+                if (isNextLink && inputParameter.NameInRequest != "Accept")
+                {
+                    continue;
+                }
 
                 CSharpType? type;
                 string? format;

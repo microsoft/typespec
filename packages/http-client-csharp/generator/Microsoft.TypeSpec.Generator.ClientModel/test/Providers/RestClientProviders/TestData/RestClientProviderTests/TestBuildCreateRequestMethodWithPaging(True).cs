@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(global::System.Uri nextPage, string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, string accept, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(global::System.Uri nextPage, string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -21,7 +21,7 @@ namespace Sample
             {
                 uri.Reset(nextPage);
                 request.Uri = uri.ToUri();
-                request.Headers.Set("Accept", null);
+                request.Headers.Set("Accept", "application/json");
             }
             else
             {
@@ -36,7 +36,7 @@ namespace Sample
                 {
                     request.Headers.SetDelimited("p3", p3, null);
                 }
-                request.Headers.Set("Accept", accept);
+                request.Headers.Set("Accept", "application/json");
             }
             message.Apply(options);
             return message;

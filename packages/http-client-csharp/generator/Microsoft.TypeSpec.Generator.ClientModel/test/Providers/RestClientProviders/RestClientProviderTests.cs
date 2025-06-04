@@ -430,8 +430,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [Test]
-        public void TestBuildCreateRequestMethodWithPaging()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestBuildCreateRequestMethodWithPaging(bool acceptIsConstant)
         {
             List<InputParameter> parameters =
             [
@@ -439,7 +440,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: InputRequestLocation.Query, isRequired: true, delimiter: " "),
                 InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: InputRequestLocation.Header, isRequired: true),
                 // Accept header should be included for next link requests
-                InputFactory.Parameter("accept", InputPrimitiveType.String, location: InputRequestLocation.Header, isRequired: true, nameInRequest: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
+                InputFactory.Parameter("accept", acceptIsConstant ? new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json") : InputPrimitiveType.String, kind: acceptIsConstant ? InputParameterKind.Constant : InputParameterKind.Method, location: InputRequestLocation.Header, isRequired: true, nameInRequest: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
             ];
             var inputModel = InputFactory.Model("cat", properties:
             [
@@ -466,7 +467,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: acceptIsConstant.ToString()), file.Content);
         }
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
