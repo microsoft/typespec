@@ -398,7 +398,6 @@ describe("compiler: server: on hover", () => {
     it("model with extends and is (full definition expected)", async () => {
       const hover = await getHoverAtCursor(
         `
-          @service(#{title: "RT"})
           namespace TestNs;
           
           model Do┆g is Animal<string, DogProperties> {
