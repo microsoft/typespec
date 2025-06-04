@@ -131,9 +131,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, ParameterProvider> paramMap,
             MethodSignature signature)
         {
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var operation = serviceMethod.Operation;
             var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
+            InputParameter? acceptHeader = operation.Parameters.FirstOrDefault(p => p is { Location: InputRequestLocation.Header, NameInRequest: "Accept" });
 
             MethodBodyStatement[] statements =
             [
@@ -153,7 +154,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             new IfStatement(ScmKnownParameters.NextPage.NotEqual(Null))
                             {
                                 uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
-                                request.SetUri(uri)
+                                request.SetUri(uri),
+                                acceptHeader != null
+                                    ? request.SetHeaders([Literal("Accept"), Literal((acceptHeader.Type as InputLiteralType)?.Value)])
+                                    : MethodBodyStatement.Empty
                             },
                             new MethodBodyStatements([..statements]))
                     };
