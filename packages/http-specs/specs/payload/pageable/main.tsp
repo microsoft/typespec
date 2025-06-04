@@ -58,6 +58,46 @@ namespace ServerDrivenPagination {
     @nextLink next?: url;
   };
 
+  @scenario
+  @scenarioDoc("""
+    Test case for using link as pagination with Accept header validation.
+    
+    Two requests need to be tested.
+    1. Initial request:
+    Expected route: /payload/pageable/server-driven-pagination/link-with-accept
+    Expected request header:
+    Accept: application/json
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" }
+      ],
+      "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link-with-accept/nextPage"
+    }
+    ```
+    2. Next page request:
+    Expected route: /payload/pageable/server-driven-pagination/link-with-accept/nextPage
+    Expected request header:
+    Accept: application/json
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "3", "name": "bird" },
+        { "id": "4", "name": "fish" }
+      ]
+    }
+    ```
+    """)
+  @route("/link-with-accept")
+  @list
+  op linkWithAccept(): {
+    @pageItems
+    pets: Pet[];
+
+    @nextLink next?: url;
+  };
+
   @route("/continuationtoken")
   namespace ContinuationToken {
     @scenario

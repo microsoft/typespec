@@ -118,6 +118,43 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   },
 ]);
 
+Scenarios.Payload_Pageable_ServerDrivenPagination_linkWithAccept = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-with-accept",
+    method: "get",
+    request: { headers: { accept: "application/json" } },
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-with-accept/nextPage`,
+      }),
+    },
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("accept", "application/json");
+      return {
+        status: 200,
+        body: json({
+          pets: FirstPage,
+          next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-with-accept/nextPage`,
+        }),
+      };
+    },
+    kind: "MockApiDefinition",
+  },
+  {
+    uri: "/payload/pageable/server-driven-pagination/link-with-accept/nextPage",
+    method: "get",
+    request: { headers: { accept: "application/json" } },
+    response: SecondResponse,
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("accept", "application/json");
+      return SecondResponse;
+    },
+    kind: "MockApiDefinition",
+  },
+]);
+
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody =
   createTests("query", "body");
 
