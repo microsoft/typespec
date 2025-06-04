@@ -34,7 +34,7 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    * @param operation operation to find out which client it belongs to
    */
   getClient(operation: HttpOperation): Client | undefined;
-  getPagingMetadata(
+  getPagingClientMetadata(
     operation: Operation,
     options?: ClientExtensionOptions,
   ): ClientOperationPagingMetadata | undefined;
@@ -137,7 +137,7 @@ defineKit<SdkKit>({
       }
       return undefined;
     },
-    getPagingMetadata(operation, options) {
+    getPagingClientMetadata(operation, options) {
       const returnType = operation.returnType;
       const pagingMetadata = this.operation.getPagingMetadata(operation);
 
