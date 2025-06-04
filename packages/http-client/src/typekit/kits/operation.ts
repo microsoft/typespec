@@ -138,23 +138,26 @@ defineKit<SdkKit>({
       return undefined;
     },
     getPagingMetadata(operation, options) {
+      const returnType = operation.returnType;
+      const pagingMetadata = this.operation.getPagingMetadata(operation);
+
+      if (returnType.kind !== "Model" || !pagingMetadata) {
+        // TODO: Add diagnostics
+
+        return {};
+      }
+
       const { nextLinkPath, nextLinkSegments } =
         getNextLinkSegments(this, operation, options!) ?? {};
       const { continuationTokenParameterSegments, continuationTokenResponseSegments } =
         getContinuationTokenSegments(this, operation, options!) ?? {};
 
-      const response = operation.returnType;
-      const pagingMetadata = this.operation.getPagingMetadata(operation);
-
-      let pageItemsSegments: ModelProperty[] | undefined;
-      if (pagingMetadata?.output.pageItems && response.kind === "Model") {
-        pageItemsSegments = getPropertySegmentsFromModelOrParameters(response, (p) => {
-          return (
-            this.modelProperty.getRootSourceProperty(p) ===
-            this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
-          );
-        });
-      }
+      const pageItemsSegments = getPropertySegmentsFromModelOrParameters(returnType, (p) => {
+        return (
+          this.modelProperty.getRootSourceProperty(p) ===
+          this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
+        );
+      });
 
       return {
         nextLinkPath,
@@ -230,20 +233,13 @@ function getNextLinkSegments(
   options: ClientExtensionOptions,
 ): { nextLinkSegments: ModelProperty[] | undefined; nextLinkPath: string | undefined } | undefined {
   const httpOperation = $.httpOperation.get(operation);
-  const pagingMetadata = $.operation.getPagingMetadata(operation);
-  if (!pagingMetadata) {
-    return undefined;
-  }
-
+  const pagingMetadata = $.operation.getPagingMetadata(operation)!;
   const nextLink = pagingMetadata.output.nextLink;
   if (!nextLink) {
     return undefined;
   }
 
-  const returnType = operation.returnType;
-  if (returnType.kind !== "Model") {
-    return undefined;
-  }
+  const returnType = operation.returnType as Model;
 
   return $.modelProperty.isHttpHeader(nextLink.property)
     ? handleHeaderNextlink($, nextLink, httpOperation, options)
@@ -257,11 +253,6 @@ function handleHeaderNextlink(
   options: ClientExtensionOptions,
 ) {
   const getName = options?.getName ?? $.type.getPlausibleName;
-
-  if ($.modelProperty.isHttpHeader(nextLink.property)) {
-    // TODO: Handle non header next links
-    return undefined;
-  }
 
   const nextLinkSegments = $.httpOperation
     .flattenResponses(httpOperation)
