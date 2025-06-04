@@ -60,16 +60,6 @@ namespace Payload.MultiPart.Models
             return BinaryContent.CreateMultipartFormDataContent(parts);
         }
 
-        public static implicit operator BinaryContent(ComplexPartsRequest complexPartsRequest)
-        {
-            if (complexPartsRequest == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(complexPartsRequest, ModelSerializationExtensions.WireOptions);
-        }
-
-
         private BinaryData SerializeMultipart()
         {
             using MemoryStream stream = new MemoryStream();

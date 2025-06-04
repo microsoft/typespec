@@ -205,6 +205,10 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(content, content.ContentType);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+            // Assert all streams are disposed
+            Assert.IsFalse(imageStream1.CanRead);
+            Assert.IsFalse(imageStream2.CanRead);
+            Assert.IsFalse(imageStream3.CanRead);
         });
 
         [SpectorTest]
@@ -232,6 +236,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+
+            // Assert all streams are disposed
+            Assert.IsFalse(imageStream1.CanRead);
+            Assert.IsFalse(imageStream2.CanRead);
+            Assert.IsFalse(imageStream3.CanRead);
         });
 
         [SpectorTest]
