@@ -3,7 +3,6 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class Decimal128sImpl {
      * @param client the instance of the service client containing this operation class.
      */
     Decimal128sImpl(ValueTypesClientImpl client) {
-        this.service = RestProxy.create(Decimal128sService.class, client.getHttpPipeline());
+        this.service = Decimal128sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class Decimal128sImpl {
      * The interface defining all the services for ValueTypesClientDecimal128s to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ValueTypesClientDeci", host = "{endpoint}")
+    @ServiceInterface(name = "ValueTypesClientDecimal128s", host = "{endpoint}")
     public interface Decimal128sService {
         static Decimal128sService getNewInstance(HttpPipeline pipeline) {
             try {

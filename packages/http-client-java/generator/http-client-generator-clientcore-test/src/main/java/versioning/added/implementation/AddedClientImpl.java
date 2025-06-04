@@ -3,7 +3,6 @@ package versioning.added.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -114,7 +113,7 @@ public final class AddedClientImpl {
         this.version = version;
         this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
-        this.service = RestProxy.create(AddedClientService.class, this.httpPipeline);
+        this.service = AddedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

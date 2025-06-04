@@ -45,11 +45,10 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             });
             if (settings.isAzureV1()) {
                 classBlock.annotation(String.format("Host(\"%1$s\")", restAPI.getBaseURL()));
-                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName())));
+                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")", restAPI.getClientTypeName()));
             } else {
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\", host = \"%2$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName()), restAPI.getBaseURL()));
+                    restAPI.getClientTypeName(), restAPI.getBaseURL()));
             }
 
             JavaVisibility visibility = JavaVisibility.Private;

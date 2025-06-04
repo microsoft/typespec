@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class Float32ValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     Float32ValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(Float32ValuesService.class, client.getHttpPipeline());
+        this.service = Float32ValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class Float32ValuesImpl {
      * The interface defining all the services for ArrayClientFloat32Values to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ArrayClientFloat32Va", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientFloat32Values", host = "{endpoint}")
     public interface Float32ValuesService {
         static Float32ValuesService getNewInstance(HttpPipeline pipeline) {
             try {

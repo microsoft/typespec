@@ -3,7 +3,6 @@ package payload.pageable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -41,7 +40,7 @@ public final class ServerDrivenPaginationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationsImpl(PageableClientImpl client) {
-        this.service = RestProxy.create(ServerDrivenPaginationsService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -49,7 +48,7 @@ public final class ServerDrivenPaginationsImpl {
      * The interface defining all the services for PageableClientServerDrivenPaginations to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
         static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
             try {

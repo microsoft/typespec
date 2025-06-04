@@ -3,7 +3,6 @@ package versioning.typechangedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -99,7 +98,7 @@ public final class TypeChangedFromClientImpl {
         this.endpoint = endpoint;
         this.version = version;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(TypeChangedFromClientService.class, this.httpPipeline);
+        this.service = TypeChangedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -107,7 +106,7 @@ public final class TypeChangedFromClientImpl {
      * calls.
      */
     @ServiceInterface(
-        name = "TypeChangedFromClien",
+        name = "TypeChangedFromClient",
         host = "{endpoint}/versioning/type-changed-from/api-version:{version}")
     public interface TypeChangedFromClientService {
         static TypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
