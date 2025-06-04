@@ -99,35 +99,12 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/link",
     method: "get",
-    request: {},
-    response: {
-      status: 200,
-      body: json({
-        pets: FirstPage,
-        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
-      }),
-    },
-    kind: "MockApiDefinition",
-  },
-  {
-    uri: "/payload/pageable/server-driven-pagination/link/nextPage",
-    method: "get",
-    request: {},
-    response: SecondResponse,
-    kind: "MockApiDefinition",
-  },
-]);
-
-Scenarios.Payload_Pageable_ServerDrivenPagination_linkWithAccept = passOnSuccess([
-  {
-    uri: "/payload/pageable/server-driven-pagination/link-with-accept",
-    method: "get",
     request: { headers: { accept: "application/json" } },
     response: {
       status: 200,
       body: json({
         pets: FirstPage,
-        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-with-accept/nextPage`,
+        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
       }),
     },
     handler: (req: MockRequest) => {
@@ -136,14 +113,14 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_linkWithAccept = passOnSuccess
         status: 200,
         body: json({
           pets: FirstPage,
-          next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link-with-accept/nextPage`,
+          next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
         }),
       };
     },
     kind: "MockApiDefinition",
   },
   {
-    uri: "/payload/pageable/server-driven-pagination/link-with-accept/nextPage",
+    uri: "/payload/pageable/server-driven-pagination/link/nextPage",
     method: "get",
     request: { headers: { accept: "application/json" } },
     response: SecondResponse,
