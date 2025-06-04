@@ -53,6 +53,11 @@ interface ClientOperationPagingMetadata {
   continuationTokenResponseSegments?: ModelProperty[];
   /** Segments to indicate how to get page items from response. */
   pageItemsSegments?: ModelProperty[];
+  /**
+   * @deprecated
+   */
+  resultPath?: string | undefined;
+  resultSegments?: ModelProperty[] | undefined;
 }
 
 interface SdkKit {
@@ -159,12 +164,33 @@ defineKit<SdkKit>({
         );
       });
 
+      const resultPath = getPropertyPathFromModel(
+        this,
+        returnType,
+        (p) => {
+          return (
+            this.modelProperty.getRootSourceProperty(p) ===
+            this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
+          );
+        },
+        options!,
+      );
+
+      const resultSegments = getPropertySegmentsFromModelOrParameters(returnType, (p) => {
+        return (
+          this.modelProperty.getRootSourceProperty(p) ===
+          this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
+        );
+      });
+
       return {
         nextLinkPath,
         nextLinkSegments,
         continuationTokenParameterSegments,
         continuationTokenResponseSegments,
         pageItemsSegments,
+        resultSegments,
+        resultPath,
       };
     },
   },
