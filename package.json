@@ -87,6 +87,17 @@
   "pnpm": {
     "overrides": {
       "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@playwright/browser-chromium",
+      "autorest",
+      "esbuild",
+      "sharp",
+      "tree-sitter-c-sharp",
+      "tree-sitter-java",
+      "tree-sitter-javascript",
+      "tree-sitter-python",
+      "tree-sitter-typescript"
+    ]
   }
 }
