@@ -7,6 +7,11 @@
 const SEPARATORS = /[\s:_\-./\\]/;
 
 /**
+ * Separators that are considered unspeakable.
+ */
+const UNSPEAKABLE_SEPARATORS = /[\s:\-./\\]/;
+
+/**
  * Returns true if a name cannot be spoken. A name is unspeakable if:
  *
  * - It contains only separators and whitespace.
@@ -20,7 +25,7 @@ const SEPARATORS = /[\s:_\-./\\]/;
  */
 export function isUnspeakable(name: string): boolean {
   for (const c of name) {
-    if (!SEPARATORS.test(c)) {
+    if (!UNSPEAKABLE_SEPARATORS.test(c)) {
       return /[0-9]/.test(c);
     }
   }
@@ -69,6 +74,7 @@ export function parseCase(name: string): ReCase {
 
   let currentComponent = "";
   let inAcronym = false;
+  let inLeadingUnderscore = false;
 
   for (let i = 0; i < name.length; i++) {
     const char = name[i];
@@ -81,6 +87,17 @@ export function parseCase(name: string): ReCase {
     //             : "OpenAIContext" => ["open", "ai", "context"]
     //  but        : "HTTPresponse" (wrong) => ["htt", "presponse"]
     //  however    : "HTTP_response" (okay I guess) => ["http", "response"]
+
+    // allow leading underscores to be part of the first component
+    if (!components.length && char === "_") {
+      inLeadingUnderscore = true;
+      currentComponent += char;
+      continue;
+    } else if (inLeadingUnderscore && char !== "_") {
+      inLeadingUnderscore = false;
+      components.push(currentComponent);
+      currentComponent = "";
+    }
 
     // If the character is a separator or an upper case character, we push the current component and start a new one.
     if (char === char.toUpperCase() && !/[0-9]/.test(char)) {
@@ -163,6 +180,14 @@ interface ReCaseUpper {
 }
 
 function recase(components: readonly string[]): ReCase {
+  const hasLeadingUnderscores = components.length > 0 && components[0].startsWith("_");
+  function joinComponents(joiner: string): string {
+    if (hasLeadingUnderscores) {
+      // The first component contains the leading underscores, so no need to add one.
+      return `${components[0]}${components.slice(1).join(joiner)}`;
+    }
+    return components.join(joiner);
+  }
   return Object.freeze({
     components,
     get pascalCase() {
@@ -173,21 +198,23 @@ function recase(components: readonly string[]): ReCase {
     get camelCase() {
       return components
         .map((component, index) =>
-          index === 0 ? component : component[0].toUpperCase() + component.slice(1),
+          index === 0 || (hasLeadingUnderscores && index === 1)
+            ? component
+            : component[0].toUpperCase() + component.slice(1),
         )
         .join("");
     },
     get snakeCase() {
-      return components.join("_");
+      return joinComponents("_");
     },
     get kebabCase() {
-      return components.join("-");
+      return joinComponents("-");
     },
     get dotCase() {
-      return components.join(".");
+      return joinComponents(".");
     },
     get pathCase() {
-      return components.join("/");
+      return joinComponents("/");
     },
 
     get upper() {
@@ -195,7 +222,7 @@ function recase(components: readonly string[]): ReCase {
     },
 
     join(separator: string) {
-      return components.join(separator);
+      return joinComponents(separator);
     },
   });
 }
