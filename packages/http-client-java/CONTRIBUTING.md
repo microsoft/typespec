@@ -46,6 +46,20 @@ Internally, it does
 1. Build the `@typespec/http-client-java` tgz locally. See [Build and Pack](#build-and-pack).
 2. Re-install the tgz (along with other dependencies) in the test module.
 
+### Debug `.ts` code
+
+1. In vscode, toggle `Auto Attach` as `Always` (click `ctrl+shift+p` and input `Toggle Auto Attach`, choose the option `Always`). You may need to restart vscode after setting.
+2. Run below commands
+
+```
+$ cd packages/http-client-java
+$ npm link
+$ cd packages/http-client-java/generator/http-client-generator-test
+$ npm link ../../ # this will link http-client-generator-test to packages/http-client-java
+```
+
+3. When running `tsp compile` on test cases under `http-client-generator-test`, it will go to the break point you set in `.ts`(e.g. `code-model-builder.ts`) file.
+
 ### Generate the test code
 
 If the feature or bug fix involves code change on generated code, you will need to re-generate the test code in one or both of the test modules.
