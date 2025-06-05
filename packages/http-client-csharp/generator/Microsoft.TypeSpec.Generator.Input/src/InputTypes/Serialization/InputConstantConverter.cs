@@ -21,7 +21,10 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static InputConstant CreateInputConstant(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            reader.Read(); // we are at the StartObject token
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
 
             InputType? type = null;
 

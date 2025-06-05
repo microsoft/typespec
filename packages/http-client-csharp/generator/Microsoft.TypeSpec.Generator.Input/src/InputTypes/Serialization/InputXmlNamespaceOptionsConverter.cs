@@ -21,7 +21,10 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private static InputXmlNamespaceOptions ReadInputXmlNamespaceOptions(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            reader.Read(); // we are at the StartObject token
+            if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                reader.Read();
+            }
 
             string? ns = null;
             string? prefix = null;
