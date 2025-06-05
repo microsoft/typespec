@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [System ClientModel Updates](#system-clientmodel-updates)
+2. [System ClientModel & Azure.Core Updates](#system-clientmodel-and-azure.core-updates)
 3. [Usage Examples](#usage-examples)
 
 ## Motivation
@@ -49,17 +49,18 @@ string requestContentType = multipartContent.Headers.ContentType!.ToString();
 ClientResult response = await client.UploadDogAsync(content, requestContentType);
 ```
 
-This document provides a proposal for a generated convenience layer to remove some of this burden from users.
+This document provides a proposal for a generated convenience layer to remove some of this burden from users focusing on unbranded clients,
+but with the intention to provide support for both unbranded and azure branded libraries.
 
 ## Goals
 
-- Provide discoverable convenience methods that simplify creating and sending multipart/form-data requests.
+- Provide discoverable convenience methods & APIs that simplify creating and sending multipart/form-data requests.
 
-## System ClientModel Updates
+## System ClientModel and Azure.Core Updates
 
-### BinaryContent APIs
+The BinaryContent & RequestContent classes are being extended with multipart/form-data capabilities to provide a streamlined API for building requests for clients that need to send multipart payloads. These additions eliminate the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
 
-The BinaryContent class is being extended with multipart/form-data capabilities to provide a streamlined API for building requests for clients that need to send multipart payloads. These additions eliminate the need for manual boundary management and complex multipart construction while maintaining full control over content types and part metadata.
+### System.ClientModel
 
 ```c#
 public abstract partial class BinaryContent : System.IDisposable
@@ -78,16 +79,41 @@ public abstract partial class BinaryContent : System.IDisposable
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, double content) { throw null; }
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, int content) { throw null; }
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, long content) { throw null; }
-    public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, System.IO.Stream stream) { throw null; }
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, float content) { throw null; }
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart(string name, string content) { throw null; }
     public static System.ClientModel.BinaryContent CreateMultipartFormDataPart<T>(string name, T model, System.ClientModel.Primitives.ModelReaderWriterOptions? options = null) where T : System.ClientModel.Primitives.IPersistableModel<T> { throw null; }
 }
 ```
 
+### Azure.Core
+
+```c#
+public abstract partial class RequestContent : System.IDisposable
+{
+    // Add ContentType property
+    public virtual string? ContentType { get { throw null; } set { } }
+
+    // Add APIs for creating MPFD parts and payload.
+    public static Azure.Core.RequestContent CreateMultipartFormDataContent(System.Collections.Generic.IEnumerable<Azure.Core.RequestContent> parts) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataContent(string boundary, System.Collections.Generic.IEnumerable<Azure.Core.RequestContent> parts) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, Azure.Core.FileRequestContent content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, System.BinaryData content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, bool content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, byte[] content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, decimal content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, double content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, int content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, long content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, float content) { throw null; }
+    public static Azure.Core.RequestContent CreateMultipartFormDataPart(string name, string content) { throw null; }
+}
+```
+
 ### File Part Type
 
-To support generating a convenience layer for file parts described in a TypeSpec request, new convenience model type can be added to the System.ClientModel library, to be consumed by generated clients. This new type can serve as the common type for file parts within a request.
+To support generating a convenience layer for file parts described in a TypeSpec request, new convenience model type can be added to the System.ClientModel & Azure.Core libraries, to be consumed by generated clients. This new type can serve as the common type for file parts within a request.
+
+#### System.ClientModel
 
 ```csharp
 public sealed partial class FileBinaryContent : System.ClientModel.BinaryContent
@@ -95,6 +121,24 @@ public sealed partial class FileBinaryContent : System.ClientModel.BinaryContent
     public FileBinaryContent(System.BinaryData data) { }
     public FileBinaryContent(System.IO.Stream stream) { }
     public FileBinaryContent(string path) { }
+    public override string? ContentType { get { throw null; } set { } }
+    public string? Filename { get { throw null; } set { } }
+    public override void Dispose() { }
+    public override bool TryComputeLength(out long length) { throw null; }
+    public override void WriteTo(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { }
+    public override System.Threading.Tasks.Task WriteToAsync(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+}
+```
+
+#### Azure.Core
+
+
+```csharp
+public sealed partial class FileRequestContent : Azure.Core.RequestContent
+{
+    public FileRequestContent(System.BinaryData data) { }
+    public FileRequestContent(System.IO.Stream stream) { }
+    public FileRequestContent(string path) { }
     public override string? ContentType { get { throw null; } set { } }
     public string? Filename { get { throw null; } set { } }
     public override void Dispose() { }
@@ -262,16 +306,6 @@ public partial class Dog : IPersistableModel<Dog>
     }
 
     string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    public static implicit operator BinaryContent(Dog dog)
-    {
-        if (dog == null)
-        {
-            return null;
-        }
-
-        return BinaryContent.Create(dog, ModelSerializationExtensions.WireOptions);
-    }
 
     internal BinaryContent ToMultipartContent()
     {
@@ -489,16 +523,6 @@ public partial class Cat : IPersistableModel<Cat>
     }
 
     string IPersistableModel<Cat>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    public static implicit operator BinaryContent(Cat cat)
-    {
-        if (cat == null)
-        {
-            return null;
-        }
-
-        return BinaryContent.Create(cat, ModelSerializationExtensions.WireOptions);
-    }
 
     internal BinaryContent ToMultipartContent()
     {
@@ -763,16 +787,6 @@ public partial class PetDetails : IPersistableModel<PetDetails>
     }
 
     string IPersistableModel<PetDetails>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
-
-    public static implicit operator BinaryContent(PetDetails petDetails)
-    {
-        if (petDetails == null)
-        {
-            return null;
-        }
-
-        return BinaryContent.Create(petDetails, ModelSerializationExtensions.WireOptions);
-    }
 
     internal BinaryContent ToMultipartContent()
     {
