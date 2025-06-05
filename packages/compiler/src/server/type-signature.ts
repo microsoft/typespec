@@ -120,17 +120,9 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
   const parameters = [...type.parameters.properties.values()].map((p) =>
     getModelPropertySignature(p, false /* includeQualifier */),
   );
-  if (includeQualifier) {
-    return `op ${getTypeName(type)}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
-  } else {
-    let opName = type.name;
-    if (type.node && type.node.templateParameters.length > 0) {
-      // template
-      const params = type.node.templateParameters.map((t) => printIdentifier(t.id.sv));
-      opName += `<${params.join(", ")}>`;
-    }
-    return `op ${opName}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
-  }
+  return `op ${getTypeName(type, {
+    includeInterfacePrefix: includeQualifier,
+  })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
 function getInterfaceSignature(type: Interface, includeBody: boolean) {
