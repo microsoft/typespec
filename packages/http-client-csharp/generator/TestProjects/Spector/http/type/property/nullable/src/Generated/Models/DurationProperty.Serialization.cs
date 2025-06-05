@@ -31,6 +31,8 @@ namespace _Type.Property.Nullable
 
         string IPersistableModel<DurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
+        public static implicit operator BinaryContent(DurationProperty durationProperty) => throw null;
+
         public static explicit operator DurationProperty(ClientResult result) => throw null;
     }
 }
