@@ -24,6 +24,7 @@ import {
   Result,
   ResultCode,
   SettingName,
+  TypeSpecExtensionApi,
 } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
@@ -327,7 +328,7 @@ export async function activate(context: ExtensionContext) {
   );
 
   // Expose API for other extensions to consume
-  const api = {
+  const api: TypeSpecExtensionApi = {
     /** Register more InitTemplateUrls which will be included in the Create TypeSpec Project scenario */
     registerInitTemplateUrls(items: InitTemplatesUrlSetting[]) {
       registerInitTemplateUrlsInternal(items);
