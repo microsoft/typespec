@@ -580,6 +580,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 spreadSource = inputOperationSpreadParameter != null
                     ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(GetSpreadParameterModel(inputOperationSpreadParameter))
                     : null;
+                if (spreadSource != null)
+                {
+                    ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Add(spreadSource);
+                }
             }
 
             foreach (InputParameter inputParam in inputParameters)

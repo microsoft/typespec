@@ -154,8 +154,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                methods.Add(BuildImplicitToBinaryContent());
-                methods.Add(BuildExplicitFromClientResult());
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_model))
+                {
+                    methods.Add(BuildImplicitToBinaryContent());
+                }
+
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_model))
+                {
+                    methods.Add(BuildExplicitFromClientResult());
+                }
             }
 
             if (_isStruct)
