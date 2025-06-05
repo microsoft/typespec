@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using static Microsoft.TypeSpec.Generator.Primitives.NewProjectScaffolding;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator;
 
@@ -18,7 +18,7 @@ internal class CSharpProjectWriter
         ProjectReferences = new List<CSProjDependencyPackage>();
         PackageReferences = new List<CSProjDependencyPackage>();
         PrivatePackageReferences = new List<CSProjDependencyPackage>();
-        CompileIncludes = new List<CSProjCompileInclude>();
+        CompileIncludes = new List<CSharpProjectCompileInclude>();
     }
 
     public CSProjProperty? Description { get; init; }
@@ -59,7 +59,7 @@ internal class CSharpProjectWriter
 
     public IList<CSProjDependencyPackage> PrivatePackageReferences { get; }
 
-    public IList<CSProjCompileInclude> CompileIncludes { get; }
+    public IList<CSharpProjectCompileInclude> CompileIncludes { get; }
 
     public string Write()
     {
@@ -174,7 +174,7 @@ internal class CSharpProjectWriter
         writer.WriteElementString(name, property.Value);
     }
 
-    private void WriteCompileInclude(XmlWriter writer, CSProjCompileInclude compileInclude)
+    private void WriteCompileInclude(XmlWriter writer, CSharpProjectCompileInclude compileInclude)
     {
         writer.WriteStartElement("Compile");
         writer.WriteAttributeString("Include", compileInclude.Include);

@@ -74,10 +74,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return builder.Write();
         }
 
-        private IReadOnlyList<CSProjCompileInclude>? _compileIncludes;
-        public IReadOnlyList<CSProjCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
+        private IReadOnlyList<CSharpProjectCompileInclude>? _compileIncludes;
+        public IReadOnlyList<CSharpProjectCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
 
-        protected virtual IReadOnlyList<CSProjCompileInclude> BuildCompileIncludes() => [];
+        protected virtual IReadOnlyList<CSharpProjectCompileInclude> BuildCompileIncludes() => [];
 
         private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
@@ -139,11 +139,6 @@ EndProject
 EndGlobal
 ";
             return string.Format(slnContent, CodeModelGenerator.Instance.Configuration.PackageName);
-        }
-
-        public record CSProjCompileInclude(string Include, string? LinkBase)
-        {
-            public CSProjCompileInclude(string include) : this(include, null) { }
         }
     }
 }
