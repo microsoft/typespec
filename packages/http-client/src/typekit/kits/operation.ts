@@ -41,6 +41,7 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
 }
 
 interface ClientOperationPagingMetadata {
+  nextLinkPath: string | undefined;
   /** Segments to indicate how to get next page link value from response. */
   nextLinkSegments?: ModelProperty[];
   /** Method used to get next page. If not defined, use the initial method. */
@@ -149,7 +150,7 @@ defineKit<SdkKit>({
       if (returnType.kind !== "Model" || !pagingMetadata) {
         // TODO: Add diagnostics
 
-        return {};
+        return undefined;
       }
 
       const { nextLinkPath, nextLinkSegments } =
@@ -183,7 +184,7 @@ defineKit<SdkKit>({
         );
       });
 
-      return {
+      const x: ClientOperationPagingMetadata = {
         nextLinkPath,
         nextLinkSegments,
         continuationTokenParameterSegments,
@@ -192,6 +193,8 @@ defineKit<SdkKit>({
         resultSegments,
         resultPath,
       };
+
+      return x;
     },
   },
 });
