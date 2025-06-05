@@ -347,6 +347,7 @@ namespace SampleTypeSpec
             {
                 uri.Reset(nextPage);
                 request.Uri = uri.ToUri();
+                request.Headers.Set("Accept", "application/json");
             }
             else
             {
