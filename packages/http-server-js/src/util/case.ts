@@ -104,7 +104,7 @@ export function parseCase(name: string): ReCase {
       // If we're in an acronym, we need to check if the next character is lower case.
       // If it is, then this is the start of a new component.
       const acronymRestart =
-        inAcronym && /[A-Z]/.test(char) && i + 1 < name.length && /[^A-Z]/.test(name[i + 1]);
+        inAcronym && /[A-Z]/.test(char) && i + 1 < name.length && /[a-z]/.test(name[i + 1]);
 
       if (currentComponent.length > 0 && (acronymRestart || !inAcronym)) {
         components.push(currentComponent.trim());

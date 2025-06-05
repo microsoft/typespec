@@ -8,21 +8,51 @@ describe("parseCase", () => {
       snakeCase: "http_response",
       camelCase: "httpResponse",
       pascalCase: "HttpResponse",
+      upper: "HTTP_RESPONSE",
     },
     {
       input: "OpenAIContext",
       snakeCase: "open_ai_context",
       camelCase: "openAiContext",
       pascalCase: "OpenAiContext",
+      upper: "OPEN_AI_CONTEXT",
     },
-    { input: "_", snakeCase: "_", camelCase: "_", pascalCase: "_" },
-    { input: "__type", snakeCase: "__type", camelCase: "__type", pascalCase: "__Type" },
-    { input: "_Foo", snakeCase: "_foo", camelCase: "_foo", pascalCase: "_Foo" },
+    { input: "_", snakeCase: "_", camelCase: "_", pascalCase: "_", upper: "_" },
+    {
+      input: "__type",
+      snakeCase: "__type",
+      camelCase: "__type",
+      pascalCase: "__Type",
+      upper: "__TYPE",
+    },
+    { input: "_Foo", snakeCase: "_foo", camelCase: "_foo", pascalCase: "_Foo", upper: "_FOO" },
+    {
+      input: "_FooBar",
+      snakeCase: "_foo_bar",
+      camelCase: "_fooBar",
+      pascalCase: "_FooBar",
+      upper: "_FOO_BAR",
+    },
+    {
+      input: "_FOO_BAR",
+      snakeCase: "_foo_bar",
+      camelCase: "_fooBar",
+      pascalCase: "_FooBar",
+      upper: "_FOO_BAR",
+    },
+    {
+      input: "ABC123",
+      snakeCase: "abc123",
+      camelCase: "abc123",
+      pascalCase: "Abc123",
+      upper: "ABC123",
+    },
   ])("$input", (testCase) => {
     const result = parseCase(testCase.input);
     expect(result.snakeCase).toBe(testCase.snakeCase);
     expect(result.camelCase).toBe(testCase.camelCase);
     expect(result.pascalCase).toBe(testCase.pascalCase);
+    expect(result.upper.snakeCase).toBe(testCase.upper);
   });
 });
 
