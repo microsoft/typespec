@@ -55,7 +55,7 @@ Internally, it does
 $ cd packages/http-client-java
 $ npm link
 $ cd packages/http-client-java/generator/http-client-generator-test
-$ npm link ../../ # this will link http-client-generator-test to packages/http-client-java
+$ npm link ../../ # this will link packages/http-client-java/http-client-generator-test to packages/http-client-java, so that you can debug emitter's .ts code directly
 ```
 
 3. When running `tsp compile` on test cases under `http-client-generator-test`, it will go to the break point you set in `.ts`(e.g. `code-model-builder.ts`) file.
