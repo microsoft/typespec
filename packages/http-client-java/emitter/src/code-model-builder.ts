@@ -1169,13 +1169,6 @@ export class CodeModelBuilder {
       }
     }
 
-    // // TODO haoling: mock data to test, remove it after compiler is ready
-    // if ("withParameterizedNextLink" === sdkMethod.name) {
-    //   sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
-    //     [sdkMethod.parameters[0]],
-    //   ];
-    // }
-
     // nextLinkReInjectedParameters
     let nextLinkReInjectedParameters: Parameter[] | undefined;
     if (this.isBranded()) {
