@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "./dist/declaration",
+    "outDir": "./dist/declaration"
   },
   "include": ["./src/index.ts"]
 }
