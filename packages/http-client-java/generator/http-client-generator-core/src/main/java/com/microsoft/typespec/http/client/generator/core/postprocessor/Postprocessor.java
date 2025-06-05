@@ -28,12 +28,10 @@ import org.slf4j.Logger;
 
 public class Postprocessor {
     protected final NewPlugin plugin;
-    private final boolean useEclipseLanguageServer;
     private final Logger logger;
 
-    public Postprocessor(NewPlugin plugin, boolean useEclipseLanguageServer) {
+    public Postprocessor(NewPlugin plugin) {
         this.plugin = plugin;
-        this.useEclipseLanguageServer = useEclipseLanguageServer;
         this.logger = new PluginLogger(plugin, Postprocessor.class);
     }
 

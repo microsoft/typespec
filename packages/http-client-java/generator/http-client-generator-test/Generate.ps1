@@ -98,7 +98,6 @@ $generateScript = {
   if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
       # Add the customization-class option for Java emitter
       $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
-      $tspOptions += " --option ""@typespec/http-client-java.use-eclipse-language-server=false"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
