@@ -1169,6 +1169,42 @@ export class CodeModelBuilder {
       }
     }
 
+    // TODO haoling: mock data to test, remove it after compiler is ready
+    sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
+      [this.sdkContext.sdkPackage.clients[0].methods[3].parameters[0]],
+    ];
+
+    // nextLinkReInjectedParameters
+    let nextLinkReInjectedParameters: Parameter[] | undefined;
+    if (this.isBranded()) {
+      // nextLinkReInjectedParameters is only supported in Azure
+      if (sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments) {
+        nextLinkReInjectedParameters = [];
+        for (const parameterSegments of sdkMethod.pagingMetadata
+          .nextLinkReInjectedParametersSegments) {
+          const nextLinkReInjectedParameterSegment = getLastSegment(parameterSegments);
+          if (nextLinkReInjectedParameterSegment && op.parameters) {
+            const parameter = getHttpOperationParameter(
+              sdkMethod,
+              nextLinkReInjectedParameterSegment,
+            );
+            if (parameter) {
+              // find the corresponding parameter in the code model operation
+              for (const opParam of op.parameters) {
+                if (
+                  opParam.protocol.http?.in === parameter.kind &&
+                  opParam.language.default.serializedName === parameter.serializedName
+                ) {
+                  nextLinkReInjectedParameters.push(opParam);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     op.extensions = op.extensions ?? {};
     op.extensions["x-ms-pageable"] = {
       itemName: itemSerializedName,
@@ -1180,6 +1216,7 @@ export class CodeModelBuilder {
             continuationTokenResponseHeader,
           )
         : undefined,
+      nextLinkReInjectedParameters: nextLinkReInjectedParameters,
     };
   }
 
