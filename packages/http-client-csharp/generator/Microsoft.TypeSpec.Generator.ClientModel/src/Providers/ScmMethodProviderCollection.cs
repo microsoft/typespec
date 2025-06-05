@@ -370,10 +370,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (methodBodyParameter?.Type is InputModelType model)
             {
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
-                if (bodyModel != null)
-                {
-                    ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Add(bodyModel);
-                }
             }
 
             foreach (var param in ConvenienceMethodParameters)
@@ -698,11 +694,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (inputType is InputModelType inputModelType)
             {
                 var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
-                if (model != null)
-                {
-                    ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Add(model);
-                }
-
                 return model?.Type;
             }
 

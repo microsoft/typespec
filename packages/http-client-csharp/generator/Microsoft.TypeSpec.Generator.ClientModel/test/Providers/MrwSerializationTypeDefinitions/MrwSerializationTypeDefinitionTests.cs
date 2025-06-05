@@ -33,11 +33,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
             if (isRootInput)
             {
-                generator.Object.TypeFactory.RootInputModels.Add(model!);
+                generator.Object.TypeFactory.RootInputModels.Add(inputModel);
             }
             if (isRootOutput)
             {
-                generator.Object.TypeFactory.RootOutputModels.Add(model!);
+                generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
             }
 
             var serializations = model!.SerializationProviders;

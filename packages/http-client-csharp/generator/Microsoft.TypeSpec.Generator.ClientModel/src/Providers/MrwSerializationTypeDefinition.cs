@@ -154,12 +154,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!_inputModel.IsUnknownDiscriminatorModel)
             {
                 //cast operators
-                if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_model))
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                 {
                     methods.Add(BuildImplicitToBinaryContent());
                 }
 
-                if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_model))
+                if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
                 {
                     methods.Add(BuildExplicitFromClientResult());
                 }

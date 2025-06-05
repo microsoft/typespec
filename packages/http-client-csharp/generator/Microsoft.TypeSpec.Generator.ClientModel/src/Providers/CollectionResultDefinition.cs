@@ -86,7 +86,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var response = _operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
             var responseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
-            ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Add(responseModel);
             // TODO Nested models are not supported yet https://github.com/Azure/typespec-azure/issues/2287
 
             var nextPagePropertyName = _paging.NextLink != null
