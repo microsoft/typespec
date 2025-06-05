@@ -3,6 +3,7 @@ emit:
 options:
   "@typespec/http-client-java":
     emitter-output-dir: "{project-root}/tsp-output"
+    use-rest-proxy: false
     dev-options:
       generate-code-model: true
       loglevel: info
