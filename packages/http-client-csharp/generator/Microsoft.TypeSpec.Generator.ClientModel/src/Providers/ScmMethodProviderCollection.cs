@@ -370,6 +370,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (methodBodyParameter?.Type is InputModelType model)
             {
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                if (bodyModel != null)
+                {
+                    ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Add(bodyModel);
+                }
             }
 
             foreach (var param in ConvenienceMethodParameters)
@@ -664,7 +668,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
                     p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
-                responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
+                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
 
                 if (response == null || responseBodyType == null)
                 {
@@ -680,13 +684,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            responseBodyType = response?.BodyType is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            responseBodyType = response?.BodyType is null ? null : GetResponseBodyType(response.BodyType);
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
+        }
+
+        private static CSharpType? GetResponseBodyType(InputType inputType)
+        {
+            if (inputType is InputModelType inputModelType)
+            {
+                var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
+                if (model != null)
+                {
+                    ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Add(model);
+                }
+
+                return model?.Type;
+            }
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
         }
 
         private bool ShouldAddOptionalRequestOptionsParameter()

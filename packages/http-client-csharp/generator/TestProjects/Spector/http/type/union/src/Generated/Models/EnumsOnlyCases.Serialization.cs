@@ -32,7 +32,5 @@ namespace _Type.Union
         string IPersistableModel<EnumsOnlyCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(EnumsOnlyCases enumsOnlyCases) => throw null;
-
-        public static explicit operator EnumsOnlyCases(ClientResult result) => throw null;
     }
 }

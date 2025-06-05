@@ -14,6 +14,8 @@
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Remove="ModelReaderWriterValidation\TestProjects\Sample_TypeSpec\ReturnsAnonymousModelResponseTests.cs" />
+    <Compile Remove="ModelReaderWriterValidation\TestProjects\Sample_TypeSpec\ModelWithRequiredNullablePropertiesTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

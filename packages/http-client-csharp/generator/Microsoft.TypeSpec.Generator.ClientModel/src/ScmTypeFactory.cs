@@ -38,6 +38,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
 
+        internal HashSet<ModelProvider> RootInputModels = [];
+        internal HashSet<ModelProvider> RootOutputModels = [];
+
         /// <summary>
         /// Returns the serialization type providers for the given input type.
         /// </summary>

@@ -32,7 +32,5 @@ namespace _Type.Union
         string IPersistableModel<MixedLiteralsCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(MixedLiteralsCases mixedLiteralsCases) => throw null;
-
-        public static explicit operator MixedLiteralsCases(ClientResult result) => throw null;
     }
 }

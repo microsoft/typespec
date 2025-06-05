@@ -32,7 +32,5 @@ namespace _Type.Union
         string IPersistableModel<StringAndArrayCases>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(StringAndArrayCases stringAndArrayCases) => throw null;
-
-        public static explicit operator StringAndArrayCases(ClientResult result) => throw null;
     }
 }
