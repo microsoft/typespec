@@ -15,7 +15,6 @@
     "versioning.renamedfrom.RenamedFromClient.newOpWithResponse": "Versioning.RenamedFrom.newOp",
     "versioning.renamedfrom.RenamedFromClientBuilder": "Versioning.RenamedFrom",
     "versioning.renamedfrom.models.NewEnum": "Versioning.RenamedFrom.NewEnum",
-    "versioning.renamedfrom.models.NewModel": "Versioning.RenamedFrom.NewModel",
-    "versioning.renamedfrom.models.Versions": "Versioning.RenamedFrom.Versions"
+    "versioning.renamedfrom.models.NewModel": "Versioning.RenamedFrom.NewModel"
   }
 }

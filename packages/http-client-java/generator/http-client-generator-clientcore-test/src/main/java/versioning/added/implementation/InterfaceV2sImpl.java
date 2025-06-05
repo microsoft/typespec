@@ -17,7 +17,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV2;
-import versioning.added.Versions;
 
 /**
  * An instance of this class provides access to all the operations defined in InterfaceV2s.
@@ -72,7 +71,7 @@ public final class InterfaceV2sImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface-v2/v2", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<ModelV2> v2InInterface(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<ModelV2> v2InInterface(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") ModelV2 body, RequestContext requestContext);
     }
@@ -91,8 +90,8 @@ public final class InterfaceV2sImpl {
     public Response<ModelV2> v2InInterfaceWithResponse(ModelV2 body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.v2InInterface(this.client.getEndpoint(), this.client.getVersion(), contentType, accept, body,
-            requestContext);
+        return service.v2InInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+            contentType, accept, body, requestContext);
     }
 
     /**

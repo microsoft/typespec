@@ -16,7 +16,6 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.returntypechangedfrom.ReturnTypeChangedFromServiceVersion;
-import versioning.returntypechangedfrom.Versions;
 
 /**
  * Initializes a new instance of the ReturnTypeChangedFromClient type.
@@ -39,20 +38,6 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -88,14 +73,12 @@ public final class ReturnTypeChangedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public ReturnTypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint,
         ReturnTypeChangedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(ReturnTypeChangedFromClientService.class, this.httpPipeline);
     }
@@ -123,7 +106,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<String> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<String> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") String body, RequestContext requestContext);
     }
@@ -142,7 +125,8 @@ public final class ReturnTypeChangedFromClientImpl {
     public Response<String> testWithResponse(String body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestContext);
+        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestContext);
     }
 
     /**
