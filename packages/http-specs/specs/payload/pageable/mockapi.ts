@@ -100,13 +100,6 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     uri: "/payload/pageable/server-driven-pagination/link",
     method: "get",
     request: { headers: { accept: "application/json" } },
-    response: {
-      status: 200,
-      body: json({
-        pets: FirstPage,
-        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
-      }),
-    },
     handler: (req: MockRequest) => {
       req.expect.containsHeader("accept", "application/json");
       return {
@@ -123,7 +116,6 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     uri: "/payload/pageable/server-driven-pagination/link/nextPage",
     method: "get",
     request: { headers: { accept: "application/json" } },
-    response: SecondResponse,
     handler: (req: MockRequest) => {
       req.expect.containsHeader("accept", "application/json");
       return SecondResponse;
