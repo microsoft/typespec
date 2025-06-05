@@ -1170,15 +1170,17 @@ export class CodeModelBuilder {
     }
 
     // // TODO haoling: mock data to test, remove it after compiler is ready
-    // sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
-    //   [this.sdkContext.sdkPackage.clients[0].methods[3].parameters[0]],
-    // ];
+    // if ("withParameterizedNextLink" === sdkMethod.name) {
+    //   sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
+    //     [sdkMethod.parameters[0]],
+    //   ];
+    // }
 
     // nextLinkReInjectedParameters
     let nextLinkReInjectedParameters: Parameter[] | undefined;
     if (this.isBranded()) {
       // nextLinkReInjectedParameters is only supported in Azure
-      if (sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments) {
+      if (sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments && sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0) {
         nextLinkReInjectedParameters = [];
         for (const parameterSegments of sdkMethod.pagingMetadata
           .nextLinkReInjectedParametersSegments) {
