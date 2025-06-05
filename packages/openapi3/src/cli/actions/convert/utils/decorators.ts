@@ -1,4 +1,3 @@
-import { ExtensionKey } from "@typespec/openapi";
 import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
@@ -20,7 +19,7 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   return decorators;
 }
 
-function isExtensionKey(key: string): key is ExtensionKey {
+function isExtensionKey(key: string): boolean {
   return key.startsWith("x-");
 }
 

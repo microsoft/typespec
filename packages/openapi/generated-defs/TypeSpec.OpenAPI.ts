@@ -54,19 +54,23 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
+ * An array of strings can optionally be specified as the key to allow more deeply nested values to be set within the emitted object.
+ * For example, JSON references for OpenAPI examples can be added.
+ *
  * @param key Extension key.
  * @param value Extension value.
  * @example
  * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", #{nextLink: "x-next-link"})
+ * @extension(["responses", "200", "content", "application/json", "examples", "myexample", "value"], #{$ref: "my-example.json"})
  * op read(): string;
  * ```
  */
 export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
-  key: string,
+  key: string | readonly string[],
   value: unknown,
 ) => void;
 

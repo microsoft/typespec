@@ -82,6 +82,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
+import { set as setAtPath } from "es-toolkit/compat";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
@@ -1659,8 +1660,9 @@ function createOAPIEmitter(
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
     if (extensions) {
-      for (const key of extensions.keys()) {
-        emitObject[key] = extensions.get(key);
+      for (const record of extensions) {
+        setAtPath(emitObject, record.key, record.value);
+        // emitObject[key] = extensions.get(key);
       }
     }
   }

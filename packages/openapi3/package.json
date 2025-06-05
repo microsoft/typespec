@@ -62,7 +62,8 @@
     "@apidevtools/swagger-parser": "~10.1.1",
     "@typespec/asset-emitter": "workspace:^",
     "openapi-types": "~12.1.3",
-    "yaml": "~2.7.0"
+    "yaml": "~2.7.0",
+    "es-toolkit": "~1.36.0"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",

@@ -18,7 +18,6 @@ import {
 } from "@typespec/compiler";
 import { getOperationId } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { ExtensionKey } from "./types.js";
 
 /**
  * Determines whether a type will be inlined in OpenAPI rather than defined
@@ -175,7 +174,7 @@ export function isReadonlyProperty(program: Program, property: ModelProperty) {
 /**
  * Determines if a OpenAPIExtensionKey is start with `x-`.
  */
-export function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
+export function isOpenAPIExtensionKey(key: string): boolean {
   return key.startsWith("x-");
 }
 

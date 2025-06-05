@@ -55,9 +55,7 @@ describe("openapi: decorators", () => {
         }
       `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        "x-custom": "Bar",
-      });
+      deepStrictEqual(getExtensions(runner.program, Foo), [{ key: ["x-custom"], value: "Bar" }]);
     });
 
     it("apply extension with complex value", async () => {
@@ -69,9 +67,9 @@ describe("openapi: decorators", () => {
         }
       `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        "x-custom": { foo: 123, bar: "string" },
-      });
+      deepStrictEqual(getExtensions(runner.program, Foo), [
+        { key: ["x-custom"], value: { foo: 123, bar: "string" } },
+      ]);
     });
 
     it.for([
@@ -89,9 +87,7 @@ describe("openapi: decorators", () => {
           model Foo{}  
         `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        "x-custom": expected,
-      });
+      deepStrictEqual(getExtensions(runner.program, Foo), [{ key: ["x-custom"], value: expected }]);
     });
 
     it("supports extension key not starting with `x-`", async () => {
@@ -103,9 +99,7 @@ describe("openapi: decorators", () => {
         }
       `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        foo: "Bar",
-      });
+      deepStrictEqual(getExtensions(runner.program, Foo), [{ key: ["foo"], value: "Bar" }]);
     });
 
     it("emit diagnostics when passing non string extension key", async () => {

@@ -1244,6 +1244,9 @@ importers:
       '@typespec/asset-emitter':
         specifier: workspace:^
         version: link:../asset-emitter
+      es-toolkit:
+        specifier: ~1.36.0
+        version: 1.36.0
       openapi-types:
         specifier: ~12.1.3
         version: 12.1.3

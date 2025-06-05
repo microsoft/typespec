@@ -1,8 +1,11 @@
 /**
- * Pattern for extension keys.
- * In OpenAPI only unknown properties starting with `x-` are allowed.
+ * Type for extension keys, allowing both single string keys and arrays of strings.
  */
-export type ExtensionKey = `x-${string}`;
+export type ExtensionKey = string | string[];
+export type ExtensionRecord = {
+  key: ExtensionKey;
+  value: any;
+};
 
 /**
  * OpenAPI additional information

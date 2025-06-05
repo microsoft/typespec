@@ -27,7 +27,7 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExtensionRecord, ExternalDocs } from "./types.js";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -57,7 +57,7 @@ const openApiExtensionKey = createStateSymbol("openApiExtension");
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
-  extensionName: string,
+  key: string | readonly string[],
   value: unknown,
 ) => {
   compilerAssert(
@@ -66,7 +66,7 @@ export const $extension: ExtensionDecorator = (
     context.getArgumentTarget(1),
   );
   const processed = convertRemainingValuesToExtensions(context.program, value);
-  setExtension(context.program, entity, extensionName as ExtensionKey, processed);
+  setExtension(context.program, entity, key as ExtensionKey, processed);
 };
 
 // Workaround until we have a way to disable arg marshalling and just call serializeValueAsJson
@@ -115,7 +115,7 @@ function isTypeSpecValue(value: object): value is Value {
 export function setInfo(
   program: Program,
   entity: Namespace,
-  data: AdditionalInfo & Record<ExtensionKey, unknown>,
+  data: AdditionalInfo & Record<`x-${string}`, unknown>,
 ) {
   program.stateMap(infoKey).set(entity, data);
 }
@@ -127,10 +127,21 @@ export function setInfo(
  * @param extensionName Extension key
  * @param data Extension value
  */
-export function setExtension(program: Program, entity: Type, extensionName: string, data: unknown) {
+export function setExtension(
+  program: Program,
+  entity: Type,
+  extensionName: string | readonly string[],
+  data: unknown,
+) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
-  const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
-  typeExtensions.set(extensionName, data);
+  const typeExtensions = openApiExtensions.get(entity) ?? new Array<ExtensionRecord>();
+  // typeExtensions.set(extensionName, data);
+  if (typeof extensionName === "string") {
+    typeExtensions.push({ key: [extensionName], value: data });
+  } else {
+    typeExtensions.push({ key: extensionName, value: data });
+  }
+  // Store the updated extensions back to the map
   openApiExtensions.set(entity, typeExtensions);
 }
 
@@ -139,8 +150,8 @@ export function setExtension(program: Program, entity: Type, extensionName: stri
  * @param program Program
  * @param entity Type
  */
-export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
-  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
+export function getExtensions(program: Program, entity: Type): Array<ExtensionRecord> {
+  return program.stateMap(openApiExtensionKey).get(entity) ?? new Array<ExtensionRecord>();
 }
 
 /**
@@ -203,7 +214,7 @@ const infoKey = createStateSymbol("info");
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  data: AdditionalInfo & Record<ExtensionKey, unknown>,
+  data: AdditionalInfo & Record<`x-${string}`, unknown>,
 ) => {
   if (data === undefined) {
     return;
