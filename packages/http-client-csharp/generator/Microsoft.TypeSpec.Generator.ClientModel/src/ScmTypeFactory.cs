@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 if (_rootInputModels == null)
                 {
-                    GetRootModels();
+                    PopulateRootModels();
                 }
                 return _rootInputModels!;
             }
@@ -59,15 +59,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 if (_rootOutputModels == null)
                 {
-                    GetRootModels();
+                    PopulateRootModels();
                 }
                 return _rootOutputModels!;
             }
         }
-
         private HashSet<InputModelType>? _rootOutputModels;
 
-        private void GetRootModels()
+        private void PopulateRootModels()
         {
             _rootInputModels = new HashSet<InputModelType>();
             _rootOutputModels = new HashSet<InputModelType>();
@@ -82,11 +81,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         _rootOutputModels.Add(inputModelType);
                     }
 
-                    foreach (var parameter in operation.Parameters)
+                    if (operation.GenerateConvenienceMethod)
                     {
-                        if (parameter.Type is InputModelType modelType)
+                        foreach (var parameter in operation.Parameters)
                         {
-                            _rootInputModels.Add(modelType);
+                            if (parameter.Type is InputModelType modelType)
+                            {
+                                _rootInputModels.Add(modelType);
+                            }
                         }
                     }
                 }

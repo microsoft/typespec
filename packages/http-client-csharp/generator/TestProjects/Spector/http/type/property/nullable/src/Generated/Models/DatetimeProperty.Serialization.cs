@@ -31,8 +31,6 @@ namespace _Type.Property.Nullable
 
         string IPersistableModel<DatetimeProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(DatetimeProperty datetimeProperty) => throw null;
-
         public static explicit operator DatetimeProperty(ClientResult result) => throw null;
     }
 }
