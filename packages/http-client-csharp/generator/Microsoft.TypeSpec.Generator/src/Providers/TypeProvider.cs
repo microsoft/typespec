@@ -36,8 +36,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView(string? name = default)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), name ?? BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? GetCustomCodeView(string? generatedTypeName = default)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), generatedTypeName ?? BuildName(), DeclaringTypeProvider?.BuildName());
 
         private protected virtual TypeProvider? GetLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
