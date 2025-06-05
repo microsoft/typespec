@@ -1,0 +1,94 @@
+import { Children } from "@alloy-js/core";
+import { IntrinsicType, Scalar, Type } from "@typespec/compiler";
+import { Typekit } from "@typespec/compiler/typekit";
+import { useTsp } from "../../core/index.js";
+import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+
+export interface TypeExpressionProps {
+  type: Type;
+}
+
+export function TypeExpression(props: TypeExpressionProps): Children {
+  const { $ } = useTsp();
+  if ($.scalar.is(props.type)) {
+    return getScalarIntrinsicExpression($, props.type);
+  }
+  throw new Error("not implemented");
+}
+
+const intrinsicNameToCSharpType = new Map<string, string | null>([
+  // Core types
+  ["unknown", "object"], // Matches C#'s `object`
+  ["string", "string"], // Matches C#'s `string`
+  ["boolean", "bool"], // Matches C#'s `bool`
+  ["null", "null"], // Matches C#'s `null`
+  ["void", "void"], // Matches C#'s `void`
+  ["never", null], // No direct equivalent in C#
+  ["bytes", "byte[]"], // Matches C#'s `byte[]`
+
+  // Numeric types
+  ["numeric", "decimal"], // Parent type for all numeric types, use most precise
+  ["integer", "int"], // Broad integer category, maps to `int`
+  ["float", "float"], // Broad float category, maps to `float`
+  ["decimal", "decimal"], // Broad decimal category, maps to `decimal`
+  ["decimal128", "decimal"], // C#'s decimal is 128-bit
+  ["int64", "long"], // 64-bit signed integer
+  ["int32", "int"], // 32-bit signed integer
+  ["int16", "short"], // 16-bit signed integer
+  ["int8", "sbyte"], // 8-bit signed integer
+  ["safeint", "int"], // Safe integer, use int as default
+  ["uint64", "ulong"], // 64-bit unsigned integer
+  ["uint32", "uint"], // 32-bit unsigned integer
+  ["uint16", "ushort"], // 16-bit unsigned integer
+  ["uint8", "byte"], // 8-bit unsigned integer
+  ["float32", "float"], // 32-bit floating point
+  ["float64", "double"], // 64-bit floating point
+
+  // Date and time types
+  ["plainDate", "DateOnly"], // Use .NET 6+ DateOnly for plain calendar dates
+  ["plainTime", "TimeOnly"], // Use .NET 6+ TimeOnly for plain clock times
+  ["utcDateTime", "DateTime"], // Use DateTime for UTC date-times
+  ["offsetDateTime", "DateTimeOffset"], // Use DateTimeOffset for timezone-specific date-times
+  ["duration", "TimeSpan"], // Duration as TimeSpan
+
+  // String types
+  ["url", "Uri"], // Matches C#'s `string` (could also be Uri)
+]);
+
+export function getScalarIntrinsicExpression(
+  $: Typekit,
+  type: Scalar | IntrinsicType,
+): string | null {
+  let intrinsicName: string;
+  if ($.scalar.is(type)) {
+    if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
+      const encoding = $.scalar.getEncoding(type);
+      let emittedType = "DateTime";
+      switch (encoding?.encoding) {
+        case "unixTimestamp":
+        case "rfc7231":
+        case "rfc3339":
+        default:
+          emittedType = `Date`;
+          break;
+      }
+
+      return emittedType;
+    }
+
+    intrinsicName = $.scalar.getStdBase(type)?.name ?? "";
+  } else {
+    intrinsicName = type.name;
+  }
+
+  const tsType = intrinsicNameToCSharpType.get(intrinsicName);
+
+  if (!tsType) {
+    reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-scalar", target: type });
+    return "object"; // Fallback to object if unsupported
+  }
+
+  return tsType;
+}
+
+export { intrinsicNameToCSharpType };
