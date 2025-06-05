@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected TypeProvider(InputType? inputType = default)
         {
-            _customCodeView = new(GetCustomCodeView);
+            _customCodeView = new(() => GetCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(GetLastContractView);
             _inputType = inputType;
@@ -36,8 +36,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(_type?.Namespace ?? BuildNamespace(), _type?.Name ?? BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? GetCustomCodeView(string? name = default)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), name ?? BuildName(), DeclaringTypeProvider?.BuildName());
 
         private protected virtual TypeProvider? GetLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
@@ -398,9 +398,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (name != null)
             {
-                Type.Update(name: name);
-                // Reset the custom code view to ensure it uses the updated name
-                _customCodeView = new(GetCustomCodeView);
+                // Reset the type and custom code view to reflect the new name
+                _customCodeView = new(GetCustomCodeView(name));
             }
 
             if (@namespace != null)
