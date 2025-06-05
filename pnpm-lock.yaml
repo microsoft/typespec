@@ -409,6 +409,10 @@ importers:
         version: 9.2.0
 
   packages/emitter-framework:
+    dependencies:
+      '@alloy-js/csharp':
+        specifier: ^0.16.0
+        version: 0.16.0
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.16.0
@@ -2706,6 +2710,9 @@ packages:
 
   '@alloy-js/core@0.16.0':
     resolution: {integrity: sha512-A6jtbUP2JANFH4qNgKnybjzuDgLmqXnH/5/PAyhc5FALW/sjQKIxsikpcMhJSrkR2xMs87Rbw2VlS0FDDgKSDg==}
+
+  '@alloy-js/csharp@0.16.0':
+    resolution: {integrity: sha512-2TWfflgRjdTzrJC1TTvyBh/UfhHsJyjXKxkAEVyvzzOBWfBebiYuXRc1R24DnXHLzuwDaenz4iEpNAAtsr4RJw==}
 
   '@alloy-js/markdown@0.16.0':
     resolution: {integrity: sha512-mbQKpRZ7mrMLzXjfiCTYcxXBg2kwfdrEna/26T0ZhWqvLE64X7RYgrXTVySQnAK4I2Mxh0vLyvpwe4mL5jLnBw==}
@@ -13541,6 +13548,12 @@ snapshots:
       pathe: 2.0.3
       picocolors: 1.1.1
       prettier: 3.5.3
+
+  '@alloy-js/csharp@0.16.0':
+    dependencies:
+      '@alloy-js/core': 0.16.0
+      change-case: 5.4.4
+      pathe: 2.0.3
 
   '@alloy-js/markdown@0.16.0':
     dependencies:
