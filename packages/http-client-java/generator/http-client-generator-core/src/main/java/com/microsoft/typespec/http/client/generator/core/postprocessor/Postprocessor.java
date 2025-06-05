@@ -28,12 +28,10 @@ import org.slf4j.Logger;
 
 public class Postprocessor {
     protected final NewPlugin plugin;
-    private final boolean useEclipseLanguageServer;
     private final Logger logger;
 
-    public Postprocessor(NewPlugin plugin, boolean useEclipseLanguageServer) {
+    public Postprocessor(NewPlugin plugin) {
         this.plugin = plugin;
-        this.useEclipseLanguageServer = useEclipseLanguageServer;
         this.logger = new PluginLogger(plugin, Postprocessor.class);
     }
 
@@ -100,7 +98,7 @@ public class Postprocessor {
             try {
                 Customization customization = customizationClass.getConstructor().newInstance();
                 logger.info("Running customization, this may take a while...");
-                fileContents = customization.run(fileContents, useEclipseLanguageServer, logger);
+                fileContents = customization.run(fileContents, logger);
             } catch (Exception e) {
                 logger.error("Unable to complete customization", e);
                 throw new RuntimeException("Unable to complete customization", e);
