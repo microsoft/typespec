@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class TypeProvider
     {
-        private readonly Lazy<TypeProvider?> _customCodeView;
+        private Lazy<TypeProvider?> _customCodeView;
         private readonly Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(_type?.Namespace ?? BuildNamespace(), _type?.Name ?? BuildName(), DeclaringTypeProvider?.BuildName());
 
         private protected virtual TypeProvider? GetLastContractView()
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
@@ -110,12 +110,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _deprecated = value;
         }
 
-        private string? _name;
         private CSharpType? _type;
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
-                _name ??= CustomCodeView?.Name ?? BuildName(),
+                CustomCodeView?.Name ?? BuildName(),
                 CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
@@ -356,6 +355,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<TypeProvider>? nestedTypes = null,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
+            string? name = null,
+            string? @namespace = null,
             string? relativeFilePath = null)
         {
             if (methods != null)
@@ -393,6 +394,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (relativeFilePath != null)
             {
                 _relativeFilePath = relativeFilePath;
+            }
+
+            if (name != null)
+            {
+                Type.Update(name: name);
+                // Reset the custom code view to ensure it uses the updated name
+                _customCodeView = new(GetCustomCodeView);
+            }
+
+            if (@namespace != null)
+            {
+                Type.Update(@namespace: @namespace);
             }
 
             // Rebuild the canonical view

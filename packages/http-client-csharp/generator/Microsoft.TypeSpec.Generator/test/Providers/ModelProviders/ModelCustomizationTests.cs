@@ -816,5 +816,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
         }
+
+        [Test]
+        public async Task CanCustomizeTypeRenamedInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+        }
     }
 }
