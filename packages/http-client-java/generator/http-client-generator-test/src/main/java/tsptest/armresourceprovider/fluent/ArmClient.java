@@ -94,4 +94,11 @@ public interface ArmClient {
      * @return the ModelInterfaceSameNamesClient object.
      */
     ModelInterfaceSameNamesClient getModelInterfaceSameNames();
+
+    /**
+     * Gets the ImmutableResourceModelsClient object to access its operations.
+     * 
+     * @return the ImmutableResourceModelsClient object.
+     */
+    ImmutableResourceModelsClient getImmutableResourceModels();
 }

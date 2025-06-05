@@ -57,6 +57,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public void ValidateNamespaceNestedType()
+        {
+            // Get all members, including nested types
+            var allMembers = _iNamedSymbol.GetMembers().OfType<INamedTypeSymbol>();
+            INamedTypeSymbol? nestedType = null;
+
+            // Iterate over the members and find the nested types
+            foreach (var member in allMembers)
+            {
+                if (member.Kind == SymbolKind.NamedType && SymbolEqualityComparer.Default.Equals(member.ContainingSymbol, _iNamedSymbol))
+                {
+                    nestedType = member;
+                    break;
+                }
+            }
+
+            Assert.IsNotNull(nestedType, "Nested type not found in the named symbol.");
+            var type = nestedType!.GetCSharpType();
+            Assert.AreEqual("Sample.Models", type.Namespace);
+
+            var fullName = type.FullyQualifiedName;
+            Assert.AreEqual("Sample.Models.NamedSymbol.Foo", fullName);
+        }
+
+        [Test]
         public void ValidateProperties()
         {
             Dictionary<string, PropertyProvider> properties = _namedTypeSymbolProvider.Properties.ToDictionary(p => p.Name);
