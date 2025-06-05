@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -38,8 +39,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
 
-        internal HashSet<ModelProvider> RootInputModels = [];
-        internal HashSet<ModelProvider> RootOutputModels = [];
+        internal HashSet<InputModelType> RootInputModels
+        {
+            get
+            {
+                if (_rootInputModels == null)
+                {
+                    GetRootModels();
+                }
+                return _rootInputModels!;
+            }
+        }
+
+        private HashSet<InputModelType>? _rootInputModels;
+
+        internal HashSet<InputModelType> RootOutputModels
+        {
+            get
+            {
+                if (_rootOutputModels == null)
+                {
+                    GetRootModels();
+                }
+                return _rootOutputModels!;
+            }
+        }
+
+        private HashSet<InputModelType>? _rootOutputModels;
+
+        private void GetRootModels()
+        {
+            _rootInputModels = new HashSet<InputModelType>();
+            _rootOutputModels = new HashSet<InputModelType>();
+            foreach (var client in ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
+            {
+                foreach (var method in client.Methods)
+                {
+                    var operation = method.Operation;
+                    var response = operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+                    if (response?.BodyType is InputModelType inputModelType)
+                    {
+                        _rootOutputModels.Add(inputModelType);
+                    }
+
+                    foreach (var parameter in operation.Parameters)
+                    {
+                        if (parameter.Type is InputModelType modelType)
+                        {
+                            _rootInputModels.Add(modelType);
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
