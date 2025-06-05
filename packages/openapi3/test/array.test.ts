@@ -218,6 +218,55 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
 
     strictEqual(res.schemas.Foo.title, "FooArray");
   });
+
+  it("generates correct schema for model extends Array", async () => {
+    const resA = await oapiForModel(
+      "A",
+      `
+      model A extends Array<int32> {}
+      `,
+    );
+
+    const resB = await oapiForModel(
+      "B",
+      `
+      model B is Array<int32> {}
+      `,
+    );
+
+    ok(resA.schemas.A, "expected definition named A");
+    ok(resB.schemas.B, "expected definition named B");
+    
+    // Both should have identical schemas
+    const expectedSchema = {
+      type: "array",
+      items: { type: "integer", format: "int32" },
+    };
+    
+    // Both A (extends Array) and B (is Array) should have the same array schema
+    deepStrictEqual(resA.schemas.A, expectedSchema);
+    deepStrictEqual(resB.schemas.B, expectedSchema);
+  });
+
+  it("generates correct schema for model extends Array with complex types", async () => {
+    const res = await oapiForModel(
+      "PetArray",
+      `
+      model Pet { name: string; age: int32; }
+      model PetArray extends Array<Pet> {}
+      `,
+    );
+
+    ok(res.schemas.PetArray, "expected definition named PetArray");
+    ok(res.schemas.Pet, "expected definition named Pet");
+    
+    const expectedSchema = {
+      type: "array",
+      items: { $ref: "#/components/schemas/Pet" },
+    };
+    
+    deepStrictEqual(res.schemas.PetArray, expectedSchema);
+  });
 });
 
 worksFor(["3.0.0"], ({ oapiForModel }) => {
