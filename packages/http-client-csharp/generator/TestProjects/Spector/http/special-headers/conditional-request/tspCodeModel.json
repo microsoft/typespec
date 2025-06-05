@@ -51,7 +51,6 @@
             ],
             "responses": [
               {
-                "$id": "6",
                 "statusCodes": [
                   204
                 ],
@@ -70,12 +69,12 @@
           },
           "parameters": [
             {
-              "$id": "7",
+              "$id": "6",
               "name": "ifMatch",
               "nameInRequest": "If-Match",
               "doc": "The request should only proceed if an entity matches this string.",
               "type": {
-                "$id": "8",
+                "$id": "7",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -99,26 +98,26 @@
           "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest.postIfMatch"
         },
         {
-          "$id": "9",
+          "$id": "8",
           "kind": "basic",
           "name": "postIfNoneMatch",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check when only If-None-Match in header is defined.",
           "operation": {
-            "$id": "10",
+            "$id": "9",
             "name": "postIfNoneMatch",
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-None-Match in header is defined.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "11",
+                "$id": "10",
                 "name": "ifNoneMatch",
                 "nameInRequest": "If-None-Match",
                 "doc": "The request should only proceed if no entity matches this string.",
                 "type": {
-                  "$id": "12",
+                  "$id": "11",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -137,7 +136,6 @@
             ],
             "responses": [
               {
-                "$id": "13",
                 "statusCodes": [
                   204
                 ],
@@ -156,12 +154,12 @@
           },
           "parameters": [
             {
-              "$id": "14",
+              "$id": "12",
               "name": "ifNoneMatch",
               "nameInRequest": "If-None-Match",
               "doc": "The request should only proceed if no entity matches this string.",
               "type": {
-                "$id": "15",
+                "$id": "13",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -185,31 +183,31 @@
           "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest.postIfNoneMatch"
         },
         {
-          "$id": "16",
+          "$id": "14",
           "kind": "basic",
           "name": "headIfModifiedSince",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check when only If-Modified-Since in header is defined.",
           "operation": {
-            "$id": "17",
+            "$id": "15",
             "name": "headIfModifiedSince",
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-Modified-Since in header is defined.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "18",
+                "$id": "16",
                 "name": "ifModifiedSince",
                 "nameInRequest": "If-Modified-Since",
                 "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
                 "type": {
-                  "$id": "19",
+                  "$id": "17",
                   "kind": "utcDateTime",
                   "name": "utcDateTime",
                   "encode": "rfc7231",
                   "wireType": {
-                    "$id": "20",
+                    "$id": "18",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -231,7 +229,6 @@
             ],
             "responses": [
               {
-                "$id": "21",
                 "statusCodes": [
                   204
                 ],
@@ -250,17 +247,17 @@
           },
           "parameters": [
             {
-              "$id": "22",
+              "$id": "19",
               "name": "ifModifiedSince",
               "nameInRequest": "If-Modified-Since",
               "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
               "type": {
-                "$id": "23",
+                "$id": "20",
                 "kind": "utcDateTime",
                 "name": "utcDateTime",
                 "encode": "rfc7231",
                 "wireType": {
-                  "$id": "24",
+                  "$id": "21",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -287,31 +284,31 @@
           "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest.headIfModifiedSince"
         },
         {
-          "$id": "25",
+          "$id": "22",
           "kind": "basic",
           "name": "postIfUnmodifiedSince",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check when only If-Unmodified-Since in header is defined.",
           "operation": {
-            "$id": "26",
+            "$id": "23",
             "name": "postIfUnmodifiedSince",
             "resourceName": "ConditionalRequest",
             "doc": "Check when only If-Unmodified-Since in header is defined.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "27",
+                "$id": "24",
                 "name": "ifUnmodifiedSince",
                 "nameInRequest": "If-Unmodified-Since",
                 "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
                 "type": {
-                  "$id": "28",
+                  "$id": "25",
                   "kind": "utcDateTime",
                   "name": "utcDateTime",
                   "encode": "rfc7231",
                   "wireType": {
-                    "$id": "29",
+                    "$id": "26",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -333,7 +330,6 @@
             ],
             "responses": [
               {
-                "$id": "30",
                 "statusCodes": [
                   204
                 ],
@@ -352,17 +348,17 @@
           },
           "parameters": [
             {
-              "$id": "31",
+              "$id": "27",
               "name": "ifUnmodifiedSince",
               "nameInRequest": "If-Unmodified-Since",
               "doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
               "type": {
-                "$id": "32",
+                "$id": "28",
                 "kind": "utcDateTime",
                 "name": "utcDateTime",
                 "encode": "rfc7231",
                 "wireType": {
-                  "$id": "33",
+                  "$id": "29",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -391,10 +387,12 @@
       ],
       "parameters": [
         {
+          "$id": "30",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "31",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -409,6 +407,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "32",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

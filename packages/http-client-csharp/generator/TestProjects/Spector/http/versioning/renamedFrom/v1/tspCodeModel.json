@@ -341,7 +341,6 @@
             ],
             "responses": [
               {
-                "$id": "32",
                 "statusCodes": [
                   200
                 ],
@@ -369,7 +368,7 @@
           },
           "parameters": [
             {
-              "$id": "33",
+              "$id": "32",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -386,11 +385,11 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "34",
+              "$id": "33",
               "name": "oldQuery",
               "nameInRequest": "oldQuery",
               "type": {
-                "$id": "35",
+                "$id": "34",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -407,7 +406,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "36",
+              "$id": "35",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -425,7 +424,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "37",
+              "$id": "36",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -455,10 +454,12 @@
       ],
       "parameters": [
         {
+          "$id": "37",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "38",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -473,6 +474,7 @@
           "kind": "Client"
         },
         {
+          "$id": "39",
           "name": "version",
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -496,13 +498,13 @@
       ],
       "children": [
         {
-          "$id": "38",
+          "$id": "40",
           "kind": "client",
           "name": "OldInterface",
           "namespace": "Versioning.RenamedFrom",
           "methods": [
             {
-              "$id": "39",
+              "$id": "41",
               "kind": "basic",
               "name": "newOpInNewInterface",
               "accessibility": "public",
@@ -510,13 +512,13 @@
                 "v1"
               ],
               "operation": {
-                "$id": "40",
+                "$id": "42",
                 "name": "newOpInNewInterface",
                 "resourceName": "OldInterface",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "41",
+                    "$id": "43",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -534,7 +536,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "42",
+                    "$id": "44",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -551,7 +553,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "43",
+                    "$id": "45",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -570,7 +572,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "44",
                     "statusCodes": [
                       200
                     ],
@@ -598,7 +599,7 @@
               },
               "parameters": [
                 {
-                  "$id": "45",
+                  "$id": "46",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -615,7 +616,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "46",
+                  "$id": "47",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -633,7 +634,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "47",
+                  "$id": "48",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -663,10 +664,12 @@
           ],
           "parameters": [
             {
+              "$id": "49",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
+                "$id": "50",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -681,6 +684,7 @@
               "kind": "Client"
             },
             {
+              "$id": "51",
               "name": "version",
               "nameInRequest": "version",
               "doc": "Need to be set as 'v1' or 'v2' in client.",

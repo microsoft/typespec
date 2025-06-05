@@ -262,10 +262,12 @@
       "methods": [],
       "parameters": [
         {
+          "$id": "27",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "28",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -280,6 +282,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "29",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -293,25 +296,25 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "27",
+          "$id": "30",
           "kind": "client",
           "name": "String",
           "namespace": "Type.Enum.Extensible",
           "methods": [
             {
-              "$id": "28",
+              "$id": "31",
               "kind": "basic",
               "name": "getKnownValue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "29",
+                "$id": "32",
                 "name": "getKnownValue",
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "30",
+                    "$id": "33",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -330,7 +333,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "31",
                     "statusCodes": [
                       200
                     ],
@@ -363,7 +365,7 @@
               },
               "parameters": [
                 {
-                  "$id": "32",
+                  "$id": "34",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -391,19 +393,19 @@
               "crossLanguageDefinitionId": "Type.Enum.Extensible.String.getKnownValue"
             },
             {
-              "$id": "33",
+              "$id": "35",
               "kind": "basic",
               "name": "getUnknownValue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "34",
+                "$id": "36",
                 "name": "getUnknownValue",
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "35",
+                    "$id": "37",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -422,7 +424,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "36",
                     "statusCodes": [
                       200
                     ],
@@ -455,7 +456,7 @@
               },
               "parameters": [
                 {
-                  "$id": "37",
+                  "$id": "38",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -483,19 +484,19 @@
               "crossLanguageDefinitionId": "Type.Enum.Extensible.String.getUnknownValue"
             },
             {
-              "$id": "38",
+              "$id": "39",
               "kind": "basic",
               "name": "putKnownValue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "39",
+                "$id": "40",
                 "name": "putKnownValue",
                 "resourceName": "String",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "40",
+                    "$id": "41",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "type": {
@@ -512,7 +513,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "41",
+                    "$id": "42",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -531,7 +532,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "42",
                     "statusCodes": [
                       204
                     ],
@@ -642,7 +642,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "49",
                     "statusCodes": [
                       204
                     ],
@@ -664,7 +663,7 @@
               },
               "parameters": [
                 {
-                  "$id": "50",
+                  "$id": "49",
                   "name": "contentType",
                   "nameInRequest": "content-type",
                   "type": {
@@ -681,7 +680,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "51",
+                  "$id": "50",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -707,10 +706,12 @@
           ],
           "parameters": [
             {
+              "$id": "51",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "52",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -725,6 +726,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "53",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"

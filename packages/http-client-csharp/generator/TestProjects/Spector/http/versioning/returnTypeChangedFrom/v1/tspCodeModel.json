@@ -187,12 +187,11 @@
             ],
             "responses": [
               {
-                "$id": "19",
                 "statusCodes": [
                   200
                 ],
                 "bodyType": {
-                  "$id": "20",
+                  "$id": "19",
                   "kind": "int32",
                   "name": "int32",
                   "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -227,7 +226,7 @@
           },
           "parameters": [
             {
-              "$id": "21",
+              "$id": "20",
               "name": "contentType",
               "nameInRequest": "content-type",
               "type": {
@@ -244,11 +243,11 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "22",
+              "$id": "21",
               "name": "body",
               "nameInRequest": "body",
               "type": {
-                "$id": "23",
+                "$id": "22",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -265,7 +264,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "24",
+              "$id": "23",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -284,7 +283,7 @@
           ],
           "response": {
             "type": {
-              "$ref": "20"
+              "$ref": "19"
             }
           },
           "isOverride": false,
@@ -295,10 +294,12 @@
       ],
       "parameters": [
         {
+          "$id": "24",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "25",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -313,6 +314,7 @@
           "kind": "Client"
         },
         {
+          "$id": "26",
           "name": "version",
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",

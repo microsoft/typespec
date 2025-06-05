@@ -1750,10 +1750,12 @@
       "methods": [],
       "parameters": [
         {
+          "$id": "172",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "173",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1768,6 +1770,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "174",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1781,26 +1784,26 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "172",
+          "$id": "175",
           "kind": "client",
           "name": "Models",
           "namespace": "SpecialWords.Models",
           "doc": "Verify model names",
           "methods": [
             {
-              "$id": "173",
+              "$id": "176",
               "kind": "basic",
               "name": "withAnd",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "174",
+                "$id": "177",
                 "name": "withAnd",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "175",
+                    "$id": "178",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -1818,7 +1821,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "176",
+                    "$id": "179",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -1837,7 +1840,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "177",
                     "statusCodes": [
                       204
                     ],
@@ -1859,7 +1861,7 @@
               },
               "parameters": [
                 {
-                  "$id": "178",
+                  "$id": "180",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -1876,7 +1878,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "179",
+                  "$id": "181",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -1901,19 +1903,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withAnd"
             },
             {
-              "$id": "180",
+              "$id": "182",
               "kind": "basic",
               "name": "withAs",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "181",
+                "$id": "183",
                 "name": "withAs",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "182",
+                    "$id": "184",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -1931,7 +1933,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "183",
+                    "$id": "185",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -1950,7 +1952,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "184",
                     "statusCodes": [
                       204
                     ],
@@ -1972,7 +1973,7 @@
               },
               "parameters": [
                 {
-                  "$id": "185",
+                  "$id": "186",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -1989,7 +1990,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "186",
+                  "$id": "187",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2014,19 +2015,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withAs"
             },
             {
-              "$id": "187",
+              "$id": "188",
               "kind": "basic",
               "name": "withAssert",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "188",
+                "$id": "189",
                 "name": "withAssert",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "189",
+                    "$id": "190",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2044,7 +2045,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "190",
+                    "$id": "191",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2063,7 +2064,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "191",
                     "statusCodes": [
                       204
                     ],
@@ -2176,7 +2176,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "198",
                     "statusCodes": [
                       204
                     ],
@@ -2198,7 +2197,7 @@
               },
               "parameters": [
                 {
-                  "$id": "199",
+                  "$id": "198",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2215,7 +2214,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "200",
+                  "$id": "199",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2240,19 +2239,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withAsync"
             },
             {
-              "$id": "201",
+              "$id": "200",
               "kind": "basic",
               "name": "withAwait",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "202",
+                "$id": "201",
                 "name": "withAwait",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "203",
+                    "$id": "202",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2270,7 +2269,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "204",
+                    "$id": "203",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2289,7 +2288,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "205",
                     "statusCodes": [
                       204
                     ],
@@ -2311,7 +2309,7 @@
               },
               "parameters": [
                 {
-                  "$id": "206",
+                  "$id": "204",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2328,7 +2326,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "207",
+                  "$id": "205",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2353,19 +2351,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withAwait"
             },
             {
-              "$id": "208",
+              "$id": "206",
               "kind": "basic",
               "name": "withBreak",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "209",
+                "$id": "207",
                 "name": "withBreak",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "210",
+                    "$id": "208",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2383,7 +2381,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "211",
+                    "$id": "209",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2402,7 +2400,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "212",
                     "statusCodes": [
                       204
                     ],
@@ -2424,7 +2421,7 @@
               },
               "parameters": [
                 {
-                  "$id": "213",
+                  "$id": "210",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2441,7 +2438,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "214",
+                  "$id": "211",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2466,19 +2463,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withBreak"
             },
             {
-              "$id": "215",
+              "$id": "212",
               "kind": "basic",
               "name": "withClass",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "216",
+                "$id": "213",
                 "name": "withClass",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "217",
+                    "$id": "214",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2496,7 +2493,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "218",
+                    "$id": "215",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2515,7 +2512,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "219",
                     "statusCodes": [
                       204
                     ],
@@ -2537,7 +2533,7 @@
               },
               "parameters": [
                 {
-                  "$id": "220",
+                  "$id": "216",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2554,7 +2550,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "221",
+                  "$id": "217",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2579,19 +2575,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withClass"
             },
             {
-              "$id": "222",
+              "$id": "218",
               "kind": "basic",
               "name": "withConstructor",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "223",
+                "$id": "219",
                 "name": "withConstructor",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "224",
+                    "$id": "220",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2609,7 +2605,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "225",
+                    "$id": "221",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2628,7 +2624,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "226",
                     "statusCodes": [
                       204
                     ],
@@ -2650,7 +2645,7 @@
               },
               "parameters": [
                 {
-                  "$id": "227",
+                  "$id": "222",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2667,7 +2662,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "228",
+                  "$id": "223",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2692,19 +2687,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withConstructor"
             },
             {
-              "$id": "229",
+              "$id": "224",
               "kind": "basic",
               "name": "withContinue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "230",
+                "$id": "225",
                 "name": "withContinue",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "231",
+                    "$id": "226",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2722,7 +2717,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "232",
+                    "$id": "227",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2741,7 +2736,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "233",
                     "statusCodes": [
                       204
                     ],
@@ -2763,7 +2757,7 @@
               },
               "parameters": [
                 {
-                  "$id": "234",
+                  "$id": "228",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2780,7 +2774,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "235",
+                  "$id": "229",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2805,19 +2799,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withContinue"
             },
             {
-              "$id": "236",
+              "$id": "230",
               "kind": "basic",
               "name": "withDef",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "237",
+                "$id": "231",
                 "name": "withDef",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "238",
+                    "$id": "232",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2835,7 +2829,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "239",
+                    "$id": "233",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2854,7 +2848,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "240",
                     "statusCodes": [
                       204
                     ],
@@ -2876,7 +2869,7 @@
               },
               "parameters": [
                 {
-                  "$id": "241",
+                  "$id": "234",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2893,7 +2886,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "242",
+                  "$id": "235",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2918,19 +2911,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withDef"
             },
             {
-              "$id": "243",
+              "$id": "236",
               "kind": "basic",
               "name": "withDel",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "244",
+                "$id": "237",
                 "name": "withDel",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "245",
+                    "$id": "238",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2948,7 +2941,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "246",
+                    "$id": "239",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2967,7 +2960,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "247",
                     "statusCodes": [
                       204
                     ],
@@ -2989,7 +2981,7 @@
               },
               "parameters": [
                 {
-                  "$id": "248",
+                  "$id": "240",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3006,7 +2998,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "249",
+                  "$id": "241",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3031,19 +3023,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withDel"
             },
             {
-              "$id": "250",
+              "$id": "242",
               "kind": "basic",
               "name": "withElif",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "251",
+                "$id": "243",
                 "name": "withElif",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "252",
+                    "$id": "244",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3061,7 +3053,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "253",
+                    "$id": "245",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3080,7 +3072,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "254",
                     "statusCodes": [
                       204
                     ],
@@ -3102,7 +3093,7 @@
               },
               "parameters": [
                 {
-                  "$id": "255",
+                  "$id": "246",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3119,7 +3110,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "256",
+                  "$id": "247",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3144,19 +3135,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withElif"
             },
             {
-              "$id": "257",
+              "$id": "248",
               "kind": "basic",
               "name": "withElse",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "258",
+                "$id": "249",
                 "name": "withElse",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "259",
+                    "$id": "250",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3174,7 +3165,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "260",
+                    "$id": "251",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3193,7 +3184,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "261",
                     "statusCodes": [
                       204
                     ],
@@ -3215,7 +3205,7 @@
               },
               "parameters": [
                 {
-                  "$id": "262",
+                  "$id": "252",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3232,7 +3222,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "263",
+                  "$id": "253",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3257,19 +3247,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withElse"
             },
             {
-              "$id": "264",
+              "$id": "254",
               "kind": "basic",
               "name": "withExcept",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "265",
+                "$id": "255",
                 "name": "withExcept",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "266",
+                    "$id": "256",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3287,7 +3277,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "267",
+                    "$id": "257",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3306,7 +3296,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "268",
                     "statusCodes": [
                       204
                     ],
@@ -3328,7 +3317,7 @@
               },
               "parameters": [
                 {
-                  "$id": "269",
+                  "$id": "258",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3345,7 +3334,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "270",
+                  "$id": "259",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3370,19 +3359,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withExcept"
             },
             {
-              "$id": "271",
+              "$id": "260",
               "kind": "basic",
               "name": "withExec",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "272",
+                "$id": "261",
                 "name": "withExec",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "273",
+                    "$id": "262",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3400,7 +3389,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "274",
+                    "$id": "263",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3419,7 +3408,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "275",
                     "statusCodes": [
                       204
                     ],
@@ -3441,7 +3429,7 @@
               },
               "parameters": [
                 {
-                  "$id": "276",
+                  "$id": "264",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3458,7 +3446,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "277",
+                  "$id": "265",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3483,19 +3471,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withExec"
             },
             {
-              "$id": "278",
+              "$id": "266",
               "kind": "basic",
               "name": "withFinally",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "279",
+                "$id": "267",
                 "name": "withFinally",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "280",
+                    "$id": "268",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3513,7 +3501,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "281",
+                    "$id": "269",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3532,7 +3520,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "282",
                     "statusCodes": [
                       204
                     ],
@@ -3554,7 +3541,7 @@
               },
               "parameters": [
                 {
-                  "$id": "283",
+                  "$id": "270",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3571,7 +3558,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "284",
+                  "$id": "271",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3596,19 +3583,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withFinally"
             },
             {
-              "$id": "285",
+              "$id": "272",
               "kind": "basic",
               "name": "withFor",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "286",
+                "$id": "273",
                 "name": "withFor",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "287",
+                    "$id": "274",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3626,7 +3613,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "288",
+                    "$id": "275",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3645,7 +3632,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "289",
                     "statusCodes": [
                       204
                     ],
@@ -3667,7 +3653,7 @@
               },
               "parameters": [
                 {
-                  "$id": "290",
+                  "$id": "276",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3684,7 +3670,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "291",
+                  "$id": "277",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3709,19 +3695,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withFor"
             },
             {
-              "$id": "292",
+              "$id": "278",
               "kind": "basic",
               "name": "withFrom",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "293",
+                "$id": "279",
                 "name": "withFrom",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "294",
+                    "$id": "280",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3739,7 +3725,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "295",
+                    "$id": "281",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3758,7 +3744,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "296",
                     "statusCodes": [
                       204
                     ],
@@ -3780,7 +3765,7 @@
               },
               "parameters": [
                 {
-                  "$id": "297",
+                  "$id": "282",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3797,7 +3782,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "298",
+                  "$id": "283",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3822,19 +3807,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withFrom"
             },
             {
-              "$id": "299",
+              "$id": "284",
               "kind": "basic",
               "name": "withGlobal",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "300",
+                "$id": "285",
                 "name": "withGlobal",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "301",
+                    "$id": "286",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3852,7 +3837,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "302",
+                    "$id": "287",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3871,7 +3856,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "303",
                     "statusCodes": [
                       204
                     ],
@@ -3893,7 +3877,7 @@
               },
               "parameters": [
                 {
-                  "$id": "304",
+                  "$id": "288",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3910,7 +3894,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "305",
+                  "$id": "289",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3935,19 +3919,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withGlobal"
             },
             {
-              "$id": "306",
+              "$id": "290",
               "kind": "basic",
               "name": "withIf",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "307",
+                "$id": "291",
                 "name": "withIf",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "308",
+                    "$id": "292",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3965,7 +3949,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "309",
+                    "$id": "293",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3984,7 +3968,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "310",
                     "statusCodes": [
                       204
                     ],
@@ -4006,7 +3989,7 @@
               },
               "parameters": [
                 {
-                  "$id": "311",
+                  "$id": "294",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4023,7 +4006,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "312",
+                  "$id": "295",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4048,19 +4031,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withIf"
             },
             {
-              "$id": "313",
+              "$id": "296",
               "kind": "basic",
               "name": "withImport",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "314",
+                "$id": "297",
                 "name": "withImport",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "315",
+                    "$id": "298",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4078,7 +4061,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "316",
+                    "$id": "299",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4097,7 +4080,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "317",
                     "statusCodes": [
                       204
                     ],
@@ -4119,7 +4101,7 @@
               },
               "parameters": [
                 {
-                  "$id": "318",
+                  "$id": "300",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4136,7 +4118,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "319",
+                  "$id": "301",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4161,19 +4143,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withImport"
             },
             {
-              "$id": "320",
+              "$id": "302",
               "kind": "basic",
               "name": "withIn",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "321",
+                "$id": "303",
                 "name": "withIn",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "322",
+                    "$id": "304",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4191,7 +4173,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "323",
+                    "$id": "305",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4210,7 +4192,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "324",
                     "statusCodes": [
                       204
                     ],
@@ -4232,7 +4213,7 @@
               },
               "parameters": [
                 {
-                  "$id": "325",
+                  "$id": "306",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4249,7 +4230,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "326",
+                  "$id": "307",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4274,19 +4255,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withIn"
             },
             {
-              "$id": "327",
+              "$id": "308",
               "kind": "basic",
               "name": "withIs",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "328",
+                "$id": "309",
                 "name": "withIs",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "329",
+                    "$id": "310",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4304,7 +4285,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "330",
+                    "$id": "311",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4323,7 +4304,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "331",
                     "statusCodes": [
                       204
                     ],
@@ -4345,7 +4325,7 @@
               },
               "parameters": [
                 {
-                  "$id": "332",
+                  "$id": "312",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4362,7 +4342,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "333",
+                  "$id": "313",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4387,19 +4367,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withIs"
             },
             {
-              "$id": "334",
+              "$id": "314",
               "kind": "basic",
               "name": "withLambda",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "335",
+                "$id": "315",
                 "name": "withLambda",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "336",
+                    "$id": "316",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4417,7 +4397,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "337",
+                    "$id": "317",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4436,7 +4416,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "338",
                     "statusCodes": [
                       204
                     ],
@@ -4458,7 +4437,7 @@
               },
               "parameters": [
                 {
-                  "$id": "339",
+                  "$id": "318",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4475,7 +4454,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "340",
+                  "$id": "319",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4500,19 +4479,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withLambda"
             },
             {
-              "$id": "341",
+              "$id": "320",
               "kind": "basic",
               "name": "withNot",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "342",
+                "$id": "321",
                 "name": "withNot",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "343",
+                    "$id": "322",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4530,7 +4509,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "344",
+                    "$id": "323",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4549,7 +4528,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "345",
                     "statusCodes": [
                       204
                     ],
@@ -4571,7 +4549,7 @@
               },
               "parameters": [
                 {
-                  "$id": "346",
+                  "$id": "324",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4588,7 +4566,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "347",
+                  "$id": "325",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4613,19 +4591,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withNot"
             },
             {
-              "$id": "348",
+              "$id": "326",
               "kind": "basic",
               "name": "withOr",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "349",
+                "$id": "327",
                 "name": "withOr",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "350",
+                    "$id": "328",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4643,7 +4621,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "351",
+                    "$id": "329",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4662,7 +4640,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "352",
                     "statusCodes": [
                       204
                     ],
@@ -4684,7 +4661,7 @@
               },
               "parameters": [
                 {
-                  "$id": "353",
+                  "$id": "330",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4701,7 +4678,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "354",
+                  "$id": "331",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4726,19 +4703,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withOr"
             },
             {
-              "$id": "355",
+              "$id": "332",
               "kind": "basic",
               "name": "withPass",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "356",
+                "$id": "333",
                 "name": "withPass",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "357",
+                    "$id": "334",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4756,7 +4733,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "358",
+                    "$id": "335",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4775,7 +4752,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "359",
                     "statusCodes": [
                       204
                     ],
@@ -4797,7 +4773,7 @@
               },
               "parameters": [
                 {
-                  "$id": "360",
+                  "$id": "336",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4814,7 +4790,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "361",
+                  "$id": "337",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4839,19 +4815,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withPass"
             },
             {
-              "$id": "362",
+              "$id": "338",
               "kind": "basic",
               "name": "withRaise",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "363",
+                "$id": "339",
                 "name": "withRaise",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "364",
+                    "$id": "340",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4869,7 +4845,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "365",
+                    "$id": "341",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4888,7 +4864,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "366",
                     "statusCodes": [
                       204
                     ],
@@ -4910,7 +4885,7 @@
               },
               "parameters": [
                 {
-                  "$id": "367",
+                  "$id": "342",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4927,7 +4902,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "368",
+                  "$id": "343",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4952,19 +4927,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withRaise"
             },
             {
-              "$id": "369",
+              "$id": "344",
               "kind": "basic",
               "name": "withReturn",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "370",
+                "$id": "345",
                 "name": "withReturn",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "371",
+                    "$id": "346",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4982,7 +4957,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "372",
+                    "$id": "347",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5001,7 +4976,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "373",
                     "statusCodes": [
                       204
                     ],
@@ -5023,7 +4997,7 @@
               },
               "parameters": [
                 {
-                  "$id": "374",
+                  "$id": "348",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5040,7 +5014,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "375",
+                  "$id": "349",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5065,19 +5039,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withReturn"
             },
             {
-              "$id": "376",
+              "$id": "350",
               "kind": "basic",
               "name": "withTry",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "377",
+                "$id": "351",
                 "name": "withTry",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "378",
+                    "$id": "352",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5095,7 +5069,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "379",
+                    "$id": "353",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5114,7 +5088,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "380",
                     "statusCodes": [
                       204
                     ],
@@ -5136,7 +5109,7 @@
               },
               "parameters": [
                 {
-                  "$id": "381",
+                  "$id": "354",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5153,7 +5126,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "382",
+                  "$id": "355",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5178,19 +5151,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withTry"
             },
             {
-              "$id": "383",
+              "$id": "356",
               "kind": "basic",
               "name": "withWhile",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "384",
+                "$id": "357",
                 "name": "withWhile",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "385",
+                    "$id": "358",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5208,7 +5181,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "386",
+                    "$id": "359",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5227,7 +5200,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "387",
                     "statusCodes": [
                       204
                     ],
@@ -5249,7 +5221,7 @@
               },
               "parameters": [
                 {
-                  "$id": "388",
+                  "$id": "360",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5266,7 +5238,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "389",
+                  "$id": "361",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5291,19 +5263,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withWhile"
             },
             {
-              "$id": "390",
+              "$id": "362",
               "kind": "basic",
               "name": "withWith",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "391",
+                "$id": "363",
                 "name": "withWith",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "392",
+                    "$id": "364",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5321,7 +5293,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "393",
+                    "$id": "365",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5340,7 +5312,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "394",
                     "statusCodes": [
                       204
                     ],
@@ -5362,7 +5333,7 @@
               },
               "parameters": [
                 {
-                  "$id": "395",
+                  "$id": "366",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5379,7 +5350,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "396",
+                  "$id": "367",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5404,19 +5375,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Models.withWith"
             },
             {
-              "$id": "397",
+              "$id": "368",
               "kind": "basic",
               "name": "withYield",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "398",
+                "$id": "369",
                 "name": "withYield",
                 "resourceName": "Models",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "399",
+                    "$id": "370",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5434,7 +5405,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "400",
+                    "$id": "371",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5453,7 +5424,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "401",
                     "statusCodes": [
                       204
                     ],
@@ -5475,7 +5445,7 @@
               },
               "parameters": [
                 {
-                  "$id": "402",
+                  "$id": "372",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5492,7 +5462,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "403",
+                  "$id": "373",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5519,10 +5489,12 @@
           ],
           "parameters": [
             {
+              "$id": "374",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "375",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5537,6 +5509,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "376",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5553,26 +5526,26 @@
           }
         },
         {
-          "$id": "404",
+          "$id": "377",
           "kind": "client",
           "name": "ModelProperties",
           "namespace": "SpecialWords.ModelProperties",
           "doc": "Verify model names",
           "methods": [
             {
-              "$id": "405",
+              "$id": "378",
               "kind": "basic",
               "name": "sameAsModel",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "406",
+                "$id": "379",
                 "name": "sameAsModel",
                 "resourceName": "ModelProperties",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "407",
+                    "$id": "380",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5590,7 +5563,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "408",
+                    "$id": "381",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5609,7 +5582,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "409",
                     "statusCodes": [
                       204
                     ],
@@ -5631,7 +5603,7 @@
               },
               "parameters": [
                 {
-                  "$id": "410",
+                  "$id": "382",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5648,7 +5620,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "411",
+                  "$id": "383",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5675,10 +5647,12 @@
           ],
           "parameters": [
             {
+              "$id": "384",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "385",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5693,6 +5667,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "386",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5709,27 +5684,26 @@
           }
         },
         {
-          "$id": "412",
+          "$id": "387",
           "kind": "client",
           "name": "Operations",
           "namespace": "SpecialWords",
           "doc": "Test reserved words as operation name.",
           "methods": [
             {
-              "$id": "413",
+              "$id": "388",
               "kind": "basic",
               "name": "and",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "414",
+                "$id": "389",
                 "name": "and",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "415",
                     "statusCodes": [
                       204
                     ],
@@ -5754,20 +5728,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.and"
             },
             {
-              "$id": "416",
+              "$id": "390",
               "kind": "basic",
               "name": "as",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "417",
+                "$id": "391",
                 "name": "as",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "418",
                     "statusCodes": [
                       204
                     ],
@@ -5792,20 +5765,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.as"
             },
             {
-              "$id": "419",
+              "$id": "392",
               "kind": "basic",
               "name": "assert",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "420",
+                "$id": "393",
                 "name": "assert",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "421",
                     "statusCodes": [
                       204
                     ],
@@ -5830,20 +5802,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.assert"
             },
             {
-              "$id": "422",
+              "$id": "394",
               "kind": "basic",
               "name": "async",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "423",
+                "$id": "395",
                 "name": "async",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "424",
                     "statusCodes": [
                       204
                     ],
@@ -5868,20 +5839,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.async"
             },
             {
-              "$id": "425",
+              "$id": "396",
               "kind": "basic",
               "name": "await",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "426",
+                "$id": "397",
                 "name": "await",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "427",
                     "statusCodes": [
                       204
                     ],
@@ -5906,20 +5876,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.await"
             },
             {
-              "$id": "428",
+              "$id": "398",
               "kind": "basic",
               "name": "break",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "429",
+                "$id": "399",
                 "name": "break",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "430",
                     "statusCodes": [
                       204
                     ],
@@ -5944,20 +5913,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.break"
             },
             {
-              "$id": "431",
+              "$id": "400",
               "kind": "basic",
               "name": "class",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "432",
+                "$id": "401",
                 "name": "class",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "433",
                     "statusCodes": [
                       204
                     ],
@@ -5982,20 +5950,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.class"
             },
             {
-              "$id": "434",
+              "$id": "402",
               "kind": "basic",
               "name": "constructor",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "435",
+                "$id": "403",
                 "name": "constructor",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "436",
                     "statusCodes": [
                       204
                     ],
@@ -6020,20 +5987,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.constructor"
             },
             {
-              "$id": "437",
+              "$id": "404",
               "kind": "basic",
               "name": "continue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "438",
+                "$id": "405",
                 "name": "continue",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "439",
                     "statusCodes": [
                       204
                     ],
@@ -6058,20 +6024,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.continue"
             },
             {
-              "$id": "440",
+              "$id": "406",
               "kind": "basic",
               "name": "def",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "441",
+                "$id": "407",
                 "name": "def",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "442",
                     "statusCodes": [
                       204
                     ],
@@ -6096,20 +6061,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.def"
             },
             {
-              "$id": "443",
+              "$id": "408",
               "kind": "basic",
               "name": "del",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "444",
+                "$id": "409",
                 "name": "del",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "445",
                     "statusCodes": [
                       204
                     ],
@@ -6134,20 +6098,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.del"
             },
             {
-              "$id": "446",
+              "$id": "410",
               "kind": "basic",
               "name": "elif",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "447",
+                "$id": "411",
                 "name": "elif",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "448",
                     "statusCodes": [
                       204
                     ],
@@ -6172,20 +6135,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.elif"
             },
             {
-              "$id": "449",
+              "$id": "412",
               "kind": "basic",
               "name": "else",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "450",
+                "$id": "413",
                 "name": "else",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "451",
                     "statusCodes": [
                       204
                     ],
@@ -6210,20 +6172,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.else"
             },
             {
-              "$id": "452",
+              "$id": "414",
               "kind": "basic",
               "name": "except",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "453",
+                "$id": "415",
                 "name": "except",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "454",
                     "statusCodes": [
                       204
                     ],
@@ -6248,20 +6209,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.except"
             },
             {
-              "$id": "455",
+              "$id": "416",
               "kind": "basic",
               "name": "exec",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "456",
+                "$id": "417",
                 "name": "exec",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "457",
                     "statusCodes": [
                       204
                     ],
@@ -6286,20 +6246,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.exec"
             },
             {
-              "$id": "458",
+              "$id": "418",
               "kind": "basic",
               "name": "finally",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "459",
+                "$id": "419",
                 "name": "finally",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "460",
                     "statusCodes": [
                       204
                     ],
@@ -6324,20 +6283,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.finally"
             },
             {
-              "$id": "461",
+              "$id": "420",
               "kind": "basic",
               "name": "for",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "462",
+                "$id": "421",
                 "name": "for",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "463",
                     "statusCodes": [
                       204
                     ],
@@ -6362,20 +6320,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.for"
             },
             {
-              "$id": "464",
+              "$id": "422",
               "kind": "basic",
               "name": "from",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "465",
+                "$id": "423",
                 "name": "from",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "466",
                     "statusCodes": [
                       204
                     ],
@@ -6400,20 +6357,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.from"
             },
             {
-              "$id": "467",
+              "$id": "424",
               "kind": "basic",
               "name": "global",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "468",
+                "$id": "425",
                 "name": "global",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "469",
                     "statusCodes": [
                       204
                     ],
@@ -6438,20 +6394,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.global"
             },
             {
-              "$id": "470",
+              "$id": "426",
               "kind": "basic",
               "name": "if",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "471",
+                "$id": "427",
                 "name": "if",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "472",
                     "statusCodes": [
                       204
                     ],
@@ -6476,20 +6431,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.if"
             },
             {
-              "$id": "473",
+              "$id": "428",
               "kind": "basic",
               "name": "import",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "474",
+                "$id": "429",
                 "name": "import",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "475",
                     "statusCodes": [
                       204
                     ],
@@ -6514,20 +6468,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.import"
             },
             {
-              "$id": "476",
+              "$id": "430",
               "kind": "basic",
               "name": "in",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "477",
+                "$id": "431",
                 "name": "in",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "478",
                     "statusCodes": [
                       204
                     ],
@@ -6552,20 +6505,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.in"
             },
             {
-              "$id": "479",
+              "$id": "432",
               "kind": "basic",
               "name": "is",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "480",
+                "$id": "433",
                 "name": "is",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "481",
                     "statusCodes": [
                       204
                     ],
@@ -6590,20 +6542,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.is"
             },
             {
-              "$id": "482",
+              "$id": "434",
               "kind": "basic",
               "name": "lambda",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "483",
+                "$id": "435",
                 "name": "lambda",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "484",
                     "statusCodes": [
                       204
                     ],
@@ -6628,20 +6579,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.lambda"
             },
             {
-              "$id": "485",
+              "$id": "436",
               "kind": "basic",
               "name": "not",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "486",
+                "$id": "437",
                 "name": "not",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "487",
                     "statusCodes": [
                       204
                     ],
@@ -6666,20 +6616,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.not"
             },
             {
-              "$id": "488",
+              "$id": "438",
               "kind": "basic",
               "name": "or",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "489",
+                "$id": "439",
                 "name": "or",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "490",
                     "statusCodes": [
                       204
                     ],
@@ -6704,20 +6653,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.or"
             },
             {
-              "$id": "491",
+              "$id": "440",
               "kind": "basic",
               "name": "pass",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "492",
+                "$id": "441",
                 "name": "pass",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "493",
                     "statusCodes": [
                       204
                     ],
@@ -6742,20 +6690,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.pass"
             },
             {
-              "$id": "494",
+              "$id": "442",
               "kind": "basic",
               "name": "raise",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "495",
+                "$id": "443",
                 "name": "raise",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "496",
                     "statusCodes": [
                       204
                     ],
@@ -6780,20 +6727,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.raise"
             },
             {
-              "$id": "497",
+              "$id": "444",
               "kind": "basic",
               "name": "return",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "498",
+                "$id": "445",
                 "name": "return",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "499",
                     "statusCodes": [
                       204
                     ],
@@ -6818,20 +6764,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.return"
             },
             {
-              "$id": "500",
+              "$id": "446",
               "kind": "basic",
               "name": "try",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "501",
+                "$id": "447",
                 "name": "try",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "502",
                     "statusCodes": [
                       204
                     ],
@@ -6856,20 +6801,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.try"
             },
             {
-              "$id": "503",
+              "$id": "448",
               "kind": "basic",
               "name": "while",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "504",
+                "$id": "449",
                 "name": "while",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "505",
                     "statusCodes": [
                       204
                     ],
@@ -6894,20 +6838,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.while"
             },
             {
-              "$id": "506",
+              "$id": "450",
               "kind": "basic",
               "name": "with",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "507",
+                "$id": "451",
                 "name": "with",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "508",
                     "statusCodes": [
                       204
                     ],
@@ -6932,20 +6875,19 @@
               "crossLanguageDefinitionId": "SpecialWords.Operations.with"
             },
             {
-              "$id": "509",
+              "$id": "452",
               "kind": "basic",
               "name": "yield",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "510",
+                "$id": "453",
                 "name": "yield",
                 "resourceName": "Operations",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "511",
                     "statusCodes": [
                       204
                     ],
@@ -6972,10 +6914,12 @@
           ],
           "parameters": [
             {
+              "$id": "454",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "455",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6990,6 +6934,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "456",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7006,30 +6951,30 @@
           }
         },
         {
-          "$id": "512",
+          "$id": "457",
           "kind": "client",
           "name": "Parameters",
           "namespace": "SpecialWords",
           "doc": "Verify reserved words as parameter name.",
           "methods": [
             {
-              "$id": "513",
+              "$id": "458",
               "kind": "basic",
               "name": "withAnd",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "514",
+                "$id": "459",
                 "name": "withAnd",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "515",
+                    "$id": "460",
                     "name": "and",
                     "nameInRequest": "and",
                     "type": {
-                      "$id": "516",
+                      "$id": "461",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7048,7 +6993,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "517",
                     "statusCodes": [
                       204
                     ],
@@ -7067,11 +7011,11 @@
               },
               "parameters": [
                 {
-                  "$id": "518",
+                  "$id": "462",
                   "name": "and",
                   "nameInRequest": "and",
                   "type": {
-                    "$id": "519",
+                    "$id": "463",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7095,23 +7039,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withAnd"
             },
             {
-              "$id": "520",
+              "$id": "464",
               "kind": "basic",
               "name": "withAs",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "521",
+                "$id": "465",
                 "name": "withAs",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "522",
+                    "$id": "466",
                     "name": "as",
                     "nameInRequest": "as",
                     "type": {
-                      "$id": "523",
+                      "$id": "467",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7130,7 +7074,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "524",
                     "statusCodes": [
                       204
                     ],
@@ -7149,11 +7092,11 @@
               },
               "parameters": [
                 {
-                  "$id": "525",
+                  "$id": "468",
                   "name": "as",
                   "nameInRequest": "as",
                   "type": {
-                    "$id": "526",
+                    "$id": "469",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7177,23 +7120,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withAs"
             },
             {
-              "$id": "527",
+              "$id": "470",
               "kind": "basic",
               "name": "withAssert",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "528",
+                "$id": "471",
                 "name": "withAssert",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "529",
+                    "$id": "472",
                     "name": "assert",
                     "nameInRequest": "assert",
                     "type": {
-                      "$id": "530",
+                      "$id": "473",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7212,7 +7155,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "531",
                     "statusCodes": [
                       204
                     ],
@@ -7231,11 +7173,11 @@
               },
               "parameters": [
                 {
-                  "$id": "532",
+                  "$id": "474",
                   "name": "assert",
                   "nameInRequest": "assert",
                   "type": {
-                    "$id": "533",
+                    "$id": "475",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7259,23 +7201,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withAssert"
             },
             {
-              "$id": "534",
+              "$id": "476",
               "kind": "basic",
               "name": "withAsync",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "535",
+                "$id": "477",
                 "name": "withAsync",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "536",
+                    "$id": "478",
                     "name": "async",
                     "nameInRequest": "async",
                     "type": {
-                      "$id": "537",
+                      "$id": "479",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7294,7 +7236,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "538",
                     "statusCodes": [
                       204
                     ],
@@ -7313,11 +7254,11 @@
               },
               "parameters": [
                 {
-                  "$id": "539",
+                  "$id": "480",
                   "name": "async",
                   "nameInRequest": "async",
                   "type": {
-                    "$id": "540",
+                    "$id": "481",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7341,23 +7282,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withAsync"
             },
             {
-              "$id": "541",
+              "$id": "482",
               "kind": "basic",
               "name": "withAwait",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "542",
+                "$id": "483",
                 "name": "withAwait",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "543",
+                    "$id": "484",
                     "name": "await",
                     "nameInRequest": "await",
                     "type": {
-                      "$id": "544",
+                      "$id": "485",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7376,7 +7317,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "545",
                     "statusCodes": [
                       204
                     ],
@@ -7395,11 +7335,11 @@
               },
               "parameters": [
                 {
-                  "$id": "546",
+                  "$id": "486",
                   "name": "await",
                   "nameInRequest": "await",
                   "type": {
-                    "$id": "547",
+                    "$id": "487",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7423,23 +7363,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withAwait"
             },
             {
-              "$id": "548",
+              "$id": "488",
               "kind": "basic",
               "name": "withBreak",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "549",
+                "$id": "489",
                 "name": "withBreak",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "550",
+                    "$id": "490",
                     "name": "break",
                     "nameInRequest": "break",
                     "type": {
-                      "$id": "551",
+                      "$id": "491",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7458,7 +7398,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "552",
                     "statusCodes": [
                       204
                     ],
@@ -7477,11 +7416,11 @@
               },
               "parameters": [
                 {
-                  "$id": "553",
+                  "$id": "492",
                   "name": "break",
                   "nameInRequest": "break",
                   "type": {
-                    "$id": "554",
+                    "$id": "493",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7505,23 +7444,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withBreak"
             },
             {
-              "$id": "555",
+              "$id": "494",
               "kind": "basic",
               "name": "withClass",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "556",
+                "$id": "495",
                 "name": "withClass",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "557",
+                    "$id": "496",
                     "name": "class",
                     "nameInRequest": "class",
                     "type": {
-                      "$id": "558",
+                      "$id": "497",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7540,7 +7479,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "559",
                     "statusCodes": [
                       204
                     ],
@@ -7559,11 +7497,11 @@
               },
               "parameters": [
                 {
-                  "$id": "560",
+                  "$id": "498",
                   "name": "class",
                   "nameInRequest": "class",
                   "type": {
-                    "$id": "561",
+                    "$id": "499",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7587,23 +7525,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withClass"
             },
             {
-              "$id": "562",
+              "$id": "500",
               "kind": "basic",
               "name": "withConstructor",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "563",
+                "$id": "501",
                 "name": "withConstructor",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "564",
+                    "$id": "502",
                     "name": "constructor",
                     "nameInRequest": "constructor",
                     "type": {
-                      "$id": "565",
+                      "$id": "503",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7622,7 +7560,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "566",
                     "statusCodes": [
                       204
                     ],
@@ -7641,11 +7578,11 @@
               },
               "parameters": [
                 {
-                  "$id": "567",
+                  "$id": "504",
                   "name": "constructor",
                   "nameInRequest": "constructor",
                   "type": {
-                    "$id": "568",
+                    "$id": "505",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7669,23 +7606,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withConstructor"
             },
             {
-              "$id": "569",
+              "$id": "506",
               "kind": "basic",
               "name": "withContinue",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "570",
+                "$id": "507",
                 "name": "withContinue",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "571",
+                    "$id": "508",
                     "name": "continue",
                     "nameInRequest": "continue",
                     "type": {
-                      "$id": "572",
+                      "$id": "509",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7704,7 +7641,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "573",
                     "statusCodes": [
                       204
                     ],
@@ -7723,11 +7659,11 @@
               },
               "parameters": [
                 {
-                  "$id": "574",
+                  "$id": "510",
                   "name": "continue",
                   "nameInRequest": "continue",
                   "type": {
-                    "$id": "575",
+                    "$id": "511",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7751,23 +7687,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withContinue"
             },
             {
-              "$id": "576",
+              "$id": "512",
               "kind": "basic",
               "name": "withDef",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "577",
+                "$id": "513",
                 "name": "withDef",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "578",
+                    "$id": "514",
                     "name": "def",
                     "nameInRequest": "def",
                     "type": {
-                      "$id": "579",
+                      "$id": "515",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7786,7 +7722,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "580",
                     "statusCodes": [
                       204
                     ],
@@ -7805,11 +7740,11 @@
               },
               "parameters": [
                 {
-                  "$id": "581",
+                  "$id": "516",
                   "name": "def",
                   "nameInRequest": "def",
                   "type": {
-                    "$id": "582",
+                    "$id": "517",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7833,23 +7768,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withDef"
             },
             {
-              "$id": "583",
+              "$id": "518",
               "kind": "basic",
               "name": "withDel",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "584",
+                "$id": "519",
                 "name": "withDel",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "585",
+                    "$id": "520",
                     "name": "del",
                     "nameInRequest": "del",
                     "type": {
-                      "$id": "586",
+                      "$id": "521",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7868,7 +7803,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "587",
                     "statusCodes": [
                       204
                     ],
@@ -7887,11 +7821,11 @@
               },
               "parameters": [
                 {
-                  "$id": "588",
+                  "$id": "522",
                   "name": "del",
                   "nameInRequest": "del",
                   "type": {
-                    "$id": "589",
+                    "$id": "523",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7915,23 +7849,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withDel"
             },
             {
-              "$id": "590",
+              "$id": "524",
               "kind": "basic",
               "name": "withElif",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "591",
+                "$id": "525",
                 "name": "withElif",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "592",
+                    "$id": "526",
                     "name": "elif",
                     "nameInRequest": "elif",
                     "type": {
-                      "$id": "593",
+                      "$id": "527",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7950,7 +7884,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "594",
                     "statusCodes": [
                       204
                     ],
@@ -7969,11 +7902,11 @@
               },
               "parameters": [
                 {
-                  "$id": "595",
+                  "$id": "528",
                   "name": "elif",
                   "nameInRequest": "elif",
                   "type": {
-                    "$id": "596",
+                    "$id": "529",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -7997,23 +7930,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withElif"
             },
             {
-              "$id": "597",
+              "$id": "530",
               "kind": "basic",
               "name": "withElse",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "598",
+                "$id": "531",
                 "name": "withElse",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "599",
+                    "$id": "532",
                     "name": "else",
                     "nameInRequest": "else",
                     "type": {
-                      "$id": "600",
+                      "$id": "533",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8032,7 +7965,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "601",
                     "statusCodes": [
                       204
                     ],
@@ -8051,11 +7983,11 @@
               },
               "parameters": [
                 {
-                  "$id": "602",
+                  "$id": "534",
                   "name": "else",
                   "nameInRequest": "else",
                   "type": {
-                    "$id": "603",
+                    "$id": "535",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8079,23 +8011,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withElse"
             },
             {
-              "$id": "604",
+              "$id": "536",
               "kind": "basic",
               "name": "withExcept",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "605",
+                "$id": "537",
                 "name": "withExcept",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "606",
+                    "$id": "538",
                     "name": "except",
                     "nameInRequest": "except",
                     "type": {
-                      "$id": "607",
+                      "$id": "539",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8114,7 +8046,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "608",
                     "statusCodes": [
                       204
                     ],
@@ -8133,11 +8064,11 @@
               },
               "parameters": [
                 {
-                  "$id": "609",
+                  "$id": "540",
                   "name": "except",
                   "nameInRequest": "except",
                   "type": {
-                    "$id": "610",
+                    "$id": "541",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8161,23 +8092,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withExcept"
             },
             {
-              "$id": "611",
+              "$id": "542",
               "kind": "basic",
               "name": "withExec",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "612",
+                "$id": "543",
                 "name": "withExec",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "613",
+                    "$id": "544",
                     "name": "exec",
                     "nameInRequest": "exec",
                     "type": {
-                      "$id": "614",
+                      "$id": "545",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8196,7 +8127,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "615",
                     "statusCodes": [
                       204
                     ],
@@ -8215,11 +8145,11 @@
               },
               "parameters": [
                 {
-                  "$id": "616",
+                  "$id": "546",
                   "name": "exec",
                   "nameInRequest": "exec",
                   "type": {
-                    "$id": "617",
+                    "$id": "547",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8243,23 +8173,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withExec"
             },
             {
-              "$id": "618",
+              "$id": "548",
               "kind": "basic",
               "name": "withFinally",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "619",
+                "$id": "549",
                 "name": "withFinally",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "620",
+                    "$id": "550",
                     "name": "finally",
                     "nameInRequest": "finally",
                     "type": {
-                      "$id": "621",
+                      "$id": "551",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8278,7 +8208,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "622",
                     "statusCodes": [
                       204
                     ],
@@ -8297,11 +8226,11 @@
               },
               "parameters": [
                 {
-                  "$id": "623",
+                  "$id": "552",
                   "name": "finally",
                   "nameInRequest": "finally",
                   "type": {
-                    "$id": "624",
+                    "$id": "553",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8325,23 +8254,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withFinally"
             },
             {
-              "$id": "625",
+              "$id": "554",
               "kind": "basic",
               "name": "withFor",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "626",
+                "$id": "555",
                 "name": "withFor",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "627",
+                    "$id": "556",
                     "name": "for",
                     "nameInRequest": "for",
                     "type": {
-                      "$id": "628",
+                      "$id": "557",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8360,7 +8289,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "629",
                     "statusCodes": [
                       204
                     ],
@@ -8379,11 +8307,11 @@
               },
               "parameters": [
                 {
-                  "$id": "630",
+                  "$id": "558",
                   "name": "for",
                   "nameInRequest": "for",
                   "type": {
-                    "$id": "631",
+                    "$id": "559",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8407,23 +8335,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withFor"
             },
             {
-              "$id": "632",
+              "$id": "560",
               "kind": "basic",
               "name": "withFrom",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "633",
+                "$id": "561",
                 "name": "withFrom",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "634",
+                    "$id": "562",
                     "name": "from",
                     "nameInRequest": "from",
                     "type": {
-                      "$id": "635",
+                      "$id": "563",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8442,7 +8370,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "636",
                     "statusCodes": [
                       204
                     ],
@@ -8461,11 +8388,11 @@
               },
               "parameters": [
                 {
-                  "$id": "637",
+                  "$id": "564",
                   "name": "from",
                   "nameInRequest": "from",
                   "type": {
-                    "$id": "638",
+                    "$id": "565",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8489,23 +8416,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withFrom"
             },
             {
-              "$id": "639",
+              "$id": "566",
               "kind": "basic",
               "name": "withGlobal",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "640",
+                "$id": "567",
                 "name": "withGlobal",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "641",
+                    "$id": "568",
                     "name": "global",
                     "nameInRequest": "global",
                     "type": {
-                      "$id": "642",
+                      "$id": "569",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8524,7 +8451,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "643",
                     "statusCodes": [
                       204
                     ],
@@ -8543,11 +8469,11 @@
               },
               "parameters": [
                 {
-                  "$id": "644",
+                  "$id": "570",
                   "name": "global",
                   "nameInRequest": "global",
                   "type": {
-                    "$id": "645",
+                    "$id": "571",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8571,23 +8497,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withGlobal"
             },
             {
-              "$id": "646",
+              "$id": "572",
               "kind": "basic",
               "name": "withIf",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "647",
+                "$id": "573",
                 "name": "withIf",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "648",
+                    "$id": "574",
                     "name": "if",
                     "nameInRequest": "if",
                     "type": {
-                      "$id": "649",
+                      "$id": "575",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8606,7 +8532,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "650",
                     "statusCodes": [
                       204
                     ],
@@ -8625,11 +8550,11 @@
               },
               "parameters": [
                 {
-                  "$id": "651",
+                  "$id": "576",
                   "name": "if",
                   "nameInRequest": "if",
                   "type": {
-                    "$id": "652",
+                    "$id": "577",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8653,23 +8578,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withIf"
             },
             {
-              "$id": "653",
+              "$id": "578",
               "kind": "basic",
               "name": "withImport",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "654",
+                "$id": "579",
                 "name": "withImport",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "655",
+                    "$id": "580",
                     "name": "import",
                     "nameInRequest": "import",
                     "type": {
-                      "$id": "656",
+                      "$id": "581",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8688,7 +8613,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "657",
                     "statusCodes": [
                       204
                     ],
@@ -8707,11 +8631,11 @@
               },
               "parameters": [
                 {
-                  "$id": "658",
+                  "$id": "582",
                   "name": "import",
                   "nameInRequest": "import",
                   "type": {
-                    "$id": "659",
+                    "$id": "583",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8735,23 +8659,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withImport"
             },
             {
-              "$id": "660",
+              "$id": "584",
               "kind": "basic",
               "name": "withIn",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "661",
+                "$id": "585",
                 "name": "withIn",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "662",
+                    "$id": "586",
                     "name": "in",
                     "nameInRequest": "in",
                     "type": {
-                      "$id": "663",
+                      "$id": "587",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8770,7 +8694,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "664",
                     "statusCodes": [
                       204
                     ],
@@ -8789,11 +8712,11 @@
               },
               "parameters": [
                 {
-                  "$id": "665",
+                  "$id": "588",
                   "name": "in",
                   "nameInRequest": "in",
                   "type": {
-                    "$id": "666",
+                    "$id": "589",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8817,23 +8740,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withIn"
             },
             {
-              "$id": "667",
+              "$id": "590",
               "kind": "basic",
               "name": "withIs",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "668",
+                "$id": "591",
                 "name": "withIs",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "669",
+                    "$id": "592",
                     "name": "is",
                     "nameInRequest": "is",
                     "type": {
-                      "$id": "670",
+                      "$id": "593",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8852,7 +8775,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "671",
                     "statusCodes": [
                       204
                     ],
@@ -8871,11 +8793,11 @@
               },
               "parameters": [
                 {
-                  "$id": "672",
+                  "$id": "594",
                   "name": "is",
                   "nameInRequest": "is",
                   "type": {
-                    "$id": "673",
+                    "$id": "595",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8899,23 +8821,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withIs"
             },
             {
-              "$id": "674",
+              "$id": "596",
               "kind": "basic",
               "name": "withLambda",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "675",
+                "$id": "597",
                 "name": "withLambda",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "676",
+                    "$id": "598",
                     "name": "lambda",
                     "nameInRequest": "lambda",
                     "type": {
-                      "$id": "677",
+                      "$id": "599",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8934,7 +8856,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "678",
                     "statusCodes": [
                       204
                     ],
@@ -8953,11 +8874,11 @@
               },
               "parameters": [
                 {
-                  "$id": "679",
+                  "$id": "600",
                   "name": "lambda",
                   "nameInRequest": "lambda",
                   "type": {
-                    "$id": "680",
+                    "$id": "601",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -8981,23 +8902,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withLambda"
             },
             {
-              "$id": "681",
+              "$id": "602",
               "kind": "basic",
               "name": "withNot",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "682",
+                "$id": "603",
                 "name": "withNot",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "683",
+                    "$id": "604",
                     "name": "not",
                     "nameInRequest": "not",
                     "type": {
-                      "$id": "684",
+                      "$id": "605",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9016,7 +8937,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "685",
                     "statusCodes": [
                       204
                     ],
@@ -9035,11 +8955,11 @@
               },
               "parameters": [
                 {
-                  "$id": "686",
+                  "$id": "606",
                   "name": "not",
                   "nameInRequest": "not",
                   "type": {
-                    "$id": "687",
+                    "$id": "607",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9063,23 +8983,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withNot"
             },
             {
-              "$id": "688",
+              "$id": "608",
               "kind": "basic",
               "name": "withOr",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "689",
+                "$id": "609",
                 "name": "withOr",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "690",
+                    "$id": "610",
                     "name": "or",
                     "nameInRequest": "or",
                     "type": {
-                      "$id": "691",
+                      "$id": "611",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9098,7 +9018,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "692",
                     "statusCodes": [
                       204
                     ],
@@ -9117,11 +9036,11 @@
               },
               "parameters": [
                 {
-                  "$id": "693",
+                  "$id": "612",
                   "name": "or",
                   "nameInRequest": "or",
                   "type": {
-                    "$id": "694",
+                    "$id": "613",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9145,23 +9064,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withOr"
             },
             {
-              "$id": "695",
+              "$id": "614",
               "kind": "basic",
               "name": "withPass",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "696",
+                "$id": "615",
                 "name": "withPass",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "697",
+                    "$id": "616",
                     "name": "pass",
                     "nameInRequest": "pass",
                     "type": {
-                      "$id": "698",
+                      "$id": "617",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9180,7 +9099,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "699",
                     "statusCodes": [
                       204
                     ],
@@ -9199,11 +9117,11 @@
               },
               "parameters": [
                 {
-                  "$id": "700",
+                  "$id": "618",
                   "name": "pass",
                   "nameInRequest": "pass",
                   "type": {
-                    "$id": "701",
+                    "$id": "619",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9227,23 +9145,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withPass"
             },
             {
-              "$id": "702",
+              "$id": "620",
               "kind": "basic",
               "name": "withRaise",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "703",
+                "$id": "621",
                 "name": "withRaise",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "704",
+                    "$id": "622",
                     "name": "raise",
                     "nameInRequest": "raise",
                     "type": {
-                      "$id": "705",
+                      "$id": "623",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9262,7 +9180,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "706",
                     "statusCodes": [
                       204
                     ],
@@ -9281,11 +9198,11 @@
               },
               "parameters": [
                 {
-                  "$id": "707",
+                  "$id": "624",
                   "name": "raise",
                   "nameInRequest": "raise",
                   "type": {
-                    "$id": "708",
+                    "$id": "625",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9309,23 +9226,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withRaise"
             },
             {
-              "$id": "709",
+              "$id": "626",
               "kind": "basic",
               "name": "withReturn",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "710",
+                "$id": "627",
                 "name": "withReturn",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "711",
+                    "$id": "628",
                     "name": "return",
                     "nameInRequest": "return",
                     "type": {
-                      "$id": "712",
+                      "$id": "629",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9344,7 +9261,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "713",
                     "statusCodes": [
                       204
                     ],
@@ -9363,11 +9279,11 @@
               },
               "parameters": [
                 {
-                  "$id": "714",
+                  "$id": "630",
                   "name": "return",
                   "nameInRequest": "return",
                   "type": {
-                    "$id": "715",
+                    "$id": "631",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9391,23 +9307,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withReturn"
             },
             {
-              "$id": "716",
+              "$id": "632",
               "kind": "basic",
               "name": "withTry",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "717",
+                "$id": "633",
                 "name": "withTry",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "718",
+                    "$id": "634",
                     "name": "try",
                     "nameInRequest": "try",
                     "type": {
-                      "$id": "719",
+                      "$id": "635",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9426,7 +9342,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "720",
                     "statusCodes": [
                       204
                     ],
@@ -9445,11 +9360,11 @@
               },
               "parameters": [
                 {
-                  "$id": "721",
+                  "$id": "636",
                   "name": "try",
                   "nameInRequest": "try",
                   "type": {
-                    "$id": "722",
+                    "$id": "637",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9473,23 +9388,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withTry"
             },
             {
-              "$id": "723",
+              "$id": "638",
               "kind": "basic",
               "name": "withWhile",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "724",
+                "$id": "639",
                 "name": "withWhile",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "725",
+                    "$id": "640",
                     "name": "while",
                     "nameInRequest": "while",
                     "type": {
-                      "$id": "726",
+                      "$id": "641",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9508,7 +9423,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "727",
                     "statusCodes": [
                       204
                     ],
@@ -9527,11 +9441,11 @@
               },
               "parameters": [
                 {
-                  "$id": "728",
+                  "$id": "642",
                   "name": "while",
                   "nameInRequest": "while",
                   "type": {
-                    "$id": "729",
+                    "$id": "643",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9555,23 +9469,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withWhile"
             },
             {
-              "$id": "730",
+              "$id": "644",
               "kind": "basic",
               "name": "withWith",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "731",
+                "$id": "645",
                 "name": "withWith",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "732",
+                    "$id": "646",
                     "name": "with",
                     "nameInRequest": "with",
                     "type": {
-                      "$id": "733",
+                      "$id": "647",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9590,7 +9504,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "734",
                     "statusCodes": [
                       204
                     ],
@@ -9609,11 +9522,11 @@
               },
               "parameters": [
                 {
-                  "$id": "735",
+                  "$id": "648",
                   "name": "with",
                   "nameInRequest": "with",
                   "type": {
-                    "$id": "736",
+                    "$id": "649",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9637,23 +9550,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withWith"
             },
             {
-              "$id": "737",
+              "$id": "650",
               "kind": "basic",
               "name": "withYield",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "738",
+                "$id": "651",
                 "name": "withYield",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "739",
+                    "$id": "652",
                     "name": "yield",
                     "nameInRequest": "yield",
                     "type": {
-                      "$id": "740",
+                      "$id": "653",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9672,7 +9585,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "741",
                     "statusCodes": [
                       204
                     ],
@@ -9691,11 +9603,11 @@
               },
               "parameters": [
                 {
-                  "$id": "742",
+                  "$id": "654",
                   "name": "yield",
                   "nameInRequest": "yield",
                   "type": {
-                    "$id": "743",
+                    "$id": "655",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9719,23 +9631,23 @@
               "crossLanguageDefinitionId": "SpecialWords.Parameters.withYield"
             },
             {
-              "$id": "744",
+              "$id": "656",
               "kind": "basic",
               "name": "withCancellationToken",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "745",
+                "$id": "657",
                 "name": "withCancellationToken",
                 "resourceName": "Parameters",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "746",
+                    "$id": "658",
                     "name": "cancellationToken",
                     "nameInRequest": "cancellationToken",
                     "type": {
-                      "$id": "747",
+                      "$id": "659",
                       "kind": "string",
                       "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9754,7 +9666,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "748",
                     "statusCodes": [
                       204
                     ],
@@ -9773,11 +9684,11 @@
               },
               "parameters": [
                 {
-                  "$id": "749",
+                  "$id": "660",
                   "name": "cancellationToken",
                   "nameInRequest": "cancellationToken",
                   "type": {
-                    "$id": "750",
+                    "$id": "661",
                     "kind": "string",
                     "name": "string",
                     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -9803,10 +9714,12 @@
           ],
           "parameters": [
             {
+              "$id": "662",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "663",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -9821,6 +9734,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "664",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"

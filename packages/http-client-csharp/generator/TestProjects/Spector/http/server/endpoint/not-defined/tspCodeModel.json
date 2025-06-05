@@ -26,7 +26,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "4",
                 "statusCodes": [
                   200
                 ],
@@ -53,10 +52,12 @@
       ],
       "parameters": [
         {
+          "$id": "4",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "5",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"

@@ -266,7 +266,6 @@
             ],
             "responses": [
               {
-                "$id": "25",
                 "statusCodes": [
                   204
                 ],
@@ -285,7 +284,7 @@
           },
           "parameters": [
             {
-              "$id": "26",
+              "$id": "25",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -309,19 +308,19 @@
           "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange"
         },
         {
-          "$id": "27",
+          "$id": "26",
           "kind": "basic",
           "name": "errorResponseStatusCode404",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "28",
+            "$id": "27",
             "name": "errorResponseStatusCode404",
             "resourceName": "StatusCodeRange",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "29",
+                "$id": "28",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -340,7 +339,6 @@
             ],
             "responses": [
               {
-                "$id": "30",
                 "statusCodes": [
                   204
                 ],
@@ -359,7 +357,7 @@
           },
           "parameters": [
             {
-              "$id": "31",
+              "$id": "29",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -385,10 +383,12 @@
       ],
       "parameters": [
         {
+          "$id": "30",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "31",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -403,6 +403,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "32",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

@@ -536,7 +536,6 @@
             ],
             "responses": [
               {
-                "$id": "46",
                 "statusCodes": [
                   200
                 ],
@@ -561,7 +560,7 @@
           },
           "parameters": [
             {
-              "$id": "47",
+              "$id": "46",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -589,19 +588,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.getModel"
         },
         {
-          "$id": "48",
+          "$id": "47",
           "kind": "basic",
           "name": "putModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "49",
+            "$id": "48",
             "name": "putModel",
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "50",
+                "$id": "49",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -619,7 +618,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "51",
+                "$id": "50",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -638,7 +637,6 @@
             ],
             "responses": [
               {
-                "$id": "52",
                 "statusCodes": [
                   204
                 ],
@@ -660,7 +658,7 @@
           },
           "parameters": [
             {
-              "$id": "53",
+              "$id": "51",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -677,7 +675,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "54",
+              "$id": "52",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -702,19 +700,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.putModel"
         },
         {
-          "$id": "55",
+          "$id": "53",
           "kind": "basic",
           "name": "getRecursiveModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "56",
+            "$id": "54",
             "name": "getRecursiveModel",
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "57",
+                "$id": "55",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -733,7 +731,6 @@
             ],
             "responses": [
               {
-                "$id": "58",
                 "statusCodes": [
                   200
                 ],
@@ -758,7 +755,7 @@
           },
           "parameters": [
             {
-              "$id": "59",
+              "$id": "56",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -786,19 +783,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.getRecursiveModel"
         },
         {
-          "$id": "60",
+          "$id": "57",
           "kind": "basic",
           "name": "putRecursiveModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "61",
+            "$id": "58",
             "name": "putRecursiveModel",
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "62",
+                "$id": "59",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -816,7 +813,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "63",
+                "$id": "60",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -835,7 +832,6 @@
             ],
             "responses": [
               {
-                "$id": "64",
                 "statusCodes": [
                   204
                 ],
@@ -857,7 +853,7 @@
           },
           "parameters": [
             {
-              "$id": "65",
+              "$id": "61",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -874,7 +870,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "66",
+              "$id": "62",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -899,19 +895,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.putRecursiveModel"
         },
         {
-          "$id": "67",
+          "$id": "63",
           "kind": "basic",
           "name": "getMissingDiscriminator",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "68",
+            "$id": "64",
             "name": "getMissingDiscriminator",
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "69",
+                "$id": "65",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -930,7 +926,6 @@
             ],
             "responses": [
               {
-                "$id": "70",
                 "statusCodes": [
                   200
                 ],
@@ -955,7 +950,7 @@
           },
           "parameters": [
             {
-              "$id": "71",
+              "$id": "66",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -983,19 +978,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator.getMissingDiscriminator"
         },
         {
-          "$id": "72",
+          "$id": "67",
           "kind": "basic",
           "name": "getWrongDiscriminator",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "73",
+            "$id": "68",
             "name": "getWrongDiscriminator",
             "resourceName": "NestedDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "74",
+                "$id": "69",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1014,7 +1009,6 @@
             ],
             "responses": [
               {
-                "$id": "75",
                 "statusCodes": [
                   200
                 ],
@@ -1039,7 +1033,7 @@
           },
           "parameters": [
             {
-              "$id": "76",
+              "$id": "70",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1069,10 +1063,12 @@
       ],
       "parameters": [
         {
+          "$id": "71",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "72",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1087,6 +1083,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "73",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

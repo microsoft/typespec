@@ -1860,10 +1860,12 @@
       "methods": [],
       "parameters": [
         {
+          "$id": "196",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "197",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1878,6 +1880,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "198",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1891,27 +1894,27 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "196",
+          "$id": "199",
           "kind": "client",
           "name": "String",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "197",
+              "$id": "200",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "198",
+                "$id": "201",
                 "name": "getAll",
                 "resourceName": "String",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "199",
+                    "$id": "202",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -1930,7 +1933,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "200",
                     "statusCodes": [
                       200
                     ],
@@ -1955,7 +1957,7 @@
               },
               "parameters": [
                 {
-                  "$id": "201",
+                  "$id": "203",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -1983,21 +1985,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.String.getAll"
             },
             {
-              "$id": "202",
+              "$id": "204",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "203",
+                "$id": "205",
                 "name": "getDefault",
                 "resourceName": "String",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "204",
+                    "$id": "206",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -2016,7 +2018,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "205",
                     "statusCodes": [
                       200
                     ],
@@ -2041,7 +2042,7 @@
               },
               "parameters": [
                 {
-                  "$id": "206",
+                  "$id": "207",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -2069,21 +2070,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.String.getDefault"
             },
             {
-              "$id": "207",
+              "$id": "208",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "208",
+                "$id": "209",
                 "name": "putAll",
                 "resourceName": "String",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "209",
+                    "$id": "210",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2101,7 +2102,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "210",
+                    "$id": "211",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2120,7 +2121,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "211",
                     "statusCodes": [
                       204
                     ],
@@ -2235,7 +2235,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "218",
                     "statusCodes": [
                       204
                     ],
@@ -2257,7 +2256,7 @@
               },
               "parameters": [
                 {
-                  "$id": "219",
+                  "$id": "218",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2274,7 +2273,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "220",
+                  "$id": "219",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2301,10 +2300,12 @@
           ],
           "parameters": [
             {
+              "$id": "220",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "221",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2319,6 +2320,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "222",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2335,27 +2337,27 @@
           }
         },
         {
-          "$id": "221",
+          "$id": "223",
           "kind": "client",
           "name": "Bytes",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "222",
+              "$id": "224",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "223",
+                "$id": "225",
                 "name": "getAll",
                 "resourceName": "Bytes",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "224",
+                    "$id": "226",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -2374,7 +2376,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "225",
                     "statusCodes": [
                       200
                     ],
@@ -2399,7 +2400,7 @@
               },
               "parameters": [
                 {
-                  "$id": "226",
+                  "$id": "227",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -2427,21 +2428,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Bytes.getAll"
             },
             {
-              "$id": "227",
+              "$id": "228",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "228",
+                "$id": "229",
                 "name": "getDefault",
                 "resourceName": "Bytes",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "229",
+                    "$id": "230",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -2460,7 +2461,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "230",
                     "statusCodes": [
                       200
                     ],
@@ -2564,7 +2564,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "236",
                     "statusCodes": [
                       204
                     ],
@@ -2586,7 +2585,7 @@
               },
               "parameters": [
                 {
-                  "$id": "237",
+                  "$id": "236",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2603,7 +2602,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "238",
+                  "$id": "237",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2628,21 +2627,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Bytes.putAll"
             },
             {
-              "$id": "239",
+              "$id": "238",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "240",
+                "$id": "239",
                 "name": "putDefault",
                 "resourceName": "Bytes",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "241",
+                    "$id": "240",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2660,7 +2659,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "242",
+                    "$id": "241",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -2679,7 +2678,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "243",
                     "statusCodes": [
                       204
                     ],
@@ -2701,7 +2699,7 @@
               },
               "parameters": [
                 {
-                  "$id": "244",
+                  "$id": "242",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -2718,7 +2716,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "245",
+                  "$id": "243",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -2745,10 +2743,12 @@
           ],
           "parameters": [
             {
+              "$id": "244",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "245",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2763,6 +2763,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "246",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2779,27 +2780,27 @@
           }
         },
         {
-          "$id": "246",
+          "$id": "247",
           "kind": "client",
           "name": "Datetime",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "247",
+              "$id": "248",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "248",
+                "$id": "249",
                 "name": "getAll",
                 "resourceName": "Datetime",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "249",
+                    "$id": "250",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -2818,7 +2819,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "250",
                     "statusCodes": [
                       200
                     ],
@@ -2904,7 +2904,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "255",
                     "statusCodes": [
                       200
                     ],
@@ -2929,7 +2928,7 @@
               },
               "parameters": [
                 {
-                  "$id": "256",
+                  "$id": "255",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -2957,21 +2956,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Datetime.getDefault"
             },
             {
-              "$id": "257",
+              "$id": "256",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "258",
+                "$id": "257",
                 "name": "putAll",
                 "resourceName": "Datetime",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "259",
+                    "$id": "258",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -2989,7 +2988,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "260",
+                    "$id": "259",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3008,7 +3007,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "261",
                     "statusCodes": [
                       204
                     ],
@@ -3030,7 +3028,7 @@
               },
               "parameters": [
                 {
-                  "$id": "262",
+                  "$id": "260",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3047,7 +3045,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "263",
+                  "$id": "261",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3072,21 +3070,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Datetime.putAll"
             },
             {
-              "$id": "264",
+              "$id": "262",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "265",
+                "$id": "263",
                 "name": "putDefault",
                 "resourceName": "Datetime",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "266",
+                    "$id": "264",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3104,7 +3102,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "267",
+                    "$id": "265",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3123,7 +3121,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "268",
                     "statusCodes": [
                       204
                     ],
@@ -3145,7 +3142,7 @@
               },
               "parameters": [
                 {
-                  "$id": "269",
+                  "$id": "266",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3162,7 +3159,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "270",
+                  "$id": "267",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3189,10 +3186,12 @@
           ],
           "parameters": [
             {
+              "$id": "268",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "269",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3207,6 +3206,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "270",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3262,7 +3262,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "275",
                     "statusCodes": [
                       200
                     ],
@@ -3287,7 +3286,7 @@
               },
               "parameters": [
                 {
-                  "$id": "276",
+                  "$id": "275",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -3315,21 +3314,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Duration.getAll"
             },
             {
-              "$id": "277",
+              "$id": "276",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "278",
+                "$id": "277",
                 "name": "getDefault",
                 "resourceName": "Duration",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "279",
+                    "$id": "278",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -3348,7 +3347,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "280",
                     "statusCodes": [
                       200
                     ],
@@ -3373,7 +3371,7 @@
               },
               "parameters": [
                 {
-                  "$id": "281",
+                  "$id": "279",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -3401,21 +3399,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Duration.getDefault"
             },
             {
-              "$id": "282",
+              "$id": "280",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "283",
+                "$id": "281",
                 "name": "putAll",
                 "resourceName": "Duration",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "284",
+                    "$id": "282",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3433,7 +3431,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "285",
+                    "$id": "283",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3452,7 +3450,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "286",
                     "statusCodes": [
                       204
                     ],
@@ -3474,7 +3471,7 @@
               },
               "parameters": [
                 {
-                  "$id": "287",
+                  "$id": "284",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3491,7 +3488,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "288",
+                  "$id": "285",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3516,21 +3513,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.Duration.putAll"
             },
             {
-              "$id": "289",
+              "$id": "286",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "290",
+                "$id": "287",
                 "name": "putDefault",
                 "resourceName": "Duration",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "291",
+                    "$id": "288",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3548,7 +3545,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "292",
+                    "$id": "289",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3567,7 +3564,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "293",
                     "statusCodes": [
                       204
                     ],
@@ -3589,7 +3585,7 @@
               },
               "parameters": [
                 {
-                  "$id": "294",
+                  "$id": "290",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3606,7 +3602,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "295",
+                  "$id": "291",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3633,10 +3629,12 @@
           ],
           "parameters": [
             {
+              "$id": "292",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "293",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3651,6 +3649,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "294",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3667,27 +3666,27 @@
           }
         },
         {
-          "$id": "296",
+          "$id": "295",
           "kind": "client",
           "name": "PlainDate",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "297",
+              "$id": "296",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "298",
+                "$id": "297",
                 "name": "getAll",
                 "resourceName": "PlainDate",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "299",
+                    "$id": "298",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -3706,7 +3705,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "300",
                     "statusCodes": [
                       200
                     ],
@@ -3731,7 +3729,7 @@
               },
               "parameters": [
                 {
-                  "$id": "301",
+                  "$id": "299",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -3759,21 +3757,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainDate.getAll"
             },
             {
-              "$id": "302",
+              "$id": "300",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "303",
+                "$id": "301",
                 "name": "getDefault",
                 "resourceName": "PlainDate",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "304",
+                    "$id": "302",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -3792,7 +3790,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "305",
                     "statusCodes": [
                       200
                     ],
@@ -3817,7 +3814,7 @@
               },
               "parameters": [
                 {
-                  "$id": "306",
+                  "$id": "303",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -3845,21 +3842,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainDate.getDefault"
             },
             {
-              "$id": "307",
+              "$id": "304",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "308",
+                "$id": "305",
                 "name": "putAll",
                 "resourceName": "PlainDate",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "309",
+                    "$id": "306",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3877,7 +3874,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "310",
+                    "$id": "307",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -3896,7 +3893,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "311",
                     "statusCodes": [
                       204
                     ],
@@ -3918,7 +3914,7 @@
               },
               "parameters": [
                 {
-                  "$id": "312",
+                  "$id": "308",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -3935,7 +3931,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "313",
+                  "$id": "309",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -3960,21 +3956,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainDate.putAll"
             },
             {
-              "$id": "314",
+              "$id": "310",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "315",
+                "$id": "311",
                 "name": "putDefault",
                 "resourceName": "PlainDate",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "316",
+                    "$id": "312",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -3992,7 +3988,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "317",
+                    "$id": "313",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4011,7 +4007,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "318",
                     "statusCodes": [
                       204
                     ],
@@ -4033,7 +4028,7 @@
               },
               "parameters": [
                 {
-                  "$id": "319",
+                  "$id": "314",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4050,7 +4045,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "320",
+                  "$id": "315",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4077,10 +4072,12 @@
           ],
           "parameters": [
             {
+              "$id": "316",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "317",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4095,6 +4092,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "318",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4111,27 +4109,27 @@
           }
         },
         {
-          "$id": "321",
+          "$id": "319",
           "kind": "client",
           "name": "PlainTime",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "322",
+              "$id": "320",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "323",
+                "$id": "321",
                 "name": "getAll",
                 "resourceName": "PlainTime",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "324",
+                    "$id": "322",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -4150,7 +4148,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "325",
                     "statusCodes": [
                       200
                     ],
@@ -4175,7 +4172,7 @@
               },
               "parameters": [
                 {
-                  "$id": "326",
+                  "$id": "323",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -4203,21 +4200,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainTime.getAll"
             },
             {
-              "$id": "327",
+              "$id": "324",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "328",
+                "$id": "325",
                 "name": "getDefault",
                 "resourceName": "PlainTime",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "329",
+                    "$id": "326",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -4236,7 +4233,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "330",
                     "statusCodes": [
                       200
                     ],
@@ -4261,7 +4257,7 @@
               },
               "parameters": [
                 {
-                  "$id": "331",
+                  "$id": "327",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -4289,21 +4285,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainTime.getDefault"
             },
             {
-              "$id": "332",
+              "$id": "328",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "333",
+                "$id": "329",
                 "name": "putAll",
                 "resourceName": "PlainTime",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "334",
+                    "$id": "330",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4321,7 +4317,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "335",
+                    "$id": "331",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4340,7 +4336,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "336",
                     "statusCodes": [
                       204
                     ],
@@ -4362,7 +4357,7 @@
               },
               "parameters": [
                 {
-                  "$id": "337",
+                  "$id": "332",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4379,7 +4374,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "338",
+                  "$id": "333",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4404,21 +4399,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.PlainTime.putAll"
             },
             {
-              "$id": "339",
+              "$id": "334",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "340",
+                "$id": "335",
                 "name": "putDefault",
                 "resourceName": "PlainTime",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "341",
+                    "$id": "336",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4436,7 +4431,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "342",
+                    "$id": "337",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4455,7 +4450,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "343",
                     "statusCodes": [
                       204
                     ],
@@ -4477,7 +4471,7 @@
               },
               "parameters": [
                 {
-                  "$id": "344",
+                  "$id": "338",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -4494,7 +4488,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "345",
+                  "$id": "339",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -4521,10 +4515,12 @@
           ],
           "parameters": [
             {
+              "$id": "340",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "341",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4539,6 +4535,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "342",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4555,27 +4552,27 @@
           }
         },
         {
-          "$id": "346",
+          "$id": "343",
           "kind": "client",
           "name": "CollectionsByte",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "347",
+              "$id": "344",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "348",
+                "$id": "345",
                 "name": "getAll",
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "349",
+                    "$id": "346",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -4594,7 +4591,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "350",
                     "statusCodes": [
                       200
                     ],
@@ -4619,7 +4615,7 @@
               },
               "parameters": [
                 {
-                  "$id": "351",
+                  "$id": "347",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -4647,21 +4643,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.getAll"
             },
             {
-              "$id": "352",
+              "$id": "348",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "353",
+                "$id": "349",
                 "name": "getDefault",
                 "resourceName": "CollectionsByte",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "354",
+                    "$id": "350",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -4680,7 +4676,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "355",
                     "statusCodes": [
                       200
                     ],
@@ -4705,7 +4700,7 @@
               },
               "parameters": [
                 {
-                  "$id": "356",
+                  "$id": "351",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -4733,21 +4728,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.getDefault"
             },
             {
-              "$id": "357",
+              "$id": "352",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "358",
+                "$id": "353",
                 "name": "putAll",
                 "resourceName": "CollectionsByte",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "359",
+                    "$id": "354",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -4765,7 +4760,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "360",
+                    "$id": "355",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -4784,7 +4779,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "361",
                     "statusCodes": [
                       204
                     ],
@@ -4802,6 +4796,120 @@
                 "generateProtocolMethod": true,
                 "generateConvenienceMethod": true,
                 "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putAll",
+                "decorators": []
+              },
+              "parameters": [
+                {
+                  "$id": "356",
+                  "name": "body",
+                  "nameInRequest": "body",
+                  "type": {
+                    "$ref": "169"
+                  },
+                  "location": "Body",
+                  "isApiVersion": false,
+                  "isContentType": false,
+                  "isEndpoint": false,
+                  "explode": false,
+                  "isRequired": true,
+                  "kind": "Method",
+                  "decorators": [],
+                  "skipUrlEncoding": false
+                },
+                {
+                  "$id": "357",
+                  "name": "contentType",
+                  "nameInRequest": "contentType",
+                  "doc": "Body parameter's content type. Known values are application/json",
+                  "type": {
+                    "$ref": "65"
+                  },
+                  "location": "Header",
+                  "isApiVersion": false,
+                  "isContentType": false,
+                  "isEndpoint": false,
+                  "explode": false,
+                  "isRequired": true,
+                  "kind": "Constant",
+                  "decorators": [],
+                  "skipUrlEncoding": false
+                }
+              ],
+              "response": {},
+              "isOverride": false,
+              "generateConvenient": true,
+              "generateProtocol": true,
+              "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putAll"
+            },
+            {
+              "$id": "358",
+              "kind": "basic",
+              "name": "putDefault",
+              "accessibility": "public",
+              "apiVersions": [],
+              "doc": "Put a body with default properties.",
+              "operation": {
+                "$id": "359",
+                "name": "putDefault",
+                "resourceName": "CollectionsByte",
+                "doc": "Put a body with default properties.",
+                "accessibility": "public",
+                "parameters": [
+                  {
+                    "$id": "360",
+                    "name": "contentType",
+                    "nameInRequest": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "67"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "isContentType": true,
+                    "isEndpoint": false,
+                    "explode": false,
+                    "isRequired": true,
+                    "kind": "Constant",
+                    "decorators": [],
+                    "skipUrlEncoding": false
+                  },
+                  {
+                    "$id": "361",
+                    "name": "body",
+                    "nameInRequest": "body",
+                    "type": {
+                      "$ref": "169"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "isContentType": false,
+                    "isEndpoint": false,
+                    "explode": false,
+                    "isRequired": true,
+                    "kind": "Method",
+                    "decorators": [],
+                    "skipUrlEncoding": false
+                  }
+                ],
+                "responses": [
+                  {
+                    "statusCodes": [
+                      204
+                    ],
+                    "headers": [],
+                    "isErrorResponse": false
+                  }
+                ],
+                "httpMethod": "PUT",
+                "uri": "{endpoint}",
+                "path": "/type/property/optional/collections/bytes/default",
+                "requestMediaTypes": [
+                  "application/json"
+                ],
+                "bufferResponse": true,
+                "generateProtocolMethod": true,
+                "generateConvenienceMethod": true,
+                "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putDefault",
                 "decorators": []
               },
               "parameters": [
@@ -4828,121 +4936,6 @@
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
                   "type": {
-                    "$ref": "65"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "isContentType": false,
-                  "isEndpoint": false,
-                  "explode": false,
-                  "isRequired": true,
-                  "kind": "Constant",
-                  "decorators": [],
-                  "skipUrlEncoding": false
-                }
-              ],
-              "response": {},
-              "isOverride": false,
-              "generateConvenient": true,
-              "generateProtocol": true,
-              "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putAll"
-            },
-            {
-              "$id": "364",
-              "kind": "basic",
-              "name": "putDefault",
-              "accessibility": "public",
-              "apiVersions": [],
-              "doc": "Put a body with default properties.",
-              "operation": {
-                "$id": "365",
-                "name": "putDefault",
-                "resourceName": "CollectionsByte",
-                "doc": "Put a body with default properties.",
-                "accessibility": "public",
-                "parameters": [
-                  {
-                    "$id": "366",
-                    "name": "contentType",
-                    "nameInRequest": "Content-Type",
-                    "doc": "Body parameter's content type. Known values are application/json",
-                    "type": {
-                      "$ref": "67"
-                    },
-                    "location": "Header",
-                    "isApiVersion": false,
-                    "isContentType": true,
-                    "isEndpoint": false,
-                    "explode": false,
-                    "isRequired": true,
-                    "kind": "Constant",
-                    "decorators": [],
-                    "skipUrlEncoding": false
-                  },
-                  {
-                    "$id": "367",
-                    "name": "body",
-                    "nameInRequest": "body",
-                    "type": {
-                      "$ref": "169"
-                    },
-                    "location": "Body",
-                    "isApiVersion": false,
-                    "isContentType": false,
-                    "isEndpoint": false,
-                    "explode": false,
-                    "isRequired": true,
-                    "kind": "Method",
-                    "decorators": [],
-                    "skipUrlEncoding": false
-                  }
-                ],
-                "responses": [
-                  {
-                    "$id": "368",
-                    "statusCodes": [
-                      204
-                    ],
-                    "headers": [],
-                    "isErrorResponse": false
-                  }
-                ],
-                "httpMethod": "PUT",
-                "uri": "{endpoint}",
-                "path": "/type/property/optional/collections/bytes/default",
-                "requestMediaTypes": [
-                  "application/json"
-                ],
-                "bufferResponse": true,
-                "generateProtocolMethod": true,
-                "generateConvenienceMethod": true,
-                "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte.putDefault",
-                "decorators": []
-              },
-              "parameters": [
-                {
-                  "$id": "369",
-                  "name": "body",
-                  "nameInRequest": "body",
-                  "type": {
-                    "$ref": "169"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "isContentType": false,
-                  "isEndpoint": false,
-                  "explode": false,
-                  "isRequired": true,
-                  "kind": "Method",
-                  "decorators": [],
-                  "skipUrlEncoding": false
-                },
-                {
-                  "$id": "370",
-                  "name": "contentType",
-                  "nameInRequest": "contentType",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
                     "$ref": "67"
                   },
                   "location": "Header",
@@ -4965,10 +4958,12 @@
           ],
           "parameters": [
             {
+              "$id": "364",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "365",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4983,6 +4978,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "366",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -4999,27 +4995,27 @@
           }
         },
         {
-          "$id": "371",
+          "$id": "367",
           "kind": "client",
           "name": "CollectionsModel",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "372",
+              "$id": "368",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "373",
+                "$id": "369",
                 "name": "getAll",
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "374",
+                    "$id": "370",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -5038,7 +5034,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "375",
                     "statusCodes": [
                       200
                     ],
@@ -5063,7 +5058,7 @@
               },
               "parameters": [
                 {
-                  "$id": "376",
+                  "$id": "371",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -5091,21 +5086,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.getAll"
             },
             {
-              "$id": "377",
+              "$id": "372",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "378",
+                "$id": "373",
                 "name": "getDefault",
                 "resourceName": "CollectionsModel",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "379",
+                    "$id": "374",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -5124,7 +5119,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "380",
                     "statusCodes": [
                       200
                     ],
@@ -5149,7 +5143,7 @@
               },
               "parameters": [
                 {
-                  "$id": "381",
+                  "$id": "375",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -5177,17 +5171,131 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.getDefault"
             },
             {
-              "$id": "382",
+              "$id": "376",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "383",
+                "$id": "377",
                 "name": "putAll",
                 "resourceName": "CollectionsModel",
                 "doc": "Put a body with all properties present.",
+                "accessibility": "public",
+                "parameters": [
+                  {
+                    "$id": "378",
+                    "name": "contentType",
+                    "nameInRequest": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "73"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "isContentType": true,
+                    "isEndpoint": false,
+                    "explode": false,
+                    "isRequired": true,
+                    "kind": "Constant",
+                    "decorators": [],
+                    "skipUrlEncoding": false
+                  },
+                  {
+                    "$id": "379",
+                    "name": "body",
+                    "nameInRequest": "body",
+                    "type": {
+                      "$ref": "173"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "isContentType": false,
+                    "isEndpoint": false,
+                    "explode": false,
+                    "isRequired": true,
+                    "kind": "Method",
+                    "decorators": [],
+                    "skipUrlEncoding": false
+                  }
+                ],
+                "responses": [
+                  {
+                    "statusCodes": [
+                      204
+                    ],
+                    "headers": [],
+                    "isErrorResponse": false
+                  }
+                ],
+                "httpMethod": "PUT",
+                "uri": "{endpoint}",
+                "path": "/type/property/optional/collections/model/all",
+                "requestMediaTypes": [
+                  "application/json"
+                ],
+                "bufferResponse": true,
+                "generateProtocolMethod": true,
+                "generateConvenienceMethod": true,
+                "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll",
+                "decorators": []
+              },
+              "parameters": [
+                {
+                  "$id": "380",
+                  "name": "body",
+                  "nameInRequest": "body",
+                  "type": {
+                    "$ref": "173"
+                  },
+                  "location": "Body",
+                  "isApiVersion": false,
+                  "isContentType": false,
+                  "isEndpoint": false,
+                  "explode": false,
+                  "isRequired": true,
+                  "kind": "Method",
+                  "decorators": [],
+                  "skipUrlEncoding": false
+                },
+                {
+                  "$id": "381",
+                  "name": "contentType",
+                  "nameInRequest": "contentType",
+                  "doc": "Body parameter's content type. Known values are application/json",
+                  "type": {
+                    "$ref": "73"
+                  },
+                  "location": "Header",
+                  "isApiVersion": false,
+                  "isContentType": false,
+                  "isEndpoint": false,
+                  "explode": false,
+                  "isRequired": true,
+                  "kind": "Constant",
+                  "decorators": [],
+                  "skipUrlEncoding": false
+                }
+              ],
+              "response": {},
+              "isOverride": false,
+              "generateConvenient": true,
+              "generateProtocol": true,
+              "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll"
+            },
+            {
+              "$id": "382",
+              "kind": "basic",
+              "name": "putDefault",
+              "accessibility": "public",
+              "apiVersions": [],
+              "doc": "Put a body with default properties.",
+              "operation": {
+                "$id": "383",
+                "name": "putDefault",
+                "resourceName": "CollectionsModel",
+                "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -5196,7 +5304,7 @@
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
                     "type": {
-                      "$ref": "73"
+                      "$ref": "75"
                     },
                     "location": "Header",
                     "isApiVersion": false,
@@ -5228,122 +5336,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "386",
-                    "statusCodes": [
-                      204
-                    ],
-                    "headers": [],
-                    "isErrorResponse": false
-                  }
-                ],
-                "httpMethod": "PUT",
-                "uri": "{endpoint}",
-                "path": "/type/property/optional/collections/model/all",
-                "requestMediaTypes": [
-                  "application/json"
-                ],
-                "bufferResponse": true,
-                "generateProtocolMethod": true,
-                "generateConvenienceMethod": true,
-                "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll",
-                "decorators": []
-              },
-              "parameters": [
-                {
-                  "$id": "387",
-                  "name": "body",
-                  "nameInRequest": "body",
-                  "type": {
-                    "$ref": "173"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "isContentType": false,
-                  "isEndpoint": false,
-                  "explode": false,
-                  "isRequired": true,
-                  "kind": "Method",
-                  "decorators": [],
-                  "skipUrlEncoding": false
-                },
-                {
-                  "$id": "388",
-                  "name": "contentType",
-                  "nameInRequest": "contentType",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "73"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "isContentType": false,
-                  "isEndpoint": false,
-                  "explode": false,
-                  "isRequired": true,
-                  "kind": "Constant",
-                  "decorators": [],
-                  "skipUrlEncoding": false
-                }
-              ],
-              "response": {},
-              "isOverride": false,
-              "generateConvenient": true,
-              "generateProtocol": true,
-              "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel.putAll"
-            },
-            {
-              "$id": "389",
-              "kind": "basic",
-              "name": "putDefault",
-              "accessibility": "public",
-              "apiVersions": [],
-              "doc": "Put a body with default properties.",
-              "operation": {
-                "$id": "390",
-                "name": "putDefault",
-                "resourceName": "CollectionsModel",
-                "doc": "Put a body with default properties.",
-                "accessibility": "public",
-                "parameters": [
-                  {
-                    "$id": "391",
-                    "name": "contentType",
-                    "nameInRequest": "Content-Type",
-                    "doc": "Body parameter's content type. Known values are application/json",
-                    "type": {
-                      "$ref": "75"
-                    },
-                    "location": "Header",
-                    "isApiVersion": false,
-                    "isContentType": true,
-                    "isEndpoint": false,
-                    "explode": false,
-                    "isRequired": true,
-                    "kind": "Constant",
-                    "decorators": [],
-                    "skipUrlEncoding": false
-                  },
-                  {
-                    "$id": "392",
-                    "name": "body",
-                    "nameInRequest": "body",
-                    "type": {
-                      "$ref": "173"
-                    },
-                    "location": "Body",
-                    "isApiVersion": false,
-                    "isContentType": false,
-                    "isEndpoint": false,
-                    "explode": false,
-                    "isRequired": true,
-                    "kind": "Method",
-                    "decorators": [],
-                    "skipUrlEncoding": false
-                  }
-                ],
-                "responses": [
-                  {
-                    "$id": "393",
                     "statusCodes": [
                       204
                     ],
@@ -5365,7 +5357,7 @@
               },
               "parameters": [
                 {
-                  "$id": "394",
+                  "$id": "386",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5382,7 +5374,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "395",
+                  "$id": "387",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5409,10 +5401,12 @@
           ],
           "parameters": [
             {
+              "$id": "388",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "389",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5427,6 +5421,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "390",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5443,27 +5438,27 @@
           }
         },
         {
-          "$id": "396",
+          "$id": "391",
           "kind": "client",
           "name": "StringLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "397",
+              "$id": "392",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "398",
+                "$id": "393",
                 "name": "getAll",
                 "resourceName": "StringLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "399",
+                    "$id": "394",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -5482,7 +5477,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "400",
                     "statusCodes": [
                       200
                     ],
@@ -5507,7 +5501,7 @@
               },
               "parameters": [
                 {
-                  "$id": "401",
+                  "$id": "395",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -5535,21 +5529,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteral.getAll"
             },
             {
-              "$id": "402",
+              "$id": "396",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "403",
+                "$id": "397",
                 "name": "getDefault",
                 "resourceName": "StringLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "404",
+                    "$id": "398",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -5568,7 +5562,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "405",
                     "statusCodes": [
                       200
                     ],
@@ -5593,7 +5586,7 @@
               },
               "parameters": [
                 {
-                  "$id": "406",
+                  "$id": "399",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -5621,21 +5614,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteral.getDefault"
             },
             {
-              "$id": "407",
+              "$id": "400",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "408",
+                "$id": "401",
                 "name": "putAll",
                 "resourceName": "StringLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "409",
+                    "$id": "402",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5653,7 +5646,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "410",
+                    "$id": "403",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5672,7 +5665,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "411",
                     "statusCodes": [
                       204
                     ],
@@ -5694,7 +5686,7 @@
               },
               "parameters": [
                 {
-                  "$id": "412",
+                  "$id": "404",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5711,7 +5703,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "413",
+                  "$id": "405",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5736,21 +5728,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteral.putAll"
             },
             {
-              "$id": "414",
+              "$id": "406",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "415",
+                "$id": "407",
                 "name": "putDefault",
                 "resourceName": "StringLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "416",
+                    "$id": "408",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -5768,7 +5760,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "417",
+                    "$id": "409",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -5787,7 +5779,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "418",
                     "statusCodes": [
                       204
                     ],
@@ -5809,7 +5800,7 @@
               },
               "parameters": [
                 {
-                  "$id": "419",
+                  "$id": "410",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -5826,7 +5817,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "420",
+                  "$id": "411",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -5853,10 +5844,12 @@
           ],
           "parameters": [
             {
+              "$id": "412",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "413",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -5871,6 +5864,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "414",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -5887,27 +5881,27 @@
           }
         },
         {
-          "$id": "421",
+          "$id": "415",
           "kind": "client",
           "name": "IntLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "422",
+              "$id": "416",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "423",
+                "$id": "417",
                 "name": "getAll",
                 "resourceName": "IntLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "424",
+                    "$id": "418",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -5926,7 +5920,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "425",
                     "statusCodes": [
                       200
                     ],
@@ -5951,7 +5944,7 @@
               },
               "parameters": [
                 {
-                  "$id": "426",
+                  "$id": "419",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -5979,21 +5972,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteral.getAll"
             },
             {
-              "$id": "427",
+              "$id": "420",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "428",
+                "$id": "421",
                 "name": "getDefault",
                 "resourceName": "IntLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "429",
+                    "$id": "422",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -6012,7 +6005,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "430",
                     "statusCodes": [
                       200
                     ],
@@ -6037,7 +6029,7 @@
               },
               "parameters": [
                 {
-                  "$id": "431",
+                  "$id": "423",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -6065,21 +6057,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteral.getDefault"
             },
             {
-              "$id": "432",
+              "$id": "424",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "433",
+                "$id": "425",
                 "name": "putAll",
                 "resourceName": "IntLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "434",
+                    "$id": "426",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -6097,7 +6089,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "435",
+                    "$id": "427",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -6116,7 +6108,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "436",
                     "statusCodes": [
                       204
                     ],
@@ -6138,7 +6129,7 @@
               },
               "parameters": [
                 {
-                  "$id": "437",
+                  "$id": "428",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -6155,7 +6146,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "438",
+                  "$id": "429",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -6180,21 +6171,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteral.putAll"
             },
             {
-              "$id": "439",
+              "$id": "430",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "440",
+                "$id": "431",
                 "name": "putDefault",
                 "resourceName": "IntLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "441",
+                    "$id": "432",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -6212,7 +6203,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "442",
+                    "$id": "433",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -6231,7 +6222,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "443",
                     "statusCodes": [
                       204
                     ],
@@ -6253,7 +6243,7 @@
               },
               "parameters": [
                 {
-                  "$id": "444",
+                  "$id": "434",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -6270,7 +6260,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "445",
+                  "$id": "435",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -6297,10 +6287,12 @@
           ],
           "parameters": [
             {
+              "$id": "436",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "437",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6315,6 +6307,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "438",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6331,27 +6324,27 @@
           }
         },
         {
-          "$id": "446",
+          "$id": "439",
           "kind": "client",
           "name": "FloatLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "447",
+              "$id": "440",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "448",
+                "$id": "441",
                 "name": "getAll",
                 "resourceName": "FloatLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "449",
+                    "$id": "442",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -6370,7 +6363,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "450",
                     "statusCodes": [
                       200
                     ],
@@ -6395,7 +6387,7 @@
               },
               "parameters": [
                 {
-                  "$id": "451",
+                  "$id": "443",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -6423,21 +6415,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral.getAll"
             },
             {
-              "$id": "452",
+              "$id": "444",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "453",
+                "$id": "445",
                 "name": "getDefault",
                 "resourceName": "FloatLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "454",
+                    "$id": "446",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -6456,7 +6448,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "455",
                     "statusCodes": [
                       200
                     ],
@@ -6481,7 +6472,7 @@
               },
               "parameters": [
                 {
-                  "$id": "456",
+                  "$id": "447",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -6509,21 +6500,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral.getDefault"
             },
             {
-              "$id": "457",
+              "$id": "448",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "458",
+                "$id": "449",
                 "name": "putAll",
                 "resourceName": "FloatLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "459",
+                    "$id": "450",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -6541,7 +6532,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "460",
+                    "$id": "451",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -6560,7 +6551,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "461",
                     "statusCodes": [
                       204
                     ],
@@ -6582,7 +6572,7 @@
               },
               "parameters": [
                 {
-                  "$id": "462",
+                  "$id": "452",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -6599,7 +6589,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "463",
+                  "$id": "453",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -6624,21 +6614,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral.putAll"
             },
             {
-              "$id": "464",
+              "$id": "454",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "465",
+                "$id": "455",
                 "name": "putDefault",
                 "resourceName": "FloatLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "466",
+                    "$id": "456",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -6656,7 +6646,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "467",
+                    "$id": "457",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -6675,7 +6665,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "468",
                     "statusCodes": [
                       204
                     ],
@@ -6697,7 +6686,7 @@
               },
               "parameters": [
                 {
-                  "$id": "469",
+                  "$id": "458",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -6714,7 +6703,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "470",
+                  "$id": "459",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -6741,10 +6730,12 @@
           ],
           "parameters": [
             {
+              "$id": "460",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "461",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -6759,6 +6750,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "462",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -6775,27 +6767,27 @@
           }
         },
         {
-          "$id": "471",
+          "$id": "463",
           "kind": "client",
           "name": "BooleanLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "472",
+              "$id": "464",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "473",
+                "$id": "465",
                 "name": "getAll",
                 "resourceName": "BooleanLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "474",
+                    "$id": "466",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -6814,7 +6806,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "475",
                     "statusCodes": [
                       200
                     ],
@@ -6839,7 +6830,7 @@
               },
               "parameters": [
                 {
-                  "$id": "476",
+                  "$id": "467",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -6867,21 +6858,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral.getAll"
             },
             {
-              "$id": "477",
+              "$id": "468",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "478",
+                "$id": "469",
                 "name": "getDefault",
                 "resourceName": "BooleanLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "479",
+                    "$id": "470",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -6900,7 +6891,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "480",
                     "statusCodes": [
                       200
                     ],
@@ -6925,7 +6915,7 @@
               },
               "parameters": [
                 {
-                  "$id": "481",
+                  "$id": "471",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -6953,21 +6943,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral.getDefault"
             },
             {
-              "$id": "482",
+              "$id": "472",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "483",
+                "$id": "473",
                 "name": "putAll",
                 "resourceName": "BooleanLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "484",
+                    "$id": "474",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -6985,7 +6975,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "485",
+                    "$id": "475",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -7004,7 +6994,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "486",
                     "statusCodes": [
                       204
                     ],
@@ -7026,7 +7015,7 @@
               },
               "parameters": [
                 {
-                  "$id": "487",
+                  "$id": "476",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -7043,7 +7032,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "488",
+                  "$id": "477",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -7068,21 +7057,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral.putAll"
             },
             {
-              "$id": "489",
+              "$id": "478",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "490",
+                "$id": "479",
                 "name": "putDefault",
                 "resourceName": "BooleanLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "491",
+                    "$id": "480",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -7100,7 +7089,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "492",
+                    "$id": "481",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -7119,7 +7108,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "493",
                     "statusCodes": [
                       204
                     ],
@@ -7141,7 +7129,7 @@
               },
               "parameters": [
                 {
-                  "$id": "494",
+                  "$id": "482",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -7158,7 +7146,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "495",
+                  "$id": "483",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -7185,10 +7173,12 @@
           ],
           "parameters": [
             {
+              "$id": "484",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "485",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7203,6 +7193,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "486",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7219,27 +7210,27 @@
           }
         },
         {
-          "$id": "496",
+          "$id": "487",
           "kind": "client",
           "name": "UnionStringLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "497",
+              "$id": "488",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "498",
+                "$id": "489",
                 "name": "getAll",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "499",
+                    "$id": "490",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -7258,7 +7249,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "500",
                     "statusCodes": [
                       200
                     ],
@@ -7283,7 +7273,7 @@
               },
               "parameters": [
                 {
-                  "$id": "501",
+                  "$id": "491",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -7311,21 +7301,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral.getAll"
             },
             {
-              "$id": "502",
+              "$id": "492",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "503",
+                "$id": "493",
                 "name": "getDefault",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "504",
+                    "$id": "494",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -7344,7 +7334,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "505",
                     "statusCodes": [
                       200
                     ],
@@ -7369,7 +7358,7 @@
               },
               "parameters": [
                 {
-                  "$id": "506",
+                  "$id": "495",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -7397,21 +7386,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral.getDefault"
             },
             {
-              "$id": "507",
+              "$id": "496",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "508",
+                "$id": "497",
                 "name": "putAll",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "509",
+                    "$id": "498",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -7429,7 +7418,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "510",
+                    "$id": "499",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -7448,7 +7437,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "511",
                     "statusCodes": [
                       204
                     ],
@@ -7470,7 +7458,7 @@
               },
               "parameters": [
                 {
-                  "$id": "512",
+                  "$id": "500",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -7487,7 +7475,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "513",
+                  "$id": "501",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -7512,21 +7500,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral.putAll"
             },
             {
-              "$id": "514",
+              "$id": "502",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "515",
+                "$id": "503",
                 "name": "putDefault",
                 "resourceName": "UnionStringLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "516",
+                    "$id": "504",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -7544,7 +7532,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "517",
+                    "$id": "505",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -7563,7 +7551,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "518",
                     "statusCodes": [
                       204
                     ],
@@ -7585,7 +7572,7 @@
               },
               "parameters": [
                 {
-                  "$id": "519",
+                  "$id": "506",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -7602,7 +7589,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "520",
+                  "$id": "507",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -7629,10 +7616,12 @@
           ],
           "parameters": [
             {
+              "$id": "508",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "509",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -7647,6 +7636,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "510",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -7663,27 +7653,27 @@
           }
         },
         {
-          "$id": "521",
+          "$id": "511",
           "kind": "client",
           "name": "UnionIntLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "522",
+              "$id": "512",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "523",
+                "$id": "513",
                 "name": "getAll",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "524",
+                    "$id": "514",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -7702,7 +7692,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "525",
                     "statusCodes": [
                       200
                     ],
@@ -7727,7 +7716,7 @@
               },
               "parameters": [
                 {
-                  "$id": "526",
+                  "$id": "515",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -7755,21 +7744,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral.getAll"
             },
             {
-              "$id": "527",
+              "$id": "516",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "528",
+                "$id": "517",
                 "name": "getDefault",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "529",
+                    "$id": "518",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -7788,7 +7777,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "530",
                     "statusCodes": [
                       200
                     ],
@@ -7813,7 +7801,7 @@
               },
               "parameters": [
                 {
-                  "$id": "531",
+                  "$id": "519",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -7841,21 +7829,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral.getDefault"
             },
             {
-              "$id": "532",
+              "$id": "520",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "533",
+                "$id": "521",
                 "name": "putAll",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "534",
+                    "$id": "522",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -7873,7 +7861,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "535",
+                    "$id": "523",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -7892,7 +7880,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "536",
                     "statusCodes": [
                       204
                     ],
@@ -7914,7 +7901,7 @@
               },
               "parameters": [
                 {
-                  "$id": "537",
+                  "$id": "524",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -7931,7 +7918,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "538",
+                  "$id": "525",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -7956,21 +7943,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral.putAll"
             },
             {
-              "$id": "539",
+              "$id": "526",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "540",
+                "$id": "527",
                 "name": "putDefault",
                 "resourceName": "UnionIntLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "541",
+                    "$id": "528",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -7988,7 +7975,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "542",
+                    "$id": "529",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -8007,7 +7994,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "543",
                     "statusCodes": [
                       204
                     ],
@@ -8029,7 +8015,7 @@
               },
               "parameters": [
                 {
-                  "$id": "544",
+                  "$id": "530",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -8046,7 +8032,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "545",
+                  "$id": "531",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -8073,10 +8059,12 @@
           ],
           "parameters": [
             {
+              "$id": "532",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "533",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8091,6 +8079,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "534",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8107,27 +8096,27 @@
           }
         },
         {
-          "$id": "546",
+          "$id": "535",
           "kind": "client",
           "name": "UnionFloatLiteral",
           "namespace": "Type.Property.Optional",
           "methods": [
             {
-              "$id": "547",
+              "$id": "536",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "548",
+                "$id": "537",
                 "name": "getAll",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "549",
+                    "$id": "538",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -8146,7 +8135,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "550",
                     "statusCodes": [
                       200
                     ],
@@ -8171,7 +8159,7 @@
               },
               "parameters": [
                 {
-                  "$id": "551",
+                  "$id": "539",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -8199,21 +8187,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral.getAll"
             },
             {
-              "$id": "552",
+              "$id": "540",
               "kind": "basic",
               "name": "getDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return the default object",
               "operation": {
-                "$id": "553",
+                "$id": "541",
                 "name": "getDefault",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Get models that will return the default object",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "554",
+                    "$id": "542",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -8232,7 +8220,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "555",
                     "statusCodes": [
                       200
                     ],
@@ -8257,7 +8244,7 @@
               },
               "parameters": [
                 {
-                  "$id": "556",
+                  "$id": "543",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -8285,21 +8272,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral.getDefault"
             },
             {
-              "$id": "557",
+              "$id": "544",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "558",
+                "$id": "545",
                 "name": "putAll",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "559",
+                    "$id": "546",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -8317,7 +8304,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "560",
+                    "$id": "547",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -8336,7 +8323,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "561",
                     "statusCodes": [
                       204
                     ],
@@ -8358,7 +8344,7 @@
               },
               "parameters": [
                 {
-                  "$id": "562",
+                  "$id": "548",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -8375,7 +8361,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "563",
+                  "$id": "549",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -8400,21 +8386,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral.putAll"
             },
             {
-              "$id": "564",
+              "$id": "550",
               "kind": "basic",
               "name": "putDefault",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with default properties.",
               "operation": {
-                "$id": "565",
+                "$id": "551",
                 "name": "putDefault",
                 "resourceName": "UnionFloatLiteral",
                 "doc": "Put a body with default properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "566",
+                    "$id": "552",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -8432,7 +8418,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "567",
+                    "$id": "553",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -8451,7 +8437,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "568",
                     "statusCodes": [
                       204
                     ],
@@ -8473,7 +8458,7 @@
               },
               "parameters": [
                 {
-                  "$id": "569",
+                  "$id": "554",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -8490,7 +8475,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "570",
+                  "$id": "555",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -8517,10 +8502,12 @@
           ],
           "parameters": [
             {
+              "$id": "556",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "557",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8535,6 +8522,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "558",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -8551,28 +8539,28 @@
           }
         },
         {
-          "$id": "571",
+          "$id": "559",
           "kind": "client",
           "name": "RequiredAndOptional",
           "namespace": "Type.Property.Optional",
           "doc": "Test optional and required properties",
           "methods": [
             {
-              "$id": "572",
+              "$id": "560",
               "kind": "basic",
               "name": "getAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return all properties in the model",
               "operation": {
-                "$id": "573",
+                "$id": "561",
                 "name": "getAll",
                 "resourceName": "RequiredAndOptional",
                 "doc": "Get models that will return all properties in the model",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "574",
+                    "$id": "562",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -8591,7 +8579,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "575",
                     "statusCodes": [
                       200
                     ],
@@ -8616,7 +8603,7 @@
               },
               "parameters": [
                 {
-                  "$id": "576",
+                  "$id": "563",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -8644,21 +8631,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional.getAll"
             },
             {
-              "$id": "577",
+              "$id": "564",
               "kind": "basic",
               "name": "getRequiredOnly",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Get models that will return only the required properties",
               "operation": {
-                "$id": "578",
+                "$id": "565",
                 "name": "getRequiredOnly",
                 "resourceName": "RequiredAndOptional",
                 "doc": "Get models that will return only the required properties",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "579",
+                    "$id": "566",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -8677,7 +8664,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "580",
                     "statusCodes": [
                       200
                     ],
@@ -8702,7 +8688,7 @@
               },
               "parameters": [
                 {
-                  "$id": "581",
+                  "$id": "567",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -8730,21 +8716,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional.getRequiredOnly"
             },
             {
-              "$id": "582",
+              "$id": "568",
               "kind": "basic",
               "name": "putAll",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with all properties present.",
               "operation": {
-                "$id": "583",
+                "$id": "569",
                 "name": "putAll",
                 "resourceName": "RequiredAndOptional",
                 "doc": "Put a body with all properties present.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "584",
+                    "$id": "570",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -8762,7 +8748,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "585",
+                    "$id": "571",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -8781,7 +8767,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "586",
                     "statusCodes": [
                       204
                     ],
@@ -8803,7 +8788,7 @@
               },
               "parameters": [
                 {
-                  "$id": "587",
+                  "$id": "572",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -8820,7 +8805,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "588",
+                  "$id": "573",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -8845,21 +8830,21 @@
               "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional.putAll"
             },
             {
-              "$id": "589",
+              "$id": "574",
               "kind": "basic",
               "name": "putRequiredOnly",
               "accessibility": "public",
               "apiVersions": [],
               "doc": "Put a body with only required properties.",
               "operation": {
-                "$id": "590",
+                "$id": "575",
                 "name": "putRequiredOnly",
                 "resourceName": "RequiredAndOptional",
                 "doc": "Put a body with only required properties.",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "591",
+                    "$id": "576",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -8877,7 +8862,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "592",
+                    "$id": "577",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -8896,7 +8881,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "593",
                     "statusCodes": [
                       204
                     ],
@@ -8918,7 +8902,7 @@
               },
               "parameters": [
                 {
-                  "$id": "594",
+                  "$id": "578",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -8935,7 +8919,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "595",
+                  "$id": "579",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -8962,10 +8946,12 @@
           ],
           "parameters": [
             {
+              "$id": "580",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "581",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -8980,6 +8966,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "582",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"

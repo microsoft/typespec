@@ -174,7 +174,6 @@
             ],
             "responses": [
               {
-                "$id": "16",
                 "statusCodes": [
                   204
                 ],
@@ -196,7 +195,7 @@
           },
           "parameters": [
             {
-              "$id": "17",
+              "$id": "16",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -213,7 +212,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "18",
+              "$id": "17",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -238,19 +237,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.put"
         },
         {
-          "$id": "19",
+          "$id": "18",
           "kind": "basic",
           "name": "get",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "20",
+            "$id": "19",
             "name": "get",
             "resourceName": "Recursive",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "21",
+                "$id": "20",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -269,7 +268,6 @@
             ],
             "responses": [
               {
-                "$id": "22",
                 "statusCodes": [
                   200
                 ],
@@ -294,7 +292,7 @@
           },
           "parameters": [
             {
-              "$id": "23",
+              "$id": "21",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -324,10 +322,12 @@
       ],
       "parameters": [
         {
+          "$id": "22",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "23",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -342,6 +342,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "24",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

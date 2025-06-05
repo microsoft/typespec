@@ -84,10 +84,12 @@
       "methods": [],
       "parameters": [
         {
+          "$id": "9",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "10",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -102,6 +104,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "11",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -115,25 +118,25 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "9",
+          "$id": "12",
           "kind": "client",
           "name": "Property",
           "namespace": "Serialization.EncodedName.Json.Property",
           "methods": [
             {
-              "$id": "10",
+              "$id": "13",
               "kind": "basic",
               "name": "send",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "11",
+                "$id": "14",
                 "name": "send",
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "12",
+                    "$id": "15",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -151,7 +154,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "13",
+                    "$id": "16",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -170,7 +173,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "14",
                     "statusCodes": [
                       204
                     ],
@@ -192,7 +194,7 @@
               },
               "parameters": [
                 {
-                  "$id": "15",
+                  "$id": "17",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -209,7 +211,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "16",
+                  "$id": "18",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -234,19 +236,19 @@
               "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.send"
             },
             {
-              "$id": "17",
+              "$id": "19",
               "kind": "basic",
               "name": "get",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "18",
+                "$id": "20",
                 "name": "get",
                 "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "19",
+                    "$id": "21",
                     "name": "accept",
                     "nameInRequest": "Accept",
                     "type": {
@@ -265,7 +267,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "20",
                     "statusCodes": [
                       200
                     ],
@@ -290,7 +291,7 @@
               },
               "parameters": [
                 {
-                  "$id": "21",
+                  "$id": "22",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -320,10 +321,12 @@
           ],
           "parameters": [
             {
+              "$id": "23",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "24",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -338,6 +341,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "25",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"

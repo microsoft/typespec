@@ -659,7 +659,6 @@
             ],
             "responses": [
               {
-                "$id": "61",
                 "statusCodes": [
                   200
                 ],
@@ -687,7 +686,7 @@
           },
           "parameters": [
             {
-              "$id": "62",
+              "$id": "61",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -704,7 +703,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "63",
+              "$id": "62",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -722,7 +721,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "64",
+              "$id": "63",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -750,7 +749,7 @@
           "crossLanguageDefinitionId": "Versioning.Removed.v1"
         },
         {
-          "$id": "65",
+          "$id": "64",
           "kind": "basic",
           "name": "v2",
           "accessibility": "public",
@@ -758,17 +757,17 @@
             "v1"
           ],
           "operation": {
-            "$id": "66",
+            "$id": "65",
             "name": "v2",
             "resourceName": "Removed",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "67",
+                "$id": "66",
                 "name": "param",
                 "nameInRequest": "param",
                 "type": {
-                  "$id": "68",
+                  "$id": "67",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -785,7 +784,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "69",
+                "$id": "68",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -803,7 +802,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "70",
+                "$id": "69",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -820,7 +819,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "71",
+                "$id": "70",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -839,7 +838,6 @@
             ],
             "responses": [
               {
-                "$id": "72",
                 "statusCodes": [
                   200
                 ],
@@ -867,7 +865,7 @@
           },
           "parameters": [
             {
-              "$id": "73",
+              "$id": "71",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -884,11 +882,11 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "74",
+              "$id": "72",
               "name": "param",
               "nameInRequest": "param",
               "type": {
-                "$id": "75",
+                "$id": "73",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -905,7 +903,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "76",
+              "$id": "74",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -923,7 +921,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "77",
+              "$id": "75",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -951,7 +949,7 @@
           "crossLanguageDefinitionId": "Versioning.Removed.v2"
         },
         {
-          "$id": "78",
+          "$id": "76",
           "kind": "basic",
           "name": "modelV3",
           "accessibility": "public",
@@ -960,14 +958,14 @@
           ],
           "doc": "This operation will pass different paths and different request bodies based on different versions.",
           "operation": {
-            "$id": "79",
+            "$id": "77",
             "name": "modelV3",
             "resourceName": "Removed",
             "doc": "This operation will pass different paths and different request bodies based on different versions.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "80",
+                "$id": "78",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -985,7 +983,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "81",
+                "$id": "79",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1002,7 +1000,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "82",
+                "$id": "80",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -1021,7 +1019,6 @@
             ],
             "responses": [
               {
-                "$id": "83",
                 "statusCodes": [
                   200
                 ],
@@ -1049,7 +1046,7 @@
           },
           "parameters": [
             {
-              "$id": "84",
+              "$id": "81",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -1066,7 +1063,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "85",
+              "$id": "82",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -1084,7 +1081,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "86",
+              "$id": "83",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1114,10 +1111,12 @@
       ],
       "parameters": [
         {
+          "$id": "84",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "85",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1132,6 +1131,7 @@
           "kind": "Client"
         },
         {
+          "$id": "86",
           "name": "version",
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
@@ -1230,7 +1230,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "93",
                     "statusCodes": [
                       200
                     ],
@@ -1258,7 +1257,7 @@
               },
               "parameters": [
                 {
-                  "$id": "94",
+                  "$id": "93",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -1275,7 +1274,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "95",
+                  "$id": "94",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -1293,7 +1292,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "96",
+                  "$id": "95",
                   "name": "accept",
                   "nameInRequest": "accept",
                   "type": {
@@ -1323,10 +1322,12 @@
           ],
           "parameters": [
             {
+              "$id": "96",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
+                "$id": "97",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1341,6 +1342,7 @@
               "kind": "Client"
             },
             {
+              "$id": "98",
               "name": "version",
               "nameInRequest": "version",
               "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",

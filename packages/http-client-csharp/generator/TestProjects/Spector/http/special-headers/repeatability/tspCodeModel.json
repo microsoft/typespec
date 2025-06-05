@@ -126,7 +126,6 @@
             ],
             "responses": [
               {
-                "$id": "13",
                 "statusCodes": [
                   204
                 ],
@@ -154,11 +153,11 @@
           },
           "parameters": [
             {
-              "$id": "14",
+              "$id": "13",
               "name": "repeatabilityRequestID",
               "nameInRequest": "Repeatability-Request-ID",
               "type": {
-                "$id": "15",
+                "$id": "14",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -175,16 +174,16 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "16",
+              "$id": "15",
               "name": "repeatabilityFirstSent",
               "nameInRequest": "Repeatability-First-Sent",
               "type": {
-                "$id": "17",
+                "$id": "16",
                 "kind": "utcDateTime",
                 "name": "utcDateTime",
                 "encode": "rfc7231",
                 "wireType": {
-                  "$id": "18",
+                  "$id": "17",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -213,10 +212,12 @@
       ],
       "parameters": [
         {
+          "$id": "18",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "19",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -231,6 +232,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "20",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

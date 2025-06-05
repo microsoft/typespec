@@ -111,7 +111,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "11",
                 "statusCodes": [
                   204
                 ],
@@ -136,20 +135,19 @@
           "crossLanguageDefinitionId": "Client.Structure.RenamedOperation.renamedOne"
         },
         {
-          "$id": "12",
+          "$id": "11",
           "kind": "basic",
           "name": "renamedThree",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "13",
+            "$id": "12",
             "name": "renamedThree",
             "resourceName": "RenamedOperation",
             "accessibility": "public",
             "parameters": [],
             "responses": [
               {
-                "$id": "14",
                 "statusCodes": [
                   204
                 ],
@@ -174,20 +172,19 @@
           "crossLanguageDefinitionId": "Client.Structure.RenamedOperation.renamedThree"
         },
         {
-          "$id": "15",
+          "$id": "13",
           "kind": "basic",
           "name": "renamedFive",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "16",
+            "$id": "14",
             "name": "renamedFive",
             "resourceName": "RenamedOperation",
             "accessibility": "public",
             "parameters": [],
             "responses": [
               {
-                "$id": "17",
                 "statusCodes": [
                   204
                 ],
@@ -214,10 +211,12 @@
       ],
       "parameters": [
         {
+          "$id": "15",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "16",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -232,6 +231,7 @@
           "kind": "Client"
         },
         {
+          "$id": "17",
           "name": "client",
           "nameInRequest": "client",
           "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -272,7 +272,6 @@
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "21",
                     "statusCodes": [
                       204
                     ],
@@ -297,20 +296,19 @@
               "crossLanguageDefinitionId": "Client.Structure.RenamedOperation.Group.renamedTwo"
             },
             {
-              "$id": "22",
+              "$id": "21",
               "kind": "basic",
               "name": "renamedFour",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "23",
+                "$id": "22",
                 "name": "renamedFour",
                 "resourceName": "Group",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "24",
                     "statusCodes": [
                       204
                     ],
@@ -335,20 +333,19 @@
               "crossLanguageDefinitionId": "Client.Structure.RenamedOperation.Group.renamedFour"
             },
             {
-              "$id": "25",
+              "$id": "23",
               "kind": "basic",
               "name": "renamedSix",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "26",
+                "$id": "24",
                 "name": "renamedSix",
                 "resourceName": "Group",
                 "accessibility": "public",
                 "parameters": [],
                 "responses": [
                   {
-                    "$id": "27",
                     "statusCodes": [
                       204
                     ],
@@ -375,10 +372,12 @@
           ],
           "parameters": [
             {
+              "$id": "25",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Need to be set as 'http://localhost:3000' in client.",
               "type": {
+                "$id": "26",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -393,6 +392,7 @@
               "kind": "Client"
             },
             {
+              "$id": "27",
               "name": "client",
               "nameInRequest": "client",
               "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",

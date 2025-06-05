@@ -81,7 +81,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "9",
                 "statusCodes": [
                   204
                 ],
@@ -106,21 +105,21 @@
           "crossLanguageDefinitionId": "Authentication.OAuth2.valid"
         },
         {
-          "$id": "10",
+          "$id": "9",
           "kind": "basic",
           "name": "invalid",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check whether client is authenticated. Will return an invalid bearer error.",
           "operation": {
-            "$id": "11",
+            "$id": "10",
             "name": "invalid",
             "resourceName": "OAuth2",
             "doc": "Check whether client is authenticated. Will return an invalid bearer error.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "12",
+                "$id": "11",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -139,7 +138,6 @@
             ],
             "responses": [
               {
-                "$id": "13",
                 "statusCodes": [
                   204
                 ],
@@ -158,7 +156,7 @@
           },
           "parameters": [
             {
-              "$id": "14",
+              "$id": "12",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -184,10 +182,12 @@
       ],
       "parameters": [
         {
+          "$id": "13",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "14",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -202,6 +202,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "15",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

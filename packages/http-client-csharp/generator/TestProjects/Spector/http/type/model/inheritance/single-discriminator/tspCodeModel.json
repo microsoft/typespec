@@ -643,7 +643,6 @@
             ],
             "responses": [
               {
-                "$id": "55",
                 "statusCodes": [
                   200
                 ],
@@ -668,7 +667,7 @@
           },
           "parameters": [
             {
-              "$id": "56",
+              "$id": "55",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -696,19 +695,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.getModel"
         },
         {
-          "$id": "57",
+          "$id": "56",
           "kind": "basic",
           "name": "putModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "58",
+            "$id": "57",
             "name": "putModel",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "59",
+                "$id": "58",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -726,7 +725,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "60",
+                "$id": "59",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -745,7 +744,6 @@
             ],
             "responses": [
               {
-                "$id": "61",
                 "statusCodes": [
                   204
                 ],
@@ -767,7 +765,7 @@
           },
           "parameters": [
             {
-              "$id": "62",
+              "$id": "60",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -784,7 +782,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "63",
+              "$id": "61",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -809,19 +807,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.putModel"
         },
         {
-          "$id": "64",
+          "$id": "62",
           "kind": "basic",
           "name": "getRecursiveModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "65",
+            "$id": "63",
             "name": "getRecursiveModel",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "66",
+                "$id": "64",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -840,7 +838,6 @@
             ],
             "responses": [
               {
-                "$id": "67",
                 "statusCodes": [
                   200
                 ],
@@ -865,7 +862,7 @@
           },
           "parameters": [
             {
-              "$id": "68",
+              "$id": "65",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -893,19 +890,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.getRecursiveModel"
         },
         {
-          "$id": "69",
+          "$id": "66",
           "kind": "basic",
           "name": "putRecursiveModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "70",
+            "$id": "67",
             "name": "putRecursiveModel",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "71",
+                "$id": "68",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -923,7 +920,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "72",
+                "$id": "69",
                 "name": "input",
                 "nameInRequest": "input",
                 "type": {
@@ -942,7 +939,6 @@
             ],
             "responses": [
               {
-                "$id": "73",
                 "statusCodes": [
                   204
                 ],
@@ -964,7 +960,7 @@
           },
           "parameters": [
             {
-              "$id": "74",
+              "$id": "70",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -981,7 +977,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "75",
+              "$id": "71",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -1006,19 +1002,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.putRecursiveModel"
         },
         {
-          "$id": "76",
+          "$id": "72",
           "kind": "basic",
           "name": "getMissingDiscriminator",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "77",
+            "$id": "73",
             "name": "getMissingDiscriminator",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "78",
+                "$id": "74",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1037,7 +1033,6 @@
             ],
             "responses": [
               {
-                "$id": "79",
                 "statusCodes": [
                   200
                 ],
@@ -1062,7 +1057,7 @@
           },
           "parameters": [
             {
-              "$id": "80",
+              "$id": "75",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1090,19 +1085,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.getMissingDiscriminator"
         },
         {
-          "$id": "81",
+          "$id": "76",
           "kind": "basic",
           "name": "getWrongDiscriminator",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "82",
+            "$id": "77",
             "name": "getWrongDiscriminator",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "83",
+                "$id": "78",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1121,7 +1116,6 @@
             ],
             "responses": [
               {
-                "$id": "84",
                 "statusCodes": [
                   200
                 ],
@@ -1146,7 +1140,7 @@
           },
           "parameters": [
             {
-              "$id": "85",
+              "$id": "79",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1174,19 +1168,19 @@
           "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.getWrongDiscriminator"
         },
         {
-          "$id": "86",
+          "$id": "80",
           "kind": "basic",
           "name": "getLegacyModel",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "87",
+            "$id": "81",
             "name": "getLegacyModel",
             "resourceName": "SingleDiscriminator",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "88",
+                "$id": "82",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -1205,7 +1199,6 @@
             ],
             "responses": [
               {
-                "$id": "89",
                 "statusCodes": [
                   200
                 ],
@@ -1230,7 +1223,7 @@
           },
           "parameters": [
             {
-              "$id": "90",
+              "$id": "83",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1260,10 +1253,12 @@
       ],
       "parameters": [
         {
+          "$id": "84",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "85",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1278,6 +1273,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "86",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

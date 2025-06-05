@@ -28,7 +28,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "4",
                 "statusCodes": [
                   204
                 ],
@@ -53,14 +52,14 @@
           "crossLanguageDefinitionId": "Authentication.Union.validKey"
         },
         {
-          "$id": "5",
+          "$id": "4",
           "kind": "basic",
           "name": "validToken",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Check whether client is authenticated",
           "operation": {
-            "$id": "6",
+            "$id": "5",
             "name": "validToken",
             "resourceName": "Union",
             "doc": "Check whether client is authenticated",
@@ -68,7 +67,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "7",
                 "statusCodes": [
                   204
                 ],
@@ -95,10 +93,12 @@
       ],
       "parameters": [
         {
+          "$id": "6",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "7",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -113,6 +113,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "8",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

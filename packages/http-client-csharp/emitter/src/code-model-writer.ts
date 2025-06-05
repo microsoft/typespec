@@ -32,14 +32,6 @@ export async function writeCodeModel(
  * @param codeModel - The code model to build
  */
 function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
-  const typesToRef = new Set<any>([
-    ...context.__typeCache.clients.values(),
-    ...context.__typeCache.methods.values(),
-    ...context.__typeCache.operations.values(),
-    ...context.__typeCache.responses.values(),
-    ...context.__typeCache.properties.values(),
-    ...context.__typeCache.types.values(),
-  ]);
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
 
@@ -101,7 +93,9 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   }
 
   function shouldHaveRef(obj: any): boolean {
-    return typesToRef.has(obj);
+    // we only add reference to those types with a crossLanguageDefinitionId or a kind property.
+    // TODO -- crossLanguageDefinitionId should be enough but there is something that should be referenced but does not have it.
+    return "crossLanguageDefinitionId" in obj || "kind" in obj;
   }
 }
 

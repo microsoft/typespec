@@ -65,7 +65,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "7",
                 "statusCodes": [
                   204
                 ],
@@ -90,7 +89,7 @@
           "crossLanguageDefinitionId": "Server.Path.Multiple.noOperationParams"
         },
         {
-          "$id": "8",
+          "$id": "7",
           "kind": "basic",
           "name": "withOperationPathParam",
           "accessibility": "public",
@@ -98,17 +97,17 @@
             "v1.0"
           ],
           "operation": {
-            "$id": "9",
+            "$id": "8",
             "name": "withOperationPathParam",
             "resourceName": "Multiple",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "10",
+                "$id": "9",
                 "name": "keyword",
                 "nameInRequest": "keyword",
                 "type": {
-                  "$id": "11",
+                  "$id": "10",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -127,7 +126,6 @@
             ],
             "responses": [
               {
-                "$id": "12",
                 "statusCodes": [
                   204
                 ],
@@ -146,11 +144,11 @@
           },
           "parameters": [
             {
-              "$id": "13",
+              "$id": "11",
               "name": "keyword",
               "nameInRequest": "keyword",
               "type": {
-                "$id": "14",
+                "$id": "12",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -176,10 +174,12 @@
       ],
       "parameters": [
         {
+          "$id": "13",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Pass in http://localhost:3000 for endpoint.",
           "type": {
+            "$id": "14",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -194,6 +194,7 @@
           "kind": "Client"
         },
         {
+          "$id": "15",
           "name": "apiVersion",
           "nameInRequest": "apiVersion",
           "doc": "Pass in v1.0 for API version.",
@@ -210,6 +211,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "16",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

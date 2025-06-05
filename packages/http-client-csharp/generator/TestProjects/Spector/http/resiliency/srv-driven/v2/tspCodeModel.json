@@ -83,7 +83,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "8",
                 "statusCodes": [
                   204
                 ],
@@ -108,7 +107,7 @@
           "crossLanguageDefinitionId": "Resiliency.ServiceDriven.addOperation"
         },
         {
-          "$id": "9",
+          "$id": "8",
           "kind": "basic",
           "name": "fromNone",
           "accessibility": "public",
@@ -118,19 +117,19 @@
           ],
           "doc": "Test that grew up from accepting no parameters to an optional input parameter",
           "operation": {
-            "$id": "10",
+            "$id": "9",
             "name": "fromNone",
             "resourceName": "AddOptionalParam",
             "doc": "Test that grew up from accepting no parameters to an optional input parameter",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "11",
+                "$id": "10",
                 "name": "new-parameter",
                 "nameInRequest": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
-                  "$id": "12",
+                  "$id": "11",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -149,7 +148,6 @@
             ],
             "responses": [
               {
-                "$id": "13",
                 "statusCodes": [
                   204
                 ],
@@ -168,12 +166,12 @@
           },
           "parameters": [
             {
-              "$id": "14",
+              "$id": "12",
               "name": "new-parameter",
               "nameInRequest": "new-parameter",
               "doc": "I'm a new input optional parameter",
               "type": {
-                "$id": "15",
+                "$id": "13",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -197,7 +195,7 @@
           "crossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromNone"
         },
         {
-          "$id": "16",
+          "$id": "14",
           "kind": "basic",
           "name": "fromOneRequired",
           "accessibility": "public",
@@ -207,19 +205,19 @@
           ],
           "doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
           "operation": {
-            "$id": "17",
+            "$id": "15",
             "name": "fromOneRequired",
             "resourceName": "AddOptionalParam",
             "doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "18",
+                "$id": "16",
                 "name": "parameter",
                 "nameInRequest": "parameter",
                 "doc": "I am a required parameter",
                 "type": {
-                  "$id": "19",
+                  "$id": "17",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -236,12 +234,12 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "20",
+                "$id": "18",
                 "name": "new-parameter",
                 "nameInRequest": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
-                  "$id": "21",
+                  "$id": "19",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -260,7 +258,6 @@
             ],
             "responses": [
               {
-                "$id": "22",
                 "statusCodes": [
                   204
                 ],
@@ -279,12 +276,12 @@
           },
           "parameters": [
             {
-              "$id": "23",
+              "$id": "20",
               "name": "parameter",
               "nameInRequest": "parameter",
               "doc": "I am a required parameter",
               "type": {
-                "$id": "24",
+                "$id": "21",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -301,12 +298,12 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "25",
+              "$id": "22",
               "name": "new-parameter",
               "nameInRequest": "new-parameter",
               "doc": "I'm a new input optional parameter",
               "type": {
-                "$id": "26",
+                "$id": "23",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -330,7 +327,7 @@
           "crossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired"
         },
         {
-          "$id": "27",
+          "$id": "24",
           "kind": "basic",
           "name": "fromOneOptional",
           "accessibility": "public",
@@ -340,19 +337,19 @@
           ],
           "doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
           "operation": {
-            "$id": "28",
+            "$id": "25",
             "name": "fromOneOptional",
             "resourceName": "AddOptionalParam",
             "doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "29",
+                "$id": "26",
                 "name": "parameter",
                 "nameInRequest": "parameter",
                 "doc": "I am an optional parameter",
                 "type": {
-                  "$id": "30",
+                  "$id": "27",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -369,12 +366,12 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "31",
+                "$id": "28",
                 "name": "new-parameter",
                 "nameInRequest": "new-parameter",
                 "doc": "I'm a new input optional parameter",
                 "type": {
-                  "$id": "32",
+                  "$id": "29",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -393,7 +390,6 @@
             ],
             "responses": [
               {
-                "$id": "33",
                 "statusCodes": [
                   204
                 ],
@@ -412,12 +408,12 @@
           },
           "parameters": [
             {
-              "$id": "34",
+              "$id": "30",
               "name": "parameter",
               "nameInRequest": "parameter",
               "doc": "I am an optional parameter",
               "type": {
-                "$id": "35",
+                "$id": "31",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -434,12 +430,12 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "36",
+              "$id": "32",
               "name": "new-parameter",
               "nameInRequest": "new-parameter",
               "doc": "I'm a new input optional parameter",
               "type": {
-                "$id": "37",
+                "$id": "33",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -465,10 +461,12 @@
       ],
       "parameters": [
         {
+          "$id": "34",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "35",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -483,11 +481,12 @@
           "kind": "Client"
         },
         {
+          "$id": "36",
           "name": "serviceDeploymentVersion",
           "nameInRequest": "serviceDeploymentVersion",
           "doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
           "type": {
-            "$id": "38",
+            "$id": "37",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -503,6 +502,7 @@
           "kind": "Client"
         },
         {
+          "$id": "38",
           "name": "apiVersion",
           "nameInRequest": "apiVersion",
           "doc": "Pass in either 'v1' or 'v2'. This represents the API version of a service.",
@@ -523,6 +523,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "40",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

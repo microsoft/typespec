@@ -26,7 +26,6 @@
             "parameters": [],
             "responses": [
               {
-                "$id": "4",
                 "statusCodes": [
                   200
                 ],
@@ -51,23 +50,23 @@
           "crossLanguageDefinitionId": "Server.Versions.NotVersioned.withoutApiVersion"
         },
         {
-          "$id": "5",
+          "$id": "4",
           "kind": "basic",
           "name": "withQueryApiVersion",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "6",
+            "$id": "5",
             "name": "withQueryApiVersion",
             "resourceName": "NotVersioned",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "7",
+                "$id": "6",
                 "name": "apiVersion",
                 "nameInRequest": "api-version",
                 "type": {
-                  "$id": "8",
+                  "$id": "7",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -86,7 +85,6 @@
             ],
             "responses": [
               {
-                "$id": "9",
                 "statusCodes": [
                   200
                 ],
@@ -105,11 +103,11 @@
           },
           "parameters": [
             {
-              "$id": "10",
+              "$id": "8",
               "name": "apiVersion",
               "nameInRequest": "api-version",
               "type": {
-                "$id": "11",
+                "$id": "9",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -133,23 +131,23 @@
           "crossLanguageDefinitionId": "Server.Versions.NotVersioned.withQueryApiVersion"
         },
         {
-          "$id": "12",
+          "$id": "10",
           "kind": "basic",
           "name": "withPathApiVersion",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "13",
+            "$id": "11",
             "name": "withPathApiVersion",
             "resourceName": "NotVersioned",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "14",
+                "$id": "12",
                 "name": "apiVersion",
                 "nameInRequest": "apiVersion",
                 "type": {
-                  "$id": "15",
+                  "$id": "13",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string",
@@ -168,7 +166,6 @@
             ],
             "responses": [
               {
-                "$id": "16",
                 "statusCodes": [
                   200
                 ],
@@ -187,11 +184,11 @@
           },
           "parameters": [
             {
-              "$id": "17",
+              "$id": "14",
               "name": "apiVersion",
               "nameInRequest": "apiVersion",
               "type": {
-                "$id": "18",
+                "$id": "15",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
@@ -217,10 +214,12 @@
       ],
       "parameters": [
         {
+          "$id": "16",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "17",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"

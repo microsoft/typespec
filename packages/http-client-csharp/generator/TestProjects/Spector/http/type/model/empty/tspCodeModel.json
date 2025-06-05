@@ -161,7 +161,6 @@
             ],
             "responses": [
               {
-                "$id": "17",
                 "statusCodes": [
                   204
                 ],
@@ -183,7 +182,7 @@
           },
           "parameters": [
             {
-              "$id": "18",
+              "$id": "17",
               "name": "input",
               "nameInRequest": "input",
               "type": {
@@ -200,7 +199,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "19",
+              "$id": "18",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -225,19 +224,19 @@
           "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty"
         },
         {
-          "$id": "20",
+          "$id": "19",
           "kind": "basic",
           "name": "getEmpty",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "21",
+            "$id": "20",
             "name": "getEmpty",
             "resourceName": "Empty",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "22",
+                "$id": "21",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -256,7 +255,6 @@
             ],
             "responses": [
               {
-                "$id": "23",
                 "statusCodes": [
                   200
                 ],
@@ -281,7 +279,7 @@
           },
           "parameters": [
             {
-              "$id": "24",
+              "$id": "22",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -309,19 +307,19 @@
           "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty"
         },
         {
-          "$id": "25",
+          "$id": "23",
           "kind": "basic",
           "name": "postRoundTripEmpty",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "26",
+            "$id": "24",
             "name": "postRoundTripEmpty",
             "resourceName": "Empty",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "27",
+                "$id": "25",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -339,7 +337,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "28",
+                "$id": "26",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -356,7 +354,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "29",
+                "$id": "27",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -375,7 +373,6 @@
             ],
             "responses": [
               {
-                "$id": "30",
                 "statusCodes": [
                   200
                 ],
@@ -403,7 +400,7 @@
           },
           "parameters": [
             {
-              "$id": "31",
+              "$id": "28",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -420,7 +417,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "32",
+              "$id": "29",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -438,7 +435,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "33",
+              "$id": "30",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -468,10 +465,12 @@
       ],
       "parameters": [
         {
+          "$id": "31",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "32",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -486,6 +485,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "33",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

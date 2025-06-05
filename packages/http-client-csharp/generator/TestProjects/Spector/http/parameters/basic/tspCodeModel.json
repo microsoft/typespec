@@ -119,10 +119,12 @@
       "methods": [],
       "parameters": [
         {
+          "$id": "12",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "13",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -137,6 +139,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "14",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
@@ -150,25 +153,25 @@
       "apiVersions": [],
       "children": [
         {
-          "$id": "12",
+          "$id": "15",
           "kind": "client",
           "name": "ExplicitBody",
           "namespace": "Parameters.Basic.ExplicitBody",
           "methods": [
             {
-              "$id": "13",
+              "$id": "16",
               "kind": "basic",
               "name": "simple",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "14",
+                "$id": "17",
                 "name": "simple",
                 "resourceName": "ExplicitBody",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "15",
+                    "$id": "18",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -186,7 +189,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "16",
+                    "$id": "19",
                     "name": "body",
                     "nameInRequest": "body",
                     "type": {
@@ -205,7 +208,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "17",
                     "statusCodes": [
                       204
                     ],
@@ -227,7 +229,7 @@
               },
               "parameters": [
                 {
-                  "$id": "18",
+                  "$id": "20",
                   "name": "body",
                   "nameInRequest": "body",
                   "type": {
@@ -244,7 +246,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "19",
+                  "$id": "21",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -271,10 +273,12 @@
           ],
           "parameters": [
             {
+              "$id": "22",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "23",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -289,6 +293,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "24",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"
@@ -305,25 +310,25 @@
           }
         },
         {
-          "$id": "20",
+          "$id": "25",
           "kind": "client",
           "name": "ImplicitBody",
           "namespace": "Parameters.Basic.ImplicitBody",
           "methods": [
             {
-              "$id": "21",
+              "$id": "26",
               "kind": "basic",
               "name": "simple",
               "accessibility": "public",
               "apiVersions": [],
               "operation": {
-                "$id": "22",
+                "$id": "27",
                 "name": "simple",
                 "resourceName": "ImplicitBody",
                 "accessibility": "public",
                 "parameters": [
                   {
-                    "$id": "23",
+                    "$id": "28",
                     "name": "contentType",
                     "nameInRequest": "Content-Type",
                     "doc": "Body parameter's content type. Known values are application/json",
@@ -341,7 +346,7 @@
                     "skipUrlEncoding": false
                   },
                   {
-                    "$id": "24",
+                    "$id": "29",
                     "name": "simpleRequest",
                     "nameInRequest": "simpleRequest",
                     "type": {
@@ -360,7 +365,6 @@
                 ],
                 "responses": [
                   {
-                    "$id": "25",
                     "statusCodes": [
                       204
                     ],
@@ -382,7 +386,7 @@
               },
               "parameters": [
                 {
-                  "$id": "26",
+                  "$id": "30",
                   "name": "name",
                   "nameInRequest": "name",
                   "type": {
@@ -399,7 +403,7 @@
                   "skipUrlEncoding": false
                 },
                 {
-                  "$id": "27",
+                  "$id": "31",
                   "name": "contentType",
                   "nameInRequest": "contentType",
                   "doc": "Body parameter's content type. Known values are application/json",
@@ -426,10 +430,12 @@
           ],
           "parameters": [
             {
+              "$id": "32",
               "name": "endpoint",
               "nameInRequest": "endpoint",
               "doc": "Service host",
               "type": {
+                "$id": "33",
                 "kind": "url",
                 "name": "url",
                 "crossLanguageDefinitionId": "TypeSpec.url"
@@ -444,6 +450,7 @@
               "kind": "Client",
               "defaultValue": {
                 "type": {
+                  "$id": "34",
                   "kind": "string",
                   "name": "string",
                   "crossLanguageDefinitionId": "TypeSpec.string"

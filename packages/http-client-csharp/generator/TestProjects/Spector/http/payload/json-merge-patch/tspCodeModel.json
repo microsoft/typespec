@@ -653,7 +653,6 @@
             ],
             "responses": [
               {
-                "$id": "57",
                 "statusCodes": [
                   200
                 ],
@@ -681,7 +680,7 @@
           },
           "parameters": [
             {
-              "$id": "58",
+              "$id": "57",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -698,7 +697,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "59",
+              "$id": "58",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -716,7 +715,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "60",
+              "$id": "59",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -744,21 +743,21 @@
           "crossLanguageDefinitionId": "Payload.JsonMergePatch.createResource"
         },
         {
-          "$id": "61",
+          "$id": "60",
           "kind": "basic",
           "name": "updateResource",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Test content-type: application/merge-patch+json with required body",
           "operation": {
-            "$id": "62",
+            "$id": "61",
             "name": "updateResource",
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with required body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "63",
+                "$id": "62",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "type": {
@@ -775,7 +774,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "64",
+                "$id": "63",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -792,7 +791,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "65",
+                "$id": "64",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -811,7 +810,6 @@
             ],
             "responses": [
               {
-                "$id": "66",
                 "statusCodes": [
                   200
                 ],
@@ -839,7 +837,7 @@
           },
           "parameters": [
             {
-              "$id": "67",
+              "$id": "65",
               "name": "contentType",
               "nameInRequest": "content-type",
               "type": {
@@ -856,7 +854,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "68",
+              "$id": "66",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -873,7 +871,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "69",
+              "$id": "67",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -901,21 +899,21 @@
           "crossLanguageDefinitionId": "Payload.JsonMergePatch.updateResource"
         },
         {
-          "$id": "70",
+          "$id": "68",
           "kind": "basic",
           "name": "updateOptionalResource",
           "accessibility": "public",
           "apiVersions": [],
           "doc": "Test content-type: application/merge-patch+json with optional body",
           "operation": {
-            "$id": "71",
+            "$id": "69",
             "name": "updateOptionalResource",
             "resourceName": "JsonMergePatch",
             "doc": "Test content-type: application/merge-patch+json with optional body",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "72",
+                "$id": "70",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "type": {
@@ -932,7 +930,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "73",
+                "$id": "71",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -949,7 +947,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "74",
+                "$id": "72",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -968,7 +966,6 @@
             ],
             "responses": [
               {
-                "$id": "75",
                 "statusCodes": [
                   200
                 ],
@@ -996,7 +993,7 @@
           },
           "parameters": [
             {
-              "$id": "76",
+              "$id": "73",
               "name": "contentType",
               "nameInRequest": "content-type",
               "type": {
@@ -1013,7 +1010,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "77",
+              "$id": "74",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -1030,7 +1027,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "78",
+              "$id": "75",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -1060,10 +1057,12 @@
       ],
       "parameters": [
         {
+          "$id": "76",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Service host",
           "type": {
+            "$id": "77",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1078,6 +1077,7 @@
           "kind": "Client",
           "defaultValue": {
             "type": {
+              "$id": "78",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"

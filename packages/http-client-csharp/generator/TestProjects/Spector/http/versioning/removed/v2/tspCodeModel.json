@@ -446,7 +446,6 @@
             ],
             "responses": [
               {
-                "$id": "39",
                 "statusCodes": [
                   200
                 ],
@@ -474,7 +473,7 @@
           },
           "parameters": [
             {
-              "$id": "40",
+              "$id": "39",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -491,7 +490,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "41",
+              "$id": "40",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -509,7 +508,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "42",
+              "$id": "41",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -537,7 +536,7 @@
           "crossLanguageDefinitionId": "Versioning.Removed.v2"
         },
         {
-          "$id": "43",
+          "$id": "42",
           "kind": "basic",
           "name": "modelV3",
           "accessibility": "public",
@@ -548,14 +547,14 @@
           ],
           "doc": "This operation will pass different paths and different request bodies based on different versions.",
           "operation": {
-            "$id": "44",
+            "$id": "43",
             "name": "modelV3",
             "resourceName": "Removed",
             "doc": "This operation will pass different paths and different request bodies based on different versions.",
             "accessibility": "public",
             "parameters": [
               {
-                "$id": "45",
+                "$id": "44",
                 "name": "contentType",
                 "nameInRequest": "Content-Type",
                 "doc": "Body parameter's content type. Known values are application/json",
@@ -573,7 +572,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "46",
+                "$id": "45",
                 "name": "accept",
                 "nameInRequest": "Accept",
                 "type": {
@@ -590,7 +589,7 @@
                 "skipUrlEncoding": false
               },
               {
-                "$id": "47",
+                "$id": "46",
                 "name": "body",
                 "nameInRequest": "body",
                 "type": {
@@ -609,7 +608,6 @@
             ],
             "responses": [
               {
-                "$id": "48",
                 "statusCodes": [
                   200
                 ],
@@ -637,7 +635,7 @@
           },
           "parameters": [
             {
-              "$id": "49",
+              "$id": "47",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -654,7 +652,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "50",
+              "$id": "48",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -672,7 +670,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "51",
+              "$id": "49",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -702,10 +700,12 @@
       ],
       "parameters": [
         {
+          "$id": "50",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "51",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -720,6 +720,7 @@
           "kind": "Client"
         },
         {
+          "$id": "52",
           "name": "version",
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",

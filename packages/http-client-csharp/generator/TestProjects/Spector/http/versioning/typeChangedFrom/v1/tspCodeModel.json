@@ -233,7 +233,6 @@
             ],
             "responses": [
               {
-                "$id": "21",
                 "statusCodes": [
                   200
                 ],
@@ -261,7 +260,7 @@
           },
           "parameters": [
             {
-              "$id": "22",
+              "$id": "21",
               "name": "body",
               "nameInRequest": "body",
               "type": {
@@ -278,11 +277,11 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "23",
+              "$id": "22",
               "name": "param",
               "nameInRequest": "param",
               "type": {
-                "$id": "24",
+                "$id": "23",
                 "kind": "int32",
                 "name": "int32",
                 "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -299,7 +298,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "25",
+              "$id": "24",
               "name": "contentType",
               "nameInRequest": "contentType",
               "doc": "Body parameter's content type. Known values are application/json",
@@ -317,7 +316,7 @@
               "skipUrlEncoding": false
             },
             {
-              "$id": "26",
+              "$id": "25",
               "name": "accept",
               "nameInRequest": "accept",
               "type": {
@@ -347,10 +346,12 @@
       ],
       "parameters": [
         {
+          "$id": "26",
           "name": "endpoint",
           "nameInRequest": "endpoint",
           "doc": "Need to be set as 'http://localhost:3000' in client.",
           "type": {
+            "$id": "27",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
@@ -365,6 +366,7 @@
           "kind": "Client"
         },
         {
+          "$id": "28",
           "name": "version",
           "nameInRequest": "version",
           "doc": "Need to be set as 'v1' or 'v2' in client.",
