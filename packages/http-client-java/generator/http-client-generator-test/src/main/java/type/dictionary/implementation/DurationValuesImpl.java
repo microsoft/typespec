@@ -57,7 +57,7 @@ public final class DurationValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientDura")
+    @ServiceInterface(name = "DictionaryClientDurationValues")
     public interface DurationValuesService {
         @Get("/type/dictionary/duration")
         @ExpectedResponses({ 200 })

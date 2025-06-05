@@ -1911,29 +1911,26 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
         StringBuilder expression = new StringBuilder();
         expression.append("if (pagingOptions.getOffset() != null) {")
-            .append(
-                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'offset' in PagingOptions is not supported in API '")
+            .append("throw new IllegalArgumentException(\"'offset' in PagingOptions is not supported in API '")
             .append(clientMethod.getName())
-            .append("'.\"));")
+            .append("'.\");")
             .append("}");
         expression.append("if (pagingOptions.getPageSize() != null) {")
-            .append(
-                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageSize' in PagingOptions is not supported in API '")
+            .append("throw new IllegalArgumentException(\"'pageSize' in PagingOptions is not supported in API '")
             .append(clientMethod.getName())
-            .append("'.\"));")
+            .append("'.\");")
             .append("}");
         expression.append("if (pagingOptions.getPageIndex() != null) {")
-            .append(
-                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageIndex' in PagingOptions is not supported in API '")
+            .append("throw new IllegalArgumentException(\"'pageIndex' in PagingOptions is not supported in API '")
             .append(clientMethod.getName())
-            .append("'.\"));")
+            .append("'.\");")
             .append("}");
         if (clientMethod.getMethodPageDetails().getContinuationToken() == null) {
             expression.append("if (pagingOptions.getContinuationToken() != null) {")
                 .append(
-                    "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'continuationToken' in PagingOptions is not supported in API '")
+                    "throw new IllegalArgumentException(\"'continuationToken' in PagingOptions is not supported in API '")
                 .append(clientMethod.getName())
-                .append("'.\"));")
+                .append("'.\");")
                 .append("}");
         }
         return expression.toString();

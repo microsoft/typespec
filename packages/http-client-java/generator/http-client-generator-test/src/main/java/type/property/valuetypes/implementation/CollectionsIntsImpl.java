@@ -57,7 +57,7 @@ public final class CollectionsIntsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientColl")
+    @ServiceInterface(name = "ValueTypesClientCollectionsInts")
     public interface CollectionsIntsService {
         @Get("/type/property/value-types/collections/int")
         @ExpectedResponses({ 200 })

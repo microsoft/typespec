@@ -57,7 +57,7 @@ public final class Int32ValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientInt3")
+    @ServiceInterface(name = "DictionaryClientInt32Values")
     public interface Int32ValuesService {
         @Get("/type/dictionary/int32")
         @ExpectedResponses({ 200 })

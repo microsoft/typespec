@@ -56,7 +56,7 @@ public final class VisibilityWritesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "VisibilityClientVisi")
+    @ServiceInterface(name = "VisibilityClientVisibilityWrites")
     public interface VisibilityWritesService {
         @Put("/write")
         @ExpectedResponses({ 200 })

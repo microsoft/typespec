@@ -125,7 +125,7 @@ public final class NestedDiscriminatorClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NestedDiscriminatorC")
+    @ServiceInterface(name = "NestedDiscriminatorClient")
     public interface NestedDiscriminatorClientService {
         @Get("/type/model/inheritance/nested-discriminator/model")
         @ExpectedResponses({ 200 })

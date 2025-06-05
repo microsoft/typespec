@@ -57,7 +57,7 @@ public final class ExtendsDifferentSpreadFloatsImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsDifferentSpreadFloats")
     public interface ExtendsDifferentSpreadFloatsService {
         @Get("/type/property/additionalProperties/extendsDifferentSpreadFloat")
         @ExpectedResponses({ 200 })

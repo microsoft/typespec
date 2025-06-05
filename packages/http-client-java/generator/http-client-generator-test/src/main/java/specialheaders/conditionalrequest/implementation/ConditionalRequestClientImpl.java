@@ -122,7 +122,7 @@ public final class ConditionalRequestClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ConditionalRequestCl")
+    @ServiceInterface(name = "ConditionalRequestClient")
     public interface ConditionalRequestClientService {
         @Post("/special-headers/conditional-request/if-match")
         @ExpectedResponses({ 204 })

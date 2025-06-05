@@ -57,7 +57,7 @@ public final class StringsOnliesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientStringsOn")
+    @ServiceInterface(name = "UnionClientStringsOnlies")
     public interface StringsOnliesService {
         @Get("/type/union/strings-only")
         @ExpectedResponses({ 200 })

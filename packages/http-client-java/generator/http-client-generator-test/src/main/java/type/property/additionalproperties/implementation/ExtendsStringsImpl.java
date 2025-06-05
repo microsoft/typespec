@@ -57,7 +57,7 @@ public final class ExtendsStringsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsStrings")
     public interface ExtendsStringsService {
         @Get("/type/property/additionalProperties/extendsRecordString")
         @ExpectedResponses({ 200 })
