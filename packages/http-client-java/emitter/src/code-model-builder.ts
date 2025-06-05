@@ -1169,10 +1169,10 @@ export class CodeModelBuilder {
       }
     }
 
-    // TODO haoling: mock data to test, remove it after compiler is ready
-    sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
-      [this.sdkContext.sdkPackage.clients[0].methods[3].parameters[0]],
-    ];
+    // // TODO haoling: mock data to test, remove it after compiler is ready
+    // sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments = [
+    //   [this.sdkContext.sdkPackage.clients[0].methods[3].parameters[0]],
+    // ];
 
     // nextLinkReInjectedParameters
     let nextLinkReInjectedParameters: Parameter[] | undefined;
