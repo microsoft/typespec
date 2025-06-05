@@ -203,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
-        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
+        public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
@@ -299,6 +299,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return constructors.ToArray();
+        }
+
+        private TypeProvider[] BuildNestedTypesInternal()
+        {
+            var nestedTypes = new List<TypeProvider>();
+            foreach (var nestedType in BuildNestedTypes())
+            {
+                if (ShouldGenerate(nestedType))
+                {
+                    nestedTypes.Add(nestedType);
+                }
+            }
+
+            return [.. nestedTypes];
         }
 
         protected virtual PropertyProvider[] BuildProperties() => [];
@@ -429,6 +443,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private bool ShouldGenerate(TypeProvider nestedType)
+        {
+            if (nestedType is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+            {
+                return false;
             }
 
             return true;

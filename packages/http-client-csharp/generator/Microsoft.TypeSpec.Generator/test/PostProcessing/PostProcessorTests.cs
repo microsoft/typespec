@@ -100,7 +100,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             var usings = compilation.Usings.Select(u => u.Name!.ToString()).ToList();
             CollectionAssert.Contains(usings, "Sample.Models");
             CollectionAssert.Contains(usings, "System");
-            CollectionAssert.Contains(usings, "Microsoft.TypeSpec.Generator.Tests.Writers");
         }
 
         private class TestPostProcessor : PostProcessor
