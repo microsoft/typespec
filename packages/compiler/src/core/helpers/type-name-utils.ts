@@ -20,9 +20,7 @@ import { printIdentifier } from "./syntax-utils.js";
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
-  // Whether to include the interface prefix for operations defined in interfaces.
-  // Default is true
-  includeInterfacePrefix?: boolean;
+  nameOnly?: boolean;
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
@@ -138,7 +136,7 @@ export function getNamespaceFullName(type: Namespace, options?: TypeNameOptions)
 }
 
 function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptions) {
-  if (type === undefined || isStdNamespace(type)) {
+  if (type === undefined || isStdNamespace(type) || options?.nameOnly === true) {
     return "";
   }
   const namespaceFullName = getNamespaceFullName(type, options);
@@ -215,6 +213,9 @@ function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean 
 }
 
 function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
+  if (options?.nameOnly === true) {
+    return prop.name;
+  }
   const modelName = prop.model ? getModelName(prop.model, options) : undefined;
 
   return `${modelName ?? "(anonymous model)"}.${prop.name}`;
@@ -237,12 +238,12 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;
   }
-  if (op.interface) {
-    return options?.includeInterfacePrefix === false
-      ? opName
-      : `${getInterfaceName(op.interface, options)}.${opName}`;
+  if (options?.nameOnly === true) {
+    return opName;
   } else {
-    const prefix = getNamespacePrefix(op.namespace, options);
+    const prefix = op.interface
+      ? getInterfaceName(op.interface, options) + "."
+      : getNamespacePrefix(op.namespace, options);
     return `${prefix}${opName}`;
   }
 }

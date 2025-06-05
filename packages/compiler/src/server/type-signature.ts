@@ -121,7 +121,7 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
     getModelPropertySignature(p, false /* includeQualifier */),
   );
   return `op ${getTypeName(type, {
-    includeInterfacePrefix: includeQualifier,
+    nameOnly: !includeQualifier,
   })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
