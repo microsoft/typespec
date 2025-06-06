@@ -308,7 +308,6 @@ scalar LinkHeader<T extends Record<url> | Link[]> extends string;
  * ```
  */
 @doc("")
-@friendlyName(NameTemplate, T)
 @mediaTypeHint("application/merge-patch+json")
 @applyMergePatch(T, NameTemplate, #{ visibilityMode: Private.MergePatchVisibilityMode.Update })
 model MergePatchUpdate<
@@ -352,7 +351,6 @@ model MergePatchUpdate<
  * ```
  */
 @doc("")
-@friendlyName(NameTemplate, T)
 @mediaTypeHint("application/merge-patch+json")
 @applyMergePatch(
   T,

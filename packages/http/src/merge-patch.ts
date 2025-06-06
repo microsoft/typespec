@@ -116,6 +116,7 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
     ctx.decoratorTarget,
   );
   applyClone(target, mutated.type);
+  target.decorators = target.decorators.filter((d) => d.decorator !== $applyMergePatch);
   ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
 };
 
