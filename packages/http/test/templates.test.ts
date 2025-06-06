@@ -112,6 +112,46 @@ describe("OmitMetadata<T>", () => {
     const nested = target.properties.get("nested")?.type;
     expectTypeEquals(nested, Foo);
   });
+
+  describe("names of cloned types", () => {
+    it("models have anonymous names by default", async () => {
+      const { target } = await compile(
+        `
+        OmitMetadata<A>
+      `,
+        `
+      model A {
+        @header a: string;
+        b: B;
+      }
+      model B { @header b: string;}
+      `,
+      );
+      expect(target.name).toBe("");
+      const bType = target.properties.get("b")?.type;
+      strictEqual(bType?.kind, "Model");
+      expect(bType.name).toBe("");
+    });
+
+    it("use template if provided", async () => {
+      const { target } = await compile(
+        `
+        OmitMetadata<A, "{name}Suffix">
+      `,
+        `
+      model A {
+        @header a: string;
+        b: B;
+      }
+      model B { @header b: string;}
+      `,
+      );
+      expect(target.name).toBe("ASuffix");
+      const bType = target.properties.get("b")?.type;
+      strictEqual(bType?.kind, "Model");
+      expect(bType.name).toBe("BSuffix");
+    });
+  });
 });
 
 describe("StripMetadata<T>", () => {
@@ -186,5 +226,45 @@ describe("StripMetadata<T>", () => {
     );
     const nested = target.properties.get("nested")?.type;
     expectTypeEquals(nested, Foo);
+  });
+
+  describe("names of cloned types", () => {
+    it("models have anonymous names by default", async () => {
+      const { target } = await compile(
+        `
+        StripMetadata<A>
+      `,
+        `
+      model A {
+        @header a: string;
+        b: B;
+      }
+      model B { @header b: string;}
+      `,
+      );
+      expect(target.name).toBe("");
+      const bType = target.properties.get("b")?.type;
+      strictEqual(bType?.kind, "Model");
+      expect(bType.name).toBe("");
+    });
+
+    it("use template if provided", async () => {
+      const { target } = await compile(
+        `
+        StripMetadata<A, "{name}Suffix">
+      `,
+        `
+      model A {
+        @header a: string;
+        b: B;
+      }
+      model B { @header b: string;}
+      `,
+      );
+      expect(target.name).toBe("ASuffix");
+      const bType = target.properties.get("b")?.type;
+      strictEqual(bType?.kind, "Model");
+      expect(bType.name).toBe("BSuffix");
+    });
   });
 });

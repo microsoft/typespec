@@ -35,7 +35,7 @@ export function rename(
   nameTemplate: string,
 ) {
   if ($(program).array.is(type) && type.name === "Array") return;
-  if (type.name && nameTemplate) {
+  if (type.name) {
     type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
   }
 }

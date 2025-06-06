@@ -1,4 +1,5 @@
 import {
+  compilerAssert,
   getTypeName,
   ModelProperty,
   type DecoratorContext,
@@ -23,7 +24,13 @@ export const $omitMetadata: OmitMetadataDecorator = (
 ) => {
   const mutator = createOmitMetadataMutator(ctx.program, nameTemplate);
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
-  target.properties = (mutated.type as Model).properties;
+  compilerAssert(
+    mutated.type.kind === "Model",
+    `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
+    ctx.decoratorTarget,
+  );
+  target.name = mutated.type.name;
+  target.properties = mutated.type.properties;
   target.decorators = target.decorators.filter((d) => d.decorator !== $omitMetadata);
 };
 
@@ -51,7 +58,13 @@ export const $stripMetadata: OmitMetadataDecorator = (
 ) => {
   const mutator = createStripMetadataMutator(ctx.program, nameTemplate);
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
-  target.properties = (mutated.type as Model).properties;
+  compilerAssert(
+    mutated.type.kind === "Model",
+    `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
+    ctx.decoratorTarget,
+  );
+  target.name = mutated.type.name;
+  target.properties = mutated.type.properties;
   target.decorators = target.decorators.filter((d) => d.decorator !== $stripMetadata);
 };
 
@@ -141,7 +154,6 @@ function createDeepMutator(nameTemplate: string, mutator: DeepMutator) {
           mutated = true;
         }
 
-        if (mutated) rename(program, clone, nameTemplate);
         return mutated ? clone : original;
       },
     },
@@ -165,7 +177,6 @@ function createDeepMutator(nameTemplate: string, mutator: DeepMutator) {
           const typeClone = cachedMutateSubgraph(program, self, clone.type).type;
           if (typeClone !== clone.type) {
             clone.type = typeClone;
-            rename(program, clone, nameTemplate);
             return clone;
           }
         }
@@ -186,6 +197,19 @@ function createDeepMutator(nameTemplate: string, mutator: DeepMutator) {
         if (mutated) rename(program, clone, nameTemplate);
 
         return mutated ? clone : original;
+      },
+    },
+    EnumMember: {
+      replace(original: any, clone: any, program: Program) {
+        // EnumMember does not need recursion
+        if (clone.value) {
+          const valueClone = cachedMutateSubgraph(program, self, clone.value).type;
+          if (valueClone !== clone.value) {
+            clone.value = valueClone;
+            return clone;
+          }
+        }
+        return original;
       },
     },
     // EnumMember and Scalar do not need recursion

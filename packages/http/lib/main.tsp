@@ -393,7 +393,4 @@ model OmitMetadata<T extends Reflection.Model, NameTemplate extends valueof stri
 
 /** Strip the metadata decorators */
 @Private.stripMetadata(T, NameTemplate)
-model StripMetadata<
-  T extends Reflection.Model,
-  NameTemplate extends valueof string = "{name}Body"
-> {}
+model StripMetadata<T extends Reflection.Model, NameTemplate extends valueof string = ""> {}
