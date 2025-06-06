@@ -9,8 +9,6 @@ import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import org.slf4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Utility class that handles code formatting.
@@ -151,16 +150,15 @@ public final class CodeFormatterUtil {
         StringBuilder diagnosticMessageBuilder = new StringBuilder();
         diagnosticMessageBuilder.append("Error in file '")
             .append(fileName)
-            .append("' at line ")
-            .append(lineNumber)
-            .append(", column ")
-            .append(columnNumber)
+            .append("', ")
+            .append(diagnostic)
             .append(":\n");
 
         for (int i = startLine; i <= endLine; i++) {
-            diagnosticMessageBuilder.append(i + 1).append(": ").append(fileLines[i]).append("\n");
+            String prefix = (i + 1) + ": ";
+            diagnosticMessageBuilder.append(prefix).append(fileLines[i]).append("\n");
             if (i == lineNumber - 1) {
-                diagnosticMessageBuilder.append(" ".repeat(columnNumber - 1)).append("^\n");
+                diagnosticMessageBuilder.append(" ".repeat(columnNumber + prefix.length() - 1)).append("^\n");
             }
         }
 
