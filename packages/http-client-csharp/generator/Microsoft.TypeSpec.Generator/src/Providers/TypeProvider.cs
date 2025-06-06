@@ -115,11 +115,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType Type => _type ??=
             BuildType();
 
-        private CSharpType BuildType(string? name = default, string? ns = default)
+        private CSharpType BuildType()
         {
             return new(
-                name ?? CustomCodeView?.Name ?? BuildName(),
-                ns ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                CustomCodeView?.Name ?? BuildName(),
+                CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
@@ -405,8 +405,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // Reset the custom code view to reflect the new name
                 _customCodeView = new(GetCustomCodeView(name));
-                // Give precedence to the custom code view name/namespace if they exist
-                _type = BuildType(_customCodeView.Value?.Name ?? name, _customCodeView.Value?.Type.Namespace ?? _type?.Namespace);
+                // Give precedence to the custom code view name if it exists
+                Type.Update(_customCodeView.Value?.Name ?? name);
             }
 
             if (@namespace != null)
