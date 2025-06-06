@@ -50,7 +50,9 @@ public final class CodeFormatterUtil {
      * @throws RuntimeException If code formatting fails.
      */
     public static List<String> formatCode(Map<String, String> files) {
-        return formatCodeInternal(files.entrySet(), null).stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        return formatCodeInternal(files.entrySet(), null).stream()
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList());
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -139,16 +141,6 @@ public final class CodeFormatterUtil {
         return updatedFiles;
     }
 
-
-        // Module modifications needed by Google Java Formatter to run on Java 16+. Need to update 'java' commands used
-        // by TypeSpec to include these options.
-//            --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
-//            --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
-//            --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
-//            --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
-//            --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
-//            --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
-
     private static void appendDiagnosticError(StringBuilder errorCapture, FormatterDiagnostic diagnostic,
         String fileName, String[] fileLines, Logger logger) {
         int lineNumber = diagnostic.line();
@@ -157,8 +149,13 @@ public final class CodeFormatterUtil {
         int endLine = Math.min(fileLines.length - 1, lineNumber + 2);
 
         StringBuilder diagnosticMessageBuilder = new StringBuilder();
-        diagnosticMessageBuilder.append("Error in file '").append(fileName).append("' at line ")
-            .append(lineNumber).append(", column ").append(columnNumber).append(":\n");
+        diagnosticMessageBuilder.append("Error in file '")
+            .append(fileName)
+            .append("' at line ")
+            .append(lineNumber)
+            .append(", column ")
+            .append(columnNumber)
+            .append(":\n");
 
         for (int i = startLine; i <= endLine; i++) {
             diagnosticMessageBuilder.append(i + 1).append(": ").append(fileLines[i]).append("\n");
