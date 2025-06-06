@@ -1,4 +1,5 @@
 import { TspLanguageClient } from "./tsp-language-client.js";
+import { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
@@ -67,3 +68,8 @@ interface UnsuccessResult {
 }
 
 export type Result<T = void> = SuccessResult<T> | UnsuccessResult;
+
+export interface TypeSpecExtensionApi {
+  /** Register more InitTemplateUrls which will be included in the Create TypeSpec Project scenario */
+  registerInitTemplateUrls(items: InitTemplatesUrlSetting[]): void;
+}

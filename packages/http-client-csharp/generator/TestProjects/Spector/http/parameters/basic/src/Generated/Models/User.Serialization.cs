@@ -32,7 +32,5 @@ namespace Parameters.Basic._ExplicitBody
         string IPersistableModel<User>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(User user) => throw null;
-
-        public static explicit operator User(ClientResult result) => throw null;
     }
 }
