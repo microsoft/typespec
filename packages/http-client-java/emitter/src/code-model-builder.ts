@@ -1173,7 +1173,10 @@ export class CodeModelBuilder {
     let nextLinkReInjectedParameters: Parameter[] | undefined;
     if (this.isBranded()) {
       // nextLinkReInjectedParameters is only supported in Azure
-      if (sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments && sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0) {
+      if (
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments &&
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+      ) {
         nextLinkReInjectedParameters = [];
         for (const parameterSegments of sdkMethod.pagingMetadata
           .nextLinkReInjectedParametersSegments) {
