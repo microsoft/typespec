@@ -15,6 +15,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -26,12 +27,12 @@ let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
 try {
-  main();
+  await main();
 } catch (e) {
   fatalError(e);
 }
 
-function main() {
+async function main() {
   // Redirect all console stdout output to stderr since LSP pipe uses stdout
   // and writing to stdout for anything other than LSP protocol will break
   // things badly.
@@ -86,7 +87,8 @@ function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -106,11 +108,23 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+
+    // Initialize client configurations
+    await clientConfigProvider.initialClientConfig(connection, host);
     s.initialized(params);
+  });
+
+  connection.onDidChangeConfiguration(async (params) => {
+    // Update vscode configurations
+    if (params.settings && params.settings.typespec) {
+      clientConfigProvider.updateClientConfigs(params.settings.typespec);
+    }
+
+    s.log({ level: `debug`, message: `Configuration changed`, detail: params.settings });
   });
 
   connection.onDocumentFormatting(profile(s.formatDocument));
