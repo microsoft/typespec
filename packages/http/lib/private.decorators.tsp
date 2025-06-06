@@ -64,3 +64,16 @@ extern dec mergePatchModel(target: Reflection.Model, source: Reflection.Model);
  * its source property;
  */
 extern dec mergePatchProperty(target: Reflection.ModelProperty, source: Reflection.ModelProperty);
+
+/** Apply the omit metadata transform. */
+extern dec omitMetadata(
+  target: TypeSpec.Reflection.Model,
+  source: TypeSpec.Reflection.Model,
+  nameTemplate: valueof string
+);
+/** Apply the strip metadata transform. */
+extern dec stripMetadata(
+  target: TypeSpec.Reflection.Model,
+  source: TypeSpec.Reflection.Model,
+  nameTemplate: valueof string
+);
