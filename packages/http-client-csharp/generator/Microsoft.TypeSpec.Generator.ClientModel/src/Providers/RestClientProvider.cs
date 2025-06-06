@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
-        private const string AcceptHeader = "Accept";
+
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
             { RepeatabilityRequestIdHeader, ScmKnownParameters.RepeatabilityRequestId },
@@ -229,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (isNextLink && inputParameter.NameInRequest != AcceptHeader)
+                if (isNextLink && !inputParameter.IsAcceptHeader())
                 {
                     continue;
                 }
@@ -488,7 +488,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
-            else if (TryGetAcceptHeaderContentTypes(inputParam, operation, out var contentTypes))
+            else if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, operation, out var contentTypes))
             {
                 string joinedContentTypes = string.Join(", ", contentTypes);
                 valueExpression = Literal(joinedContentTypes);
@@ -591,7 +591,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
-                if (TryGetAcceptHeaderContentTypes(inputParam, serviceMethod.Operation, out _))
+                if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, serviceMethod.Operation, out _))
                 {
                     continue;
                 }
@@ -722,42 +722,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool TryGetAcceptHeaderContentTypes(
+        private static bool TryGetAcceptHeaderWithMultipleContentTypes(
             InputParameter inputParameter,
             InputOperation inputOperation,
             [NotNullWhen(true)] out IReadOnlyList<string>? values)
         {
             values = null;
-            if (!inputParameter.NameInRequest.Equals(AcceptHeader, StringComparison.OrdinalIgnoreCase))
+            if (!inputParameter.IsAcceptHeader())
             {
                 return false;
             }
 
-            if (inputParameter.Location != InputRequestLocation.Header && inputParameter.Kind != InputParameterKind.Method)
+            if (inputParameter.Kind != InputParameterKind.Method)
             {
                 return false;
             }
 
             // Get the content types across all responses
-            List<string> contentTypes = [];
+            var uniqueContentTypes = new HashSet<string>();
             foreach (var response in inputOperation.Responses)
             {
-                contentTypes.AddRange(response.ContentTypes);
+                foreach (var contentType in response.ContentTypes)
+                {
+                    uniqueContentTypes.Add(contentType);
+                }
             }
 
-            if (contentTypes.Count <= 1)
+            if (uniqueContentTypes.Count <= 1)
             {
                 return false;
             }
 
-            var distinctContentTypes = contentTypes.Distinct().ToList();
-            if (distinctContentTypes.Count > 1)
-            {
-                values = distinctContentTypes;
-                return true;
-            }
+            values = [.. uniqueContentTypes.OrderBy(ct => ct)];
 
-            return false;
+            return true;
         }
     }
 }

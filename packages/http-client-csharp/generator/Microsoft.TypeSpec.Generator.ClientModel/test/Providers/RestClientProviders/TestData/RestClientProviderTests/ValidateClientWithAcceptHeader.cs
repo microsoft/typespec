@@ -17,7 +17,7 @@ namespace Sample
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             request.Uri = uri.ToUri();
-            request.Headers.Set("accept", "image/png, image/jpeg");
+            request.Headers.Set("accept", "image/jpeg, image/png");
             message.Apply(options);
             return message;
         }
