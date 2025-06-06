@@ -14,7 +14,7 @@ public class CustomAuthTests {
     @Test
     public void testValid() {
         CustomClient client = new CustomClientBuilder()
-            .addHttpPipelinePolicy(new KeyCredentialPolicy("x-ms-api-key", new KeyCredential("valid-key")))
+            .addHttpPipelinePolicy(new KeyCredentialPolicy("authorization", new KeyCredential("valid-key"), "SharedAccessKey"))
             .buildClient();
 
         client.valid();
@@ -23,7 +23,7 @@ public class CustomAuthTests {
     @Test
     public void testInvalid() {
         CustomClient client = new CustomClientBuilder()
-            .addHttpPipelinePolicy(new KeyCredentialPolicy("x-ms-api-key", new KeyCredential("invalid-key")))
+            .addHttpPipelinePolicy(new KeyCredentialPolicy("authorization", new KeyCredential("invalid-key"), "SharedAccessKey"))
             .buildClient();
 
         // assert HttpResponseException
