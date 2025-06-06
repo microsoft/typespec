@@ -169,7 +169,6 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", true);
         SETTINGS_MAP.put("polling", new HashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
@@ -261,6 +260,8 @@ public class TypeSpecPlugin extends Javagen {
 
         if (emitterOptions.getDefaultHttpExceptionType() != null) {
             SETTINGS_MAP.put("default-http-exception-type", options.getDefaultHttpExceptionType());
+        } else {
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", true);
         }
 
         if (options.getFlavor() != null) {
