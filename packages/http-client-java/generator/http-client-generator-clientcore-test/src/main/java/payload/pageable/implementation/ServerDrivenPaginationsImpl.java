@@ -15,6 +15,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
@@ -119,17 +120,28 @@ public final class ServerDrivenPaginationsImpl {
     public PagedIterable<Pet> link() {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             return linkSinglePage();
         }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
@@ -149,17 +161,28 @@ public final class ServerDrivenPaginationsImpl {
         RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'.");
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             return linkSinglePage(requestContext);
         }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
@@ -200,4 +223,6 @@ public final class ServerDrivenPaginationsImpl {
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
             null, res.getValue().getNext(), null, null, null);
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);
 }

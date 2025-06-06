@@ -1911,28 +1911,24 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
         StringBuilder expression = new StringBuilder();
         expression.append("if (pagingOptions.getOffset() != null) {")
-            .append("throw new IllegalArgumentException(\"'offset' in PagingOptions is not supported in API '")
-            .append(clientMethod.getName())
-            .append("'.\");")
+            .append(getLogExpression("offset", clientMethod.getName()))
             .append("}");
         expression.append("if (pagingOptions.getPageSize() != null) {")
-            .append("throw new IllegalArgumentException(\"'pageSize' in PagingOptions is not supported in API '")
-            .append(clientMethod.getName())
-            .append("'.\");")
+            .append(getLogExpression("pageSize", clientMethod.getName()))
             .append("}");
         expression.append("if (pagingOptions.getPageIndex() != null) {")
-            .append("throw new IllegalArgumentException(\"'pageIndex' in PagingOptions is not supported in API '")
-            .append(clientMethod.getName())
-            .append("'.\");")
+            .append(getLogExpression("pageIndex", clientMethod.getName()))
             .append("}");
         if (clientMethod.getMethodPageDetails().getContinuationToken() == null) {
             expression.append("if (pagingOptions.getContinuationToken() != null) {")
-                .append(
-                    "throw new IllegalArgumentException(\"'continuationToken' in PagingOptions is not supported in API '")
-                .append(clientMethod.getName())
-                .append("'.\");")
+                .append(getLogExpression("continuationToken", clientMethod.getName()))
                 .append("}");
         }
         return expression.toString();
+    }
+
+    protected String getLogExpression(String propertyName, String methodName) {
+        return "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'" + propertyName
+            + "' in PagingOptions is not supported in API '" + methodName + "'.\"))";
     }
 }
