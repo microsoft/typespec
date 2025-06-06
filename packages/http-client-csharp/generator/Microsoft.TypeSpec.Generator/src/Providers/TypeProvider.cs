@@ -113,11 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private CSharpType? _type;
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
-            BuildType();
-
-        private CSharpType BuildType()
-        {
-            return new(
+            new(
                 CustomCodeView?.Name ?? BuildName(),
                 CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
@@ -130,7 +126,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                 GetBaseType(),
                 IsEnum ? EnumUnderlyingType.FrameworkType : null);
-        }
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
