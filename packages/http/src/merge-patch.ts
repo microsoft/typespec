@@ -45,7 +45,7 @@ import {
 } from "./experimental/merge-patch/index.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { isMetadata } from "./metadata.js";
-import { cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
+import { applyClone, cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
 export const $mergePatchModel: MergePatchModelDecorator = (
   ctx: DecoratorContext,
@@ -110,8 +110,12 @@ export const $applyMergePatch: ApplyMergePatchDecorator = (
   ));
 
   const mutated = cachedMutateSubgraph(ctx.program, mutator, source);
-
-  target.properties = (mutated.type as Model).properties;
+  compilerAssert(
+    mutated.type.kind === "Model",
+    `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
+    ctx.decoratorTarget,
+  );
+  applyClone(target, mutated.type);
   ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(target, source);
 };
 

@@ -1,4 +1,4 @@
-import { Program, Type } from "@typespec/compiler";
+import { Model, Program, Type } from "@typespec/compiler";
 import {
   unsafe_MutableType as MutableType,
   unsafe_mutateSubgraph as mutateSubgraph,
@@ -27,6 +27,12 @@ export function cachedMutateSubgraph(
 
   cache.set(type, cached);
   return cached;
+}
+
+export function applyClone(target: Model, clone: Model): void {
+  target.name = clone.name;
+  target.baseModel = clone.baseModel;
+  target.properties = clone.properties;
 }
 
 export function rename(

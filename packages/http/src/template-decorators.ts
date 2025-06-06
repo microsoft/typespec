@@ -14,13 +14,7 @@ import {
 } from "@typespec/compiler/experimental";
 import { OmitMetadataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
 import { isMetadata } from "./metadata.js";
-import { cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
-
-function applyClone(target: Model, clone: Model): void {
-  target.name = clone.name;
-  target.baseModel = clone.baseModel;
-  target.properties = clone.properties;
-}
+import { applyClone, cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
 export const $omitMetadata: OmitMetadataDecorator = (
   ctx: DecoratorContext,
