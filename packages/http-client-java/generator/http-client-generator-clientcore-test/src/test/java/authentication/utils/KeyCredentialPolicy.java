@@ -14,18 +14,19 @@ import io.clientcore.core.http.pipeline.HttpCredentialPolicy;
 import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-
 import java.util.Objects;
 
 /**
  * Pipeline policy that uses an {@link KeyCredential} to set the authorization key for a request.
  *
- * <p>Requests sent with this pipeline policy are required to use {@code HTTPS}. If the request isn't using {@code HTTPS}
+ * <p>Requests sent with this pipeline policy are required to use {@code HTTPS}. If the request isn't using
+ * {@code HTTPS}
  * an exception will be thrown to prevent leaking the key.</p>
  */
 @Metadata(properties = MetadataProperties.IMMUTABLE)
 public class KeyCredentialPolicy extends HttpCredentialPolicy {
-    private static final ClientLogger LOGGER = new ClientLogger(io.clientcore.core.http.pipeline.KeyCredentialPolicy.class);
+    private static final ClientLogger LOGGER
+        = new ClientLogger(io.clientcore.core.http.pipeline.KeyCredentialPolicy.class);
     private final HttpHeaderName name;
     private final KeyCredential credential;
     private final String prefix;
@@ -78,6 +79,7 @@ public class KeyCredentialPolicy extends HttpCredentialPolicy {
 
     /**
      * {@inheritDoc}
+     * 
      * @throws IllegalStateException If the request is not using {@code HTTPS}.
      */
     @Override
