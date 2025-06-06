@@ -56,6 +56,12 @@
       <artifactId>javaparser-core</artifactId>
       <version>3.25.10</version>
     </dependency>
+    <!-- 1.24.0 is the last version that supports Java 11 -->
+    <dependency>
+      <groupId>com.google.googlejavaformat</groupId>
+      <artifactId>google-java-format</artifactId>
+      <version>1.24.0</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
