@@ -16,6 +16,12 @@ import { OmitMetadataDecorator } from "../generated-defs/TypeSpec.Http.Private.j
 import { isMetadata } from "./metadata.js";
 import { cachedMutateSubgraph, rename } from "./utils/mutator-utils.js";
 
+function applyClone(target: Model, clone: Model): void {
+  target.name = clone.name;
+  target.baseModel = clone.baseModel;
+  target.properties = clone.properties;
+}
+
 export const $omitMetadata: OmitMetadataDecorator = (
   ctx: DecoratorContext,
   target: Model,
@@ -29,8 +35,7 @@ export const $omitMetadata: OmitMetadataDecorator = (
     `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
     ctx.decoratorTarget,
   );
-  target.name = mutated.type.name;
-  target.properties = mutated.type.properties;
+  applyClone(target, mutated.type as Model);
   target.decorators = target.decorators.filter((d) => d.decorator !== $omitMetadata);
 };
 
@@ -63,8 +68,7 @@ export const $stripMetadata: OmitMetadataDecorator = (
     `Mutator should have mutated to a Model, but got ${mutated.type.kind}`,
     ctx.decoratorTarget,
   );
-  target.name = mutated.type.name;
-  target.properties = mutated.type.properties;
+  applyClone(target, mutated.type);
   target.decorators = target.decorators.filter((d) => d.decorator !== $stripMetadata);
 };
 
@@ -128,6 +132,13 @@ function createDeepMutator(nameTemplate: string, mutator: DeepMutator) {
           const changed = mutator.Model(original, clone, program, realm);
           mutated = changed !== original;
           if (mutated) clone = changed as Model;
+        }
+        if (original.baseModel) {
+          const baseClone = cachedMutateSubgraph(program, self, original.baseModel).type;
+          if (baseClone !== original.baseModel) {
+            clone.baseModel = baseClone as Model;
+            mutated = true;
+          }
         }
         for (const [name, prop] of original.properties.entries()) {
           const propClone = cachedMutateSubgraph(program, self, prop).type;

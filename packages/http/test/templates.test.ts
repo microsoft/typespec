@@ -1,6 +1,6 @@
 import { Model, ModelProperty, Program, Type } from "@typespec/compiler";
 import { BasicTestRunner, expectTypeEquals } from "@typespec/compiler/testing";
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
 import { isMetadata } from "../src/metadata.js";
@@ -79,7 +79,7 @@ describe("OmitMetadata<T>", () => {
     expect(target.properties.has("c")).toBe(true);
   });
 
-  it("omit nested properties too", async () => {
+  it("omit nested properties", async () => {
     const { target } = await compile(`
         OmitMetadata<{
           @header a: string;
@@ -95,6 +95,25 @@ describe("OmitMetadata<T>", () => {
     strictEqual(nested?.kind, "Model");
     expect(nested.properties.has("c")).toBe(false);
     expect(nested.properties.has("d")).toBe(true);
+  });
+
+  it("omit in base model", async () => {
+    const { target } = await compile(
+      `
+        OmitMetadata<A>
+      `,
+      `
+        model A extends B {}
+        model B {
+          @header b: string;
+          c: string;
+        }`,
+    );
+    const base = target.baseModel;
+    ok(base);
+    expect(base.properties.size).toBe(1);
+    expect(base.properties.has("b")).toBe(false);
+    expect(base.properties.has("c")).toBe(true);
   });
 
   it("keeps original type if it doesn't need to be updated", async () => {
@@ -179,7 +198,7 @@ describe("StripMetadata<T>", () => {
     expect(isMetadata(program, target.properties.get("b")!)).toBe(false);
   });
 
-  it("omit nested properties too", async () => {
+  it("strip in nested properties", async () => {
     const { target, program } = await compile(`
         StripMetadata<{
           a: string;
@@ -192,6 +211,23 @@ describe("StripMetadata<T>", () => {
     const nested = target.properties.get("nested")?.type;
     strictEqual(nested?.kind, "Model");
     expect(isMetadata(program, nested.properties.get("c")!)).toBe(false);
+  });
+
+  it("strip in base model", async () => {
+    const { target, program } = await compile(
+      `
+        StripMetadata<A>
+      `,
+      `
+        model A extends B {}
+        model B {
+          @header b: string;
+          c: string;
+        }`,
+    );
+    const base = target.baseModel;
+    ok(base);
+    expect(isHeader(program, base.properties.get("b")!)).toBe(false);
   });
 
   it("doesn't affect model using it with model is", async () => {

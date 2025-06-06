@@ -4560,7 +4560,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return;
     }
 
-    if (isExpr.kind === SyntaxKind.ModelExpression) {
+    if ((isExpr as any).kind === SyntaxKind.ModelExpression) {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "is-model", messageId: "modelExpression", target: isExpr }),
       );
