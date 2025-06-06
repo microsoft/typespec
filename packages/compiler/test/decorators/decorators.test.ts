@@ -278,13 +278,7 @@ describe("compiler: built-in decorators", () => {
           @pattern("^[a-zA-Z0-9-]{3,24}$")
           name: Test;
         }
-
-        union Test {
-          1,
-          2,
-          int32,
-        }
-
+        union Test { 1, int32 }
       `);
 
       expectDiagnostics(diagnostics, {
@@ -300,13 +294,7 @@ describe("compiler: built-in decorators", () => {
           @pattern("^[a-zA-Z0-9-]{3,24}$")
           name: Test;
         }
-
-        union Test {
-          "A",
-          "B",
-          string,
-        }
-
+        union Test { "A", "B", string }
       `);
 
       expectDiagnosticEmpty(diagnostics);
