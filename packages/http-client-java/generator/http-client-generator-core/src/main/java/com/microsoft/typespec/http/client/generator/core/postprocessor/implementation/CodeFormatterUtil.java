@@ -139,13 +139,13 @@ public final class CodeFormatterUtil {
                 String fileName = fileNameMatcher.group(1);
                 Path filePath = sources.resolve(fileName);
                 if (!Files.exists(filePath)) {
-                    return String.format("file name: '%s', content is not available", fileName);
+                    return String.format("file='%s', content is not available", fileName);
                 }
 
                 String fileContent = Files.readString(filePath);
                 Matcher lineNumberMatcher = SPOTLESS_ERROR_LINE_NUMBER_PATTERN.matcher(allLines.get(i + 1));
                 if (!lineNumberMatcher.find()) {
-                    return String.format("file name: '%s', Full content:\n---\n%s\n---", fileName, fileContent);
+                    return String.format("file='%s', Full content:\n---\n%s\n---", fileName, fileContent);
                 }
 
                 int lineNumber = Integer.parseInt(lineNumberMatcher.group(1));
@@ -155,7 +155,8 @@ public final class CodeFormatterUtil {
                     .limit(SPOTLESS_FILE_CONTENT_RANGE * 2 + 1)
                     .collect(Collectors.joining("\n"));
 
-                return String.format("file name: '%s', Content around error:\n---\n%s\n---", fileName, errorContent);
+                return String.format("file='%s:%s', Content around error:\n---\n%s\n---", fileName, lineNumber,
+                    errorContent);
             }
         }
 
