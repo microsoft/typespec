@@ -110,16 +110,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _deprecated = value;
         }
 
-        private string? _name;
         private CSharpType? _type;
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
-            BuildType();
-
-        private CSharpType BuildType()
-        {
-            return new(
-                _name ??= CustomCodeView?.Name ?? BuildName(),
+            new(
+                CustomCodeView?.Name ?? BuildName(),
                 CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
@@ -131,7 +126,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
                 GetBaseType(),
                 IsEnum ? EnumUnderlyingType.FrameworkType : null);
-        }
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
@@ -406,8 +400,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // Reset the custom code view to reflect the new name
                 _customCodeView = new(GetCustomCodeView(name));
-                _name = _customCodeView.Value?.Name ?? name;
-                _type = BuildType();
+                // Give precedence to the custom code view name if it exists
+                Type.Update(_customCodeView.Value?.Name ?? name);
             }
 
             if (@namespace != null)
