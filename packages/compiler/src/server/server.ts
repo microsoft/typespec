@@ -114,17 +114,8 @@ async function main() {
     }
 
     // Initialize client configurations
-    await clientConfigProvider.initialClientConfig(connection, host);
+    await clientConfigProvider.initialize(connection, host);
     s.initialized(params);
-  });
-
-  connection.onDidChangeConfiguration(async (params) => {
-    // Update vscode configurations
-    if (params.settings && params.settings.typespec) {
-      clientConfigProvider.updateClientConfigs(params.settings.typespec);
-    }
-
-    s.log({ level: `debug`, message: `Configuration changed`, detail: params.settings });
   });
 
   connection.onDocumentFormatting(profile(s.formatDocument));
