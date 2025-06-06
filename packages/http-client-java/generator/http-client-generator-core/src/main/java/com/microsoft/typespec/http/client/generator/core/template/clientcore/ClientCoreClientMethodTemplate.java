@@ -1272,4 +1272,32 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
         return serviceVersion;
     }
+
+    protected String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+        StringBuilder expression = new StringBuilder();
+        expression.append("if (pagingOptions.getOffset() != null) {")
+            .append("throw LOGGER.throwableAtError().addKeyValue(\"method\", \"")
+            .append(clientMethod.getName())
+            .append("\").log(\"'offset' in PagingOptions is not supported.\", IllegalArgumentException::new);")
+            .append("}");
+        expression.append("if (pagingOptions.getPageSize() != null) {")
+            .append("throw LOGGER.throwableAtError().addKeyValue(\"method\", \"")
+            .append(clientMethod.getName())
+            .append("\").log(\"'pageSize' in PagingOptions is not supported.\", IllegalArgumentException::new);")
+            .append("}");
+        expression.append("if (pagingOptions.getPageIndex() != null) {")
+            .append("throw LOGGER.throwableAtError().addKeyValue(\"method\", \"")
+            .append(clientMethod.getName())
+            .append("\").log(\"'pageIndex' in PagingOptions is not supported.\", IllegalArgumentException::new);")
+            .append("}");
+        if (clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+            expression.append("if (pagingOptions.getContinuationToken() != null) {")
+                .append("throw LOGGER.throwableAtError().addKeyValue(\"method\", \"")
+                .append(clientMethod.getName())
+                .append(
+                    "\").log(\"'continuationToken' in PagingOptions is not supported.\", IllegalArgumentException::new);")
+                .append("}");
+        }
+        return expression.toString();
+    }
 }
