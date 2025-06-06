@@ -477,3 +477,13 @@ export function getVscodeUriFromPath(path: string): string {
   const uri = vscode.Uri.file(path);
   return uri.toString();
 }
+
+export function distinctArray<T>(arr: T[], compare: (a: T, b: T) => boolean): T[] {
+  const result: T[] = [];
+  for (const item of arr) {
+    if (!result.some((r) => compare(r, item))) {
+      result.push(item);
+    }
+  }
+  return result;
+}

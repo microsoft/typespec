@@ -18,7 +18,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.madeoptional.MadeOptionalServiceVersion;
 import versioning.madeoptional.TestModel;
-import versioning.madeoptional.Versions;
 
 /**
  * Initializes a new instance of the MadeOptionalClient type.
@@ -41,20 +40,6 @@ public final class MadeOptionalClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -90,14 +75,12 @@ public final class MadeOptionalClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint,
         MadeOptionalServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline);
     }
@@ -122,7 +105,7 @@ public final class MadeOptionalClientImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<TestModel> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<TestModel> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("param") String param, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") TestModel body,
             RequestContext requestContext);
@@ -143,7 +126,8 @@ public final class MadeOptionalClientImpl {
     public Response<TestModel> testWithResponse(TestModel body, String param, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.test(this.getEndpoint(), this.getVersion(), param, contentType, accept, body, requestContext);
+        return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType, accept, body,
+            requestContext);
     }
 
     /**

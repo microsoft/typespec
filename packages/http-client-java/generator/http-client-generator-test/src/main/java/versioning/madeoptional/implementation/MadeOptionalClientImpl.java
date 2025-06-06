@@ -32,7 +32,6 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.madeoptional.MadeOptionalServiceVersion;
-import versioning.madeoptional.models.Versions;
 
 /**
  * Initializes a new instance of the MadeOptionalClient type.
@@ -55,20 +54,6 @@ public final class MadeOptionalClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -117,12 +102,11 @@ public final class MadeOptionalClientImpl {
      * Initializes an instance of MadeOptionalClient client.
      * 
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(String endpoint, Versions version, MadeOptionalServiceVersion serviceVersion) {
+    public MadeOptionalClientImpl(String endpoint, MadeOptionalServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -130,12 +114,11 @@ public final class MadeOptionalClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
+    public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint,
         MadeOptionalServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -144,15 +127,13 @@ public final class MadeOptionalClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
     public MadeOptionalClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        Versions version, MadeOptionalServiceVersion serviceVersion) {
+        MadeOptionalServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service
             = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline, this.getSerializerAdapter());
@@ -171,7 +152,7 @@ public final class MadeOptionalClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Mono<Response<BinaryData>> test(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
@@ -181,7 +162,7 @@ public final class MadeOptionalClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<BinaryData> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
@@ -229,8 +210,8 @@ public final class MadeOptionalClientImpl {
     public Mono<Response<BinaryData>> testWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getVersion(), contentType, accept,
-            body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getServiceVersion().getVersion(),
+            contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -276,7 +257,7 @@ public final class MadeOptionalClientImpl {
     public Response<BinaryData> testWithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions,
-            Context.NONE);
+        return service.testSync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestOptions, Context.NONE);
     }
 }

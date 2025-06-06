@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
         protected override Bird PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Goose>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Goose goose) => throw null;
-
-        public static explicit operator Goose(ClientResult result) => throw null;
     }
 }

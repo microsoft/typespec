@@ -17,7 +17,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import java.lang.reflect.InvocationTargetException;
 import versioning.renamedfrom.NewModel;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.Versions;
 
 /**
  * An instance of this class provides access to all the operations defined in NewInterfaces.
@@ -73,7 +72,7 @@ public final class NewInterfacesImpl {
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<NewModel> newOpInNewInterface(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") NewModel body,
             RequestContext requestContext);
     }
@@ -92,8 +91,8 @@ public final class NewInterfacesImpl {
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getVersion(), contentType, accept,
-            body, requestContext);
+        return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+            contentType, accept, body, requestContext);
     }
 
     /**
