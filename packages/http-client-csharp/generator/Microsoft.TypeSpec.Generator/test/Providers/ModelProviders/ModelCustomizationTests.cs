@@ -816,5 +816,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
         }
+
+        [Test]
+        public async Task CanCustomizeTypeRenamedInVisitor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+
+            Assert.IsNotNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CustomCodeView!.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.CanonicalView.Type.Name);
+        }
+
+        [Test]
+        public void CanCustomizeWithVisitor()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that renames the type
+            modelTypeProvider.Update(name: "RenamedModel");
+            // Type should be renamed to the visitor value
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
+            Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
+        }
     }
 }
