@@ -76,13 +76,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 {
                     var operation = method.Operation;
                     var response = operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+                    // Include both service method and operation responses for output types
+                    // Service methods will have the public response type for things like LROs, while operation responses
+                    // will have the internal response types for paging operations
                     if (response?.BodyType is InputModelType inputModelType)
                     {
                         _rootOutputModels.Add(inputModelType);
                     }
+                    if (method.Response.Type is InputModelType outputModelType)
+                    {
+                        _rootOutputModels.Add(outputModelType);
+                    }
 
                     if (operation.GenerateConvenienceMethod)
                     {
+                        // For parameters, the operation parameters are sufficient.
                         foreach (var parameter in operation.Parameters)
                         {
                             if (parameter.Type is InputModelType modelType)
