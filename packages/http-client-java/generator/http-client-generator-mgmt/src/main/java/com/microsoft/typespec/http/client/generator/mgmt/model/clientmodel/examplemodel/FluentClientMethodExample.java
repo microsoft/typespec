@@ -105,6 +105,9 @@ public class FluentClientMethodExample implements FluentMethodExample {
                 serviceClientReference = "deploymentStackClient()";
             } else if (tag.contains("databoundaries")) {
                 serviceClientReference = "dataBoundaryClient()";
+            } else if (!tag.contains("resources")) {
+                // OpenAPI source of deployments moved to a separate folder
+                serviceClientReference = "deploymentClient()";
             }
         }
 
