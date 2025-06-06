@@ -28,7 +28,8 @@ import org.slf4j.Logger;
  */
 public final class CodeFormatterUtil {
 
-    private static final Pattern SPOTLESS_ERROR_PATTERN
+    private static final Pattern SPOTLESS_ERROR_FILE_NAME_PATTERN = Pattern.compile("\\[ERROR].*?in '(.+?\\.java)'");
+    private static final Pattern SPOTLESS_ERROR_LINE_NUMBER_PATTERN
         = Pattern.compile("^(\\d+):\\d+: error: (.*)$", Pattern.MULTILINE);
     private static final int SPOTLESS_FILE_CONTENT_RANGE = 3;
 
@@ -44,35 +45,7 @@ public final class CodeFormatterUtil {
                 plugin.writeFile(file.getKey(), file.getValue(), null);
             }
         } catch (SpotlessException ex) {
-            // format one file at a time, to give better error diagnostics
-            for (Map.Entry<String, String> file : files.entrySet()) {
-                try {
-                    formatCodeInternal(List.of(file));
-                } catch (RuntimeException e) {
-                    // by default, log the whole file
-                    String content = file.getValue();
-
-                    // if we can find the line number from the error message, refine the "content" to the part of file
-                    // around the line
-                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
-                    if (matcher.find()) {
-                        int lineNumber = Integer.parseInt(matcher.group(1));
-
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(matcher.group(0)).append("\n");
-
-                        // line number from log starts from 1
-                        String[] lines = content.split("\n");
-                        int lineIndexBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
-                        int lineIndexEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
-                        for (int lineIndex = lineIndexBegin; lineIndex <= lineIndexEnd; ++lineIndex) {
-                            stringBuilder.append(lineIndex + 1).append(" ").append(lines[lineIndex]).append("\n");
-                        }
-                        content = stringBuilder.toString();
-                    }
-                    logger.error("Failed to format file '{}'\n{}", file.getKey(), content);
-                }
-            }
+            logger.error("Failed to format code", ex);
             throw ex;
         }
     }
@@ -114,13 +87,12 @@ public final class CodeFormatterUtil {
                 formattedFiles.add(new AbstractMap.SimpleEntry<>(javaFile.getKey(), Files.readString(file)));
             }
 
+            // only delete the temporary directory if all files were formatted successfully
+            Utils.deleteDirectory(tmpDir.toFile());
+
             return formattedFiles;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        } finally {
-            if (tmpDir != null) {
-                Utils.deleteDirectory(tmpDir.toFile());
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -134,21 +106,60 @@ public final class CodeFormatterUtil {
 
         try {
             File outputFile = Files.createTempFile(pomPath.getParent(), "spotless", ".log").toFile();
-            outputFile.deleteOnExit();
             Process process = new ProcessBuilder(command).redirectErrorStream(true)
                 .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
                 .start();
             process.waitFor(300, TimeUnit.SECONDS);
 
-            if (process.isAlive() || process.exitValue() != 0) {
+            String errorType = null;
+            if (process.exitValue() != 0) {
+                errorType = "Process failed with exit code " + process.exitValue();
+            }
+
+            if (process.isAlive()) {
                 process.destroyForcibly();
+                errorType = "Process was killed after 300 seconds timeout";
+            }
+
+            if (errorType != null) {
                 throw new SpotlessException(
-                    "Spotless failed to complete within 300 seconds or failed with an error code. Output:\n"
-                        + Files.readString(outputFile.toPath()));
+                    String.format("Spotless failed to format code. Log file: '%s', Error info: %s", outputFile,
+                        getErrorInfo(outputFile.toPath(), pomPath.getParent())));
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run Spotless on generated code.", ex);
         }
+    }
+
+    private static String getErrorInfo(Path outputFile, Path sources) throws IOException {
+        List<String> allLines = Files.readAllLines(outputFile);
+        for (int i = 0; i < allLines.size() - 1; i++) {
+            Matcher fileNameMatcher = SPOTLESS_ERROR_FILE_NAME_PATTERN.matcher(allLines.get(i));
+            if (fileNameMatcher.find()) {
+                String fileName = fileNameMatcher.group(1);
+                Path filePath = sources.resolve(fileName);
+                if (!Files.exists(filePath)) {
+                    return String.format("file name: '%s', content is not available", fileName);
+                }
+
+                String fileContent = Files.readString(filePath);
+                Matcher lineNumberMatcher = SPOTLESS_ERROR_LINE_NUMBER_PATTERN.matcher(allLines.get(i + 1));
+                if (!lineNumberMatcher.find()) {
+                    return String.format("file name: '%s', Full content:\n---\n%s\n---", fileName, fileContent);
+                }
+
+                int lineNumber = Integer.parseInt(lineNumberMatcher.group(1));
+
+                String errorContent = fileContent.lines()
+                    .skip(Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE))
+                    .limit(SPOTLESS_FILE_CONTENT_RANGE * 2 + 1)
+                    .collect(Collectors.joining("\n"));
+
+                return String.format("file name: '%s', Content around error:\n---\n%s\n---", fileName, errorContent);
+            }
+        }
+
+        return null;
     }
 
     private static final class SpotlessException extends RuntimeException {

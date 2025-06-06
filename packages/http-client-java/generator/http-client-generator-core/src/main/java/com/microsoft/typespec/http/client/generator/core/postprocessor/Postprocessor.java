@@ -45,7 +45,7 @@ public class Postprocessor {
         if (className == null) {
             try {
                 writeToFiles(fileContents, plugin, logger);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logger.error("Failed to complete postprocessing.", e);
                 throw new RuntimeException("Failed to complete postprocessing.", e);
             }
@@ -120,11 +120,7 @@ public class Postprocessor {
             handlePartialUpdate(javaFiles, plugin, logger);
         }
 
-        try {
-            CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
     }
 
     private static String getReadme(NewPlugin plugin) {
