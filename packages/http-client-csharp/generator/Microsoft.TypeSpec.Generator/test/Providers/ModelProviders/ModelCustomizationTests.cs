@@ -856,7 +856,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task CanChangeTypeNameAndTypeNamespace()
+        public async Task CanChangeTypeNameAfterTypeNamespace()
         {
             await MockHelpers.LoadMockGeneratorAsync();
             var inputModel = InputFactory.Model("mockInputModel", properties: []);
@@ -869,6 +869,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Simulate a visitor that changes the name of the type
             modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
+
+            Assert.IsNull(modelTypeProvider.CustomCodeView);
+        }
+
+        [Test]
+        public async Task CanChangeTypeNamespaceAfterTypeName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that changes the name of the type
+            modelTypeProvider.Update(name: "CustomizedTypeName");
+            Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
+            Assert.AreEqual("Sample.Models", modelTypeProvider.Type.Namespace);
+
+            // Simulate a visitor that changes the namespace of the type
+            modelTypeProvider.Update(@namespace: "NewNamespace");
             Assert.AreEqual("CustomizedTypeName", modelTypeProvider.Type.Name);
             Assert.AreEqual("NewNamespace", modelTypeProvider.Type.Namespace);
 
