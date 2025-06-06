@@ -15,7 +15,6 @@
     "versioning.removed.models.EnumV2": "Versioning.Removed.EnumV2",
     "versioning.removed.models.EnumV3": "Versioning.Removed.EnumV3",
     "versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2",
-    "versioning.removed.models.ModelV3": "Versioning.Removed.ModelV3",
-    "versioning.removed.models.Versions": "Versioning.Removed.Versions"
+    "versioning.removed.models.ModelV3": "Versioning.Removed.ModelV3"
   }
 }
