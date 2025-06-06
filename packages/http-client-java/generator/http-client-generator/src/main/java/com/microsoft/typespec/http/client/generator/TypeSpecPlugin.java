@@ -259,6 +259,10 @@ public class TypeSpecPlugin extends Javagen {
             SETTINGS_MAP.put("polling", options.getPolling());
         }
 
+        if (emitterOptions.getDefaultHttpExceptionType() != null) {
+            SETTINGS_MAP.put("default-http-exception-type", options.getDefaultHttpExceptionType());
+        }
+
         if (options.getFlavor() != null) {
             SETTINGS_MAP.put("flavor", options.getFlavor());
         }
