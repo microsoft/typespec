@@ -56,7 +56,7 @@ public final class FormDatasImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiPartClientFormD")
+    @ServiceInterface(name = "MultiPartClientFormDatas")
     public interface FormDatasService {
         // @Multipart not supported by RestProxy
         @Post("/multipart/form-data/mixed-parts")

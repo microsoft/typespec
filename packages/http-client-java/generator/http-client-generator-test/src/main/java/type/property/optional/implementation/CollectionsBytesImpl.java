@@ -57,7 +57,7 @@ public final class CollectionsBytesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientCollec")
+    @ServiceInterface(name = "OptionalClientCollectionsBytes")
     public interface CollectionsBytesService {
         @Get("/type/property/optional/collections/bytes/all")
         @ExpectedResponses({ 200 })

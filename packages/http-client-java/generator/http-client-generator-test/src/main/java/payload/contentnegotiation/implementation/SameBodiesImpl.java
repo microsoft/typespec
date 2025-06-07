@@ -55,7 +55,7 @@ public final class SameBodiesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ContentNegotiationCl")
+    @ServiceInterface(name = "ContentNegotiationClientSameBodies")
     public interface SameBodiesService {
         @Get("/content-negotiation/same-body")
         @ExpectedResponses({ 200 })

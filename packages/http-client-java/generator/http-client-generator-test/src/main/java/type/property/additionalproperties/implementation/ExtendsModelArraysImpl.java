@@ -57,7 +57,7 @@ public final class ExtendsModelArraysImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsModelArrays")
     public interface ExtendsModelArraysService {
         @Get("/type/property/additionalProperties/extendsRecordModelArray")
         @ExpectedResponses({ 200 })

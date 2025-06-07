@@ -3,7 +3,6 @@ package type.dictionary.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class RecursiveModelValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     RecursiveModelValuesImpl(DictionaryClientImpl client) {
-        this.service = RestProxy.create(RecursiveModelValuesService.class, client.getHttpPipeline());
+        this.service = RecursiveModelValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class RecursiveModelValuesImpl {
      * The interface defining all the services for DictionaryClientRecursiveModelValues to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "DictionaryClientRecu", host = "{endpoint}")
+    @ServiceInterface(name = "DictionaryClientRecursiveModelValues", host = "{endpoint}")
     public interface RecursiveModelValuesService {
         static RecursiveModelValuesService getNewInstance(HttpPipeline pipeline) {
             try {

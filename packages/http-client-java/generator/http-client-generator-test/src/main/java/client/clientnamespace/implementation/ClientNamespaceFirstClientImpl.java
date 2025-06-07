@@ -123,7 +123,7 @@ public final class ClientNamespaceFirstClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ClientNamespaceFirst")
+    @ServiceInterface(name = "ClientNamespaceFirstClient")
     public interface ClientNamespaceFirstClientService {
         @Get("/client/client-namespace/first")
         @ExpectedResponses({ 200 })

@@ -3,7 +3,6 @@ package payload.multipart.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class FormDataHttpPartsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsImpl(MultiPartClientImpl client) {
-        this.service = RestProxy.create(FormDataHttpPartsService.class, client.getHttpPipeline());
+        this.service = FormDataHttpPartsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class FormDataHttpPartsImpl {
      * The interface defining all the services for MultiPartClientFormDataHttpParts to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "MultiPartClientFormD", host = "{endpoint}")
+    @ServiceInterface(name = "MultiPartClientFormDataHttpParts", host = "{endpoint}")
     public interface FormDataHttpPartsService {
         static FormDataHttpPartsService getNewInstance(HttpPipeline pipeline) {
             try {

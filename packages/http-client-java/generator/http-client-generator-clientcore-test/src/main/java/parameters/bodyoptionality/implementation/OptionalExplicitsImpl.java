@@ -3,7 +3,6 @@ package parameters.bodyoptionality.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -36,7 +35,7 @@ public final class OptionalExplicitsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     OptionalExplicitsImpl(BodyOptionalityClientImpl client) {
-        this.service = RestProxy.create(OptionalExplicitsService.class, client.getHttpPipeline());
+        this.service = OptionalExplicitsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,7 +43,7 @@ public final class OptionalExplicitsImpl {
      * The interface defining all the services for BodyOptionalityClientOptionalExplicits to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "BodyOptionalityClien", host = "{endpoint}")
+    @ServiceInterface(name = "BodyOptionalityClientOptionalExplicits", host = "{endpoint}")
     public interface OptionalExplicitsService {
         static OptionalExplicitsService getNewInstance(HttpPipeline pipeline) {
             try {

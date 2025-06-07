@@ -3,7 +3,6 @@ package specialwords.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -34,7 +33,7 @@ public final class OperationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     OperationsImpl(SpecialWordsClientImpl client) {
-        this.service = RestProxy.create(OperationsService.class, client.getHttpPipeline());
+        this.service = OperationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,7 +41,7 @@ public final class OperationsImpl {
      * The interface defining all the services for SpecialWordsClientOperations to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "SpecialWordsClientOp", host = "{endpoint}")
+    @ServiceInterface(name = "SpecialWordsClientOperations", host = "{endpoint}")
     public interface OperationsService {
         static OperationsService getNewInstance(HttpPipeline pipeline) {
             try {

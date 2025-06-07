@@ -3,7 +3,6 @@ package payload.mediatype.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -36,7 +35,7 @@ public final class StringBodiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringBodiesImpl(MediaTypeClientImpl client) {
-        this.service = RestProxy.create(StringBodiesService.class, client.getHttpPipeline());
+        this.service = StringBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,7 +43,7 @@ public final class StringBodiesImpl {
      * The interface defining all the services for MediaTypeClientStringBodies to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "MediaTypeClientStrin", host = "{endpoint}")
+    @ServiceInterface(name = "MediaTypeClientStringBodies", host = "{endpoint}")
     public interface StringBodiesService {
         static StringBodiesService getNewInstance(HttpPipeline pipeline) {
             try {

@@ -57,7 +57,7 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OperationTemplatesCl")
+    @ServiceInterface(name = "OperationTemplatesClientCheckNameAvailabilities")
     public interface CheckNameAvailabilitiesService {
         @Post("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.OperationTemplates/checkNameAvailability")
         @ExpectedResponses({ 200 })

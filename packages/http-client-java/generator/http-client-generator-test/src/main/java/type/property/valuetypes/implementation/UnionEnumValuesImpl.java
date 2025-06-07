@@ -57,7 +57,7 @@ public final class UnionEnumValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientUnio")
+    @ServiceInterface(name = "ValueTypesClientUnionEnumValues")
     public interface UnionEnumValuesService {
         @Get("/type/property/value-types/union-enum-value")
         @ExpectedResponses({ 200 })

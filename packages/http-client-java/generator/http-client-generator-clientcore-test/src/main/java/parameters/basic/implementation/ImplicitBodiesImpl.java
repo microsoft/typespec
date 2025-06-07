@@ -3,7 +3,6 @@ package parameters.basic.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class ImplicitBodiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ImplicitBodiesImpl(BasicClientImpl client) {
-        this.service = RestProxy.create(ImplicitBodiesService.class, client.getHttpPipeline());
+        this.service = ImplicitBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class ImplicitBodiesImpl {
      * The interface defining all the services for BasicClientImplicitBodies to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "BasicClientImplicitB", host = "{endpoint}")
+    @ServiceInterface(name = "BasicClientImplicitBodies", host = "{endpoint}")
     public interface ImplicitBodiesService {
         static ImplicitBodiesService getNewInstance(HttpPipeline pipeline) {
             try {

@@ -57,7 +57,7 @@ public final class Decimal128sImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientDeci")
+    @ServiceInterface(name = "ValueTypesClientDecimal128s")
     public interface Decimal128sService {
         @Get("/type/property/value-types/decimal128")
         @ExpectedResponses({ 200 })

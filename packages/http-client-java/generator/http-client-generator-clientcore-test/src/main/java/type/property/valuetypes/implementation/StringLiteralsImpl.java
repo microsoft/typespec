@@ -3,7 +3,6 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class StringLiteralsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringLiteralsImpl(ValueTypesClientImpl client) {
-        this.service = RestProxy.create(StringLiteralsService.class, client.getHttpPipeline());
+        this.service = StringLiteralsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class StringLiteralsImpl {
      * The interface defining all the services for ValueTypesClientStringLiterals to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ValueTypesClientStri", host = "{endpoint}")
+    @ServiceInterface(name = "ValueTypesClientStringLiterals", host = "{endpoint}")
     public interface StringLiteralsService {
         static StringLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {

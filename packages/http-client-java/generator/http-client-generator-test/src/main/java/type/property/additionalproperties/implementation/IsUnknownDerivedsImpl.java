@@ -57,7 +57,7 @@ public final class IsUnknownDerivedsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsUnknownDeriveds")
     public interface IsUnknownDerivedsService {
         @Get("/type/property/additionalProperties/isRecordUnknownDerived")
         @ExpectedResponses({ 200 })

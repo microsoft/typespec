@@ -3,7 +3,6 @@ package type.dictionary.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class DurationValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DurationValuesImpl(DictionaryClientImpl client) {
-        this.service = RestProxy.create(DurationValuesService.class, client.getHttpPipeline());
+        this.service = DurationValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class DurationValuesImpl {
      * The interface defining all the services for DictionaryClientDurationValues to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "DictionaryClientDura", host = "{endpoint}")
+    @ServiceInterface(name = "DictionaryClientDurationValues", host = "{endpoint}")
     public interface DurationValuesService {
         static DurationValuesService getNewInstance(HttpPipeline pipeline) {
             try {

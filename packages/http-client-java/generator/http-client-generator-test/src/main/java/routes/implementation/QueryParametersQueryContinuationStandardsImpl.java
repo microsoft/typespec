@@ -58,7 +58,7 @@ public final class QueryParametersQueryContinuationStandardsImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientQueryPar")
+    @ServiceInterface(name = "RoutesClientQueryParametersQueryContinuationStandards")
     public interface QueryParametersQueryContinuationStandardsService {
         @Get("/routes/query/query-continuation/standard/primitive?fixed=true")
         @ExpectedResponses({ 204 })

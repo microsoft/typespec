@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class NullableFloatValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     NullableFloatValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(NullableFloatValuesService.class, client.getHttpPipeline());
+        this.service = NullableFloatValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class NullableFloatValuesImpl {
      * The interface defining all the services for ArrayClientNullableFloatValues to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ArrayClientNullableF", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientNullableFloatValues", host = "{endpoint}")
     public interface NullableFloatValuesService {
         static NullableFloatValuesService getNewInstance(HttpPipeline pipeline) {
             try {

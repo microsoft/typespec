@@ -65,7 +65,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientLocat")
+    @ServiceInterface(name = "ResourcesClientLocationResources")
     public interface LocationResourcesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}")

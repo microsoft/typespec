@@ -3,7 +3,6 @@ package encode.duration.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -39,7 +38,7 @@ public final class QueriesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     QueriesImpl(DurationClientImpl client) {
-        this.service = RestProxy.create(QueriesService.class, client.getHttpPipeline());
+        this.service = QueriesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -47,7 +46,7 @@ public final class QueriesImpl {
      * The interface defining all the services for DurationClientQueries to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DurationClientQuerie", host = "{endpoint}")
+    @ServiceInterface(name = "DurationClientQueries", host = "{endpoint}")
     public interface QueriesService {
         static QueriesService getNewInstance(HttpPipeline pipeline) {
             try {

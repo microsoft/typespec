@@ -53,7 +53,7 @@ public final class Group1sImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/client/structure/{client}")
-    @ServiceInterface(name = "TwoOperationGroupCli")
+    @ServiceInterface(name = "TwoOperationGroupClientGroup1s")
     public interface Group1sService {
         @Post("/one")
         @ExpectedResponses({ 204 })

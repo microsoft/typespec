@@ -57,7 +57,7 @@ public final class SpreadRecordNonDiscriminatedUnionsImpl {
      * used by the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnions")
     public interface SpreadRecordNonDiscriminatedUnionsService {
         @Get("/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion")
         @ExpectedResponses({ 200 })

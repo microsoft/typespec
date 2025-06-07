@@ -3,7 +3,6 @@ package server.path.multiple.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -78,7 +77,7 @@ public final class MultipleClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(MultipleClientService.class, this.httpPipeline);
+        this.service = MultipleClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

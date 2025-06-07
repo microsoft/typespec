@@ -57,7 +57,7 @@ public final class IsModelArraysImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsModelArrays")
     public interface IsModelArraysService {
         @Get("/type/property/additionalProperties/isRecordModelArray")
         @ExpectedResponses({ 200 })

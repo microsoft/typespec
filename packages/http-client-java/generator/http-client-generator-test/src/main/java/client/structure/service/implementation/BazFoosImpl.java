@@ -53,7 +53,7 @@ public final class BazFoosImpl {
      * REST calls.
      */
     @Host("{endpoint}/client/structure/{client}")
-    @ServiceInterface(name = "ServiceClientClientB")
+    @ServiceInterface(name = "ServiceClientClientBazFoos")
     public interface BazFoosService {
         @Post("/seven")
         @ExpectedResponses({ 204 })

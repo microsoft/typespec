@@ -56,7 +56,7 @@ public final class WireTypeOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "WireTypeClientWireTy")
+    @ServiceInterface(name = "WireTypeClientWireTypeOps")
     public interface WireTypeOpsService {
         @Put("/wireType/superClassMismatch")
         @ExpectedResponses({ 200 })

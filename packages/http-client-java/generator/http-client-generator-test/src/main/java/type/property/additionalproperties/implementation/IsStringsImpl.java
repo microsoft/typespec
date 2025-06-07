@@ -57,7 +57,7 @@ public final class IsStringsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsStrings")
     public interface IsStringsService {
         @Get("/type/property/additionalProperties/isRecordstring")
         @ExpectedResponses({ 200 })

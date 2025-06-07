@@ -1272,4 +1272,11 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         }
         return serviceVersion;
     }
+
+    @Override
+    protected String getLogExpression(String propertyName, String methodName) {
+        return "throw LOGGER.throwableAtError()" + ".addKeyValue(\"propertyName\", \"" + propertyName + "\")"
+            + ".addKeyValue(\"methodName\", \"" + methodName + "\")"
+            + ".log(\"Not a supported paging option in this API\", IllegalArgumentException::new);";
+    }
 }

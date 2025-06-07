@@ -3,7 +3,6 @@ package type.property.optional.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class RequiredAndOptionalsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     RequiredAndOptionalsImpl(OptionalClientImpl client) {
-        this.service = RestProxy.create(RequiredAndOptionalsService.class, client.getHttpPipeline());
+        this.service = RequiredAndOptionalsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class RequiredAndOptionalsImpl {
      * The interface defining all the services for OptionalClientRequiredAndOptionals to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "OptionalClientRequir", host = "{endpoint}")
+    @ServiceInterface(name = "OptionalClientRequiredAndOptionals", host = "{endpoint}")
     public interface RequiredAndOptionalsService {
         static RequiredAndOptionalsService getNewInstance(HttpPipeline pipeline) {
             try {

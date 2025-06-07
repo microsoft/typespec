@@ -58,7 +58,7 @@ public final class ModelInOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UsageClientModelInOp")
+    @ServiceInterface(name = "UsageClientModelInOperations")
     public interface ModelInOperationsService {
         @Post("/azure/client-generator-core/usage/inputToInputOutput")
         @ExpectedResponses({ 204 })

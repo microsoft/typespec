@@ -55,7 +55,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderM")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientPriorities")
     public interface PrioritiesService {
         @Headers({ "Content-Type: application/json" })
         @Post("/priority")

@@ -57,7 +57,7 @@ public final class UnknownStringsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientUnkn")
+    @ServiceInterface(name = "ValueTypesClientUnknownStrings")
     public interface UnknownStringsService {
         @Get("/type/property/value-types/unknown/string")
         @ExpectedResponses({ 200 })

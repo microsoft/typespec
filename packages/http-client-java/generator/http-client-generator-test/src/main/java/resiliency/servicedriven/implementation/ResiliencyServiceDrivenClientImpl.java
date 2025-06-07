@@ -174,7 +174,7 @@ public final class ResiliencyServiceDrivenClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}")
-    @ServiceInterface(name = "ResiliencyServiceDri")
+    @ServiceInterface(name = "ResiliencyServiceDrivenClient")
     public interface ResiliencyServiceDrivenClientService {
         @Delete("/add-operation")
         @ExpectedResponses({ 204 })

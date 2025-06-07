@@ -57,7 +57,7 @@ public final class InternalOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "InternalClientIntern")
+    @ServiceInterface(name = "InternalClientInternalOps")
     public interface InternalOpsService {
         @Post("/internal")
         @ExpectedResponses({ 200 })

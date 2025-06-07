@@ -56,7 +56,7 @@ public final class NeversImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientNeve")
+    @ServiceInterface(name = "ValueTypesClientNevers")
     public interface NeversService {
         @Get("/type/property/value-types/never")
         @ExpectedResponses({ 200 })

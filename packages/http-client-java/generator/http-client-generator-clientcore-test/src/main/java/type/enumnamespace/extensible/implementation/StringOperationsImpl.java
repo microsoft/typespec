@@ -3,7 +3,6 @@ package type.enumnamespace.extensible.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class StringOperationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(ExtensibleClientImpl client) {
-        this.service = RestProxy.create(StringOperationsService.class, client.getHttpPipeline());
+        this.service = StringOperationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class StringOperationsImpl {
      * The interface defining all the services for ExtensibleClientStringOperations to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ExtensibleClientStri", host = "{endpoint}")
+    @ServiceInterface(name = "ExtensibleClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {

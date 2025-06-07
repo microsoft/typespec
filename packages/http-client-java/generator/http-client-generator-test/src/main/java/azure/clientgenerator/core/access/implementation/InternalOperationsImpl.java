@@ -56,7 +56,7 @@ public final class InternalOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AccessClientInternal")
+    @ServiceInterface(name = "AccessClientInternalOperations")
     public interface InternalOperationsService {
         @Get("/azure/client-generator-core/access/internalOperation/noDecoratorInInternal")
         @ExpectedResponses({ 200 })

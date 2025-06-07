@@ -58,7 +58,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientManagedMain")
+    @ServiceInterface(name = "ArmClientManagedMaintenanceWindowStatusOperations")
     public interface ManagedMaintenanceWindowStatusOperationsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")

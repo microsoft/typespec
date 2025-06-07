@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -35,7 +34,7 @@ public final class QueryParametersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     QueryParametersImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(QueryParametersService.class, client.getHttpPipeline());
+        this.service = QueryParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -43,7 +42,7 @@ public final class QueryParametersImpl {
      * The interface defining all the services for RoutesClientQueryParameters to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientQueryPar", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientQueryParameters", host = "{endpoint}")
     public interface QueryParametersService {
         static QueryParametersService getNewInstance(HttpPipeline pipeline) {
             try {

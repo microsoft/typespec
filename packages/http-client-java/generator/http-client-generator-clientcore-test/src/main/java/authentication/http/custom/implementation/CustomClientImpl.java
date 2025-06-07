@@ -4,7 +4,6 @@ import authentication.http.custom.InvalidAuth;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -62,7 +61,7 @@ public final class CustomClientImpl {
     public CustomClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(CustomClientService.class, this.httpPipeline);
+        this.service = CustomClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

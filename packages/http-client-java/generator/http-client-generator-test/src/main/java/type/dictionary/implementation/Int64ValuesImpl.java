@@ -57,7 +57,7 @@ public final class Int64ValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientInt6")
+    @ServiceInterface(name = "DictionaryClientInt64Values")
     public interface Int64ValuesService {
         @Get("/type/dictionary/int64")
         @ExpectedResponses({ 200 })

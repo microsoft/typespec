@@ -58,7 +58,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "CommonPropertiesClie")
+    @ServiceInterface(name = "CommonPropertiesClientErrors")
     public interface ErrorsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/confidentialResources/{confidentialResourceName}")

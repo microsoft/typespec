@@ -3,7 +3,6 @@ package server.versions.versioned.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -79,7 +78,7 @@ public final class VersionedClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(VersionedClientService.class, this.httpPipeline);
+        this.service = VersionedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

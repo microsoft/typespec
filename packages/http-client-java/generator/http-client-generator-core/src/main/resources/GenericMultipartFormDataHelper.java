@@ -175,8 +175,8 @@ public final class MultipartFormDataHelper {
         requestBody = BinaryData.fromStream(requestDataStream, requestLength);
 
         requestContext = requestContext.toBuilder()
-                .addHeader(HttpHeaderName.CONTENT_TYPE, "multipart/form-data; boundary=" + this.boundary)
-                .addHeader(HttpHeaderName.CONTENT_LENGTH, String.valueOf(requestLength))
+                .setHeader(HttpHeaderName.CONTENT_TYPE, "multipart/form-data; boundary=" + this.boundary)
+                .setHeader(HttpHeaderName.CONTENT_LENGTH, String.valueOf(requestLength))
                 .build();
 
         return this;

@@ -3,6 +3,7 @@
 
 package authentication.union;
 
+import authentication.utils.KeyCredentialPolicy;
 import authentication.utils.OAuthBearerTokenAuthenticationPolicy;
 import io.clientcore.core.credentials.KeyCredential;
 import io.clientcore.core.credentials.oauth.AccessToken;
@@ -14,7 +15,9 @@ class UnionClientTest {
 
     @Test
     void validKey() {
-        UnionClient client = new UnionClientBuilder().credential(new KeyCredential("valid-key")).buildClient();
+        UnionClient client = new UnionClientBuilder()
+            .addHttpPipelinePolicy(new KeyCredentialPolicy("x-ms-api-key", new KeyCredential("valid-key")))
+            .buildClient();
         client.validKey();
     }
 

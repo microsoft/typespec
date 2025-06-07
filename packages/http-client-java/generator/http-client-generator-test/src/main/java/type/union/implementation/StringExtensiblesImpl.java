@@ -57,7 +57,7 @@ public final class StringExtensiblesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientStringExt")
+    @ServiceInterface(name = "UnionClientStringExtensibles")
     public interface StringExtensiblesService {
         @Get("/type/union/string-extensible")
         @ExpectedResponses({ 200 })

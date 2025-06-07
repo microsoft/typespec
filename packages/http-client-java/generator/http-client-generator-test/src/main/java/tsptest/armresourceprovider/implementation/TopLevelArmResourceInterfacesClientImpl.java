@@ -74,7 +74,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientTopLevelArm")
+    @ServiceInterface(name = "ArmClientTopLevelArmResourceInterfaces")
     public interface TopLevelArmResourceInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}")

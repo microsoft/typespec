@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class IsModelsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     IsModelsImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(IsModelsService.class, client.getHttpPipeline());
+        this.service = IsModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class IsModelsImpl {
      * The interface defining all the services for AdditionalPropertiesClientIsModels to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientIsModels", host = "{endpoint}")
     public interface IsModelsService {
         static IsModelsService getNewInstance(HttpPipeline pipeline) {
             try {

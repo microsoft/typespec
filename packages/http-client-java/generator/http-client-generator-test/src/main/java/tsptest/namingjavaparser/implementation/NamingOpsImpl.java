@@ -58,7 +58,7 @@ public final class NamingOpsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NamingJavaParserClie")
+    @ServiceInterface(name = "NamingJavaParserClientNamingOps")
     public interface NamingOpsService {
         @Post("/naming")
         @ExpectedResponses({ 200 })

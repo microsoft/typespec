@@ -68,7 +68,7 @@ public final class AzureCoreEmbeddingVectorsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ModelClientAzureCore")
+    @ServiceInterface(name = "ModelClientAzureCoreEmbeddingVectors")
     public interface AzureCoreEmbeddingVectorsService {
         @Get("/azure/core/model/embeddingVector")
         @ExpectedResponses({ 200 })

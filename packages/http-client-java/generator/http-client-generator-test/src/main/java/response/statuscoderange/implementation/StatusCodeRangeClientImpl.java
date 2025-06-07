@@ -121,7 +121,7 @@ public final class StatusCodeRangeClientImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "StatusCodeRangeClien")
+    @ServiceInterface(name = "StatusCodeRangeClient")
     public interface StatusCodeRangeClientService {
         @Get("/response/status-code-range/error-response-status-code-in-range")
         @ExpectedResponses({ 204 })

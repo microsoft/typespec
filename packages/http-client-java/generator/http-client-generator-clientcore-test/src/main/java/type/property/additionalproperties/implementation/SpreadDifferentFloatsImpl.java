@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class SpreadDifferentFloatsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     SpreadDifferentFloatsImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(SpreadDifferentFloatsService.class, client.getHttpPipeline());
+        this.service = SpreadDifferentFloatsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class SpreadDifferentFloatsImpl {
      * The interface defining all the services for AdditionalPropertiesClientSpreadDifferentFloats to be used by the
      * proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentFloats", host = "{endpoint}")
     public interface SpreadDifferentFloatsService {
         static SpreadDifferentFloatsService getNewInstance(HttpPipeline pipeline) {
             try {

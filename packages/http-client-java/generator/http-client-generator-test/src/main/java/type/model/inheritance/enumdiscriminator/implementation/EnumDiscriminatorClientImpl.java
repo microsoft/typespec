@@ -125,7 +125,7 @@ public final class EnumDiscriminatorClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "EnumDiscriminatorCli")
+    @ServiceInterface(name = "EnumDiscriminatorClient")
     public interface EnumDiscriminatorClientService {
         @Get("/type/model/inheritance/enum-discriminator/extensible-enum")
         @ExpectedResponses({ 200 })

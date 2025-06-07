@@ -57,7 +57,7 @@ public final class StringValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientStri")
+    @ServiceInterface(name = "DictionaryClientStringValues")
     public interface StringValuesService {
         @Get("/type/dictionary/string")
         @ExpectedResponses({ 200 })

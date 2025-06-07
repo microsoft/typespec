@@ -59,7 +59,7 @@ public final class QueriesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DatetimeClientQuerie")
+    @ServiceInterface(name = "DatetimeClientQueries")
     public interface QueriesService {
         @Get("/encode/datetime/query/default")
         @ExpectedResponses({ 204 })

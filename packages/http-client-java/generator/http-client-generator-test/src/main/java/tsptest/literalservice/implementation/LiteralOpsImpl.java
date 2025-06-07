@@ -57,7 +57,7 @@ public final class LiteralOpsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "LiteralServiceClient")
+    @ServiceInterface(name = "LiteralServiceClientLiteralOps")
     public interface LiteralOpsService {
         @Put("/literal/put")
         @ExpectedResponses({ 200 })

@@ -63,7 +63,7 @@ public final class ServerDrivenPaginationsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "PageableClientServer")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginations")
     public interface ServerDrivenPaginationsService {
         @Get("/payload/pageable/server-driven-pagination/link")
         @ExpectedResponses({ 200 })

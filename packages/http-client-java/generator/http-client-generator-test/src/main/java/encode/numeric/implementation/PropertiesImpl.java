@@ -56,7 +56,7 @@ public final class PropertiesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NumericClientPropert")
+    @ServiceInterface(name = "NumericClientProperties")
     public interface PropertiesService {
         @Post("/encode/numeric/property/safeint")
         @ExpectedResponses({ 200 })

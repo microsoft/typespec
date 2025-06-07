@@ -57,7 +57,7 @@ public final class StringAndArraysImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientStringAnd")
+    @ServiceInterface(name = "UnionClientStringAndArrays")
     public interface StringAndArraysService {
         @Get("/type/union/string-and-array")
         @ExpectedResponses({ 200 })

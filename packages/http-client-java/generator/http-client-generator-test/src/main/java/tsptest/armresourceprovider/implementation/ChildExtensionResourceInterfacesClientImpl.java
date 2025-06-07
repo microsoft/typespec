@@ -72,7 +72,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientChildExtens")
+    @ServiceInterface(name = "ArmClientChildExtensionResourceInterfaces")
     public interface ChildExtensionResourceInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
