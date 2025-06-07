@@ -18,7 +18,7 @@ export async function getWithParams(
   age: number,
   options?: GetWithParamsOptions,
 ): Promise<number> {
-  const path = parse("/{?name,age}").expand({
+  const path = parse("/{?name*,age*}").expand({
     name: name,
     age: age,
   });

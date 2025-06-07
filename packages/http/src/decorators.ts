@@ -169,7 +169,8 @@ export function resolveQueryOptionsWithDefaults(
   options: QueryOptions & { name: string },
 ): Required<QueryOptions> {
   return {
-    explode: options.explode ?? false,
+    // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
+    explode: options.explode ?? true,
     name: options.name,
   };
 }
