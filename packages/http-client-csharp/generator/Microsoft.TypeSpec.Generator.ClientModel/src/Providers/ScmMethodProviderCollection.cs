@@ -63,7 +63,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
-            _cleanOperationName = serviceMethod.Operation.Name.ToIdentifierName();
+            _cleanOperationName = GetCleanOperationName(serviceMethod);
+
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
 
@@ -71,6 +72,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 _pagingServiceMethod = pagingServiceMethod;
             }
+        }
+
+        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            {
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+            return operationName;
         }
 
         protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
