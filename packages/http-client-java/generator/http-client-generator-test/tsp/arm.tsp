@@ -243,6 +243,27 @@ model ModelInterfaceDifferentNameProperties {
   provisioningState: string;
 }
 
+model NginxConfigurationResponse
+  is Azure.ResourceManager.ProxyResource<NginxConfigurationResponseProperties> {
+  ...ResourceNameParameter<
+    Resource = NginxConfigurationResponse,
+    KeyName = "configurationName",
+    SegmentName = "configurations",
+    NamePattern = ""
+  >;
+}
+
+model NginxConfigurationResponseProperties {
+  @visibility(Lifecycle.Read)
+  provisioningState?: ProvisioningState;
+
+  rootFile?: string;
+}
+
+model NginxConfigurationRequest {
+  rootFile?: string;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
@@ -315,6 +336,26 @@ interface ModelInterfaceSameName {
   get is ArmResourceRead<ModelInterfaceDifferentName>;
 }
 
+// Resource model is immutable output only.
+@armResourceOperations
+interface ImmutableResourceModel {
+  @put
+  createOrUpdate is Azure.ResourceManager.Legacy.UpdateOperation<
+    ResourceInstanceParameters<
+      NginxConfigurationResponse,
+      Azure.ResourceManager.Foundations.DefaultBaseParameters<NginxConfigurationResponse>
+    >,
+    NginxConfigurationRequest,
+    NginxConfigurationResponse | ArmResourceCreatedResponse<
+      NginxConfigurationResponse,
+      LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
+    >,
+    ErrorResponse,
+    OptionalRequestBody = true
+  >;
+}
+
+@@clientName(TspTest.ArmResourceProvider, "ArmClient");
 @@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
 @@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");
 @@flattenProperty(TrackedResource.properties);

@@ -13,8 +13,8 @@ public class BuiltinOpRead {
     public static void main(String[] args) {
         BuiltinClient builtinClient
             = new BuiltinClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
-        // BEGIN:tsptest.builtin.generated.builtinopread.builtinopread
+        // BEGIN:tsptest.builtin.generated.builtin-op-read.builtin-op-read
         Builtin response = builtinClient.read(null, null, null, "myFilter", null, null);
-        // END:tsptest.builtin.generated.builtinopread.builtinopread
+        // END:tsptest.builtin.generated.builtin-op-read.builtin-op-read
     }
 }

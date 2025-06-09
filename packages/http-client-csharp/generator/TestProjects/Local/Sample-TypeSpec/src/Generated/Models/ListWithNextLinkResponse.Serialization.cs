@@ -165,16 +165,6 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ListWithNextLinkResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="listWithNextLinkResponse"> The <see cref="ListWithNextLinkResponse"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(ListWithNextLinkResponse listWithNextLinkResponse)
-        {
-            if (listWithNextLinkResponse == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(listWithNextLinkResponse, ModelSerializationExtensions.WireOptions);
-        }
-
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithNextLinkResponse"/> from. </param>
         public static explicit operator ListWithNextLinkResponse(ClientResult result)
         {

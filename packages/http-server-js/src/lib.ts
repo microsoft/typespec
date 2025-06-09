@@ -174,6 +174,6 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-const { reportDiagnostic } = $lib;
+const { reportDiagnostic, createStateSymbol } = $lib;
 
-export { reportDiagnostic };
+export { createStateSymbol, reportDiagnostic };

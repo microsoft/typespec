@@ -9,6 +9,9 @@ import type {
 } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/**
+ * @typekit intrinsic
+ */
 export interface IntrinsicKit {
   /** The intrinsic 'any' type. */
   get any(): UnknownType;

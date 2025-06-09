@@ -249,10 +249,10 @@ public class ProxyMethodParameter extends MethodParameter {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
                 ClassType.BASE_64_UTIL.addImportsTo(imports, false);
                 imports.add(Base64.class.getName());
-            } else if (getClientType() instanceof ListType && !getExplode()) {
+            } else if (getClientType() instanceof IterableType && !getExplode()) {
                 imports.add("com.azure.core.util.serializer.CollectionFormat");
                 imports.add("com.azure.core.util.serializer.JacksonAdapter");
-            } else if (getClientType() instanceof ListType && getExplode()) {
+            } else if (getClientType() instanceof IterableType && getExplode()) {
                 imports.add("java.util.stream.Collectors");
             }
         }

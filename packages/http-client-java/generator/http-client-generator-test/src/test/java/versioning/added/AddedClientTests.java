@@ -9,13 +9,14 @@ import versioning.added.models.EnumV1;
 import versioning.added.models.EnumV2;
 import versioning.added.models.ModelV1;
 import versioning.added.models.ModelV2;
-import versioning.added.models.Versions;
 
 public class AddedClientTests {
-    private final AddedClient addedClient
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
-    private final InterfaceV2Client interfaceV2Client
-        = new AddedClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildInterfaceV2Client();
+    private final AddedClient addedClient = new AddedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(AddedServiceVersion.V2)
+        .buildClient();
+    private final InterfaceV2Client interfaceV2Client = new AddedClientBuilder().endpoint("http://localhost:3000")
+        .serviceVersion(AddedServiceVersion.V2)
+        .buildInterfaceV2Client();
 
     @Test
     public void testAddedClient() {

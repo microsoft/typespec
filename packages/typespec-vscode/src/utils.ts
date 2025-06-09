@@ -1,8 +1,9 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
-import { spawn, SpawnOptions } from "child_process";
+import { SpawnOptions } from "child_process";
+import { spawn } from "cross-spawn";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
-import { CancellationToken } from "vscode";
+import vscode, { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import which from "which";
 import { parseDocument } from "yaml";
@@ -230,13 +231,10 @@ export function spawnExecution(
   env?: NodeJS.ProcessEnv,
   on?: spawnExecutionEvents,
 ): Promise<ExecOutput> {
-  const shell = process.platform === "win32";
-  const cmd = shell && exe.includes(" ") ? `"${exe}"` : exe;
   let stdout = "";
   let stderr = "";
 
   const options: SpawnOptions = {
-    shell,
     stdio: "pipe",
     windowsHide: true,
     cwd,
@@ -244,7 +242,7 @@ export function spawnExecution(
   if (env) {
     options.env = { ...process.env, ...env };
   }
-  const child = spawn(cmd, args, options);
+  const child = spawn(exe, args, options);
 
   child.stdout!.on("data", (data) => {
     stdout += data.toString();
@@ -473,4 +471,19 @@ export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: nu
       fn.apply(this, args);
     }
   } as T;
+}
+
+export function getVscodeUriFromPath(path: string): string {
+  const uri = vscode.Uri.file(path);
+  return uri.toString();
+}
+
+export function distinctArray<T>(arr: T[], compare: (a: T, b: T) => boolean): T[] {
+  const result: T[] = [];
+  for (const item of arr) {
+    if (!result.some((r) => compare(r, item))) {
+      result.push(item);
+    }
+  }
+  return result;
 }

@@ -17,15 +17,14 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
     public class SourceInputModel
     {
         public Compilation? Customization { get; }
-        private Lazy<Compilation?> _previousContract;
-        public Compilation? PreviousContract => _previousContract.Value;
+        public Compilation? LastContract { get; }
 
         private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
 
-        public SourceInputModel(Compilation? customization)
+        public SourceInputModel(Compilation? customization, Compilation? lastContract)
         {
             Customization = customization;
-            _previousContract = new(() => LoadBaselineContract().GetAwaiter().GetResult());
+            LastContract = lastContract;
 
             _nameMap = new(PopulateNameMap);
         }
@@ -53,17 +52,37 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return nameMap;
         }
 
-        public TypeProvider? FindForType(string ns, string name)
+        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
         {
-            if (Customization == null)
+            return FindTypeInCompilation(Customization, ns, name, false, declaringTypeName);
+        }
+
+        public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
+        {
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName);
+        }
+
+        private TypeProvider? FindTypeInCompilation(
+            Compilation? compilation,
+            string ns,
+            string name,
+            bool includeReferencedAssemblies,
+            string? declaringTypeName = null)
+        {
+            if (compilation == null)
             {
                 return null;
             }
-            var fullyQualifiedMetadataName = $"{ns}.{name}";
+
+            var fullyQualifiedMetadataName = declaringTypeName != null
+                ? $"{ns}.{declaringTypeName}+{name}"
+                : $"{ns}.{name}";
             if (!_nameMap.Value.TryGetValue(name, out var type) &&
                 !_nameMap.Value.TryGetValue(fullyQualifiedMetadataName, out type))
             {
-                type = Customization.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
+                type = includeReferencedAssemblies
+                    ? compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)
+                    : compilation.Assembly.GetTypeByMetadataName(fullyQualifiedMetadataName);
             }
 
             return type != null ? new NamedTypeSymbolProvider(type) : null;
@@ -92,33 +111,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return name != null;
-        }
-
-        private async Task<Compilation?> LoadBaselineContract()
-        {
-            string fullPath;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace}.csproj"));
-            if (!File.Exists(projectFilePath))
-                return null;
-
-            var baselineVersion = ProjectRootElement.Open(projectFilePath).Properties.SingleOrDefault(p => p.Name == "ApiCompatVersion")?.Value;
-
-            if (baselineVersion is not null)
-            {
-                var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(new NullSettings());
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
-                fullPath = Path.Combine(nugetFolder, $"{CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace}.dll");
-                if (File.Exists(fullPath))
-                {
-                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace}.xml"), fullPath);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
-                        $"Please make sure the baseline nuget package has been installed properly");
-                }
-            }
-            return null;
         }
     }
 }

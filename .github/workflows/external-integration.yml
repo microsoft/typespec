@@ -1,0 +1,67 @@
+name: Integration
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths-ignore:
+      - "packages/http-client-csharp/**"
+      - "packages/http-client-java/**"
+      - "packages/http-client-python/**"
+      - "website/**"
+  # Allow manual triggering
+  workflow_dispatch:
+
+# This check is optional by default
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  azure-integration-check:
+    name: Azure/typespec-azure
+    runs-on: ubuntu-latest
+    # Only run if not from dependabot, publish, backmerge, or revert branches
+    if: |
+      !startsWith(github.head_ref, 'dependabot/') &&
+      !startsWith(github.head_ref, 'publish/') &&
+      !startsWith(github.head_ref, 'backmerge/') &&
+      !startsWith(github.head_ref, 'revert-')
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x # Using current LTS
+
+      - name: Checkout Azure/typespec-azure repo
+        uses: actions/checkout@v4
+        with:
+          repository: Azure/typespec-azure
+          submodules: true
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: Update core submodule to PR commit
+        run: |
+          # Configure git to use the PR's repository as a remote for the submodule
+          cd core
+          git remote add pr https://github.com/${{ github.repository }}.git
+          git fetch pr ${{ github.event.pull_request.head.sha }}
+          # Update the submodule to point to the PR commit
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Install
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install Playwright
+        run: pnpm exec playwright install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+      - name: E2E Test
+        run: pnpm test:e2e

@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -23,12 +23,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, values:
-            [
-                InputFactory.EnumMember.Int32("One", 1),
-                InputFactory.EnumMember.Int32("Two", 2)
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("One", 1),
+                ("Two", 2)
             ]);
             var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
             var fields = enumType.Fields;
 
             Assert.AreEqual(2, fields.Count);
@@ -48,10 +48,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, values:
-            [
-                InputFactory.EnumMember.Float32("One", 1f),
-                InputFactory.EnumMember.Float32("Two", 2f)
+            var input = InputFactory.Float32Enum("mockInputEnum", [
+                ("One", 1f),
+                ("Two", 2f)
             ]);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
@@ -70,10 +69,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, values:
+            var input = InputFactory.StringEnum("mockInputEnum",
             [
-                InputFactory.EnumMember.String("One", "1"),
-                InputFactory.EnumMember.String("Two", "2")
+                ("One", "1"),
+                ("Two", "2")
             ]);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
@@ -93,14 +92,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.ApiVersionEnum, values:
-            [
-                InputFactory.EnumMember.Int32(apiVersions[0], 1),
-                InputFactory.EnumMember.Int32(apiVersions[1], 2)
-            ]);
-            var enumType = EnumProvider.Create(input);
-            var fields = enumType.Fields;
+            var input = InputFactory.Int32Enum(
+                "mockInputEnum",
+                apiVersions.Select((a, index) => (a, index)),
+                usage: InputModelTypeUsage.ApiVersionEnum);
 
+            var enumType = EnumProvider.Create(input);
+            Assert.IsTrue(enumType is ApiVersionEnumProvider);
+
+            var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
             Assert.AreEqual(apiVersions[0].ToApiVersionMemberName(), fields[0].Name);
             Assert.AreEqual(apiVersions[1].ToApiVersionMemberName(), fields[1].Name);
@@ -115,11 +115,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: true, values:
+            var input = InputFactory.Int32Enum("mockInputEnum",
             [
-                InputFactory.EnumMember.Int32("One", 1),
-                InputFactory.EnumMember.Int32("Two", 2)
-            ]);
+                ("One", 1),
+                ("Two", 2)
+            ], isExtensible: true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -159,11 +159,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.Float32("One", 1f),
-                InputFactory.EnumMember.Float32("Two", 2f)
-            ]);
+            var input = InputFactory.Float32Enum("mockInputEnum",
+                [
+                    ("One", 1f),
+                    ("Two", 2f)
+                ], isExtensible: true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -203,11 +203,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: true, values:
-            [
-                InputFactory.EnumMember.String("One", "1"),
-                InputFactory.EnumMember.String("Two", "2")
-            ]);
+            var input = InputFactory.StringEnum("mockInputEnum",
+                [
+                    ("One", "1"),
+                    ("Two", "2")
+                ], isExtensible: true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;

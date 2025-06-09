@@ -63,14 +63,14 @@ public class ProxyMethodExampleMapper implements IMapper<XmsExampleWrapper, Prox
         return builder.build();
     }
 
-    private String buildCodeSnippetIdentifier(String operationId, String exampleName) {
-        return String
-            .format("%s.generated.%s.%s", JavaSettings.getInstance().getPackage(), getValidName(operationId),
-                getValidName(exampleName))
-            .toLowerCase(Locale.ROOT);
+    static String buildCodeSnippetIdentifier(String operationId, String exampleName) {
+        return String.format("%s.generated.%s.%s", JavaSettings.getInstance().getPackage(),
+            getValidNameInKebabCase(operationId), getValidNameInKebabCase(exampleName));
     }
 
-    private String getValidName(String exampleName) {
-        return CodeNamer.getValidName(exampleName).replace("_", "");
+    private static String getValidNameInKebabCase(String exampleName) {
+        String removeInvalidChar = CodeNamer.getValidName(exampleName).replace("_", "-");
+        // convert camelCase to kebab-case
+        return removeInvalidChar.replaceAll("([a-z])([A-Z]+)", "$1-$2").toLowerCase(Locale.ROOT);
     }
 }

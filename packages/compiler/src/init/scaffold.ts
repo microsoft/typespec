@@ -109,32 +109,34 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("package.json", config.template.files ?? [])) {
     return;
   }
-  const peerDependencies: Record<string, string> = {};
-  const devDependencies: Record<string, string> = {};
+
+  const dependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    peerDependencies["@typespec/compiler"] = "latest";
-    devDependencies["@typespec/compiler"] = "latest";
+    dependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
-    peerDependencies[library.name] = await getPackageVersion(library);
-    devDependencies[library.name] = await getPackageVersion(library);
+    dependencies[library.name] = await getPackageVersion(library);
   }
 
   for (const key of Object.keys(config.emitters)) {
-    peerDependencies[key] = await getPackageVersion(config.emitters[key]);
-    devDependencies[key] = await getPackageVersion(config.emitters[key]);
+    dependencies[key] = await getPackageVersion(config.emitters[key]);
   }
 
   const packageJson: PackageJson = {
     name: config.name,
     version: "0.1.0",
     type: "module",
-    peerDependencies,
-    devDependencies,
     private: true,
   };
+
+  if (config.template.target === "library") {
+    packageJson.peerDependencies = dependencies;
+    packageJson.devDependencies = dependencies;
+  } else {
+    packageJson.dependencies = dependencies;
+  }
 
   return host.writeFile(
     joinPaths(config.directory, "package.json"),

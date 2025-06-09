@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
@@ -14,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal class CanonicalTypeProvider : TypeProvider
     {
         private readonly TypeProvider _generatedTypeProvider;
-        private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
+        private readonly Dictionary<string, InputProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
         private readonly HashSet<string> _renamedProperties;
         private readonly HashSet<string> _renamedFields;
@@ -24,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             var specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
+            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -70,13 +71,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var customProperty in customProperties)
             {
-                InputModelProperty? specProperty = null;
+                InputProperty? specProperty = null;
 
                 if (TryGetCandidateSpecProperty(customProperty, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
-                    customProperty.IsDiscriminator = specProperty.IsDiscriminator;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
+                    customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -132,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var customField in customFields)
             {
-                InputModelProperty? specProperty = null;
+                InputProperty? specProperty = null;
 
                 if (TryGetCandidateSpecProperty(customField, out var candidateSpecProperty))
                 {
@@ -178,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static bool IsCustomizedEnumProperty(
-            InputModelProperty? inputProperty,
+            InputProperty? inputProperty,
             CSharpType customType,
             [NotNullWhen(true)] out InputType? specValueType)
         {
@@ -197,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private static CSharpType EnsureCorrectTypeRepresentation(InputModelProperty? specProperty, CSharpType customType)
+        private static CSharpType EnsureCorrectTypeRepresentation(InputProperty? specProperty, CSharpType customType)
         {
             if (customType.IsCollection)
             {
@@ -218,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return EnsureLiteral(specProperty, customType);
         }
 
-        private static CSharpType EnsureLiteral(InputModelProperty? specProperty, CSharpType customType)
+        private static CSharpType EnsureLiteral(InputProperty? specProperty, CSharpType customType)
         {
             if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
             {
@@ -228,10 +229,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return customType;
         }
 
-        private static CSharpType EnsureEnum(InputModelProperty? specProperty, CSharpType customType)
+        private static CSharpType EnsureEnum(InputProperty? specProperty, CSharpType customType)
         {
             if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
             {
+                if (specType is InputLiteralType literalType)
+                {
+                    specType = literalType.ValueType;
+                }
                 return new CSharpType(
                     customType.Name,
                     customType.Namespace,
@@ -252,8 +257,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return type switch
             {
                 InputNullableType nullableType => GetEnumValueType(nullableType.Type),
+                InputEnumTypeValue enumValueType => enumValueType.ValueType,
                 InputEnumType enumType => enumType.ValueType,
-                InputLiteralType { ValueType: InputEnumType enumTypeFromLiteral } => enumTypeFromLiteral.ValueType,
+                InputLiteralType inputLiteral => inputLiteral.ValueType,
                 InputArrayType arrayType => GetEnumValueType(arrayType.ValueType),
                 InputDictionaryType dictionaryType => GetEnumValueType(dictionaryType.ValueType),
                 _ => null
@@ -262,7 +268,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryGetCandidateSpecProperty(
             PropertyProvider customProperty,
-            [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+            [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
         {
             if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
             {
@@ -280,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
+        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
         {
             if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
             {

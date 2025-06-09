@@ -9,6 +9,7 @@ import {
   hasLabel,
   includesModifiedFiles,
   isAction,
+  isActivitySender,
   labelAdded,
   labelRemoved,
   not,
@@ -109,7 +110,7 @@ function createPrTriageConfig(config: RepoConfig): PolicyServiceConfig {
       resourceManagementConfiguration: {
         eventResponderTasks: [
           eventResponderTask({
-            if: [payloadType("Pull_Request")],
+            if: [payloadType("Pull_Request"), not(isActivitySender({ user: "Copilot" }))], // exclude Copilot as it create empty PRs initially which breaks the bot https://github.com/GitOps-microsoft/GitOps.PullRequestIssueManagement/issues/267
             then: Object.entries(config.areaPaths).map(([label, files]) => {
               const globs = files.map(expandFolder);
               return {

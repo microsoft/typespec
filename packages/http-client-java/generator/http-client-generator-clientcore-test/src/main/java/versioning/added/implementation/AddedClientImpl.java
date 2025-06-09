@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV1;
 import versioning.added.ModelV2;
-import versioning.added.Versions;
 
 /**
  * Initializes a new instance of the AddedClient type.
@@ -41,20 +40,6 @@ public final class AddedClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -104,14 +89,11 @@ public final class AddedClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
-        AddedServiceVersion serviceVersion) {
+    public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, AddedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
         this.service = RestProxy.create(AddedClientService.class, this.httpPipeline);
@@ -136,14 +118,14 @@ public final class AddedClientImpl {
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/v1", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<ModelV1> v1(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<ModelV1> v1(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") ModelV1 body,
             RequestContext requestContext);
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/v2", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<ModelV2> v2(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<ModelV2> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") ModelV2 body, RequestContext requestContext);
     }
@@ -163,7 +145,8 @@ public final class AddedClientImpl {
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.v1(this.getEndpoint(), this.getVersion(), headerV2, contentType, accept, body, requestContext);
+        return service.v1(this.getEndpoint(), this.getServiceVersion().getVersion(), headerV2, contentType, accept,
+            body, requestContext);
     }
 
     /**
@@ -195,7 +178,8 @@ public final class AddedClientImpl {
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.v2(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestContext);
+        return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestContext);
     }
 
     /**

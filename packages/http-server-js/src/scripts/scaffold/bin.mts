@@ -28,6 +28,7 @@ import { module as httpHelperModule } from "../../../generated-defs/helpers/http
 import { module as routerModule } from "../../../generated-defs/helpers/router.js";
 import { emitOptionsType } from "../../common/interface.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
+import { canonicalizeHttpOperation } from "../../http/operation.js";
 import { JsEmitterOptions } from "../../lib.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
@@ -609,8 +610,9 @@ function getAllExternalDependencies(ctx: JsContext): Set<string> {
     for (const _import of module.imports) {
       if (
         typeof _import.from === "string" &&
-        !_import.from.startsWith(".") &&
-        !_import.from.startsWith("/")
+        !_import.from.startsWith(".") && // is a relative path
+        !_import.from.startsWith("/") && // is an absolute path
+        !_import.from.startsWith("node:") // is node builtin
       ) {
         externalDependencies.add(_import.from);
       } else if (typeof _import.from !== "string") {
@@ -700,7 +702,7 @@ function* emitControllerOperationHandlers(
   let importNotImplementedError = false;
   for (const httpOperation of httpOperations) {
     // TODO: unify construction of signature with emitOperation in common/interface.ts
-    const op = httpOperation.operation;
+    const op = canonicalizeHttpOperation(ctx, httpOperation.operation);
 
     const opNameCase = parseCase(op.name);
 

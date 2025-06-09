@@ -9,7 +9,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private List<String> serviceVersions;
     private Boolean generateTests = true;
     private Boolean generateSamples = true;
-    private Boolean enableSyncStack;
+    private Boolean enableSyncStack = true;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
     private String customTypes;
@@ -31,11 +31,13 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
+    private Boolean useEclipseLanguageServer = true;
+    private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
-    private DevOptions devOptions;
     private Boolean useRestProxy;
+    private String renameModel;
+    private DevOptions devOptions;
 
     // internal
     private String outputDir;
@@ -88,6 +90,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useObjectForUnknown;
     }
 
+    public Boolean getUseEclipseLanguageServer() {
+        return useEclipseLanguageServer;
+    }
+
     public List<String> getServiceVersions() {
         return serviceVersions;
     }
@@ -108,12 +114,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean getIncludeApiViewProperties() {
-        return includeApiViewProperties;
+    public Map<String, PollingSettings> getPolling() {
+        return polling;
     }
 
-    public Map<String, JavaSettings.PollingDetails> getPolling() {
-        return polling;
+    public Boolean getIncludeApiViewProperties() {
+        return includeApiViewProperties;
     }
 
     public Boolean getArm() {
@@ -144,9 +150,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useRestProxy;
     }
 
-    public EmitterOptions setUseRestProxy(Boolean useRestProxy) {
-        this.useRestProxy = useRestProxy;
-        return this;
+    public String getRenameModel() {
+        return renameModel;
     }
 
     @Override
@@ -187,8 +192,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("use-eclipse-language-server".equals(fieldName)) {
+                options.useEclipseLanguageServer = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
-                options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
+                options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
                 options.arm = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("models-subpackage".equals(fieldName)) {
@@ -203,6 +210,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.apiVersion = emptyToNull(reader.getString());
             } else if ("use-rest-proxy".equals(fieldName)) {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
+            } else if ("rename-model".equals(fieldName)) {
+                options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
             } else {
                 reader.skipChildren();
             }
@@ -227,5 +236,24 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     private static String emptyToNull(String str) {
         return CoreUtils.isNullOrEmpty(str) ? null : str;
+    }
+
+    private static String getStringOrMap(JsonReader jsonReader) throws IOException {
+        JsonToken currentToken = jsonReader.currentToken();
+        if (currentToken == JsonToken.STRING) {
+            return jsonReader.getString();
+        } else if (currentToken == JsonToken.START_OBJECT) {
+            Map<String, String> renameMap = jsonReader.readMap(JsonReader::getString);
+            if (!renameMap.isEmpty()) {
+                return renameMap.entrySet()
+                    .stream()
+                    .map(e -> e.getKey() + ":" + e.getValue())
+                    .reduce("", (s1, s2) -> s1 + "," + s2);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

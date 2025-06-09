@@ -77,11 +77,12 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
       if ("crossLanguageDefinitionId" in params) {
         crossLanguageDefinitionId = params.crossLanguageDefinitionId;
       }
-      context.logger.reportDiagnostic({
+      // Use program.reportDiagnostic for diagnostics from C# so that we don't
+      // have to duplicate the codes in the emitter.
+      context.program.reportDiagnostic({
         code: params.code,
-        format: {
-          message: params.message,
-        },
+        message: params.message,
+        severity: params.severity,
         target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
       });
       break;
@@ -151,4 +152,11 @@ export function getClientNamespaceStringHelper(
     return getNamespaceFullName(namespace);
   }
   return undefined;
+}
+
+export function firstLetterToUpperCase(str: string): string {
+  if (str.length === 0) {
+    return str;
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

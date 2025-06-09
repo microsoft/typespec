@@ -11,10 +11,10 @@ import tsptest.armstreamstyleserialization.models.OutputOnlyModel;
 public final class OutputOnlyModelImpl implements OutputOnlyModel {
     private OutputOnlyModelInner innerObject;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     OutputOnlyModelImpl(OutputOnlyModelInner innerObject,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
     }
@@ -43,7 +43,7 @@ public final class OutputOnlyModelImpl implements OutputOnlyModel {
         return this.innerObject;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }
