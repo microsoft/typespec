@@ -51,7 +51,7 @@ public final class ErrorOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ErrorModelClientErro")
+    @ServiceInterface(name = "ErrorModelClientErrorOps")
     public interface ErrorOpsService {
         @Get("/error")
         @ExpectedResponses({ 200, 201 })

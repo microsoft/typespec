@@ -58,7 +58,7 @@ public final class BuiltinOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BuiltinClientBuiltin")
+    @ServiceInterface(name = "BuiltinClientBuiltinOps")
     public interface BuiltinOpsService {
         @Get("/builtin")
         @ExpectedResponses({ 200 })

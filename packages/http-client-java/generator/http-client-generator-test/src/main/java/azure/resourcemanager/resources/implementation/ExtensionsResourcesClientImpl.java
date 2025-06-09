@@ -71,7 +71,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientExten")
+    @ServiceInterface(name = "ResourcesClientExtensionsResources")
     public interface ExtensionsResourcesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")

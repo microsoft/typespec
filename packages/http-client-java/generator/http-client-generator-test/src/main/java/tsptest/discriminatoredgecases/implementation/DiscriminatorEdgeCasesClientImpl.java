@@ -123,7 +123,7 @@ public final class DiscriminatorEdgeCasesClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DiscriminatorEdgeCas")
+    @ServiceInterface(name = "DiscriminatorEdgeCasesClient")
     public interface DiscriminatorEdgeCasesClientService {
         @Get("/model/childrequireddiscrim")
         @ExpectedResponses({ 200 })
