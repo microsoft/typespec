@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "fake-emitter-no-schema": "0.1.2",
-    "fake-linter-no-schema": "0.1.2"
+    "@typespec/fake-emitter-no-schema": "0.1.2",
+    "@typespec/fake-linter-no-schema": "0.1.2"
   },
   "dependencies": {
     "fake-emitter": "0.0.2",
