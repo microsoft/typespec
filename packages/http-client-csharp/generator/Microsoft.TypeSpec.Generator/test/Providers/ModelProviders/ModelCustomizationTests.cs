@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -855,7 +856,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
 
             // relative file path should use the new name
-            Assert.AreEqual("src\\Generated\\Models\\RenamedModel.cs", modelTypeProvider.RelativeFilePath);
+            var expected = Path.Join("src", "Generated", "Models", "RenamedModel.cs");
+            Assert.AreEqual(expected, modelTypeProvider.RelativeFilePath);
         }
 
         [Test]
@@ -866,8 +868,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelTypeProvider = new ModelProvider(inputModel);
 
             // Simulate a visitor that modifies relative file path
-            modelTypeProvider.Update(relativeFilePath: "src\\Generated\\MockInputModel.cs");
-            Assert.AreEqual("src\\Generated\\MockInputModel.cs", modelTypeProvider.RelativeFilePath);
+            var updatedRelativeFilePath = Path.Join("src", "Generated", "Models", "MockInputModel.cs");
+            modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
+
+            Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
         }
     }
 }
