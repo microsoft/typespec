@@ -29,15 +29,17 @@ public class CodeNamerTests {
         Assertions.assertEquals("SYSTEM_ASSIGNED_USER_ASSIGNED",
             CodeNamer.getEnumMemberName("SystemAssigned, UserAssigned"));
 
-        // contains only special characters
-        Assertions.assertEquals("ASTERISK", CodeNamer.getEnumMemberName("*"));
-
-        // special characters removed
         Assertions.assertEquals("ALL", CodeNamer.getEnumMemberName("$all"));
         Assertions.assertEquals("ALL", CodeNamer.getEnumMemberName("all*"));
 
+        // contains only special characters
+        Assertions.assertEquals("ASTERISK", CodeNamer.getEnumMemberName("*"));
+
+        Assertions.assertEquals("COLON", CodeNamer.getEnumMemberName("__:"));
+
         // underscore alone cannot be variable name
         Assertions.assertEquals("UNDERSCORE", CodeNamer.getEnumMemberName("_"));
+        Assertions.assertEquals("UNDERSCORE", CodeNamer.getEnumMemberName("___"));
 
         // underscore removed, and numbers to words
         Assertions.assertEquals("ONE_ZEROMINUTELY", CodeNamer.getEnumMemberName("_10minutely"));
