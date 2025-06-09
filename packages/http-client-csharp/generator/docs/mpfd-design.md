@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [System ClientModel & Azure.Core Updates](#system-clientmodel-and-azure.core-updates)
+2. [System ClientModel & Azure.Core Updates](#system-clientmodel-and-azurecore-updates)
 3. [Usage Examples](#usage-examples)
 
 ## Motivation
