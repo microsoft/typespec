@@ -2211,7 +2211,7 @@ export class CodeModelBuilder {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
         if (trackConvenienceApi) {
-          var outputErrorModel = false;
+          let outputErrorModel = false;
           if (this.isBranded()) {
             const exceptionName = response.schema.language.default.name + "Exception";
             const exceptionNameInOptions = this.options["default-http-exception-type"]
