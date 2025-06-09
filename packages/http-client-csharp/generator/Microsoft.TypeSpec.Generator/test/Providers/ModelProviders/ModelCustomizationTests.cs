@@ -821,7 +821,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public async Task CanCustomizeTypeRenamedInVisitor()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var inputModel = InputFactory.Model("mockInputModel");
             var modelTypeProvider = new ModelProvider(inputModel);
 
             // Simulate a visitor that renames the type
@@ -839,8 +839,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void CanCustomizeWithVisitor()
         {
             MockHelpers.LoadMockGenerator();
-            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var inputModel = InputFactory.Model("mockInputModel");
             var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Ensure the relative file path is not cached with the old name
+            _ = modelTypeProvider.RelativeFilePath;
 
             // Simulate a visitor that renames the type
             modelTypeProvider.Update(name: "RenamedModel");
@@ -850,6 +853,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelTypeProvider.CustomCodeView);
             Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
             Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
+
+            // relative file path should use the new name
+            Assert.AreEqual("src\\Generated\\Models\\RenamedModel.cs", modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public void CanCustomizeRelativeFilePath()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that modifies relative file path
+            modelTypeProvider.Update(relativeFilePath: "src\\Generated\\MockInputModel.cs");
+            Assert.AreEqual("src\\Generated\\MockInputModel.cs", modelTypeProvider.RelativeFilePath);
         }
     }
 }
