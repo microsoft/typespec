@@ -1,5 +1,5 @@
 {
-  "name": "tspconfig-test",
+  "name": "@typespec/tspconfig-test",
   "version": "1.0.0",
   "description": "test project for testing tsp config",
   "main": "index.js",
