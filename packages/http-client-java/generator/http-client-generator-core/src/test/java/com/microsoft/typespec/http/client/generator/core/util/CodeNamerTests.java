@@ -20,7 +20,7 @@ public class CodeNamerTests {
         Assertions.assertEquals("CONTENT_TYPE", CodeNamer.getEnumMemberName("content_type"));
 
         // unicode letter
-        Assertions.assertEquals("ĀALLĀ", CodeNamer.getEnumMemberName("\u0100all\u0101"));
+        Assertions.assertEquals("Ā" + "ALL" + "Ā", CodeNamer.getEnumMemberName("\u0100all\u0101"));
 
         // special characters removed
         Assertions.assertEquals("MICROSOFT_APP_CONFIGURATION_CONFIGURATION_STORES",
