@@ -32,26 +32,26 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new SampleTypeSpecClientOptions())
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential) : this(endpoint, credential, new SampleTypeSpecClientOptions())
         {
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient. </summary>
         /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
+        /// <param name="credential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, SampleTypeSpecClientOptions options)
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="credential"/> is null. </exception>
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential credential, SampleTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
+            Argument.AssertNotNull(credential, nameof(credential));
 
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _keyCredential = keyCredential;
+            _keyCredential = credential;
             Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
             _apiVersion = options.Version;
         }
@@ -636,12 +636,13 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
@@ -682,12 +683,13 @@ namespace SampleTypeSpec
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/>, <paramref name="requiredLiteralString"/> or <paramref name="requiredBadDescription"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
@@ -1282,7 +1284,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult ListWithNextLink(RequestOptions options)
+        public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
             return new SampleTypeSpecClientListWithNextLinkCollectionResult(this, null, options);
         }
@@ -1298,7 +1300,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult ListWithNextLinkAsync(RequestOptions options)
+        public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options)
         {
             return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResult(this, null, options);
         }
@@ -1306,7 +1308,7 @@ namespace SampleTypeSpec
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithNextLink(CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1314,7 +1316,7 @@ namespace SampleTypeSpec
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithNextLinkAsync(CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1331,7 +1333,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult ListWithContinuationToken(string token, RequestOptions options)
+        public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options)
         {
             return new SampleTypeSpecClientListWithContinuationTokenCollectionResult(this, token, options);
         }
@@ -1348,7 +1350,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult ListWithContinuationTokenAsync(string token, RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options)
         {
             return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResult(this, token, options);
         }
@@ -1357,7 +1359,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1366,7 +1368,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1383,7 +1385,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult ListWithContinuationTokenHeaderResponse(string token, RequestOptions options)
+        public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options)
         {
             return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
         }
@@ -1400,7 +1402,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult ListWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
+        public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
         {
             return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
         }
@@ -1409,7 +1411,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1418,7 +1420,7 @@ namespace SampleTypeSpec
         /// <param name="token"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1434,7 +1436,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult ListWithPaging(RequestOptions options)
+        public virtual CollectionResult GetWithPaging(RequestOptions options)
         {
             return new SampleTypeSpecClientListWithPagingCollectionResult(this, options);
         }
@@ -1450,7 +1452,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult ListWithPagingAsync(RequestOptions options)
+        public virtual AsyncCollectionResult GetWithPagingAsync(RequestOptions options)
         {
             return new SampleTypeSpecClientListWithPagingAsyncCollectionResult(this, options);
         }
@@ -1458,7 +1460,7 @@ namespace SampleTypeSpec
         /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Thing> ListWithPaging(CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
@@ -1466,7 +1468,7 @@ namespace SampleTypeSpec
         /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Thing> ListWithPagingAsync(CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
             return new SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }

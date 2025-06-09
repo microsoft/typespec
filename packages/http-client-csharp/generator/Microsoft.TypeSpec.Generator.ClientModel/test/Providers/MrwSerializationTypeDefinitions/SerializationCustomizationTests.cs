@@ -204,20 +204,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCases =>
         [
-            new TestCaseData(InputPrimitiveType.String),
-            new TestCaseData(InputPrimitiveType.Int32),
+            new TestCaseData(InputFactory.StringEnum("EnumType", [("value", "value")], isExtensible: true)),
+            new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCases))]
-        public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
+        public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
+                    InputFactory.Property("Prop1", enumType)
                     ],
                 usage: InputModelTypeUsage.Json);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.Name));
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.ValueType.Name));
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -226,26 +226,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.Name), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.ValueType.Name), file.Content);
         }
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCasesFromLiteral =>
         [
-            new TestCaseData(InputPrimitiveType.String, "foo"),
-            new TestCaseData(InputPrimitiveType.Int32, 1),
+            new TestCaseData(InputFactory.Literal.String("foo", name: "EnumType")),
+            new TestCaseData(InputFactory.Literal.Int32(1, name: "EnumType")),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCasesFromLiteral))]
-        public async Task CanCustomizeLiteralExtensibleEnum(InputPrimitiveType enumType, object value)
+        public async Task CanCustomizeLiteralExtensibleEnum(InputLiteralType literal)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Literal.Enum(
-                        InputFactory.Enum("EnumType", enumType, isExtensible: true),
-                        value: value))
+                    InputFactory.Property("Prop1", literal)
                     ],
                 usage: InputModelTypeUsage.Json);
-            var parameters = $"{enumType.Name},{value}";
+            var parameters = $"{literal.ValueType.Name},{literal.Value}";
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputLiterals: () => [literal],
                 inputModels: () => [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters));
 
@@ -276,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the serialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "JsonModelWriteCore"));
@@ -303,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(10, methods.Count);
+            Assert.AreEqual(8, methods.Count);
 
             // validate the Write method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "Write"));
@@ -326,7 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the deserialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "DeserializeMockInputModel"));
@@ -392,11 +391,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
         {
             var inputModel = InputFactory.Model("Model", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                         "MyEnum",
-                        InputPrimitiveType.String,
-                        usage: InputModelTypeUsage.Input,
-                        values: [InputFactory.EnumMember.String("foo", "bar")])))
+                        [("foo", "bar")],
+                        usage: InputModelTypeUsage.Input)))
                     ]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(

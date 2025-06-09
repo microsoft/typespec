@@ -25,6 +25,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 
 /**
@@ -57,7 +58,7 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NonResourceClientNon")
+    @ServiceInterface(name = "NonResourceClientNonResourceOperations")
     public interface NonResourceOperationsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
@@ -68,10 +69,28 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
             @PathParam("location") String location, @PathParam("parameter") String parameter,
             @HeaderParam("Accept") String accept, Context context);
 
+        @Headers({ "Content-Type: application/json" })
+        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<NonResourceInner> getSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("location") String location, @PathParam("parameter") String parameter,
+            @HeaderParam("Accept") String accept, Context context);
+
         @Put("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<NonResourceInner>> create(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("location") String location, @PathParam("parameter") String parameter,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") NonResourceInner body, Context context);
+
+        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<NonResourceInner> createSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("location") String location, @PathParam("parameter") String parameter,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
@@ -117,40 +136,6 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      * 
      * @param location The location parameter.
      * @param parameter Another parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return though this model has `id`, `name`, `type` properties, it is not a resource as it doesn't extends
-     * `Resource` along with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<NonResourceInner>> getWithResponseAsync(String location, String parameter, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (location == null) {
-            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
-        }
-        if (parameter == null) {
-            return Mono.error(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.get(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
-            location, parameter, accept, context);
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @param location The location parameter.
-     * @param parameter Another parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -176,7 +161,27 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NonResourceInner> getWithResponse(String location, String parameter, Context context) {
-        return getWithResponseAsync(location, parameter, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (location == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (parameter == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.getSync(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
+            location, parameter, accept, context);
     }
 
     /**
@@ -243,48 +248,6 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      * @param location The location parameter.
      * @param parameter Another parameter.
      * @param body The request body.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return though this model has `id`, `name`, `type` properties, it is not a resource as it doesn't extends
-     * `Resource` along with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<NonResourceInner>> createWithResponseAsync(String location, String parameter,
-        NonResourceInner body, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (location == null) {
-            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
-        }
-        if (parameter == null) {
-            return Mono.error(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
-        }
-        if (body == null) {
-            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
-        } else {
-            body.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.create(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
-            location, parameter, contentType, accept, body, context);
-    }
-
-    /**
-     * The create operation.
-     * 
-     * @param location The location parameter.
-     * @param parameter Another parameter.
-     * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -312,7 +275,33 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NonResourceInner> createWithResponse(String location, String parameter, NonResourceInner body,
         Context context) {
-        return createWithResponseAsync(location, parameter, body, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (location == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (parameter == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
+        }
+        if (body == null) {
+            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+        } else {
+            body.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), location, parameter, contentType, accept, body, context);
     }
 
     /**
@@ -331,4 +320,6 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
     public NonResourceInner create(String location, String parameter, NonResourceInner body) {
         return createWithResponse(location, parameter, body, Context.NONE).getValue();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(NonResourceOperationsClientImpl.class);
 }

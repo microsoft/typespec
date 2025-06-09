@@ -64,10 +64,10 @@ public class Project {
         AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.17.0"),
         AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.11"),
         AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.8"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.4"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.16.1"),
         AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.60"),
 
-        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.9");
+        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.10");
 
         private final String groupId;
         private final String artifactId;

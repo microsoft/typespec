@@ -15,7 +15,6 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import versioning.typechangedfrom.TypeChangedFromClient;
 import versioning.typechangedfrom.TypeChangedFromClientBuilder;
-import versioning.typechangedfrom.models.Versions;
 
 class TypeChangedFromClientTestBase extends TestProxyTestBase {
     protected TypeChangedFromClient typeChangedFromClient;
@@ -24,7 +23,6 @@ class TypeChangedFromClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         TypeChangedFromClientBuilder typeChangedFromClientbuilder = new TypeChangedFromClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

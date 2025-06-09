@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.added.implementation.AddedClientImpl;
-import versioning.added.models.Versions;
 
 /**
  * A builder for creating a new instance of the AddedClient type.
@@ -196,24 +195,6 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Generated
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the AddedClientBuilder.
-     */
-    @Generated
-    public AddedClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Generated
@@ -261,7 +242,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         AddedServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : AddedServiceVersion.getLatest();
         AddedClientImpl client = new AddedClientImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(),
-            this.endpoint, this.version, localServiceVersion);
+            this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -270,7 +251,6 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Generated

@@ -740,8 +740,15 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         + "Accessor().prepareModelForJsonMergePatch(" + propertyValueGetter + ", false);");
                 }
             } else if (wireType == ClassType.OBJECT) {
-                methodBlock
-                    .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                if (!property.isRequired() && !property.isRequiredForCreate()
+                // In json-merge-patch, we don't need to check whether the optional untyped property is null again.
+                    && !isJsonMergePatch) {
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> ifBlock.line(
+                        "jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");"));
+                } else {
+                    methodBlock
+                        .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
+                }
             } else if (wireType instanceof IterableType) {
                 serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
                     ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,

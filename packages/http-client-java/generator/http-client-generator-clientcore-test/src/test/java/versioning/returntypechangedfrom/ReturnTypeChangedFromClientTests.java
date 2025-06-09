@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 
 public class ReturnTypeChangedFromClientTests {
     private final ReturnTypeChangedFromClient returnTypeChangedFromClient
-        = new ReturnTypeChangedFromClientBuilder().endpoint("http://localhost:3000").version(Versions.V2).buildClient();
+        = new ReturnTypeChangedFromClientBuilder().endpoint("http://localhost:3000")
+            .serviceVersion(ReturnTypeChangedFromServiceVersion.V2)
+            .buildClient();
 
     @Test
     public void testReturnTypeChangedFromClient() {

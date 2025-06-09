@@ -28,13 +28,22 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   const refkeys = declarationRefkeys(props.refkey, props.type);
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
   const members = Array.from(type.members.entries());
+  const doc = props.doc ?? $.type.getDoc(type);
 
   return (
-    <ts.EnumDeclaration name={name} refkey={refkeys} default={props.default} export={props.export}>
+    <ts.EnumDeclaration
+      doc={doc}
+      name={name}
+      refkey={refkeys}
+      default={props.default}
+      export={props.export}
+    >
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
+          const memberDoc = $.type.getDoc(value);
           return (
             <EnumMember
+              doc={memberDoc}
               type={value}
               refkey={
                 $.union.is(props.type) ? efRefkey(props.type.variants.get(key)) : efRefkey(value)
@@ -49,12 +58,14 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
 
 export interface EnumMemberProps {
   type: TspEnumMember;
+  doc?: ay.Children;
   refkey?: ay.Refkey;
 }
 
 export function EnumMember(props: EnumMemberProps) {
   return (
     <ts.EnumMember
+      doc={props.doc}
       name={props.type.name}
       jsValue={props.type.value ?? props.type.name}
       refkey={props.refkey}

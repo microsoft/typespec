@@ -57,7 +57,7 @@ public final class EnumsOnliesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientEnumsOnli")
+    @ServiceInterface(name = "UnionClientEnumsOnlies")
     public interface EnumsOnliesService {
         @Get("/type/union/enums-only")
         @ExpectedResponses({ 200 })

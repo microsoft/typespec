@@ -57,7 +57,7 @@ public final class UnionIntLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientUnionI")
+    @ServiceInterface(name = "OptionalClientUnionIntLiterals")
     public interface UnionIntLiteralsService {
         @Get("/type/property/optional/union/int/literal/all")
         @ExpectedResponses({ 200 })

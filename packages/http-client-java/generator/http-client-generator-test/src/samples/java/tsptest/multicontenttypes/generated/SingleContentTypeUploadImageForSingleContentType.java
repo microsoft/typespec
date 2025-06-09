@@ -15,9 +15,9 @@ public class SingleContentTypeUploadImageForSingleContentType {
         SingleContentTypeClient singleContentTypeClient
             = new MultiContentTypesClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildSingleContentTypeClient();
-        // BEGIN:tsptest.multicontenttypes.generated.singlecontenttypeuploadimageforsinglecontenttype.singlecontenttypeuploadimageforsinglecontenttype
+        // BEGIN:tsptest.multicontenttypes.generated.single-content-type-upload-image-for-single-content-type.single-content-type-upload-image-for-single-content-type
         singleContentTypeClient.uploadImageForSingleContentType(
             BinaryData.fromBytes("\"D:\\Program Files\"".getBytes(StandardCharsets.UTF_8)));
-        // END:tsptest.multicontenttypes.generated.singlecontenttypeuploadimageforsinglecontenttype.singlecontenttypeuploadimageforsinglecontenttype
+        // END:tsptest.multicontenttypes.generated.single-content-type-upload-image-for-single-content-type.single-content-type-upload-image-for-single-content-type
     }
 }

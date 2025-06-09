@@ -47,10 +47,13 @@ export function buildParameterDescriptors(
 }
 
 export function buildParameterDescriptor(modelProperty: ModelProperty): ts.ParameterDescriptor {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
   const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
+  const doc = $.type.getDoc(modelProperty);
   return {
+    doc,
     name: paramName,
     refkey: efRefkey(modelProperty),
     optional: isOptional,

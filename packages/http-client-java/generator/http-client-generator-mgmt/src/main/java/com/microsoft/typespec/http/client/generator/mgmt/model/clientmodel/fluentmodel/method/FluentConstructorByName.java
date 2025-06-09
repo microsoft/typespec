@@ -3,12 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method;
 
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
@@ -40,8 +42,12 @@ public class FluentConstructorByName extends FluentMethod {
             .visibility(JavaVisibility.PackagePrivate)
             .methodSignature(this.getImplementationMethodSignature())
             .method(block -> {
-                block.line(String.format("this.%1$s = new %2$s();", ModelNaming.MODEL_PROPERTY_INNER,
-                    model.getInnerModel().getName()));
+                // Resource model can be immutable output-only(private-ctor), when PUT request body is not resource
+                // model itself.
+                if (!ClientModelUtil.isImmutableOutputModel(model.getInnerModel(), JavaSettings.getInstance())) {
+                    block.line(String.format("this.%1$s = new %2$s();", ModelNaming.MODEL_PROPERTY_INNER,
+                        model.getInnerModel().getName()));
+                }
                 block.line(String.format("this.%1$s = %2$s;", ModelNaming.MODEL_PROPERTY_MANAGER,
                     ModelNaming.MODEL_PROPERTY_MANAGER));
                 if (!constantResourceName) {

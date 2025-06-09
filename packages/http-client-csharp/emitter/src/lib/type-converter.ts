@@ -11,12 +11,15 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHttpParameter,
+  SdkHeaderParameter,
   SdkModelPropertyType,
   SdkModelType,
+  SdkPathParameter,
+  SdkQueryParameter,
   SdkTupleType,
   SdkType,
   SdkUnionType,
+  UsageFlags,
   getAccessOverride,
   isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
@@ -29,21 +32,20 @@ import {
   InputDictionaryType,
   InputDurationType,
   InputEnumType,
-  InputEnumTypeValue,
+  InputEnumValueType,
+  InputHeaderParameter,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
+  InputPathParameter,
   InputPrimitiveType,
+  InputProperty,
+  InputQueryParameter,
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
-import { LiteralTypeContext } from "../type/literal-type-context.js";
 
-export function fromSdkType(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-  literalTypeContext?: LiteralTypeContext,
-): InputType {
+export function fromSdkType(sdkContext: CSharpEmitterContext, sdkType: SdkType): InputType {
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
     return retVar;
@@ -65,7 +67,7 @@ export function fromSdkType(
       retVar = fromSdkEnumType(sdkContext, sdkType);
       break;
     case "enumvalue":
-      retVar = fromSdkEnumValueTypeToConstantType(sdkContext, sdkType, literalTypeContext);
+      retVar = fromSdkEnumValueType(sdkContext, sdkType);
       break;
     case "dict":
       retVar = fromSdkDictionaryType(sdkContext, sdkType);
@@ -74,7 +76,7 @@ export function fromSdkType(
       retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
-      retVar = fromSdkConstantType(sdkContext, sdkType, literalTypeContext);
+      retVar = fromSdkConstantType(sdkContext, sdkType);
       break;
     case "union":
       retVar = fromUnionType(sdkContext, sdkType);
@@ -131,35 +133,30 @@ export function fromSdkModelType(
       decorators: modelType.decorators,
     } as InputModelType;
 
-    sdkContext.__typeCache.updateTypeCache(modelTypeName, inputModelType);
+    sdkContext.__typeCache.updateTypeCache(modelType, inputModelType);
 
     inputModelType.additionalProperties = modelType.additionalProperties
       ? fromSdkType(sdkContext, modelType.additionalProperties)
       : undefined;
 
-    const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
+    const properties: InputProperty[] = [];
     for (const property of modelType.properties) {
-      const ourProperty = fromSdkModelProperty(sdkContext, property, {
-        modelName: modelTypeName,
-        usage: modelType.usage,
-        namespace: modelType.namespace,
-      } as LiteralTypeContext);
+      const ourProperty = fromSdkModelProperty(sdkContext, property);
 
-      if (!ourProperty) {
-        continue;
+      if (ourProperty) {
+        properties.push(ourProperty);
       }
-      propertiesDict.set(property, ourProperty);
     }
 
     inputModelType.discriminatorProperty = modelType.discriminatorProperty
-      ? propertiesDict.get(modelType.discriminatorProperty)
+      ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
       : undefined;
 
     inputModelType.baseModel = modelType.baseModel
       ? fromSdkModelType(sdkContext, modelType.baseModel)
       : undefined;
 
-    inputModelType.properties = Array.from(propertiesDict.values()).flat();
+    inputModelType.properties = properties;
 
     if (modelType.discriminatedSubtypes) {
       const discriminatedSubtypes: Record<string, InputModelType> = {};
@@ -175,53 +172,100 @@ export function fromSdkModelType(
 
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
-    property: SdkModelPropertyType,
-    literalTypeContext: LiteralTypeContext,
-  ): InputModelProperty | undefined {
-    switch (property.kind) {
-      case "property":
-        return fromSdkBodyModelProperty(sdkContext, property, literalTypeContext);
-      case "header":
-      case "query":
-      case "path":
-        return fromSdkHttpParameterModelProperty(sdkContext, property, literalTypeContext);
-      default:
-        return undefined;
+    sdkProperty: SdkModelPropertyType,
+  ): InputProperty | undefined {
+    // TODO -- this returns undefined because some properties we do not support yet.
+    let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
+    if (property) {
+      return property;
     }
+    switch (sdkProperty.kind) {
+      case "property":
+        property = fromSdkBodyModelProperty(sdkContext, sdkProperty);
+        break;
+      case "header":
+        property = fromSdkHeaderParameter(sdkContext, sdkProperty);
+        break;
+      case "query":
+        property = fromSdkQueryParameter(sdkContext, sdkProperty);
+        break;
+      case "path":
+        property = fromSdkPathParameter(sdkContext, sdkProperty);
+        break;
+    }
+
+    if (property) {
+      sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
+    }
+
+    return property;
   }
 
-  function fromSdkHttpParameterModelProperty(
+  function fromSdkHeaderParameter(
     sdkContext: CSharpEmitterContext,
-    property: SdkHttpParameter,
-    literalTypeContext: LiteralTypeContext,
-  ): InputModelProperty {
-    const targetType = property.type;
-
-    const serializedName = property.serializedName;
-    literalTypeContext.propertyName = serializedName;
-
-    const modelHeaderProperty: InputModelProperty = {
+    property: SdkHeaderParameter,
+  ): InputHeaderParameter {
+    return {
       kind: property.kind,
       name: property.name,
-      serializedName: serializedName,
+      serializedName: property.serializedName,
       summary: property.summary,
       doc: property.doc,
-      type: fromSdkType(sdkContext, targetType, literalTypeContext),
+      type: fromSdkType(sdkContext, property.type),
       optional: property.optional,
       readOnly: isReadOnly(property),
       decorators: property.decorators,
       crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      discriminator: false,
-      flatten: false,
+      collectionFormat: property.collectionFormat,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
     };
+  }
 
-    return modelHeaderProperty;
+  function fromSdkQueryParameter(
+    sdkContext: CSharpEmitterContext,
+    property: SdkQueryParameter,
+  ): InputQueryParameter {
+    return {
+      kind: property.kind,
+      name: property.name,
+      serializedName: property.serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, property.type),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
+      explode: property.explode,
+    };
+  }
+
+  function fromSdkPathParameter(
+    sdkContext: CSharpEmitterContext,
+    property: SdkPathParameter,
+  ): InputPathParameter {
+    return {
+      kind: property.kind,
+      name: property.name,
+      serializedName: property.serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, property.type),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      explode: property.explode,
+      style: property.style,
+      allowReserved: property.allowReserved,
+      correspondingMethodParams: [], // TODO - this should be a ref of other properties
+    };
   }
 
   function fromSdkBodyModelProperty(
     sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
-    literalTypeContext: LiteralTypeContext,
   ): InputModelProperty {
     let targetType = property.type;
     if (targetType.kind === "model") {
@@ -229,20 +273,13 @@ export function fromSdkModelType(
       if (body) targetType = body.type;
     }
 
-    const serializedName = property.serializedName;
-    literalTypeContext.propertyName = serializedName;
-
     const modelProperty: InputModelProperty = {
       kind: property.kind,
       name: property.name,
-      serializedName: serializedName,
+      serializedName: property.serializedName,
       summary: property.summary,
       doc: property.doc,
-      type: fromSdkType(
-        sdkContext,
-        targetType,
-        property.discriminator ? undefined : literalTypeContext,
-      ),
+      type: fromSdkType(sdkContext, targetType),
       optional: property.optional,
       readOnly: isReadOnly(property),
       discriminator: property.discriminator,
@@ -259,12 +296,11 @@ export function fromSdkModelType(
 export function fromSdkEnumType(
   sdkContext: CSharpEmitterContext,
   enumType: SdkEnumType,
-  addToCollection: boolean = true,
 ): InputEnumType {
   const enumName = enumType.name;
   let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
   if (!inputEnumType) {
-    const values: InputEnumTypeValue[] = [];
+    const values: InputEnumValueType[] = [];
     inputEnumType = {
       kind: "enum",
       name: enumName,
@@ -281,9 +317,7 @@ export function fromSdkEnumType(
       usage: enumType.usage,
       decorators: enumType.decorators,
     };
-    if (addToCollection) {
-      sdkContext.__typeCache.updateTypeCache(enumName, inputEnumType);
-    }
+    sdkContext.__typeCache.updateTypeCache(enumType, inputEnumType);
     for (const v of enumType.values) {
       values.push(fromSdkEnumValueType(sdkContext, v));
     }
@@ -370,75 +404,32 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
 function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
-  literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
-  return {
+  let literalType = sdkContext.__typeCache.constants.get(constantType);
+  if (literalType) {
+    return literalType;
+  }
+
+  literalType = {
     kind: constantType.kind,
-    valueType:
-      constantType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(sdkContext, constantType.valueType)
-        : convertConstantToEnum(sdkContext, constantType, literalTypeContext),
+    name: constantType.name,
+    namespace: "", // constantType.namespace, TODO - constant type now does not have namespace. TCGC will add it later
+    access: undefined, // constantType.access, TODO - constant type now does not have access. TCGC will add it later
+    usage: UsageFlags.None, // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
+    valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
     value: constantType.value,
     decorators: constantType.decorators,
   };
 
-  function convertConstantToEnum(
-    sdkContext: CSharpEmitterContext,
-    constantType: SdkConstantType,
-    literalTypeContext: LiteralTypeContext,
-  ) {
-    const enumName = `${literalTypeContext.modelName}_${literalTypeContext.propertyName}`;
-    const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
-    const values: InputEnumTypeValue[] = [];
-    const enumType: InputEnumType = {
-      kind: "enum",
-      name: enumName,
-      valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
-      values: values,
-      crossLanguageDefinitionId: "",
-      access: undefined,
-      namespace: literalTypeContext.namespace,
-      doc: `The ${enumName}`,
-      isFixed: false,
-      isFlags: false,
-      usage: literalTypeContext.usage,
-      decorators: constantType.decorators,
-    };
+  sdkContext.__typeCache.updateTypeCache(constantType, literalType);
 
-    sdkContext.__typeCache.updateTypeCache(enumName, enumType);
-
-    values.push({
-      kind: "enumvalue",
-      name: enumValueName,
-      value: constantType.value as string | number,
-      doc: enumValueName,
-      valueType: enumType.valueType,
-      enumType: enumType,
-    });
-    return enumType;
-  }
-}
-
-function fromSdkEnumValueTypeToConstantType(
-  sdkContext: CSharpEmitterContext,
-  enumValueType: SdkEnumValueType,
-  literalTypeContext?: LiteralTypeContext,
-): InputLiteralType {
-  return {
-    kind: "constant",
-    valueType:
-      enumValueType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(sdkContext, enumValueType.valueType)
-        : fromSdkEnumType(sdkContext, enumValueType.enumType),
-    value: enumValueType.value,
-    decorators: enumValueType.decorators,
-  };
+  return literalType;
 }
 
 function fromSdkEnumValueType(
   sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
-): InputEnumTypeValue {
+): InputEnumValueType {
   return {
     kind: "enumvalue",
     name: enumValueType.name,

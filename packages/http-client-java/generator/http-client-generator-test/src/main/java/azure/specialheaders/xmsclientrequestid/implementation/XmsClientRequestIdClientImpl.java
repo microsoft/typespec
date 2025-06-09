@@ -121,7 +121,7 @@ public final class XmsClientRequestIdClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "XmsClientRequestIdCl")
+    @ServiceInterface(name = "XmsClientRequestIdClient")
     public interface XmsClientRequestIdClientService {
         @Get("/azure/special-headers/x-ms-client-request-id/")
         @ExpectedResponses({ 204 })

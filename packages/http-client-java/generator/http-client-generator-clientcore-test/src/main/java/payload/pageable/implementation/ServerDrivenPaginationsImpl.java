@@ -3,7 +3,6 @@ package payload.pageable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -16,6 +15,7 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
@@ -40,7 +40,7 @@ public final class ServerDrivenPaginationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationsImpl(PageableClientImpl client) {
-        this.service = RestProxy.create(ServerDrivenPaginationsService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -48,7 +48,7 @@ public final class ServerDrivenPaginationsImpl {
      * The interface defining all the services for PageableClientServerDrivenPaginations to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
         static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -118,8 +118,33 @@ public final class ServerDrivenPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> linkSinglePage(),
-            (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            return linkSinglePage();
+        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
     }
 
     /**
@@ -134,8 +159,33 @@ public final class ServerDrivenPaginationsImpl {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> link(RequestContext requestContext) {
         RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
-        return new PagedIterable<>((pagingOptions) -> linkSinglePage(requestContext),
-            (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getContinuationToken() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            return linkSinglePage(requestContext);
+        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));
     }
 
     /**
@@ -173,4 +223,6 @@ public final class ServerDrivenPaginationsImpl {
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().getPets(),
             null, res.getValue().getNext(), null, null, null);
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsImpl.class);
 }

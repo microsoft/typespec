@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class StringExtensibleNamedsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringExtensibleNamedsImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(StringExtensibleNamedsService.class, client.getHttpPipeline());
+        this.service = StringExtensibleNamedsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class StringExtensibleNamedsImpl {
      * The interface defining all the services for UnionClientStringExtensibleNameds to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "UnionClientStringExt", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientStringExtensibleNameds", host = "{endpoint}")
     public interface StringExtensibleNamedsService {
         static StringExtensibleNamedsService getNewInstance(HttpPipeline pipeline) {
             try {

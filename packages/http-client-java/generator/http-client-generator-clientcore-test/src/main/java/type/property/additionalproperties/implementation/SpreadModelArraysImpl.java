@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class SpreadModelArraysImpl {
      * @param client the instance of the service client containing this operation class.
      */
     SpreadModelArraysImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(SpreadModelArraysService.class, client.getHttpPipeline());
+        this.service = SpreadModelArraysService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class SpreadModelArraysImpl {
      * The interface defining all the services for AdditionalPropertiesClientSpreadModelArrays to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadModelArrays", host = "{endpoint}")
     public interface SpreadModelArraysService {
         static SpreadModelArraysService getNewInstance(HttpPipeline pipeline) {
             try {

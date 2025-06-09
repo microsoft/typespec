@@ -46,25 +46,25 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of CustomTemplateResourceInterfacesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    CustomTemplateResourceInterfacesClientImpl(ArmResourceProviderClientImpl client) {
+    CustomTemplateResourceInterfacesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(CustomTemplateResourceInterfacesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientCustomTemplateResourceInterfaces to be used
-     * by the proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientCustomTemplateResourceInterfaces to be used by the proxy
+     * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientCustomTemplateResourceInterfaces")
     public interface CustomTemplateResourceInterfacesService {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 201 })

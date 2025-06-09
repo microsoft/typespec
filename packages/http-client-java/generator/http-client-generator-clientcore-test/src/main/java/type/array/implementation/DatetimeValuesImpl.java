@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class DatetimeValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DatetimeValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(DatetimeValuesService.class, client.getHttpPipeline());
+        this.service = DatetimeValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class DatetimeValuesImpl {
      * The interface defining all the services for ArrayClientDatetimeValues to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ArrayClientDatetimeV", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientDatetimeValues", host = "{endpoint}")
     public interface DatetimeValuesService {
         static DatetimeValuesService getNewInstance(HttpPipeline pipeline) {
             try {

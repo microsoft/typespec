@@ -32,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Except>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Except except) => throw null;
-
-        public static explicit operator Except(ClientResult result) => throw null;
     }
 }

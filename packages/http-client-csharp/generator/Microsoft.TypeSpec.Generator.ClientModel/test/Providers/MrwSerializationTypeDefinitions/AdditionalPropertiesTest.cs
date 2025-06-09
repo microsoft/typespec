@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -44,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             // validate the additional properties variable declarations
             for (var i = 0; i < expectedValueTypeNames.Length; i++)
             {
-                var expectedVariableName = i == 0 ? "additionalProperties" : $"additional{expectedValueTypeNames[i].ToCleanName()}Properties";
+                var expectedVariableName = i == 0 ? "additionalProperties" : $"additional{expectedValueTypeNames[i].ToIdentifierName()}Properties";
                 var expectedDeclaration = $"global::System.Collections.Generic.IDictionary<string, {expectedValueTypeNames[i].ToVariableName()}> {expectedVariableName}";
                 Assert.IsTrue(methodBodyString.Contains(expectedDeclaration, StringComparison.InvariantCultureIgnoreCase));
             }
@@ -59,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             if (expectedValueTypeNames.Length > 1)
             {
                 // skip the first value type name as it is already included in the return statement
-                var additionalPropertiesVariables = "additionalProperties, " + string.Join(", ", expectedValueTypeNames.Skip(1).Select(v => $"additional{v.ToCleanName()}Properties,"));
+                var additionalPropertiesVariables = "additionalProperties, " + string.Join(", ", expectedValueTypeNames.Skip(1).Select(v => $"additional{v.ToIdentifierName()}Properties,"));
                 var expectedReturnStatement = $"return new global::Sample.Models.Cat(color, {additionalPropertiesVariables} additionalBinaryDataProperties);";
                 Assert.IsTrue(methodBodyString.Contains(expectedReturnStatement));
             }

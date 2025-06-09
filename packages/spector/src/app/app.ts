@@ -28,14 +28,11 @@ export class MockApiApp {
   private router = Router();
   private server: MockApiServer;
   private coverageTracker: CoverageTracker;
-  private resolverConfig: ResolverConfig;
+  private resolverConfig!: ResolverConfig;
 
   constructor(private config: ApiMockAppConfig) {
     this.server = new MockApiServer({ port: config.port });
     this.coverageTracker = new CoverageTracker(config.coverageFile);
-    this.resolverConfig = {
-      baseUrl: `http://localhost:${config.port}`,
-    };
   }
 
   public async start(): Promise<void> {
@@ -67,7 +64,11 @@ export class MockApiApp {
     });
 
     this.server.use("/", this.router);
-    this.server.start();
+    // Getting the resolved port as setting 0 in the config will have express resolve on of the available ports
+    const port = await this.server.start();
+    this.resolverConfig = {
+      baseUrl: `http://localhost:${port}`,
+    };
   }
 
   private registerScenario(name: string, scenario: ScenarioMockApi) {

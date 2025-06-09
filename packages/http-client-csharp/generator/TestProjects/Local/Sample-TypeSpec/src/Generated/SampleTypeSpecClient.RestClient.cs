@@ -343,13 +343,19 @@ namespace SampleTypeSpec
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(nextPage ?? _endpoint);
-            if (nextPage == null)
+            if (nextPage != null)
             {
-                uri.AppendPath("/link", false);
+                uri.Reset(nextPage);
+                request.Uri = uri.ToUri();
+                request.Headers.Set("Accept", "application/json");
             }
-            request.Uri = uri.ToUri();
-            request.Headers.Set("Accept", "application/json");
+            else
+            {
+                uri.Reset(_endpoint);
+                uri.AppendPath("/link", false);
+                request.Uri = uri.ToUri();
+                request.Headers.Set("Accept", "application/json");
+            }
             message.Apply(options);
             return message;
         }

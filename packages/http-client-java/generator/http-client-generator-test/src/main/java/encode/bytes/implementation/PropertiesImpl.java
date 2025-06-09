@@ -56,7 +56,7 @@ public final class PropertiesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BytesClientPropertie")
+    @ServiceInterface(name = "BytesClientProperties")
     public interface PropertiesService {
         @Post("/encode/bytes/property/default")
         @ExpectedResponses({ 200 })

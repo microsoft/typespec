@@ -360,30 +360,35 @@ function getDecoratorScopedValue<T>(
   decorator: string,
   mapFunc: (d: DecoratorApplication) => T,
 ): T | undefined {
+  // check for decorator that contains "java" scope, e.g. "java" or "python,java"
   let value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "java",
+        scopeExplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that contains negative non-"java" scope, e.g. "!python"
   value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "client",
+        scopeImplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that does not have scope
   value = type.decorators
     .filter((it) => it.decorator.name === decorator && it.args.length === 1)
     .map((it) => mapFunc(it))
@@ -392,4 +397,47 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   return undefined;
+}
+
+/**
+ * Tests that the scope explicitly includes "java". This is of higher priority than scope with negation.
+ *
+ * @param scope the scope.
+ * @returns scope explicitly includes "java".
+ */
+export function scopeExplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    return false;
+  }
+  return scope
+    .split(",")
+    .map((s) => s.trim())
+    .includes("java");
+}
+
+/**
+ * Tests that the scope implicitly includes "java" by having a negation of other languages.
+ * E.g. "!python" or "!(python,csharp)".
+ *
+ * @param scope the scope.
+ * @returns scope implicitly includes "java".
+ */
+export function scopeImplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    const scopeInNegation = scope.trim().slice(2, -1).trim(); // remove "!(" and ")"
+    return !scopeInNegation
+      .split(",")
+      .map((s) => s.trim())
+      .includes("java");
+  } else {
+    return scope
+      .split(",")
+      .map((s) => s.trim())
+      .some((s) => s.startsWith("!") && s !== "!java");
+  }
+}
+
+function scopeIsNegationOfMultiple(scope: string): boolean {
+  const trimmedScope = scope.trim();
+  return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
 }

@@ -57,7 +57,7 @@ public final class ModelValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientModelValu")
+    @ServiceInterface(name = "ArrayClientModelValues")
     public interface ModelValuesService {
         @Get("/type/array/model")
         @ExpectedResponses({ 200 })

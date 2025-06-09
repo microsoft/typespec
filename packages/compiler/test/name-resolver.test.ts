@@ -715,35 +715,70 @@ describe("interfaces", () => {
 
 describe("operations", () => {
   describe("resolution", () => {
-    it("resolves parameters meta property", () => {
-      const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
-        [
-          `
+    describe("resolves ::parameters meta property", () => {
+      it("in operation signature", () => {
+        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
             model Bar { }
             op Foo(x: Bar): void;
           `,
-        ],
-        "Foo::parameters.x::type",
-        "Bar",
-      );
+          ],
+          "Foo::parameters.x::type",
+          "Bar",
+        );
 
-      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
+
+      it("in op is", () => {
+        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Base(x: Bar): void;
+            op Foo is Base;
+          `,
+          ],
+          "Foo::parameters.x::type",
+          "Bar",
+        );
+
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
     });
 
-    it("resolves parameters meta property with is ops", () => {
-      const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
-        [
-          `
+    describe("resolves ::returnType meta property", () => {
+      it("in operation signature", () => {
+        const { "Foo::returnType": x, Bar: Bar } = getResolutions(
+          [
+            `
             model Bar { }
-            op Foo(x: Bar): void;
-            op Baz is Foo;
+            op Foo(): Bar;
           `,
-        ],
-        "Baz::parameters.x::type",
-        "Bar",
-      );
+          ],
+          "Foo::returnType",
+          "Bar",
+        );
 
-      ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
+
+      it("in op is", () => {
+        const { "Foo::returnType": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Base(): Bar;
+            op Foo is Base;
+          `,
+          ],
+          "Foo::returnType",
+          "Bar",
+        );
+
+        ok(x.finalSymbol === Bar.finalSymbol, "Should resolve to Bar");
+      });
     });
   });
 });
