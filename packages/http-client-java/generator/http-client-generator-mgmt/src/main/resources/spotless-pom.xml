@@ -29,7 +29,6 @@
             </includes>
 
             <importOrder/>
-            <removeUnusedImports/>
             <eclipse>
               <version>4.21</version>
               <file>eclipse-format-azure-sdk-for-java.xml</file>

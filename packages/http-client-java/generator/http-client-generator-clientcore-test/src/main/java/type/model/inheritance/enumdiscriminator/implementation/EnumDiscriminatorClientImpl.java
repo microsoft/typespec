@@ -3,7 +3,6 @@ package type.model.inheritance.enumdiscriminator.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -64,14 +63,14 @@ public final class EnumDiscriminatorClientImpl {
     public EnumDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(EnumDiscriminatorClientService.class, this.httpPipeline);
+        this.service = EnumDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for EnumDiscriminatorClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "EnumDiscriminatorCli", host = "{endpoint}")
+    @ServiceInterface(name = "EnumDiscriminatorClient", host = "{endpoint}")
     public interface EnumDiscriminatorClientService {
         static EnumDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
             try {

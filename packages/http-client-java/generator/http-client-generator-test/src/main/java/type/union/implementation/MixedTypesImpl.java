@@ -57,7 +57,7 @@ public final class MixedTypesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientMixedType")
+    @ServiceInterface(name = "UnionClientMixedTypes")
     public interface MixedTypesService {
         @Get("/type/union/mixed-types")
         @ExpectedResponses({ 200 })

@@ -75,7 +75,7 @@ public final class UnionFlattenOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}/openai")
-    @ServiceInterface(name = "UnionClientUnionFlat")
+    @ServiceInterface(name = "UnionClientUnionFlattenOps")
     public interface UnionFlattenOpsService {
         @Post("/union/send")
         @ExpectedResponses({ 200 })

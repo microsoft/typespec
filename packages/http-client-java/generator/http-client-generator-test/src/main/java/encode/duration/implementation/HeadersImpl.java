@@ -57,7 +57,7 @@ public final class HeadersImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DurationClientHeader")
+    @ServiceInterface(name = "DurationClientHeaders")
     public interface HeadersService {
         @Get("/encode/duration/header/default")
         @ExpectedResponses({ 204 })

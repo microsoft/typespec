@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -300,7 +299,7 @@ public final class RoutesClientImpl {
         this.queryParametersQueryContinuationStandards = new QueryParametersQueryContinuationStandardsImpl(this);
         this.queryParametersQueryContinuationExplodes = new QueryParametersQueryContinuationExplodesImpl(this);
         this.inInterfaces = new InInterfacesImpl(this);
-        this.service = RestProxy.create(RoutesClientService.class, this.httpPipeline);
+        this.service = RoutesClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

@@ -32,7 +32,5 @@ namespace Parameters.Spread._Model
         string IPersistableModel<BodyParameter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(BodyParameter bodyParameter) => throw null;
-
-        public static explicit operator BodyParameter(ClientResult result) => throw null;
     }
 }

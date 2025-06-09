@@ -52,23 +52,31 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return nameMap;
         }
 
-        public TypeProvider? FindForTypeInCustomization(string ns, string name)
+        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(Customization, ns, name, false);
+            return FindTypeInCompilation(Customization, ns, name, false, declaringTypeName);
         }
 
-        public TypeProvider? FindForTypeInLastContract(string ns, string name)
+        public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(LastContract, ns, name, true);
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName);
         }
 
-        private TypeProvider? FindTypeInCompilation(Compilation? compilation, string ns, string name, bool includeReferencedAssemblies)
+        private TypeProvider? FindTypeInCompilation(
+            Compilation? compilation,
+            string ns,
+            string name,
+            bool includeReferencedAssemblies,
+            string? declaringTypeName = null)
         {
             if (compilation == null)
             {
                 return null;
             }
-            var fullyQualifiedMetadataName = $"{ns}.{name}";
+
+            var fullyQualifiedMetadataName = declaringTypeName != null
+                ? $"{ns}.{declaringTypeName}+{name}"
+                : $"{ns}.{name}";
             if (!_nameMap.Value.TryGetValue(name, out var type) &&
                 !_nameMap.Value.TryGetValue(fullyQualifiedMetadataName, out type))
             {

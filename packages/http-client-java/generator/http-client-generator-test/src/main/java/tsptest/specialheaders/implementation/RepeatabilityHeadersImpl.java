@@ -82,7 +82,7 @@ public final class RepeatabilityHeadersImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialHeadersClient")
+    @ServiceInterface(name = "SpecialHeadersClientRepeatabilityHeaders")
     public interface RepeatabilityHeadersService {
         @Get("/repeatability-headers/resources/{name}")
         @ExpectedResponses({ 200 })

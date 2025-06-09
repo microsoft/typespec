@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string RepeatabilityRequestIdHeader = "Repeatability-Request-ID";
         private const string RepeatabilityFirstSentHeader = "Repeatability-First-Sent";
+
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
             { RepeatabilityRequestIdHeader, ScmKnownParameters.RepeatabilityRequestId },
@@ -131,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, ParameterProvider> paramMap,
             MethodSignature signature)
         {
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod is InputPagingServiceMethod pagingMethod ? pagingMethod : null;
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var operation = serviceMethod.Operation;
             var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
 
@@ -153,7 +154,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             new IfStatement(ScmKnownParameters.NextPage.NotEqual(Null))
                             {
                                 uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
-                                request.SetUri(uri)
+                                request.SetUri(uri),
+                                new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToList())
                             },
                             new MethodBodyStatements([..statements]))
                     };
@@ -216,14 +218,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             throw new InvalidOperationException($"Unexpected status codes for operation {operation.Name}");
         }
 
-        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IEnumerable<MethodBodyStatement> AppendHeaderParameters(HttpRequestApi request, InputOperation operation, Dictionary<string, ParameterProvider> paramMap, bool isNextLink = false)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
             foreach (var inputParameter in operation.Parameters)
             {
                 if (inputParameter.Location != InputRequestLocation.Header)
+                {
                     continue;
+                }
+
+                if (isNextLink && !inputParameter.IsAcceptHeader())
+                {
+                    continue;
+                }
 
                 CSharpType? type;
                 string? format;
@@ -234,8 +243,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
                 ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ?
-                	valueExpression :
-                	valueExpression.ConvertToString(Literal(format));
+                    valueExpression :
+                    valueExpression.ConvertToString(Literal(format));
                 MethodBodyStatement statement;
                 if (type?.IsCollection == true)
                 {
@@ -479,6 +488,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
+            else if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, operation, out var contentTypes))
+            {
+                string joinedContentTypes = string.Join(", ", contentTypes);
+                valueExpression = Literal(joinedContentTypes);
+                format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+            }
             else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
                 valueExpression = parameterProvider.DefaultValue!;
@@ -576,6 +591,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
+                if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, serviceMethod.Operation, out _))
+                {
+                    continue;
+                }
+
                 if ((inputParam.Kind != InputParameterKind.Method &&
                      inputParam.Location != InputRequestLocation.Body) ||
                     TryGetSpecialHeaderParam(inputParam, out _))
@@ -700,6 +720,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 return hash.ToHashCode();
             }
+        }
+
+        private static bool TryGetAcceptHeaderWithMultipleContentTypes(
+            InputParameter inputParameter,
+            InputOperation inputOperation,
+            [NotNullWhen(true)] out IReadOnlyList<string>? values)
+        {
+            values = null;
+            if (!inputParameter.IsAcceptHeader())
+            {
+                return false;
+            }
+
+            if (inputParameter.Kind != InputParameterKind.Method)
+            {
+                return false;
+            }
+
+            // Get the content types across all responses
+            var uniqueContentTypes = new HashSet<string>();
+            foreach (var response in inputOperation.Responses)
+            {
+                foreach (var contentType in response.ContentTypes)
+                {
+                    uniqueContentTypes.Add(contentType);
+                }
+            }
+
+            if (uniqueContentTypes.Count <= 1)
+            {
+                return false;
+            }
+
+            values = [.. uniqueContentTypes.OrderBy(ct => ct)];
+
+            return true;
         }
     }
 }

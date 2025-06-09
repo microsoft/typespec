@@ -73,7 +73,7 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ResourcesClientTopLe")
+    @ServiceInterface(name = "ResourcesClientTopLevels")
     public interface TopLevelsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}")

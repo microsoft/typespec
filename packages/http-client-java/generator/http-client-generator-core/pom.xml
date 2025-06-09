@@ -29,7 +29,7 @@
     <dependency>
       <groupId>io.clientcore</groupId>
       <artifactId>core</artifactId>
-      <version>1.0.0-beta.9</version>
+      <version>1.0.0-beta.10</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -55,6 +55,12 @@
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
       <version>3.25.10</version>
+    </dependency>
+    <!-- 1.24.0 is the last version that supports Java 11 -->
+    <dependency>
+      <groupId>com.google.googlejavaformat</groupId>
+      <artifactId>google-java-format</artifactId>
+      <version>1.24.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.ant</groupId>

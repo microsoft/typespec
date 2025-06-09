@@ -3,7 +3,6 @@ package response.statuscoderange.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -65,14 +64,14 @@ public final class StatusCodeRangeClientImpl {
     public StatusCodeRangeClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(StatusCodeRangeClientService.class, this.httpPipeline);
+        this.service = StatusCodeRangeClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for StatusCodeRangeClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "StatusCodeRangeClien", host = "{endpoint}")
+    @ServiceInterface(name = "StatusCodeRangeClient", host = "{endpoint}")
     public interface StatusCodeRangeClientService {
         static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
             try {

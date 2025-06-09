@@ -3,7 +3,6 @@ package type.scalar.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class Decimal128TypesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     Decimal128TypesImpl(ScalarClientImpl client) {
-        this.service = RestProxy.create(Decimal128TypesService.class, client.getHttpPipeline());
+        this.service = Decimal128TypesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class Decimal128TypesImpl {
      * The interface defining all the services for ScalarClientDecimal128Types to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ScalarClientDecimal1", host = "{endpoint}")
+    @ServiceInterface(name = "ScalarClientDecimal128Types", host = "{endpoint}")
     public interface Decimal128TypesService {
         static Decimal128TypesService getNewInstance(HttpPipeline pipeline) {
             try {
