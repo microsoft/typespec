@@ -181,6 +181,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "default-http-exception-type"?: string;
 
   // configure
   "skip-special-headers"?: string[];
@@ -2209,10 +2210,23 @@ export class CodeModelBuilder {
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi && !this.isBranded()) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
+        if (trackConvenienceApi) {
+          var outputErrorModel = false;
+          if (this.isBranded()) {
+            const exceptionName = response.schema.language.default.name + "Exception";
+            const exceptionNameInOptions = this.options["default-http-exception-type"]
+              ?.split(".")
+              .at(-1);
+            outputErrorModel = exceptionName === exceptionNameInOptions;
+          } else {
+            outputErrorModel = true;
+          }
+
+          if (outputErrorModel) {
+            this.trackSchemaUsage(response.schema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
         }
       }
     } else {
