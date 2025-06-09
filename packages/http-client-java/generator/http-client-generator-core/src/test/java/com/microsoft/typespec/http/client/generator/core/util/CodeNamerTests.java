@@ -32,6 +32,9 @@ public class CodeNamerTests {
 
         Assertions.assertEquals("ONE_ZEROMINUTELY", CodeNamer.getEnumMemberName("_10minutely"));
 
-        Assertions.assertEquals("_", CodeNamer.getEnumMemberName("_"));
+        Assertions.assertEquals("UNDERSCORE", CodeNamer.getEnumMemberName("_"));
+
+        Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$100 Gift Card"));
+        Assertions.assertEquals("ONE_ZERO_ZERO_GIFT_CARD", CodeNamer.getEnumMemberName("$$100 Gift Card"));
     }
 }
