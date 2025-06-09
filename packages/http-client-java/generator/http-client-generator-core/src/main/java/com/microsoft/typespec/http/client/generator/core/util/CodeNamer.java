@@ -89,21 +89,6 @@ public class CodeNamer {
         return name;
     }
 
-    private static String trimUnderscores(String name) {
-        // trim leading and trailing '_'
-        if ((name.startsWith("_") || name.endsWith("_")) && !name.chars().allMatch(c -> c == '_')) {
-            StringBuilder sb = new StringBuilder(name);
-            while (sb.length() > 0 && sb.charAt(0) == '_') {
-                sb.deleteCharAt(0);
-            }
-            while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
-                sb.setLength(sb.length() - 1);
-            }
-            name = sb.toString();
-        }
-        return name;
-    }
-
     public static String getEnumMemberName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return name;
@@ -113,15 +98,17 @@ public class CodeNamer {
         name = trimUnderscores(name);
 
         String result = removeInvalidCharacters(CHARACTERS_TO_REPLACE_WITH_UNDERSCORE.matcher(name).replaceAll("_"));
-        result = MERGE_UNDERSCORES.matcher(result).replaceAll("_");  // merge multiple underlines
 
         if (result.startsWith("_")) {
-            // some "_" remains, e.g. "_100 Gift Card"
+            // some "_" remains after "removeInvalidCharacters", e.g. "_100_Gift_Card"
             // trim it again, and call "removeInvalidCharacters" on it,
             // so that the "100" would be transformed to "OneZeroZero"
             result = trimUnderscores(result);
             result = removeInvalidCharacters(result);
         }
+
+        // merge underscores
+        result = MERGE_UNDERSCORES.matcher(result).replaceAll("_");  // merge multiple underlines
 
         // convert PascalCase to UPPER_CASE
         Function<Character, Boolean> isUpper = c -> c >= 'A' && c <= 'Z';
@@ -210,5 +197,20 @@ public class CodeNamer {
 
         sb.append(str, prevStart, strLength);
         return sb.toString();
+    }
+
+    private static String trimUnderscores(String name) {
+        // trim leading and trailing '_'
+        if ((name.startsWith("_") || name.endsWith("_")) && !name.chars().allMatch(c -> c == '_')) {
+            StringBuilder sb = new StringBuilder(name);
+            while (sb.length() > 0 && sb.charAt(0) == '_') {
+                sb.deleteCharAt(0);
+            }
+            while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
+                sb.setLength(sb.length() - 1);
+            }
+            name = sb.toString();
+        }
+        return name;
     }
 }
