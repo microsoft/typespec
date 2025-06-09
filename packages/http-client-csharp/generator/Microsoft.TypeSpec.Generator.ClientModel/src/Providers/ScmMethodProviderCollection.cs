@@ -64,6 +64,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
             _cleanOperationName = GetCleanOperationName(serviceMethod);
+            serviceMethod.Update(name: _cleanOperationName);
+            serviceMethod.Operation.Update(name: _cleanOperationName);
 
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
