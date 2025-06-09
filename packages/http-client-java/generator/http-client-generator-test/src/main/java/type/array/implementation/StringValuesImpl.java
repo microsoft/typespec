@@ -57,7 +57,7 @@ public final class StringValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientStringVal")
+    @ServiceInterface(name = "ArrayClientStringValues")
     public interface StringValuesService {
         @Get("/type/array/string")
         @ExpectedResponses({ 200 })

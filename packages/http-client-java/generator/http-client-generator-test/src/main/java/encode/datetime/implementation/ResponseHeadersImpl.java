@@ -53,7 +53,7 @@ public final class ResponseHeadersImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DatetimeClientRespon")
+    @ServiceInterface(name = "DatetimeClientResponseHeaders")
     public interface ResponseHeadersService {
         @Get("/encode/datetime/responseheader/default")
         @ExpectedResponses({ 204 })
