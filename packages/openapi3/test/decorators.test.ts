@@ -1,22 +1,13 @@
-import {
-  BasicTestRunner,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { getRef } from "../src/decorators.js";
-import { createOpenAPITestRunner } from "./test-host.js";
+import { ApiTester, SimpleTester } from "./test-host.js";
 
 describe("openapi3: decorators", () => {
-  let runner: BasicTestRunner;
-
-  beforeEach(async () => {
-    runner = await createOpenAPITestRunner();
-  });
   describe("@useRef", () => {
     it("emit diagnostic if use on non model or property", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await SimpleTester.diagnose(`
         @useRef("foo")
         op foo(): string;
       `);
@@ -29,7 +20,7 @@ describe("openapi3: decorators", () => {
     });
 
     it("emit diagnostic if ref is not a string", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await SimpleTester.diagnose(`
         @useRef(123)
         model Foo {}
       `);
@@ -40,7 +31,7 @@ describe("openapi3: decorators", () => {
     });
 
     it("emit diagnostic if ref is not passed", async () => {
-      const diagnostics = await runner.diagnose(`
+      const diagnostics = await SimpleTester.diagnose(`
         @useRef
         model Foo {}
       `);
@@ -54,14 +45,15 @@ describe("openapi3: decorators", () => {
     });
 
     it("set external reference", async () => {
-      const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
-        @test @useRef("../common.json#/definitions/Foo")
-        model Foo {}
+      const { Foo, program } = await ApiTester.compile(t.code`
+        import "@typespec/openapi3";
+        using OpenAPI;
+
+        @useRef("../common.json#/definitions/Foo")
+        model ${t.model("Foo")} {}
       `);
 
-      expectDiagnosticEmpty(diagnostics);
-
-      strictEqual(getRef(runner.program, Foo), "../common.json#/definitions/Foo");
+      strictEqual(getRef(program, Foo), "../common.json#/definitions/Foo");
     });
   });
 });

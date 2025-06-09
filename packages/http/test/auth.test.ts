@@ -1,23 +1,18 @@
-import { Operation } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getAuthenticationForOperation } from "../src/auth.js";
-import { createHttpTestRunner } from "./test-host.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createHttpTestRunner();
-});
+import { Tester } from "./test-host.js";
 
 describe("per operation authentication", () => {
   /** Test function that will expect api key auth only and return the name of the one selected */
   async function getTestOperationApiKeyAuthName(code: string) {
-    const { test } = (await runner.compile(code)) as { test: Operation };
+    const { test, program } = await Tester.compile(code);
 
-    ok(test, "Should have operation called test marked with @test");
-    const auth = getAuthenticationForOperation(runner.program, test);
+    ok(
+      test.entityKind === "Type" && test.kind === "Operation",
+      "Should have operation called test marked with @test",
+    );
+    const auth = getAuthenticationForOperation(program, test);
     const scheme = auth?.options[0].schemes[0];
     strictEqual(scheme?.type, "apiKey");
     return scheme.name;
