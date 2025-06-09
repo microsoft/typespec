@@ -9,7 +9,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator;
 
-internal class CSharpProjectWriter
+public class CSharpProjectWriter
 {
     private const char NewLine = '\n';
 

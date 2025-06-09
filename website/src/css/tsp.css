@@ -2,12 +2,6 @@
 :root[data-theme="light"],
 :root[data-theme="dark"] {
   --header-height: 50px;
-  --sl-color-text-accent: var(--colorBrandForeground1);
-  --sl-color-gray-5: var(--colorNeutralStroke1);
-}
-
-:root[data-theme="dark"] {
-  --sl-color-bg-inline-code: var(--ec-frm-edBg);
 }
 
 .DocSearch-Button {
@@ -29,4 +23,14 @@
 header.header {
   padding: 0;
   padding-inline-end: unset !important;
+}
+
+/* Apply link decorations for inline links, not navigation/tab links */
+p a,
+li > a {
+  text-decoration: underline;
+}
+nav a,
+li:is([role="presentation"]) a {
+  text-decoration: none;
 }
