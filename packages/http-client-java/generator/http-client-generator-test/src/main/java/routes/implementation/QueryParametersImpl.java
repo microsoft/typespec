@@ -54,7 +54,7 @@ public final class QueryParametersImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientQueryPar")
+    @ServiceInterface(name = "RoutesClientQueryParameters")
     public interface QueryParametersService {
         @Get("/routes/query/template-only")
         @ExpectedResponses({ 204 })

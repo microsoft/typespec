@@ -57,7 +57,7 @@ public final class Float32ValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientFloat32Va")
+    @ServiceInterface(name = "ArrayClientFloat32Values")
     public interface Float32ValuesService {
         @Get("/type/array/float32")
         @ExpectedResponses({ 200 })

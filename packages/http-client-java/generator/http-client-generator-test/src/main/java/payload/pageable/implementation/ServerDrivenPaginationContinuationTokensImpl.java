@@ -62,7 +62,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "PageableClientServer")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens")
     public interface ServerDrivenPaginationContinuationTokensService {
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body")
         @ExpectedResponses({ 200 })

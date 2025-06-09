@@ -58,7 +58,7 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NonResourceClientNon")
+    @ServiceInterface(name = "NonResourceClientNonResourceOperations")
     public interface NonResourceOperationsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")

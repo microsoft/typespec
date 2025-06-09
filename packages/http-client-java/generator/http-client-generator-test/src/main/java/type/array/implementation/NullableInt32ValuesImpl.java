@@ -57,7 +57,7 @@ public final class NullableInt32ValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientNullableI")
+    @ServiceInterface(name = "ArrayClientNullableInt32Values")
     public interface NullableInt32ValuesService {
         @Get("/type/array/nullable-int32")
         @ExpectedResponses({ 200 })
