@@ -27,7 +27,7 @@ public class CodeNamerTests {
             CodeNamer.getEnumMemberName("Microsoft.AppConfiguration/configurationStores"));
 
         Assertions.assertEquals("SYSTEM_ASSIGNED_USER_ASSIGNED",
-                CodeNamer.getEnumMemberName("SystemAssigned, UserAssigned"));
+            CodeNamer.getEnumMemberName("SystemAssigned, UserAssigned"));
 
         // contains only special characters
         Assertions.assertEquals("ASTERISK", CodeNamer.getEnumMemberName("*"));
