@@ -63,7 +63,7 @@ const MyTester = createTester({
 
 ```ts title="test/my-library.test.ts"
 import { t } from "@typespec/compiler/testing";
-import { MyTester } from "./test-host.js";
+import { MyTester } from "./tester.js";
 import { it } from "vitest";
 
 // Check everything works fine
@@ -128,7 +128,7 @@ it("does this", async () => {
 
 ## Tester chains
 
-The tester use a builder pattern to allow you to configure tester. Each pipe provide a clone of the tester allowing you to create different tester without modifying the original one.
+The tester uses a builder pattern to allow you to configure a tester. Each pipe provides a clone of the tester allowing you to create different testers without modifying the original one.
 
 ### `files`
 
@@ -227,7 +227,7 @@ await TesterWithFoo.compile(`
 
 ## Collecting types
 
-The base tester provide a way to easily collect types from the test code in order to use them in the test. There is 3 ways this can be achieved:
+The base tester provides a way to easily collect types from the test code in order to use them in the test. There are 3 ways this can be achieved:
 
 | Option                                       | Type inferred/validated |
 | -------------------------------------------- | ----------------------- |
