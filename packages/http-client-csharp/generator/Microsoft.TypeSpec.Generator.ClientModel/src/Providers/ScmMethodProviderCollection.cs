@@ -23,7 +23,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
-        private readonly string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
@@ -63,9 +62,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             ServiceMethod = serviceMethod;
             EnclosingType = enclosingType;
-            _cleanOperationName = GetCleanOperationName(serviceMethod);
-            serviceMethod.Update(name: _cleanOperationName);
-            serviceMethod.Operation.Update(name: _cleanOperationName);
+
+            var updatedOperationName = GetCleanOperationName(serviceMethod);
+            ServiceMethod.Update(name: updatedOperationName);
+            ServiceMethod.Operation.Update(name: updatedOperationName);
 
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
@@ -118,7 +118,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
                 protocolMethod.Signature.Modifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
@@ -552,7 +552,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
 
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
                 methodModifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
