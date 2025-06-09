@@ -92,7 +92,8 @@ public class TypeSpecPlugin extends Javagen {
         for (ClientException exception : client.getExceptions()) {
             if (JavaSettings.getInstance().isDataPlaneClient()
                 && !CoreUtils.isNullOrEmpty(JavaSettings.getInstance().getDefaultHttpExceptionType())) {
-                // only generate the exception class corresponding to that specified in "default-http-exception-type" option
+                // only generate the exception class corresponding to that specified in "default-http-exception-type"
+                // option
                 final String exceptionClassFullName = exception.getPackage() + "." + exception.getName();
                 if (!exceptionClassFullName.equals(JavaSettings.getInstance().getDefaultHttpExceptionType())) {
                     LOGGER.warn(
