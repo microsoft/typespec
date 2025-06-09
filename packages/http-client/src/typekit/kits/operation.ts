@@ -1,10 +1,9 @@
-import { Model, ModelProperty, Operation, PagingProperty, Type } from "@typespec/compiler";
+import { Model, ModelProperty, Operation, PagingProperty, Type, Union } from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "@typespec/http";
 import { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
-import { ClientExtensionOptions } from "./index.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
@@ -34,14 +33,10 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    * @param operation operation to find out which client it belongs to
    */
   getClient(operation: HttpOperation): Client | undefined;
-  getPagingClientMetadata(
-    operation: Operation,
-    options?: ClientExtensionOptions,
-  ): ClientOperationPagingMetadata | undefined;
+  getPagingClientMetadata(operation: Operation): ClientOperationPagingMetadata | undefined;
 }
 
 interface ClientOperationPagingMetadata {
-  nextLinkPath: string | undefined;
   /** Segments to indicate how to get next page link value from response. */
   nextLinkSegments?: ModelProperty[];
   /** Method used to get next page. If not defined, use the initial method. */
@@ -54,11 +49,6 @@ interface ClientOperationPagingMetadata {
   continuationTokenResponseSegments?: ModelProperty[];
   /** Segments to indicate how to get page items from response. */
   pageItemsSegments?: ModelProperty[];
-  /**
-   * @deprecated
-   */
-  resultPath?: string | undefined;
-  resultSegments?: ModelProperty[] | undefined;
 }
 
 interface SdkKit {
@@ -143,20 +133,19 @@ defineKit<SdkKit>({
       }
       return undefined;
     },
-    getPagingClientMetadata(operation, options) {
+    getPagingClientMetadata(operation) {
       const returnType = operation.returnType;
       const pagingMetadata = this.operation.getPagingMetadata(operation);
 
-      if (returnType.kind !== "Model" || !pagingMetadata) {
+      if ((returnType.kind !== "Model" && returnType.kind !== "Union") || !pagingMetadata) {
         // TODO: Add diagnostics
 
         return undefined;
       }
 
-      const { nextLinkPath, nextLinkSegments } =
-        getNextLinkSegments(this, operation, options!) ?? {};
+      const nextLinkSegments = getNextLinkSegments(this, operation);
       const { continuationTokenParameterSegments, continuationTokenResponseSegments } =
-        getContinuationTokenSegments(this, operation, options!) ?? {};
+        getContinuationTokenSegments(this, operation) ?? {};
 
       const pageItemsSegments = getPropertySegmentsFromModelOrParameters(returnType, (p) => {
         return (
@@ -165,33 +154,11 @@ defineKit<SdkKit>({
         );
       });
 
-      const resultPath = getPropertyPathFromModel(
-        this,
-        returnType,
-        (p) => {
-          return (
-            this.modelProperty.getRootSourceProperty(p) ===
-            this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
-          );
-        },
-        options!,
-      );
-
-      const resultSegments = getPropertySegmentsFromModelOrParameters(returnType, (p) => {
-        return (
-          this.modelProperty.getRootSourceProperty(p) ===
-          this.modelProperty.getRootSourceProperty(pagingMetadata.output.pageItems.property)
-        );
-      });
-
       const x: ClientOperationPagingMetadata = {
-        nextLinkPath,
         nextLinkSegments,
         continuationTokenParameterSegments,
         continuationTokenResponseSegments,
         pageItemsSegments,
-        resultSegments,
-        resultPath,
       };
 
       return x;
@@ -199,11 +166,7 @@ defineKit<SdkKit>({
   },
 });
 
-function getContinuationTokenSegments(
-  $: Typekit,
-  operation: Operation,
-  options: ClientExtensionOptions,
-) {
+function getContinuationTokenSegments($: Typekit, operation: Operation) {
   let continuationTokenParameterSegments: ModelProperty[] | undefined;
   let continuationTokenResponseSegments: ModelProperty[] | undefined;
 
@@ -256,11 +219,7 @@ function getContinuationTokenSegments(
   };
 }
 
-function getNextLinkSegments(
-  $: Typekit,
-  operation: Operation,
-  options: ClientExtensionOptions,
-): { nextLinkSegments: ModelProperty[] | undefined; nextLinkPath: string | undefined } | undefined {
+function getNextLinkSegments($: Typekit, operation: Operation): ModelProperty[] | undefined {
   const httpOperation = $.httpOperation.get(operation);
   const pagingMetadata = $.operation.getPagingMetadata(operation)!;
   const nextLink = pagingMetadata.output.nextLink;
@@ -271,28 +230,17 @@ function getNextLinkSegments(
   const returnType = operation.returnType as Model;
 
   return $.modelProperty.isHttpHeader(nextLink.property)
-    ? handleHeaderNextlink($, nextLink, httpOperation, options)
-    : handleQueryNextlink($, nextLink, returnType, options);
+    ? handleHeaderNextlink($, nextLink, httpOperation)
+    : handleQueryNextlink($, nextLink, returnType);
 }
 
-function handleHeaderNextlink(
-  $: Typekit,
-  nextLink: PagingProperty,
-  httpOperation: HttpOperation,
-  options: ClientExtensionOptions,
-) {
-  const getName = options?.getName ?? $.type.getPlausibleName;
-
-  const nextLinkSegments = $.httpOperation
+function handleHeaderNextlink($: Typekit, nextLink: PagingProperty, httpOperation: HttpOperation) {
+  return $.httpOperation
     .flattenResponses(httpOperation)
     .map((r) => r.responseContent.headers)
     .filter((h) => h !== undefined)
     .flatMap((h) => Object.values(h))
     .filter(hasSameRootAsNextLink($, nextLink));
-
-  const nextLinkPath = getName(nextLinkSegments[0]);
-
-  return { nextLinkSegments, nextLinkPath };
 }
 
 function hasSameRootAsNextLink(
@@ -304,34 +252,28 @@ function hasSameRootAsNextLink(
     $.modelProperty.getRootSourceProperty(nextLink.property);
 }
 
-function handleQueryNextlink(
-  $: Typekit,
-  nextLink: PagingProperty,
-  returnType: Model,
-  options: ClientExtensionOptions,
-) {
-  const nextLinkSegments = getPropertySegmentsFromModelOrParameters(
-    returnType,
-    hasSameRootAsNextLink($, nextLink),
-  );
-
-  const nextLinkPath = getPropertyPathFromModel(
-    $,
-    returnType,
-    hasSameRootAsNextLink($, nextLink),
-    options,
-  );
-
-  return { nextLinkSegments, nextLinkPath };
+function handleQueryNextlink($: Typekit, nextLink: PagingProperty, returnType: Model) {
+  return getPropertySegmentsFromModelOrParameters(returnType, hasSameRootAsNextLink($, nextLink));
 }
 
 export function getPropertySegmentsFromModelOrParameters(
-  source: Model | ModelProperty[],
+  source: Model | Union | ModelProperty[],
   predicate: (property: ModelProperty) => boolean,
 ): ModelProperty[] | undefined {
   const queue: { model: Model; path: ModelProperty[] }[] = [];
 
   if (!Array.isArray(source)) {
+    if (source.kind === "Union") {
+      for (const variant of source.variants.values()) {
+        if (variant.type.kind !== "Model") {
+          continue;
+        }
+        const result = getPropertySegmentsFromModelOrParameters(variant.type, predicate);
+        if (result) return result;
+      }
+      return undefined;
+    }
+
     if (source.baseModel) {
       const baseResult = getPropertySegmentsFromModelOrParameters(source.baseModel, predicate);
       if (baseResult) return baseResult;
@@ -352,47 +294,6 @@ export function getPropertySegmentsFromModelOrParameters(
     for (const prop of model.properties.values()) {
       if (predicate(prop)) {
         return path.concat(prop);
-      }
-      if (prop.type.kind === "Model") {
-        queue.push({ model: prop.type, path: path.concat(prop) });
-      }
-    }
-  }
-
-  return undefined;
-}
-
-function getPropertyPathFromModel(
-  $: Typekit,
-  model: Model,
-  predicate: (property: ModelProperty) => boolean,
-  options: ClientExtensionOptions,
-): string | undefined {
-  const getName = options?.getName ?? $.type.getPlausibleName;
-  const queue: { model: Model; path: ModelProperty[] }[] = [];
-
-  if (model.baseModel) {
-    const baseResult = getPropertyPathFromModel($, model.baseModel, predicate, options);
-    if (baseResult) return baseResult;
-  }
-
-  for (const prop of model.properties.values()) {
-    if (predicate(prop)) {
-      return getName(prop);
-    }
-    if (prop.type.kind === "Model") {
-      queue.push({ model: prop.type, path: [prop] });
-    }
-  }
-
-  while (queue.length > 0) {
-    const { model, path } = queue.shift()!;
-    for (const prop of model.properties.values()) {
-      if (predicate(prop)) {
-        return path
-          .concat(prop)
-          .map((s) => getName(s))
-          .join(".");
       }
       if (prop.type.kind === "Model") {
         queue.push({ model: prop.type, path: path.concat(prop) });
