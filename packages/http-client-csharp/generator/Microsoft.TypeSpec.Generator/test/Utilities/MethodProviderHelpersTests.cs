@@ -5,7 +5,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
 
-namespace Microsoft.TypeSpec.Generator.Tests.Providers
+namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {
     public class MethodProviderHelpersTests
     {
@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 $"some description",
                 MethodSignatureModifiers.Public,
                 null,
-                $"return desccription",
+                $"return description",
                 [
                     new ParameterProvider("param1", $"description for param1", typeof(string), validation: ParameterValidationType.AssertNotNullOrEmpty),
                     new ParameterProvider("param2", $"description for param2", typeof(int?), validation: ParameterValidationType.AssertNotNull)
