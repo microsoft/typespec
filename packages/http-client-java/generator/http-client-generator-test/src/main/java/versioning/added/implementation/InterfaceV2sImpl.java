@@ -66,7 +66,7 @@ public final class InterfaceV2sImpl {
      * REST calls.
      */
     @Host("{endpoint}/versioning/added/api-version:{version}")
-    @ServiceInterface(name = "AddedClientInterface")
+    @ServiceInterface(name = "AddedClientInterfaceV2s")
     public interface InterfaceV2sService {
         @Post("/interface-v2/v2")
         @ExpectedResponses({ 200 })

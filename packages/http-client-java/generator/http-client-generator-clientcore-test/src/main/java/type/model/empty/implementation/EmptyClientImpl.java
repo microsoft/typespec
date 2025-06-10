@@ -3,7 +3,6 @@ package type.model.empty.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -65,7 +64,7 @@ public final class EmptyClientImpl {
     public EmptyClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(EmptyClientService.class, this.httpPipeline);
+        this.service = EmptyClientService.getNewInstance(this.httpPipeline);
     }
 
     /**

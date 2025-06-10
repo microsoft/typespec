@@ -3,7 +3,6 @@ package type.dictionary.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class StringValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringValuesImpl(DictionaryClientImpl client) {
-        this.service = RestProxy.create(StringValuesService.class, client.getHttpPipeline());
+        this.service = StringValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class StringValuesImpl {
      * The interface defining all the services for DictionaryClientStringValues to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "DictionaryClientStri", host = "{endpoint}")
+    @ServiceInterface(name = "DictionaryClientStringValues", host = "{endpoint}")
     public interface StringValuesService {
         static StringValuesService getNewInstance(HttpPipeline pipeline) {
             try {

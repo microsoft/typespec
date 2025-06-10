@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class IntsOnliesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     IntsOnliesImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(IntsOnliesService.class, client.getHttpPipeline());
+        this.service = IntsOnliesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class IntsOnliesImpl {
      * The interface defining all the services for UnionClientIntsOnlies to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "UnionClientIntsOnlie", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientIntsOnlies", host = "{endpoint}")
     public interface IntsOnliesService {
         static IntsOnliesService getNewInstance(HttpPipeline pipeline) {
             try {

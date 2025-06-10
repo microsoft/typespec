@@ -3,7 +3,6 @@ package payload.pageable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -43,8 +42,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationContinuationTokensImpl(PageableClientImpl client) {
-        this.service
-            = RestProxy.create(ServerDrivenPaginationContinuationTokensService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationContinuationTokensService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -52,7 +50,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * The interface defining all the services for PageableClientServerDrivenPaginationContinuationTokens to be used by
      * the proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
         static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -162,16 +160,57 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            String token = pagingOptions.getContinuationToken();
+            return requestQueryResponseBodySinglePage(token, foo, bar);
+        });
+    }
+
+    /**
+     * The requestQueryResponseBody operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> requestQueryResponseBody() {
+        final String foo = null;
+        final String bar = null;
+        return new PagedIterable<>((pagingOptions) -> {
+            if (pagingOptions.getOffset() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageSize() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
+            }
+            if (pagingOptions.getPageIndex() != null) {
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseBodySinglePage(token, foo, bar);
@@ -194,16 +233,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseBodySinglePage(token, foo, bar, requestContext);
@@ -267,16 +312,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseBodySinglePage(token, foo, bar);
@@ -299,16 +350,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseBody'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseBody")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseBodySinglePage(token, foo, bar, requestContext);
@@ -372,16 +429,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseHeaderSinglePage(token, foo, bar);
@@ -404,16 +467,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestQueryResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestQueryResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestQueryResponseHeaderSinglePage(token, foo, bar, requestContext);
@@ -477,16 +546,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseHeaderSinglePage(token, foo, bar);
@@ -509,16 +584,22 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'offset' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageSize' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'pageIndex' in PagingOptions is not supported in API 'requestHeaderResponseHeader'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "requestHeaderResponseHeader")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             String token = pagingOptions.getContinuationToken();
             return requestHeaderResponseHeaderSinglePage(token, foo, bar, requestContext);

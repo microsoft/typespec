@@ -57,7 +57,7 @@ public final class NullableModelValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientNullableM")
+    @ServiceInterface(name = "ArrayClientNullableModelValues")
     public interface NullableModelValuesService {
         @Get("/type/array/nullable-model")
         @ExpectedResponses({ 200 })

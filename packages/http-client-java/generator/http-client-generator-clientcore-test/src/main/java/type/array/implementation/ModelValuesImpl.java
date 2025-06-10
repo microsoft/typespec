@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class ModelValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ModelValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(ModelValuesService.class, client.getHttpPipeline());
+        this.service = ModelValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class ModelValuesImpl {
      * The interface defining all the services for ArrayClientModelValues to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ArrayClientModelValu", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientModelValues", host = "{endpoint}")
     public interface ModelValuesService {
         static ModelValuesService getNewInstance(HttpPipeline pipeline) {
             try {

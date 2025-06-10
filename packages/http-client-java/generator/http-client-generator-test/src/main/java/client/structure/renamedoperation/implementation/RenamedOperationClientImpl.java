@@ -155,7 +155,7 @@ public final class RenamedOperationClientImpl {
      * REST calls.
      */
     @Host("{endpoint}/client/structure/{client}")
-    @ServiceInterface(name = "RenamedOperationClie")
+    @ServiceInterface(name = "RenamedOperationClient")
     public interface RenamedOperationClientService {
         @Post("/one")
         @ExpectedResponses({ 204 })

@@ -123,7 +123,7 @@ public final class FlattenPropertyClientImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "FlattenPropertyClien")
+    @ServiceInterface(name = "FlattenPropertyClient")
     public interface FlattenPropertyClientService {
         @Put("/azure/client-generator-core/flatten-property/flattenModel")
         @ExpectedResponses({ 200 })

@@ -3,7 +3,6 @@ package encode.bytes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -37,7 +36,7 @@ public final class ResponseBodiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ResponseBodiesImpl(BytesClientImpl client) {
-        this.service = RestProxy.create(ResponseBodiesService.class, client.getHttpPipeline());
+        this.service = ResponseBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class ResponseBodiesImpl {
      * The interface defining all the services for BytesClientResponseBodies to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "BytesClientResponseB", host = "{endpoint}")
+    @ServiceInterface(name = "BytesClientResponseBodies", host = "{endpoint}")
     public interface ResponseBodiesService {
         static ResponseBodiesService getNewInstance(HttpPipeline pipeline) {
             try {

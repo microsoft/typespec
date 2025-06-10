@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class NullableInt32ValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     NullableInt32ValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(NullableInt32ValuesService.class, client.getHttpPipeline());
+        this.service = NullableInt32ValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class NullableInt32ValuesImpl {
      * The interface defining all the services for ArrayClientNullableInt32Values to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ArrayClientNullableI", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientNullableInt32Values", host = "{endpoint}")
     public interface NullableInt32ValuesService {
         static NullableInt32ValuesService getNewInstance(HttpPipeline pipeline) {
             try {

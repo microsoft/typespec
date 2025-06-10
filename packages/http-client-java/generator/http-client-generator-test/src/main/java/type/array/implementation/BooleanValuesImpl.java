@@ -57,7 +57,7 @@ public final class BooleanValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientBooleanVa")
+    @ServiceInterface(name = "ArrayClientBooleanValues")
     public interface BooleanValuesService {
         @Get("/type/array/boolean")
         @ExpectedResponses({ 200 })

@@ -154,7 +154,7 @@ public final class MultiContentTypesClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiContentTypesCli")
+    @ServiceInterface(name = "MultiContentTypesClient")
     public interface MultiContentTypesClientService {
         @Post("/upload/overload/multi-body-types")
         @ExpectedResponses({ 204 })

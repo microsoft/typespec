@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -39,7 +38,7 @@ public final class PathParametersLabelExpansionExplodesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersLabelExpansionExplodesImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(PathParametersLabelExpansionExplodesService.class, client.getHttpPipeline());
+        this.service = PathParametersLabelExpansionExplodesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -47,7 +46,7 @@ public final class PathParametersLabelExpansionExplodesImpl {
      * The interface defining all the services for RoutesClientPathParametersLabelExpansionExplodes to be used by the
      * proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientPathPara", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientPathParametersLabelExpansionExplodes", host = "{endpoint}")
     public interface PathParametersLabelExpansionExplodesService {
         static PathParametersLabelExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
             try {
