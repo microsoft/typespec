@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator
                     else if (parameter.Validation == ParameterValidationType.AssertNotNullOrEmpty)
                     {
                         AddArgumentNullException(parameter);
-                        AddArgumenException(parameter);
+                        AddArgumentException(parameter);
                     }
                 }
             }
@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 exceptionHash[typeof(ArgumentNullException)].Add(parameter);
             }
-            void AddArgumenException(ParameterProvider parameter)
+            void AddArgumentException(ParameterProvider parameter)
             {
                 if (!exceptionHash.ContainsKey(typeof(ArgumentException)))
                 {
