@@ -2221,8 +2221,8 @@ importers:
         version: 17.7.2
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.16.0
-        version: 0.16.0
+        specifier: ^0.17.0
+        version: 0.17.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)
@@ -2698,11 +2698,6 @@ packages:
 
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
-
-  '@alloy-js/cli@0.16.0':
-    resolution: {integrity: sha512-a6BXlN84n37T02mdRlZ9QagTMuheVYEJH1LYX4lD+V8hzP0/4Kq544ucWhJj9cAJhh7wSCmyqBbmBFmP1XEyvw==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
 
   '@alloy-js/cli@0.17.0':
     resolution: {integrity: sha512-kSWwWQiIOCKcOgduBK6WX2gB008z71xyR7M3I6+Cg5Vh8mxvHidD2CFFz7fVq6MWpXE5OIKtjKa2NB/w/GSVRg==}
@@ -13527,16 +13522,6 @@ snapshots:
       '@alloy-js/babel-plugin-jsx-dom-expressions': 0.39.0(@babel/core@7.27.3)
     transitivePeerDependencies:
       - '@babel/core'
-      - supports-color
-
-  '@alloy-js/cli@0.16.0':
-    dependencies:
-      '@alloy-js/babel-preset': 0.2.1(@babel/core@7.27.3)
-      '@babel/core': 7.27.3
-      '@babel/preset-typescript': 7.27.1(@babel/core@7.27.3)
-      pathe: 2.0.3
-      picocolors: 1.1.1
-    transitivePeerDependencies:
       - supports-color
 
   '@alloy-js/cli@0.17.0':
