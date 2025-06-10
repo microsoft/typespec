@@ -54,10 +54,9 @@ public final class PathParametersLabelExpansionStandardClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void primitive(String param) {
-        this.serviceClient.primitive(param);
+        primitiveWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -84,10 +83,9 @@ public final class PathParametersLabelExpansionStandardClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void array(List<String> param) {
-        this.serviceClient.array(param);
+        arrayWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -114,9 +112,8 @@ public final class PathParametersLabelExpansionStandardClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void record(Map<String, Integer> param) {
-        this.serviceClient.record(param);
+        recordWithResponse(param, RequestContext.none());
     }
 }

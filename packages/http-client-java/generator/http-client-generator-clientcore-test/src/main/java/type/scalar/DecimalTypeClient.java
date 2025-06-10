@@ -51,10 +51,9 @@ public final class DecimalTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a decimal number with any length and precision.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BigDecimal responseBody() {
-        return this.serviceClient.responseBody();
+        return responseBodyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,10 +80,9 @@ public final class DecimalTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestBody(BigDecimal body) {
-        this.serviceClient.requestBody(body);
+        requestBodyWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -111,9 +109,8 @@ public final class DecimalTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestParameter(BigDecimal value) {
-        this.serviceClient.requestParameter(value);
+        requestParameterWithResponse(value, RequestContext.none());
     }
 }

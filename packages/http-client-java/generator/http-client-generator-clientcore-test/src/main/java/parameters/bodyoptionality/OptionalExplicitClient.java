@@ -52,10 +52,9 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void set(BodyModel body) {
-        this.serviceClient.set(body);
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -64,10 +63,10 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void set() {
-        this.serviceClient.set();
+        final BodyModel body = null;
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -94,10 +93,9 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit(BodyModel body) {
-        this.serviceClient.omit(body);
+        omitWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -106,9 +104,9 @@ public final class OptionalExplicitClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit() {
-        this.serviceClient.omit();
+        final BodyModel body = null;
+        omitWithResponse(body, RequestContext.none());
     }
 }

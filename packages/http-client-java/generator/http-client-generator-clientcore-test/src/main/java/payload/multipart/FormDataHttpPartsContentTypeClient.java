@@ -55,12 +55,9 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
-        this.serviceClient.imageJpegContentType(body);
+        imageJpegContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -90,12 +87,9 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
-        this.serviceClient.requiredContentType(body);
+        requiredContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -125,11 +119,8 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
-        this.serviceClient.optionalContentType(body);
+        optionalContentTypeWithResponse(body, RequestContext.none());
     }
 }

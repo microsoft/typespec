@@ -137,20 +137,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DefaultDurationProperty defaultMethod(DefaultDurationProperty body) {
-        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The iso8601 operation.
      * 
      * @param body The body parameter.
@@ -166,20 +152,6 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.iso8601(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The iso8601 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ISO8601DurationProperty iso8601(ISO8601DurationProperty body) {
-        return iso8601WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -201,20 +173,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The int32Seconds operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Int32SecondsDurationProperty int32Seconds(Int32SecondsDurationProperty body) {
-        return int32SecondsWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The floatSeconds operation.
      * 
      * @param body The body parameter.
@@ -230,20 +188,6 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.floatSeconds(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The floatSeconds operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public FloatSecondsDurationProperty floatSeconds(FloatSecondsDurationProperty body) {
-        return floatSecondsWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -265,20 +209,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The float64Seconds operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Float64SecondsDurationProperty float64Seconds(Float64SecondsDurationProperty body) {
-        return float64SecondsWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The floatSecondsArray operation.
      * 
      * @param body The body parameter.
@@ -294,19 +224,5 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.floatSecondsArray(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The floatSecondsArray operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public FloatSecondsDurationArrayProperty floatSecondsArray(FloatSecondsDurationArrayProperty body) {
-        return floatSecondsArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

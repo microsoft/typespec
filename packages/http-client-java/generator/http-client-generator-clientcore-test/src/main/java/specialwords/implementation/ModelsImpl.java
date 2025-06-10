@@ -388,19 +388,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withAnd operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAnd(And body) {
-        withAndWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withAs operation.
      * 
      * @param body The body parameter.
@@ -414,19 +401,6 @@ public final class ModelsImpl {
     public Response<Void> withAsWithResponse(As body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withAs(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAs operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAs(As body) {
-        withAsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -446,19 +420,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withAssert operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAssert(Assert body) {
-        withAssertWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withAsync operation.
      * 
      * @param body The body parameter.
@@ -472,19 +433,6 @@ public final class ModelsImpl {
     public Response<Void> withAsyncWithResponse(Async body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withAsync(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withAsync operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAsync(Async body) {
-        withAsyncWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -504,19 +452,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withAwait operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withAwait(Await body) {
-        withAwaitWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withBreak operation.
      * 
      * @param body The body parameter.
@@ -530,19 +465,6 @@ public final class ModelsImpl {
     public Response<Void> withBreakWithResponse(Break body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withBreak(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withBreak operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withBreak(Break body) {
-        withBreakWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -562,19 +484,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withClass operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withClass(ClassModel body) {
-        withClassWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withConstructor operation.
      * 
      * @param body The body parameter.
@@ -588,19 +497,6 @@ public final class ModelsImpl {
     public Response<Void> withConstructorWithResponse(Constructor body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withConstructor(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withConstructor operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withConstructor(Constructor body) {
-        withConstructorWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -620,19 +516,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withContinue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withContinue(Continue body) {
-        withContinueWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withDef operation.
      * 
      * @param body The body parameter.
@@ -646,19 +529,6 @@ public final class ModelsImpl {
     public Response<Void> withDefWithResponse(Def body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withDef(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withDef operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDef(Def body) {
-        withDefWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -678,19 +548,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withDel operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withDel(Del body) {
-        withDelWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withElif operation.
      * 
      * @param body The body parameter.
@@ -704,19 +561,6 @@ public final class ModelsImpl {
     public Response<Void> withElifWithResponse(Elif body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withElif(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withElif operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElif(Elif body) {
-        withElifWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -736,19 +580,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withElse operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withElse(Else body) {
-        withElseWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withExcept operation.
      * 
      * @param body The body parameter.
@@ -762,19 +593,6 @@ public final class ModelsImpl {
     public Response<Void> withExceptWithResponse(Except body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withExcept(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withExcept operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExcept(Except body) {
-        withExceptWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -794,19 +612,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withExec operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withExec(Exec body) {
-        withExecWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withFinally operation.
      * 
      * @param body The body parameter.
@@ -820,19 +625,6 @@ public final class ModelsImpl {
     public Response<Void> withFinallyWithResponse(Finally body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withFinally(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withFinally operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFinally(Finally body) {
-        withFinallyWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -852,19 +644,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withFor operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFor(For body) {
-        withForWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withFrom operation.
      * 
      * @param body The body parameter.
@@ -878,19 +657,6 @@ public final class ModelsImpl {
     public Response<Void> withFromWithResponse(From body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withFrom(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withFrom operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withFrom(From body) {
-        withFromWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -910,19 +676,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withGlobal operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withGlobal(Global body) {
-        withGlobalWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withIf operation.
      * 
      * @param body The body parameter.
@@ -936,19 +689,6 @@ public final class ModelsImpl {
     public Response<Void> withIfWithResponse(If body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withIf(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withIf operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIf(If body) {
-        withIfWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -968,19 +708,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withImport operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withImport(Import body) {
-        withImportWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withIn operation.
      * 
      * @param body The body parameter.
@@ -994,19 +721,6 @@ public final class ModelsImpl {
     public Response<Void> withInWithResponse(In body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withIn(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withIn operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIn(In body) {
-        withInWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1026,19 +740,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withIs operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withIs(Is body) {
-        withIsWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withLambda operation.
      * 
      * @param body The body parameter.
@@ -1052,19 +753,6 @@ public final class ModelsImpl {
     public Response<Void> withLambdaWithResponse(Lambda body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withLambda(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withLambda operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withLambda(Lambda body) {
-        withLambdaWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1084,19 +772,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withNot operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withNot(Not body) {
-        withNotWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withOr operation.
      * 
      * @param body The body parameter.
@@ -1110,19 +785,6 @@ public final class ModelsImpl {
     public Response<Void> withOrWithResponse(Or body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withOr(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withOr operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withOr(Or body) {
-        withOrWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1142,19 +804,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withPass operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withPass(Pass body) {
-        withPassWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withRaise operation.
      * 
      * @param body The body parameter.
@@ -1168,19 +817,6 @@ public final class ModelsImpl {
     public Response<Void> withRaiseWithResponse(Raise body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withRaise(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withRaise operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withRaise(Raise body) {
-        withRaiseWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1200,19 +836,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withReturn operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withReturn(Return body) {
-        withReturnWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withTry operation.
      * 
      * @param body The body parameter.
@@ -1226,19 +849,6 @@ public final class ModelsImpl {
     public Response<Void> withTryWithResponse(Try body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withTry(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withTry operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withTry(Try body) {
-        withTryWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1258,19 +868,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withWhile operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWhile(While body) {
-        withWhileWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withWith operation.
      * 
      * @param body The body parameter.
@@ -1287,19 +884,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The withWith operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withWith(With body) {
-        withWithWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The withYield operation.
      * 
      * @param body The body parameter.
@@ -1313,18 +897,5 @@ public final class ModelsImpl {
     public Response<Void> withYieldWithResponse(Yield body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.withYield(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The withYield operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void withYield(Yield body) {
-        withYieldWithResponse(body, RequestContext.none());
     }
 }

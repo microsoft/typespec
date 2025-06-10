@@ -149,19 +149,6 @@ public final class FormDatasImpl {
     }
 
     /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void basic(MultiPartRequest body) {
-        basicWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * Test content-type: multipart/form-data for mixed scenarios.
      * 
      * @param body The body parameter.
@@ -178,19 +165,6 @@ public final class FormDatasImpl {
     }
 
     /**
-     * Test content-type: multipart/form-data for mixed scenarios.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void fileArrayAndBasic(ComplexPartsRequest body) {
-        fileArrayAndBasicWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * Test content-type: multipart/form-data for scenario contains json part and binary part.
      * 
      * @param body The body parameter.
@@ -204,19 +178,6 @@ public final class FormDatasImpl {
     public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.jsonPart(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains json part and binary part.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void jsonPart(JsonPartRequest body) {
-        jsonPartWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -239,19 +200,6 @@ public final class FormDatasImpl {
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
      * 
      * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void binaryArrayParts(BinaryArrayPartsRequest body) {
-        binaryArrayPartsWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
-     * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -262,19 +210,6 @@ public final class FormDatasImpl {
     public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.multiBinaryParts(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void multiBinaryParts(MultiBinaryPartsRequest body) {
-        multiBinaryPartsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -298,19 +233,6 @@ public final class FormDatasImpl {
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void checkFileNameAndContentType(MultiPartRequest body) {
-        checkFileNameAndContentTypeWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -321,18 +243,5 @@ public final class FormDatasImpl {
     public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.anonymousModel(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void anonymousModel(AnonymousModelRequest body) {
-        anonymousModelWithResponse(body, RequestContext.none());
     }
 }

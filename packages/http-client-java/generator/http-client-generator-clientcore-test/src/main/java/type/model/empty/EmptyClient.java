@@ -52,10 +52,9 @@ public final class EmptyClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putEmpty(EmptyInput input) {
-        this.serviceClient.putEmpty(input);
+        putEmptyWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -80,10 +79,9 @@ public final class EmptyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return empty model used in operation return type.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyOutput getEmpty() {
-        return this.serviceClient.getEmpty();
+        return getEmptyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -112,9 +110,8 @@ public final class EmptyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return empty model used in both parameter and return type.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public EmptyInputOutput postRoundTripEmpty(EmptyInputOutput body) {
-        return this.serviceClient.postRoundTripEmpty(body);
+        return postRoundTripEmptyWithResponse(body, RequestContext.none()).getValue();
     }
 }

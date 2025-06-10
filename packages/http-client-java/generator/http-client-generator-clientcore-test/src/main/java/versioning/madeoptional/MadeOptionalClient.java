@@ -55,10 +55,9 @@ public final class MadeOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body, String param) {
-        return this.serviceClient.test(body, param);
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 
     /**
@@ -70,9 +69,9 @@ public final class MadeOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body) {
-        return this.serviceClient.test(body);
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }

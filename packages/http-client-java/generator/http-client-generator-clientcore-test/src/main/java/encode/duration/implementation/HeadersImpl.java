@@ -125,19 +125,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(Duration duration) {
-        defaultMethodWithResponse(duration, RequestContext.none());
-    }
-
-    /**
      * The iso8601 operation.
      * 
      * @param duration The duration parameter.
@@ -150,19 +137,6 @@ public final class HeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration duration, RequestContext requestContext) {
         return service.iso8601(this.client.getEndpoint(), duration, requestContext);
-    }
-
-    /**
-     * The iso8601 operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601(Duration duration) {
-        iso8601WithResponse(duration, RequestContext.none());
     }
 
     /**
@@ -208,19 +182,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The iso8601Array operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601Array(List<Duration> duration) {
-        iso8601ArrayWithResponse(duration, RequestContext.none());
-    }
-
-    /**
      * The int32Seconds operation.
      * 
      * @param duration The duration parameter.
@@ -234,19 +195,6 @@ public final class HeadersImpl {
     public Response<Void> int32SecondsWithResponse(Duration duration, RequestContext requestContext) {
         long durationConverted = duration.getSeconds();
         return service.int32Seconds(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The int32Seconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Seconds(Duration duration) {
-        int32SecondsWithResponse(duration, RequestContext.none());
     }
 
     /**
@@ -266,19 +214,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The floatSeconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatSeconds(Duration duration) {
-        floatSecondsWithResponse(duration, RequestContext.none());
-    }
-
-    /**
      * The float64Seconds operation.
      * 
      * @param duration The duration parameter.
@@ -292,18 +227,5 @@ public final class HeadersImpl {
     public Response<Void> float64SecondsWithResponse(Duration duration, RequestContext requestContext) {
         double durationConverted = (double) duration.toNanos() / 1000_000_000L;
         return service.float64Seconds(this.client.getEndpoint(), durationConverted, requestContext);
-    }
-
-    /**
-     * The float64Seconds operation.
-     * 
-     * @param duration The duration parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Seconds(Duration duration) {
-        float64SecondsWithResponse(duration, RequestContext.none());
     }
 }

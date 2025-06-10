@@ -50,10 +50,9 @@ public final class RequiredAndOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public RequiredAndOptionalProperty getAll() {
-        return this.serviceClient.getAll();
+        return getAllWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -78,10 +77,9 @@ public final class RequiredAndOptionalClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return only the required properties.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public RequiredAndOptionalProperty getRequiredOnly() {
-        return this.serviceClient.getRequiredOnly();
+        return getRequiredOnlyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -108,10 +106,9 @@ public final class RequiredAndOptionalClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(RequiredAndOptionalProperty body) {
-        this.serviceClient.putAll(body);
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -138,9 +135,8 @@ public final class RequiredAndOptionalClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRequiredOnly(RequiredAndOptionalProperty body) {
-        this.serviceClient.putRequiredOnly(body);
+        putRequiredOnlyWithResponse(body, RequestContext.none());
     }
 }

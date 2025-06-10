@@ -50,10 +50,9 @@ public final class FloatLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatLiteralProperty getAll() {
-        return this.serviceClient.getAll();
+        return getAllWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -78,10 +77,9 @@ public final class FloatLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatLiteralProperty getDefault() {
-        return this.serviceClient.getDefault();
+        return getDefaultWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -108,10 +106,9 @@ public final class FloatLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(FloatLiteralProperty body) {
-        this.serviceClient.putAll(body);
+        putAllWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -138,9 +135,8 @@ public final class FloatLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(FloatLiteralProperty body) {
-        this.serviceClient.putDefault(body);
+        putDefaultWithResponse(body, RequestContext.none());
     }
 }

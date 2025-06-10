@@ -53,9 +53,8 @@ public final class NewInterfaceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NewModel newOpInNewInterface(NewModel body) {
-        return this.serviceClient.newOpInNewInterface(body);
+        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
     }
 }

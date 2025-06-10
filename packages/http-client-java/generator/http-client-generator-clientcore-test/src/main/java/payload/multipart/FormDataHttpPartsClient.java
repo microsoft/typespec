@@ -55,11 +55,8 @@ public final class FormDataHttpPartsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonArrayAndFileArray(ComplexHttpPartsModelRequest body) {
-        // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
-        this.serviceClient.jsonArrayAndFileArray(body);
+        jsonArrayAndFileArrayWithResponse(body, RequestContext.none());
     }
 }

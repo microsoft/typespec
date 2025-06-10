@@ -53,10 +53,9 @@ public final class RemovedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2(ModelV2 body) {
-        return this.serviceClient.v2(body);
+        return v2WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -84,9 +83,8 @@ public final class RemovedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV3 modelV3(ModelV3 body) {
-        return this.serviceClient.modelV3(body);
+        return modelV3WithResponse(body, RequestContext.none()).getValue();
     }
 }

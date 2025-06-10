@@ -100,17 +100,6 @@ public final class ResponseHeadersImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod() {
-        defaultMethodWithResponse(RequestContext.none());
-    }
-
-    /**
      * The rfc3339 operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -122,17 +111,6 @@ public final class ResponseHeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(RequestContext requestContext) {
         return service.rfc3339(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339() {
-        rfc3339WithResponse(RequestContext.none());
     }
 
     /**
@@ -150,17 +128,6 @@ public final class ResponseHeadersImpl {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231() {
-        rfc7231WithResponse(RequestContext.none());
-    }
-
-    /**
      * The unixTimestamp operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -172,16 +139,5 @@ public final class ResponseHeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
         return service.unixTimestamp(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp() {
-        unixTimestampWithResponse(RequestContext.none());
     }
 }

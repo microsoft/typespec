@@ -160,18 +160,6 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
-     * The getModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getModel() {
-        return getModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The putModel operation.
      * 
      * @param input The input parameter.
@@ -188,19 +176,6 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(Bird input) {
-        putModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getRecursiveModel operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -213,18 +188,6 @@ public final class SingleDiscriminatorClientImpl {
     public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getRecursiveModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getRecursiveModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getRecursiveModel() {
-        return getRecursiveModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -244,19 +207,6 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
-     * The putRecursiveModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putRecursiveModel(Bird input) {
-        putRecursiveModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getMissingDiscriminator operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -269,18 +219,6 @@ public final class SingleDiscriminatorClientImpl {
     public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getMissingDiscriminator(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getMissingDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getMissingDiscriminator() {
-        return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -299,18 +237,6 @@ public final class SingleDiscriminatorClientImpl {
     }
 
     /**
-     * The getWrongDiscriminator operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return this is base model for polymorphic single level inheritance with a discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Bird getWrongDiscriminator() {
-        return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getLegacyModel operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -323,17 +249,5 @@ public final class SingleDiscriminatorClientImpl {
     public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getLegacyModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getLegacyModel operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return define a base class in the legacy way.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dinosaur getLegacyModel() {
-        return getLegacyModelWithResponse(RequestContext.none()).getValue();
     }
 }

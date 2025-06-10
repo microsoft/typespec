@@ -117,19 +117,6 @@ public final class FormDataHttpPartsContentTypesImpl {
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        imageJpegContentTypeWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -141,19 +128,6 @@ public final class FormDataHttpPartsContentTypesImpl {
         RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.requiredContentType(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        requiredContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -171,18 +145,5 @@ public final class FormDataHttpPartsContentTypesImpl {
         RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.optionalContentType(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for optional content type.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        optionalContentTypeWithResponse(body, RequestContext.none());
     }
 }

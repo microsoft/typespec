@@ -164,21 +164,6 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The getModel operation.
-     * 
-     * @param queryProp Required int32, illustrating a query property.
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return output model with visibility properties.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public VisibilityModel getModel(int queryProp, VisibilityModel input) {
-        return getModelWithResponse(queryProp, input, RequestContext.none()).getValue();
-    }
-
-    /**
      * The headModel operation.
      * 
      * @param queryProp Required int32, illustrating a query property.
@@ -193,20 +178,6 @@ public final class VisibilityClientImpl {
     public Response<Void> headModelWithResponse(int queryProp, VisibilityModel input, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.headModel(this.getEndpoint(), queryProp, contentType, input, requestContext);
-    }
-
-    /**
-     * The headModel operation.
-     * 
-     * @param queryProp Required int32, illustrating a query property.
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void headModel(int queryProp, VisibilityModel input) {
-        headModelWithResponse(queryProp, input, RequestContext.none());
     }
 
     /**
@@ -226,19 +197,6 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The putModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putModel(VisibilityModel input) {
-        putModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The patchModel operation.
      * 
      * @param input The input parameter.
@@ -252,19 +210,6 @@ public final class VisibilityClientImpl {
     public Response<Void> patchModelWithResponse(VisibilityModel input, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.patchModel(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The patchModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchModel(VisibilityModel input) {
-        patchModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -284,19 +229,6 @@ public final class VisibilityClientImpl {
     }
 
     /**
-     * The postModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postModel(VisibilityModel input) {
-        postModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The deleteModel operation.
      * 
      * @param input The input parameter.
@@ -310,19 +242,6 @@ public final class VisibilityClientImpl {
     public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.deleteModel(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * The deleteModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteModel(VisibilityModel input) {
-        deleteModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -340,19 +259,5 @@ public final class VisibilityClientImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.putReadOnlyModel(this.getEndpoint(), contentType, accept, input, requestContext);
-    }
-
-    /**
-     * The putReadOnlyModel operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return roundTrip model with readonly optional properties.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ReadOnlyModel putReadOnlyModel(ReadOnlyModel input) {
-        return putReadOnlyModelWithResponse(input, RequestContext.none()).getValue();
     }
 }

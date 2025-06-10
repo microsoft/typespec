@@ -57,10 +57,9 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty value) {
-        return this.serviceClient.safeintAsString(value);
+        return safeintAsStringWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
@@ -89,10 +88,9 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty value) {
-        return this.serviceClient.uint32AsStringOptional(value);
+        return uint32AsStringOptionalWithResponse(value, RequestContext.none()).getValue();
     }
 
     /**
@@ -121,9 +119,8 @@ public final class NumericClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Uint8AsStringProperty uint8AsString(Uint8AsStringProperty value) {
-        return this.serviceClient.uint8AsString(value);
+        return uint8AsStringWithResponse(value, RequestContext.none()).getValue();
     }
 }

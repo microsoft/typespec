@@ -52,10 +52,9 @@ public final class DifferentBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData getAvatarAsPng() {
-        return this.serviceClient.getAvatarAsPng();
+        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -80,9 +79,8 @@ public final class DifferentBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PngImageAsJson getAvatarAsJson() {
-        return this.serviceClient.getAvatarAsJson();
+        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

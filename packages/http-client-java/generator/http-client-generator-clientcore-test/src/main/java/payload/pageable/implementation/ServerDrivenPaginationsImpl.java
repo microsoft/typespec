@@ -113,36 +113,6 @@ public final class ServerDrivenPaginationsImpl {
     /**
      * The link operation.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
-            }
-            return linkSinglePage();
-        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
-    }
-
-    /**
-     * The link operation.
-     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

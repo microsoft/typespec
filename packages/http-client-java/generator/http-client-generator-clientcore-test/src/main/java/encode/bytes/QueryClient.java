@@ -53,10 +53,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(byte[] value) {
-        this.serviceClient.defaultMethod(value);
+        defaultMethodWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -83,10 +82,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void base64(byte[] value) {
-        this.serviceClient.base64(value);
+        base64WithResponse(value, RequestContext.none());
     }
 
     /**
@@ -113,10 +111,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void base64url(byte[] value) {
-        this.serviceClient.base64url(value);
+        base64urlWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -143,9 +140,8 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void base64urlArray(List<byte[]> value) {
-        this.serviceClient.base64urlArray(value);
+        base64urlArrayWithResponse(value, RequestContext.none());
     }
 }

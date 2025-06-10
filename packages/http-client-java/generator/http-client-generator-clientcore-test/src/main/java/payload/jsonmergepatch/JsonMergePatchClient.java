@@ -53,10 +53,9 @@ public final class JsonMergePatchClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Resource createResource(Resource body) {
-        return this.serviceClient.createResource(body);
+        return createResourceWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -84,10 +83,9 @@ public final class JsonMergePatchClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Resource updateResource(ResourcePatch body) {
-        return this.serviceClient.updateResource(body);
+        return updateResourceWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -115,10 +113,9 @@ public final class JsonMergePatchClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Resource updateOptionalResource(ResourcePatch body) {
-        return this.serviceClient.updateOptionalResource(body);
+        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -128,9 +125,9 @@ public final class JsonMergePatchClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return details about a resource.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Resource updateOptionalResource() {
-        return this.serviceClient.updateOptionalResource();
+        final ResourcePatch body = null;
+        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
     }
 }

@@ -53,10 +53,9 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfMatch(String ifMatch) {
-        this.serviceClient.postIfMatch(ifMatch);
+        postIfMatchWithResponse(ifMatch, RequestContext.none());
     }
 
     /**
@@ -65,10 +64,10 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfMatch() {
-        this.serviceClient.postIfMatch();
+        final String ifMatch = null;
+        postIfMatchWithResponse(ifMatch, RequestContext.none());
     }
 
     /**
@@ -95,10 +94,9 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfNoneMatch(String ifNoneMatch) {
-        this.serviceClient.postIfNoneMatch(ifNoneMatch);
+        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
     }
 
     /**
@@ -107,10 +105,10 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfNoneMatch() {
-        this.serviceClient.postIfNoneMatch();
+        final String ifNoneMatch = null;
+        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
     }
 
     /**
@@ -142,10 +140,9 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headIfModifiedSince(OffsetDateTime ifModifiedSince) {
-        this.serviceClient.headIfModifiedSince(ifModifiedSince);
+        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
     }
 
     /**
@@ -154,10 +151,10 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headIfModifiedSince() {
-        this.serviceClient.headIfModifiedSince();
+        final OffsetDateTime ifModifiedSince = null;
+        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
     }
 
     /**
@@ -189,10 +186,9 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfUnmodifiedSince(OffsetDateTime ifUnmodifiedSince) {
-        this.serviceClient.postIfUnmodifiedSince(ifUnmodifiedSince);
+        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
     }
 
     /**
@@ -201,9 +197,9 @@ public final class ConditionalRequestClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postIfUnmodifiedSince() {
-        this.serviceClient.postIfUnmodifiedSince();
+        final OffsetDateTime ifUnmodifiedSince = null;
+        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
     }
 }

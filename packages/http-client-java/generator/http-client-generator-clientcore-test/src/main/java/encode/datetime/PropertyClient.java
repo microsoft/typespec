@@ -54,10 +54,9 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultDatetimeProperty defaultMethod(DefaultDatetimeProperty body) {
-        return this.serviceClient.defaultMethod(body);
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -86,10 +85,9 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Rfc3339DatetimeProperty rfc3339(Rfc3339DatetimeProperty body) {
-        return this.serviceClient.rfc3339(body);
+        return rfc3339WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -118,10 +116,9 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Rfc7231DatetimeProperty rfc7231(Rfc7231DatetimeProperty body) {
-        return this.serviceClient.rfc7231(body);
+        return rfc7231WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -150,10 +147,9 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnixTimestampDatetimeProperty unixTimestamp(UnixTimestampDatetimeProperty body) {
-        return this.serviceClient.unixTimestamp(body);
+        return unixTimestampWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -182,9 +178,8 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnixTimestampArrayDatetimeProperty unixTimestampArray(UnixTimestampArrayDatetimeProperty body) {
-        return this.serviceClient.unixTimestampArray(body);
+        return unixTimestampArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

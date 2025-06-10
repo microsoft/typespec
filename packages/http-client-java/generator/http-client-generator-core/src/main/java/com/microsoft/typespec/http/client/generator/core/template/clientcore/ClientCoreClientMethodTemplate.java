@@ -599,6 +599,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     @Override
     public final void write(ClientMethod clientMethod, JavaType typeBlock) {
+        ClientMethodType methodType = clientMethod.getType();
+        boolean isMaxOverload = !CoreUtils.isNullOrEmpty(clientMethod.getMethodInputParameters())
+            || clientMethod.getMethodInputParameters().contains(ClientMethodParameter.REQUEST_CONTEXT_PARAMETER);
+        if (methodType == ClientMethodType.SimpleSync
+            || (methodType == ClientMethodType.PagingSync && !isMaxOverload)
+            || (methodType == ClientMethodType.LongRunningBeginSync && !isMaxOverload)) {
+            return;
+        }
 
         final boolean writingInterface = typeBlock instanceof JavaInterface;
         if (clientMethod.getMethodVisibility() != JavaVisibility.Public && writingInterface) {
@@ -611,7 +619,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
         generateJavadoc(clientMethod, typeBlock, restAPIMethod, writingInterface);
 
-        switch (clientMethod.getType()) {
+        switch (methodType) {
             case PagingSync:
                 generatePagingPlainSync(clientMethod, typeBlock, settings);
                 break;

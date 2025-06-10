@@ -125,19 +125,6 @@ public final class QueriesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(Duration input) {
-        defaultMethodWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The iso8601 operation.
      * 
      * @param input The input parameter.
@@ -150,19 +137,6 @@ public final class QueriesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
         return service.iso8601(this.client.getEndpoint(), input, requestContext);
-    }
-
-    /**
-     * The iso8601 operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void iso8601(Duration input) {
-        iso8601WithResponse(input, RequestContext.none());
     }
 
     /**
@@ -182,19 +156,6 @@ public final class QueriesImpl {
     }
 
     /**
-     * The int32Seconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32Seconds(Duration input) {
-        int32SecondsWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The floatSeconds operation.
      * 
      * @param input The input parameter.
@@ -211,19 +172,6 @@ public final class QueriesImpl {
     }
 
     /**
-     * The floatSeconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatSeconds(Duration input) {
-        floatSecondsWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The float64Seconds operation.
      * 
      * @param input The input parameter.
@@ -237,19 +185,6 @@ public final class QueriesImpl {
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
         double inputConverted = (double) input.toNanos() / 1000_000_000L;
         return service.float64Seconds(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The float64Seconds operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void float64Seconds(Duration input) {
-        float64SecondsWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -297,18 +232,5 @@ public final class QueriesImpl {
             })
             .collect(Collectors.joining(","));
         return service.int32SecondsArray(this.client.getEndpoint(), inputConverted, requestContext);
-    }
-
-    /**
-     * The int32SecondsArray operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void int32SecondsArray(List<Duration> input) {
-        int32SecondsArrayWithResponse(input, RequestContext.none());
     }
 }

@@ -93,18 +93,6 @@ public final class StringsOnliesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -119,18 +107,5 @@ public final class StringsOnliesImpl {
         final String contentType = "application/json";
         SendRequest sendRequest = new SendRequest(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(GetResponseProp prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

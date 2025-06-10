@@ -54,10 +54,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(Duration input) {
-        this.serviceClient.defaultMethod(input);
+        defaultMethodWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -84,10 +83,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void iso8601(Duration input) {
-        this.serviceClient.iso8601(input);
+        iso8601WithResponse(input, RequestContext.none());
     }
 
     /**
@@ -114,10 +112,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void int32Seconds(Duration input) {
-        this.serviceClient.int32Seconds(input);
+        int32SecondsWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -144,10 +141,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void floatSeconds(Duration input) {
-        this.serviceClient.floatSeconds(input);
+        floatSecondsWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -174,10 +170,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void float64Seconds(Duration input) {
-        this.serviceClient.float64Seconds(input);
+        float64SecondsWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -204,9 +199,8 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void int32SecondsArray(List<Duration> input) {
-        this.serviceClient.int32SecondsArray(input);
+        int32SecondsArrayWithResponse(input, RequestContext.none());
     }
 }

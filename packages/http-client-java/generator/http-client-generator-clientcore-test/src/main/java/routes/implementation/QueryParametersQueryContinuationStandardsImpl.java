@@ -105,19 +105,6 @@ public final class QueryParametersQueryContinuationStandardsImpl {
     }
 
     /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The array operation.
      * 
      * @param param The param parameter.
@@ -136,19 +123,6 @@ public final class QueryParametersQueryContinuationStandardsImpl {
     }
 
     /**
-     * The array operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The record operation.
      * 
      * @param param The param parameter.
@@ -161,18 +135,5 @@ public final class QueryParametersQueryContinuationStandardsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
         return service.record(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
     }
 }

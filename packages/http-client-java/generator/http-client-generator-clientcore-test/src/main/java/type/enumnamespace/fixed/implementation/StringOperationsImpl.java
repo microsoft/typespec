@@ -102,18 +102,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * getKnownValue.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekEnum getKnownValue() {
-        return getKnownValueWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * putKnownValue.
      * 
      * @param body _.
@@ -130,19 +118,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * putKnownValue.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putKnownValue(DaysOfWeekEnum body) {
-        putKnownValueWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * putUnknownValue.
      * 
      * @param body _.
@@ -156,18 +131,5 @@ public final class StringOperationsImpl {
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putUnknownValue(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * putUnknownValue.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putUnknownValue(DaysOfWeekEnum body) {
-        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

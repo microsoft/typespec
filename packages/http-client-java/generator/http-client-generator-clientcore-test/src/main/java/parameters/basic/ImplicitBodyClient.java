@@ -52,9 +52,8 @@ public final class ImplicitBodyClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void simple(String name) {
-        this.serviceClient.simple(name);
+        simpleWithResponse(name, RequestContext.none());
     }
 }

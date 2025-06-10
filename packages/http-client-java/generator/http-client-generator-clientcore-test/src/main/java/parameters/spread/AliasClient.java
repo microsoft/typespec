@@ -53,10 +53,9 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestBody(String name) {
-        this.serviceClient.spreadAsRequestBody(name);
+        spreadAsRequestBodyWithResponse(name, RequestContext.none());
     }
 
     /**
@@ -88,10 +87,9 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadParameterWithInnerModel(String id, String xMsTestHeader, String name) {
-        this.serviceClient.spreadParameterWithInnerModel(id, xMsTestHeader, name);
+        spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, RequestContext.none());
     }
 
     /**
@@ -123,10 +121,9 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestParameter(String id, String xMsTestHeader, String name) {
-        this.serviceClient.spreadAsRequestParameter(id, xMsTestHeader, name);
+        spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, RequestContext.none());
     }
 
     /**
@@ -166,12 +163,11 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
         List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList) {
-        this.serviceClient.spreadWithMultipleParameters(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
-            optionalStringList);
+        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
+            optionalStringList, RequestContext.none());
     }
 
     /**
@@ -185,11 +181,13 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
         List<Integer> requiredIntList) {
-        this.serviceClient.spreadWithMultipleParameters(id, xMsTestHeader, requiredString, requiredIntList);
+        final Integer optionalInt = null;
+        final List<String> optionalStringList = null;
+        spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString, requiredIntList, optionalInt,
+            optionalStringList, RequestContext.none());
     }
 
     /**
@@ -224,9 +222,8 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadParameterWithInnerAlias(String id, String xMsTestHeader, String name, int age) {
-        this.serviceClient.spreadParameterWithInnerAlias(id, xMsTestHeader, name, age);
+        spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age, RequestContext.none());
     }
 }

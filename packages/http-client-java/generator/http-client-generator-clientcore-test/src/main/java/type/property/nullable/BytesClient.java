@@ -50,10 +50,9 @@ public final class BytesClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BytesProperty getNonNull() {
-        return this.serviceClient.getNonNull();
+        return getNonNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -78,10 +77,9 @@ public final class BytesClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BytesProperty getNull() {
-        return this.serviceClient.getNull();
+        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -108,10 +106,9 @@ public final class BytesClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNonNull(BytesProperty body) {
-        this.serviceClient.patchNonNull(body);
+        patchNonNullWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -138,9 +135,8 @@ public final class BytesClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNull(BytesProperty body) {
-        this.serviceClient.patchNull(body);
+        patchNullWithResponse(body, RequestContext.none());
     }
 }

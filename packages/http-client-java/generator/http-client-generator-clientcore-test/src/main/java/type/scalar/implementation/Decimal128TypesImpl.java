@@ -102,18 +102,6 @@ public final class Decimal128TypesImpl {
     }
 
     /**
-     * The responseBody operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a 128-bit decimal number.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BigDecimal responseBody() {
-        return responseBodyWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The requestBody operation.
      * 
      * @param body The body parameter.
@@ -130,19 +118,6 @@ public final class Decimal128TypesImpl {
     }
 
     /**
-     * The requestBody operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requestBody(BigDecimal body) {
-        requestBodyWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The requestParameter operation.
      * 
      * @param value The value parameter.
@@ -155,18 +130,5 @@ public final class Decimal128TypesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {
         return service.requestParameter(this.client.getEndpoint(), value, requestContext);
-    }
-
-    /**
-     * The requestParameter operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requestParameter(BigDecimal value) {
-        requestParameterWithResponse(value, RequestContext.none());
     }
 }
