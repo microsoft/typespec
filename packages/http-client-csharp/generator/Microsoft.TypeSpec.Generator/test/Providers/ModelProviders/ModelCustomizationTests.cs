@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
@@ -821,7 +822,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public async Task CanCustomizeTypeRenamedInVisitor()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var inputModel = InputFactory.Model("mockInputModel");
             var modelTypeProvider = new ModelProvider(inputModel);
 
             // Simulate a visitor that renames the type
@@ -899,8 +900,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void CanCustomizeWithVisitor()
         {
             MockHelpers.LoadMockGenerator();
-            var inputModel = InputFactory.Model("mockInputModel", properties: []);
+            var inputModel = InputFactory.Model("mockInputModel");
             var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Ensure the relative file path is not cached with the old name
+            _ = modelTypeProvider.RelativeFilePath;
 
             // Simulate a visitor that renames the type
             modelTypeProvider.Update(name: "RenamedModel");
@@ -910,6 +914,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNull(modelTypeProvider.CustomCodeView);
             Assert.AreEqual("RenamedModel", modelTypeProvider.Type.Name);
             Assert.AreEqual("RenamedModel", modelTypeProvider.CanonicalView.Type.Name);
+
+            // relative file path should use the new name
+            var expected = Path.Join("src", "Generated", "Models", "RenamedModel.cs");
+            Assert.AreEqual(expected, modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public void CanCustomizeRelativeFilePath()
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            // Simulate a visitor that modifies relative file path
+            var updatedRelativeFilePath = Path.Join("src", "Generated", "Models", "MockInputModel.cs");
+            modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
+
+            Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
         }
     }
 }

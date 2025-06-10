@@ -9,21 +9,20 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="nextPage"> The url of the next page of responses. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public SampleTypeSpecClientGetWithNextLinkCollectionResult(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
             _nextPage = nextPage;
@@ -32,13 +31,13 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;
@@ -63,18 +62,6 @@ namespace SampleTypeSpec
             else
             {
                 return null;
-            }
-        }
-
-        /// <summary> Gets the values from the specified page. </summary>
-        /// <param name="page"></param>
-        /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
-        {
-            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
-            {
-                yield return item;
-                await Task.Yield();
             }
         }
     }

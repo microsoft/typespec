@@ -8,19 +8,18 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
@@ -40,18 +39,6 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
-        }
-
-        /// <summary> Gets the values from the specified page. </summary>
-        /// <param name="page"></param>
-        /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
-        {
-            foreach (Thing item in ((PageThing)page).Items)
-            {
-                yield return item;
-                await Task.Yield();
-            }
         }
     }
 }

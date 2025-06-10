@@ -9,21 +9,20 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
@@ -65,18 +64,6 @@ namespace SampleTypeSpec
             else
             {
                 return null;
-            }
-        }
-
-        /// <summary> Gets the values from the specified page. </summary>
-        /// <param name="page"></param>
-        /// <returns> The values from the specified page. </returns>
-        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
-        {
-            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
-            {
-                yield return item;
-                await Task.Yield();
             }
         }
     }
