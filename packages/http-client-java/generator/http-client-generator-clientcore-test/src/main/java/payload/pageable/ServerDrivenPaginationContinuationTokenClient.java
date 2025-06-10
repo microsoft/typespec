@@ -40,7 +40,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
-        return requestQueryResponseBody(token, foo, bar, RequestContext.none());
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -54,7 +54,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestQueryResponseBody() {
         final String foo = null;
         final String bar = null;
-        return requestQueryResponseBody(token, foo, bar, RequestContext.none());
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -86,7 +86,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
-        return requestHeaderResponseBody(token, foo, bar, RequestContext.none());
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -100,7 +100,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderResponseBody() {
         final String foo = null;
         final String bar = null;
-        return requestHeaderResponseBody(token, foo, bar, RequestContext.none());
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -132,7 +132,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
-        return requestQueryResponseHeader(token, foo, bar, RequestContext.none());
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -146,7 +146,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestQueryResponseHeader() {
         final String foo = null;
         final String bar = null;
-        return requestQueryResponseHeader(token, foo, bar, RequestContext.none());
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -178,7 +178,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
-        return requestHeaderResponseHeader(token, foo, bar, RequestContext.none());
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -192,7 +192,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderResponseHeader() {
         final String foo = null;
         final String bar = null;
-        return requestHeaderResponseHeader(token, foo, bar, RequestContext.none());
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**

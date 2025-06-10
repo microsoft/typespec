@@ -108,7 +108,12 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
         addServiceMethodAnnotation(typeBlock, returnType);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);
-            String argumentList = clientMethod.getArgumentList();
+            String argumentList = clientMethod.getMethodParameters()
+                .stream()
+                .filter(parameter -> clientMethod.getMethodPageDetails() == null
+                    || !clientMethod.getMethodPageDetails().shouldHideParameter(parameter))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", "));
             argumentList = argumentList == null || argumentList.isEmpty()
                 ? "RequestContext.none()"
                 : argumentList + ", RequestContext.none()";
