@@ -11,15 +11,15 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class SampleTypeSpecClientListWithPagingCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientGetWithPagingCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        /// <summary> Initializes a new instance of SampleTypeSpecClientListWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+        /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientListWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
