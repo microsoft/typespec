@@ -185,41 +185,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody() {
-        final String foo = null;
-        final String bar = null;
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "offset")
-                    .addKeyValue("methodName", "requestQueryResponseBody")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageSize")
-                    .addKeyValue("methodName", "requestQueryResponseBody")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageIndex")
-                    .addKeyValue("methodName", "requestQueryResponseBody")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            String token = pagingOptions.getContinuationToken();
-            return requestQueryResponseBodySinglePage(token, foo, bar);
-        });
-    }
-
-    /**
-     * The requestQueryResponseBody operation.
-     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
