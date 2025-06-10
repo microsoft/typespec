@@ -7127,6 +7127,104 @@ Expect to handle a unknown type value. Mock api will return 'test'
 
 Expect to send a string value. Mock api expect to receive 'test'
 
+### Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames
+
+- Endpoint: `get /type/union/discriminated/custom-names`
+
+Test discriminated union with custom property names.
+The union should serialize as:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames
+
+- Endpoint: `put /type/union/discriminated/custom-names`
+
+Test discriminated union with custom property names.
+Send the union as:
+
+```json
+{
+  "petType": "cat",
+  "petData": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope
+
+- Endpoint: `get /type/union/discriminated/envelope`
+
+Test discriminated union with envelope serialization.
+The union should serialize as:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope
+
+- Endpoint: `put /type/union/discriminated/envelope`
+
+Test discriminated union with envelope serialization.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+}
+```
+
+### Type_Union_Discriminated_InlineDiscriminated_getInline
+
+- Endpoint: `get /type/union/discriminated/inline`
+
+Test discriminated union with inline discriminator.
+The union should serialize as:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
+### Type_Union_Discriminated_InlineDiscriminated_putInline
+
+- Endpoint: `put /type/union/discriminated/inline`
+
+Test discriminated union with inline discriminator.
+Send the union as:
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+```
+
 ### Type_Union_EnumsOnly_get
 
 - Endpoint: `get /type/union/enums-only`
