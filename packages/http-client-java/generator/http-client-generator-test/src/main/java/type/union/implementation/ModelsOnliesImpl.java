@@ -57,7 +57,7 @@ public final class ModelsOnliesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientModelsOnl")
+    @ServiceInterface(name = "UnionClientModelsOnlies")
     public interface ModelsOnliesService {
         @Get("/type/union/models-only")
         @ExpectedResponses({ 200 })

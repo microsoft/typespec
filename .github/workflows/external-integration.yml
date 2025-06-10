@@ -52,7 +52,7 @@ jobs:
           git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Install Playwright
         run: pnpm exec playwright install

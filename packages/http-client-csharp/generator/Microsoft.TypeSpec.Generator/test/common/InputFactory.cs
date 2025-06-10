@@ -465,14 +465,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
+        public static InputOperationResponse OperationResponse(
+            IEnumerable<int>? statusCodes = null,
+            InputType? bodytype = null,
+            IReadOnlyList<InputOperationResponseHeader>? headers = null,
+            IReadOnlyList<string>? contentTypes = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 headers ?? [],
                 false,
-                ["application/json"]);
+                contentTypes ?? ["application/json"]);
         }
 
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)

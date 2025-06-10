@@ -55,7 +55,7 @@ public final class DifferentBodiesImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ContentNegotiationCl")
+    @ServiceInterface(name = "ContentNegotiationClientDifferentBodies")
     public interface DifferentBodiesService {
         @Get("/content-negotiation/different-body")
         @ExpectedResponses({ 200 })

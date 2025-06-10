@@ -38,6 +38,7 @@ import tsptest.armresourceprovider.fluent.ArmClient;
 import tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ChildResourcesInterfacesClient;
 import tsptest.armresourceprovider.fluent.CustomTemplateResourceInterfacesClient;
+import tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient;
 import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
 import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.OperationsClient;
@@ -231,6 +232,20 @@ public final class ArmClientImpl implements ArmClient {
     }
 
     /**
+     * The ImmutableResourceModelsClient object to access its operations.
+     */
+    private final ImmutableResourceModelsClient immutableResourceModels;
+
+    /**
+     * Gets the ImmutableResourceModelsClient object to access its operations.
+     * 
+     * @return the ImmutableResourceModelsClient object.
+     */
+    public ImmutableResourceModelsClient getImmutableResourceModels() {
+        return this.immutableResourceModels;
+    }
+
+    /**
      * Initializes an instance of ArmClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -255,6 +270,7 @@ public final class ArmClientImpl implements ArmClient {
         this.childExtensionResourceInterfaces = new ChildExtensionResourceInterfacesClientImpl(this);
         this.managedMaintenanceWindowStatusOperations = new ManagedMaintenanceWindowStatusOperationsClientImpl(this);
         this.modelInterfaceSameNames = new ModelInterfaceSameNamesClientImpl(this);
+        this.immutableResourceModels = new ImmutableResourceModelsClientImpl(this);
     }
 
     /**

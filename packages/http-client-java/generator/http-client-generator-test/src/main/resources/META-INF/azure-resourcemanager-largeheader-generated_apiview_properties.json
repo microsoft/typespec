@@ -1,0 +1,11 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.resourcemanager.largeheader.fluent.LargeHeaderClient": "Azure.ResourceManager.LargeHeader",
+    "azure.resourcemanager.largeheader.fluent.LargeHeadersClient": "Azure.ResourceManager.LargeHeader.LargeHeaders",
+    "azure.resourcemanager.largeheader.fluent.LargeHeadersClient.beginTwo6k": "Azure.ResourceManager.LargeHeader.LargeHeaders.two6k",
+    "azure.resourcemanager.largeheader.fluent.LargeHeadersClient.two6k": "Azure.ResourceManager.LargeHeader.LargeHeaders.two6k",
+    "azure.resourcemanager.largeheader.fluent.models.CancelResultInner": "Azure.ResourceManager.LargeHeader.CancelResult",
+    "azure.resourcemanager.largeheader.implementation.LargeHeaderClientBuilder": "Azure.ResourceManager.LargeHeader"
+  }
+}

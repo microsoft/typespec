@@ -4,6 +4,8 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import java.util.List;
 
 /**
  * Represents the pageable settings of a model.
@@ -13,6 +15,7 @@ public class XmsPageable {
     private String nextLinkName;
     private String operationName;
     private PageableContinuationToken continuationToken;
+    private List<Parameter> nextLinkReInjectedParameters;
 
     // internal
     private Operation nextOperation;
@@ -86,6 +89,24 @@ public class XmsPageable {
     }
 
     /**
+     * Gets nextLink re-injected parameters
+     * 
+     * @return a list of parameters
+     */
+    public List<Parameter> getNextLinkReInjectedParameters() {
+        return nextLinkReInjectedParameters;
+    }
+
+    /**
+     * Sets nextLink re-injected parameters
+     * 
+     * @param nextLinkReInjectedParameters
+     */
+    public void setNextLinkReInjectedParameters(List<Parameter> nextLinkReInjectedParameters) {
+        this.nextLinkReInjectedParameters = nextLinkReInjectedParameters;
+    }
+
+    /**
      * Gets the operation that retrieves the next page of items.
      *
      * @return The operation that retrieves the next page of items.
@@ -102,4 +123,5 @@ public class XmsPageable {
     public void setNextOperation(Operation nextOperation) {
         this.nextOperation = nextOperation;
     }
+
 }

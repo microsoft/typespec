@@ -3280,7 +3280,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const spanValue = createTemplateSpanValue(span.expression, type);
         spans.push(spanValue);
         const spanValueAsString = stringifyTypeForTemplate(type);
-        if (spanValueAsString) {
+        if (spanValueAsString !== undefined) {
           stringValue += spanValueAsString;
         } else {
           hasNonStringElement = true;
@@ -4459,7 +4459,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return undefined;
     }
-    if (heritageRef.kind !== SyntaxKind.TypeReference) {
+    if (
+      heritageRef.kind !== SyntaxKind.TypeReference &&
+      heritageRef.kind !== SyntaxKind.ArrayExpression
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "extend-model",

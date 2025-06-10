@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
+
 importers:
 
   .:
@@ -207,7 +210,7 @@ importers:
         specifier: ~12.27.0
         version: 12.27.0
       '@pnpm/workspace.find-packages':
-        specifier: ^1000.0.17
+        specifier: ^1000.0.24
         version: 1000.0.24(@pnpm/logger@1001.0.0)(@pnpm/worker@1000.1.6(@pnpm/logger@1001.0.0)(@types/node@22.13.17))(typanion@3.14.0)
       '@typespec/bundler':
         specifier: workspace:^
@@ -1019,6 +1022,9 @@ importers:
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.17
+      '@typespec/json-schema':
+        specifier: workspace:^
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:^
         version: link:../openapi
@@ -1038,7 +1044,7 @@ importers:
   packages/internal-build-utils:
     dependencies:
       '@pnpm/workspace.find-packages':
-        specifier: ^1000.0.17
+        specifier: ^1000.0.24
         version: 1000.0.24(@pnpm/logger@1001.0.0)(@pnpm/worker@1000.1.6(@pnpm/logger@1001.0.0)(@types/node@22.13.17))(typanion@3.14.0)
       cross-spawn:
         specifier: ^7.0.6
@@ -1778,9 +1784,6 @@ importers:
       '@vitest/ui':
         specifier: ^3.1.2
         version: 3.1.4(vitest@3.1.4)
-      autorest:
-        specifier: ~3.7.1
-        version: 3.7.2
       cross-env:
         specifier: ~7.0.3
         version: 7.0.3
@@ -1971,8 +1974,8 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       multer:
-        specifier: 1.4.5-lts.2
-        version: 1.4.5-lts.2
+        specifier: ^2.0.1
+        version: 2.0.1
       picocolors:
         specifier: ~1.1.1
         version: 1.1.1
@@ -2265,6 +2268,9 @@ importers:
 
   packages/typespec-vscode:
     devDependencies:
+      '@types/cross-spawn':
+        specifier: ~6.0.6
+        version: 6.0.6
       '@types/mocha':
         specifier: ^10.0.9
         version: 10.0.10
@@ -2307,6 +2313,9 @@ importers:
       c8:
         specifier: ^10.1.3
         version: 10.1.3
+      cross-spawn:
+        specifier: ^7.0.6
+        version: 7.0.6
       esbuild:
         specifier: ^0.25.1
         version: 0.25.5
@@ -7117,11 +7126,6 @@ packages:
     resolution: {integrity: sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==}
     engines: {node: '>=8'}
 
-  autorest@3.7.2:
-    resolution: {integrity: sha512-yEeF0tJjx2fROK9VWIVHKFiUSzD0cxwqnq7z+v7kIIRRZjyOM3rpBS9OPp6tQv5d3mmxPAUNh57G1ZumQNqQGg==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
-
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
@@ -7691,9 +7695,9 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  concat-stream@1.6.2:
-    resolution: {integrity: sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==}
-    engines: {'0': node >= 0.8}
+  concat-stream@2.0.0:
+    resolution: {integrity: sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==}
+    engines: {'0': node >= 6.0}
 
   concurrently@9.1.2:
     resolution: {integrity: sha512-H9MWcoPsYddwbOGM6difjVwVZHl63nwMEwDJG/L7VGtuaJhb12h2caPG2tVPWs7emuYix252iGfqOyrz1GczTQ==}
@@ -7808,10 +7812,6 @@ packages:
 
   cross-fetch@3.2.0:
     resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
-
-  cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -10409,10 +10409,9 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  multer@1.4.5-lts.2:
-    resolution: {integrity: sha512-VzGiVigcG9zUAoCNU+xShztrlr1auZOlurXynNvO9GiWD1/mTBbUljOKY+qMeazBqXgRnjzeEgJI/wyjJUHg9A==}
-    engines: {node: '>= 6.0.0'}
-    deprecated: Multer 1.x is impacted by a number of vulnerabilities, which have been patched in 2.x. You should upgrade to the latest 2.x version.
+  multer@2.0.1:
+    resolution: {integrity: sha512-Ug8bXeTIUlxurg8xLTEskKShvcKDZALo1THEX5E41pYCD2sCVub5/kIRIGqWNoqV6szyLyQKV6mD4QUrWE5GCQ==}
+    engines: {node: '>= 10.16.0'}
 
   mustache@4.2.0:
     resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
@@ -19571,7 +19570,7 @@ snapshots:
       '@yarnpkg/parsers': 3.0.3
       chalk: 3.0.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       fast-glob: 3.3.3
       micromatch: 4.0.8
       tslib: 2.8.1
@@ -20004,8 +20003,6 @@ snapshots:
   asynckit@0.4.0: {}
 
   auto-bind@4.0.0: {}
-
-  autorest@3.7.2: {}
 
   available-typed-arrays@1.0.7:
     dependencies:
@@ -20630,11 +20627,11 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  concat-stream@1.6.2:
+  concat-stream@2.0.0:
     dependencies:
       buffer-from: 1.1.2
       inherits: 2.0.4
-      readable-stream: 2.3.8
+      readable-stream: 3.6.2
       typedarray: 0.0.6
 
   concurrently@9.1.2:
@@ -20760,12 +20757,6 @@ snapshots:
       node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
-
-  cross-spawn@7.0.3:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
 
   cross-spawn@7.0.6:
     dependencies:
@@ -24150,11 +24141,11 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  multer@1.4.5-lts.2:
+  multer@2.0.1:
     dependencies:
       append-field: 1.0.0
       busboy: 1.6.0
-      concat-stream: 1.6.2
+      concat-stream: 2.0.0
       mkdirp: 0.5.6
       object-assign: 4.1.1
       type-is: 1.6.18

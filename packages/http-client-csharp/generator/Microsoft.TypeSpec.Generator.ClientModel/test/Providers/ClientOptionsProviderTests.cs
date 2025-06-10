@@ -5,10 +5,15 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
@@ -163,6 +168,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 Assert.AreEqual(0, properties.Count);
             }
+        }
+
+        [Test]
+        public async Task BackCompat_PrereleaseApiVersionsAdded()
+        {
+            List<string> apiVersions = ["1.0", "2.0"];
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputClient = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // validate the latest version field
+            var latestVersionField = clientOptionsProvider!.Fields.FirstOrDefault(f => f.Name == "LatestVersion");
+            Assert.IsNotNull(latestVersionField);
+            Assert.AreEqual(
+                "global::SampleNamespace.TestClientOptions.ServiceVersion.V2_0",
+                latestVersionField?.InitializationValue?.ToDisplayString());
+
+            // validate the constructor
+            var constructor = clientOptionsProvider.Constructors.FirstOrDefault();
+            Assert.IsNotNull(constructor);
+
+            var body = constructor?.BodyStatements?.ToDisplayString();
+            Assert.IsTrue(body?.Contains("ServiceVersion.V1_0 => \"1.0\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2_0 => \"2.0\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2023_10_01_Beta => \"2023-10-01-beta\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2023_11_01_Beta => \"2023-11-01-beta\""));
+        }
+
+        [Test]
+        public async Task BackCompat_GAApiVersionsAdded()
+        {
+            string[] apiVersions = ["2.0.0", "3.0.0"];
+            var enumValues = apiVersions.Select(a => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputClient = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // validate the latest version field
+            var latestVersionField = clientOptionsProvider!.Fields.FirstOrDefault(f => f.Name == "LatestVersion");
+            Assert.IsNotNull(latestVersionField);
+            Assert.AreEqual(
+                "global::SampleNamespace.TestClientOptions.ServiceVersion.V3_0_0",
+                latestVersionField?.InitializationValue?.ToDisplayString());
+
+            // validate the constructor
+            var constructor = clientOptionsProvider.Constructors.FirstOrDefault();
+            Assert.IsNotNull(constructor);
+
+            var body = constructor?.BodyStatements?.ToDisplayString();
+            Assert.IsTrue(body?.Contains("ServiceVersion.V1_0_0 => \"1.0.0\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2_0_0 => \"2.0.0\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V3_0_0 => \"3.0.0\""));
         }
     }
 }

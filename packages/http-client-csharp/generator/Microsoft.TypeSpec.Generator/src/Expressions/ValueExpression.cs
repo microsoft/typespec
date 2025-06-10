@@ -83,6 +83,12 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 CallAsAsync = methodSignature.Modifiers.HasFlag(MethodSignatureModifiers.Async)
             };
 
+        public InvokeMethodExpression Invoke(
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs)
+            => new InvokeMethodExpression(this, methodName, args) { TypeArguments = typeArgs };
+
         public InvokeMethodExpression Invoke(MethodSignature methodSignature, IReadOnlyList<ValueExpression> arguments, bool addConfigureAwaitFalse = true)
             => new InvokeMethodExpression(this, methodSignature, arguments)
             {

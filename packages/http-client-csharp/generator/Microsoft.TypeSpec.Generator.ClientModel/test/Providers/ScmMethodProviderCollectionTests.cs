@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -381,6 +382,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
         }
 
+        [Test]
+        public void CanRemoveParameterFromMethods()
+        {
+            var parameter1 = InputFactory.Parameter("toRemove", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+            var parameter2 = InputFactory.Parameter("data", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [parameter1, parameter2]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("TestOperation", inputOperation,
+                parameters: [parameter1, parameter2]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(createParameterCore: parameter =>
+            {
+                if (parameter.Name == "toRemove")
+                {
+                    return null;
+                }
+                return new ParameterProvider(parameter);
+            });
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            foreach (var method in methodCollection)
+            {
+                // Ensure that the parameter "toRemove" is not present in the method signature
+                Assert.IsFalse(method.Signature.Parameters.Any(p => p.Name == "toRemove"));
+            }
+
+            var restClient = client!.RestClient;
+            foreach (var method in restClient.Methods)
+            {
+                // Ensure that the parameter "toRemove" is not present in the rest client method signature
+                Assert.IsFalse(method.Signature.Parameters.Any(p => p.Name == "toRemove"));
+            }
+        }
+
         [TestCaseSource(nameof(RequestBodyTypesSource))]
         public void RequestBodyConstructedRespectingRequestContentApi(InputType inputType)
         {
@@ -416,6 +456,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             else
             {
                 Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
+            }
+        }
+
+        [Test]
+        public void ListMethodIsRenamedToGet()
+        {
+            MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
+
+            var inputOperation = InputFactory.Operation(
+                "ListCats");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("ListCats", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            foreach (var method in methodCollection)
+            {
+                if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async))
+                {
+                    Assert.AreEqual("GetCatsAsync", method.Signature.Name);
+                }
+                else
+                {
+                    Assert.AreEqual("GetCats", method.Signature.Name);
+                }
             }
         }
 

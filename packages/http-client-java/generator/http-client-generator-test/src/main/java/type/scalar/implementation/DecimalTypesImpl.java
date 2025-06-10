@@ -59,7 +59,7 @@ public final class DecimalTypesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ScalarClientDecimalT")
+    @ServiceInterface(name = "ScalarClientDecimalTypes")
     public interface DecimalTypesService {
         @Get("/type/scalar/decimal/response_body")
         @ExpectedResponses({ 200 })

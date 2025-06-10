@@ -73,7 +73,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientChildResour")
+    @ServiceInterface(name = "ArmClientChildResourcesInterfaces")
     public interface ChildResourcesInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childResources/{childResourceName}")
