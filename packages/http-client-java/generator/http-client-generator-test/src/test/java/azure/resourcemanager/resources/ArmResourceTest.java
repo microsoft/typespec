@@ -46,20 +46,26 @@ public class ArmResourceTest {
     private static final String LOCATION_RESOURCE_ID
         = "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource";
     private static final String LOCATION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/locationResources";
-    private static final String EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI = "/subscriptions/00000000-0000-0000-0000-000000000000";
-    private static final String EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg";
-    private static final String EXTENSION_RESOURCE_RESOURCE_SCOPE_URI = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
+    private static final String EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI
+        = "/subscriptions/00000000-0000-0000-0000-000000000000";
+    private static final String EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg";
+    private static final String EXTENSION_RESOURCE_RESOURCE_SCOPE_URI
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
     private static final String EXTENSION_RESOURCE_TENANT_SCOPE_URI = "";
     private static final String EXTENSION_RESOURCE_NAME = "extension";
     private static final String EXTENSION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/extensionsResources";
-    private static final String EXTENSION_RESOURCE_BASE_ID = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
+    private static final String EXTENSION_RESOURCE_BASE_ID
+        = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
     private final ResourcesManager manager
         = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
 
     @Test
     public void testExtensionResources() {
-        ExtensionsResourceProperties createProperties = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
-        ExtensionsResourceProperties updateProperties = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
+        ExtensionsResourceProperties createProperties
+            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
+        ExtensionsResourceProperties updateProperties
+            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
         // Tenant extension resource
         // resource uri: blank
         // Create
@@ -90,8 +96,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources()
-            .get(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        extensionResource
+            = manager.extensionsResources().get(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
         Assertions.assertEquals(EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
@@ -109,7 +115,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);
 
         // Subscription extension resource
         // resource url format: /subscriptions/00000000-0000-0000-0000-000000000000
@@ -119,7 +126,8 @@ public class ArmResourceTest {
             .withExistingResourceUri(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI)
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -133,7 +141,8 @@ public class ArmResourceTest {
             .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -141,8 +150,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource
+            = manager.extensionsResources().get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -151,7 +162,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -159,7 +171,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI, EXTENSION_RESOURCE_NAME);
 
         // resource url format: subscriptions/00000000-0000-0000-0000-000000000000
         // Create
@@ -168,7 +181,8 @@ public class ArmResourceTest {
             .withExistingResourceUri(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1))
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -182,7 +196,8 @@ public class ArmResourceTest {
             .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -190,8 +205,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource = manager.extensionsResources()
+            .get(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -200,7 +217,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -208,7 +226,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
 
         // Resource group extension resource
         // resource uri format: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg
@@ -218,7 +237,8 @@ public class ArmResourceTest {
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI)
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -232,7 +252,8 @@ public class ArmResourceTest {
             .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -240,8 +261,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource
+            = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -250,7 +273,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -258,7 +282,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI, EXTENSION_RESOURCE_NAME);
 
         // resource uri format: subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg
         // Create
@@ -267,7 +292,8 @@ public class ArmResourceTest {
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1))
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -281,7 +307,8 @@ public class ArmResourceTest {
             .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -289,8 +316,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource = manager.extensionsResources()
+            .get(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -299,7 +328,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -307,17 +337,20 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
 
         // Resource extension resource
-        // resource uri format: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top
+        // resource uri format:
+        // /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top
         // Create
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI)
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -325,10 +358,14 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // List
-        extensionResources = manager.extensionsResources().listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI).stream().collect(Collectors.toList());
+        extensionResources = manager.extensionsResources()
+            .listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI)
+            .stream()
+            .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -336,8 +373,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource
+            = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -346,7 +385,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -354,16 +394,19 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI, EXTENSION_RESOURCE_NAME);
 
-        // resource uri format: subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top
+        // resource uri format:
+        // subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top
         // Create
         extensionResource = manager.extensionsResources()
             .define(EXTENSION_RESOURCE_NAME)
             .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1))
             .withProperties(createProperties)
             .create();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -371,10 +414,14 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // List
-        extensionResources = manager.extensionsResources().listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1)).stream().collect(Collectors.toList());
+        extensionResources = manager.extensionsResources()
+            .listByScope(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1))
+            .stream()
+            .collect(Collectors.toList());
         Assertions.assertEquals(1, extensionResources.size());
         extensionResource = extensionResources.get(0);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -382,8 +429,10 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, createProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Get
-        extensionResource = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        extensionResource = manager.extensionsResources()
+            .get(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -392,7 +441,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, createProperties.provisioningState());
         // Update
         extensionResource.update().withProperties(updateProperties).apply();
-        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI + EXTENSION_RESOURCE_BASE_ID,
+            extensionResource.id());
         Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
         Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
         Assertions.assertNotNull(extensionResource.properties());
@@ -400,7 +450,8 @@ public class ArmResourceTest {
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
-        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_SCOPE_URI.substring(1), EXTENSION_RESOURCE_NAME);
     }
 
     @Test
