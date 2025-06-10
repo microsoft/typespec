@@ -37,7 +37,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String apiVersion;
     private Boolean useRestProxy;
     private String renameModel;
-    private String defaultHttpExceptionType;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
 
     // internal
@@ -155,8 +155,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return renameModel;
     }
 
-    public String getDefaultHttpExceptionType() {
-        return defaultHttpExceptionType;
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
     }
 
     @Override
@@ -217,8 +217,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
             } else if ("rename-model".equals(fieldName)) {
                 options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
-            } else if ("default-http-exception-type".equals(fieldName)) {
-                options.defaultHttpExceptionType = emptyToNull(reader.getString());
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }

@@ -64,7 +64,7 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
   } elseif ($tspFile -match "tsp[\\/]error.tsp") {
     # test for default-http-exception-type
-    $tspOptions += " --option ""@typespec/http-client-java.default-http-exception-type=tsptest.errormodel.models.BatchErrorException"""
+    $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
   } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option

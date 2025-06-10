@@ -152,6 +152,7 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
+  optionBoolean,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -181,7 +182,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
-  "default-http-exception-type"?: string;
+  "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
   "skip-special-headers"?: string[];
@@ -698,7 +699,7 @@ export class CodeModelBuilder {
       codeModelClient.apiVersions,
     );
 
-    const enableSubclient: boolean = Boolean(this.options["enable-subclient"]);
+    const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
 
     // preprocess operation groups and operations
     // operations without operation group
@@ -835,7 +836,7 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(this.options["advanced-versioning"]);
+    return optionBoolean(this.options["advanced-versioning"]) ?? false;
   }
 
   private getOperationExample(
@@ -2212,13 +2213,17 @@ export class CodeModelBuilder {
 
         if (trackConvenienceApi) {
           let outputErrorModel = false;
-          if (this.isBranded()) {
-            const exceptionName = response.schema.language.default.name + "Exception";
-            const exceptionNameInOptions = this.options["default-http-exception-type"]
-              ?.split(".")
-              .at(-1);
-            outputErrorModel = exceptionName === exceptionNameInOptions;
-          } else {
+          if (!this.isBranded()) {
+            outputErrorModel = true;
+          }
+          if (
+            this.isBranded() &&
+            !(
+              optionBoolean(
+                this.options["use-default-http-status-code-to-exception-type-mapping"],
+              ) ?? true
+            )
+          ) {
             outputErrorModel = true;
           }
 
