@@ -42,19 +42,6 @@ public final class NamingClient {
     /**
      * Protocol method for POST operation.
      *
-     * @data.kind: String (Required)
-     * }
-     * }
-     * type: String(Blob/File) (Required)
-     * status: String(Running/Completed/Failed) (Required)
-     * anonymous (Required): {
-     * last_error (Required): {
-     * code: String(server_error/rate_limit_exceeded/invalid_prompt) (Required)
-     * }
-     * }
-     * }
-     * }
-     * </pre>
      * @param name summary of name query parameter
      *
      * description of name query parameter.
