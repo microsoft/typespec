@@ -55,6 +55,7 @@ public final class RenamedFromClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NewModel newOp(String newQuery, NewModel body) {
         return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();

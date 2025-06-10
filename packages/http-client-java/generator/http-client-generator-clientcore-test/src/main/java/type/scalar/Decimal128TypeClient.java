@@ -51,6 +51,7 @@ public final class Decimal128TypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a 128-bit decimal number.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BigDecimal responseBody() {
         return responseBodyWithResponse(RequestContext.none()).getValue();
@@ -80,6 +81,7 @@ public final class Decimal128TypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestBody(BigDecimal body) {
         requestBodyWithResponse(body, RequestContext.none());
@@ -109,6 +111,7 @@ public final class Decimal128TypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestParameter(BigDecimal value) {
         requestParameterWithResponse(value, RequestContext.none());

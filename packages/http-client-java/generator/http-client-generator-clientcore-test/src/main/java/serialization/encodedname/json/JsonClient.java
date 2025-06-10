@@ -53,6 +53,7 @@ public final class JsonClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void send(JsonEncodedNameModel body) {
         sendWithResponse(body, RequestContext.none());
@@ -80,6 +81,7 @@ public final class JsonClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public JsonEncodedNameModel get() {
         return getWithResponse(RequestContext.none()).getValue();

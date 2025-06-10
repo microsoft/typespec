@@ -54,6 +54,7 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(OffsetDateTime value) {
         defaultMethodWithResponse(value, RequestContext.none());
@@ -83,6 +84,7 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc3339(OffsetDateTime value) {
         rfc3339WithResponse(value, RequestContext.none());
@@ -112,6 +114,7 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void rfc7231(OffsetDateTime value) {
         rfc7231WithResponse(value, RequestContext.none());
@@ -141,6 +144,7 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestamp(OffsetDateTime value) {
         unixTimestampWithResponse(value, RequestContext.none());
@@ -170,6 +174,7 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void unixTimestampArray(List<OffsetDateTime> value) {
         unixTimestampArrayWithResponse(value, RequestContext.none());

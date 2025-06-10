@@ -55,6 +55,7 @@ public final class AddedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV1 v1(String headerV2, ModelV1 body) {
         return v1WithResponse(headerV2, body, RequestContext.none()).getValue();
@@ -85,6 +86,7 @@ public final class AddedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2(ModelV2 body) {
         return v2WithResponse(body, RequestContext.none()).getValue();

@@ -53,6 +53,7 @@ public final class ModelClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestBody(String name) {
         spreadAsRequestBodyWithResponse(name, RequestContext.none());
@@ -83,6 +84,7 @@ public final class ModelClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestOnlyWithBody(BodyParameter body) {
         spreadCompositeRequestOnlyWithBodyWithResponse(body, RequestContext.none());
@@ -115,6 +117,7 @@ public final class ModelClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestWithoutBody(String name, String testHeader) {
         spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, RequestContext.none());
@@ -149,6 +152,7 @@ public final class ModelClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequest(String name, String testHeader, BodyParameter body) {
         spreadCompositeRequestWithResponse(name, testHeader, body, RequestContext.none());
@@ -183,6 +187,7 @@ public final class ModelClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestMix(String name, String testHeader, String prop) {
         spreadCompositeRequestMixWithResponse(name, testHeader, prop, RequestContext.none());

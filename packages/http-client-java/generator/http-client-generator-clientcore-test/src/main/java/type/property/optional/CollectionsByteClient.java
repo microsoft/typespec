@@ -50,6 +50,7 @@ public final class CollectionsByteClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsByteProperty getAll() {
         return getAllWithResponse(RequestContext.none()).getValue();
@@ -77,6 +78,7 @@ public final class CollectionsByteClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsByteProperty getDefault() {
         return getDefaultWithResponse(RequestContext.none()).getValue();
@@ -106,6 +108,7 @@ public final class CollectionsByteClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(CollectionsByteProperty body) {
         putAllWithResponse(body, RequestContext.none());
@@ -135,6 +138,7 @@ public final class CollectionsByteClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(CollectionsByteProperty body) {
         putDefaultWithResponse(body, RequestContext.none());

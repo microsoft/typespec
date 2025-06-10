@@ -50,6 +50,7 @@ public final class ExtensibleClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekExtensibleEnum getKnownValue() {
         return getKnownValueWithResponse(RequestContext.none()).getValue();
@@ -77,6 +78,7 @@ public final class ExtensibleClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekExtensibleEnum getUnknownValue() {
         return getUnknownValueWithResponse(RequestContext.none()).getValue();
@@ -106,6 +108,7 @@ public final class ExtensibleClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putKnownValue(DaysOfWeekExtensibleEnum body) {
         putKnownValueWithResponse(body, RequestContext.none());
@@ -135,6 +138,7 @@ public final class ExtensibleClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putUnknownValue(DaysOfWeekExtensibleEnum body) {
         putUnknownValueWithResponse(body, RequestContext.none());

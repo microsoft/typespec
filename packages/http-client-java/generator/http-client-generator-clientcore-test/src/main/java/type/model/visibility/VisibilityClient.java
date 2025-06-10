@@ -56,6 +56,7 @@ public final class VisibilityClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return output model with visibility properties.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public VisibilityModel getModel(int queryProp, VisibilityModel input) {
         return getModelWithResponse(queryProp, input, RequestContext.none()).getValue();
@@ -87,6 +88,7 @@ public final class VisibilityClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void headModel(int queryProp, VisibilityModel input) {
         headModelWithResponse(queryProp, input, RequestContext.none());
@@ -116,6 +118,7 @@ public final class VisibilityClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(VisibilityModel input) {
         putModelWithResponse(input, RequestContext.none());
@@ -145,6 +148,7 @@ public final class VisibilityClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchModel(VisibilityModel input) {
         patchModelWithResponse(input, RequestContext.none());
@@ -174,6 +178,7 @@ public final class VisibilityClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postModel(VisibilityModel input) {
         postModelWithResponse(input, RequestContext.none());
@@ -203,6 +208,7 @@ public final class VisibilityClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void deleteModel(VisibilityModel input) {
         deleteModelWithResponse(input, RequestContext.none());
@@ -233,6 +239,7 @@ public final class VisibilityClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return roundTrip model with readonly optional properties.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ReadOnlyModel putReadOnlyModel(ReadOnlyModel input) {
         return putReadOnlyModelWithResponse(input, RequestContext.none()).getValue();

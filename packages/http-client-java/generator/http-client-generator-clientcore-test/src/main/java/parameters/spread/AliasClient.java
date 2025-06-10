@@ -53,6 +53,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestBody(String name) {
         spreadAsRequestBodyWithResponse(name, RequestContext.none());
@@ -87,6 +88,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadParameterWithInnerModel(String id, String xMsTestHeader, String name) {
         spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, RequestContext.none());
@@ -121,6 +123,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestParameter(String id, String xMsTestHeader, String name) {
         spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, RequestContext.none());
@@ -163,6 +166,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
         List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList) {
@@ -181,6 +185,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadWithMultipleParameters(String id, String xMsTestHeader, String requiredString,
         List<Integer> requiredIntList) {
@@ -222,6 +227,7 @@ public final class AliasClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadParameterWithInnerAlias(String id, String xMsTestHeader, String name, int age) {
         spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age, RequestContext.none());

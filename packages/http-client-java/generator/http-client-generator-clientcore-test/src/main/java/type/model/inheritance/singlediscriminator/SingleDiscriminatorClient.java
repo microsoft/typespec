@@ -50,6 +50,7 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getModel() {
         return getModelWithResponse(RequestContext.none()).getValue();
@@ -79,6 +80,7 @@ public final class SingleDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Bird input) {
         putModelWithResponse(input, RequestContext.none());
@@ -106,6 +108,7 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getRecursiveModel() {
         return getRecursiveModelWithResponse(RequestContext.none()).getValue();
@@ -135,6 +138,7 @@ public final class SingleDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Bird input) {
         putRecursiveModelWithResponse(input, RequestContext.none());
@@ -162,6 +166,7 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getMissingDiscriminator() {
         return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
@@ -189,6 +194,7 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Bird getWrongDiscriminator() {
         return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
@@ -216,6 +222,7 @@ public final class SingleDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return define a base class in the legacy way.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Dinosaur getLegacyModel() {
         return getLegacyModelWithResponse(RequestContext.none()).getValue();

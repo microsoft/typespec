@@ -52,6 +52,7 @@ public final class QueryParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void templateOnly(String param) {
         templateOnlyWithResponse(param, RequestContext.none());
@@ -81,6 +82,7 @@ public final class QueryParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void explicit(String param) {
         explicitWithResponse(param, RequestContext.none());
@@ -110,6 +112,7 @@ public final class QueryParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void annotationOnly(String param) {
         annotationOnlyWithResponse(param, RequestContext.none());

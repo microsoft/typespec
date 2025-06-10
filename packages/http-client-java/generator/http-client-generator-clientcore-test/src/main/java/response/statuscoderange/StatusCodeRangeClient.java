@@ -49,6 +49,7 @@ public final class StatusCodeRangeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void errorResponseStatusCodeInRange() {
         errorResponseStatusCodeInRangeWithResponse(RequestContext.none());
@@ -75,6 +76,7 @@ public final class StatusCodeRangeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void errorResponseStatusCode404() {
         errorResponseStatusCode404WithResponse(RequestContext.none());

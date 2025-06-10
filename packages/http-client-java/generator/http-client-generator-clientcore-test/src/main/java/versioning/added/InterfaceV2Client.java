@@ -53,6 +53,7 @@ public final class InterfaceV2Client {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2InInterface(ModelV2 body) {
         return v2InInterfaceWithResponse(body, RequestContext.none()).getValue();

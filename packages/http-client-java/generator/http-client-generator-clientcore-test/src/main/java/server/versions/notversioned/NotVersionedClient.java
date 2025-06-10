@@ -49,6 +49,7 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withoutApiVersion() {
         withoutApiVersionWithResponse(RequestContext.none());
@@ -78,6 +79,7 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryApiVersion(String apiVersion) {
         withQueryApiVersionWithResponse(apiVersion, RequestContext.none());
@@ -107,6 +109,7 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPathApiVersion(String apiVersion) {
         withPathApiVersionWithResponse(apiVersion, RequestContext.none());

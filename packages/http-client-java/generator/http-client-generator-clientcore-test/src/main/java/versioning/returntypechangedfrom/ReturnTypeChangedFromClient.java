@@ -53,6 +53,7 @@ public final class ReturnTypeChangedFromClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String test(String body) {
         return testWithResponse(body, RequestContext.none()).getValue();

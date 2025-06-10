@@ -55,6 +55,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void basic(MultiPartRequest body) {
         basicWithResponse(body, RequestContext.none());
@@ -86,6 +87,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void fileArrayAndBasic(ComplexPartsRequest body) {
         fileArrayAndBasicWithResponse(body, RequestContext.none());
@@ -117,6 +119,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonPart(JsonPartRequest body) {
         jsonPartWithResponse(body, RequestContext.none());
@@ -148,6 +151,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void binaryArrayParts(BinaryArrayPartsRequest body) {
         binaryArrayPartsWithResponse(body, RequestContext.none());
@@ -179,6 +183,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void multiBinaryParts(MultiBinaryPartsRequest body) {
         multiBinaryPartsWithResponse(body, RequestContext.none());
@@ -211,6 +216,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void checkFileNameAndContentType(MultiPartRequest body) {
         checkFileNameAndContentTypeWithResponse(body, RequestContext.none());
@@ -242,6 +248,7 @@ public final class FormDataClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void anonymousModel(AnonymousModelRequest body) {
         anonymousModelWithResponse(body, RequestContext.none());

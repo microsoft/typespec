@@ -49,6 +49,7 @@ public final class VersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withoutApiVersion() {
         withoutApiVersionWithResponse(RequestContext.none());
@@ -75,6 +76,7 @@ public final class VersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryApiVersion() {
         withQueryApiVersionWithResponse(RequestContext.none());
@@ -101,6 +103,7 @@ public final class VersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPathApiVersion() {
         withPathApiVersionWithResponse(RequestContext.none());
@@ -127,6 +130,7 @@ public final class VersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryOldApiVersion() {
         withQueryOldApiVersionWithResponse(RequestContext.none());

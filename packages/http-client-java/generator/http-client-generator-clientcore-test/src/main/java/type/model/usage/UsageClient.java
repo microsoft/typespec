@@ -52,6 +52,7 @@ public final class UsageClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void input(InputRecord input) {
         inputWithResponse(input, RequestContext.none());
@@ -79,6 +80,7 @@ public final class UsageClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used in operation return type.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OutputRecord output() {
         return outputWithResponse(RequestContext.none()).getValue();
@@ -110,6 +112,7 @@ public final class UsageClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used both as operation parameter and return type.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public InputOutputRecord inputAndOutput(InputOutputRecord body) {
         return inputAndOutputWithResponse(body, RequestContext.none()).getValue();

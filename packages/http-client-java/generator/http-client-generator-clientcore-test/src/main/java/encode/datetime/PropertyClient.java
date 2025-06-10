@@ -54,6 +54,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultDatetimeProperty defaultMethod(DefaultDatetimeProperty body) {
         return defaultMethodWithResponse(body, RequestContext.none()).getValue();
@@ -85,6 +86,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Rfc3339DatetimeProperty rfc3339(Rfc3339DatetimeProperty body) {
         return rfc3339WithResponse(body, RequestContext.none()).getValue();
@@ -116,6 +118,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Rfc7231DatetimeProperty rfc7231(Rfc7231DatetimeProperty body) {
         return rfc7231WithResponse(body, RequestContext.none()).getValue();
@@ -147,6 +150,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnixTimestampDatetimeProperty unixTimestamp(UnixTimestampDatetimeProperty body) {
         return unixTimestampWithResponse(body, RequestContext.none()).getValue();
@@ -178,6 +182,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnixTimestampArrayDatetimeProperty unixTimestampArray(UnixTimestampArrayDatetimeProperty body) {
         return unixTimestampArrayWithResponse(body, RequestContext.none()).getValue();

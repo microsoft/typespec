@@ -52,6 +52,7 @@ public final class RecursiveClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Extension input) {
         putWithResponse(input, RequestContext.none());
@@ -79,6 +80,7 @@ public final class RecursiveClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return extension.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Extension get() {
         return getWithResponse(RequestContext.none()).getValue();

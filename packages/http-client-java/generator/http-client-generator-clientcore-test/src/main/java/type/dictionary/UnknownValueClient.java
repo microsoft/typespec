@@ -52,6 +52,7 @@ public final class UnknownValueClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Map<String, BinaryData> get() {
         return getWithResponse(RequestContext.none()).getValue();
@@ -81,6 +82,7 @@ public final class UnknownValueClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Map<String, BinaryData> body) {
         putWithResponse(body, RequestContext.none());

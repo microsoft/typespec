@@ -85,6 +85,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAnd(And body) {
         withAndWithResponse(body, RequestContext.none());
@@ -114,6 +115,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAs(As body) {
         withAsWithResponse(body, RequestContext.none());
@@ -143,6 +145,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAssert(Assert body) {
         withAssertWithResponse(body, RequestContext.none());
@@ -172,6 +175,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAsync(Async body) {
         withAsyncWithResponse(body, RequestContext.none());
@@ -201,6 +205,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAwait(Await body) {
         withAwaitWithResponse(body, RequestContext.none());
@@ -230,6 +235,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withBreak(Break body) {
         withBreakWithResponse(body, RequestContext.none());
@@ -259,6 +265,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withClass(ClassModel body) {
         withClassWithResponse(body, RequestContext.none());
@@ -288,6 +295,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withConstructor(Constructor body) {
         withConstructorWithResponse(body, RequestContext.none());
@@ -317,6 +325,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withContinue(Continue body) {
         withContinueWithResponse(body, RequestContext.none());
@@ -346,6 +355,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDef(Def body) {
         withDefWithResponse(body, RequestContext.none());
@@ -375,6 +385,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDel(Del body) {
         withDelWithResponse(body, RequestContext.none());
@@ -404,6 +415,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElif(Elif body) {
         withElifWithResponse(body, RequestContext.none());
@@ -433,6 +445,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElse(Else body) {
         withElseWithResponse(body, RequestContext.none());
@@ -462,6 +475,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExcept(Except body) {
         withExceptWithResponse(body, RequestContext.none());
@@ -491,6 +505,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExec(Exec body) {
         withExecWithResponse(body, RequestContext.none());
@@ -520,6 +535,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFinally(Finally body) {
         withFinallyWithResponse(body, RequestContext.none());
@@ -549,6 +565,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFor(For body) {
         withForWithResponse(body, RequestContext.none());
@@ -578,6 +595,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFrom(From body) {
         withFromWithResponse(body, RequestContext.none());
@@ -607,6 +625,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withGlobal(Global body) {
         withGlobalWithResponse(body, RequestContext.none());
@@ -636,6 +655,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIf(If body) {
         withIfWithResponse(body, RequestContext.none());
@@ -665,6 +685,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withImport(Import body) {
         withImportWithResponse(body, RequestContext.none());
@@ -694,6 +715,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIn(In body) {
         withInWithResponse(body, RequestContext.none());
@@ -723,6 +745,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIs(Is body) {
         withIsWithResponse(body, RequestContext.none());
@@ -752,6 +775,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withLambda(Lambda body) {
         withLambdaWithResponse(body, RequestContext.none());
@@ -781,6 +805,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withNot(Not body) {
         withNotWithResponse(body, RequestContext.none());
@@ -810,6 +835,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withOr(Or body) {
         withOrWithResponse(body, RequestContext.none());
@@ -839,6 +865,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPass(Pass body) {
         withPassWithResponse(body, RequestContext.none());
@@ -868,6 +895,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withRaise(Raise body) {
         withRaiseWithResponse(body, RequestContext.none());
@@ -897,6 +925,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withReturn(Return body) {
         withReturnWithResponse(body, RequestContext.none());
@@ -926,6 +955,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withTry(Try body) {
         withTryWithResponse(body, RequestContext.none());
@@ -955,6 +985,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWhile(While body) {
         withWhileWithResponse(body, RequestContext.none());
@@ -984,6 +1015,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWith(With body) {
         withWithWithResponse(body, RequestContext.none());
@@ -1013,6 +1045,7 @@ public final class ModelsClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withYield(Yield body) {
         withYieldWithResponse(body, RequestContext.none());

@@ -54,6 +54,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void defaultMethod(Duration duration) {
         defaultMethodWithResponse(duration, RequestContext.none());
@@ -83,6 +84,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void iso8601(Duration duration) {
         iso8601WithResponse(duration, RequestContext.none());
@@ -112,6 +114,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void iso8601Array(List<Duration> duration) {
         iso8601ArrayWithResponse(duration, RequestContext.none());
@@ -141,6 +144,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void int32Seconds(Duration duration) {
         int32SecondsWithResponse(duration, RequestContext.none());
@@ -170,6 +174,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void floatSeconds(Duration duration) {
         floatSecondsWithResponse(duration, RequestContext.none());
@@ -199,6 +204,7 @@ public final class HeaderClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void float64Seconds(Duration duration) {
         float64SecondsWithResponse(duration, RequestContext.none());

@@ -52,6 +52,7 @@ public final class NotDiscriminatedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void postValid(Siamese input) {
         postValidWithResponse(input, RequestContext.none());
@@ -79,6 +80,7 @@ public final class NotDiscriminatedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Siamese getValid() {
         return getValidWithResponse(RequestContext.none()).getValue();
@@ -109,6 +111,7 @@ public final class NotDiscriminatedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Siamese putValid(Siamese input) {
         return putValidWithResponse(input, RequestContext.none()).getValue();

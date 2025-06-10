@@ -50,6 +50,7 @@ public final class UnionEnumValueClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public UnionEnumValueProperty get() {
         return getWithResponse(RequestContext.none()).getValue();
@@ -79,6 +80,7 @@ public final class UnionEnumValueClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(UnionEnumValueProperty body) {
         putWithResponse(body, RequestContext.none());

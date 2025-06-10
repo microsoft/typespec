@@ -52,6 +52,7 @@ public final class MediaTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsText(String text) {
         sendAsTextWithResponse(text, RequestContext.none());
@@ -79,6 +80,7 @@ public final class MediaTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsText() {
         return getAsTextWithResponse(RequestContext.none()).getValue();
@@ -108,6 +110,7 @@ public final class MediaTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsJson(String text) {
         sendAsJsonWithResponse(text, RequestContext.none());
@@ -135,6 +138,7 @@ public final class MediaTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsJson() {
         return getAsJsonWithResponse(RequestContext.none()).getValue();

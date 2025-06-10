@@ -50,6 +50,7 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getModel() {
         return getModelWithResponse(RequestContext.none()).getValue();
@@ -79,6 +80,7 @@ public final class NestedDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putModel(Fish input) {
         putModelWithResponse(input, RequestContext.none());
@@ -106,6 +108,7 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getRecursiveModel() {
         return getRecursiveModelWithResponse(RequestContext.none()).getValue();
@@ -135,6 +138,7 @@ public final class NestedDiscriminatorClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void putRecursiveModel(Fish input) {
         putRecursiveModelWithResponse(input, RequestContext.none());
@@ -162,6 +166,7 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getMissingDiscriminator() {
         return getMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
@@ -189,6 +194,7 @@ public final class NestedDiscriminatorClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Fish getWrongDiscriminator() {
         return getWrongDiscriminatorWithResponse(RequestContext.none()).getValue();

@@ -52,6 +52,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAnd(String and) {
         withAndWithResponse(and, RequestContext.none());
@@ -81,6 +82,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAs(String as) {
         withAsWithResponse(as, RequestContext.none());
@@ -110,6 +112,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAssert(String assertParameter) {
         withAssertWithResponse(assertParameter, RequestContext.none());
@@ -139,6 +142,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAsync(String async) {
         withAsyncWithResponse(async, RequestContext.none());
@@ -168,6 +172,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAwait(String await) {
         withAwaitWithResponse(await, RequestContext.none());
@@ -197,6 +202,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withBreak(String breakParameter) {
         withBreakWithResponse(breakParameter, RequestContext.none());
@@ -226,6 +232,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withClass(String classParameter) {
         withClassWithResponse(classParameter, RequestContext.none());
@@ -255,6 +262,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withConstructor(String constructor) {
         withConstructorWithResponse(constructor, RequestContext.none());
@@ -284,6 +292,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withContinue(String continueParameter) {
         withContinueWithResponse(continueParameter, RequestContext.none());
@@ -313,6 +322,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDef(String def) {
         withDefWithResponse(def, RequestContext.none());
@@ -342,6 +352,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDel(String del) {
         withDelWithResponse(del, RequestContext.none());
@@ -371,6 +382,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElif(String elif) {
         withElifWithResponse(elif, RequestContext.none());
@@ -400,6 +412,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElse(String elseParameter) {
         withElseWithResponse(elseParameter, RequestContext.none());
@@ -429,6 +442,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExcept(String except) {
         withExceptWithResponse(except, RequestContext.none());
@@ -458,6 +472,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExec(String exec) {
         withExecWithResponse(exec, RequestContext.none());
@@ -487,6 +502,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFinally(String finallyParameter) {
         withFinallyWithResponse(finallyParameter, RequestContext.none());
@@ -516,6 +532,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFor(String forParameter) {
         withForWithResponse(forParameter, RequestContext.none());
@@ -545,6 +562,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFrom(String from) {
         withFromWithResponse(from, RequestContext.none());
@@ -574,6 +592,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withGlobal(String global) {
         withGlobalWithResponse(global, RequestContext.none());
@@ -603,6 +622,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIf(String ifParameter) {
         withIfWithResponse(ifParameter, RequestContext.none());
@@ -632,6 +652,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withImport(String importParameter) {
         withImportWithResponse(importParameter, RequestContext.none());
@@ -661,6 +682,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIn(String in) {
         withInWithResponse(in, RequestContext.none());
@@ -690,6 +712,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIs(String is) {
         withIsWithResponse(is, RequestContext.none());
@@ -719,6 +742,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withLambda(String lambda) {
         withLambdaWithResponse(lambda, RequestContext.none());
@@ -748,6 +772,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withNot(String not) {
         withNotWithResponse(not, RequestContext.none());
@@ -777,6 +802,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withOr(String or) {
         withOrWithResponse(or, RequestContext.none());
@@ -806,6 +832,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPass(String pass) {
         withPassWithResponse(pass, RequestContext.none());
@@ -835,6 +862,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withRaise(String raise) {
         withRaiseWithResponse(raise, RequestContext.none());
@@ -864,6 +892,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withReturn(String returnParameter) {
         withReturnWithResponse(returnParameter, RequestContext.none());
@@ -893,6 +922,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withTry(String tryParameter) {
         withTryWithResponse(tryParameter, RequestContext.none());
@@ -922,6 +952,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWhile(String whileParameter) {
         withWhileWithResponse(whileParameter, RequestContext.none());
@@ -951,6 +982,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWith(String with) {
         withWithWithResponse(with, RequestContext.none());
@@ -980,6 +1012,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withYield(String yield) {
         withYieldWithResponse(yield, RequestContext.none());
@@ -1009,6 +1042,7 @@ public final class ParametersClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withCancellationToken(String cancellationToken) {
         withCancellationTokenWithResponse(cancellationToken, RequestContext.none());

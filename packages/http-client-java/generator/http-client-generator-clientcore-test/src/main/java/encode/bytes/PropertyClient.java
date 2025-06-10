@@ -54,6 +54,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultBytesProperty defaultMethod(DefaultBytesProperty body) {
         return defaultMethodWithResponse(body, RequestContext.none()).getValue();
@@ -84,6 +85,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64BytesProperty base64(Base64BytesProperty body) {
         return base64WithResponse(body, RequestContext.none()).getValue();
@@ -115,6 +117,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64urlBytesProperty base64url(Base64urlBytesProperty body) {
         return base64urlWithResponse(body, RequestContext.none()).getValue();
@@ -146,6 +149,7 @@ public final class PropertyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64urlArrayBytesProperty base64urlArray(Base64urlArrayBytesProperty body) {
         return base64urlArrayWithResponse(body, RequestContext.none()).getValue();

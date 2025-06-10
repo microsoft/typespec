@@ -105,6 +105,7 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
         String maxOverloadMethodName) {
         ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
         generateJavadoc(clientMethod, typeBlock, restAPIMethod);
+        addGeneratedAnnotation(typeBlock);
         addServiceMethodAnnotation(typeBlock, returnType);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
             addOptionalVariables(function, clientMethod);
