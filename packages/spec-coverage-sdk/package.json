@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spec-coverage-sdk",
-  "version": "0.1.0-alpha.6",
+  "version": "0.1.0-alpha.7",
   "description": "Spec utility to manage the reported coverage",
   "main": "dist/index.js",
   "type": "module",
