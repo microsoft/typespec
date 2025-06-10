@@ -160,5 +160,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNotNull(invokeExpression.TypeArguments);
             Assert.IsTrue(invokeExpression.TypeArguments![0].Equals(typeof(string)));
         }
+
+        [TestCase(InputPrimitiveTypeKind.String, ParameterValidationType.AssertNotNullOrEmpty, true)]
+        [TestCase(InputPrimitiveTypeKind.String, ParameterValidationType.None, false)]
+        [TestCase(InputPrimitiveTypeKind.Int32, ParameterValidationType.None, true)]
+        [TestCase(InputPrimitiveTypeKind.Int32, ParameterValidationType.None, false)]
+        [TestCase(InputPrimitiveTypeKind.Url, ParameterValidationType.AssertNotNull, true)]
+        [TestCase(InputPrimitiveTypeKind.Url, ParameterValidationType.None, false)]
+        public void CorrectValidationIsAppliedToParameter(
+            InputPrimitiveTypeKind primitiveType,
+            ParameterValidationType expectedValidation,
+            bool isRequired)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputTypeInstance = InputFactory.Parameter("testParam", new InputPrimitiveType(primitiveType, "foo", "bar"), isRequired: isRequired);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputTypeInstance);
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedValidation, parameter!.Validation);
+        }
     }
 }
