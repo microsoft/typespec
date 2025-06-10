@@ -6,28 +6,36 @@ import { EncodingProvider } from "./encoding-provider.jsx";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { HttpRequestOptions } from "./http-request-options.js";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.js";
-import { getOperationOptionsParameterRefkey } from "./operation-parameters.jsx";
 
 export interface HttpRequestProps {
   httpOperation: HttpOperation;
+  operationOptionsParamRefkey: Refkey;
   responseRefkey?: Refkey;
 }
 
 export function HttpRequest(props: HttpRequestProps) {
   const operationUrlRefkey = refkey();
-  const requestOptionsRefkey = refkey();
+  const requestOptionsVarRefkey = refkey();
   const httpResponseRefkey = props.responseRefkey ?? refkey();
   const verb = props.httpOperation.verb;
   return (
     <List>
       <StatementList>
-        <HttpRequest.Url httpOperation={props.httpOperation} refkey={operationUrlRefkey} />
+        <HttpRequest.Url
+          httpOperation={props.httpOperation}
+          pathVarRefkey={operationUrlRefkey}
+          requestOptionsParamRefkey={props.operationOptionsParamRefkey}
+        />
 
-        <HttpRequestOptions httpOperation={props.httpOperation} refkey={requestOptionsRefkey} />
+        <HttpRequestOptions
+          httpOperation={props.httpOperation}
+          requestOptionsParamRefkey={props.operationOptionsParamRefkey}
+          requestOptionsVarRefkey={requestOptionsVarRefkey}
+        />
 
         <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
           {code`
-      await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsRefkey} />)})
+      await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsVarRefkey} />)})
       `}
         </ts.VarDeclaration>
         <hbr />
@@ -42,7 +50,8 @@ export function HttpRequest(props: HttpRequestProps) {
 
 export interface HttpUrlProps {
   httpOperation: HttpOperation;
-  refkey?: Refkey;
+  requestOptionsParamRefkey: Refkey;
+  pathVarRefkey?: Refkey;
   children?: Children;
 }
 
@@ -51,15 +60,14 @@ HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
   const urlParameters = props.httpOperation.parameters.properties.filter(
     (p) => p.kind === "path" || p.kind === "query",
   );
-  const optionsParameter = getOperationOptionsParameterRefkey(props.httpOperation);
   return (
     <EncodingProvider defaults={{ bytes: "base64url" }}>
-      <ts.VarDeclaration name="path" refkey={props.refkey}>
+      <ts.VarDeclaration name="path" refkey={props.pathVarRefkey}>
         {uriTemplateLib.parse}({JSON.stringify(urlTemplate)}).expand(
         {
           <HttpRequestParametersExpression
             httpOperation={props.httpOperation}
-            optionsParameter={optionsParameter!}
+            optionsParameter={props.requestOptionsParamRefkey}
             parameters={urlParameters}
           />
         }
