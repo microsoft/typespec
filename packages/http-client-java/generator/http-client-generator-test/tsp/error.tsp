@@ -19,7 +19,7 @@ model SubError extends Error {
   subCode: string;
 }
 
-// BatchError, BatchErrorException is generated, on default-http-exception-type=tsptest.errormodel.models.BatchErrorException
+// BatchError, BatchErrorException is generated, on use-default-http-status-code-to-exception-type-mapping=false
 @error
 model BatchError {
   code?: string;
@@ -31,7 +31,7 @@ model BatchErrorMessage {
   value?: string;
 }
 
-// BadResponseError, BadResponseErrorException is not generated
+// BadResponseError, BadResponseErrorException is generated, on use-default-http-status-code-to-exception-type-mapping=false
 @error
 model BadResponseError is Response<400> {
   code: string;
