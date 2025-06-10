@@ -15,8 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set; }
         public ValueExpression? BodyExpression { get; private set; }
-        public XmlDocProvider? XmlDocs => _xmlDocs ??= MethodProviderHelpers.BuildXmlDocs(Signature);
-        private XmlDocProvider? _xmlDocs;
+        public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
 
@@ -39,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Signature = signature;
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
         }
 
@@ -54,13 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
-        }
-
-        private XmlDocProvider BuildXmlDocs()
-        {
-            return MethodProviderHelpers.BuildXmlDocs(Signature);
         }
 
         public void Update(
@@ -73,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Signature = signature;
                 // rebuild the XML docs if the signature changed
-                _xmlDocs = BuildXmlDocs();
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(signature);
             }
             if (bodyExpression != null)
             {
@@ -87,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (xmlDocs != null)
             {
-                _xmlDocs = xmlDocs;
+                XmlDocs = xmlDocs;
             }
         }
     }

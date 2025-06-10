@@ -161,16 +161,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(invokeExpression.TypeArguments![0].Equals(typeof(string)));
         }
 
-        [TestCase(InputPrimitiveTypeKind.String, ParameterValidationType.AssertNotNullOrEmpty, true)]
-        [TestCase(InputPrimitiveTypeKind.String, ParameterValidationType.None, false)]
-        [TestCase(InputPrimitiveTypeKind.Int32, ParameterValidationType.None, true)]
-        [TestCase(InputPrimitiveTypeKind.Int32, ParameterValidationType.None, false)]
-        [TestCase(InputPrimitiveTypeKind.Url, ParameterValidationType.AssertNotNull, true)]
-        [TestCase(InputPrimitiveTypeKind.Url, ParameterValidationType.None, false)]
+        [TestCase(InputPrimitiveTypeKind.String, true, ParameterValidationType.AssertNotNullOrEmpty)]
+        [TestCase(InputPrimitiveTypeKind.String, false, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Int32, true, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Int32, false, ParameterValidationType.None)]
+        [TestCase(InputPrimitiveTypeKind.Url, true, ParameterValidationType.AssertNotNull)]
+        [TestCase(InputPrimitiveTypeKind.Url, false, ParameterValidationType.None)]
         public void CorrectValidationIsAppliedToParameter(
             InputPrimitiveTypeKind primitiveType,
-            ParameterValidationType expectedValidation,
-            bool isRequired)
+            bool isRequired,
+            ParameterValidationType expectedValidation)
         {
             MockHelpers.LoadMockGenerator();
             var inputTypeInstance = InputFactory.Parameter("testParam", new InputPrimitiveType(primitiveType, "foo", "bar"), isRequired: isRequired);

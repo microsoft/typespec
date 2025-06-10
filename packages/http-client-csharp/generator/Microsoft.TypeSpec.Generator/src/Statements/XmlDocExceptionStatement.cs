@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 
@@ -15,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public Type ExceptionType { get; }
         public IReadOnlyList<ParameterProvider> Parameters { get; }
 
-        private string _reason;
+        private readonly string _reason;
 
         public XmlDocExceptionStatement(Type exceptionType, IReadOnlyList<ParameterProvider> parameters)
         {
