@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set; }
         public ValueExpression? BodyExpression { get; private set; }
-        public XmlDocProvider? XmlDocs => _xmlDocs ??= BuildXmlDocs();
+        public XmlDocProvider? XmlDocs => _xmlDocs ??= MethodProviderHelpers.BuildXmlDocs(Signature);
         private XmlDocProvider? _xmlDocs;
 
         public TypeProvider EnclosingType { get; }
@@ -37,10 +37,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorProvider(ConstructorSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, paramHash);
+            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
         }
 
@@ -55,21 +54,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, null, null);
+            _xmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
         }
 
-        private XmlDocProvider? BuildXmlDocs()
+        private XmlDocProvider BuildXmlDocs()
         {
-            return MethodProviderHelpers.BuildXmlDocs(
-                Signature.Parameters,
-                Signature.Description,
-                null,
-                BodyStatements != null ?
-                    MethodProviderHelpers.GetParamHash(
-                        Signature.Parameters,
-                        !Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) :
-                    null);
+            return MethodProviderHelpers.BuildXmlDocs(Signature);
         }
 
         public void Update(

@@ -38,8 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamHash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             _xmlDocs = xmlDocProvider;
             EnclosingType = enclosingType;
@@ -60,17 +59,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnclosingType = enclosingType;
         }
 
-        private XmlDocProvider? BuildXmlDocs()
+        private XmlDocProvider BuildXmlDocs()
         {
-            return MethodProviderHelpers.BuildXmlDocs(
-                Signature.Parameters,
-                Signature.Description,
-                Signature.ReturnDescription,
-                BodyStatements != null ?
-                    MethodProviderHelpers.GetParamHash(
-                        Signature.Parameters,
-                        !Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)) :
-                    null);
+            return MethodProviderHelpers.BuildXmlDocs(Signature);
         }
 
         public void Update(
