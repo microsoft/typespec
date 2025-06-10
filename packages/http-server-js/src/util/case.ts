@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
+import { KEYWORDS } from "./keywords.js";
+
 /**
  * Separators recognized by the case parser.
  */
@@ -34,6 +36,17 @@ export function isUnspeakable(name: string): boolean {
 }
 
 const JS_IDENTIFIER = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+
+/**
+ * Returns the property name to be used in an object literal.
+ */
+export function objectLiteralProperty(name: string): string {
+  if (!JS_IDENTIFIER.test(name) || KEYWORDS.has(name)) {
+    return JSON.stringify(name);
+  } else {
+    return name;
+  }
+}
 
 /**
  * Returns an access expression for a given subject and key.
