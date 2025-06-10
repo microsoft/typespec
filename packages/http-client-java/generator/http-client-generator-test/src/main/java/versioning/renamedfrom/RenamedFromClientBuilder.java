@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.renamedfrom.implementation.RenamedFromClientImpl;
-import versioning.renamedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the RenamedFromClient type.
@@ -196,24 +195,6 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    @Generated
-    private Versions version;
-
-    /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @param version the version value.
-     * @return the RenamedFromClientBuilder.
-     */
-    @Generated
-    public RenamedFromClientBuilder version(Versions version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Generated
@@ -261,7 +242,7 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
         RenamedFromServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : RenamedFromServiceVersion.getLatest();
         RenamedFromClientImpl client = new RenamedFromClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, this.version, localServiceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, localServiceVersion);
         return client;
     }
 
@@ -270,7 +251,6 @@ public final class RenamedFromClientBuilder implements HttpTrait<RenamedFromClie
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
         Objects.requireNonNull(endpoint, "'endpoint' cannot be null.");
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Generated

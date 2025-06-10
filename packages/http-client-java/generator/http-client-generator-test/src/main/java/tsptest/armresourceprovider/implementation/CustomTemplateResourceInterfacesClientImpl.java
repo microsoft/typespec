@@ -64,7 +64,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientCustomTempl")
+    @ServiceInterface(name = "ArmClientCustomTemplateResourceInterfaces")
     public interface CustomTemplateResourceInterfacesService {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 201 })

@@ -31,8 +31,6 @@ namespace _Type.Property.Nullable
 
         string IPersistableModel<CollectionsStringProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(CollectionsStringProperty collectionsStringProperty) => throw null;
-
         public static explicit operator CollectionsStringProperty(ClientResult result) => throw null;
     }
 }

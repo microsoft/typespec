@@ -17,7 +17,7 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 export function TypeDeclaration(props: TypeDeclarationProps) {
   const { $ } = useTsp();
   if (!props.type) {
-    const refkeys = declarationRefkeys(props.refkey, props.name);
+    const refkeys = declarationRefkeys(props.refkey, props.type);
     return (
       <ts.TypeDeclaration
         {...(props as WithRequired<ts.TypeDeclarationProps, "name">)}

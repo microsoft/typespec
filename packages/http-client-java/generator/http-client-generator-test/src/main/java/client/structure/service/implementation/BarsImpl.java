@@ -53,7 +53,7 @@ public final class BarsImpl {
      * REST calls.
      */
     @Host("{endpoint}/client/structure/{client}")
-    @ServiceInterface(name = "ServiceClientClientB")
+    @ServiceInterface(name = "ServiceClientClientBars")
     public interface BarsService {
         @Post("/five")
         @ExpectedResponses({ 204 })

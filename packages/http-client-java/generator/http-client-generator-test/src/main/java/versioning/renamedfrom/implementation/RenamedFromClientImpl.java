@@ -33,7 +33,6 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.models.Versions;
 
 /**
  * Initializes a new instance of the RenamedFromClient type.
@@ -56,20 +55,6 @@ public final class RenamedFromClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -132,12 +117,11 @@ public final class RenamedFromClientImpl {
      * Initializes an instance of RenamedFromClient client.
      * 
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(String endpoint, Versions version, RenamedFromServiceVersion serviceVersion) {
+    public RenamedFromClientImpl(String endpoint, RenamedFromServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -145,12 +129,10 @@ public final class RenamedFromClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
-        RenamedFromServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, RenamedFromServiceVersion serviceVersion) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -159,15 +141,13 @@ public final class RenamedFromClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
     public RenamedFromClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        Versions version, RenamedFromServiceVersion serviceVersion) {
+        RenamedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
         this.service = RestProxy.create(RenamedFromClientService.class, this.httpPipeline, this.getSerializerAdapter());
@@ -186,7 +166,7 @@ public final class RenamedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Mono<Response<BinaryData>> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -197,7 +177,7 @@ public final class RenamedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> newOpSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<BinaryData> newOpSync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -243,8 +223,8 @@ public final class RenamedFromClientImpl {
         RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.newOp(this.getEndpoint(), this.getVersion(), newQuery,
-            contentType, accept, body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(),
+            newQuery, contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -286,7 +266,7 @@ public final class RenamedFromClientImpl {
     public Response<BinaryData> newOpWithResponse(String newQuery, BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOpSync(this.getEndpoint(), this.getVersion(), newQuery, contentType, accept, body,
-            requestOptions, Context.NONE);
+        return service.newOpSync(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType,
+            accept, body, requestOptions, Context.NONE);
     }
 }

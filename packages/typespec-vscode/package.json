@@ -28,6 +28,11 @@
   "engines": {
     "vscode": "^1.100.0"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/declaration/src/index.d.ts"
+    }
+  },
   "activationEvents": [
     "onLanguage:typespec",
     "onCommand:typespec.restartServer",
@@ -240,8 +245,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm compile && pnpm check && pnpm copy-templates && pnpm copy-tmlanguage && pnpm generate-language-configuration && pnpm generate-third-party-notices && pnpm package-vsix",
+    "build": "pnpm compile && pnpm check && pnpm declaration-only && pnpm copy-templates && pnpm copy-tmlanguage && pnpm generate-language-configuration && pnpm generate-third-party-notices && pnpm package-vsix",
     "check": "tsc --noEmit",
+    "declaration-only": "tsc --project tsconfig.declaration.json",
     "compile": "tsx ./scripts/build.ts",
     "watch": "tsx ./scripts/build.ts --watch",
     "dogfood": "node scripts/dogfood.js",

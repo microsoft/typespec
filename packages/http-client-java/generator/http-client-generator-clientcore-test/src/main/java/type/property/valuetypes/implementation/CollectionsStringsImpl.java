@@ -3,7 +3,6 @@ package type.property.valuetypes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class CollectionsStringsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     CollectionsStringsImpl(ValueTypesClientImpl client) {
-        this.service = RestProxy.create(CollectionsStringsService.class, client.getHttpPipeline());
+        this.service = CollectionsStringsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class CollectionsStringsImpl {
      * The interface defining all the services for ValueTypesClientCollectionsStrings to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ValueTypesClientColl", host = "{endpoint}")
+    @ServiceInterface(name = "ValueTypesClientCollectionsStrings", host = "{endpoint}")
     public interface CollectionsStringsService {
         static CollectionsStringsService getNewInstance(HttpPipeline pipeline) {
             try {
