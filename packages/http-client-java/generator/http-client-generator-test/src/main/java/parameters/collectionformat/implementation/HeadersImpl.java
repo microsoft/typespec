@@ -56,7 +56,7 @@ public final class HeadersImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "CollectionFormatClie")
+    @ServiceInterface(name = "CollectionFormatClientHeaders")
     public interface HeadersService {
         @Get("/parameters/collection-format/header/csv")
         @ExpectedResponses({ 204 })

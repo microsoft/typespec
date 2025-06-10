@@ -60,7 +60,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.ValueTypes
         public Task StringLiteralGet() => Test(async (host) =>
         {
             var response = await new ValueTypesClient(host, null).GetStringLiteralClient().GetAsync();
-            Assert.AreEqual(StringLiteralPropertyProperty.Hello, response.Value.Property);
+            Assert.AreEqual("hello", response.Value.Property);
         });
 
         [SpectorTest]
@@ -102,7 +102,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.ValueTypes
         public Task IntLiteralGet() => Test(async (host) =>
         {
             var response = await new ValueTypesClient(host, null).GetIntLiteralClient().GetAsync();
-            Assert.AreEqual(IntLiteralPropertyProperty._42, response.Value.Property);
+            Assert.AreEqual(42, response.Value.Property);
         });
 
         [SpectorTest]
@@ -129,7 +129,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.ValueTypes
         public Task FloatLiteralGet() => Test(async (host) =>
         {
             var response = await new ValueTypesClient(host, null).GetFloatLiteralClient().GetAsync();
-            Assert.AreEqual(FloatLiteralPropertyProperty._43125, response.Value.Property);
+            Assert.AreEqual(43.125, response.Value.Property);
         });
 
         [SpectorTest]

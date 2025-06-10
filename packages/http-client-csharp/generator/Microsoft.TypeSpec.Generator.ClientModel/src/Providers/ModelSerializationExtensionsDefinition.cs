@@ -173,7 +173,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new(JsonValueKindSnippets.Object, new MethodBodyStatement[]
                 {
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
-                    new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
+                    new ForEachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
                         dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), jsonProperty.Property(nameof(JsonProperty.Value)).Invoke("GetObject"))
                     },
@@ -182,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new(JsonValueKindSnippets.Array, new MethodBodyStatement[]
                 {
                     Declare("list", New.List<object>(), out var list),
-                    new ForeachStatement("item", element.EnumerateArray(), out var item)
+                    new ForEachStatement("item", element.EnumerateArray(), out var item)
                     {
                         list.Add(item.Invoke("GetObject"))
                     },
@@ -503,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<KeyValuePair<string, object>>), "enumerable", enumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartObject(),
-                    new ForeachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
+                    new ForEachStatement("pair", enumerable.As<IEnumerable<KeyValuePair<string, object>>>(), out var pair)
                     {
                         writer.WritePropertyName(pair.Property(nameof(KeyValuePair<string, object>.Key))),
                         writer.WriteObjectValue(pair.Property(nameof(KeyValuePair<string, object>.Value)).As<object>(), options)
@@ -515,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable", objectEnumerable => new MethodBodyStatement[]
                 {
                     writer.WriteStartArray(),
-                    new ForeachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                    new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
                     {
                         writer.WriteObjectValue(item.As<object>(), options)
                     },

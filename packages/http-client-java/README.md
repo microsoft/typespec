@@ -18,7 +18,7 @@ Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (V
 
 Install [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn --version`)
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 

@@ -3,7 +3,6 @@
   "CrossLanguageDefinitionId": {
     "versioning.madeoptional.MadeOptionalClient": "Versioning.MadeOptional",
     "versioning.madeoptional.MadeOptionalClientBuilder": "Versioning.MadeOptional",
-    "versioning.madeoptional.TestModel": "Versioning.MadeOptional.TestModel",
-    "versioning.madeoptional.Versions": "Versioning.MadeOptional.Versions"
+    "versioning.madeoptional.TestModel": "Versioning.MadeOptional.TestModel"
   }
 }

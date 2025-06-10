@@ -124,9 +124,14 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
-            // Parameter is required and will be part of the method signature.
             if (parameter.isRequired()) {
+                // Parameter is required and will be part of the method signature.
+                continue;
+            }
+            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
                 continue;
             }
 
@@ -1011,9 +1016,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
         for (ClientMethodParameter parameter : methodParameters) {
             commentBlock.param(parameter.getName(), parameterDescriptionOrDefault(parameter));
         }
-        if (restAPIMethod != null
-            && clientMethod.getParametersDeclaration() != null
-            && !clientMethod.getParametersDeclaration().isEmpty()) {
+        if (restAPIMethod != null && clientMethod.hasParameterDeclaration()) {
             commentBlock.methodThrows("IllegalArgumentException", "thrown if parameters fail the validation");
         }
         generateJavadocExceptions(clientMethod, commentBlock, useFullClassName);
@@ -1188,12 +1191,23 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
-        String lambdaParameters = "";
-        if (!settings.isAzureV1()) {
-            lambdaParameters = "pagingOptions";
-        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("(pagingOptions) -> {");
+        stringBuilder.append("\n");
+        stringBuilder.append(getLogExceptionExpressionForPagingOptions(clientMethod));
 
-        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
+        if ((clientMethod.getMethodPageDetails().getContinuationToken() != null)) {
+            stringBuilder.append("String token = pagingOptions.getContinuationToken();");
+            stringBuilder.append("\n");
+        }
+        stringBuilder.append("return ");
+        stringBuilder.append(methodName);
+        stringBuilder.append("(");
+        stringBuilder.append(argumentLine);
+        stringBuilder.append(");");
+        stringBuilder.append("\n");
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
@@ -1240,8 +1254,8 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             .replace("{context}", contextParam)
             .replace("{serviceVersion}", getServiceVersionValue(clientMethod))
             .replace("{serializerAdapter}", clientMethod.getClientReference() + ".getSerializerAdapter()")
-            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getIntermediateType().toString())
-            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalType().toString())
+            .replace("{intermediate-type}", clientMethod.getMethodPollingDetails().getPollResultType().toString())
+            .replace("{final-type}", clientMethod.getMethodPollingDetails().getFinalResultType().toString())
             .replace(".setServiceVersion(null)", "")
             .replace(".setEndpoint(null)", "");
     }
@@ -1257,5 +1271,12 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
             }
         }
         return serviceVersion;
+    }
+
+    @Override
+    protected String getLogExpression(String propertyName, String methodName) {
+        return "throw LOGGER.throwableAtError()" + ".addKeyValue(\"propertyName\", \"" + propertyName + "\")"
+            + ".addKeyValue(\"methodName\", \"" + methodName + "\")"
+            + ".log(\"Not a supported paging option in this API\", IllegalArgumentException::new);";
     }
 }

@@ -14,6 +14,7 @@ import {
   HttpOperation,
   HttpOperationParameter,
   getHeaderFieldName,
+  getHttpOperation,
   isBody,
   isHeader,
   isStatusCode,
@@ -46,6 +47,7 @@ import {
   transposeExpressionFromJson,
 } from "../../common/serialization/json.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -96,11 +98,14 @@ function* emitRawServerOperation(
   module: Module,
   responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
-  const op = operation.operation;
+  let op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
   const containerNameCase = parseCase(container.name);
+
+  op = canonicalizeHttpOperation(ctx, op);
+  [operation] = getHttpOperation(ctx.program, op);
 
   module.imports.push({
     binder: [containerNameCase.pascalCase],
@@ -411,7 +416,13 @@ function* emitRawServerOperation(
     const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
-    if (isBodyField) {
+    const isPathParameter = operation.parameters.parameters.some(
+      (p) => p.type === "path" && p.param === param,
+    );
+
+    if (isPathParameter) {
+      paramBaseExpression = `${paramNameSafe}`;
+    } else if (isBodyField) {
       paramBaseExpression = `${bodyName}.${paramNameCase.camelCase}`;
     } else if (isBodyExact) {
       paramBaseExpression = bodyName!;

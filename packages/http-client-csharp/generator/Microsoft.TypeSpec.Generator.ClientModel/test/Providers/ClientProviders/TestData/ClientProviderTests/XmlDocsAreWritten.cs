@@ -25,6 +25,7 @@ namespace Sample
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="queryParam"> queryParam description. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="queryParam"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam"/> is an empty string, and was expected to be non-empty. </exception>
         public TestClient(global::System.Uri endpoint, string queryParam) : this(endpoint, queryParam, new global::Sample.TestClientOptions())
         {
         }
@@ -34,10 +35,11 @@ namespace Sample
         /// <param name="queryParam"> queryParam description. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="global::System.ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="queryParam"/> is null. </exception>
+        /// <exception cref="global::System.ArgumentException"> <paramref name="queryParam"/> is an empty string, and was expected to be non-empty. </exception>
         public TestClient(global::System.Uri endpoint, string queryParam, global::Sample.TestClientOptions options)
         {
             global::Sample.Argument.AssertNotNull(endpoint, nameof(endpoint));
-            global::Sample.Argument.AssertNotNull(queryParam, nameof(queryParam));
+            global::Sample.Argument.AssertNotNullOrEmpty(queryParam, nameof(queryParam));
 
             options ??= new global::Sample.TestClientOptions();
 

@@ -71,6 +71,7 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
+  getClientNameOverride,
   getHttpOperationParameter,
   isSdkBuiltInKind,
   isSdkIntKind,
@@ -602,6 +603,16 @@ export class CodeModelBuilder {
       clientName = clientNameSegments.at(-1)!;
       const clientSubNamespace = clientNameSegments.slice(0, -1).join(".").toLowerCase();
       javaNamespace = javaNamespace + "." + clientSubNamespace;
+    }
+
+    if (this.isArm()) {
+      if (
+        this.options["service-name"] &&
+        !getClientNameOverride(this.sdkContext, client.__raw.type)
+      ) {
+        // When no `@clientName` override, use "service-name" to infer the client name
+        clientName = this.options["service-name"].replace(/\s+/g, "") + "ManagementClient";
+      }
     }
 
     const codeModelClient = new CodeModelClient(clientName, client.doc ?? "", {
@@ -1158,6 +1169,40 @@ export class CodeModelBuilder {
       }
     }
 
+    // nextLinkReInjectedParameters
+    let nextLinkReInjectedParameters: Parameter[] | undefined;
+    if (this.isBranded()) {
+      // nextLinkReInjectedParameters is only supported in Azure
+      if (
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments &&
+        sdkMethod.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+      ) {
+        nextLinkReInjectedParameters = [];
+        for (const parameterSegments of sdkMethod.pagingMetadata
+          .nextLinkReInjectedParametersSegments) {
+          const nextLinkReInjectedParameterSegment = getLastSegment(parameterSegments);
+          if (nextLinkReInjectedParameterSegment && op.parameters) {
+            const parameter = getHttpOperationParameter(
+              sdkMethod,
+              nextLinkReInjectedParameterSegment,
+            );
+            if (parameter) {
+              // find the corresponding parameter in the code model operation
+              for (const opParam of op.parameters) {
+                if (
+                  opParam.protocol.http?.in === parameter.kind &&
+                  opParam.language.default.serializedName === parameter.serializedName
+                ) {
+                  nextLinkReInjectedParameters.push(opParam);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     op.extensions = op.extensions ?? {};
     op.extensions["x-ms-pageable"] = {
       itemName: itemSerializedName,
@@ -1169,6 +1214,7 @@ export class CodeModelBuilder {
             continuationTokenResponseHeader,
           )
         : undefined,
+      nextLinkReInjectedParameters: nextLinkReInjectedParameters,
     };
   }
 

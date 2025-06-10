@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class ExtendsStringsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsStringsImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(ExtendsStringsService.class, client.getHttpPipeline());
+        this.service = ExtendsStringsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class ExtendsStringsImpl {
      * The interface defining all the services for AdditionalPropertiesClientExtendsStrings to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsStrings", host = "{endpoint}")
     public interface ExtendsStringsService {
         static ExtendsStringsService getNewInstance(HttpPipeline pipeline) {
             try {

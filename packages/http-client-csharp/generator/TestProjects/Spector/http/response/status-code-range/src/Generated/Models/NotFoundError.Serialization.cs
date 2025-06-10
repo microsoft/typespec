@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -30,9 +29,5 @@ namespace Response.StatusCodeRange
         protected virtual NotFoundError PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<NotFoundError>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(NotFoundError notFoundError) => throw null;
-
-        public static explicit operator NotFoundError(ClientResult result) => throw null;
     }
 }

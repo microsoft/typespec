@@ -1,4 +1,5 @@
 import { TspLanguageClient } from "./tsp-language-client.js";
+import { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
@@ -10,10 +11,14 @@ export const enum CommandName {
   RestartServer = "typespec.restartServer",
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
-  OpenUrl = "typespec.openUrl",
   EmitCode = "typespec.emitCode",
   ImportFromOpenApi3 = "typespec.importFromOpenApi3",
   ShowOpenApi3 = "typespec.showOpenApi3",
+}
+
+export const enum CodeActionCommand {
+  OpenUrl = "typespec.openUrl",
+  NpmInstallPackage = "typespec.npmInstallPackage",
 }
 
 export type RestartServerCommandResult = Result<TspLanguageClient>;
@@ -63,3 +68,8 @@ interface UnsuccessResult {
 }
 
 export type Result<T = void> = SuccessResult<T> | UnsuccessResult;
+
+export interface TypeSpecExtensionApi {
+  /** Register more InitTemplateUrls which will be included in the Create TypeSpec Project scenario */
+  registerInitTemplateUrls(items: InitTemplatesUrlSetting[]): void;
+}

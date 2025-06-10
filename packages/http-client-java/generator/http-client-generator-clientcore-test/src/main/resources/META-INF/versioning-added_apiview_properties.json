@@ -7,7 +7,6 @@
     "versioning.added.EnumV2": "Versioning.Added.EnumV2",
     "versioning.added.InterfaceV2Client": "Versioning.Added.InterfaceV2",
     "versioning.added.ModelV1": "Versioning.Added.ModelV1",
-    "versioning.added.ModelV2": "Versioning.Added.ModelV2",
-    "versioning.added.Versions": "Versioning.Added.Versions"
+    "versioning.added.ModelV2": "Versioning.Added.ModelV2"
   }
 }

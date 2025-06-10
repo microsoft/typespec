@@ -57,7 +57,7 @@ public final class DatetimeOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientDate")
+    @ServiceInterface(name = "ValueTypesClientDatetimeOperations")
     public interface DatetimeOperationsService {
         @Get("/type/property/value-types/datetime")
         @ExpectedResponses({ 200 })

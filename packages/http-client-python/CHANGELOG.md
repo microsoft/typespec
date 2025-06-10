@@ -1,5 +1,29 @@
 # Change Log - @typespec/http-client-python
 
+## 0.12.0
+
+### Features
+
+- [#7359](https://github.com/microsoft/typespec/pull/7359) store apiVersion info in `_metadata.json`
+
+### Bug Fixes
+
+- [#7325](https://github.com/microsoft/typespec/pull/7325) Fix response type of paging operations from `Iterable` to `ItemPaged`
+- [#7348](https://github.com/microsoft/typespec/pull/7348) Reallow models-only packages
+
+
+## 0.11.3
+
+### Bump dependencies
+
+- [e56daba](https://github.com/microsoft/typespec/commit/e56daba78a00ce5cec79ded770a512d4dc8df66c) Bump typespec 1.0.0
+
+### Bug Fixes
+
+- [#7119](https://github.com/microsoft/typespec/pull/7119) Fix typing for generic `PipelineClient`
+- [#7152](https://github.com/microsoft/typespec/pull/7152) Add support for legacy parameterized next links
+
+
 ## 0.11.2
 
 ### Other Changes

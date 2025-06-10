@@ -3,7 +3,6 @@ package type.scalar.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class DecimalVerifiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DecimalVerifiesImpl(ScalarClientImpl client) {
-        this.service = RestProxy.create(DecimalVerifiesService.class, client.getHttpPipeline());
+        this.service = DecimalVerifiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class DecimalVerifiesImpl {
      * The interface defining all the services for ScalarClientDecimalVerifies to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "ScalarClientDecimalV", host = "{endpoint}")
+    @ServiceInterface(name = "ScalarClientDecimalVerifies", host = "{endpoint}")
     public interface DecimalVerifiesService {
         static DecimalVerifiesService getNewInstance(HttpPipeline pipeline) {
             try {

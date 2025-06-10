@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     Return()
                 },
                 _innerDictionary.Assign(New.Instance(_dictionary)).Terminate(),
-                new ForeachStatement("pair", dictionary, out var pair)
+                new ForEachStatement("pair", dictionary, out var pair)
                 {
                     _innerDictionary.Add(pair)
                 }

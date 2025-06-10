@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -31,17 +31,17 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/core": "^0.16.0",
+    "@alloy-js/typescript": "^0.16.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.15.0",
+    "@alloy-js/cli": "^0.16.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/core": "^0.15.0",
-    "@alloy-js/typescript": "^0.15.0",
+    "@alloy-js/core": "^0.16.0",
+    "@alloy-js/typescript": "^0.16.0",
     "@types/minimist": "^1.2.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -49,7 +49,7 @@
     "concurrently": "^9.1.2",
     "minimist": "^1.2.8",
     "prettier": "~3.5.3",
-    "tree-sitter": "^0.22.4",
+    "web-tree-sitter": "^0.25.4",
     "tree-sitter-c-sharp": "^0.23.0",
     "tree-sitter-java": "^0.23.2",
     "tree-sitter-javascript": "^0.23.0",

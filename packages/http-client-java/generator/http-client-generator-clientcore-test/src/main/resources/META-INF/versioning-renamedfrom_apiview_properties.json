@@ -5,7 +5,6 @@
     "versioning.renamedfrom.NewInterfaceClient": "Versioning.RenamedFrom.NewInterface",
     "versioning.renamedfrom.NewModel": "Versioning.RenamedFrom.NewModel",
     "versioning.renamedfrom.RenamedFromClient": "Versioning.RenamedFrom",
-    "versioning.renamedfrom.RenamedFromClientBuilder": "Versioning.RenamedFrom",
-    "versioning.renamedfrom.Versions": "Versioning.RenamedFrom.Versions"
+    "versioning.renamedfrom.RenamedFromClientBuilder": "Versioning.RenamedFrom"
   }
 }

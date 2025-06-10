@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing : IJsonModel<Thing>
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
@@ -49,7 +49,7 @@ namespace SampleTypeSpec
             }
 #endif
             writer.WritePropertyName("requiredLiteralString"u8);
-            writer.WriteStringValue(RequiredLiteralString.ToString());
+            writer.WriteStringValue(RequiredLiteralString);
             if (Optional.IsDefined(RequiredNullableString))
             {
                 writer.WritePropertyName("requiredNullableString"u8);
@@ -65,25 +65,25 @@ namespace SampleTypeSpec
                 writer.WriteStringValue(OptionalNullableString);
             }
             writer.WritePropertyName("requiredLiteralInt"u8);
-            writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
+            writer.WriteNumberValue(RequiredLiteralInt);
             writer.WritePropertyName("requiredLiteralFloat"u8);
-            writer.WriteNumberValue(RequiredLiteralFloat.ToSerialSingle());
+            writer.WriteNumberValue(RequiredLiteralFloat);
             writer.WritePropertyName("requiredLiteralBool"u8);
             writer.WriteBooleanValue(RequiredLiteralBool);
             if (Optional.IsDefined(OptionalLiteralString))
             {
                 writer.WritePropertyName("optionalLiteralString"u8);
-                writer.WriteStringValue(OptionalLiteralString.Value.ToString());
+                writer.WriteStringValue(OptionalLiteralString);
             }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
-                writer.WriteNumberValue(OptionalLiteralInt.Value.ToSerialInt32());
+                writer.WriteNumberValue(OptionalLiteralInt.Value);
             }
             if (Optional.IsDefined(OptionalLiteralFloat))
             {
                 writer.WritePropertyName("optionalLiteralFloat"u8);
-                writer.WriteNumberValue(OptionalLiteralFloat.Value.ToSerialSingle());
+                writer.WriteNumberValue(OptionalLiteralFloat.Value);
             }
             if (Optional.IsDefined(OptionalLiteralBool))
             {
@@ -161,15 +161,15 @@ namespace SampleTypeSpec
                 return null;
             }
             BinaryData requiredUnion = default;
-            ThingRequiredLiteralString requiredLiteralString = default;
+            string requiredLiteralString = default;
             string requiredNullableString = default;
             string optionalNullableString = default;
-            ThingRequiredLiteralInt requiredLiteralInt = default;
-            ThingRequiredLiteralFloat requiredLiteralFloat = default;
+            int requiredLiteralInt = default;
+            float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
-            ThingOptionalLiteralString? optionalLiteralString = default;
-            ThingOptionalLiteralInt? optionalLiteralInt = default;
-            ThingOptionalLiteralFloat? optionalLiteralFloat = default;
+            string optionalLiteralString = default;
+            int? optionalLiteralInt = default;
+            float? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
@@ -185,7 +185,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
                 {
-                    requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    requiredLiteralString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("requiredNullableString"u8))
@@ -210,12 +210,12 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredLiteralInt"u8))
                 {
-                    requiredLiteralInt = new ThingRequiredLiteralInt(prop.Value.GetInt32());
+                    requiredLiteralInt = prop.Value.GetInt32();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralFloat"u8))
                 {
-                    requiredLiteralFloat = new ThingRequiredLiteralFloat(prop.Value.GetSingle());
+                    requiredLiteralFloat = prop.Value.GetSingle();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralBool"u8))
@@ -225,11 +225,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalLiteralString"u8))
                 {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    optionalLiteralString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -238,7 +234,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalLiteralInt = new ThingOptionalLiteralInt(prop.Value.GetInt32());
+                    optionalLiteralInt = prop.Value.GetInt32();
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralFloat"u8))
@@ -247,7 +243,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalLiteralFloat = new ThingOptionalLiteralFloat(prop.Value.GetSingle());
+                    optionalLiteralFloat = prop.Value.GetSingle();
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralBool"u8))

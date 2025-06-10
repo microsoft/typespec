@@ -57,7 +57,7 @@ public final class UnknownValuesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientUnknownVa")
+    @ServiceInterface(name = "ArrayClientUnknownValues")
     public interface UnknownValuesService {
         @Get("/type/array/unknown")
         @ExpectedResponses({ 200 })
