@@ -674,14 +674,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (endpointParamType.Equals(typeof(string)))
             {
-                return new(
-                    _inputEndpointParam.Name,
-                    $"{_inputEndpointParam.Summary ?? string.Empty}",
-                    endpointParamType,
-                    initializationValue: initializationValue)
-                {
-                    Validation = ParameterValidationType.AssertNotNullOrEmpty
-                };
+                return new(_inputEndpointParam);
             }
 
             // Must be a URI endpoint parameter
