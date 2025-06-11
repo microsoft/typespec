@@ -51,7 +51,7 @@ extends:
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
         dependsOn: Publish
-        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranchName'], 'main'))
+        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
