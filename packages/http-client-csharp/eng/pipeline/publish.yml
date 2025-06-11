@@ -60,7 +60,6 @@ extends:
           - job: CreatePR
             steps:
               - checkout: self
-
               - pwsh: |
                   # Get package version from package.json
                   $packageJsonPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/package.json"
