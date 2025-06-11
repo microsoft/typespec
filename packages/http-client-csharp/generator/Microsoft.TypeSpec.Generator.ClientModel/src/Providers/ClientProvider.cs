@@ -256,6 +256,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private Lazy<string?> _endpointParameterName;
+        private InputParameter? _inputEndpointParam;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
@@ -483,11 +484,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return [MethodBodyStatement.Empty];
             }
-
+            AssignmentExpression endpointAssigment;
+            if (_endpointParameter.Type.Equals(typeof(string)))
+            {
+                var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
+                endpointAssigment = EndpointField.Assign(
+                    New.Instance(typeof(Uri),
+                        new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
+            }
+            else
+            {
+                endpointAssigment = EndpointField.Assign(_endpointParameter);
+            }
             List<MethodBodyStatement> body = [
                 ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                EndpointField.Assign(_endpointParameter).Terminate()
+                endpointAssigment.Terminate()
             ];
 
             // add other parameter assignments to their corresponding fields
@@ -644,14 +656,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            var endpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
-            if (endpointParam == null)
+            _inputEndpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            if (_inputEndpointParam == null)
+            {
                 return KnownParameters.Endpoint;
+            }
 
-            ValueExpression? initializationValue = endpointParam.DefaultValue != null
-                ? New.Instance(KnownParameters.Endpoint.Type, Literal(endpointParam.DefaultValue.Value))
+            var endpointParamType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputEndpointParam.Type);
+            if (endpointParamType == null)
+            {
+                return KnownParameters.Endpoint;
+            }
+
+            ValueExpression? initializationValue = _inputEndpointParam.DefaultValue != null
+                ? New.Instance(endpointParamType, Literal(_inputEndpointParam.DefaultValue.Value))
                 : null;
 
+            if (endpointParamType.Equals(typeof(string)))
+            {
+                return new(
+                    _inputEndpointParam.Name,
+                    $"{_inputEndpointParam.Summary ?? string.Empty}",
+                    endpointParamType,
+                    initializationValue: initializationValue)
+                {
+                    Validation = ParameterValidationType.AssertNotNullOrEmpty
+                };
+            }
+
+            // Must be a URI endpoint parameter
             return new(
                 KnownParameters.Endpoint.Name,
                 KnownParameters.Endpoint.Description,
