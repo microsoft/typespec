@@ -386,11 +386,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.NameInRequest));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
-            string? endpoint = ClientProvider.EndpointParameterName;
-            int uriOffset = endpoint is null || !operation.Uri.StartsWith(endpoint, StringComparison.Ordinal) ? 0 : endpoint.Length;
+            int uriOffset = GetUriOffset(operation.Uri);
             AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
             AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
             return statements;
+        }
+
+        private int GetUriOffset(string uriTemplate)
+        {
+            string? endpointParameter = ClientProvider.EndpointParameterName;
+            if (endpointParameter == null)
+            {
+                return 0;
+            }
+
+            ReadOnlySpan<char> templateSpan = uriTemplate.AsSpan();
+            ReadOnlySpan<char> parameterSpan = endpointParameter.AsSpan();
+
+            if (templateSpan.StartsWith(parameterSpan, StringComparison.Ordinal))
+            {
+                return endpointParameter.Length;
+            }
+
+            const string httpPrefix = "http://";
+            const string httpsPrefix = "https://";
+
+            // Use span based comparison to avoid allocations
+            if (templateSpan.StartsWith(httpsPrefix.AsSpan(), StringComparison.Ordinal) &&
+                templateSpan[httpsPrefix.Length..].StartsWith(parameterSpan, StringComparison.Ordinal))
+            {
+                return httpsPrefix.Length + endpointParameter.Length;
+            }
+
+            if (templateSpan.StartsWith(httpPrefix.AsSpan(), StringComparison.Ordinal) &&
+                templateSpan[httpPrefix.Length..].StartsWith(parameterSpan, StringComparison.Ordinal))
+            {
+                return httpPrefix.Length + endpointParameter.Length;
+            }
+
+            return 0;
         }
 
         private void AddUriSegments(
