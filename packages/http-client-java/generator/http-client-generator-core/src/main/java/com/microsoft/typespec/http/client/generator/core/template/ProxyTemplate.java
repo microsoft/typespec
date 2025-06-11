@@ -132,16 +132,12 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                         }
                     }
 
-                    if (!settings.isDataPlaneClient() || !settings.isAzureV1() || isExceptionCustomized()) {
-                        // write @UnexpectedResponseExceptionType
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
-                            writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
-                        }
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
-                            writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
-                        }
+                    // write @UnexpectedResponseExceptionType
+                    if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
+                        writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
+                    }
+                    if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
+                        writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
                     }
 
                     ArrayList<String> parameterDeclarationList = new ArrayList<>();

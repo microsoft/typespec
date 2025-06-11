@@ -173,6 +173,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
             p
             for p in self.parameters.parameters
             if p.is_api_version
+            and p.client_name == "api_version"
             and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]
         ):
             retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
