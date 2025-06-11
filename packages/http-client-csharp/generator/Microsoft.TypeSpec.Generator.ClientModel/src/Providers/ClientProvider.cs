@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
-        protected override FormattableString Description { get; }
+        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -74,7 +74,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
-            Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;

@@ -169,7 +169,6 @@ public class TypeSpecPlugin extends Javagen {
         SETTINGS_MAP.put("enable-sync-stack", true);
         SETTINGS_MAP.put("enable-page-size", true);
 
-        SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", true);
         SETTINGS_MAP.put("polling", new HashMap<String, Object>());
 
         SETTINGS_MAP.put("client-logger", true);
@@ -255,8 +254,13 @@ public class TypeSpecPlugin extends Javagen {
                 Paths.get(options.getOutputDir()).resolve(options.getCustomizationClass()).toAbsolutePath().toString());
         }
 
-        if (emitterOptions.getPolling() != null) {
+        if (options.getPolling() != null) {
             SETTINGS_MAP.put("polling", options.getPolling());
+        }
+
+        if (options.getUseDefaultHttpStatusCodeToExceptionTypeMapping() != null) {
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping",
+                options.getUseDefaultHttpStatusCodeToExceptionTypeMapping());
         }
 
         if (options.getFlavor() != null) {

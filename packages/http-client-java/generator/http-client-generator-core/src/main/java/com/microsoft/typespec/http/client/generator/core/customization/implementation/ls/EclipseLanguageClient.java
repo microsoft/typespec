@@ -60,13 +60,9 @@ public class EclipseLanguageClient implements AutoCloseable {
     private final String workspaceDir;
 
     public EclipseLanguageClient(String pathToLanguageServerPlugin, String workspaceDir, Logger logger) {
-        try {
-            this.workspaceDir = new File(workspaceDir).toURI().toString();
-            this.server = new EclipseLanguageServerFacade(pathToLanguageServerPlugin, logger);
-            this.connection = new Connection(server.getOutputStream(), server.getInputStream());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.workspaceDir = new File(workspaceDir).toURI().toString();
+        this.server = new EclipseLanguageServerFacade(pathToLanguageServerPlugin, logger);
+        this.connection = new Connection(server.getOutputStream(), server.getInputStream());
 
         if (!server.isAlive()) {
             server.shutdown();
@@ -199,14 +195,10 @@ public class EclipseLanguageClient implements AutoCloseable {
     }
 
     public void close() {
-        try {
-            connection.request("shutdown");
-            connection.notifyWithSerializedObject("exit", "null");
-            connection.stop();
-            server.shutdown();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        connection.request("shutdown");
+        connection.notifyWithSerializedObject("exit", "null");
+        connection.stop();
+        server.shutdown();
     }
 
     private static <T> T sendRequest(Connection connection, String method, Object param, Type responseType) {
