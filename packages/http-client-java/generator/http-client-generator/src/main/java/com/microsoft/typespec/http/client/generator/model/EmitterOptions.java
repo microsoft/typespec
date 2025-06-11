@@ -31,7 +31,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Boolean useEclipseLanguageServer = true;
     private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
@@ -89,10 +88,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
-    }
-
-    public Boolean getUseEclipseLanguageServer() {
-        return useEclipseLanguageServer;
     }
 
     public List<String> getServiceVersions() {
@@ -197,8 +192,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
-            } else if ("use-eclipse-language-server".equals(fieldName)) {
-                options.useEclipseLanguageServer = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
                 options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
