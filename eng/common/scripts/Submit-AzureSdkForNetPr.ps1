@@ -2,7 +2,7 @@
 
 <#
 .DESCRIPTION
-Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/Packages.Data.props.
+Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json.
 .PARAMETER PackageVersion
 The version of the Microsoft.TypeSpec.Generator.ClientModel package to update to.
 .PARAMETER TypeSpecPRUrl
@@ -41,12 +41,18 @@ $PRBranch = $BranchName
 
 $PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
 $PRBody = @"
-This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props to version $PackageVersion.
+This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props and the @typespec/http-client-csharp dependency in eng/packages/http-client-csharp/package.json to version $PackageVersion.
 
 ## Details
 
 - Original TypeSpec PR: $TypeSpecPRUrl
 - Package URL: $PackageUrl
+
+## Changes
+
+- Updated eng/Packages.Data.props UnbrandedGeneratorVersion property
+- Updated eng/packages/http-client-csharp/package.json dependency version
+- Ran npm install to update package-lock.json
 
 This is an automated PR created by the TypeSpec publish pipeline.
 "@
@@ -101,6 +107,54 @@ try {
     
     # Write the updated file back
     Set-Content -Path $propsFilePath -Value $updatedContent -NoNewline
+
+    # Update the dependency in eng/packages/http-client-csharp/package.json
+    Write-Host "Updating dependency version in eng/packages/http-client-csharp/package.json..."
+    $packageJsonPath = Join-Path $tempDir "eng/packages/http-client-csharp/package.json"
+    
+    if (-not (Test-Path $packageJsonPath)) {
+        throw "eng/packages/http-client-csharp/package.json not found in the repository"
+    }
+
+    $packageJsonContent = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+    
+    # Update the Microsoft.TypeSpec.Generator.ClientModel dependency version
+    $updated = $false
+    if ($packageJsonContent.dependencies -and $packageJsonContent.dependencies."@typespec/http-client-csharp") {
+        $packageJsonContent.dependencies."@typespec/http-client-csharp" = $PackageVersion
+        $updated = $true
+        Write-Host "Updated @typespec/http-client-csharp in dependencies"
+    }
+    if ($packageJsonContent.devDependencies -and $packageJsonContent.devDependencies."@typespec/http-client-csharp") {
+        $packageJsonContent.devDependencies."@typespec/http-client-csharp" = $PackageVersion
+        $updated = $true
+        Write-Host "Updated @typespec/http-client-csharp in devDependencies"
+    }
+    if ($packageJsonContent.peerDependencies -and $packageJsonContent.peerDependencies."@typespec/http-client-csharp") {
+        $packageJsonContent.peerDependencies."@typespec/http-client-csharp" = $PackageVersion
+        $updated = $true
+        Write-Host "Updated @typespec/http-client-csharp in peerDependencies"
+    }
+    
+    if (-not $updated) {
+        Write-Warning "No @typespec/http-client-csharp dependency found in package.json"
+    } else {
+        # Write the updated package.json back
+        $packageJsonContent | ConvertTo-Json -Depth 10 | Set-Content -Path $packageJsonPath
+        
+        # Run npm install in the http-client-csharp directory
+        Write-Host "Running npm install in eng/packages/http-client-csharp..."
+        $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+        Push-Location $httpClientDir
+        try {
+            npm install
+            if ($LASTEXITCODE -ne 0) {
+                throw "npm install failed"
+            }
+        } finally {
+            Pop-Location
+        }
+    }
     
     # Check if there are changes to commit
     $gitStatus = git status --porcelain
@@ -112,11 +166,17 @@ try {
     # Commit the changes
     Write-Host "Committing changes..."
     git add eng/Packages.Data.props
+    git add eng/packages/http-client-csharp/package.json
+    git add eng/packages/http-client-csharp/package-lock.json
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
-    git commit -m "Update UnbrandedGeneratorVersion to $PackageVersion"
+    git commit -m "Update UnbrandedGeneratorVersion to $PackageVersion
+
+- Updated eng/Packages.Data.props
+- Updated eng/packages/http-client-csharp/package.json
+- Ran npm install to update package-lock.json"
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to commit changes"
     }
