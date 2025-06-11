@@ -2,7 +2,7 @@
 
 <#
 .DESCRIPTION
-Creates a pull request in the Azure SDK for .NET repository to update the Microsoft.TypeSpec.Generator.ClientModel dependency.
+Creates a pull request in the Azure SDK for .NET repository to update the UnbrandedGeneratorVersion property in eng/Packages.Data.props.
 .PARAMETER PackageVersion
 The version of the Microsoft.TypeSpec.Generator.ClientModel package to update to.
 .PARAMETER TypeSpecPRUrl
@@ -39,9 +39,9 @@ $BaseBranch = "main"
 $PROwner = "azure-sdk"
 $PRBranch = $BranchName
 
-$PRTitle = "Update Microsoft.TypeSpec.Generator.ClientModel to $PackageVersion"
+$PRTitle = "Update UnbrandedGeneratorVersion to $PackageVersion"
 $PRBody = @"
-This PR updates the dependency on Microsoft.TypeSpec.Generator.ClientModel to version $PackageVersion.
+This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.props to version $PackageVersion.
 
 ## Details
 
@@ -77,26 +77,26 @@ try {
         throw "Failed to create branch"
     }
 
-    # Update the dependency in Directory.Packages.props
-    Write-Host "Updating dependency version in Directory.Packages.props..."
-    $propsFilePath = Join-Path $tempDir "Directory.Packages.props"
+    # Update the dependency in eng/Packages.Data.props
+    Write-Host "Updating dependency version in eng/Packages.Data.props..."
+    $propsFilePath = Join-Path $tempDir "eng/Packages.Data.props"
     
     if (-not (Test-Path $propsFilePath)) {
-        throw "Directory.Packages.props not found in the repository"
+        throw "eng/Packages.Data.props not found in the repository"
     }
 
     $propsFileContent = Get-Content $propsFilePath -Raw
     
-    # Update the appropriate package reference in the file
-    $pattern = '<PackageVersion Include="Microsoft\.TypeSpec\.Generator\.ClientModel"[^>]*>.*?</PackageVersion>'
-    $replacement = '<PackageVersion Include="Microsoft.TypeSpec.Generator.ClientModel" Version="' + $PackageVersion + '" />'
+    # Update the UnbrandedGeneratorVersion property in the file
+    $pattern = '<UnbrandedGeneratorVersion>[^<]*</UnbrandedGeneratorVersion>'
+    $replacement = '<UnbrandedGeneratorVersion>' + $PackageVersion + '</UnbrandedGeneratorVersion>'
     
     $updatedContent = $propsFileContent -replace $pattern, $replacement
     
     if ($updatedContent -eq $propsFileContent) {
-        Write-Warning "No changes were made to Directory.Packages.props. The package reference might not exist or have a different format."
-        Write-Host "Current content around Microsoft.TypeSpec:"
-        $propsFileContent | Select-String -Pattern "Microsoft\.TypeSpec" -Context 2, 2
+        Write-Warning "No changes were made to eng/Packages.Data.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
+        Write-Host "Current content around UnbrandedGeneratorVersion:"
+        $propsFileContent | Select-String -Pattern "UnbrandedGeneratorVersion" -Context 2, 2
     }
     
     # Write the updated file back
@@ -111,12 +111,12 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    git add Directory.Packages.props
+    git add eng/Packages.Data.props
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
-    git commit -m "Update Microsoft.TypeSpec.Generator.ClientModel to $PackageVersion"
+    git commit -m "Update UnbrandedGeneratorVersion to $PackageVersion"
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to commit changes"
     }
