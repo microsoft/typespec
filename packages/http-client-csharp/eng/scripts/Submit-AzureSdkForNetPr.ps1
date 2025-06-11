@@ -125,16 +125,6 @@ try {
         $updated = $true
         Write-Host "Updated @typespec/http-client-csharp in dependencies"
     }
-    if ($packageJsonContent.devDependencies -and $packageJsonContent.devDependencies."@typespec/http-client-csharp") {
-        $packageJsonContent.devDependencies."@typespec/http-client-csharp" = $PackageVersion
-        $updated = $true
-        Write-Host "Updated @typespec/http-client-csharp in devDependencies"
-    }
-    if ($packageJsonContent.peerDependencies -and $packageJsonContent.peerDependencies."@typespec/http-client-csharp") {
-        $packageJsonContent.peerDependencies."@typespec/http-client-csharp" = $PackageVersion
-        $updated = $true
-        Write-Host "Updated @typespec/http-client-csharp in peerDependencies"
-    }
     
     if (-not $updated) {
         Write-Warning "No @typespec/http-client-csharp dependency found in package.json"
