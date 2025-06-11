@@ -99,4 +99,4 @@ extends:
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecPRUrl '$(TypeSpecPRUrl)'
                     -PackageUrl '$(PackageUrl)'
-                    -AuthToken '$(azure-sdk-build-github-token)'
+                    -AuthToken '$(azuresdk-github-pat)'
