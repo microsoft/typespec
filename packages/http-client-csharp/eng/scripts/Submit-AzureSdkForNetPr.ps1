@@ -32,6 +32,9 @@ param(
   [string]$BranchName = "typespec/update-http-client-$PackageVersion"
 )
 
+# Import the Generation module to use the Invoke helper function
+Import-Module (Join-Path $PSScriptRoot "Generation.psm1")
+
 # Set up variables for the PR
 $RepoOwner = "Azure"
 $RepoName = "azure-sdk-for-net"
@@ -135,33 +138,23 @@ try {
         # Run npm install in the http-client-csharp directory
         Write-Host "Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
-        Push-Location $httpClientDir
-        try {
-            npm install
-            if ($LASTEXITCODE -ne 0) {
-                throw "npm install failed"
-            }
-            
-            # Run npm run build
-            Write-Host "Running npm run build in eng/packages/http-client-csharp..."
-            npm run build
-            if ($LASTEXITCODE -ne 0) {
-                throw "npm run build failed"
-            }
-        } finally {
-            Pop-Location
+        Invoke "npm install" $httpClientDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "npm install failed"
+        }
+        
+        # Run npm run build
+        Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+        Invoke "npm run build" $httpClientDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "npm run build failed"
         }
         
         # Run Generate.ps1 from the repository root
         Write-Host "Running eng/scripts/Generate.ps1..."
-        Push-Location $tempDir
-        try {
-            & "eng/scripts/Generate.ps1"
-            if ($LASTEXITCODE -ne 0) {
-                throw "Generate.ps1 failed"
-            }
-        } finally {
-            Pop-Location
+        Invoke "eng/scripts/Generate.ps1" $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Generate.ps1 failed"
         }
     }
     
