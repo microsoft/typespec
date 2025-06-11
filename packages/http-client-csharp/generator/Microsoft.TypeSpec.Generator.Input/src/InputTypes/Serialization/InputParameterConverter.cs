@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadString("headerCollectionPrefix", ref headerCollectionPrefix)
-                    || reader.TryReadString("serverUrl", ref serverUrlTemplate)
+                    || reader.TryReadString("serverUrlTemplate", ref serverUrlTemplate)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
