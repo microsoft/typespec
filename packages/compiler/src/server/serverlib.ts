@@ -133,7 +133,7 @@ import {
 
 export function createServer(
   host: ServerHost,
-  clientConfigsProvider: ClientConfigProvider,
+  clientConfigsProvider?: ClientConfigProvider,
 ): Server {
   const fileService = createFileService({ serverHost: host });
 

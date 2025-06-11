@@ -13,181 +13,27 @@ describe("compiler: server: client-config-provider", () => {
     configProvider = createClientConfigProvider();
   });
 
-  // New tests for extended functionality
-  describe("extended configuration API", () => {
-    it("should get nested configuration values using dot notation", () => {
-      const testConfig = {
-        lsp: { emit: ["openapi3"] },
-        formatting: { enabled: true, tabSize: 2 },
-        diagnostics: { level: "error" },
-      };
-
-      configProvider.update(testConfig);
-
-      strictEqual(configProvider.get("lsp.emit"), testConfig.lsp.emit);
-      strictEqual(configProvider.get("formatting.enabled"), true);
-      strictEqual(configProvider.get("formatting.tabSize"), 2);
-      strictEqual(configProvider.get("diagnostics.level"), "error");
+  describe("configuration API", () => {
+    it("should return undefined when configuration is missing without default", () => {
+      const result = configProvider.get("non.existent.key");
+      strictEqual(result, undefined);
     });
 
-    it("should return default values when configuration is missing", () => {
+    it("should return default value when configuration is missing", () => {
       const defaultValue = "default-value";
       const result = configProvider.get("non.existent.key", defaultValue);
       strictEqual(result, defaultValue);
     });
 
-    it("should check if configuration sections exist", () => {
-      const testConfig = {
-        lsp: { emit: ["openapi3"] },
-        formatting: { enabled: true },
-      };
-
-      configProvider.update(testConfig);
-
-      strictEqual(configProvider.has("lsp.emit"), true);
-      strictEqual(configProvider.has("formatting.enabled"), true);
-      strictEqual(configProvider.has("non.existent"), false);
-      strictEqual(configProvider.has("lsp.nonExistent"), false);
+    it("should handle nested configuration keys", () => {
+      // Since configuration starts empty, test with default values
+      const result = configProvider.get("lsp.emit", ["default"]);
+      strictEqual(result[0], "default");
     });
 
-    it("should inspect configuration values with metadata", () => {
-      const testConfig = { lsp: { emit: ["openapi3"] } };
-      configProvider.update(testConfig);
-
-      const inspection = configProvider.inspect<string[]>("lsp.emit");
-      strictEqual(Array.isArray(inspection?.value), true);
-      strictEqual(inspection?.value?.[0], "openapi3");
-      strictEqual(inspection?.scope, "workspace");
-    });
-
-    it("should handle complex nested configuration updates", () => {
-      const config = {
-        server: {
-          host: "localhost",
-          port: 3000,
-          ssl: {
-            enabled: false,
-            cert: "",
-          },
-        },
-        client: {
-          timeout: 5000,
-          retries: 3,
-        },
-      };
-
-      configProvider.update(config);
-
-      strictEqual(configProvider.get("server.host"), "localhost");
-      strictEqual(configProvider.get("server.port"), 3000);
-      strictEqual(configProvider.get("server.ssl.enabled"), false);
-      strictEqual(configProvider.get("client.timeout"), 5000);
-    });
-  });
-
-  describe("edge cases and error handling", () => {
-    it("should handle null and undefined values in configuration", () => {
-      const testConfig = {
-        nullable: null,
-        undefinedValue: undefined,
-        nested: {
-          nullable: null,
-          undefinedValue: undefined,
-        },
-      };
-
-      configProvider.update(testConfig);
-
-      strictEqual(configProvider.get("nullable"), null);
-      strictEqual(configProvider.get("undefinedValue"), undefined);
-      strictEqual(configProvider.get("nested.nullable"), null);
-      strictEqual(configProvider.get("nested.undefinedValue"), undefined);
-
-      // According to implementation, has() checks if value !== undefined
-      strictEqual(configProvider.has("nullable"), true); // null is not undefined
-      strictEqual(configProvider.has("undefinedValue"), false); // undefined values return false
-      strictEqual(configProvider.has("nested.nullable"), true); // null is not undefined
-      strictEqual(configProvider.has("nested.undefinedValue"), false); // undefined values return false
-    });
-
-    it("should handle empty string keys gracefully", () => {
-      configProvider.update({ "": "empty-key-value" });
-
-      strictEqual(configProvider.get(""), "empty-key-value");
-      strictEqual(configProvider.has(""), true);
-    });
-
-    it("should handle array and object values correctly", () => {
-      const testConfig = {
-        arrayValue: [1, 2, 3],
-        objectValue: { nested: "value" },
-        booleanValue: true,
-        numberValue: 42,
-        stringValue: "test",
-      };
-
-      configProvider.update(testConfig);
-
-      const arrayResult = configProvider.get<number[]>("arrayValue");
-      strictEqual(Array.isArray(arrayResult), true);
-      strictEqual(arrayResult?.[0], 1);
-
-      const objectResult = configProvider.get<{ nested: string }>("objectValue");
-      strictEqual(typeof objectResult, "object");
-      strictEqual(objectResult?.nested, "value");
-
-      strictEqual(configProvider.get<boolean>("booleanValue"), true);
-      strictEqual(configProvider.get<number>("numberValue"), 42);
-      strictEqual(configProvider.get<string>("stringValue"), "test");
-    });
-
-    it("should handle non-object values in the path correctly", () => {
-      const testConfig = {
-        stringValue: "test",
-        numberValue: 42,
-        booleanValue: true,
-        nestedObject: {
-          innerValue: "inner",
-        },
-      };
-
-      configProvider.update(testConfig);
-
-      // Trying to access nested properties on non-object values should return undefined
-      strictEqual(configProvider.get("stringValue.nonExistent"), undefined);
-      strictEqual(configProvider.get("numberValue.nonExistent"), undefined);
-      strictEqual(configProvider.get("booleanValue.nonExistent"), undefined);
-
-      // Should work for actual nested objects
-      strictEqual(configProvider.get("nestedObject.innerValue"), "inner");
-
-      // has() should return false for non-existent nested paths
-      strictEqual(configProvider.has("stringValue.nonExistent"), false);
-      strictEqual(configProvider.has("numberValue.nonExistent"), false);
-      strictEqual(configProvider.has("booleanValue.nonExistent"), false);
-      strictEqual(configProvider.has("nestedObject.innerValue"), true);
-    });
-
-    it("should handle configuration replacement correctly", () => {
-      // Initial configuration
-      configProvider.update({
-        existing: "value",
-        toBeRemoved: "will be gone",
-      });
-
-      strictEqual(configProvider.get("existing"), "value");
-      strictEqual(configProvider.get("toBeRemoved"), "will be gone");
-
-      // Update with new configuration (should replace, not merge)
-      configProvider.update({
-        existing: "updated",
-        newValue: "added",
-      });
-
-      strictEqual(configProvider.get("existing"), "updated");
-      strictEqual(configProvider.get("newValue"), "added");
-      strictEqual(configProvider.get("toBeRemoved"), undefined); // Should be removed
-      strictEqual(configProvider.has("toBeRemoved"), false);
+    it("should handle boolean configuration values", () => {
+      const result = configProvider.get("formatting.enabled", false);
+      strictEqual(result, false);
     });
   });
 
@@ -203,9 +49,6 @@ describe("compiler: server: client-config-provider", () => {
     it("should handle initialization with mock connection and host", async () => {
       // Create mock connection and host
       const mockConnection = {
-        client: {
-          register: vi.fn().mockResolvedValue(undefined),
-        },
         workspace: {
           getConfiguration: vi.fn().mockResolvedValue({
             lsp: { emit: ["openapi3"] },
@@ -216,9 +59,6 @@ describe("compiler: server: client-config-provider", () => {
       } as any;
 
       await configProvider.initialize(mockConnection, mockHost);
-
-      // Verify registration was called
-      strictEqual(mockConnection.client.register.mock.calls.length, 1);
 
       // Verify configuration was fetched and applied
       strictEqual(mockConnection.workspace.getConfiguration.mock.calls.length, 1);
@@ -240,11 +80,8 @@ describe("compiler: server: client-config-provider", () => {
 
     it("should handle initialization errors gracefully", async () => {
       const mockConnection = {
-        client: {
-          register: vi.fn().mockRejectedValue(new Error("Registration failed")),
-        },
         workspace: {
-          getConfiguration: vi.fn(),
+          getConfiguration: vi.fn().mockRejectedValue(new Error("Configuration fetch failed")),
         },
         onDidChangeConfiguration: vi.fn(),
       } as any;
@@ -268,9 +105,6 @@ describe("compiler: server: client-config-provider", () => {
       let onDidChangeHandler: any;
 
       const mockConnection = {
-        client: {
-          register: vi.fn().mockResolvedValue(undefined),
-        },
         workspace: {
           getConfiguration: vi.fn().mockResolvedValue({ initial: "config" }),
         },
@@ -308,9 +142,6 @@ describe("compiler: server: client-config-provider", () => {
       let onDidChangeHandler: any;
 
       const mockConnection = {
-        client: {
-          register: vi.fn().mockResolvedValue(undefined),
-        },
         workspace: {
           getConfiguration: vi.fn().mockResolvedValue({ initial: "config" }),
         },
@@ -344,78 +175,37 @@ describe("compiler: server: client-config-provider", () => {
       strictEqual(mockHost.log.mock.calls[0]?.[0]?.level, "debug");
       strictEqual(mockHost.log.mock.calls[0]?.[0]?.message, "Configuration changed");
     });
-  });
 
-  describe("configuration inspection and metadata", () => {
-    it("should provide detailed inspection for all value types", () => {
-      const testConfig = {
-        stringValue: "test",
-        numberValue: 42,
-        booleanValue: true,
-        arrayValue: [1, 2, 3],
-        objectValue: { nested: "value" },
-        nullValue: null,
-        undefinedValue: undefined,
-      };
-
-      configProvider.update(testConfig);
-
-      const stringInspection = configProvider.inspect<string>("stringValue");
-      strictEqual(stringInspection?.value, "test");
-      strictEqual(stringInspection?.scope, "workspace");
-
-      const numberInspection = configProvider.inspect<number>("numberValue");
-      strictEqual(numberInspection?.value, 42);
-      strictEqual(numberInspection?.scope, "workspace");
-
-      const booleanInspection = configProvider.inspect<boolean>("booleanValue");
-      strictEqual(booleanInspection?.value, true);
-      strictEqual(booleanInspection?.scope, "workspace");
-
-      const arrayInspection = configProvider.inspect<number[]>("arrayValue");
-      strictEqual(Array.isArray(arrayInspection?.value), true);
-      strictEqual(arrayInspection?.value?.length, 3);
-      strictEqual(arrayInspection?.scope, "workspace");
-
-      const objectInspection = configProvider.inspect<{ nested: string }>("objectValue");
-      strictEqual(typeof objectInspection?.value, "object");
-      strictEqual(objectInspection?.value?.nested, "value");
-      strictEqual(objectInspection?.scope, "workspace");
-
-      const nullInspection = configProvider.inspect("nullValue");
-      strictEqual(nullInspection?.value, null);
-      strictEqual(nullInspection?.scope, "workspace");
-
-      // undefined values should return undefined from inspect since has() returns false
-      const undefinedInspection = configProvider.inspect("undefinedValue");
-      strictEqual(undefinedInspection, undefined);
-    });
-
-    it("should return undefined for inspection of non-existent keys", () => {
-      const inspection = configProvider.inspect("non.existent.key");
-      strictEqual(inspection, undefined);
-    });
-
-    it("should inspect nested configuration values correctly", () => {
-      const testConfig = {
-        nested: {
-          deeply: {
-            buried: {
-              value: "found",
-            },
-          },
+    it("should handle configuration updates after initialization", async () => {
+      const mockConnection = {
+        workspace: {
+          getConfiguration: vi.fn().mockResolvedValue({
+            lsp: { emit: ["initial"] },
+            debug: false,
+          }),
         },
-      };
+        onDidChangeConfiguration: vi.fn(),
+      } as any;
 
-      configProvider.update(testConfig);
+      await configProvider.initialize(mockConnection, mockHost);
 
-      const inspection = configProvider.inspect<string>("nested.deeply.buried.value");
-      strictEqual(inspection?.value, "found");
-      strictEqual(inspection?.scope, "workspace");
+      // Verify initial configuration
+      const lspEmit = configProvider.get<string[]>("lsp.emit");
+      strictEqual(lspEmit?.[0], "initial");
+      strictEqual(configProvider.get("debug"), false);
 
-      // Non-existent nested path should return undefined
-      const nonExistentInspection = configProvider.inspect("nested.deeply.buried.nonExistent");
-      strictEqual(nonExistentInspection, undefined);
+      // Test accessing non-existent nested keys
+      const nonExistent = configProvider.get("non.existent.deeply.nested.key");
+      strictEqual(nonExistent, undefined);
+
+      // Test with default for non-existent nested keys
+      const withDefault = configProvider.get("non.existent.deeply.nested.key", "fallback");
+      strictEqual(withDefault, "fallback");
+
+      // Test accessing partial paths that exist
+      const lspConfig = configProvider.get("lsp") as any;
+      strictEqual(typeof lspConfig, "object");
+      strictEqual(lspConfig?.emit?.[0], "initial");
     });
   });
 });

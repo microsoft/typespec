@@ -143,7 +143,7 @@ export function createCompileService({
       ...(additionalOptions ?? {}),
     };
 
-    if (additionalOptions?.emit === undefined || additionalOptions?.emit.length === 0) {
+    if (additionalOptions?.emit === undefined) {
       const configEmits = clientConfigsProvider?.get<string[]>("lsp.emit");
       if (configEmits) {
         options.emit = configEmits;

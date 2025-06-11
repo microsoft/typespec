@@ -27,12 +27,12 @@ let profileSession: inspector.Session | undefined;
 
 process.on("unhandledRejection", fatalError);
 try {
-  await main();
+  main();
 } catch (e) {
   fatalError(e);
 }
 
-async function main() {
+function main() {
   // Redirect all console stdout output to stderr since LSP pipe uses stdout
   // and writing to stdout for anything other than LSP protocol will break
   // things badly.

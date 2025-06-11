@@ -8,7 +8,6 @@ import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { createClientConfigProvider } from "../../compiler/src/server/client-config-provider.js";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
 import type { BrowserHost } from "./types.js";
 
@@ -92,8 +91,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   };
 
   const { createServer } = host.compiler;
-  const clientConfigProvider = createClientConfigProvider();
-  const serverLib = createServer(serverHost, clientConfigProvider);
+  const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
     capabilities: {},
     processId: 1,
