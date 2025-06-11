@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi, MockRequest } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -34,7 +34,7 @@ Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope = passOnSuc
   },
   handler: (req: MockRequest) => {
     const kind = req.query.kind as string | undefined;
-    
+
     // When kind is null or "cat", return response for "cat"
     // When kind is "dog", return response for "dog"
     if (kind === "dog") {
@@ -60,7 +60,8 @@ Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope = passOnSuc
     body: json(envelopeCatBody),
   },
   response: {
-    status: 204,
+    status: 200,
+    body: json(envelopeCatBody),
   },
   kind: "MockApiDefinition",
 });
@@ -71,6 +72,11 @@ const customNamesCatBody = {
   petData: catData,
 };
 
+const customNamesDogBody = {
+  petType: "dog",
+  petData: dogData,
+};
+
 Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames = passOnSuccess({
   uri: "/type/union/discriminated/custom-names",
   method: "get",
@@ -78,6 +84,24 @@ Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_getCustomNames = pas
   response: {
     status: 200,
     body: json(customNamesCatBody),
+  },
+  handler: (req: MockRequest) => {
+    const petType = req.query.petType as string | undefined;
+
+    // When petType is null or "cat", return response for "cat"
+    // When petType is "dog", return response for "dog"
+    if (petType === "dog") {
+      return {
+        status: 200,
+        body: json(customNamesDogBody),
+      };
+    } else {
+      // Default case: when petType is null, undefined, or "cat"
+      return {
+        status: 200,
+        body: json(customNamesCatBody),
+      };
+    }
   },
   kind: "MockApiDefinition",
 });
@@ -89,7 +113,8 @@ Scenarios.Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames = pas
     body: json(customNamesCatBody),
   },
   response: {
-    status: 204,
+    status: 200,
+    body: json(customNamesCatBody),
   },
   kind: "MockApiDefinition",
 });
@@ -101,6 +126,12 @@ const inlineCatBody = {
   meow: true,
 };
 
+const inlineDogBody = {
+  kind: "dog",
+  name: "Rex",
+  bark: false,
+};
+
 Scenarios.Type_Union_Discriminated_InlineDiscriminated_getInline = passOnSuccess({
   uri: "/type/union/discriminated/inline",
   method: "get",
@@ -108,6 +139,24 @@ Scenarios.Type_Union_Discriminated_InlineDiscriminated_getInline = passOnSuccess
   response: {
     status: 200,
     body: json(inlineCatBody),
+  },
+  handler: (req: MockRequest) => {
+    const kind = req.query.kind as string | undefined;
+
+    // When kind is null or "cat", return response for "cat"
+    // When kind is "dog", return response for "dog"
+    if (kind === "dog") {
+      return {
+        status: 200,
+        body: json(inlineDogBody),
+      };
+    } else {
+      // Default case: when kind is null, undefined, or "cat"
+      return {
+        status: 200,
+        body: json(inlineCatBody),
+      };
+    }
   },
   kind: "MockApiDefinition",
 });
@@ -119,7 +168,8 @@ Scenarios.Type_Union_Discriminated_InlineDiscriminated_putInline = passOnSuccess
     body: json(inlineCatBody),
   },
   response: {
-    status: 204,
+    status: 200,
+    body: json(inlineCatBody),
   },
   kind: "MockApiDefinition",
 });

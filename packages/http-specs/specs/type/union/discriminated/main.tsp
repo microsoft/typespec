@@ -68,7 +68,7 @@ interface EnvelopeDiscriminated {
     ```
     """)
   @put
-  putEnvelope(@body input: PetWithEnvelope): NoContentResponse;
+  putEnvelope(@body input: PetWithEnvelope): PetWithEnvelope;
 }
 
 /**
@@ -97,9 +97,11 @@ interface CustomNamesDiscriminated {
       }
     }
     ```
+    When petType is null or "cat", return response for "cat".
+    When petType is "dog", return response for "dog".
     """)
   @get
-  getCustomNames(): PetWithCustomNames;
+  getCustomNames(@query petType?: string): PetWithCustomNames;
 
   @scenario
   @scenarioDoc("""
@@ -116,7 +118,7 @@ interface CustomNamesDiscriminated {
     ```
     """)
   @put
-  putCustomNames(@body input: PetWithCustomNames): NoContentResponse;
+  putCustomNames(@body input: PetWithCustomNames): PetWithCustomNames;
 }
 
 /**
@@ -143,9 +145,11 @@ interface InlineDiscriminated {
       "meow": true
     }
     ```
+    When kind is null or "cat", return response for "cat".
+    When kind is "dog", return response for "dog".
     """)
   @get
-  getInline(): PetInline;
+  getInline(@query kind?: string): PetInline;
 
   @scenario
   @scenarioDoc("""
@@ -160,5 +164,5 @@ interface InlineDiscriminated {
     ```
     """)
   @put
-  putInline(@body input: PetInline): NoContentResponse;
+  putInline(@body input: PetInline): PetInline;
 }

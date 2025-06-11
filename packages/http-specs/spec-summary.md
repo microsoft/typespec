@@ -7144,6 +7144,9 @@ The union should serialize as:
 }
 ```
 
+When petType is null or "cat", return response for "cat".
+When petType is "dog", return response for "dog".
+
 ### Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames
 
 - Endpoint: `put /type/union/discriminated/custom-names`
@@ -7178,6 +7181,9 @@ The union should serialize as:
 }
 ```
 
+When kind is null or "cat", return response for "cat".
+When kind is "dog", return response for "dog".
+
 ### Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope
 
 - Endpoint: `put /type/union/discriminated/envelope`
@@ -7209,6 +7215,9 @@ The union should serialize as:
   "meow": true
 }
 ```
+
+When kind is null or "cat", return response for "cat".
+When kind is "dog", return response for "dog".
 
 ### Type_Union_Discriminated_InlineDiscriminated_putInline
 
