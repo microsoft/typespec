@@ -999,6 +999,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             StringAssert.Contains($"_endpoint = new global::System.Uri($\"{serverTemplate}\");", constructor?.BodyStatements?.ToDisplayString());
         }
 
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("http://{hostName}", "hostName")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointAppliedInCreateMethodRequest(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Foo", InputFactory.Operation("bar", uri: $"{serverTemplate}/foo"))],
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var createMethod = clientProvider.RestClient.Methods.FirstOrDefault();
+            StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
+        }
+
         private static InputClient GetEnumQueryParamClient()
         {
             return InputFactory.Client(
