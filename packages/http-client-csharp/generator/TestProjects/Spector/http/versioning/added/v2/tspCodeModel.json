@@ -856,7 +856,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     },
     {
      "$id": "86",
@@ -874,7 +874,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     }
    ],
    "decorators": [],
@@ -1071,7 +1071,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+       "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
       },
       {
        "$id": "100",
@@ -1089,7 +1089,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+       "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
       }
      ],
      "decorators": [],

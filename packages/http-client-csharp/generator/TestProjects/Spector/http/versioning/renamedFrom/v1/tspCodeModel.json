@@ -489,7 +489,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/renamed-from/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     },
     {
      "$id": "50",
@@ -507,7 +507,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/renamed-from/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     }
    ],
    "decorators": [],
@@ -703,7 +703,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/versioning/renamed-from/api-version:{version}"
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       },
       {
        "$id": "64",
@@ -721,7 +721,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/versioning/renamed-from/api-version:{version}"
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       }
      ],
      "decorators": [],

@@ -375,7 +375,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/type-changed-from/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     },
     {
      "$id": "36",
@@ -393,7 +393,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/type-changed-from/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     }
    ],
    "decorators": [],

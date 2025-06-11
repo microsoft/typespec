@@ -1288,7 +1288,7 @@
       },
       "value": "http://localhost:3000"
      },
-     "serverUrl": "{endpoint}"
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],
@@ -1740,7 +1740,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -2195,7 +2195,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -2650,7 +2650,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -3105,7 +3105,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -3560,7 +3560,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -4015,7 +4015,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],
@@ -4470,7 +4470,7 @@
         },
         "value": "http://localhost:3000"
        },
-       "serverUrl": "{endpoint}"
+       "serverUrlTemplate": "{endpoint}"
       }
      ],
      "decorators": [],

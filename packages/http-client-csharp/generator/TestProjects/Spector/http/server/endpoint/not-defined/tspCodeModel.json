@@ -74,7 +74,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}"
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],

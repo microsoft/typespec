@@ -203,7 +203,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/server/path/multiple/{apiVersion}"
+     "serverUrlTemplate": "{endpoint}/server/path/multiple/{apiVersion}"
     },
     {
      "$id": "21",
@@ -231,7 +231,7 @@
       },
       "value": "v1.0"
      },
-     "serverUrl": "{endpoint}/server/path/multiple/{apiVersion}"
+     "serverUrlTemplate": "{endpoint}/server/path/multiple/{apiVersion}"
     }
    ],
    "decorators": [],

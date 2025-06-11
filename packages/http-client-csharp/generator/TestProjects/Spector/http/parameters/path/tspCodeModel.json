@@ -212,7 +212,7 @@
       },
       "value": "http://localhost:3000"
      },
-     "serverUrl": "{endpoint}"
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],

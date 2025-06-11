@@ -220,7 +220,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     },
     {
      "$id": "25",
@@ -238,7 +238,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     }
    ],
    "decorators": [],
@@ -271,7 +271,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "29",
@@ -289,7 +289,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -366,7 +366,7 @@
          "skipUrlEncoding": false,
          "explode": false,
          "kind": "Client",
-         "serverUrl": "{endpoint}/client/structure/{client}"
+         "serverUrlTemplate": "{endpoint}/client/structure/{client}"
         },
         {
          "$id": "37",
@@ -384,7 +384,7 @@
          "skipUrlEncoding": false,
          "explode": false,
          "kind": "Client",
-         "serverUrl": "{endpoint}/client/structure/{client}"
+         "serverUrlTemplate": "{endpoint}/client/structure/{client}"
         }
        ],
        "decorators": [],
@@ -463,7 +463,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "45",
@@ -481,7 +481,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -558,7 +558,7 @@
          "skipUrlEncoding": false,
          "explode": false,
          "kind": "Client",
-         "serverUrl": "{endpoint}/client/structure/{client}"
+         "serverUrlTemplate": "{endpoint}/client/structure/{client}"
         },
         {
          "$id": "53",
@@ -576,7 +576,7 @@
          "skipUrlEncoding": false,
          "explode": false,
          "kind": "Client",
-         "serverUrl": "{endpoint}/client/structure/{client}"
+         "serverUrlTemplate": "{endpoint}/client/structure/{client}"
         }
        ],
        "decorators": [],
@@ -695,7 +695,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "65",
@@ -713,7 +713,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -830,7 +830,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "77",
@@ -848,7 +848,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],

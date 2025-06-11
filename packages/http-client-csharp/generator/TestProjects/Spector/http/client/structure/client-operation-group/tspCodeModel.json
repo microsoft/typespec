@@ -179,7 +179,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     },
     {
      "$id": "21",
@@ -197,7 +197,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     }
    ],
    "decorators": [],
@@ -311,7 +311,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "33",
@@ -329,7 +329,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -406,7 +406,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "41",
@@ -424,7 +424,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -503,7 +503,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     },
     {
      "$id": "49",
@@ -521,7 +521,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/client/structure/{client}"
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     }
    ],
    "decorators": [],
@@ -595,7 +595,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "57",
@@ -613,7 +613,7 @@
        "skipUrlEncoding": false,
        "explode": false,
        "kind": "Client",
-       "serverUrl": "{endpoint}/client/structure/{client}"
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],

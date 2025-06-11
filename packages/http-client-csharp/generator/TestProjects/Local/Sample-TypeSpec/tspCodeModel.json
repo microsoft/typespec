@@ -6818,7 +6818,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{sampleTypeSpecUrl}"
+     "serverUrlTemplate": "{sampleTypeSpecUrl}"
     }
    ],
    "decorators": [],

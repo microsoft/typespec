@@ -366,7 +366,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     },
     {
      "$id": "35",
@@ -384,7 +384,7 @@
      "skipUrlEncoding": false,
      "explode": false,
      "kind": "Client",
-     "serverUrl": "{endpoint}/versioning/added/api-version:{version}"
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     }
    ],
    "decorators": [],
