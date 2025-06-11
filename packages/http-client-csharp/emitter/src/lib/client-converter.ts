@@ -133,7 +133,7 @@ function fromSdkClient(
           parameter.clientDefaultValue,
           parameterType,
         ),
-        serverUrl: type.serverUrl,
+        serverUrlTemplate: type.serverUrl,
       });
     }
     return parameters;
