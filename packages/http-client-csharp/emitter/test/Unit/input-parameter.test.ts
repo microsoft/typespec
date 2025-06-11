@@ -698,7 +698,7 @@ describe("Endpoint parameters", () => {
     ok(endpointParameter);
     strictEqual(endpointParameter.type.kind, "string");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.string");
-    strictEqual(endpointParameter.serverUrl, "https://{param1}");
+    strictEqual(endpointParameter.serverUrlTemplate, "https://{param1}");
   });
 
   it("URL endpoint parameter has correct type", async () => {
@@ -730,7 +730,7 @@ describe("Endpoint parameters", () => {
     ok(endpointParameter);
     strictEqual(endpointParameter.type.kind, "url");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.url");
-    strictEqual(endpointParameter.serverUrl, "{param1}");
+    strictEqual(endpointParameter.serverUrlTemplate, "{param1}");
   });
 });
 
