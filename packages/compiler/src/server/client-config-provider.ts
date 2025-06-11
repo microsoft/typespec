@@ -50,13 +50,14 @@ export function createClientConfigProvider(): ClientConfigProvider {
   async function initialize(connection: Connection, host: ServerHost): Promise<void> {
     try {
       const configs = await connection.workspace.getConfiguration("typespec");
-      host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
+      const settings = { typespec: configs };
+      host.log({ level: "debug", message: "VSCode settings loaded", detail: settings });
 
-      update(configs);
+      update(settings);
 
       connection.onDidChangeConfiguration(async (params) => {
-        if (params.settings && params.settings.typespec) {
-          update(params.settings.typespec);
+        if (params.settings) {
+          update(params.settings);
         }
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });

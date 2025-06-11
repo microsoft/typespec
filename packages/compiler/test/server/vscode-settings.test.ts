@@ -64,18 +64,19 @@ describe("compiler: server: client-config-provider", () => {
       strictEqual(mockConnection.workspace.getConfiguration.mock.calls.length, 1);
       strictEqual(mockConnection.workspace.getConfiguration.mock.calls[0]?.[0], "typespec");
 
-      // Verify configuration is now available
-      const lspEmit = configProvider.get<string[]>("lsp.emit");
+      // Verify configuration is now available - note that config is wrapped under 'typespec' key
+      const lspEmit = configProvider.get<string[]>("typespec.lsp.emit");
       strictEqual(lspEmit?.[0], "openapi3");
-      strictEqual(configProvider.get("formatting.enabled"), true);
+      strictEqual(configProvider.get("typespec.formatting.enabled"), true);
 
       // Verify change handler was registered
       strictEqual(mockConnection.onDidChangeConfiguration.mock.calls.length, 1);
 
-      // Verify logging
+      // Verify logging - the detail should contain the wrapped settings
       strictEqual(mockHost.log.mock.calls.length, 1);
       strictEqual(mockHost.log.mock.calls[0]?.[0]?.level, "debug");
       strictEqual(mockHost.log.mock.calls[0]?.[0]?.message, "VSCode settings loaded");
+      strictEqual(mockHost.log.mock.calls[0]?.[0]?.detail?.typespec?.lsp?.emit?.[0], "openapi3");
     });
 
     it("should handle initialization errors gracefully", async () => {
@@ -115,7 +116,7 @@ describe("compiler: server: client-config-provider", () => {
 
       await configProvider.initialize(mockConnection, mockHost);
 
-      // Simulate a configuration change from VS Code with typespec settings
+      // Simulate a configuration change from VS Code
       const changeParams = {
         settings: {
           typespec: {
@@ -127,10 +128,10 @@ describe("compiler: server: client-config-provider", () => {
 
       await onDidChangeHandler(changeParams);
 
-      // Verify configuration was updated
-      const lspEmit = configProvider.get<string[]>("lsp.emit");
+      // Verify configuration was updated - settings are updated directly
+      const lspEmit = configProvider.get<string[]>("typespec.lsp.emit");
       strictEqual(lspEmit?.[0], "updated");
-      strictEqual(configProvider.get("newSetting"), "value");
+      strictEqual(configProvider.get("typespec.newSetting"), "value");
 
       // Verify logging
       const debugCalls = mockHost.log.mock.calls.filter((call: any) => call[0]?.level === "debug");
@@ -166,9 +167,9 @@ describe("compiler: server: client-config-provider", () => {
 
       await onDidChangeHandler(changeParams);
 
-      // Configuration should not be updated (no typespec settings)
-      strictEqual(configProvider.get("initial"), "config"); // Original config preserved
-      strictEqual(configProvider.get("otherExtension.someSetting"), undefined); // Not updated
+      // Configuration should be completely replaced (not merged) with new settings
+      strictEqual(configProvider.get("typespec.initial"), undefined); // Original config is lost
+      strictEqual(configProvider.get("otherExtension.someSetting"), "value"); // New settings should be available
 
       // Verify logging still occurs
       strictEqual(mockHost.log.mock.calls.length, 1);
@@ -189,10 +190,10 @@ describe("compiler: server: client-config-provider", () => {
 
       await configProvider.initialize(mockConnection, mockHost);
 
-      // Verify initial configuration
-      const lspEmit = configProvider.get<string[]>("lsp.emit");
+      // Verify initial configuration - should be under typespec key
+      const lspEmit = configProvider.get<string[]>("typespec.lsp.emit");
       strictEqual(lspEmit?.[0], "initial");
-      strictEqual(configProvider.get("debug"), false);
+      strictEqual(configProvider.get("typespec.debug"), false);
 
       // Test accessing non-existent nested keys
       const nonExistent = configProvider.get("non.existent.deeply.nested.key");
@@ -203,9 +204,52 @@ describe("compiler: server: client-config-provider", () => {
       strictEqual(withDefault, "fallback");
 
       // Test accessing partial paths that exist
-      const lspConfig = configProvider.get("lsp") as any;
-      strictEqual(typeof lspConfig, "object");
-      strictEqual(lspConfig?.emit?.[0], "initial");
+      const typespecConfig = configProvider.get("typespec") as any;
+      strictEqual(typeof typespecConfig, "object");
+      strictEqual(typespecConfig?.lsp?.emit?.[0], "initial");
+    });
+
+    it("should completely replace configuration on change notifications", async () => {
+      let onDidChangeHandler: any;
+
+      const mockConnection = {
+        workspace: {
+          getConfiguration: vi.fn().mockResolvedValue({
+            lsp: { emit: ["openapi3"] },
+            formatting: { enabled: true },
+          }),
+        },
+        onDidChangeConfiguration: vi.fn().mockImplementation((handler) => {
+          onDidChangeHandler = handler;
+        }),
+      } as any;
+
+      await configProvider.initialize(mockConnection, mockHost);
+
+      // Verify initial configuration
+      const initialLspEmit = configProvider.get<string[]>("typespec.lsp.emit");
+      strictEqual(initialLspEmit?.[0], "openapi3");
+      strictEqual(configProvider.get("typespec.formatting.enabled"), true);
+
+      // Simulate a configuration change that only includes some settings
+      const changeParams = {
+        settings: {
+          typespec: {
+            lsp: { emit: ["swagger"] }, // Only lsp settings, no formatting
+          },
+          newExtension: {
+            newSetting: "newValue",
+          },
+        },
+      };
+
+      await onDidChangeHandler(changeParams);
+
+      // Verify configuration was completely replaced
+      const updatedLspEmit = configProvider.get<string[]>("typespec.lsp.emit");
+      strictEqual(updatedLspEmit?.[0], "swagger");
+      strictEqual(configProvider.get("typespec.formatting.enabled"), undefined); // Lost due to replacement
+      strictEqual(configProvider.get("newExtension.newSetting"), "newValue");
     });
   });
 });
