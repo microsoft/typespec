@@ -23,6 +23,8 @@ public class ExceptionMapper implements IMapper<ObjectSchema, ClientException> {
     @Override
     public ClientException map(ObjectSchema compositeType) {
         if (compositeType == null
+            // unbranded would use HttpResponseException
+            || JavaSettings.getInstance().isUnbranded()
             // there is no need to generate Exception class, if we use Exceptions from azure-core
             || (JavaSettings.getInstance().isDataPlaneClient()
                 && JavaSettings.getInstance().isUseDefaultHttpStatusCodeToExceptionTypeMapping())) {
