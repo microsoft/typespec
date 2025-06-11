@@ -10,7 +10,7 @@ import "@azure-tools/typespec-azure-core";
   "{sampleTypeSpecUrl}",
   "Endpoint Service",
   {
-    sampleTypeSpecUrl: string,
+    sampleTypeSpecUrl: url,
   }
 )
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key">)

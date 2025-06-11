@@ -25,7 +25,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool skipUrlEncoding,
             bool explode,
             string? arraySerializationDelimiter,
-            string? headerCollectionPrefix)
+            string? headerCollectionPrefix,
+            string? serverUrlTemplate)
         {
             Name = name;
             NameInRequest = nameInRequest;
@@ -43,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             Explode = explode;
             ArraySerializationDelimiter = arraySerializationDelimiter;
             HeaderCollectionPrefix = headerCollectionPrefix;
+            ServerUrlTemplate = serverUrlTemplate;
         }
 
         public string Name { get; }
@@ -62,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ArraySerializationDelimiter { get; }
         public string? HeaderCollectionPrefix { get; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public string? ServerUrlTemplate { get; }
 
         /// <summary>
         /// Update the instance with given parameters.
