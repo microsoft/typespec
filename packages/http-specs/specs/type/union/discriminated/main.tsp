@@ -47,9 +47,11 @@ interface EnvelopeDiscriminated {
       }
     }
     ```
+    When kind is null or "cat", return response for "cat".
+    When kind is "dog", return response for "dog".
     """)
   @get
-  getEnvelope(): PetWithEnvelope;
+  getEnvelope(@query kind?: string): PetWithEnvelope;
 
   @scenario
   @scenarioDoc("""

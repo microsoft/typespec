@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi, MockRequest } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -8,16 +8,20 @@ const catData = {
   meow: true,
 };
 
-// Future use: Dog data for additional test scenarios
-// const dogData = {
-//   name: "Rex",
-//   bark: false,
-// };
+const dogData = {
+  name: "Rex",
+  bark: false,
+};
 
 // Envelope discriminated union (default serialization)
 const envelopeCatBody = {
   kind: "cat",
   value: catData,
+};
+
+const envelopeDogBody = {
+  kind: "dog",
+  value: dogData,
 };
 
 Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope = passOnSuccess({
@@ -27,6 +31,24 @@ Scenarios.Type_Union_Discriminated_EnvelopeDiscriminated_getEnvelope = passOnSuc
   response: {
     status: 200,
     body: json(envelopeCatBody),
+  },
+  handler: (req: MockRequest) => {
+    const kind = req.query.kind as string | undefined;
+    
+    // When kind is null or "cat", return response for "cat"
+    // When kind is "dog", return response for "dog"
+    if (kind === "dog") {
+      return {
+        status: 200,
+        body: json(envelopeDogBody),
+      };
+    } else {
+      // Default case: when kind is null, undefined, or "cat"
+      return {
+        status: 200,
+        body: json(envelopeCatBody),
+      };
+    }
   },
   kind: "MockApiDefinition",
 });
