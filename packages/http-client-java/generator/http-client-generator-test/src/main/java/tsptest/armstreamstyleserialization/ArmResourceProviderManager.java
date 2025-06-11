@@ -35,10 +35,12 @@ import tsptest.armstreamstyleserialization.fluent.ArmResourceProviderManagementC
 import tsptest.armstreamstyleserialization.implementation.ArmResourceProviderManagementClientBuilder;
 import tsptest.armstreamstyleserialization.implementation.FishesImpl;
 import tsptest.armstreamstyleserialization.implementation.FunctionsImpl;
+import tsptest.armstreamstyleserialization.implementation.ItemsImpl;
 import tsptest.armstreamstyleserialization.implementation.PrioritiesImpl;
 import tsptest.armstreamstyleserialization.implementation.TopLevelArmResourcesImpl;
 import tsptest.armstreamstyleserialization.models.Fishes;
 import tsptest.armstreamstyleserialization.models.Functions;
+import tsptest.armstreamstyleserialization.models.Items;
 import tsptest.armstreamstyleserialization.models.Priorities;
 import tsptest.armstreamstyleserialization.models.TopLevelArmResources;
 
@@ -54,6 +56,8 @@ public final class ArmResourceProviderManager {
     private Functions functions;
 
     private Priorities priorities;
+
+    private Items items;
 
     private final ArmResourceProviderManagementClient clientObject;
 
@@ -316,6 +320,18 @@ public final class ArmResourceProviderManager {
             this.priorities = new PrioritiesImpl(clientObject.getPriorities(), this);
         }
         return priorities;
+    }
+
+    /**
+     * Gets the resource collection API of Items.
+     * 
+     * @return Resource collection API of Items.
+     */
+    public Items items() {
+        if (this.items == null) {
+            this.items = new ItemsImpl(clientObject.getItems(), this);
+        }
+        return items;
     }
 
     /**
