@@ -79,6 +79,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
         }
 
+        protected override FormattableString BuildDescription() => _model.Description;
+
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;

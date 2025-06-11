@@ -52,8 +52,6 @@ public abstract class Customization {
                 customize(new EclipseLibraryCustomization(editor, languageClient), logger);
                 editor.removeFile("pom.xml");
                 return editor.getContents();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             } finally {
                 Utils.deleteDirectory(tempDirWithPrefix.toFile());
             }

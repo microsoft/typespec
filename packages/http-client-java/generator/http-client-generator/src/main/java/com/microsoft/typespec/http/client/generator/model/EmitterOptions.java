@@ -37,6 +37,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String apiVersion;
     private Boolean useRestProxy;
     private String renameModel;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
 
     // internal
@@ -154,6 +155,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return renameModel;
     }
 
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -212,6 +217,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
             } else if ("rename-model".equals(fieldName)) {
                 options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }

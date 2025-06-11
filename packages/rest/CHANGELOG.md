@@ -1,5 +1,9 @@
 # Change Log - @typespec/rest
 
+## 0.71.0
+
+No changes, version bump only.
+
 ## 0.70.0
 
 ### Bug Fixes

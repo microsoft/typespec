@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ApiVersionEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input, declaringType) { }
 
         protected override string BuildName() => ApiVersionEnumName;
-        protected override FormattableString Description => $"{ApiVersionEnumDescription}";
+        protected override FormattableString BuildDescription() => $"{ApiVersionEnumDescription}";
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
