@@ -671,7 +671,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? New.Instance(endpointParamType, Literal(_inputEndpointParam.DefaultValue.Value))
                 : null;
 
-            if (endpointParamType.Equals(typeof(string)))
+            if (endpointParamType.Equals(typeof(string)) && _inputEndpointParam.ServerUrlTemplate != null)
             {
                 return new(_inputEndpointParam);
             }
