@@ -484,22 +484,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return [MethodBodyStatement.Empty];
             }
-            AssignmentExpression endpointAssigment;
+            AssignmentExpression endpointAssignment;
             if (_endpointParameter.Type.Equals(typeof(string)))
             {
                 var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
-                endpointAssigment = EndpointField.Assign(
+                endpointAssignment = EndpointField.Assign(
                     New.Instance(typeof(Uri),
                         new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
             }
             else
             {
-                endpointAssigment = EndpointField.Assign(_endpointParameter);
+                endpointAssignment = EndpointField.Assign(_endpointParameter);
             }
             List<MethodBodyStatement> body = [
                 ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                endpointAssigment.Terminate()
+                endpointAssignment.Terminate()
             ];
 
             // add other parameter assignments to their corresponding fields
