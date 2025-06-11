@@ -61,14 +61,42 @@ extends:
             steps:
               - checkout: self
 
-              - template: /eng/tsp-core/pipelines/templates/install.yml
-              
-              - script: |
-                  node ./packages/internal-build-utils/scripts/create-azure-sdk-for-net-pr.js \
-                  --packagePath $(Build.SourcesDirectory)/packages/http-client-csharp \
-                  --pullRequestUrl "https://github.com/microsoft/typespec/pull/$(System.PullRequest.PullRequestNumber)" \
-                  --packageUrl "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/nuget/v3/flat2/Microsoft.TypeSpec.Generator.ClientModel/$(packageVersion)" \
-                  --githubToken $(azure-sdk-build-github-token)
+              - pwsh: |
+                  # Get package version from package.json
+                  $packageJsonPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/package.json"
+                  $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
+                  $packageVersion = $packageJson.version
+                  Write-Host "Package version: $packageVersion"
+                  Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
+
+                  # Determine the TypeSpec PR URL 
+                  $sourceBranch = '$(Build.SourceBranch)'
+                  $repoUrl = '$(Build.Repository.Uri)'
+                  $buildReason = '$(Build.Reason)'
+                  
+                  if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
+                    $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
+                  } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
+                    $typeSpecPRUrl = "$repoUrl/tree/$($Matches[1])"
+                  } else {
+                    $typeSpecPRUrl = "$repoUrl/tree/$sourceBranch"
+                  }
+                  Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
+
+                  # Set package URL
+                  $packageUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/nuget/v3/flat2/Microsoft.TypeSpec.Generator.ClientModel/$packageVersion"
+                  Write-Host "Package URL: $packageUrl"
+                  Write-Host "##vso[task.setvariable variable=PackageUrl]$packageUrl"
+                displayName: Set variables for PR creation
+
+              - task: PowerShell@2
                 displayName: Create PR in azure-sdk-for-net
-                env:
-                  packageVersion: $(Build.BuildNumber)
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecPRUrl '$(TypeSpecPRUrl)'
+                    -PackageUrl '$(PackageUrl)'
+                    -AuthToken '$(azure-sdk-build-github-token)'
