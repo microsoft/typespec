@@ -51,7 +51,7 @@ extends:
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
         dependsOn: CSharp_Publish
-        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
+        condition: succeeded()
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
