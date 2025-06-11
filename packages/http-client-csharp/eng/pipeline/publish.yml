@@ -94,7 +94,7 @@ extends:
                 displayName: Create PR in azure-sdk-for-net
                 inputs:
                   pwsh: true
-                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Submit-AzureSdkForNetPr.ps1
+                  filePath: eng/common/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecPRUrl '$(TypeSpecPRUrl)'
