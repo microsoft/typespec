@@ -50,7 +50,7 @@ extends:
 
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
-        dependsOn: Publish
+        dependsOn: CSharp_Publish
         condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
         pool:
           name: $(LINUXPOOL)
