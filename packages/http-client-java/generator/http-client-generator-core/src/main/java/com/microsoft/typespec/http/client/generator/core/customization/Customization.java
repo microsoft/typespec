@@ -3,9 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization;
 
-import org.slf4j.Logger;
-
 import java.util.Map;
+import org.slf4j.Logger;
 
 /**
  * The base class for customization. Extend this class to plug into AutoRest generation.
