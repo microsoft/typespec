@@ -151,6 +151,25 @@ try {
             if ($LASTEXITCODE -ne 0) {
                 throw "npm install failed"
             }
+            
+            # Run npm run build
+            Write-Host "Running npm run build in eng/packages/http-client-csharp..."
+            npm run build
+            if ($LASTEXITCODE -ne 0) {
+                throw "npm run build failed"
+            }
+        } finally {
+            Pop-Location
+        }
+        
+        # Run Generate.ps1 from the repository root
+        Write-Host "Running eng/scripts/Generate.ps1..."
+        Push-Location $tempDir
+        try {
+            & "eng/scripts/Generate.ps1"
+            if ($LASTEXITCODE -ne 0) {
+                throw "Generate.ps1 failed"
+            }
         } finally {
             Pop-Location
         }
