@@ -7132,7 +7132,7 @@ Expect to send a string value. Mock api expect to receive 'test'
 - Endpoint: `get /type/union/discriminated/custom-names`
 
 Test discriminated union with custom property names.
-The union should serialize as:
+When query parameter "petType" is null or "cat", the expected response is:
 
 ```json
 {
@@ -7144,8 +7144,17 @@ The union should serialize as:
 }
 ```
 
-When petType is null or "cat", return response for "cat".
-When petType is "dog", return response for "dog".
+When it is "dog", expected response is:
+
+```json
+{
+  "petType": "dog",
+  "petData": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
 
 ### Type_Union_Discriminated_CustomNamesDiscriminated_putCustomNames
 
@@ -7169,7 +7178,7 @@ Send the union as:
 - Endpoint: `get /type/union/discriminated/envelope`
 
 Test discriminated union with envelope serialization.
-The union should serialize as:
+When query parameter "kind" is null or "cat", the expected response is:
 
 ```json
 {
@@ -7181,8 +7190,17 @@ The union should serialize as:
 }
 ```
 
-When kind is null or "cat", return response for "cat".
-When kind is "dog", return response for "dog".
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
 
 ### Type_Union_Discriminated_EnvelopeDiscriminated_putEnvelope
 
@@ -7206,7 +7224,7 @@ Send the union as:
 - Endpoint: `get /type/union/discriminated/inline`
 
 Test discriminated union with inline discriminator.
-The union should serialize as:
+When query parameter "kind" is null or "cat", the expected response is:
 
 ```json
 {
@@ -7216,8 +7234,15 @@ The union should serialize as:
 }
 ```
 
-When kind is null or "cat", return response for "cat".
-When kind is "dog", return response for "dog".
+When it is "dog", expected response is:
+
+```json
+{
+  "kind": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
 
 ### Type_Union_Discriminated_InlineDiscriminated_putInline
 
