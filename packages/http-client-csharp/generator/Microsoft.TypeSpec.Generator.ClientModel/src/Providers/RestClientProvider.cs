@@ -31,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         };
         private Dictionary<InputOperation, MethodProvider>? _methodCache;
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
+        private Dictionary<InputOperation, MethodProvider>? _nextMethodCache;
+        private Dictionary<InputOperation, MethodProvider> NextMethodCache => _nextMethodCache ??= [];
 
         private readonly Dictionary<List<int>, PropertyProvider> _pipelineMessage20xClassifiers;
         private readonly InputClient _inputClient;
@@ -81,6 +83,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var method = BuildCreateRequestMethod(serviceMethod);
                 methods.Add(method);
                 MethodCache[operation] = method;
+
+                // For paging operations with next link, also generate a CreateNextXXXRequest method
+                if (serviceMethod is InputPagingServiceMethod pagingServiceMethod &&
+                    pagingServiceMethod.PagingMetadata.NextLink != null)
+                {
+                    var nextMethod = BuildCreateNextRequestMethod(serviceMethod);
+                    methods.Add(nextMethod);
+                    NextMethodCache[operation] = nextMethod;
+                }
             }
 
             return [.. methods];
@@ -117,7 +128,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
-                    BuildRequest(serviceMethod, request, paramMap, signature),
+                    BuildRequest(serviceMethod, request, paramMap, signature, isNextRequest: false),
+                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
+                    Return(message)
+                ]),
+                this,
+                xmlDocProvider: XmlDocProvider.Empty,
+                serviceMethod: serviceMethod);
+        }
+
+        private ScmMethodProvider BuildCreateNextRequestMethod(InputServiceMethod serviceMethod)
+        {
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
+
+            var options = ScmKnownParameters.RequestOptions;
+            var parameters = GetNextMethodParameters(serviceMethod);
+            var operation = serviceMethod.Operation;
+            var signature = new MethodSignature(
+                $"CreateNext{operation.Name.ToIdentifierName()}Request",
+                null,
+                MethodSignatureModifiers.Internal,
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
+                null,
+                [.. parameters, options]);
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+
+            foreach (var param in ClientProvider.ClientParameters)
+            {
+                paramMap[param.Name] = param;
+            }
+
+            var classifier = GetClassifier(operation);
+
+            return new ScmMethodProvider(
+                signature,
+                new MethodBodyStatements(
+                [
+                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
+                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
+                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
+                    request.SetMethod(operation.HttpMethod),
+                    BuildRequest(serviceMethod, request, paramMap, signature, isNextRequest: true),
                     message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
                     Return(message)
                 ]),
@@ -130,7 +181,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputServiceMethod serviceMethod,
             HttpRequestApi request,
             Dictionary<string, ParameterProvider> paramMap,
-            MethodSignature signature)
+            MethodSignature signature,
+            bool isNextRequest = false)
         {
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var operation = serviceMethod.Operation;
@@ -145,20 +197,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .. AppendHeaderParameters(request, operation, paramMap),
                 .. GetSetContent(request, signature.Parameters)
             ];
-            if (pagingServiceMethod?.PagingMetadata.NextLink != null)
+
+            // For next request methods, handle URI differently
+            if (isNextRequest && pagingServiceMethod?.PagingMetadata.NextLink != null)
             {
-                return new[]
-                    {
-                        declareUri,
-                        new IfElseStatement(
-                            new IfStatement(ScmKnownParameters.NextPage.NotEqual(Null))
-                            {
-                                uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
-                                request.SetUri(uri),
-                                new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToList())
-                            },
-                            new MethodBodyStatements([..statements]))
-                    };
+                return new MethodBodyStatements([
+                    declareUri,
+                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate(),
+                    request.SetUri(uri),
+                    new MethodBodyStatements(AppendHeaderParameters(request, operation, paramMap, isNextLink: true).ToList())
+                ]);
             }
 
             return new MethodBodyStatements([declareUri, .. statements]);
@@ -600,10 +648,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return MethodCache[operation];
         }
 
+        public MethodProvider GetCreateNextRequestMethod(InputOperation operation)
+        {
+            _ = Methods; // Ensure methods are built
+            return NextMethodCache[operation];
+        }
+
         internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int paging = 0;
             int path = 1;
             int required = 100;
             int bodyRequired = 200;
@@ -713,10 +766,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (inputPagingServiceMetadata?.NextLink != null)
                 {
-                    // Next link operations will always have an endpoint parameter in the CreateRequest method
-                    sortedParams.Add(paging, ScmKnownParameters.NextPage);
+                    // For regular CreateRequest methods of next link operations, don't include the nextPage parameter
+                    // The CreateNextXXXRequest method will handle the nextPage parameter
                 }
             }
+
+            return [.. sortedParams.Values];
+        }
+
+        private static List<ParameterProvider> GetNextMethodParameters(InputServiceMethod serviceMethod)
+        {
+            SortedList<int, ParameterProvider> sortedParams = [];
+
+            var operation = serviceMethod.Operation;
+            var inputParameters = operation.Parameters;
+
+            foreach (InputParameter inputParam in inputParameters)
+            {
+                if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, serviceMethod.Operation, out _))
+                {
+                    continue;
+                }
+
+                // Only include header parameters for next requests (typically Accept headers)
+                if (inputParam.Location != InputRequestLocation.Header ||
+                    TryGetSpecialHeaderParam(inputParam, out _))
+                {
+                    continue;
+                }
+
+                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
+                if (parameter is null)
+                {
+                    continue;
+                }
+
+                parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                parameter.DefaultValue = null;
+
+                if (parameter.DefaultValue == null)
+                {
+                    sortedParams.Add(100, parameter);
+                }
+                else
+                {
+                    sortedParams.Add(400, parameter);
+                }
+            }
+
+            // Next link operations always have the nextPage URI parameter
+            sortedParams.Add(0, ScmKnownParameters.NextPage);
 
             return [.. sortedParams.Values];
         }
