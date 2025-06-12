@@ -763,12 +763,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 InputPagingServiceMetadata? inputPagingServiceMetadata = serviceMethod is InputPagingServiceMethod pagingServiceMethod
                     ? pagingServiceMethod.PagingMetadata
                     : null;
-
-                if (inputPagingServiceMetadata?.NextLink != null)
-                {
-                    // For regular CreateRequest methods of next link operations, don't include the nextPage parameter
-                    // The CreateNextXXXRequest method will handle the nextPage parameter
-                }
             }
 
             return [.. sortedParams.Values];
