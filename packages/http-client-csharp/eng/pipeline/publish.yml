@@ -50,8 +50,12 @@ extends:
 
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
-        dependsOn: CSharp_Publish
+        dependsOn: 
+          - CSharp_Publish
+          - CSharp_Build
         condition: succeeded()
+        variables:
+          PackageVersion: $[ dependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -61,12 +65,7 @@ extends:
             steps:
               - checkout: self
               - pwsh: |
-                  # Get package version from package.json
-                  $packageJsonPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/package.json"
-                  $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
-                  $packageVersion = $packageJson.version
-                  Write-Host "Package version: $packageVersion"
-                  Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
+                  Write-Host "Package version: $(PackageVersion)"
 
                   # Determine the TypeSpec PR URL 
                   $sourceBranch = '$(Build.SourceBranch)'
