@@ -243,7 +243,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (isNextLink && !inputParameter.IsAcceptHeader())
+                bool isAcceptParameter = inputParameter.IsAcceptHeader();
+                if (isNextLink && !isAcceptParameter)
                 {
                     continue;
                 }
@@ -256,10 +257,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     continue;
                 }
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ?
+
+                // Check if parameter is already a string type or an enum with string values
+                bool isStringType = type?.Equals(typeof(string)) == true ||
+                    (isAcceptParameter && inputParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String });
+                ValueExpression toStringExpression = isStringType ?
                     valueExpression :
                     valueExpression.ConvertToString(Literal(format));
                 MethodBodyStatement statement;
+
                 if (type?.IsCollection == true)
                 {
                     statement = request.SetHeaderDelimited(inputParameter.NameInRequest, valueExpression, Literal(inputParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
@@ -781,8 +787,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            // Get the content types across all responses
+            // Check if the accept parameter has defined values
             var uniqueContentTypes = new HashSet<string>();
+            if (inputParameter.Type is InputEnumType inputEnumType)
+            {
+                bool foundValues = false;
+                foreach (var enumValue in inputEnumType.Values)
+                {
+                    if (enumValue.Value is string contentType)
+                    {
+                        uniqueContentTypes.Add(contentType);
+                        foundValues = true;
+                    }
+                }
+                if (foundValues)
+                {
+                    values = [.. uniqueContentTypes.OrderBy(contentType => contentType)];
+                    return true;
+                }
+            }
+
+            // Otherwise, get the content types across all responses
             foreach (var response in inputOperation.Responses)
             {
                 foreach (var contentType in response.ContentTypes)
@@ -796,7 +821,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            values = [.. uniqueContentTypes.OrderBy(ct => ct)];
+            values = [.. uniqueContentTypes.OrderBy(contentType => contentType)];
 
             return true;
         }
