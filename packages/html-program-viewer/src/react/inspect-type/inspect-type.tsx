@@ -163,9 +163,12 @@ const InspectObject = ({
   value,
   config,
 }: {
-  value: object;
+  value: object | undefined;
   config: PropertiesRendering<any> | null;
 }) => {
+  if (value === undefined) {
+    return null;
+  }
   const props = Object.entries(value)
     .map(([key, value]) => {
       const action = config?.[key];
