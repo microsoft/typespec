@@ -600,8 +600,13 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
     @Override
     public final void write(ClientMethod clientMethod, JavaType typeBlock) {
         ClientMethodType methodType = clientMethod.getType();
+
+        // For LRO and paging methods, there is no ClientMethodType to indicate max overload method. So, we check if
+        // RequestContext is not present to determine if it is a convenience method. Currently, only max overloads
+        // have RequestContext as a parameter.
         boolean isMaxOverload = !CoreUtils.isNullOrEmpty(clientMethod.getMethodInputParameters())
             || clientMethod.getMethodInputParameters().contains(ClientMethodParameter.REQUEST_CONTEXT_PARAMETER);
+
         if (methodType == ClientMethodType.SimpleSync
             || (methodType == ClientMethodType.PagingSync && !isMaxOverload)
             || (methodType == ClientMethodType.LongRunningBeginSync && !isMaxOverload)) {

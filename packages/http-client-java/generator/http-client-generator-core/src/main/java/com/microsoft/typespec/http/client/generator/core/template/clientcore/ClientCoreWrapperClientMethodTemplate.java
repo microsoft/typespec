@@ -39,10 +39,15 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     public void write(ClientMethod clientMethod, JavaType typeBlock) {
         ClientMethodType methodType = clientMethod.getType();
         List<ClientMethodParameter> inputParams = clientMethod.getMethodInputParameters();
+
+        // For LRO and paging methods, there is no ClientMethodType to indicate max overload method. So, we check if
+        // RequestContext is not present to determine if it is a convenience method. Currently, only max overloads
+        // have RequestContext as a parameter.
         boolean hasRequestContext
             = inputParams != null && inputParams.contains(ClientMethodParameter.REQUEST_CONTEXT_PARAMETER);
 
         if (methodType == ClientMethodType.SimpleSync) {
+            // Max overload for single service API is of method type SimpleSyncRestResponse
             writeConvenienceMethod(clientMethod, typeBlock, ReturnType.SINGLE,
                 clientMethod.getProxyMethod().getSimpleRestResponseMethodName());
             return;
