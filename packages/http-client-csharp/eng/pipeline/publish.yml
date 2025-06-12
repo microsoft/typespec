@@ -8,6 +8,12 @@ trigger:
 
 pr: none
 
+parameters:
+  - name: CreateUpdatePR
+    displayName: 'Create PR to azure-sdk-for-net (for testing)'
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -53,7 +59,7 @@ extends:
         dependsOn: 
           - CSharp_Publish
           - CSharp_Build
-        condition: and(succeeded(), ne(variables['Build.Reason'], 'Manual'))
+        condition: and(succeeded(), or(ne(variables['Build.Reason'], 'Manual'), eq('${{ parameters.CreateUpdatePR }}', 'true')))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
         pool:
