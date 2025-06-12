@@ -12,6 +12,7 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
+    /// <summary> SampleTypeSpecClient GetWithNextLink CollectionResult. </summary>
     internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
@@ -30,19 +31,29 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override IEnumerable<ClientResult> GetRawPages()
         {
+            // Declare the initial request message - use regular CreateRequest method for initial request
             PipelineMessage message = _client.CreateListWithNextLinkRequest(_options);
+
+            // Declare nextPageUri variable
             Uri nextPageUri = null;
+
+            // Generate the while loop
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+
+                // Yield return result
                 yield return result;
 
+                // Assign nextLinkUri from the result and check if it is null
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
                 }
-                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, _options);
+
+                // Update message for next iteration - use CreateNextXXXRequest method
+                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, "application/json", _options);
             }
         }
 
@@ -56,10 +67,7 @@ namespace SampleTypeSpec
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }

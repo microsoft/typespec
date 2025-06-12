@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
+    /// <summary> SampleTypeSpecClient GetWithNextLink AsyncCollectionResult of T. </summary>
     internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
@@ -31,19 +32,30 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
+            // Declare the initial request message - use regular CreateRequest method for initial request
             PipelineMessage message = _client.CreateListWithNextLinkRequest(_options);
+
+            // Declare nextPageUri variable
             Uri nextPageUri = null;
+
+            // Generate the while loop
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
-                yield return result;
 
+                // Yield return result
+                yield return result;
+                await Task.Yield();
+
+                // Assign nextLinkUri from the result and check if it is null
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
                 }
-                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, _options);
+
+                // Update message for next iteration - use CreateNextXXXRequest method
+                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, "application/json", _options);
             }
         }
 
@@ -57,10 +69,7 @@ namespace SampleTypeSpec
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary> Gets the values from the specified page. </summary>
@@ -68,7 +77,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
+            foreach (Thing item in ((ListWithNextLinkResponse)page).Values)
             {
                 yield return item;
                 await Task.Yield();

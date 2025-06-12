@@ -612,7 +612,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection.Type,
                         [
                             This,
-                            Null,
                             .. parameters,
                             IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
                         ]))
@@ -623,7 +622,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection.Type,
                         [
                             This,
-                            Null,
                             .. parameters
                         ]))
                 ],
