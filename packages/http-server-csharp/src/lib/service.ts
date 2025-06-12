@@ -881,7 +881,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         [${getOperationVerbDecorator(httpOperation)}]
         [Route("${httpOperation.path}")]
         ${this.emitter.emitOperationReturnType(operation)}
-        public virtual async Task<IActionResult> ${operationName}(${declParams})
+        public virtual async Task<IActionResult> ${operationName}(${declParams}, CancellationToken cancel)
         {
           ${
             hasResponseValue
@@ -901,7 +901,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         [Route("${httpOperation.path}")]
         [Consumes("multipart/form-data")]
         ${this.emitter.emitOperationReturnType(operation)}
-        public virtual async Task<IActionResult> ${operationName}(${declParams})
+        public virtual async Task<IActionResult> ${operationName}(${declParams}, CancellationToken cancel)
         {
           var boundary = Request.GetMultipartBoundary();
           if (boundary == null)
@@ -963,7 +963,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         [${getOperationVerbDecorator(httpOperation)}]
         [Route("${httpOperation.path}")]
         ${this.emitter.emitOperationReturnType(operation)}
-        public virtual async Task<IActionResult> ${operationName}(${declParams})
+        public virtual async Task<IActionResult> ${operationName}(${declParams}, CancellationToken cancel)
         {
           ${
             hasResponseValue
