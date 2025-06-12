@@ -59,7 +59,7 @@ Write-Host "Branch: $PRBranch"
 Write-Host "Title: $PRTitle"
 
 # Create temp folder for repo
-$tempDir = Join-Path $env:TEMP "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 Write-Host "Created temp directory: $tempDir"
 
