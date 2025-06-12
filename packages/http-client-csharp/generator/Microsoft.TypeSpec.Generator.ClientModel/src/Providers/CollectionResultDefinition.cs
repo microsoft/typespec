@@ -67,21 +67,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var createNextRequestMethodSignature = _client.RestClient.GetCreateNextRequestMethod(_operation).Signature;
                 _createNextRequestMethodName = createNextRequestMethodSignature.Name;
             }
-            else
-            {
-                _createNextRequestMethodName = null;
-            }
 
             var fields = new List<FieldProvider>();
             for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
             {
                 var parameter = _createRequestParameters[paramIndex];
-
-                // For next link operations, skip the nextPage parameter as it won't be stored as a field
-                if (_paging.NextLink != null && ReferenceEquals(parameter, ScmKnownParameters.NextPage))
-                {
-                    continue;
-                }
 
                 if (parameter.Name == _paging.ContinuationToken?.Parameter.Name)
                 {
@@ -171,11 +161,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"The {_client.Type.Name} client used to send requests.",
                 _client.Type);
 
-            // For next link operations, exclude the nextPage parameter from constructor
-            var constructorParameters = _paging.NextLink != null
-                ? _createRequestParameters.Where(p => !ReferenceEquals(p, ScmKnownParameters.NextPage)).ToList()
-                : _createRequestParameters;
-
             return
             [
                 new ConstructorProvider(
@@ -185,9 +170,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            .. constructorParameters
+                            .. _createRequestParameters
                         ]),
-                    BuildConstructorBody(clientParameter, constructorParameters),
+                    BuildConstructorBody(clientParameter, _createRequestParameters),
                     this)
             ];
         }
@@ -201,13 +186,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             for (int parameterNumber = 0; parameterNumber < constructorParameters.Count; parameterNumber++)
             {
                 var parameter = constructorParameters[parameterNumber];
-                // Find the corresponding field - need to handle the case where nextPage field is not created for next link operations
-                var fieldIndex = _createRequestParameters.ToList().IndexOf(parameter);
-                if (fieldIndex >= 0 && fieldIndex < _requestFields.Count)
-                {
-                    var field = _requestFields[fieldIndex];
-                    statements.Add(field.Assign(parameter).Terminate());
-                }
+                var field = _requestFields[parameterNumber];
+                statements.Add(field.Assign(parameter).Terminate());
             }
             return statements.ToArray();
         }
@@ -466,10 +446,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
-            _createNextRequestMethodName!,
-            [nextPageUri, _optionsField!.AsValueExpression])
-            .As<PipelineMessage>();
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
+        {
+            // For next link requests, we need to pass:
+            // 1. nextPageUri (replaces the first parameter which should be the NextPage parameter)
+            // 2. All the header parameters stored in fields
+            // 3. RequestOptions (should be the last parameter)
+            
+            var arguments = new List<ValueExpression> { nextPageUri };
+            
+            // Add header parameters (skip the first parameter since that's NextPage which we replaced)
+            // and skip the options parameter since that's added separately
+            for (int i = 1; i < _requestFields.Count; i++)
+            {
+                var field = _requestFields[i];
+                if (field != _optionsField)
+                {
+                    arguments.Add(field.AsValueExpression);
+                }
+            }
+            
+            // Add options at the end
+            arguments.Add(_optionsField!.AsValueExpression);
+            
+            return _clientField.Invoke(_createNextRequestMethodName!, arguments).As<PipelineMessage>();
+        }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
