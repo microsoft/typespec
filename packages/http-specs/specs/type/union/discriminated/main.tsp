@@ -37,7 +37,7 @@ interface EnvelopeDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with envelope serialization.
-    The union should serialize as:
+    When query parameter "kind" is null or "cat", the expected response is:
     ```json
     {
       "kind": "cat",
@@ -47,8 +47,16 @@ interface EnvelopeDiscriminated {
       }
     }
     ```
-    When kind is null or "cat", return response for "cat".
-    When kind is "dog", return response for "dog".
+    When it is "dog", expected response is:
+    ```json
+    {
+      "kind": "dog",
+      "value": {
+        "name": "Rex",
+        "bark": false
+      }
+    }
+    ```
     """)
   @get
   getEnvelope(@query kind?: string): PetWithEnvelope;
