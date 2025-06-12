@@ -1,26 +1,26 @@
 import type { Entity, Type } from "@typespec/compiler";
 
-export type EntityPropertyConfig<T> =
+export type PropertyRendering<T> =
   | { kind: "parent" | "nested-items" | "ref" | "value" | "skip" }
-  | NestedPropertyConfig<T>;
-export type EntityPropertyRawConfig<T> =
+  | NestedPropertyRendering<T>;
+export type PropertyRenderingRaw<T> =
   | "parent"
   | "nested-items"
   | "ref"
   | "value"
   | "skip"
-  | NestedPropertyRawConfig<T>;
+  | NestedPropertyRenderingRaw<T>;
 
-export type PropertyRawKinds<T> = { [K in keyof T]: EntityPropertyRawConfig<T[K]> };
-export type PropertyKinds<T> = { [K in keyof T]: EntityPropertyConfig<T[K]> };
+export type PropertiesRenderingRaw<T> = { [K in keyof T]: PropertyRenderingRaw<T[K]> };
+export type PropertiesRendering<T> = { [K in keyof T]: PropertyRendering<T[K]> };
 
-export type NestedPropertyConfig<T> = {
+export type NestedPropertyRendering<T> = {
   kind: "nested";
-  properties: PropertyKinds<T>;
+  properties: PropertiesRendering<T>;
 };
-export type NestedPropertyRawConfig<T> = {
+export type NestedPropertyRenderingRaw<T> = {
   kind: "nested";
-  properties: PropertyRawKinds<T>;
+  properties: PropertiesRenderingRaw<T>;
 };
 
 export const CommonPropsConfig = {
@@ -151,11 +151,11 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
 });
 
 type PropsToDefine<T extends Type> = Omit<T, HiddenPropsType | keyof typeof CommonPropsConfig>;
-type TypeRawConfig<T extends Type> = PropertyRawKinds<PropsToDefine<T>> | null;
+type TypeRawConfig<T extends Type> = PropertiesRenderingRaw<PropsToDefine<T>> | null;
 type TypeGraphRawConfig = {
   [K in Type["kind"]]: TypeRawConfig<Extract<Type, { kind: K }>>;
 };
-type TypeConfig<T extends Type> = PropertyKinds<T> | null;
+type TypeConfig<T extends Type> = PropertiesRendering<T> | null;
 type TypeGraphConfig = {
   [K in Type["kind"]]: TypeConfig<Extract<Type, { kind: K }>>;
 };
@@ -167,12 +167,12 @@ export const HiddenPropsSet = new Set(HiddenProps);
 export function getPropertyRendering<T extends Type, K extends keyof T>(
   type: T,
   key: K,
-): EntityPropertyRawConfig<T> {
+): PropertyRenderingRaw<T> {
   const properties = (TypeConfig as any)[type.kind];
   const action = properties?.[key] ?? (CommonPropsConfig as any)[key];
   return action;
 }
-export function getRenderingConfig<T extends Entity>(type: T): PropertyKinds<T> | null {
+export function getRenderingConfig<T extends Entity>(type: T): PropertiesRendering<T> | null {
   return (TypeConfig as any)[(type as any).kind];
 }
 
@@ -198,13 +198,13 @@ function buildConfigForKind<T extends Type>(config: TypeRawConfig<T> | null): Ty
 }
 
 function buildConfigForProperty<T extends Type>(
-  value: EntityPropertyRawConfig<T>,
-): EntityPropertyConfig<T> {
+  value: PropertyRenderingRaw<T>,
+): PropertyRendering<T> {
   if (typeof value === "string") {
     return { kind: value };
   }
   return {
     kind: "nested",
-    properties: buildConfigForKind(value.properties) as PropertyKinds<T>,
+    properties: buildConfigForKind(value.properties) as PropertiesRendering<T>,
   };
 }

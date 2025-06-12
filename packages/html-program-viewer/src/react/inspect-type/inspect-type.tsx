@@ -6,8 +6,8 @@ import { Literal, Mono, TypeKind } from "../common.js";
 import { JsValue } from "../js-inspector/js-value/js-value.js";
 import {
   getRenderingConfig,
-  type EntityPropertyConfig,
-  type PropertyKinds,
+  type PropertiesRendering,
+  type PropertyRendering,
 } from "../type-config.js";
 import { useTreeNavigatorOptional } from "../use-tree-navigation.js";
 import style from "./inspect-type.module.css";
@@ -159,7 +159,13 @@ const SimpleType = ({ type, children }: { type: Type; children: ReactNode }) => 
 const EntityProperties = ({ entity }: { entity: Entity }) => {
   return <InspectObject value={entity} config={getRenderingConfig(entity)} />;
 };
-const InspectObject = ({ value, config }: { value: object; config: PropertyKinds<any> | null }) => {
+const InspectObject = ({
+  value,
+  config,
+}: {
+  value: object;
+  config: PropertiesRendering<any> | null;
+}) => {
   const props = Object.entries(value)
     .map(([key, value]) => {
       const action = config?.[key];
@@ -176,7 +182,7 @@ const InspectObject = ({ value, config }: { value: object; config: PropertyKinds
 interface EntityPropertyProps {
   name: string;
   value: any;
-  action: EntityPropertyConfig<any>;
+  action: PropertyRendering<any>;
 }
 const EntityProperty = (props: EntityPropertyProps) => {
   return (
