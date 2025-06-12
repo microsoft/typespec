@@ -95,7 +95,7 @@ interface CustomNamesDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with custom property names.
-    The union should serialize as:
+    When query parameter "petType" is null or "cat", the expected response is:
     ```json
     {
       "petType": "cat",
@@ -105,8 +105,16 @@ interface CustomNamesDiscriminated {
       }
     }
     ```
-    When petType is null or "cat", return response for "cat".
-    When petType is "dog", return response for "dog".
+    When it is "dog", expected response is:
+    ```json
+    {
+      "petType": "dog",
+      "petData": {
+        "name": "Rex",
+        "bark": false
+      }
+    }
+    ```
     """)
   @get
   getCustomNames(@query petType?: string): PetWithCustomNames;
@@ -145,7 +153,7 @@ interface InlineDiscriminated {
   @scenario
   @scenarioDoc("""
     Test discriminated union with inline discriminator.
-    The union should serialize as:
+    When query parameter "kind" is null or "cat", the expected response is:
     ```json
     {
       "kind": "cat",
@@ -153,8 +161,14 @@ interface InlineDiscriminated {
       "meow": true
     }
     ```
-    When kind is null or "cat", return response for "cat".
-    When kind is "dog", return response for "dog".
+    When it is "dog", expected response is:
+    ```json
+    {
+      "kind": "dog",
+      "name": "Rex",
+      "bark": false
+    }
+    ```
     """)
   @get
   getInline(@query kind?: string): PetInline;
