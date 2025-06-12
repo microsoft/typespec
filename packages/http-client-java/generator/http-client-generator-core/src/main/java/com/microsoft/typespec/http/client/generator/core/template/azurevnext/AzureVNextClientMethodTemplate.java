@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -27,8 +26,7 @@ public class AzureVNextClientMethodTemplate extends ClientCoreClientMethodTempla
     }
 
     @Override
-    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock,
-        ProxyMethod restAPIMethod, JavaSettings settings) {
+    protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         String contextParam;
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.REQUEST_CONTEXT))) {
