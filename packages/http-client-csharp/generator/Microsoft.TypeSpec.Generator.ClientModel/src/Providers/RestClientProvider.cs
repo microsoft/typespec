@@ -802,7 +802,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 if (foundValues)
                 {
-                    values = [.. uniqueContentTypes.OrderBy(ct => ct)];
+                    values = [.. uniqueContentTypes.OrderBy(contentType => contentType)];
                     return true;
                 }
             }
@@ -821,7 +821,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            values = [.. uniqueContentTypes.OrderBy(ct => ct)];
+            values = [.. uniqueContentTypes.OrderBy(contentType => contentType)];
 
             return true;
         }
