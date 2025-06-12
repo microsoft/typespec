@@ -55,7 +55,7 @@ extends:
           - CSharp_Build
         condition: succeeded()
         variables:
-          PackageVersion: $[ dependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
+          PackageVersion: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
