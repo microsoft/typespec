@@ -776,10 +776,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static List<ParameterProvider> GetNextMethodParameters(InputServiceMethod serviceMethod)
         {
-            SortedList<int, ParameterProvider> sortedParams = [];
+            List<ParameterProvider> parameters = [];
 
             var operation = serviceMethod.Operation;
             var inputParameters = operation.Parameters;
+
+            // Next link operations always have the nextPage URI parameter first
+            parameters.Add(ScmKnownParameters.NextPage);
 
             foreach (InputParameter inputParam in inputParameters)
             {
@@ -804,20 +807,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                 parameter.DefaultValue = null;
 
-                if (parameter.DefaultValue == null)
-                {
-                    sortedParams.Add(100, parameter);
-                }
-                else
-                {
-                    sortedParams.Add(400, parameter);
-                }
+                parameters.Add(parameter);
             }
 
-            // Next link operations always have the nextPage URI parameter
-            sortedParams.Add(0, ScmKnownParameters.NextPage);
-
-            return [.. sortedParams.Values];
+            return parameters;
         }
 
         internal static InputModelType GetSpreadParameterModel(InputParameter inputParam)
