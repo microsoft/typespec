@@ -25,12 +25,12 @@ export type NestedPropertyRenderingRaw<T> = {
 
 export const CommonPropsConfig = {
   namespace: "parent",
+  name: "value",
 };
 
 const HiddenProps = [
   "entityKind",
   "kind",
-  "name",
   "node",
   "symbol",
   "templateNode",
@@ -102,7 +102,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     value: "value",
   },
   Union: {
-    expression: "skip",
+    expression: "value",
     variants: "nested-items",
   },
   UnionVariant: {
