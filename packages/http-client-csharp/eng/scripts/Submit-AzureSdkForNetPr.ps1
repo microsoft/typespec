@@ -185,27 +185,31 @@ try {
         throw "Failed to push branch"
     }
 
-    # Create PR using GitHub API
-    Write-Host "Creating PR in $RepoOwner/$RepoName..."
+    # Create PR using GitHub CLI
+    Write-Host "Creating PR in $RepoOwner/$RepoName using gh CLI..."
     
-    $headers = @{
-        "Accept" = "application/vnd.github.v3+json"
-        "Authorization" = "token $AuthToken"
-        "User-Agent" = "Microsoft-TypeSpec"
+    # Set the authentication token for gh CLI
+    $env:GH_TOKEN = $AuthToken
+    
+    # Create the PR using gh CLI
+    $ghOutput = gh pr create --repo "$RepoOwner/$RepoName" --title $PRTitle --body $PRBody --base $BaseBranch --head $PRBranch 2>&1
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to create PR using gh CLI: $ghOutput"
     }
     
-    $body = @{
-        title = $PRTitle
-        body = $PRBody
-        head = $PRBranch
-        base = $BaseBranch
-    } | ConvertTo-Json
+    # Extract PR URL from gh output
+    $prUrl = $ghOutput.Trim()
+    Write-Host "Successfully created PR: $prUrl"
     
-    $response = Invoke-RestMethod -Uri "https://api.github.com/repos/$RepoOwner/$RepoName/pulls" -Method Post -Headers $headers -Body $body -ContentType "application/json"
-    
-    Write-Host "Successfully created PR: $($response.html_url)"
-    Write-Host "##vso[task.setvariable variable=CreatedPR.Number]$($response.number)"
-    Write-Host "##vso[task.setvariable variable=CreatedPR.Url]$($response.html_url)"
+    # Extract PR number from URL
+    if ($prUrl -match "/pull/(\d+)$") {
+        $prNumber = $Matches[1]
+        Write-Host "##vso[task.setvariable variable=CreatedPR.Number]$prNumber"
+        Write-Host "##vso[task.setvariable variable=CreatedPR.Url]$prUrl"
+    } else {
+        Write-Warning "Could not extract PR number from URL: $prUrl"
+    }
 
 } catch {
     Write-Error "Error creating PR: $_"
