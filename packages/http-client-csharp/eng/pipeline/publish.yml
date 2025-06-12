@@ -53,7 +53,7 @@ extends:
         dependsOn: 
           - CSharp_Publish
           - CSharp_Build
-        condition: succeeded()
+        condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'), ne(variables['Build.Reason'], 'PullRequest'))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
         pool:
