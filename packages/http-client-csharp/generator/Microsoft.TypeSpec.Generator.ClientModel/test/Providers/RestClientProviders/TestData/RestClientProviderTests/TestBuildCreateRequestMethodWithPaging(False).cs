@@ -10,34 +10,39 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(global::System.Uri nextPage, string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, string accept, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, string accept, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
-            if ((nextPage != null))
+            uri.Reset(_endpoint);
+            uri.AppendQuery("someOtherName", p1, true);
+            if (((p2 != null) && !((p2 is global::Sample.ChangeTrackingList<int> changeTrackingList) && changeTrackingList.IsUndefined)))
             {
-                uri.Reset(nextPage);
-                request.Uri = uri.ToUri();
-                request.Headers.Set("Accept", accept);
+                uri.AppendQueryDelimited("p2", p2, " ", null, true);
             }
-            else
+            request.Uri = uri.ToUri();
+            if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
             {
-                uri.Reset(_endpoint);
-                uri.AppendQuery("someOtherName", p1, true);
-                if (((p2 != null) && !((p2 is global::Sample.ChangeTrackingList<int> changeTrackingList) && changeTrackingList.IsUndefined)))
-                {
-                    uri.AppendQueryDelimited("p2", p2, " ", null, true);
-                }
-                request.Uri = uri.ToUri();
-                if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
-                {
-                    request.Headers.SetDelimited("p3", p3, null);
-                }
-                request.Headers.Set("Accept", accept);
+                request.Headers.SetDelimited("p3", p3, null);
             }
+            request.Headers.Set("Accept", accept);
+            message.Apply(options);
+            return message;
+        }
+
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateNextGetCatsRequest(global::System.Uri nextPage, string p1, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3, string accept, global::System.ClientModel.Primitives.RequestOptions options)
+        {
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Method = "GET";
+            global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
+            uri.Reset(nextPage);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", accept);
             message.Apply(options);
             return message;
         }
