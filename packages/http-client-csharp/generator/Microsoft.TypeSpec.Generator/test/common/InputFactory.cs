@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
-            string? delimiter = null)
+            string? delimiter = null,
+            string? serverUrlTemplate = null)
         {
             return new InputParameter(
                 name,
@@ -96,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 explode,
                 delimiter,
-                null);
+                null,
+                serverUrlTemplate);
         }
 
         public static InputNamespace Namespace(

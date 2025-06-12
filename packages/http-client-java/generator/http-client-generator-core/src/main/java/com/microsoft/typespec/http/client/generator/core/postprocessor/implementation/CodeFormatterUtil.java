@@ -60,9 +60,8 @@ public final class CodeFormatterUtil {
         // First step to formatting code is to use the in-memory Google Java Formatter to remove unused imports.
         files = removeUnusedImports(files, logger);
 
-        Path tmpDir = null;
         try {
-            tmpDir = FileUtils.createTempDirectory("spotless" + UUID.randomUUID());
+            Path tmpDir = FileUtils.createTempDirectory("spotless" + UUID.randomUUID());
 
             for (Map.Entry<String, String> javaFile : files) {
                 Path file = tmpDir.resolve(javaFile.getKey());
@@ -85,13 +84,12 @@ public final class CodeFormatterUtil {
                 formattedFiles.add(new AbstractMap.SimpleEntry<>(javaFile.getKey(), Files.readString(file)));
             }
 
+            // only delete the temporary directory if all files were formatted successfully
+            Utils.deleteDirectory(tmpDir.toFile());
+
             return formattedFiles;
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
-        } finally {
-            if (tmpDir != null) {
-                Utils.deleteDirectory(tmpDir.toFile());
-            }
         }
     }
 
@@ -179,17 +177,25 @@ public final class CodeFormatterUtil {
 
         try {
             File outputFile = Files.createTempFile(pomPath.getParent(), "spotless", ".log").toFile();
-            outputFile.deleteOnExit();
             Process process = new ProcessBuilder(command).redirectErrorStream(true)
                 .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
                 .start();
             process.waitFor(300, TimeUnit.SECONDS);
 
-            if (process.isAlive() || process.exitValue() != 0) {
+            String errorType = null;
+            if (process.exitValue() != 0) {
+                errorType = "Process failed with exit code " + process.exitValue();
+            }
+
+            if (process.isAlive()) {
                 process.destroyForcibly();
+                errorType = "Process was killed after 300 seconds timeout";
+            }
+
+            if (errorType != null) {
                 throw new SpotlessException(
-                    "Spotless failed to complete within 300 seconds or failed with an error code. Output:\n"
-                        + Files.readString(outputFile.toPath()));
+                    String.format("Spotless failed to format code. Error type: %s, log file: '%s', output:\n%s",
+                        errorType, outputFile.getAbsolutePath(), Files.readString(outputFile.toPath())));
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run Spotless on generated code.", ex);

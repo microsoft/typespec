@@ -626,11 +626,18 @@ describe("Test Cookie Parameters", () => {
       );
     });
   });
+});
 
-  describe("Unsupported endpoint url", () => {
-    it("cookie parameter is not supported", async () => {
-      const program = await typeSpecCompile(
-        `
+describe("Endpoint parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("Multiple parameters are not supported", async () => {
+    const program = await typeSpecCompile(
+      `
               @service(#{
                 title: "Azure Csharp emitter Testing",
               })
@@ -645,23 +652,85 @@ describe("Test Cookie Parameters", () => {
 
               op test() : void;
         `,
-        runner,
-        { IsNamespaceNeeded: false },
-      );
-      const context = createEmitterContext(program);
-      const sdkContext = await createCSharpSdkContext(context);
-      const diagnostics = context.program.diagnostics;
-      createModel(sdkContext);
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const diagnostics = context.program.diagnostics;
+    createModel(sdkContext);
 
-      const unsupportedCookie = diagnostics.find(
-        (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
-      );
-      ok(unsupportedCookie);
-      strictEqual(
-        unsupportedCookie.message,
-        "Unsupported server endpoint URL: https://{param1}{param2}/",
-      );
-    });
+    const unsupportedCookie = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
+    );
+    ok(unsupportedCookie);
+    strictEqual(
+      unsupportedCookie.message,
+      "Unsupported server endpoint URL: https://{param1}{param2}/",
+    );
+  });
+  it("String endpoint parameter has correct type", async () => {
+    const program = await typeSpecCompile(
+      `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "https://{param1}",
+              "Test endpoint",
+              {
+                param1: string,
+              })
+              namespace Test;
+
+              op test() : void;
+        `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const codeModel = createModel(sdkContext);
+    const client = codeModel.clients[0];
+    ok(client);
+    ok(client.parameters);
+    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+    ok(endpointParameter);
+    strictEqual(endpointParameter.type.kind, "string");
+    strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.string");
+    strictEqual(endpointParameter.serverUrlTemplate, "https://{param1}");
+  });
+
+  it("URL endpoint parameter has correct type", async () => {
+    const program = await typeSpecCompile(
+      `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "{param1}",
+              "Test endpoint",
+              {
+                param1: url,
+              })
+              namespace Test;
+
+              op test() : void;
+        `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const codeModel = createModel(sdkContext);
+    const client = codeModel.clients[0];
+    ok(client);
+    ok(client.parameters);
+    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+    ok(endpointParameter);
+    strictEqual(endpointParameter.type.kind, "url");
+    strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.url");
+    strictEqual(endpointParameter.serverUrlTemplate, "{param1}");
   });
 });
 
