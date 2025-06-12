@@ -82,11 +82,6 @@ extends:
                   }
                   Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
                   Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
-
-                  # Set package URL
-                  $packageUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/nuget/v3/flat2/Microsoft.TypeSpec.Generator.ClientModel/$packageVersion"
-                  Write-Host "Package URL: $packageUrl"
-                  Write-Host "##vso[task.setvariable variable=PackageUrl]$packageUrl"
                 displayName: Set variables for PR creation
 
               - task: PowerShell@2
@@ -97,5 +92,4 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecPRUrl '$(TypeSpecPRUrl)'
-                    -PackageUrl '$(PackageUrl)'
                     -AuthToken '$(azuresdk-github-pat)'

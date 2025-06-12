@@ -7,8 +7,6 @@ Creates a pull request in the Azure SDK for .NET repository to update the Unbran
 The version of the Microsoft.TypeSpec.Generator.ClientModel package to update to.
 .PARAMETER TypeSpecPRUrl
 The URL of the pull request in the TypeSpec repository that triggered this update.
-.PARAMETER PackageUrl
-The URL of the published NuGet package.
 .PARAMETER AuthToken
 A GitHub personal access token for authentication.
 .PARAMETER BranchName
@@ -21,9 +19,6 @@ param(
 
   [Parameter(Mandatory = $true)]
   [string]$TypeSpecPRUrl,
-
-  [Parameter(Mandatory = $true)]
-  [string]$PackageUrl,
 
   [Parameter(Mandatory = $true)]
   [string]$AuthToken,
@@ -49,7 +44,6 @@ This PR updates the UnbrandedGeneratorVersion property in eng/Packages.Data.prop
 ## Details
 
 - Original TypeSpec PR: $TypeSpecPRUrl
-- Package URL: $PackageUrl
 
 ## Changes
 
