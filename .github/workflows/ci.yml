@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
       - uses: ./.github/actions/setup
 
