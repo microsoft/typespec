@@ -22,7 +22,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
     type = props.type;
   }
 
-  if (!props.type.name || props.type.name === "") {
+  if (!props.type.name) {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
   const refkeys = declarationRefkeys(props.refkey, props.type)[0]; // TODO: support multiple refkeys for declarations in alloy
@@ -30,7 +30,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
   const members = Array.from(type.members.entries());
 
   return (
-    <cs.Enum name={name} refkey={refkeys} accessModifier="public">
+    <cs.Enum name={name} refkey={refkeys} accessModifier={props.accessModifier ?? "public"}>
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
           return (
