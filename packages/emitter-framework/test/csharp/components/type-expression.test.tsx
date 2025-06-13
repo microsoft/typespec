@@ -1,6 +1,14 @@
-import { it } from "vitest";
+import { BasicTestRunner } from "@typespec/compiler/testing";
+import { beforeEach, it } from "vitest";
+import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
-it("renders a scalar type expression");
+let runner: BasicTestRunner;
+
+beforeEach(async () => {
+  runner = await createEmitterFrameworkTestRunner();
+});
+
+it("renders a scalar type expression", async () => {});
 it("renders an intrinsic type expression");
 it("renders a model type expression");
 it("renders a union type expression");

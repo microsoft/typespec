@@ -1,8 +1,10 @@
 import { Children } from "@alloy-js/core";
+import { Reference } from "@alloy-js/csharp";
 import { IntrinsicType, Scalar, Type } from "@typespec/compiler";
 import { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "./utils/refkey.js";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -10,6 +12,9 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps): Children {
   const { $ } = useTsp();
+  if (isDeclaration($, props.type)) {
+    return <Reference refkey={efRefkey(props.type)} />;
+  }
   if ($.scalar.is(props.type)) {
     return getScalarIntrinsicExpression($, props.type);
   }
@@ -89,6 +94,30 @@ export function getScalarIntrinsicExpression(
   }
 
   return tsType;
+}
+
+function isDeclaration($: Typekit, type: Type): boolean {
+  switch (type.kind) {
+    case "Namespace":
+    case "Interface":
+    case "Enum":
+    case "Operation":
+    case "EnumMember":
+      return true;
+    case "UnionVariant":
+      return false;
+
+    case "Model":
+      if ($.array.is(type) || $.record.is(type)) {
+        return false;
+      }
+
+      return Boolean(type.name);
+    case "Union":
+      return Boolean(type.name);
+    default:
+      return false;
+  }
 }
 
 export { intrinsicNameToCSharpType };
