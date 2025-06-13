@@ -95,18 +95,4 @@ public final class NewInterfacesImpl {
         return service.newOpInNewInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
             contentType, accept, body, requestContext);
     }
-
-    /**
-     * The newOpInNewInterface operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOpInNewInterface(NewModel body) {
-        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
-    }
 }

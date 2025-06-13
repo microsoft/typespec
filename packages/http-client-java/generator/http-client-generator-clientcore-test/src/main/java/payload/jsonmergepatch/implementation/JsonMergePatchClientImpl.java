@@ -133,20 +133,6 @@ public final class JsonMergePatchClientImpl {
      * Test content-type: application/merge-patch+json with required body.
      * 
      * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource createResource(Resource body) {
-        return createResourceWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with required body.
-     * 
-     * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -158,20 +144,6 @@ public final class JsonMergePatchClientImpl {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
         return service.updateResource(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with required body.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateResource(ResourcePatch body) {
-        return updateResourceWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -188,32 +160,5 @@ public final class JsonMergePatchClientImpl {
     public Response<Resource> updateOptionalResourceWithResponse(ResourcePatch body, RequestContext requestContext) {
         final String accept = "application/json";
         return service.updateOptionalResource(this.getEndpoint(), accept, body, requestContext);
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with optional body.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateOptionalResource(ResourcePatch body) {
-        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
-     * Test content-type: application/merge-patch+json with optional body.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return details about a resource.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Resource updateOptionalResource() {
-        final ResourcePatch body = null;
-        return updateOptionalResourceWithResponse(body, RequestContext.none()).getValue();
     }
 }

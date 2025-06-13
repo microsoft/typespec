@@ -109,18 +109,6 @@ public final class DatetimeOperationsImpl {
     }
 
     /**
-     * Get models that will return all properties in the model.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DatetimeProperty getNonNull() {
-        return getNonNullWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Get models that will return the default object.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -133,18 +121,6 @@ public final class DatetimeOperationsImpl {
     public Response<DatetimeProperty> getNullWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getNull(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DatetimeProperty getNull() {
-        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -164,19 +140,6 @@ public final class DatetimeOperationsImpl {
     }
 
     /**
-     * Put a body with all properties present.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNonNull(DatetimeProperty body) {
-        patchNonNullWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * Put a body with default properties.
      * 
      * @param body The body parameter.
@@ -190,18 +153,5 @@ public final class DatetimeOperationsImpl {
     public Response<Void> patchNullWithResponse(DatetimeProperty body, RequestContext requestContext) {
         final String contentType = "application/merge-patch+json";
         return service.patchNull(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void patchNull(DatetimeProperty body) {
-        patchNullWithResponse(body, RequestContext.none());
     }
 }

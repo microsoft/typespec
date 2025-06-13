@@ -113,17 +113,6 @@ public final class OAuth2ClientImpl {
     }
 
     /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
-    }
-
-    /**
      * Check whether client is authenticated. Will return an invalid bearer error.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -136,16 +125,5 @@ public final class OAuth2ClientImpl {
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.invalid(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated. Will return an invalid bearer error.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void invalid() {
-        invalidWithResponse(RequestContext.none());
     }
 }

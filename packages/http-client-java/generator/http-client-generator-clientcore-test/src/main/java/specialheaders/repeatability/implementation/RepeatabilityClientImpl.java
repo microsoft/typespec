@@ -109,15 +109,4 @@ public final class RepeatabilityClientImpl {
         return service.immediateSuccess(this.getEndpoint(), UUID.randomUUID().toString(),
             DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), requestContext);
     }
-
-    /**
-     * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void immediateSuccess() {
-        immediateSuccessWithResponse(RequestContext.none());
-    }
 }

@@ -53,7 +53,7 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public GetResponse6 get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void send(EnumsOnlyCases prop) {
-        this.serviceClient.send(prop);
+        sendWithResponse(prop, RequestContext.none());
     }
 }

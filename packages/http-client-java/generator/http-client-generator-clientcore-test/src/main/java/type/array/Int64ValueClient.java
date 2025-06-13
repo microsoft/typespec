@@ -54,7 +54,7 @@ public final class Int64ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public List<Long> get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -84,6 +84,6 @@ public final class Int64ValueClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(List<Long> body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

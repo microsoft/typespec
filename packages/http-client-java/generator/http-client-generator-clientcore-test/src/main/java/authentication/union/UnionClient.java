@@ -52,7 +52,7 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void validKey() {
-        this.serviceClient.validKey();
+        validKeyWithResponse(RequestContext.none());
     }
 
     /**
@@ -79,6 +79,6 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void validToken() {
-        this.serviceClient.validToken();
+        validTokenWithResponse(RequestContext.none());
     }
 }

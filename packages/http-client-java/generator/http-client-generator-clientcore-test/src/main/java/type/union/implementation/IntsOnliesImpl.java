@@ -85,18 +85,6 @@ public final class IntsOnliesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse3 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -111,18 +99,5 @@ public final class IntsOnliesImpl {
         final String contentType = "application/json";
         SendRequest3 sendRequest3 = new SendRequest3(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest3, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(GetResponseProp2 prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

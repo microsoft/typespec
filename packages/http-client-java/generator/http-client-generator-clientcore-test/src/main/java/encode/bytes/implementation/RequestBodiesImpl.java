@@ -123,20 +123,6 @@ public final class RequestBodiesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(BinaryData value, long contentLength) {
-        defaultMethodWithResponse(value, contentLength, RequestContext.none());
-    }
-
-    /**
      * The octetStream operation.
      * 
      * @param value The value parameter.
@@ -151,20 +137,6 @@ public final class RequestBodiesImpl {
     public Response<Void> octetStreamWithResponse(BinaryData value, long contentLength, RequestContext requestContext) {
         final String contentType = "application/octet-stream";
         return service.octetStream(this.client.getEndpoint(), contentType, value, contentLength, requestContext);
-    }
-
-    /**
-     * The octetStream operation.
-     * 
-     * @param value The value parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void octetStream(BinaryData value, long contentLength) {
-        octetStreamWithResponse(value, contentLength, RequestContext.none());
     }
 
     /**
@@ -186,20 +158,6 @@ public final class RequestBodiesImpl {
     }
 
     /**
-     * The customContentType operation.
-     * 
-     * @param value The value parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void customContentType(BinaryData value, long contentLength) {
-        customContentTypeWithResponse(value, contentLength, RequestContext.none());
-    }
-
-    /**
      * The base64 operation.
      * 
      * @param value The value parameter.
@@ -213,19 +171,6 @@ public final class RequestBodiesImpl {
     public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.base64(this.client.getEndpoint(), contentType, value, requestContext);
-    }
-
-    /**
-     * The base64 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64(byte[] value) {
-        base64WithResponse(value, RequestContext.none());
     }
 
     /**
@@ -243,18 +188,5 @@ public final class RequestBodiesImpl {
         final String contentType = "application/json";
         Base64Uri valueConverted = Base64Uri.encode(value);
         return service.base64url(this.client.getEndpoint(), contentType, valueConverted, requestContext);
-    }
-
-    /**
-     * The base64url operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64url(byte[] value) {
-        base64urlWithResponse(value, RequestContext.none());
     }
 }

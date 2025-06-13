@@ -53,7 +53,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsModelProperty getNonNull() {
-        return this.serviceClient.getNonNull();
+        return getNonNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CollectionsModelProperty getNull() {
-        return this.serviceClient.getNull();
+        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -111,7 +111,7 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNonNull(CollectionsModelProperty body) {
-        this.serviceClient.patchNonNull(body);
+        patchNonNullWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class CollectionsModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNull(CollectionsModelProperty body) {
-        this.serviceClient.patchNull(body);
+        patchNullWithResponse(body, RequestContext.none());
     }
 }

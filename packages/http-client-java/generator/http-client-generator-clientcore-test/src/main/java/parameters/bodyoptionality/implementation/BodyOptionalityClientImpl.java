@@ -135,19 +135,6 @@ public final class BodyOptionalityClientImpl {
     }
 
     /**
-     * The requiredExplicit operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredExplicit(BodyModel body) {
-        requiredExplicitWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The requiredImplicit operation.
      * 
      * @param name The name parameter.
@@ -162,18 +149,5 @@ public final class BodyOptionalityClientImpl {
         final String contentType = "application/json";
         BodyModel bodyModel = new BodyModel(name);
         return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestContext);
-    }
-
-    /**
-     * The requiredImplicit operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredImplicit(String name) {
-        requiredImplicitWithResponse(name, RequestContext.none());
     }
 }

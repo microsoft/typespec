@@ -106,20 +106,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The safeintAsString operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public SafeintAsStringProperty safeintAsString(SafeintAsStringProperty value) {
-        return safeintAsStringWithResponse(value, RequestContext.none()).getValue();
-    }
-
-    /**
      * The uint32AsStringOptional operation.
      * 
      * @param value The value parameter.
@@ -138,20 +124,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The uint32AsStringOptional operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Uint32AsStringProperty uint32AsStringOptional(Uint32AsStringProperty value) {
-        return uint32AsStringOptionalWithResponse(value, RequestContext.none()).getValue();
-    }
-
-    /**
      * The uint8AsString operation.
      * 
      * @param value The value parameter.
@@ -167,19 +139,5 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.uint8AsString(this.client.getEndpoint(), contentType, accept, value, requestContext);
-    }
-
-    /**
-     * The uint8AsString operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Uint8AsStringProperty uint8AsString(Uint8AsStringProperty value) {
-        return uint8AsStringWithResponse(value, RequestContext.none()).getValue();
     }
 }

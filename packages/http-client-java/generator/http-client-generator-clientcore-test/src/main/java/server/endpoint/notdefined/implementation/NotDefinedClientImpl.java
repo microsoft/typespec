@@ -101,15 +101,4 @@ public final class NotDefinedClientImpl {
     public Response<Void> validWithResponse(RequestContext requestContext) {
         return service.valid(this.getEndpoint(), requestContext);
     }
-
-    /**
-     * The valid operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
-    }
 }

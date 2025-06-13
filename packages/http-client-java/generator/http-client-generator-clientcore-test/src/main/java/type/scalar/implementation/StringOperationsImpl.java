@@ -84,18 +84,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * get string value.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return string value.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public String get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * put string value.
      * 
      * @param body _.
@@ -109,18 +97,5 @@ public final class StringOperationsImpl {
     public Response<Void> putWithResponse(String body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * put string value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(String body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

@@ -92,18 +92,6 @@ public final class SpreadDifferentModelArraysImpl {
     }
 
     /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DifferentSpreadModelArrayRecord get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Put operation.
      * 
      * @param body body.
@@ -117,18 +105,5 @@ public final class SpreadDifferentModelArraysImpl {
     public Response<Void> putWithResponse(DifferentSpreadModelArrayRecord body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(DifferentSpreadModelArrayRecord body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

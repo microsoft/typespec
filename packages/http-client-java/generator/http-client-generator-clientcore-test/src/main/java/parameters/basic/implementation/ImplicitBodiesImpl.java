@@ -83,17 +83,4 @@ public final class ImplicitBodiesImpl {
         SimpleRequest simpleRequest = new SimpleRequest(name);
         return service.simple(this.client.getEndpoint(), contentType, simpleRequest, requestContext);
     }
-
-    /**
-     * The simple operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void simple(String name) {
-        simpleWithResponse(name, RequestContext.none());
-    }
 }
