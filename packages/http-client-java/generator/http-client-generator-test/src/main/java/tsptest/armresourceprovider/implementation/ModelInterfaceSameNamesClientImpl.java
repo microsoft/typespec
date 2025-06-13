@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
@@ -76,6 +77,28 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("modelInterfaceDifferentNameName") String modelInterfaceDifferentNameName,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/modelInterfaceDifferentNames/{modelInterfaceDifferentNameName}")
+        @ExpectedResponses({ 200, 204 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<Void>> delete(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("modelInterfaceDifferentNameName") String modelInterfaceDifferentNameName,
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/modelInterfaceDifferentNames/{modelInterfaceDifferentNameName}")
+        @ExpectedResponses({ 200, 204 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
+            @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("modelInterfaceDifferentNameName") String modelInterfaceDifferentNameName,
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
             @HeaderParam("Accept") String accept, Context context);
     }
 
@@ -185,6 +208,120 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
         String modelInterfaceDifferentNameName) {
         return getByResourceGroupWithResponse(resourceGroupName, modelInterfaceDifferentNameName, Context.NONE)
             .getValue();
+    }
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
+        String modelInterfaceDifferentNameName, String ifMatch, String ifNoneMatch) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (modelInterfaceDifferentNameName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, modelInterfaceDifferentNameName, ifMatch,
+                ifNoneMatch, accept, context))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Void> deleteAsync(String resourceGroupName, String modelInterfaceDifferentNameName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        return deleteWithResponseAsync(resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch)
+            .flatMap(ignored -> Mono.empty());
+    }
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> deleteWithResponse(String resourceGroupName, String modelInterfaceDifferentNameName,
+        String ifMatch, String ifNoneMatch, Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (modelInterfaceDifferentNameName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch,
+            accept, context);
+    }
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void delete(String resourceGroupName, String modelInterfaceDifferentNameName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        deleteWithResponse(resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch, Context.NONE);
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(ModelInterfaceSameNamesClientImpl.class);

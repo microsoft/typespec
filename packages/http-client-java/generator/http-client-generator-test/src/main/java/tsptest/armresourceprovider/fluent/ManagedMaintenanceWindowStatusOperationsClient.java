@@ -7,7 +7,9 @@ package tsptest.armresourceprovider.fluent;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceMethod;
 import com.azure.core.http.rest.Response;
+import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.Context;
+import com.azure.core.util.polling.SyncPoller;
 import tsptest.armresourceprovider.fluent.models.ManagedMaintenanceWindowStatusInner;
 
 /**
@@ -43,4 +45,63 @@ public interface ManagedMaintenanceWindowStatusOperationsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     ManagedMaintenanceWindowStatusInner getByResourceGroup(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch, Context context);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName);
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
+        String ifNoneMatch, Context context);
 }

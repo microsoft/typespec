@@ -332,8 +332,8 @@ interface ManagedMaintenanceWindowStatus {
   // test renaming delete -> deleteByResourceGroup in fluent method
   delete is ArmResourceDeleteAsync<
     ManagedMaintenanceWindowStatusContent,
-    Parameters = IfMatchParameters<CustomTemplateResource> &
-      IfNoneMatchParameters<CustomTemplateResource>
+    Parameters = IfMatchParameters<ManagedMaintenanceWindowStatusContent> &
+      IfNoneMatchParameters<ManagedMaintenanceWindowStatusContent>
   >;
 }
 
@@ -342,9 +342,9 @@ interface ModelInterfaceSameName {
   get is ArmResourceRead<ModelInterfaceDifferentName>;
   // test renaming deleteWithResponse -> deleteByResourceGroupWithResponse in fluent method
   delete is ArmResourceDeleteSync<
-    ManagedMaintenanceWindowStatusContent,
-    Parameters = IfMatchParameters<CustomTemplateResource> &
-      IfNoneMatchParameters<CustomTemplateResource>
+    ModelInterfaceDifferentName,
+    Parameters = IfMatchParameters<ModelInterfaceDifferentName> &
+      IfNoneMatchParameters<ModelInterfaceDifferentName>
   >;
 }
 

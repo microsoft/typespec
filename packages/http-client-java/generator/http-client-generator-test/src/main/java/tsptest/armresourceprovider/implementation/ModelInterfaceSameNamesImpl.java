@@ -48,6 +48,16 @@ public final class ModelInterfaceSameNamesImpl implements ModelInterfaceSameName
         }
     }
 
+    public Response<Void> deleteByResourceGroupWithResponse(String resourceGroupName,
+        String modelInterfaceDifferentNameName, String ifMatch, String ifNoneMatch, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch, context);
+    }
+
+    public void deleteByResourceGroup(String resourceGroupName, String modelInterfaceDifferentNameName) {
+        this.serviceClient().delete(resourceGroupName, modelInterfaceDifferentNameName);
+    }
+
     private ModelInterfaceSameNamesClient serviceClient() {
         return this.innerClient;
     }

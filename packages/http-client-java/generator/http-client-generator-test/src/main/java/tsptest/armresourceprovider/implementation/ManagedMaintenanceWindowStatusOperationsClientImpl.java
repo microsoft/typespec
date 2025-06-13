@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.annotation.Delete;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
@@ -19,9 +20,15 @@ import com.azure.core.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
+import com.azure.core.management.polling.PollResult;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
+import com.azure.core.util.polling.PollerFlux;
+import com.azure.core.util.polling.SyncPoller;
+import java.nio.ByteBuffer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
 import tsptest.armresourceprovider.fluent.models.ManagedMaintenanceWindowStatusInner;
@@ -78,6 +85,28 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")
+        @ExpectedResponses({ 200, 202, 204 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<Flux<ByteBuffer>>> delete(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")
+        @ExpectedResponses({ 200, 202, 204 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<BinaryData> deleteSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
+            @HeaderParam("If-Match") String ifMatch, @HeaderParam("If-None-Match") String ifNoneMatch,
             @HeaderParam("Accept") String accept, Context context);
     }
 
@@ -190,6 +219,304 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
         String managedMaintenanceWindowStatusContentName) {
         return getByResourceGroupWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName,
             Context.NONE).getValue();
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (managedMaintenanceWindowStatusContentName == null) {
+            return Mono.error(new IllegalArgumentException(
+                "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
+                ifNoneMatch, accept, context))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> deleteWithResponse(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (managedMaintenanceWindowStatusContentName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
+            ifNoneMatch, accept, Context.NONE);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> deleteWithResponse(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch, Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (managedMaintenanceWindowStatusContentName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch,
+            ifNoneMatch, accept, context);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
+        Mono<Response<Flux<ByteBuffer>>> mono = deleteWithResponseAsync(resourceGroupName,
+            managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
+        return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
+            this.client.getContext());
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        Mono<Response<Flux<ByteBuffer>>> mono = deleteWithResponseAsync(resourceGroupName,
+            managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
+        return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
+            this.client.getContext());
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch) {
+        Response<BinaryData> response
+            = deleteWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        Response<BinaryData> response
+            = deleteWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
+        String managedMaintenanceWindowStatusContentName, String ifMatch, String ifNoneMatch, Context context) {
+        Response<BinaryData> response = deleteWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName,
+            ifMatch, ifNoneMatch, context);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName,
+        String ifMatch, String ifNoneMatch) {
+        return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
+            .last()
+            .flatMap(this.client::getLroFinalResultOrError);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<Void> deleteAsync(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        return beginDeleteAsync(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
+            .last()
+            .flatMap(this.client::getLroFinalResultOrError);
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+        final String ifMatch = null;
+        final String ifNoneMatch = null;
+        beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch)
+            .getFinalResult();
+    }
+
+    /**
+     * Delete a ManagedMaintenanceWindowStatusContent.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
+        String ifNoneMatch, Context context) {
+        beginDelete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch, context)
+            .getFinalResult();
     }
 
     private static final ClientLogger LOGGER
