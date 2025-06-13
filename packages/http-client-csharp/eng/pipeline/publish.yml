@@ -67,6 +67,7 @@ extends:
           PackageVersionAlt2: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.Build_Packages.emitterVersion'] ]
           PackageVersionAlt3: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.mgcClientModelVersion'] ]
           PackageVersionAlt4: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.packageVersion'] ]
+          PackageVersionAlt5: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -81,6 +82,7 @@ extends:
                   Write-Host "Package version Alt2: $(PackageVersionAlt2)"
                   Write-Host "Package version Alt3: $(PackageVersionAlt3)"
                   Write-Host "Package version Alt4: $(PackageVersionAlt4)"
+                  Write-Host "Package version Alt5: $(PackageVersionAlt5)"
                   Write-Host "Debugging stage dependencies and outputs:"
                   
                   # Try different possible references as strings to see their literal values
@@ -89,8 +91,10 @@ extends:
                   Write-Host "PackageVersionAlt1 variable: '$(PackageVersionAlt1)'"
                   Write-Host "PackageVersionAlt2 variable: '$(PackageVersionAlt2)'"
                   Write-Host "PackageVersionAlt3 variable: '$(PackageVersionAlt3)'"
+                  Write-Host "PackageVersionAlt4 variable: '$(PackageVersionAlt4)'"
+                  Write-Host "PackageVersionAlt5 variable: '$(PackageVersionAlt5)'"
                   # If all the above variables are empty, try to extract version from the repository 
-                  if ([string]::IsNullOrEmpty('$(PackageVersion)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt1)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt2)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt3)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt4)')) {
+                  if ([string]::IsNullOrEmpty('$(PackageVersion)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt1)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt2)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt3)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt4)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt5)')) {
                     Write-Host "All version variables are empty, trying to extract from package.json"
                     $packageJsonPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/package.json"
                     if (Test-Path $packageJsonPath) {
@@ -106,6 +110,7 @@ extends:
                     if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt2)' }
                     if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt3)' }
                     if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt4)' }
+                    if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt5)' }
                     Write-Host "Selected version: $selectedVersion"
                     Write-Host "##vso[task.setvariable variable=FinalPackageVersion]$selectedVersion"
                   }
