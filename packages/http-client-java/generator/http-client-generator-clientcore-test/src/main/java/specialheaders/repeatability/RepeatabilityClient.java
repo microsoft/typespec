@@ -52,6 +52,6 @@ public final class RepeatabilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void immediateSuccess() {
-        this.serviceClient.immediateSuccess();
+        immediateSuccessWithResponse(RequestContext.none());
     }
 }

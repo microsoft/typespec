@@ -2958,7 +2958,7 @@
           "type": {
             "$id": "283",
             "kind": "url",
-            "name": "url",
+            "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
           },
           "location": "Uri",
@@ -2977,7 +2977,8 @@
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "value": "http://localhost:3000"
-          }
+          },
+          "serverUrlTemplate": "{endpoint}"
         }
       ],
       "decorators": [],
@@ -3201,7 +3202,7 @@
               "type": {
                 "$id": "297",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -3220,7 +3221,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -3447,7 +3449,7 @@
               "type": {
                 "$id": "311",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -3466,7 +3468,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -3693,7 +3696,7 @@
               "type": {
                 "$id": "325",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -3712,7 +3715,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -3939,7 +3943,7 @@
               "type": {
                 "$id": "339",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -3958,7 +3962,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -4185,7 +4190,7 @@
               "type": {
                 "$id": "353",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -4204,7 +4209,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -4431,7 +4437,7 @@
               "type": {
                 "$id": "367",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -4450,7 +4456,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -4677,7 +4684,7 @@
               "type": {
                 "$id": "381",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -4696,7 +4703,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -4923,7 +4931,7 @@
               "type": {
                 "$id": "395",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -4942,7 +4950,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -5169,7 +5178,7 @@
               "type": {
                 "$id": "409",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -5188,7 +5197,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -5415,7 +5425,7 @@
               "type": {
                 "$id": "423",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -5434,7 +5444,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -5661,7 +5672,7 @@
               "type": {
                 "$id": "437",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -5680,7 +5691,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -5907,7 +5919,7 @@
               "type": {
                 "$id": "451",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -5926,7 +5938,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -6153,7 +6166,7 @@
               "type": {
                 "$id": "465",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -6172,7 +6185,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -6399,7 +6413,7 @@
               "type": {
                 "$id": "479",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -6418,7 +6432,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -6645,7 +6660,7 @@
               "type": {
                 "$id": "493",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -6664,7 +6679,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -6891,7 +6907,7 @@
               "type": {
                 "$id": "507",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -6910,7 +6926,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -7137,7 +7154,7 @@
               "type": {
                 "$id": "521",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -7156,7 +7173,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -7383,7 +7401,7 @@
               "type": {
                 "$id": "535",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -7402,7 +7420,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -7629,7 +7648,7 @@
               "type": {
                 "$id": "549",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -7648,7 +7667,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -7875,7 +7895,7 @@
               "type": {
                 "$id": "563",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -7894,7 +7914,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -8121,7 +8142,7 @@
               "type": {
                 "$id": "577",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -8140,7 +8161,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -8367,7 +8389,7 @@
               "type": {
                 "$id": "591",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -8386,7 +8408,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -8613,7 +8636,7 @@
               "type": {
                 "$id": "605",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -8632,7 +8655,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -8859,7 +8883,7 @@
               "type": {
                 "$id": "619",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -8878,7 +8902,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -9105,7 +9130,7 @@
               "type": {
                 "$id": "633",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -9124,7 +9149,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -9351,7 +9377,7 @@
               "type": {
                 "$id": "647",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -9370,7 +9396,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -9597,7 +9624,7 @@
               "type": {
                 "$id": "661",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -9616,7 +9643,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -9843,7 +9871,7 @@
               "type": {
                 "$id": "675",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -9862,7 +9890,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -10089,7 +10118,7 @@
               "type": {
                 "$id": "689",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -10108,7 +10137,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -10335,7 +10365,7 @@
               "type": {
                 "$id": "703",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -10354,7 +10384,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],
@@ -10581,7 +10612,7 @@
               "type": {
                 "$id": "717",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -10600,7 +10631,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],

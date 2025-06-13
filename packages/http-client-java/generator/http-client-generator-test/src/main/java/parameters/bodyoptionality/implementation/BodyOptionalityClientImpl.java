@@ -138,7 +138,7 @@ public final class BodyOptionalityClientImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "BodyOptionalityClien")
+    @ServiceInterface(name = "BodyOptionalityClient")
     public interface BodyOptionalityClientService {
         @Post("/parameters/body-optionality/required-explicit")
         @ExpectedResponses({ 204 })

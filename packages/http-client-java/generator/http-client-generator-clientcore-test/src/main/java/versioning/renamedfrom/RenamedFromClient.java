@@ -58,6 +58,6 @@ public final class RenamedFromClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NewModel newOp(String newQuery, NewModel body) {
-        return this.serviceClient.newOp(newQuery, body);
+        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
     }
 }

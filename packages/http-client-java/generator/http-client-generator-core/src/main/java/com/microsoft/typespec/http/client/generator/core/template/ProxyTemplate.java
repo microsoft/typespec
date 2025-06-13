@@ -45,11 +45,10 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             });
             if (settings.isAzureV1()) {
                 classBlock.annotation(String.format("Host(\"%1$s\")", restAPI.getBaseURL()));
-                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName())));
+                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")", restAPI.getClientTypeName()));
             } else {
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\", host = \"%2$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName()), restAPI.getBaseURL()));
+                    restAPI.getClientTypeName(), restAPI.getBaseURL()));
             }
 
             JavaVisibility visibility = JavaVisibility.Private;
@@ -133,16 +132,12 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                         }
                     }
 
-                    if (!settings.isDataPlaneClient() || !settings.isAzureV1() || isExceptionCustomized()) {
-                        // write @UnexpectedResponseExceptionType
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
-                            writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
-                        }
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
-                            writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
-                        }
+                    // write @UnexpectedResponseExceptionType
+                    if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
+                        writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
+                    }
+                    if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
+                        writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
                     }
 
                     ArrayList<String> parameterDeclarationList = new ArrayList<>();
@@ -296,14 +291,6 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             interfaceBlock.publicMethod(String.format("%1$s %2$s(%3$s)", restAPIMethodReturnValueClientType,
                 restAPIMethod.getName(), parameterDeclarations));
         }
-    }
-
-    private static String serviceInterfaceWithLengthLimit(String serviceInterfaceName) {
-        final int lengthLimit = 20;
-
-        return serviceInterfaceName.length() > lengthLimit
-            ? serviceInterfaceName.substring(0, lengthLimit)
-            : serviceInterfaceName;
     }
 
     /**

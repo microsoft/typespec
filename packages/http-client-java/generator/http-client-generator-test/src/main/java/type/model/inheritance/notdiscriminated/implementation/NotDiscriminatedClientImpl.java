@@ -125,7 +125,7 @@ public final class NotDiscriminatedClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NotDiscriminatedClie")
+    @ServiceInterface(name = "NotDiscriminatedClient")
     public interface NotDiscriminatedClientService {
         @Post("/type/model/inheritance/not-discriminated/valid")
         @ExpectedResponses({ 204 })

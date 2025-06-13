@@ -4,7 +4,6 @@ import authentication.oauth2.InvalidAuth;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -62,7 +61,7 @@ public final class OAuth2ClientImpl {
     public OAuth2ClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(OAuth2ClientService.class, this.httpPipeline);
+        this.service = OAuth2ClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -114,17 +113,6 @@ public final class OAuth2ClientImpl {
     }
 
     /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
-    }
-
-    /**
      * Check whether client is authenticated. Will return an invalid bearer error.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -137,16 +125,5 @@ public final class OAuth2ClientImpl {
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.invalid(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated. Will return an invalid bearer error.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void invalid() {
-        invalidWithResponse(RequestContext.none());
     }
 }

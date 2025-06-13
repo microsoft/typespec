@@ -4,7 +4,6 @@ import authentication.http.custom.InvalidAuth;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -62,7 +61,7 @@ public final class CustomClientImpl {
     public CustomClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(CustomClientService.class, this.httpPipeline);
+        this.service = CustomClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -116,17 +115,6 @@ public final class CustomClientImpl {
     /**
      * Check whether client is authenticated.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void valid() {
-        validWithResponse(RequestContext.none());
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -137,16 +125,5 @@ public final class CustomClientImpl {
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.invalid(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void invalid() {
-        invalidWithResponse(RequestContext.none());
     }
 }

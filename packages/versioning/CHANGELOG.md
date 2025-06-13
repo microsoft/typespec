@@ -1,5 +1,12 @@
 # Change Log - @typespec/versioning
 
+## 0.71.0
+
+### Bug Fixes
+
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Fix tuples not correctly versioned
+
+
 ## 0.70.0
 
 No changes, version bump only.

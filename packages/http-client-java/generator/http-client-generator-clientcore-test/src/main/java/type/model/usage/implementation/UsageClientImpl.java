@@ -3,7 +3,6 @@ package type.model.usage.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -65,7 +64,7 @@ public final class UsageClientImpl {
     public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(UsageClientService.class, this.httpPipeline);
+        this.service = UsageClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -128,19 +127,6 @@ public final class UsageClientImpl {
     }
 
     /**
-     * The input operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void input(InputRecord input) {
-        inputWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The output operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -153,18 +139,6 @@ public final class UsageClientImpl {
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.output(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The output operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used in operation return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public OutputRecord output() {
-        return outputWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -183,19 +157,5 @@ public final class UsageClientImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The inputAndOutput operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return record used both as operation parameter and return type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public InputOutputRecord inputAndOutput(InputOutputRecord body) {
-        return inputAndOutputWithResponse(body, RequestContext.none()).getValue();
     }
 }

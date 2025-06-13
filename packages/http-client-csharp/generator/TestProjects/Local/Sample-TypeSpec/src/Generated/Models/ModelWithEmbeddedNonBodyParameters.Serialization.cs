@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
     public partial class ModelWithEmbeddedNonBodyParameters : IJsonModel<ModelWithEmbeddedNonBodyParameters>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/> for deserialization. </summary>
@@ -158,14 +158,6 @@ namespace SampleTypeSpec
                 return null;
             }
             return BinaryContent.Create(modelWithEmbeddedNonBodyParameters, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithEmbeddedNonBodyParameters"/> from. </param>
-        public static explicit operator ModelWithEmbeddedNonBodyParameters(ClientResult result)
-        {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeModelWithEmbeddedNonBodyParameters(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

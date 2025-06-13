@@ -57,7 +57,7 @@ public final class StringExtensibleNamedsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "UnionClientStringExt")
+    @ServiceInterface(name = "UnionClientStringExtensibleNameds")
     public interface StringExtensibleNamedsService {
         @Get("/type/union/string-extensible-named")
         @ExpectedResponses({ 200 })

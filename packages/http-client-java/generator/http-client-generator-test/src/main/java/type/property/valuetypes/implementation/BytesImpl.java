@@ -56,7 +56,7 @@ public final class BytesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientByte")
+    @ServiceInterface(name = "ValueTypesClientBytes")
     public interface BytesService {
         @Get("/type/property/value-types/bytes")
         @ExpectedResponses({ 200 })

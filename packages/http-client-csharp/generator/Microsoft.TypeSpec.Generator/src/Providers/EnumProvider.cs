@@ -38,7 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _inputType = input;
             _deprecated = input.Deprecation;
             IsExtensible = input.IsExtensible;
-            Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? FormattableStringHelpers.Empty;
         }
 
         public bool IsExtensible { get; }
@@ -53,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         protected override string BuildName() => _inputType.Name.ToIdentifierName();
-        protected override FormattableString Description { get; }
+        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

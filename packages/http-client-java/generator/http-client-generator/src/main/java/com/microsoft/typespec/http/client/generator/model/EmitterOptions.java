@@ -31,12 +31,12 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean includeApiViewProperties = true;
     private String packageVersion;
     private Boolean useObjectForUnknown = false;
-    private Boolean useEclipseLanguageServer = true;
     private Map<String, PollingSettings> polling = new HashMap<>();
     private String modelsSubpackage;
     private String apiVersion;
     private Boolean useRestProxy;
     private String renameModel;
+    private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private DevOptions devOptions;
 
     // internal
@@ -88,10 +88,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
-    }
-
-    public Boolean getUseEclipseLanguageServer() {
-        return useEclipseLanguageServer;
     }
 
     public List<String> getServiceVersions() {
@@ -154,6 +150,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return renameModel;
     }
 
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -192,8 +192,6 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.includeApiViewProperties = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("use-object-for-unknown".equals(fieldName)) {
                 options.useObjectForUnknown = reader.getNullable(EmitterOptions::getBoolean);
-            } else if ("use-eclipse-language-server".equals(fieldName)) {
-                options.useEclipseLanguageServer = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("polling".equals(fieldName)) {
                 options.polling = reader.readMap(PollingSettings::fromJson);
             } else if ("arm".equals(fieldName)) {
@@ -212,6 +210,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.useRestProxy = reader.getNullable(JsonReader::getBoolean);
             } else if ("rename-model".equals(fieldName)) {
                 options.renameModel = reader.getNullable(EmitterOptions::getStringOrMap);
+            } else if ("use-default-http-status-code-to-exception-type-mapping".equals(fieldName)) {
+                options.useDefaultHttpStatusCodeToExceptionTypeMapping = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }

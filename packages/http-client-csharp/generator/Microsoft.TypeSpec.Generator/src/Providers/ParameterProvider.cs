@@ -62,8 +62,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 DefaultValue = Snippet.Default;
             }
             Type = type;
-            Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
-                ? ParameterValidationType.AssertNotNull
+            Validation = inputParameter.IsRequired && Type is { IsValueType: false, IsNullable: false }
+                ? inputParameter.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String } ?
+                    ParameterValidationType.AssertNotNullOrEmpty :
+                    ParameterValidationType.AssertNotNull
                 : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();

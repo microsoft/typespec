@@ -78,7 +78,7 @@ public class Javagen extends NewPlugin {
             // Step 4: Print to files
             // Then for each formatted file write the file. This is done synchronously as there is potential race
             // conditions that can lead to deadlocking.
-            new Postprocessor(this, settings.isUseEclipseLanguageServer()).postProcess(javaPackage.getJavaFiles()
+            new Postprocessor(this).postProcess(javaPackage.getJavaFiles()
                 .stream()
                 .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 

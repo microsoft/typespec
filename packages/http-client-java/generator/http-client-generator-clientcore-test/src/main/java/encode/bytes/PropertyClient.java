@@ -57,7 +57,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DefaultBytesProperty defaultMethod(DefaultBytesProperty body) {
-        return this.serviceClient.defaultMethod(body);
+        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -88,7 +88,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64BytesProperty base64(Base64BytesProperty body) {
-        return this.serviceClient.base64(body);
+        return base64WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -120,7 +120,7 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64urlBytesProperty base64url(Base64urlBytesProperty body) {
-        return this.serviceClient.base64url(body);
+        return base64urlWithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -152,6 +152,6 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Base64urlArrayBytesProperty base64urlArray(Base64urlArrayBytesProperty body) {
-        return this.serviceClient.base64urlArray(body);
+        return base64urlArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

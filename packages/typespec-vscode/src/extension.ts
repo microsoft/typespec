@@ -24,10 +24,15 @@ import {
   Result,
   ResultCode,
   SettingName,
+  TypeSpecExtensionApi,
 } from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
-import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
+import {
+  createTypeSpecProject,
+  InitTemplatesUrlSetting,
+  registerInitTemplateUrls as registerInitTemplateUrlsInternal,
+} from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
@@ -321,6 +326,15 @@ export async function activate(context: ExtensionContext) {
       telemetryClient.sendDelayedTelemetryEvents();
     },
   );
+
+  // Expose API for other extensions to consume
+  const api: TypeSpecExtensionApi = {
+    /** Register more InitTemplateUrls which will be included in the Create TypeSpec Project scenario */
+    registerInitTemplateUrls(items: InitTemplatesUrlSetting[]) {
+      registerInitTemplateUrlsInternal(items);
+    },
+  };
+  return api;
 }
 
 export async function deactivate() {

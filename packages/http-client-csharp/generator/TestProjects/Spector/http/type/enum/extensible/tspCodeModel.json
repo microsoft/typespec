@@ -269,7 +269,7 @@
           "type": {
             "$id": "28",
             "kind": "url",
-            "name": "url",
+            "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
           },
           "location": "Uri",
@@ -288,7 +288,8 @@
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "value": "http://localhost:3000"
-          }
+          },
+          "serverUrlTemplate": "{endpoint}"
         }
       ],
       "decorators": [],
@@ -713,7 +714,7 @@
               "type": {
                 "$id": "52",
                 "kind": "url",
-                "name": "url",
+                "name": "endpoint",
                 "crossLanguageDefinitionId": "TypeSpec.url"
               },
               "location": "Uri",
@@ -732,7 +733,8 @@
                   "crossLanguageDefinitionId": "TypeSpec.string"
                 },
                 "value": "http://localhost:3000"
-              }
+              },
+              "serverUrlTemplate": "{endpoint}"
             }
           ],
           "decorators": [],

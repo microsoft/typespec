@@ -3,7 +3,6 @@ package parameters.spread.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class ModelsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ModelsImpl(SpreadClientImpl client) {
-        this.service = RestProxy.create(ModelsService.class, client.getHttpPipeline());
+        this.service = ModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -124,19 +123,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The spreadAsRequestBody operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadAsRequestBody(String name) {
-        spreadAsRequestBodyWithResponse(name, RequestContext.none());
-    }
-
-    /**
      * The spreadCompositeRequestOnlyWithBody operation.
      * 
      * @param body The body parameter.
@@ -154,19 +140,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The spreadCompositeRequestOnlyWithBody operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadCompositeRequestOnlyWithBody(BodyParameter body) {
-        spreadCompositeRequestOnlyWithBodyWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The spreadCompositeRequestWithoutBody operation.
      * 
      * @param name The name parameter.
@@ -181,20 +154,6 @@ public final class ModelsImpl {
     public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
         RequestContext requestContext) {
         return service.spreadCompositeRequestWithoutBody(this.client.getEndpoint(), name, testHeader, requestContext);
-    }
-
-    /**
-     * The spreadCompositeRequestWithoutBody operation.
-     * 
-     * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadCompositeRequestWithoutBody(String name, String testHeader) {
-        spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, RequestContext.none());
     }
 
     /**
@@ -218,21 +177,6 @@ public final class ModelsImpl {
     }
 
     /**
-     * The spreadCompositeRequest operation.
-     * 
-     * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadCompositeRequest(String name, String testHeader, BodyParameter body) {
-        spreadCompositeRequestWithResponse(name, testHeader, body, RequestContext.none());
-    }
-
-    /**
      * The spreadCompositeRequestMix operation.
      * 
      * @param name The name parameter.
@@ -251,20 +195,5 @@ public final class ModelsImpl {
         SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest = new SpreadCompositeRequestMixRequest(prop);
         return service.spreadCompositeRequestMix(this.client.getEndpoint(), name, testHeader, contentType,
             spreadCompositeRequestMixRequest, requestContext);
-    }
-
-    /**
-     * The spreadCompositeRequestMix operation.
-     * 
-     * @param name The name parameter.
-     * @param testHeader The testHeader parameter.
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void spreadCompositeRequestMix(String name, String testHeader, String prop) {
-        spreadCompositeRequestMixWithResponse(name, testHeader, prop, RequestContext.none());
     }
 }

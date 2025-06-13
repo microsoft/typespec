@@ -3,7 +3,6 @@ package parameters.bodyoptionality.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -36,7 +35,7 @@ public final class OptionalExplicitsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     OptionalExplicitsImpl(BodyOptionalityClientImpl client) {
-        this.service = RestProxy.create(OptionalExplicitsService.class, client.getHttpPipeline());
+        this.service = OptionalExplicitsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,7 +43,7 @@ public final class OptionalExplicitsImpl {
      * The interface defining all the services for BodyOptionalityClientOptionalExplicits to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "BodyOptionalityClien", host = "{endpoint}")
+    @ServiceInterface(name = "BodyOptionalityClientOptionalExplicits", host = "{endpoint}")
     public interface OptionalExplicitsService {
         static OptionalExplicitsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -92,31 +91,6 @@ public final class OptionalExplicitsImpl {
     }
 
     /**
-     * The set operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set(BodyModel body) {
-        setWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * The set operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set() {
-        final BodyModel body = null;
-        setWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The omit operation.
      * 
      * @param body The body parameter.
@@ -129,30 +103,5 @@ public final class OptionalExplicitsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
         return service.omit(this.client.getEndpoint(), body, requestContext);
-    }
-
-    /**
-     * The omit operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit(BodyModel body) {
-        omitWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * The omit operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit() {
-        final BodyModel body = null;
-        omitWithResponse(body, RequestContext.none());
     }
 }

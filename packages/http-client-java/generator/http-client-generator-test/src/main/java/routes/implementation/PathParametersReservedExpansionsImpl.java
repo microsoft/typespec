@@ -54,7 +54,7 @@ public final class PathParametersReservedExpansionsImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientPathPara")
+    @ServiceInterface(name = "RoutesClientPathParametersReservedExpansions")
     public interface PathParametersReservedExpansionsService {
         @Get("/routes/path/reserved-expansion/template/{param}")
         @ExpectedResponses({ 204 })

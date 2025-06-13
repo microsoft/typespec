@@ -58,7 +58,7 @@ public final class FishesClientImpl implements FishesClient {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderM")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientFishes")
     public interface FishesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/model")

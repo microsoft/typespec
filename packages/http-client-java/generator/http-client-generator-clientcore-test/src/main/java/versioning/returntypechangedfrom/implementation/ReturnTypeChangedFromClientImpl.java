@@ -3,7 +3,6 @@ package versioning.returntypechangedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -80,7 +79,7 @@ public final class ReturnTypeChangedFromClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(ReturnTypeChangedFromClientService.class, this.httpPipeline);
+        this.service = ReturnTypeChangedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -88,7 +87,7 @@ public final class ReturnTypeChangedFromClientImpl {
      * perform REST calls.
      */
     @ServiceInterface(
-        name = "ReturnTypeChangedFro",
+        name = "ReturnTypeChangedFromClient",
         host = "{endpoint}/versioning/return-type-changed-from/api-version:{version}")
     public interface ReturnTypeChangedFromClientService {
         static ReturnTypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
@@ -127,19 +126,5 @@ public final class ReturnTypeChangedFromClientImpl {
         final String accept = "application/json";
         return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
             requestContext);
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public String test(String body) {
-        return testWithResponse(body, RequestContext.none()).getValue();
     }
 }

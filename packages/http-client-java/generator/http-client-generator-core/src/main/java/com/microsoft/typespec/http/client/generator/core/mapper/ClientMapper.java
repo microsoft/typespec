@@ -114,8 +114,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.enums(enumTypes);
 
         // exception
-        List<ClientException> exceptions = codeModel.getOperationGroups()
-            .stream()
+        List<ClientException> exceptions = Stream
+            .concat(
+                codeModel.getClients() == null
+                    ? Stream.<OperationGroup>empty()
+                    : codeModel.getClients().stream().flatMap(c -> c.getOperationGroups().stream()),
+                codeModel.getOperationGroups().stream())
             .flatMap(og -> og.getOperations().stream())
             .flatMap(o -> o.getExceptions().stream())
             .map(Response::getSchema)

@@ -3,7 +3,6 @@ package versioning.madeoptional.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -82,7 +81,7 @@ public final class MadeOptionalClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
-        this.service = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline);
+        this.service = MadeOptionalClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -128,35 +127,5 @@ public final class MadeOptionalClientImpl {
         final String accept = "application/json";
         return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), param, contentType, accept, body,
             requestContext);
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public TestModel test(TestModel body, String param) {
-        return testWithResponse(body, param, RequestContext.none()).getValue();
-    }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public TestModel test(TestModel body) {
-        final String param = null;
-        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }
