@@ -25,7 +25,7 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm run --filter "[origin/main]..." --filter='!@typespec/website' build
+        run: pnpm run --filter "internal-build-utils" --filter "[origin/main]..." --filter='!@typespec/website' build
 
       - name: Bump version to prerelease targets
         run: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr ${{ github.event.pull_request.number }} --buildNumber ${{ github.run_number }}
