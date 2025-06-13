@@ -102,7 +102,6 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
      * @param constructorVisibility the visibility of class constructor
      */
     protected void writeClass(AsyncSyncClient syncClient, JavaClass classBlock, JavaVisibility constructorVisibility) {
-        boolean newPath = !JavaSettings.getInstance().isAzureV1();
         final ServiceClient serviceClient = syncClient.getServiceClient();
         final MethodGroupClient methodGroupClient = syncClient.getMethodGroupClient();
         final boolean wrapServiceClient = methodGroupClient == null;
@@ -115,7 +114,8 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
             classBlock.privateFinalMemberVariable(methodGroupClient.getClassName(), "serviceClient");
         }
 
-        if (newPath) {
+        final boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
+        if (writeInstrumentation) {
             classBlock.privateFinalMemberVariable(ClassType.INSTRUMENTATION.getName(), "instrumentation");
         }
 
@@ -123,7 +123,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         classBlock.javadocComment(comment -> {
             comment.description(String.format("Initializes an instance of %1$s class.", syncClient.getClassName()));
             comment.param("serviceClient", "the service client implementation.");
-            if (newPath) {
+            if (writeInstrumentation) {
                 comment.param("instrumentation", "the instrumentation instance.");
             }
         });
@@ -131,21 +131,15 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
         String name = wrapServiceClient ? serviceClient.getClassName() : methodGroupClient.getClassName();
 
-        if (newPath) {
-            classBlock.constructor(constructorVisibility,
-                String.format("%1$s(%2$s %3$s, %4$s %5$s)", syncClient.getClassName(), name, "serviceClient",
-                    ClassType.INSTRUMENTATION.getName(), "instrumentation"),
-                constructorBlock -> {
-                    constructorBlock.line("this.serviceClient = serviceClient;");
+        classBlock.constructor(constructorVisibility,
+            String.format("%1$s(%2$s %3$s%4$s)", syncClient.getClassName(), name, "serviceClient",
+                writeInstrumentation ? ", " + ClassType.INSTRUMENTATION.getName() + " instrumentation" : ""),
+            constructorBlock -> {
+                constructorBlock.line("this.serviceClient = serviceClient;");
+                if (writeInstrumentation) {
                     constructorBlock.line("this.instrumentation = instrumentation;");
-                });
-        } else {
-            classBlock.constructor(constructorVisibility,
-                String.format("%1$s(%2$s %3$s)", syncClient.getClassName(), name, "serviceClient"),
-                constructorBlock -> {
-                    constructorBlock.line("this.serviceClient = serviceClient;");
-                });
-        }
+                }
+            });
 
         ServiceAsyncClientTemplate.writeSubClientAccessors(serviceClient, classBlock, false);
 

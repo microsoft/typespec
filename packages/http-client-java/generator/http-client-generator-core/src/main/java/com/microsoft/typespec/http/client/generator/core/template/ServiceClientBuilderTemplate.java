@@ -472,16 +472,16 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     protected void writeSyncClientBuildMethodFromInnerClient(AsyncSyncClient syncClient, JavaBlock function,
         String buildMethodName, boolean wrapServiceClient) {
 
-        boolean newPath = !JavaSettings.getInstance().isAzureV1();
+        boolean writeInstrumentation = !JavaSettings.getInstance().isAzureV1();
 
-        if (newPath) {
+        if (writeInstrumentation) {
+            function.line(
+                "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
+
             boolean hasEndpoint = syncClient.getClientBuilder()
                 .getBuilderTraits()
                 .stream()
                 .anyMatch(trait -> trait instanceof EndpointTrait);
-
-            function.line(
-                "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
             function.line(
                 "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s)%3$s;",
@@ -492,20 +492,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");
         }
         if (wrapServiceClient) {
-            if (newPath) {
-                function.line("return new %1$s(%2$s(), %3$s);", syncClient.getClassName(), buildMethodName,
-                    "instrumentation");
-            } else {
-                function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
-            }
+            function.line("return new %1$s(%2$s()%3$s);", syncClient.getClassName(), buildMethodName,
+                writeInstrumentation ? ", instrumentation" : "");
         } else {
-            if (newPath) {
-                function.line("return new %1$s(%2$s().get%3$s(), %4$s);", syncClient.getClassName(), buildMethodName,
-                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()), "instrumentation");
-            } else {
-                function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
-                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
-            }
+            function.line("return new %1$s(%2$s().get%3$s()%4$s);", syncClient.getClassName(), buildMethodName,
+                CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()),
+                writeInstrumentation ? ", instrumentation" : "");
         }
     }
 
