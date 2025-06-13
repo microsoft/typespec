@@ -80,6 +80,11 @@ extends:
                   Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
                 displayName: Set variables for PR creation
 
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
               - task: PowerShell@2
                 displayName: Create PR in azure-sdk-for-net
                 inputs:
