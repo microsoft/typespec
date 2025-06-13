@@ -52,12 +52,7 @@ export interface ClientV2 {
 }
 
 export interface ClientInitialization {
-  kind: "clientInitialization";
-  /**
-   * The parameters that are required to initialize the client.
-   * These parameters are typically used to configure the client, such as setting up authentication or base URL.
-   * Each parameter is represented as a ModelProperty.
-   */
+  kind: "ClientInitialization";
   parameters: ModelProperty[];
 }
 

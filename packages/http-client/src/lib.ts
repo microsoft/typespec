@@ -47,6 +47,13 @@ export const $lib = createTypeSpecLibrary({
       description:
         "No client defined for the operation. This can happen when there are no operations defined in the spec or when the operations are not grouped under a client.",
     },
+    "client-without-service": {
+      severity: "error",
+      messages: {
+        default: `Client "${"clientName"}" does not have an associated service.`,
+      },
+      description: `Client "${"clientName"}" does not have an associated service. Make sure the client is defined under a service.`,
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {
@@ -55,6 +62,9 @@ export const $lib = createTypeSpecLibrary({
     },
     resolvedClient: {
       description: "Stores the resolved clients.",
+    },
+    clientServiceMap: {
+      description: "Stores the mapping of clients to their services.",
     },
   },
 });
