@@ -25,6 +25,6 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm run --filter "...[origin/main]" --filter='!@typespec/website' build
+        run: pnpm run --filter "[origin/main]..." --filter='!@typespec/website' build
 
       - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
