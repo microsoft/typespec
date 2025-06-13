@@ -41,7 +41,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
-        return this.serviceClient.requestQueryResponseBody(foo, bar);
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -54,7 +54,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody() {
-        return this.serviceClient.requestQueryResponseBody();
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -87,7 +89,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
-        return this.serviceClient.requestHeaderResponseBody(foo, bar);
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -100,7 +102,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody() {
-        return this.serviceClient.requestHeaderResponseBody();
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderResponseBody(foo, bar, RequestContext.none());
     }
 
     /**
@@ -133,7 +137,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
-        return this.serviceClient.requestQueryResponseHeader(foo, bar);
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -146,7 +150,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader() {
-        return this.serviceClient.requestQueryResponseHeader();
+        final String foo = null;
+        final String bar = null;
+        return requestQueryResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -179,7 +185,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
-        return this.serviceClient.requestHeaderResponseHeader(foo, bar);
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**
@@ -192,7 +198,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader() {
-        return this.serviceClient.requestHeaderResponseHeader();
+        final String foo = null;
+        final String bar = null;
+        return requestHeaderResponseHeader(foo, bar, RequestContext.none());
     }
 
     /**

@@ -56,6 +56,6 @@ public final class NewInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public NewModel newOpInNewInterface(NewModel body) {
-        return this.serviceClient.newOpInNewInterface(body);
+        return newOpInNewInterfaceWithResponse(body, RequestContext.none()).getValue();
     }
 }

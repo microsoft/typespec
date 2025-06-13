@@ -149,21 +149,6 @@ public final class AddedClientImpl {
     }
 
     /**
-     * The v1 operation.
-     * 
-     * @param headerV2 The headerV2 parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV1 v1(String headerV2, ModelV1 body) {
-        return v1WithResponse(headerV2, body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The v2 operation.
      * 
      * @param body The body parameter.
@@ -179,19 +164,5 @@ public final class AddedClientImpl {
         final String accept = "application/json";
         return service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
             requestContext);
-    }
-
-    /**
-     * The v2 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV2 v2(ModelV2 body) {
-        return v2WithResponse(body, RequestContext.none()).getValue();
     }
 }

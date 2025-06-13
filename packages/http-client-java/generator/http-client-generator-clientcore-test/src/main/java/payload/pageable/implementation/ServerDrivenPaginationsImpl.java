@@ -112,44 +112,6 @@ public final class ServerDrivenPaginationsImpl {
     /**
      * The link operation.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "offset")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageSize")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "pageIndex")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.throwableAtError()
-                    .addKeyValue("propertyName", "continuationToken")
-                    .addKeyValue("methodName", "link")
-                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
-            }
-            return linkSinglePage();
-        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
-    }
-
-    /**
-     * The link operation.
-     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -91,19 +91,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The send operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(JsonEncodedNameModel body) {
-        sendWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The get operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -116,17 +103,5 @@ public final class PropertiesImpl {
     public Response<JsonEncodedNameModel> getWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.get(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public JsonEncodedNameModel get() {
-        return getWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -51,9 +51,14 @@ export const PaginatedOperationHandler: OperationHandler = {
     const operationRefkey = ay.refkey(httpOperation.operation);
     const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
+    const optionsRefkey = ay.refkey();
     const signatureParams: ts.ParameterDescriptor[] = [
-      { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-      ...getOperationParameters(httpOperation),
+      {
+        name: "client",
+        type: clientContextInterfaceRef,
+        refkey: ay.refkey(client, "paging-operation-client-param"),
+      },
+      ...getOperationParameters(httpOperation, optionsRefkey),
     ];
     const pagingDetail = extractPagingDetail(httpOperation, pagingOperation);
     // Exclude from operation options and include them into PageSettings

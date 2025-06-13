@@ -52,6 +52,6 @@ public final class SingleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void myOp() {
-        this.serviceClient.myOp();
+        myOpWithResponse(RequestContext.none());
     }
 }

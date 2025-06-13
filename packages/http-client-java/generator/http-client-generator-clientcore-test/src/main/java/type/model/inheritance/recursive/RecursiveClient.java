@@ -55,7 +55,7 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(Extension input) {
-        this.serviceClient.put(input);
+        putWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -83,6 +83,6 @@ public final class RecursiveClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Extension get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 }

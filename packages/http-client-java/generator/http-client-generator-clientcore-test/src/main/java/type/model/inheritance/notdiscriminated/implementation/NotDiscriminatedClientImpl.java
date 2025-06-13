@@ -128,19 +128,6 @@ public final class NotDiscriminatedClientImpl {
     }
 
     /**
-     * The postValid operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postValid(Siamese input) {
-        postValidWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The getValid operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -153,18 +140,6 @@ public final class NotDiscriminatedClientImpl {
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getValid(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getValid operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese getValid() {
-        return getValidWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -182,19 +157,5 @@ public final class NotDiscriminatedClientImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.putValid(this.getEndpoint(), contentType, accept, input, requestContext);
-    }
-
-    /**
-     * The putValid operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Siamese putValid(Siamese input) {
-        return putValidWithResponse(input, RequestContext.none()).getValue();
     }
 }

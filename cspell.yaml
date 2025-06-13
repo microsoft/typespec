@@ -60,8 +60,8 @@ words:
   - Dorg
   - Dosgi
   - dotenv
-  - duplicative
   - Dskip
+  - duplicative
   - Dyns
   - eastus
   - ecmarkup
@@ -177,6 +177,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
   - primitivea
   - prismjs

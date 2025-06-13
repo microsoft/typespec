@@ -62,6 +62,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+  } elseif ($tspFile -match "tsp[\\/]error.tsp") {
+    # test for default-http-exception-type
+    $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
   } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
@@ -98,7 +101,6 @@ $generateScript = {
   if ($tspFile -match "tsp[\\/]naming-javaparser.tsp$") {
       # Add the customization-class option for Java emitter
       $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/JavaParserCustomizationTest.java"""
-      $tspOptions += " --option ""@typespec/http-client-java.use-eclipse-language-server=false"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"

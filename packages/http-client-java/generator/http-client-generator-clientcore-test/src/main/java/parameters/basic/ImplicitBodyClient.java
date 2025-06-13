@@ -55,6 +55,6 @@ public final class ImplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void simple(String name) {
-        this.serviceClient.simple(name);
+        simpleWithResponse(name, RequestContext.none());
     }
 }

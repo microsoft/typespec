@@ -58,9 +58,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void basic(MultiPartRequest body) {
-        // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        this.serviceClient.basic(body);
+        basicWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -92,9 +90,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void fileArrayAndBasic(ComplexPartsRequest body) {
-        // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        this.serviceClient.fileArrayAndBasic(body);
+        fileArrayAndBasicWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -126,9 +122,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonPart(JsonPartRequest body) {
-        // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        this.serviceClient.jsonPart(body);
+        jsonPartWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -160,9 +154,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void binaryArrayParts(BinaryArrayPartsRequest body) {
-        // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        this.serviceClient.binaryArrayParts(body);
+        binaryArrayPartsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -194,9 +186,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void multiBinaryParts(MultiBinaryPartsRequest body) {
-        // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
-        // not generated.
-        this.serviceClient.multiBinaryParts(body);
+        multiBinaryPartsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -229,9 +219,7 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void checkFileNameAndContentType(MultiPartRequest body) {
-        // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
-        // and hence not generated.
-        this.serviceClient.checkFileNameAndContentType(body);
+        checkFileNameAndContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -263,8 +251,6 @@ public final class FormDataClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void anonymousModel(AnonymousModelRequest body) {
-        // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        this.serviceClient.anonymousModel(body);
+        anonymousModelWithResponse(body, RequestContext.none());
     }
 }

@@ -224,7 +224,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
-        public void ValidateClientWithAcceptHeader()
+        public void ValidateClientWithAcceptHeader_NoValuesDefined()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        InputFactory.Parameter("accept", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header)
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValuesDefinedInResponse()
         {
             var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
                 InputFactory.Operation("SingleServiceMethodInputClientOperation",
@@ -235,6 +256,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     responses:
                     [
                         InputFactory.OperationResponse([200], contentTypes: ["image/png", "image/jpeg", "image/jpeg"])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValuesDefinedAsEnum()
+        {
+            var acceptParameter = InputFactory.Parameter(
+                "accept",
+                InputFactory.StringEnum("acceptEnum", [("image/png", "image/png"), ("image/jpeg", "image/jpeg")]),
+                isRequired: true,
+                location: InputRequestLocation.Header);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        acceptParameter
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
+                    ]));
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var clientProvider = new ClientProvider(inputClient);
+            var restClientProvider = new MockClientProvider(inputClient, clientProvider);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateClientWithAcceptHeader_ValueDefinedAsConstant()
+        {
+            var acceptParameter = InputFactory.Parameter(
+                "accept",
+                InputFactory.Literal.String("image/png"),
+                isRequired: true,
+                kind: InputParameterKind.Constant,
+                location: InputRequestLocation.Header);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("SingleServiceMethodInputClient",
+                InputFactory.Operation("SingleServiceMethodInputClientOperation",
+                    parameters:
+                    [
+                        acceptParameter
+                    ],
+                    responses:
+                    [
+                        InputFactory.OperationResponse([200])
                     ]));
             var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
             var clientProvider = new ClientProvider(inputClient);

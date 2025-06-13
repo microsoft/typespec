@@ -110,18 +110,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * The getKnownValue operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekExtensibleEnum getKnownValue() {
-        return getKnownValueWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getUnknownValue operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -134,18 +122,6 @@ public final class StringOperationsImpl {
     public Response<DaysOfWeekExtensibleEnum> getUnknownValueWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getUnknownValue(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getUnknownValue operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekExtensibleEnum getUnknownValue() {
-        return getUnknownValueWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -165,19 +141,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * The putKnownValue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putKnownValue(DaysOfWeekExtensibleEnum body) {
-        putKnownValueWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The putUnknownValue operation.
      * 
      * @param body The body parameter.
@@ -191,18 +154,5 @@ public final class StringOperationsImpl {
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekExtensibleEnum body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putUnknownValue(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The putUnknownValue operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putUnknownValue(DaysOfWeekExtensibleEnum body) {
-        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

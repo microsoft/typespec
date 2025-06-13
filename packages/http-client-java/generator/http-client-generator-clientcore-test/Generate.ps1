@@ -118,7 +118,7 @@ try {
   }
 
   # smoke test, generate Java project and verify compilation pass
-  Copy-Item -Path ../../../http-specs/smoke -Destination ./smoke -Recurse -Force
+  Copy-Item -Path node_modules/@typespec/http-specs/smoke -Destination ./smoke -Recurse -Force
   Generate-Compile todoapp
   Generate-Compile petstore
   Remove-Item ./smoke -Recurse -Force

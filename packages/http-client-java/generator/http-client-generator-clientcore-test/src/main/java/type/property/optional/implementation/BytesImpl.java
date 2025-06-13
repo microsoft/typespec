@@ -107,18 +107,6 @@ public final class BytesImpl {
     }
 
     /**
-     * Get models that will return all properties in the model.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BytesProperty getAll() {
-        return getAllWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Get models that will return the default object.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -131,18 +119,6 @@ public final class BytesImpl {
     public Response<BytesProperty> getDefaultWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getDefault(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BytesProperty getDefault() {
-        return getDefaultWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -162,19 +138,6 @@ public final class BytesImpl {
     }
 
     /**
-     * Put a body with all properties present.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putAll(BytesProperty body) {
-        putAllWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * Put a body with default properties.
      * 
      * @param body The body parameter.
@@ -188,18 +151,5 @@ public final class BytesImpl {
     public Response<Void> putDefaultWithResponse(BytesProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putDefault(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with default properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putDefault(BytesProperty body) {
-        putDefaultWithResponse(body, RequestContext.none());
     }
 }
