@@ -54,10 +54,12 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "~22.13.11",
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
     "@typespec/library-linter": "workspace:^",
@@ -72,7 +74,6 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "@typespec/asset-emitter": "workspace:^",
     "yaml": "~2.7.0"
   }
 }

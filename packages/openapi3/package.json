@@ -60,11 +60,11 @@
   ],
   "dependencies": {
     "@apidevtools/swagger-parser": "~10.1.1",
-    "@typespec/asset-emitter": "workspace:^",
     "openapi-types": "~12.1.3",
     "yaml": "~2.7.0"
   },
   "peerDependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",
@@ -85,6 +85,7 @@
   "devDependencies": {
     "@types/node": "~22.13.11",
     "@types/yargs": "~17.0.33",
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",

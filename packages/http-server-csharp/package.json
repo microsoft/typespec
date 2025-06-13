@@ -56,6 +56,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
@@ -63,7 +64,6 @@
     "@typespec/json-schema": "workspace:^"
   },
   "dependencies": {
-    "@typespec/asset-emitter": "workspace:^",
     "change-case": "~5.4.4",
     "cross-spawn": "^7.0.6",
     "picocolors": "~1.1.1",
@@ -74,6 +74,7 @@
     "@types/cross-spawn": "~6.0.6",
     "@types/node": "~22.13.11",
     "@types/yargs": "~17.0.33",
+    "@typespec/asset-emitter": "workspace:^",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/http-specs": "workspace:^",
