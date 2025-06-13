@@ -62,6 +62,11 @@ extends:
         condition: and(succeeded(), or(and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')), eq('${{ parameters.CreateUpdatePR }}', 'true')))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]
+          # Try alternative references in case the primary one doesn't work
+          PackageVersionAlt1: $[ dependencies.CSharp_Build.outputs['Build_linux_20.ci_build.emitterVersion'] ]  
+          PackageVersionAlt2: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.Build_Packages.emitterVersion'] ]
+          PackageVersionAlt3: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.mgcClientModelVersion'] ]
+          PackageVersionAlt4: $[ stageDependencies.CSharp_Build.outputs['Build_linux_20.ci_build.packageVersion'] ]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -72,6 +77,38 @@ extends:
               - checkout: self
               - pwsh: |
                   Write-Host "Package version: $(PackageVersion)"
+                  Write-Host "Package version Alt1: $(PackageVersionAlt1)"
+                  Write-Host "Package version Alt2: $(PackageVersionAlt2)"
+                  Write-Host "Package version Alt3: $(PackageVersionAlt3)"
+                  Write-Host "Package version Alt4: $(PackageVersionAlt4)"
+                  Write-Host "Debugging stage dependencies and outputs:"
+                  
+                  # Try different possible references as strings to see their literal values
+                  Write-Host "Raw values to help debug:"
+                  Write-Host "PackageVersion variable: '$(PackageVersion)'"
+                  Write-Host "PackageVersionAlt1 variable: '$(PackageVersionAlt1)'"
+                  Write-Host "PackageVersionAlt2 variable: '$(PackageVersionAlt2)'"
+                  Write-Host "PackageVersionAlt3 variable: '$(PackageVersionAlt3)'"
+                  # If all the above variables are empty, try to extract version from the repository 
+                  if ([string]::IsNullOrEmpty('$(PackageVersion)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt1)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt2)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt3)') -and [string]::IsNullOrEmpty('$(PackageVersionAlt4)')) {
+                    Write-Host "All version variables are empty, trying to extract from package.json"
+                    $packageJsonPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/package.json"
+                    if (Test-Path $packageJsonPath) {
+                      $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
+                      $fallbackVersion = $packageJson.version
+                      Write-Host "Fallback version from package.json: $fallbackVersion"
+                      Write-Host "##vso[task.setvariable variable=FallbackPackageVersion]$fallbackVersion"
+                    }
+                  } else {
+                    Write-Host "At least one version variable has a value, using the first non-empty one"
+                    $selectedVersion = '$(PackageVersion)'
+                    if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt1)' }
+                    if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt2)' }
+                    if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt3)' }
+                    if ([string]::IsNullOrEmpty($selectedVersion)) { $selectedVersion = '$(PackageVersionAlt4)' }
+                    Write-Host "Selected version: $selectedVersion"
+                    Write-Host "##vso[task.setvariable variable=FinalPackageVersion]$selectedVersion"
+                  }
 
                   # Determine the TypeSpec PR URL 
                   $sourceBranch = '$(Build.SourceBranch)'
@@ -87,7 +124,7 @@ extends:
                   }
                   Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
                   Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
-                displayName: Set variables for PR creation
+                displayName: Set variables for PR creation and debug outputs
 
               - task: PowerShell@2
                 displayName: Create PR in azure-sdk-for-net
@@ -95,6 +132,6 @@ extends:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
-                    -PackageVersion '$(PackageVersion)'
+                    -PackageVersion '$(FinalPackageVersion)$(FallbackPackageVersion)'
                     -TypeSpecPRUrl '$(TypeSpecPRUrl)'
                     -AuthToken '$(azuresdk-github-pat)'
