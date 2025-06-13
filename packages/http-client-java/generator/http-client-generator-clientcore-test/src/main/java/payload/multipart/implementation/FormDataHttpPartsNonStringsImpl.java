@@ -85,17 +85,4 @@ public final class FormDataHttpPartsNonStringsImpl {
         final String contentType = "multipart/form-data";
         return service.floatMethod(this.client.getEndpoint(), contentType, body, requestContext);
     }
-
-    /**
-     * Test content-type: multipart/form-data for non string.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMethod(FloatRequest body) {
-        floatMethodWithResponse(body, RequestContext.none());
-    }
 }

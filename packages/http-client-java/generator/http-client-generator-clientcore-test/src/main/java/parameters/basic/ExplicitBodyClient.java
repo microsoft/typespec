@@ -56,6 +56,6 @@ public final class ExplicitBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void simple(User body) {
-        this.serviceClient.simple(body);
+        simpleWithResponse(body, RequestContext.none());
     }
 }

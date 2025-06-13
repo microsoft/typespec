@@ -168,18 +168,6 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * Receive model with extensible enum discriminator type.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test extensible enum type for discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModel() {
-        return getExtensibleModelWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Send model with extensible enum discriminator type.
      * 
      * @param input Dog to create.
@@ -193,19 +181,6 @@ public final class EnumDiscriminatorClientImpl {
     public Response<Void> putExtensibleModelWithResponse(Dog input, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putExtensibleModel(this.getEndpoint(), contentType, input, requestContext);
-    }
-
-    /**
-     * Send model with extensible enum discriminator type.
-     * 
-     * @param input Dog to create.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putExtensibleModel(Dog input) {
-        putExtensibleModelWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -224,18 +199,6 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * Get a model omitting the discriminator.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModelMissingDiscriminator() {
-        return getExtensibleModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Get a model containing discriminator value never defined.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -251,18 +214,6 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog getExtensibleModelWrongDiscriminator() {
-        return getExtensibleModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Receive model with fixed enum discriminator type.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -275,18 +226,6 @@ public final class EnumDiscriminatorClientImpl {
     public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getFixedModel(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Receive model with fixed enum discriminator type.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test fixed enum type for discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModel() {
-        return getFixedModelWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -306,19 +245,6 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * Send model with fixed enum discriminator type.
-     * 
-     * @param input Snake to create.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putFixedModel(Snake input) {
-        putFixedModelWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * Get a model omitting the discriminator.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -334,18 +260,6 @@ public final class EnumDiscriminatorClientImpl {
     }
 
     /**
-     * Get a model omitting the discriminator.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModelMissingDiscriminator() {
-        return getFixedModelMissingDiscriminatorWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Get a model containing discriminator value never defined.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -358,17 +272,5 @@ public final class EnumDiscriminatorClientImpl {
     public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getFixedModelWrongDiscriminator(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get a model containing discriminator value never defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Snake getFixedModelWrongDiscriminator() {
-        return getFixedModelWrongDiscriminatorWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -91,31 +91,6 @@ public final class OptionalExplicitsImpl {
     }
 
     /**
-     * The set operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set(BodyModel body) {
-        setWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * The set operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void set() {
-        final BodyModel body = null;
-        setWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The omit operation.
      * 
      * @param body The body parameter.
@@ -128,30 +103,5 @@ public final class OptionalExplicitsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
         return service.omit(this.client.getEndpoint(), body, requestContext);
-    }
-
-    /**
-     * The omit operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit(BodyModel body) {
-        omitWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * The omit operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void omit() {
-        final BodyModel body = null;
-        omitWithResponse(body, RequestContext.none());
     }
 }

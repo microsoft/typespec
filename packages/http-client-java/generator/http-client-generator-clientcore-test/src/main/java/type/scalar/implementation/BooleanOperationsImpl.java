@@ -84,18 +84,6 @@ public final class BooleanOperationsImpl {
     }
 
     /**
-     * get boolean value.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return boolean value.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public boolean get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * put boolean value.
      * 
      * @param body _.
@@ -109,18 +97,5 @@ public final class BooleanOperationsImpl {
     public Response<Void> putWithResponse(boolean body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * put boolean value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(boolean body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

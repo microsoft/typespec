@@ -92,18 +92,4 @@ public final class InterfaceV2sImpl {
         return service.v2InInterface(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
             contentType, accept, body, requestContext);
     }
-
-    /**
-     * The v2InInterface operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ModelV2 v2InInterface(ModelV2 body) {
-        return v2InInterfaceWithResponse(body, RequestContext.none()).getValue();
-    }
 }

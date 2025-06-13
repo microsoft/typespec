@@ -90,18 +90,6 @@ public final class BytesImpl {
     }
 
     /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BytesProperty get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Put operation.
      * 
      * @param body body.
@@ -115,18 +103,5 @@ public final class BytesImpl {
     public Response<Void> putWithResponse(BytesProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(BytesProperty body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

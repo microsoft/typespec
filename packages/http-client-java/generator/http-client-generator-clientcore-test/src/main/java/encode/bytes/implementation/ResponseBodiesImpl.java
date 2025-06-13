@@ -116,18 +116,6 @@ public final class ResponseBodiesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData defaultMethod() {
-        return defaultMethodWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The octetStream operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -140,18 +128,6 @@ public final class ResponseBodiesImpl {
     public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
         final String accept = "application/octet-stream";
         return service.octetStream(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The octetStream operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData octetStream() {
-        return octetStreamWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -170,18 +146,6 @@ public final class ResponseBodiesImpl {
     }
 
     /**
-     * The customContentType operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData customContentType() {
-        return customContentTypeWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The base64 operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -197,18 +161,6 @@ public final class ResponseBodiesImpl {
     }
 
     /**
-     * The base64 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] base64() {
-        return base64WithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The base64url operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -221,17 +173,5 @@ public final class ResponseBodiesImpl {
     public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.base64url(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The base64url operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] base64url() {
-        return base64urlWithResponse(RequestContext.none()).getValue();
     }
 }

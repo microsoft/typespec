@@ -56,6 +56,6 @@ public final class InterfaceV2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ModelV2 v2InInterface(ModelV2 body) {
-        return this.serviceClient.v2InInterface(body);
+        return v2InInterfaceWithResponse(body, RequestContext.none()).getValue();
     }
 }
