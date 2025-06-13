@@ -21,4 +21,4 @@ jobs:
       - name: Build
         run: pnpm run --filter='!@typespec/website' build
 
-      - run: pnpx pkg-pr-new publish './packages/*' --pnpm
+      - run: pnpm tsx eng/tsp-core/pkg-pr-new.ts
