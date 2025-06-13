@@ -330,16 +330,22 @@ op ArmResourceUpdateSync<
 interface ManagedMaintenanceWindowStatus {
   get is ArmResourceRead<ManagedMaintenanceWindowStatusContent>;
   // test renaming delete -> deleteByResourceGroup in fluent method
-  delete is ArmResourceDeleteAsync<ManagedMaintenanceWindowStatusContent, Parameters = IfMatchParameters<CustomTemplateResource> &
-                                                                                       IfNoneMatchParameters<CustomTemplateResource>>
+  delete is ArmResourceDeleteAsync<
+    ManagedMaintenanceWindowStatusContent,
+    Parameters = IfMatchParameters<CustomTemplateResource> &
+      IfNoneMatchParameters<CustomTemplateResource>
+  >;
 }
 
 @armResourceOperations
 interface ModelInterfaceSameName {
   get is ArmResourceRead<ModelInterfaceDifferentName>;
   // test renaming deleteWithResponse -> deleteByResourceGroupWithResponse in fluent method
-  delete is ArmResourceDeleteSync<ManagedMaintenanceWindowStatusContent, Parameters = IfMatchParameters<CustomTemplateResource> &
-                                                                                       IfNoneMatchParameters<CustomTemplateResource>>
+  delete is ArmResourceDeleteSync<
+    ManagedMaintenanceWindowStatusContent,
+    Parameters = IfMatchParameters<CustomTemplateResource> &
+      IfNoneMatchParameters<CustomTemplateResource>
+  >;
 }
 
 // Resource model is immutable output only.

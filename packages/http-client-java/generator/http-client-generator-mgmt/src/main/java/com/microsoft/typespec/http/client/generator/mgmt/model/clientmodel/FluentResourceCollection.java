@@ -105,7 +105,7 @@ public class FluentResourceCollection {
                 && (methodType == ClientMethodType.SimpleSync || methodType == ClientMethodType.LongRunningSync)
                 && !existingMethodNames.contains(WellKnownMethodName.DELETE_BY_RESOURCE_GROUP.getMethodName())
                 // TODO(xiaofei) in mgmt on core-v2, also rename 2 params + Context method:
-                //  https://github.com/Azure/azure-sdk-for-java/issues/45687
+                // https://github.com/Azure/azure-sdk-for-java/issues/45687
                 && methodParameters.stream()
                     .filter(param -> param.getRequestParameterLocation() != RequestParameterLocation.HEADER)
                     .count() == 2
