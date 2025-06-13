@@ -2,11 +2,11 @@ import { render } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import * as cs from "@alloy-js/csharp";
 import { Namespace, SourceFile } from "@alloy-js/csharp";
-import { Interface, Model } from "@typespec/compiler";
+import { Enum, Interface, Model } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, it } from "vitest";
 import { Output } from "../../../src/core/index.js";
-import { ClassDeclaration } from "../../../src/csharp/index.js";
+import { ClassDeclaration, EnumDeclaration } from "../../../src/csharp/index.js";
 import { createEmitterFrameworkTestRunner } from "../test-host.js";
 import { assertFileContents } from "../utils.js";
 
@@ -250,7 +250,95 @@ it("renders a class with model members", async () => {
     `,
   );
 });
-it("renders a class with union members");
-it("renders a class with enum members");
-it("renders a class with arbitrary children");
-it("uses the C# name policy");
+
+it("renders a class with enum members", async () => {
+  const { TestModel, TestEnum } = (await runner.compile(`
+    @test enum TestEnum {
+      Value1;
+      Value2;
+    }
+    @test model TestModel {
+      @test prop1: TestEnum;
+    }
+  `)) as { TestModel: Model; TestEnum: Enum };
+
+  const res = render(
+    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">
+          <EnumDeclaration type={TestEnum} />
+          <hbr />
+          <ClassDeclaration type={TestModel} />
+        </SourceFile>
+      </Namespace>
+    </Output>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          public enum TestEnum
+          {
+              Value1,
+              Value2
+          }
+          class TestModel
+          {
+              public TestEnum Prop1
+              {
+                  get;
+                  set;
+              }
+          }
+      }
+    `,
+  );
+});
+
+it("renders a class with string enums", async () => {
+  const { TestModel, TestEnum } = (await runner.compile(`
+    @test enum TestEnum {
+      Value1;
+      Value2;
+    }
+    @test model TestModel {
+      @test prop1: TestEnum;
+    }
+  `)) as { TestModel: Model; TestEnum: Enum };
+
+  const res = render(
+    <Output program={runner.program} namePolicy={cs.createCSharpNamePolicy()}>
+      <Namespace name="TestNamespace">
+        <SourceFile path="test.cs">
+          <EnumDeclaration type={TestEnum} />
+          <hbr />
+          <ClassDeclaration type={TestModel} />
+        </SourceFile>
+      </Namespace>
+    </Output>,
+  );
+
+  assertFileContents(
+    res,
+    d`
+      namespace TestNamespace
+      {
+          public enum TestEnum
+          {
+              Value1,
+              Value2
+          }
+          class TestModel
+          {
+              public TestEnum Prop1
+              {
+                  get;
+                  set;
+              }
+          }
+      }
+    `,
+  );
+});
