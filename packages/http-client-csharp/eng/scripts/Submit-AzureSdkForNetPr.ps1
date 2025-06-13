@@ -96,14 +96,16 @@ try {
     
     $updatedContent = $propsFileContent -replace $pattern, $replacement
     
+    $propsFileUpdated = $false
     if ($updatedContent -eq $propsFileContent) {
         Write-Warning "No changes were made to eng/Packages.Data.props. The UnbrandedGeneratorVersion property might not exist or have a different format."
         Write-Host "Current content around UnbrandedGeneratorVersion:"
         $propsFileContent | Select-String -Pattern "UnbrandedGeneratorVersion" -Context 2, 2
+    } else {
+        $propsFileUpdated = $true
+        # Write the updated file back
+        Set-Content -Path $propsFilePath -Value $updatedContent -NoNewline
     }
-    
-    # Write the updated file back
-    Set-Content -Path $propsFilePath -Value $updatedContent -NoNewline
 
     # Update the dependency in eng/packages/http-client-csharp/package.json
     Write-Host "Updating dependency version in eng/packages/http-client-csharp/package.json..."
@@ -116,19 +118,25 @@ try {
     $packageJsonContent = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
     
     # Update the Microsoft.TypeSpec.Generator.ClientModel dependency version
-    $updated = $false
+    $packageJsonUpdated = $false
     if ($packageJsonContent.dependencies -and $packageJsonContent.dependencies."@typespec/http-client-csharp") {
         $packageJsonContent.dependencies."@typespec/http-client-csharp" = $PackageVersion
-        $updated = $true
+        $packageJsonUpdated = $true
         Write-Host "Updated @typespec/http-client-csharp in dependencies"
-    }
-    
-    if (-not $updated) {
-        Write-Warning "No @typespec/http-client-csharp dependency found in package.json"
-    } else {
         # Write the updated package.json back
         $packageJsonContent | ConvertTo-Json -Depth 10 | Set-Content -Path $packageJsonPath
-        
+    } else {
+        Write-Warning "No @typespec/http-client-csharp dependency found in package.json"
+    }
+    
+    # Check if any updates were made - bail early if not
+    if (-not $propsFileUpdated -and -not $packageJsonUpdated) {
+        Write-Warning "No updates were made to any files. The package version might already be current or the files might not contain the expected properties."
+        return
+    }
+    
+    # Only run expensive operations if we actually made updates
+    if ($packageJsonUpdated) {
         # Run npm install in the http-client-csharp directory
         Write-Host "Running npm install in eng/packages/http-client-csharp..."
         $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
@@ -161,18 +169,28 @@ try {
 
     # Commit the changes
     Write-Host "Committing changes..."
-    git add eng/Packages.Data.props
-    git add eng/packages/http-client-csharp/package.json
-    git add eng/packages/http-client-csharp/package-lock.json
+    if ($propsFileUpdated) {
+        git add eng/Packages.Data.props
+    }
+    if ($packageJsonUpdated) {
+        git add eng/packages/http-client-csharp/package.json
+        git add eng/packages/http-client-csharp/package-lock.json
+    }
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to add changes"
     }
 
-    git commit -m "Update UnbrandedGeneratorVersion to $PackageVersion
-
-- Updated eng/Packages.Data.props
-- Updated eng/packages/http-client-csharp/package.json
-- Ran npm install to update package-lock.json"
+    # Build commit message based on what was updated
+    $commitMessage = "Update UnbrandedGeneratorVersion to $PackageVersion`n"
+    if ($propsFileUpdated) {
+        $commitMessage += "`n- Updated eng/Packages.Data.props"
+    }
+    if ($packageJsonUpdated) {
+        $commitMessage += "`n- Updated eng/packages/http-client-csharp/package.json"
+        $commitMessage += "`n- Ran npm install to update package-lock.json"
+    }
+    
+    git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to commit changes"
     }
