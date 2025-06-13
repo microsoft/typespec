@@ -17,7 +17,7 @@ const modifiedPaths = paths.filter((x) => files.some((f) => f.startsWith(x)));
 // eslint-disable-next-line no-console
 console.log("Packages", { all: paths, modified: modifiedPaths });
 try {
-  execSync(`pnpx pkg-pr-new publish '${modifiedPaths.join(" ")}' --pnpm`, {
+  execSync(`pnpx pkg-pr-new publish 'packages/compiler' '${modifiedPaths.join(" ")}' --pnpm`, {
     stdio: "inherit",
     encoding: "utf-8",
   });

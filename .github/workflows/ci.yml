@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Bump version to prerelease targets
+        run: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
+
       - name: Build
         run: pnpm run --filter "[origin/main]..." --filter='!@typespec/website' build
 
