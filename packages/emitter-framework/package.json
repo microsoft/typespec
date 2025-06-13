@@ -3,6 +3,10 @@
   "version": "0.8.0",
   "type": "module",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
   "scripts": {
     "build": "alloy build",
     "clean": "rimraf ./dist",

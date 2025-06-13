@@ -70,7 +70,6 @@ stages:
         steps:
           - template: /eng/tsp-core/pipelines/jobs/website.yml
 
-      - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
       - template: /eng/tsp-core/pipelines/jobs/e2e.yml
 
       - job: docker_build
