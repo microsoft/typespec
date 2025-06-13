@@ -1,15 +1,24 @@
-preview:
-  runs-on: ubuntu-latest
+name: CI
 
-  steps:
-    - uses: actions/checkout@v4
+on:
+  pull_request:
+    branches:
+      - main
+      - release/*
 
-    - uses: ./.github/actions/setup
+jobs:
+  preview:
+    runs-on: ubuntu-latest
 
-    - name: Install dependencies
-      run: pnpm install
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Build
-      run: pnpm build
+      - uses: ./.github/actions/setup
 
-    - run: pnpx pkg-pr-new publish  --compact './packages/*' --pnpm
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - run: pnpx pkg-pr-new publish  --compact './packages/*' --pnpm
