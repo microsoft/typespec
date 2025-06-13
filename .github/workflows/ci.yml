@@ -1,0 +1,15 @@
+preview:
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - uses: ./.github/actions/setup
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build
+      run: pnpm build
+
+    - run: pnpx pkg-pr-new publish  --compact './packages/*' --pnpm
