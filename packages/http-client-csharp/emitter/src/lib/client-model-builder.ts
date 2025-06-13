@@ -5,8 +5,8 @@ import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
-import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { fromSdkEnums, fromSdkModels } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
@@ -18,8 +18,6 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
-  navigateModels(sdkContext);
-
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
   const rootClients = sdkPackage.clients;
@@ -30,6 +28,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       : (rootClients[0]?.apiVersions ?? []);
 
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+
+  const enums = fromSdkEnums(sdkContext, sdkPackage.enums);
+  const models = fromSdkModels(sdkContext, sdkPackage.models);
+  // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
+  const constants = Array.from(sdkContext.__typeCache.constants.values());
 
   // TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
   // typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
@@ -69,9 +72,9 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     // if the typespec is changed.
     name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
-    enums: Array.from(sdkContext.__typeCache.enums.values()),
-    constants: Array.from(sdkContext.__typeCache.constants.values()),
-    models: Array.from(sdkContext.__typeCache.models.values()),
+    enums: enums,
+    constants: constants,
+    models: models,
     clients: inputClients,
     auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
