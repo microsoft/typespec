@@ -201,15 +201,6 @@ try {
     # Extract PR URL from gh output
     $prUrl = $ghOutput.Trim()
     Write-Host "Successfully created PR: $prUrl"
-    
-    # Extract PR number from URL
-    if ($prUrl -match "/pull/(\d+)$") {
-        $prNumber = $Matches[1]
-        Write-Host "##vso[task.setvariable variable=CreatedPR.Number]$prNumber"
-        Write-Host "##vso[task.setvariable variable=CreatedPR.Url]$prUrl"
-    } else {
-        Write-Warning "Could not extract PR number from URL: $prUrl"
-    }
 
 } catch {
     Write-Error "Error creating PR: $_"
