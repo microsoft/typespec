@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous DatetimeClient type.
@@ -18,14 +19,18 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ResponseHeadersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ResponseHeaderClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ResponseHeaderClient(ResponseHeadersImpl serviceClient) {
+    ResponseHeaderClient(ResponseHeadersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseHeader.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
     }
 
     /**
@@ -67,7 +73,8 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(RequestContext requestContext) {
-        return this.serviceClient.rfc3339WithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseHeader.rfc3339", requestContext,
+            updatedContext -> this.serviceClient.rfc3339WithResponse(updatedContext));
     }
 
     /**
@@ -94,7 +101,8 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(RequestContext requestContext) {
-        return this.serviceClient.rfc7231WithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseHeader.rfc7231", requestContext,
+            updatedContext -> this.serviceClient.rfc7231WithResponse(updatedContext));
     }
 
     /**
@@ -121,7 +129,8 @@ public final class ResponseHeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
-        return this.serviceClient.unixTimestampWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseHeader.unixTimestamp", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampWithResponse(updatedContext));
     }
 
     /**

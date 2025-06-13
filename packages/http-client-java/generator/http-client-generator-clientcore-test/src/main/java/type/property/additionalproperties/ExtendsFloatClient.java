@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.additionalproperties.implementation.ExtendsFloatsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class ExtendsFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ExtendsFloatsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ExtendsFloatClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ExtendsFloatClient(ExtendsFloatsImpl serviceClient) {
+    ExtendsFloatClient(ExtendsFloatsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class ExtendsFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtendsFloatAdditionalProperties> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ExtendsFloat.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class ExtendsFloatClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ExtendsFloatAdditionalProperties body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("ExtendsFloat.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

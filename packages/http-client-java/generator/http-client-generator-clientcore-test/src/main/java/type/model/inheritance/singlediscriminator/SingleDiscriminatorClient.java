@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.singlediscriminator.implementation.SingleDiscriminatorClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SingleDiscriminatorClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SingleDiscriminatorClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SingleDiscriminatorClient(SingleDiscriminatorClientImpl serviceClient) {
+    SingleDiscriminatorClient(SingleDiscriminatorClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getModel", requestContext,
+            updatedContext -> this.serviceClient.getModelWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(Bird input, RequestContext requestContext) {
-        return this.serviceClient.putModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".putModel", requestContext,
+            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -98,7 +105,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getRecursiveModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getRecursiveModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.getRecursiveModelWithResponse(updatedContext));
     }
 
     /**
@@ -127,7 +135,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRecursiveModelWithResponse(Bird input, RequestContext requestContext) {
-        return this.serviceClient.putRecursiveModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".putRecursiveModel", requestContext,
+            updatedContext -> this.serviceClient.putRecursiveModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -156,7 +165,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getMissingDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getMissingDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getMissingDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getMissingDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -184,7 +194,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Bird> getWrongDiscriminatorWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWrongDiscriminatorWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getWrongDiscriminator", requestContext,
+            updatedContext -> this.serviceClient.getWrongDiscriminatorWithResponse(updatedContext));
     }
 
     /**
@@ -212,7 +223,8 @@ public final class SingleDiscriminatorClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dinosaur> getLegacyModelWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getLegacyModelWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getLegacyModel", requestContext,
+            updatedContext -> this.serviceClient.getLegacyModelWithResponse(updatedContext));
     }
 
     /**

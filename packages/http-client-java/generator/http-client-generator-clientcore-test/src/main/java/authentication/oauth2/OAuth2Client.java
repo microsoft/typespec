@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous OAuth2Client type.
@@ -18,14 +19,18 @@ public final class OAuth2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final OAuth2ClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of OAuth2Client class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    OAuth2Client(OAuth2ClientImpl serviceClient) {
+    OAuth2Client(OAuth2ClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class OAuth2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validWithResponse(RequestContext requestContext) {
-        return this.serviceClient.validWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".valid", requestContext,
+            updatedContext -> this.serviceClient.validWithResponse(updatedContext));
     }
 
     /**
@@ -67,7 +73,8 @@ public final class OAuth2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> invalidWithResponse(RequestContext requestContext) {
-        return this.serviceClient.invalidWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".invalid", requestContext,
+            updatedContext -> this.serviceClient.invalidWithResponse(updatedContext));
     }
 
     /**

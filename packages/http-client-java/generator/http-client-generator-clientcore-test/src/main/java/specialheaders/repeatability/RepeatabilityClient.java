@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import specialheaders.repeatability.implementation.RepeatabilityClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class RepeatabilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RepeatabilityClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of RepeatabilityClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    RepeatabilityClient(RepeatabilityClientImpl serviceClient) {
+    RepeatabilityClient(RepeatabilityClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class RepeatabilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> immediateSuccessWithResponse(RequestContext requestContext) {
-        return this.serviceClient.immediateSuccessWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".immediateSuccess", requestContext,
+            updatedContext -> this.serviceClient.immediateSuccessWithResponse(updatedContext));
     }
 
     /**

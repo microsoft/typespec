@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.additionalproperties.implementation.ExtendsDifferentSpreadStringsImpl;
 
 /**
@@ -18,14 +19,19 @@ public final class ExtendsDifferentSpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ExtendsDifferentSpreadStringsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ExtendsDifferentSpreadStringClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ExtendsDifferentSpreadStringClient(ExtendsDifferentSpreadStringsImpl serviceClient) {
+    ExtendsDifferentSpreadStringClient(ExtendsDifferentSpreadStringsImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +46,8 @@ public final class ExtendsDifferentSpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DifferentSpreadStringDerived> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ExtendsDifferentSpreadString.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +76,8 @@ public final class ExtendsDifferentSpreadStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(DifferentSpreadStringDerived body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("ExtendsDifferentSpreadString.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

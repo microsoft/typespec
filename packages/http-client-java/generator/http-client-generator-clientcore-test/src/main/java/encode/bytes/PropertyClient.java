@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous BytesClient type.
@@ -18,14 +19,18 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PropertyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PropertyClient(PropertiesImpl serviceClient) {
+    PropertyClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultBytesProperty> defaultMethodWithResponse(DefaultBytesProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64BytesProperty> base64WithResponse(Base64BytesProperty body, RequestContext requestContext) {
-        return this.serviceClient.base64WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.base64", requestContext,
+            updatedContext -> this.serviceClient.base64WithResponse(body, updatedContext));
     }
 
     /**
@@ -105,7 +112,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64urlBytesProperty> base64urlWithResponse(Base64urlBytesProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.base64urlWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.base64url", requestContext,
+            updatedContext -> this.serviceClient.base64urlWithResponse(body, updatedContext));
     }
 
     /**
@@ -137,7 +145,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Base64urlArrayBytesProperty> base64urlArrayWithResponse(Base64urlArrayBytesProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.base64urlArrayWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.base64urlArray", requestContext,
+            updatedContext -> this.serviceClient.base64urlArrayWithResponse(body, updatedContext));
     }
 
     /**

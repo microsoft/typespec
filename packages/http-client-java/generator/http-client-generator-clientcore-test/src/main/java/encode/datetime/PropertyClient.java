@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous DatetimeClient type.
@@ -18,14 +19,18 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PropertyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PropertyClient(PropertiesImpl serviceClient) {
+    PropertyClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultDatetimeProperty> defaultMethodWithResponse(DefaultDatetimeProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
     /**
@@ -74,7 +80,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Rfc3339DatetimeProperty> rfc3339WithResponse(Rfc3339DatetimeProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.rfc3339WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.rfc3339", requestContext,
+            updatedContext -> this.serviceClient.rfc3339WithResponse(body, updatedContext));
     }
 
     /**
@@ -106,7 +113,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Rfc7231DatetimeProperty> rfc7231WithResponse(Rfc7231DatetimeProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.rfc7231WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.rfc7231", requestContext,
+            updatedContext -> this.serviceClient.rfc7231WithResponse(body, updatedContext));
     }
 
     /**
@@ -138,7 +146,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnixTimestampDatetimeProperty> unixTimestampWithResponse(UnixTimestampDatetimeProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.unixTimestampWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.unixTimestamp", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampWithResponse(body, updatedContext));
     }
 
     /**
@@ -170,7 +179,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<UnixTimestampArrayDatetimeProperty>
         unixTimestampArrayWithResponse(UnixTimestampArrayDatetimeProperty body, RequestContext requestContext) {
-        return this.serviceClient.unixTimestampArrayWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.unixTimestampArray", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(body, updatedContext));
     }
 
     /**

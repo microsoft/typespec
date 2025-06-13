@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -20,14 +21,18 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of QueryClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    QueryClient(QueriesImpl serviceClient) {
+    QueryClient(QueriesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(value, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.rfc3339WithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.rfc3339", requestContext,
+            updatedContext -> this.serviceClient.rfc3339WithResponse(value, updatedContext));
     }
 
     /**
@@ -103,7 +110,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.rfc7231WithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.rfc7231", requestContext,
+            updatedContext -> this.serviceClient.rfc7231WithResponse(value, updatedContext));
     }
 
     /**
@@ -133,7 +141,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
-        return this.serviceClient.unixTimestampWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.unixTimestamp", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampWithResponse(value, updatedContext));
     }
 
     /**
@@ -163,7 +172,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
-        return this.serviceClient.unixTimestampArrayWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.unixTimestampArray", requestContext,
+            updatedContext -> this.serviceClient.unixTimestampArrayWithResponse(value, updatedContext));
     }
 
     /**

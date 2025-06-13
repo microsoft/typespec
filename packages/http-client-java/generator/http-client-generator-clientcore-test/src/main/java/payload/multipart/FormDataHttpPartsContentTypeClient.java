@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.multipart.implementation.FormDataHttpPartsContentTypesImpl;
 
 /**
@@ -18,14 +19,19 @@ public final class FormDataHttpPartsContentTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final FormDataHttpPartsContentTypesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of FormDataHttpPartsContentTypeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    FormDataHttpPartsContentTypeClient(FormDataHttpPartsContentTypesImpl serviceClient) {
+    FormDataHttpPartsContentTypeClient(FormDataHttpPartsContentTypesImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -44,7 +50,9 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.imageJpegContentTypeWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.imageJpegContentType",
+            requestContext,
+            updatedContext -> this.serviceClient.imageJpegContentTypeWithResponse(body, updatedContext));
     }
 
     /**
@@ -77,7 +85,8 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.requiredContentTypeWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.requiredContentType",
+            requestContext, updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
     }
 
     /**
@@ -110,7 +119,8 @@ public final class FormDataHttpPartsContentTypeClient {
         RequestContext requestContext) {
         // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.optionalContentTypeWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsContentType.optionalContentType",
+            requestContext, updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));
     }
 
     /**

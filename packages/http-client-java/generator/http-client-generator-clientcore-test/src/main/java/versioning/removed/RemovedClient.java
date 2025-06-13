@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.removed.implementation.RemovedClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class RemovedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RemovedClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of RemovedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    RemovedClient(RemovedClientImpl serviceClient) {
+    RemovedClient(RemovedClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class RemovedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.serviceClient.v2WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".v2", requestContext,
+            updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
     }
 
     /**
@@ -72,7 +78,8 @@ public final class RemovedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV3> modelV3WithResponse(ModelV3 body, RequestContext requestContext) {
-        return this.serviceClient.modelV3WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".modelV3", requestContext,
+            updatedContext -> this.serviceClient.modelV3WithResponse(body, updatedContext));
     }
 
     /**

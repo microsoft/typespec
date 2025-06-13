@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.Duration;
 import java.util.List;
 
@@ -20,14 +21,18 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of QueryClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    QueryClient(QueriesImpl serviceClient) {
+    QueryClient(QueriesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration input, RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(input, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
-        return this.serviceClient.iso8601WithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.iso8601", requestContext,
+            updatedContext -> this.serviceClient.iso8601WithResponse(input, updatedContext));
     }
 
     /**
@@ -103,7 +110,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.serviceClient.int32SecondsWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.int32Seconds", requestContext,
+            updatedContext -> this.serviceClient.int32SecondsWithResponse(input, updatedContext));
     }
 
     /**
@@ -133,7 +141,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.serviceClient.floatSecondsWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.floatSeconds", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsWithResponse(input, updatedContext));
     }
 
     /**
@@ -163,7 +172,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
-        return this.serviceClient.float64SecondsWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.float64Seconds", requestContext,
+            updatedContext -> this.serviceClient.float64SecondsWithResponse(input, updatedContext));
     }
 
     /**
@@ -193,7 +203,8 @@ public final class QueryClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestContext requestContext) {
-        return this.serviceClient.int32SecondsArrayWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse("Query.int32SecondsArray", requestContext,
+            updatedContext -> this.serviceClient.int32SecondsArrayWithResponse(input, updatedContext));
     }
 
     /**

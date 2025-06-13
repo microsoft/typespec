@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import type.union.implementation.ModelsOnliesImpl;
 
@@ -19,14 +20,18 @@ public final class ModelsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsOnliesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelsOnlyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelsOnlyClient(ModelsOnliesImpl serviceClient) {
+    ModelsOnlyClient(ModelsOnliesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class ModelsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse5> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ModelsOnly.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class ModelsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(BinaryData prop, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("ModelsOnly.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 
     /**

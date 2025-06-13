@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.union.implementation.FloatsOnliesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class FloatsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final FloatsOnliesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of FloatsOnlyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    FloatsOnlyClient(FloatsOnliesImpl serviceClient) {
+    FloatsOnlyClient(FloatsOnliesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class FloatsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse4> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("FloatsOnly.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class FloatsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(GetResponseProp3 prop, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("FloatsOnly.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 
     /**

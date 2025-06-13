@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
@@ -19,14 +20,18 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ResponseBodiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ResponseBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ResponseBodyClient(ResponseBodiesImpl serviceClient) {
+    ResponseBodyClient(ResponseBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> defaultMethodWithResponse(RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseBody.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> octetStreamWithResponse(RequestContext requestContext) {
-        return this.serviceClient.octetStreamWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseBody.octetStream", requestContext,
+            updatedContext -> this.serviceClient.octetStreamWithResponse(updatedContext));
     }
 
     /**
@@ -97,7 +104,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> customContentTypeWithResponse(RequestContext requestContext) {
-        return this.serviceClient.customContentTypeWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseBody.customContentType", requestContext,
+            updatedContext -> this.serviceClient.customContentTypeWithResponse(updatedContext));
     }
 
     /**
@@ -125,7 +133,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64WithResponse(RequestContext requestContext) {
-        return this.serviceClient.base64WithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseBody.base64", requestContext,
+            updatedContext -> this.serviceClient.base64WithResponse(updatedContext));
     }
 
     /**
@@ -153,7 +162,8 @@ public final class ResponseBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<byte[]> base64urlWithResponse(RequestContext requestContext) {
-        return this.serviceClient.base64urlWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("ResponseBody.base64url", requestContext,
+            updatedContext -> this.serviceClient.base64urlWithResponse(updatedContext));
     }
 
     /**

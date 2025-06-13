@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.added.implementation.InterfaceV2sImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class InterfaceV2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final InterfaceV2sImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of InterfaceV2Client class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    InterfaceV2Client(InterfaceV2sImpl serviceClient) {
+    InterfaceV2Client(InterfaceV2sImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class InterfaceV2Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2InInterfaceWithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.serviceClient.v2InInterfaceWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("InterfaceV2.v2InInterface", requestContext,
+            updatedContext -> this.serviceClient.v2InInterfaceWithResponse(body, updatedContext));
     }
 
     /**

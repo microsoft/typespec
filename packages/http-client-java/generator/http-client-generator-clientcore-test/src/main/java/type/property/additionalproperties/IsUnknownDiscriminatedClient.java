@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.additionalproperties.implementation.IsUnknownDiscriminatedsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class IsUnknownDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final IsUnknownDiscriminatedsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of IsUnknownDiscriminatedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    IsUnknownDiscriminatedClient(IsUnknownDiscriminatedsImpl serviceClient) {
+    IsUnknownDiscriminatedClient(IsUnknownDiscriminatedsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class IsUnknownDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<IsUnknownAdditionalPropertiesDiscriminated> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("IsUnknownDiscriminated.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class IsUnknownDiscriminatedClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(IsUnknownAdditionalPropertiesDiscriminated body,
         RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("IsUnknownDiscriminated.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**
