@@ -19,6 +19,6 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm build
+        run: pnpm build --filter='!@typespec/website'
 
       - run: pnpx pkg-pr-new publish  --compact './packages/*' --pnpm
