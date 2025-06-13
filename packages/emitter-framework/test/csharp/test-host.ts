@@ -5,13 +5,14 @@ import {
   expectDiagnosticEmpty,
   TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
+import { HttpTestLibrary } from "@typespec/http/testing";
 
 export async function createTypespecCliTestHost(
   options: { libraries: "Http"[] } = { libraries: [] },
 ) {
   const libraries: TypeSpecTestLibrary[] = [];
   if (options.libraries.includes("Http")) {
-    // libraries.push(HttpTestLibrary);
+    libraries.push(HttpTestLibrary);
   }
   return createTestHost({
     libraries,
