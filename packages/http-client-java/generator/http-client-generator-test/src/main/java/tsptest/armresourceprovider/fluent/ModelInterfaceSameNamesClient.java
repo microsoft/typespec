@@ -41,4 +41,33 @@ public interface ModelInterfaceSameNamesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     ModelInterfaceSameNameInner getByResourceGroup(String resourceGroupName, String modelInterfaceDifferentNameName);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> deleteWithResponse(String resourceGroupName, String modelInterfaceDifferentNameName, String ifMatch,
+        String ifNoneMatch, Context context);
+
+    /**
+     * Delete a ModelInterfaceDifferentName.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param modelInterfaceDifferentNameName The name of the ModelInterfaceDifferentName.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    void delete(String resourceGroupName, String modelInterfaceDifferentNameName);
 }

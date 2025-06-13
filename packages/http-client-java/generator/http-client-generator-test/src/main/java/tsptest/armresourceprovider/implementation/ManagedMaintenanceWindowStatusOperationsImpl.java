@@ -49,6 +49,16 @@ public final class ManagedMaintenanceWindowStatusOperationsImpl implements Manag
         }
     }
 
+    public void deleteByResourceGroup(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+        this.serviceClient().delete(resourceGroupName, managedMaintenanceWindowStatusContentName);
+    }
+
+    public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
+        String ifNoneMatch, Context context) {
+        this.serviceClient()
+            .delete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch, context);
+    }
+
     private ManagedMaintenanceWindowStatusOperationsClient serviceClient() {
         return this.innerClient;
     }
