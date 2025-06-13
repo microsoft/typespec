@@ -32,10 +32,30 @@ export const $lib = createTypeSpecLibrary({
       description:
         "Can't find any clients in the spec. This can happen when there are no operations defined in the spec.",
     },
+    "multiple-services": {
+      severity: "warning",
+      messages: {
+        default:
+          "Multiple services found. Only the first service will be used; others will be ignored.",
+      },
+    },
+    "no-client-defined": {
+      severity: "warning",
+      messages: {
+        default: "No client defined in the spec. To define a client see TODO: add link to docs",
+      },
+      description:
+        "No client defined for the operation. This can happen when there are no operations defined in the spec or when the operations are not grouped under a client.",
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {
-    alternateName: { description: "alternateName" },
+    explicitClient: {
+      description: "Stores the decorated clients.",
+    },
+    resolvedClient: {
+      description: "Stores the resolved clients.",
+    },
   },
 });
 

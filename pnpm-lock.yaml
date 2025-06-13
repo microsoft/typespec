@@ -685,6 +685,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/tspd':
+        specifier: workspace:^
+        version: link:../tspd
       eslint:
         specifier: ^9.23.0
         version: 9.27.0
