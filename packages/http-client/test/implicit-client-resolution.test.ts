@@ -12,7 +12,7 @@ describe("Implicit Client Resolution", () => {
     runner = await createTypespecHttpClientTestRunner();
   });
 
-  it("ImplicitService_SingleRootClient", async () => {
+  it("single client with implicit client resolution", async () => {
     // Description:
     // A spec with exactly one top-level `@service` namespace and no explicit @client/@operationGroup.
     // Expect: that namespace becomes the sole root client.
@@ -33,7 +33,7 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.name).toBe("SingleRoot");
   });
 
-  it("ImplicitService_MultipleTopLevelServices", async () => {
+  it("implicit client resolution with multiple top level clients", async () => {
     // Description:
     // Two sibling top-level `@service` namespaces.
     // Expect: Both are resolved as top level clients.
@@ -65,7 +65,7 @@ describe("Implicit Client Resolution", () => {
     expect(secondClient.name).toBe("SecondService");
   });
 
-  it("ImplicitService_NoClients", async () => {
+  it("implicit client resolution with no clients reports diagnostics", async () => {
     // Description:
     // Two sibling top-level namespaces without any `@service`, `@client`, or `@operationGroup` decorators.
     // Expect: no clients are created, and a diagnostic is reported.
@@ -89,7 +89,7 @@ describe("Implicit Client Resolution", () => {
     expect(diagnostic.code).toBe("@typespec/http-client-library/no-client-defined");
   });
 
-  it("ImplicitService_NestedNamespacesHierarchy", async () => {
+  it("implicit client resolution with nested sub clients", async () => {
     // Description:
     // A `@service` namespace containing nested child namespaces (multiple levels).
     // Expect: each nesting level becomes a sub-client, preserving the hierarchy.
@@ -119,7 +119,7 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.subClients[0].operations[0].name).toBe("getSubItems");
   });
 
-  it("ImplicitService_NestedNamespacesHierarchy_WithNamer", async () => {
+  it("implicit client resolution with nested sub clients applies name policy", async () => {
     // Description:
     // A `@service` namespace containing nested child namespaces (multiple levels).
     // Expect: each nesting level becomes a sub-client, preserving the hierarchy.
@@ -159,7 +159,7 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.subClients[0].operations[0].name).toBe("getSubItems");
   });
 
-  it("ImplicitService_DirectOperationsIncluded", async () => {
+  it("implicit client resolution with direct operations included", async () => {
     // Description:
     // Operations declared directly inside a service or sub-client without any decorator.
     // Expect: they become methods on that client.
@@ -183,17 +183,23 @@ describe("Implicit Client Resolution", () => {
     expect(rootClient.operations[1].name).toBe("getItemById");
   });
 
-  it("ImplicitService_MoveToCreatesSubclient", async () => {
-    // Description:
-    // An operation outside the service namespace annotated with `@moveTo("Root")`.
-    // Expect: it is pulled into its own sub-client under the root.
-  });
-
-  it("PruneEmptyClients_NoMethodsOrSubclients", async () => {
+  it("prunes clients with no methods or children", async () => {
     // Description:
     // A detected client or sub-client that ends up with neither methods nor children.
     // Expect: it is discarded (ignored).
+    await runner.compile(`
+      @service(#{
+        title: "Direct Operations Service",
+      })
+      namespace DirectOperationsService {
+      }
+    `);
+
+    const clients = ignoreDiagnostics(resolveClients(runner.program));
+    expect(clients).toHaveLength(1);
+    const rootClient = clients[0];
+    expect(rootClient).toBeDefined();
+    expect(rootClient.name).toBe("DirectOperationsService");
+    expect(rootClient.operations).toHaveLength(0);
   });
 });
-
-describe("Explicit Client Resolution", () => {});

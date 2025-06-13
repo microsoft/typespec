@@ -10,7 +10,7 @@ describe("Explicit Client Resolution", () => {
     runner = await createTypespecHttpClientTestRunner();
   });
 
-  it("ExplicitService_SingleRootClient", async () => {
+  it("single explicit client", async () => {
     // Description:
     // A spec with exactly one top-level `@service` namespace and explicit @client.
     // Expect: that namespace becomes the sole root client.
@@ -32,9 +32,9 @@ describe("Explicit Client Resolution", () => {
     expect(rootClient.name).toBe("SingleRoot");
   });
 
-  it("should use explicit client name", async () => {
+  it("should use custom client name", async () => {
     // Description:
-    // A spec with exactly one top-level `@service` namespace and explicit @client.
+    // A spec with exactly one top-level `@service` namespace and explicit @client. It sets a custom name.
     // Expect: that namespace becomes the sole root client.
 
     await runner.compile(`
@@ -54,7 +54,7 @@ describe("Explicit Client Resolution", () => {
     expect(rootClient.name).toBe("CustomClientName");
   });
 
-  it("ExplicitService_Client_Nested_Root", async () => {
+  it("explicit nested client becomes top level client", async () => {
     // Description:
     // A spec with exactly one top-level `@service` namespace with a child namespace and explicit @client.
     // Expect: The @client decorated namespace becomes the client.
@@ -78,27 +78,26 @@ describe("Explicit Client Resolution", () => {
     expect(rootClient.name).toBe("Items");
   });
 
-  it("should create two root clients", async () => {
+  it("nested explicit clients are resolved as top level clients", async () => {
     // Description:
-    // A spec with exactly one top-level `@service` namespace with a child namespace and explicit @client.
-    // Expect: The @client decorated namespace becomes the client.
+    // Explicit client is nested within another explicit client.
+    // Expect: Both explicit clients are resolved as top-level clients.
 
     await runner.compile(`
       @service(#{
         title: "Single Root Client Service",
       })
-      namespace NonClient {
+      namespace NonClient;
         @client
         @route("/items")
         namespace Items {
            op getItems(): unknown[];
-        }
 
-        @client
-        @route("/services")
-        namespace Services {
-           op getServices(): unknown[];
-        }
+            @client
+            @route("/services")
+            namespace Services {
+              op getServices(): unknown[];
+            }
       }
     `);
 
@@ -113,9 +112,9 @@ describe("Explicit Client Resolution", () => {
     expect(secondClient.name).toBe("Services");
   });
 
-  it("should resolve client and sub clients", async () => {
+  it("should resolve implicit sub clients in explicit client", async () => {
     // Description: A spec with one `@client` namespace and multiple implicit sub clients.
-    // Expect: one root client + each operationGroup as a sub-client.
+    // Expect: one root client with implicitly resolved sub clients.
 
     await runner.compile(`
       @service(#{
@@ -142,7 +141,7 @@ describe("Explicit Client Resolution", () => {
     expect(subClient.parent).toBe(rootClient);
   });
 
-  it("should promote a nested @client to a top level client", async () => {
+  it("all explicit clients @client become top level clients", async () => {
     // Description: A spec with a nested `@client` namespace.
     // Expect: the nested `@client` becomes a top-level client.
 
