@@ -50,7 +50,7 @@ extends:
 
       - stage: CreateAzureSdkForNetPR
         displayName: Create PR for azure-sdk-for-net
-        dependsOn: 
+        dependsOn:
           - CSharp_Publish
           - CSharp_Build
         condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
@@ -68,7 +68,7 @@ extends:
                   # Determine the TypeSpec PR URL 
                   $sourceBranch = '$(Build.SourceBranch)'
                   $repoUrl = '$(Build.Repository.Uri)'
-                  
+
                   if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
                     $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
                   } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
