@@ -5,7 +5,11 @@ on:
     branches:
       - main
       - release/*
-
+    paths-ignore:
+      - "packages/http-client-csharp/**"
+      - "packages/http-client-java/**"
+      - "packages/http-client-python/**"
+      - "website/**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
