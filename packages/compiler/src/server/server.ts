@@ -15,6 +15,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -86,7 +87,8 @@ function main() {
     },
   };
 
-  const s = createServer(host);
+  const clientConfigProvider = createClientConfigProvider();
+  const s = createServer(host, clientConfigProvider);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
   s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
@@ -106,10 +108,13 @@ function main() {
     return await s.initialize(params);
   });
 
-  connection.onInitialized((params) => {
+  connection.onInitialized(async (params) => {
     if (clientHasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(s.workspaceFoldersChanged);
     }
+
+    // Initialize client configurations
+    await clientConfigProvider.initialize(connection, host);
     s.initialized(params);
   });
 
