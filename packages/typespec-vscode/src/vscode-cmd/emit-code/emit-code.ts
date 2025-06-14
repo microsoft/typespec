@@ -19,6 +19,7 @@ import {
   getEntrypointTspFile,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
+import { tryExecuteWithUi } from "../../ui-utils.js";
 import {
   ExecOutput,
   getVscodeUriFromPath,
@@ -175,11 +176,14 @@ async function doEmit(
   const npmUtil = new NpmUtil(baseDir);
   const packagesToInstall: { name: string; version?: string }[] = [];
 
-  const installPackageQuickPickItems = await vscode.window.withProgress(
+  const installPackageQuickPickItemsResult = await tryExecuteWithUi(
     {
-      location: vscode.ProgressLocation.Notification,
-      title: "Calculating packages to install or upgrade ...",
-      cancellable: false,
+      name: "Calculating packages to install or upgrade",
+      progress: {
+        timeoutInMs: 5 * 60 * 1000, // 5 minutes as timeout
+        title: "Calculating packages to install or upgrade ...",
+        withCancelAndTimeout: true,
+      },
     },
     async () => {
       const installCalculationPromises = emitters.map(async (emitter) => {
@@ -261,6 +265,17 @@ async function doEmit(
     },
   );
 
+  if (installPackageQuickPickItemsResult.code !== ResultCode.Success) {
+    logger.error("Failed to calculate packages to install. Emitting cancelled by user.", [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    tel.lastStep = "The calculation installation package was canceled by the user";
+    return ResultCode.Cancelled;
+  }
+
+  const installPackageQuickPickItems = installPackageQuickPickItemsResult.value;
+
   if (installPackageQuickPickItems.length > 0) {
     const installPackagesSelector = vscode.window.createQuickPick();
     installPackagesSelector.items = installPackageQuickPickItems;
@@ -299,11 +314,14 @@ async function doEmit(
     if (selectedPackages.length > 0) {
       const installPackages = selectedPackages.map((p) => p.packageFullName);
       logger.info(`Install ${installPackages.join(",")} under directory ${baseDir}`);
-      const installResult = await vscode.window.withProgress(
+      const installResultUi = await tryExecuteWithUi(
         {
-          location: vscode.ProgressLocation.Notification,
-          title: "Installing packages...",
-          cancellable: false,
+          name: "Installing packages",
+          progress: {
+            timeoutInMs: 5 * 60 * 1000, // 5 minutes as timeout
+            title: "Installing packages...",
+            withCancelAndTimeout: true,
+          },
         },
         async () => {
           try {
@@ -324,6 +342,17 @@ async function doEmit(
           }
         },
       );
+
+      if (installResultUi.code !== ResultCode.Success) {
+        logger.error("Package installation was cancelled by user. Emitting cancelled.", [], {
+          showOutput: true,
+          showPopup: true,
+        });
+        tel.lastStep = "Package installation was cancelled by user";
+        return ResultCode.Cancelled;
+      }
+
+      const installResult = installResultUi.value;
       if (!installResult) {
         logger.error(`Error occurred when installing packages. Emitting Cancelled.`, [], {
           showOutput: false,
@@ -424,11 +453,14 @@ async function doEmit(
     .join(", ");
   logger.info(`Start to emit ${allCodesToGenerate}...`);
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
-  return await vscode.window.withProgress<ResultCode>(
+  const emitResultUi = await tryExecuteWithUi(
     {
-      location: vscode.ProgressLocation.Notification,
-      title: `Emitting ${codeInfoStr}...`,
-      cancellable: false,
+      name: "Emitting code",
+      progress: {
+        timeoutInMs: 5 * 60 * 1000, // 5 minutes as timeout
+        title: `Emitting ${codeInfoStr}...`,
+        withCancelAndTimeout: true,
+      },
     },
     async (): Promise<ResultCode> => {
       try {
@@ -535,6 +567,17 @@ async function doEmit(
       }
     },
   );
+
+  if (emitResultUi.code !== ResultCode.Success) {
+    logger.error("Emit code was canceled by the user. Emitting Cancelled.", [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    tel.lastStep = "Emit code was canceled by the user";
+    return ResultCode.Cancelled;
+  }
+
+  return emitResultUi.value;
 }
 
 export async function emitCode(
