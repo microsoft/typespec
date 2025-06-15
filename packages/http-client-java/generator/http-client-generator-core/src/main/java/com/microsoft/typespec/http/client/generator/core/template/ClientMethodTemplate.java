@@ -39,7 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod the client method to add parameter validations for.
      * @param settings AutoRest generation settings, used to determine if validations should be added.
      */
-    protected static void addValidations(JavaBlock function, ClientMethod clientMethod, JavaSettings settings) {
+    protected void addValidations(JavaBlock function, ClientMethod clientMethod, JavaSettings settings) {
         if (!settings.isClientSideValidations()) {
             return;
         }
@@ -77,7 +77,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         // Parameter expressions to validate for non-null value.
         final List<String> paramReferenceExpressions = clientMethod.getRequiredNullableParameterExpressions();
         // Parameter expressions for custom validation (key is the expression, value is the validation).
-        final Map<String, String> validateParamExpressions = new HashMap<>(clientMethod.getValidateExpressions());
+        final Map<String, String> validateParamExpressions = new LinkedHashMap<>(clientMethod.getValidateExpressions());
 
         for (String paramReferenceExpression : paramReferenceExpressions) {
             final JavaIfBlock nullCheck = function.ifBlock(paramReferenceExpression + " == null", ifBlock -> {
@@ -114,16 +114,22 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param function The client method code block.
      * @param clientMethod The client method.
      */
-    protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
+    protected void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
         if (!clientMethod.getOnlyRequiredParameters()) {
             return;
         }
 
+        final MethodPageDetails pageDetails
+            = clientMethod.isPageStreamingType() ? clientMethod.getMethodPageDetails() : null;
         for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
             if (parameter.isRequired()) {
                 // Parameter is required and will be part of the method signature.
                 continue;
             }
+            if (pageDetails != null && pageDetails.shouldHideParameter(parameter)) {
+                continue;
+            }
+
             final String defaultValue = parameterDefaultValueExpression(parameter);
             function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
                 defaultValue == null ? "null" : defaultValue);
@@ -137,7 +143,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      * @param settings AutoRest generation settings.
      */
-    protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
+    protected void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
@@ -203,8 +209,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      * @param settings AutoRest generation settings.
      */
-    protected static void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod,
-        JavaSettings settings) {
+    protected void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod, JavaSettings settings) {
         for (ParameterTransformation transformation : clientMethod.getParameterTransformations().asList()) {
             if (!transformation.hasMappings()) {
                 // the case that this flattened parameter is not original parameter from any other parameters
@@ -316,7 +321,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param function The client method code block.
      * @param clientMethod The client method.
      */
-    protected static void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod) {
+    protected void convertClientTypesToWireTypes(JavaBlock function, ClientMethod clientMethod) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
             final RequestParameterLocation location = parameter.getRequestParameterLocation();
@@ -568,7 +573,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param wireType the wire type of the parameter, used to determine whether to encode as a string or url.
      * @return Java code that converts a byte[] parameter to Base64 encoded form.
      */
-    private static String byteArrayToBase64Encoded(String parameterName, IType wireType) {
+    protected String byteArrayToBase64Encoded(String parameterName, IType wireType) {
         if ((wireType == ClassType.STRING)) {
             // byte[] to Base64-encoded String.
             return "Base64Util.encodeToString" + "(" + parameterName + ")";
