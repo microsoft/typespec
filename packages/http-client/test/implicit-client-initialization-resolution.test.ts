@@ -32,7 +32,11 @@ it("implicit initialization resolution with no server", async () => {
   const endpoints = clientInitialization.endpoints;
   expect(endpoints).toHaveLength(1);
   expect(endpoints![0].url).toBe("{endpoint}");
-  expect(endpoints![0].parameters).toHaveLength(0);
+  expect(endpoints![0].parameters).toHaveLength(1);
+  const endpointParam = endpoints![0].parameters.get("endpoint");
+  expect(endpointParam).toBeDefined();
+  expect(endpointParam!.type).toBe($(runner.program).builtin.string);
+  expect(endpointParam!.defaultValue).toBeUndefined();
 });
 
 it("implicit initialization resolution with server", async () => {
@@ -55,8 +59,14 @@ it("implicit initialization resolution with server", async () => {
   expect(clientInitialization).toBeDefined();
   const servers = clientInitialization.endpoints;
   expect(servers).toHaveLength(1);
-  expect(servers![0].url).toBe("https://api.example.com");
-  expect(servers![0].parameters).toHaveLength(0);
+  expect(servers![0].url).toBe("{endpoint}");
+  expect(servers![0].parameters).toHaveLength(1);
+  const endpointParam = servers![0].parameters.get("endpoint");
+  expect(endpointParam).toBeDefined();
+  expect(endpointParam!.type).toBe($(runner.program).builtin.string);
+  expect(endpointParam!.defaultValue).toBeDefined();
+  expect((endpointParam!.defaultValue! as any).value).toBe("https://api.example.com");
+  expect(endpointParam!.optional).toBe(true);
 });
 
 it("implicit initialization resolution with parametrized server", async () => {

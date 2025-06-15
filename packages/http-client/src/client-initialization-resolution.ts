@@ -1,4 +1,5 @@
 import { Diagnostic, DiagnosticResult, Program } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import { Client, ClientEndpoint, ClientInitialization } from "./interfaces.js";
 import { resolveClientAuthentication } from "./utils/auth-resolution.js";
@@ -10,7 +11,7 @@ export function resolveClientInitialization(
 ): DiagnosticResult<ClientInitialization> {
   const diagnostics: Diagnostic[] = [];
   const authentication = resolveClientAuthentication(program, client);
-  const endpoints = resolveClientEndpoints(program, client);
+  const endpoints = [...resolveClientEndpoints(program, client)];
   return [
     {
       kind: "ClientInitialization",
@@ -23,20 +24,53 @@ export function resolveClientInitialization(
 
 /**
  * Resolves the Servers for a client. Servers have the information about the endpoint and any parameters they need.
+ * If no explicit servers are defined for the client, it will return a default endpoint to be set at client initialization.
  */
-function resolveClientEndpoints(program: Program, client: Client): ClientEndpoint[] | undefined {
+function* resolveClientEndpoints(program: Program, client: Client): Iterable<ClientEndpoint> {
   const clientService = getService(program, client);
   if (!clientService) {
-    return undefined;
+    return;
   }
-  const endpoints = getServers(program, clientService.type) ?? [];
+  const servers = getServers(program, clientService.type) ?? [];
 
-  if (endpoints.length === 0) {
-    endpoints.push({
+  if (servers.length === 0) {
+    yield {
       url: "{endpoint}",
       description: "No endpoints defined for this client.",
-      parameters: new Map(),
-    });
+      parameters: new Map([
+        [
+          "endpoint",
+          $(program).modelProperty.create({
+            name: "endpoint",
+            type: $(program).builtin.string,
+            optional: false,
+          }),
+        ],
+      ]),
+    };
+    return;
   }
-  return endpoints;
+
+  for (const endpoint of servers) {
+    if (endpoint.parameters.size === 0) {
+      yield {
+        url: "{endpoint}",
+        description: endpoint.description,
+        parameters: new Map([
+          [
+            "endpoint",
+            $(program).modelProperty.create({
+              name: "endpoint",
+              type: $(program).builtin.string,
+              defaultValue: $(program).value.create(endpoint.url),
+              optional: true,
+            }),
+          ],
+        ]),
+      };
+      continue;
+    }
+
+    yield endpoint;
+  }
 }

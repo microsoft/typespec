@@ -13,8 +13,20 @@ export function buildClientParameters(
   suffixRefkey: ay.Refkey,
 ): ts.ParameterDescriptor[] {
   const { $ } = useTsp();
-  const clientConstructor = $.client.getConstructor(client);
-  const parameters = $.operation.getClientSignature(client, clientConstructor);
+  const initialization = $.client.getInitialization(client);
+
+  if (!initialization) {
+    return [];
+  }
+
+  // We will build the constructor parameters in the following order:
+  // 1. Endpoint parameters
+  // 2. Credential parameters
+  // 3. Client initialization parameters
+  // 4. Client options
+
+  const endpointParameter = initialization.parameters.find((p) => p.name === "endpoint");
+
   const params = parameters.flatMap(
     (param) => {
       const descriptor = buildClientParameterDescriptor(param, suffixRefkey);
