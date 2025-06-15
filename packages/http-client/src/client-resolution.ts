@@ -8,7 +8,7 @@ import {
   Program,
 } from "@typespec/compiler";
 import { ClientDecoratorOptions } from "../generated-defs/TypeSpec.HttpClient.js";
-import { ClientNamePolicy, ClientV2 } from "./interfaces.js";
+import { Client, ClientNamePolicy } from "./interfaces.js";
 import { createDiagnostic, StateKeys } from "./lib.js";
 import { getClientName } from "./utils/get-client-name.js";
 
@@ -25,7 +25,7 @@ export interface ResolveClientsOptions {
 export function resolveClients(
   program: Program,
   options: ResolveClientsOptions = {},
-): DiagnosticResult<ClientV2[]> {
+): DiagnosticResult<Client[]> {
   const diagnostics: Diagnostic[] = [];
   const services = listServices(program);
 
@@ -33,7 +33,7 @@ export function resolveClients(
   const explicitClientState: Map<Namespace | Interface, ClientDecoratorOptions | undefined> =
     program.stateMap(StateKeys.explicitClient) as any;
 
-  let clients: ClientV2[] = [];
+  let clients: Client[] = [];
   const decoratedContainers: (Namespace | Interface)[] = [...explicitClientState.keys()];
 
   if (decoratedContainers.length) {
@@ -68,16 +68,16 @@ function buildClient(
   program: Program,
   container: Namespace | Interface,
   options: ResolveClientsOptions = {},
-): ClientV2 {
+): Client {
   const clientState = program.stateMap(StateKeys.resolvedClient);
   if (clientState.get(container)) {
     return clientState.get(container)!;
   }
 
-  const client: ClientV2 = {
+  const client: Client = {
     kind: "client",
     name: container.name,
-    operations: getClientOperations(program, container),
+    operations: [],
     type: container,
     subClients: [],
     parent: undefined,
@@ -86,11 +86,20 @@ function buildClient(
   clientState.set(container, client);
   client.name = getClientName(program, client, options);
   client.subClients = [...getSubClients(program, client)];
+  client.operations = [...getClientOperations(program, client)];
 
   return client;
 }
 
-function* getSubClients(program: Program, client: ClientV2): Iterable<ClientV2> {
+export function getClientFromContainer(
+  program: Program,
+  container: Namespace | Interface,
+): Client | undefined {
+  const clientState = program.stateMap(StateKeys.resolvedClient);
+  return clientState.get(container);
+}
+
+function* getSubClients(program: Program, client: Client): Iterable<Client> {
   const container = client.type;
   if (container.kind === "Interface") {
     return;
@@ -116,10 +125,14 @@ function isExplicitClient(program: Program, container: Namespace | Interface): b
   return explicitClientState.get(container) !== undefined;
 }
 
-function getClientOperations(program: Program, container: Namespace | Interface): Operation[] {
+function* getClientOperations(program: Program, client: Client): Iterable<Operation> {
+  const container = client.type;
   // TODO: handle moveTo/clientLocation?
-  const operations = container.operations.values();
-  return [...operations];
+  const clientOperationMap = program.stateMap(StateKeys.clientOperationMap);
+  for (const operation of container.operations.values()) {
+    clientOperationMap.set(operation, client);
+    yield operation;
+  }
 }
 
 function hasOperations(namespace: Namespace): boolean {
@@ -128,4 +141,12 @@ function hasOperations(namespace: Namespace): boolean {
 
 function hasChildrenContainer(namespace: Namespace): boolean {
   return namespace.namespaces.size > 0 || namespace.interfaces.size > 0;
+}
+
+export function resolveClientFromOperation(
+  program: Program,
+  operation: Operation,
+): Client | undefined {
+  const clientState = program.stateMap(StateKeys.clientOperationMap);
+  return clientState.get(operation);
 }

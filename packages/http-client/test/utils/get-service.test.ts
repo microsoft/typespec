@@ -2,7 +2,7 @@ import { ignoreDiagnostics, Namespace } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolveClients } from "../../src/client-resolution.js";
-import { ClientV2 } from "../../src/interfaces.js";
+import { Client } from "../../src/interfaces.js";
 import { getService } from "../../src/utils/client-server-helpers.js";
 import { createTypespecHttpClientTestRunner } from "../test-host.js";
 
@@ -20,7 +20,7 @@ describe("client-server-helpers::getService", () => {
       }
     `)) as { MyService: Namespace };
 
-    const client: ClientV2 = {
+    const client: Client = {
       kind: "client",
       type: MyService,
       name: "MyService",

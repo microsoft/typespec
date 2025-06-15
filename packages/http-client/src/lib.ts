@@ -66,6 +66,12 @@ export const $lib = createTypeSpecLibrary({
     clientServiceMap: {
       description: "Stores the mapping of clients to their services.",
     },
+    clientAuthMap: {
+      description: "Stores the mapping of clients to their authentication.",
+    },
+    clientOperationMap: {
+      description: "Stores the mapping of operations to their clients.",
+    },
   },
 });
 

@@ -1,10 +1,10 @@
 import { Program } from "@typespec/compiler";
-import { ClientNamePolicy, ClientV2 } from "../interfaces.js";
+import { Client, ClientNamePolicy } from "../interfaces.js";
 import { StateKeys } from "../lib.js";
 
 export function getClientName(
   program: Program,
-  client: ClientV2,
+  client: Client,
   options: { clientNamePolicy?: ClientNamePolicy } = {},
 ): string {
   const explicitClientState = program.stateMap(StateKeys.explicitClient);

@@ -1,33 +1,7 @@
-import { Interface, ModelProperty, Namespace, Operation } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
+import { Interface, Namespace, Operation } from "@typespec/compiler";
+import { Authentication, HttpServer } from "@typespec/http";
 
-export interface InternalClient {
-  kind: "Client";
-  name: string;
-  type: Namespace | Interface;
-  service: Namespace;
-}
-
-export interface Client extends InternalClient {
-  operations: ClientOperation[];
-  subClients: Client[];
-  parent?: Client;
-}
-
-export interface ClientOperation {
-  kind: "ClientOperation";
-  name: string;
-  httpOperation: HttpOperation;
-  client: Client;
-}
-
-export interface ReferencedType {
-  kind: "ReferencedType";
-  name: string;
-  library: string;
-}
-
-export interface ClientV2 {
+export interface Client {
   kind: "client";
   /**
    * The name of the client.
@@ -44,16 +18,19 @@ export interface ClientV2 {
   /**
    * If this client is a sub-client, the parent client.
    */
-  parent?: ClientV2;
+  parent?: Client;
   /**
    * Sub-clients that are part of this client.
    */
-  subClients: ClientV2[];
+  subClients: Client[];
 }
+
+export type ClientEndpoint = HttpServer;
 
 export interface ClientInitialization {
   kind: "ClientInitialization";
-  parameters: ModelProperty[];
+  endpoints?: ClientEndpoint[];
+  authentication?: Authentication;
 }
 
-export type ClientNamePolicy = (client: ClientV2) => string;
+export type ClientNamePolicy = (client: Client) => string;

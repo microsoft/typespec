@@ -2,7 +2,7 @@ import { ignoreDiagnostics } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolveClients } from "../src/client-resolution.js";
-import { ClientV2 } from "../src/interfaces.js";
+import { Client } from "../src/interfaces.js";
 import { createTypespecHttpClientTestRunner } from "./test-host.js";
 
 let runner: BasicTestRunner;
@@ -141,7 +141,7 @@ describe("Implicit Client Resolution", () => {
     // Custom namer function to format client names.
     // Top level client gets a suffix "Client"
     // Sub-clients don't get a suffix.
-    function clientNamePolicy(client: ClientV2) {
+    function clientNamePolicy(client: Client) {
       if (client.parent === undefined && !client.name.endsWith("Client")) {
         return `${client.name}Client`;
       }
@@ -196,10 +196,6 @@ describe("Implicit Client Resolution", () => {
     `);
 
     const clients = ignoreDiagnostics(resolveClients(runner.program));
-    expect(clients).toHaveLength(1);
-    const rootClient = clients[0];
-    expect(rootClient).toBeDefined();
-    expect(rootClient.name).toBe("DirectOperationsService");
-    expect(rootClient.operations).toHaveLength(0);
+    expect(clients).toHaveLength(0);
   });
 });

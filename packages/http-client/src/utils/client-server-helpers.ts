@@ -1,5 +1,5 @@
 import { listServices, Namespace, Program, Service, Type, Value } from "@typespec/compiler";
-import { ClientV2 } from "../interfaces.js";
+import { Client } from "../interfaces.js";
 import { StateKeys } from "../lib.js";
 
 export interface ClientServer {
@@ -20,7 +20,7 @@ export interface ClientServerVariable {
  * @param client The client instance.
  * @returns The service associated with the client, or undefined if not found.
  */
-export function getService(program: Program, client: ClientV2): Service | undefined {
+export function getService(program: Program, client: Client): Service | undefined {
   const clientServiceMap: Map<Type, Service | undefined> = program.stateMap(
     StateKeys.clientServiceMap,
   );

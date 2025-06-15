@@ -1,4 +1,4 @@
-import { ignoreDiagnostics, StringLiteral } from "@typespec/compiler";
+import { ignoreDiagnostics } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
@@ -29,9 +29,10 @@ it("implicit initialization resolution with no server", async () => {
     resolveClientInitialization(runner.program, client),
   );
   expect(clientInitialization).toBeDefined();
-  expect(clientInitialization.parameters).toHaveLength(1);
-  expect(clientInitialization.parameters[0].name).toBe("endpoint");
-  expect(clientInitialization.parameters[0].type).toBe($(runner.program).builtin.string);
+  const endpoints = clientInitialization.endpoints;
+  expect(endpoints).toHaveLength(1);
+  expect(endpoints![0].url).toBe("{endpoint}");
+  expect(endpoints![0].parameters).toHaveLength(0);
 });
 
 it("implicit initialization resolution with server", async () => {
@@ -52,14 +53,10 @@ it("implicit initialization resolution with server", async () => {
     resolveClientInitialization(runner.program, client),
   );
   expect(clientInitialization).toBeDefined();
-  expect(clientInitialization.parameters).toHaveLength(1);
-  expect(clientInitialization.parameters[0].name).toBe("endpoint");
-  expect(clientInitialization.parameters[0].type).toBe($(runner.program).builtin.string);
-  expect(clientInitialization.parameters[0].defaultValue).toBeDefined();
-  expect(clientInitialization.parameters[0].optional).toBe(true);
-  expect((clientInitialization.parameters[0].defaultValue!.type as StringLiteral).value).toBe(
-    "https://api.example.com",
-  );
+  const servers = clientInitialization.endpoints;
+  expect(servers).toHaveLength(1);
+  expect(servers![0].url).toBe("https://api.example.com");
+  expect(servers![0].parameters).toHaveLength(0);
 });
 
 it("implicit initialization resolution with parametrized server", async () => {
@@ -80,20 +77,16 @@ it("implicit initialization resolution with parametrized server", async () => {
     resolveClientInitialization(runner.program, client),
   );
   expect(clientInitialization).toBeDefined();
-  expect(clientInitialization.parameters).toHaveLength(2);
-  expect(clientInitialization.parameters[0].name).toBe("endpoint");
-  expect(clientInitialization.parameters[0].type).toBe($(runner.program).builtin.string);
-  expect(clientInitialization.parameters[0].defaultValue).toBeDefined();
-  expect((clientInitialization.parameters[0].defaultValue!.type as StringLiteral).value).toBe(
-    "{endpoint}",
-  );
-  expect(clientInitialization.parameters[0].optional).toBe(true);
+  const servers = clientInitialization.endpoints;
+  expect(servers).toHaveLength(1);
+  expect(servers![0].url).toBe("{endpoint}");
+  expect(servers![0].parameters).toHaveLength(1);
 
-  const endpointParam = clientInitialization.parameters[1];
-  expect(endpointParam.name).toBe("endpoint");
-  expect(endpointParam.type).toBe($(runner.program).builtin.string);
-  expect(endpointParam.optional).toBe(false);
-  expect(endpointParam.defaultValue).toBeUndefined();
+  const endpointParam = servers![0].parameters.get("endpoint");
+  expect(endpointParam).toBeDefined();
+  expect(endpointParam!.type).toBe($(runner.program).builtin.string);
+  expect(endpointParam!.defaultValue).toBeUndefined();
+  expect(endpointParam!.optional).toBe(false);
 });
 
 it("implicit initialization resolution with parametrized server with default", async () => {
@@ -114,18 +107,16 @@ it("implicit initialization resolution with parametrized server with default", a
     resolveClientInitialization(runner.program, client),
   );
   expect(clientInitialization).toBeDefined();
-  expect(clientInitialization.parameters).toHaveLength(2);
-  expect(clientInitialization.parameters[0].name).toBe("endpoint");
-  expect(clientInitialization.parameters[0].type).toBe($(runner.program).builtin.string);
-  expect(clientInitialization.parameters[0].defaultValue).toBeDefined();
-  expect((clientInitialization.parameters[0].defaultValue!.type as StringLiteral).value).toBe(
-    "{endpoint}",
-  );
-  expect(clientInitialization.parameters[0].optional).toBe(true);
-
-  const endpointParam = clientInitialization.parameters[1];
-  expect(endpointParam.name).toBe("endpoint");
-  expect(endpointParam.type).toBe($(runner.program).builtin.string);
+  const servers = clientInitialization.endpoints;
+  expect(servers).toHaveLength(1);
+  expect(servers![0].url).toBe("{endpoint}");
+  expect(servers![0].parameters).toHaveLength(1);
+  const endpointParam = servers![0].parameters.get("endpoint");
+  expect(endpointParam).toBeDefined();
+  expect(endpointParam!.type).toBe($(runner.program).builtin.string);
+  expect(endpointParam!.defaultValue).toBeDefined();
+  expect((endpointParam!.defaultValue! as any).value).toBe("https://api.example.com");
+  expect(endpointParam!.optional).toBe(false);
 });
 
 it("implicit initialization resolution with multiple parameters", async () => {
@@ -146,16 +137,18 @@ it("implicit initialization resolution with multiple parameters", async () => {
     resolveClientInitialization(runner.program, client),
   );
   expect(clientInitialization).toBeDefined();
-  expect(clientInitialization.parameters).toHaveLength(3);
-  expect(clientInitialization.parameters[0].name).toBe("endpoint");
-  expect(clientInitialization.parameters[0].type).toBe($(runner.program).builtin.string);
-  expect(clientInitialization.parameters[0].defaultValue).toBeDefined();
-  expect((clientInitialization.parameters[0].defaultValue!.type as StringLiteral).value).toBe(
-    "https://example.com/{resourceId}/{actionId}",
-  );
-  expect(clientInitialization.parameters[0].optional).toBe(true);
-  expect(clientInitialization.parameters[1].name).toBe("resourceId");
-  expect(clientInitialization.parameters[1].type).toBe($(runner.program).builtin.int32);
-  expect(clientInitialization.parameters[2].name).toBe("actionId");
-  expect(clientInitialization.parameters[2].type).toBe($(runner.program).builtin.string);
+  const endpoints = clientInitialization.endpoints;
+  expect(endpoints).toHaveLength(1);
+  expect(endpoints![0].url).toBe("https://example.com/{resourceId}/{actionId}");
+  expect(endpoints![0].parameters).toHaveLength(2);
+  const resourceIdParam = endpoints![0].parameters.get("resourceId");
+  expect(resourceIdParam).toBeDefined();
+  expect(resourceIdParam!.type).toBe($(runner.program).builtin.int32);
+  expect(resourceIdParam!.defaultValue).toBeUndefined();
+  expect(resourceIdParam!.optional).toBe(false);
+  const actionIdParam = endpoints![0].parameters.get("actionId");
+  expect(actionIdParam).toBeDefined();
+  expect(actionIdParam!.type).toBe($(runner.program).builtin.string);
+  expect(actionIdParam!.defaultValue).toBeUndefined();
+  expect(actionIdParam!.optional).toBe(false);
 });
