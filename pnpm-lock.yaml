@@ -2190,7 +2190,7 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0
       '@microsoft/api-extractor':
-        specifier: ^7.52.8
+        specifier: ^7.52.1
         version: 7.52.8(@types/node@22.13.17)
       '@microsoft/api-extractor-model':
         specifier: ^7.30.6
