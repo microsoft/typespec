@@ -2,28 +2,57 @@
 
 ## Testserver Generation
 
-- DO read the existing `main.tsp` and `client.tsp` files in the specs repo [here][spector-tests].
-- DO read the existing `mockapi.ts` mockapi files in the specs repo [here][spector-tests]. Follow the imports and overall structure from these test files to write your own mockapi tests
-- DO read descriptions of the input and output of existing tests and mockapis [here][spector-description].
-- DO run `pnpm install` to fully set up repo
-- DO only modify code in the `cspell.yaml` file OR `packages/http-specs/specs` folder
-- DO add a `@scenario` and `@scenarioDoc` for every scenario you are adding. Keep in mind that the `@scenarioDoc` needs to clearly and explicitly tell users exactly what values to input and what values to expect from output.
-- DO add a mockapi implementation of each scenario in the `mockapi.ts` file.
-- DO ensure that every scenario has a mockapi implementation,
-- DO see if there are existing spec files that you can add the specification to. If not, DO create new files and folders for the new scenario
-- DO know that the path of namespace and interfaces until you reach your `@scenario`-decorated operation is the full scenario name that appears in the dashboard. Make sure that the dashboard scenario name cleanly describes the exact situation that is being tested, is clear to read, and has as few words as it can
-- DO keep the route names consistent with the scenario names
-- DO decide whether a scenario is better as a collection of operation calls, or a single operation call. If it is better as a collection of calls, try to group the operation calls into an interface and decorate the interface with `@scenario` and `@scenarioDoc`.
-- DO group operations into interfaces if it makes sense for current layout or future expansion. For example, in parameters tests, try to group them by `path`, `query` etc in interfaces, even if each operation is still its own scenario.
-- DO run `pnpm build` from `packages/http-specs` to verify it builds and scenarios pass. If this step fails, DO attempt to fix the error.
-- DO run `pnpm regen-docs` from `packages/http-specs` to automatically regenerate the docs. DON'T manually write in `spec-summary.md`
-- DO run `pnpm validate-mock-apis` from `packages/http-specs` to verify there is correct mockapi implementation for each scenario. If this step fails, DO attempt to fix the error.
-- DO run `pnpm cspell` to find any spelling issues. If there are spelling issues and you believe the word is valid, please add it to `cspell.yaml`. If the word is invalid but you need to use it, use cspell disables to ignore that line. If the word is invalid and you don't need to use it, change the word.
-- DO run `pnpm format` to clean up any formatting issues.
-- DO run `pnpm lint` to find any linting issues. DO fix these linting issues to the best of your ability without impacting the quality of the tests.
-- DO run `pnpm change add` from the root and add a changeset for the touched package. DO select it as being a new feature.
-- DO only add the `lib:http-specs` label to the PR you create.
-- DON'T remove or modify existing scenario docs
+### REQUIRED STEPS (ALL MUST BE COMPLETED IN ORDER)
+
+1. **PREPARATION & RESEARCH**
+   - First, run `pnpm install` to fully set up the repository
+   - Study existing test files:
+     - Examine the `main.tsp` and `client.tsp` files in the specs repo [here][spector-tests]
+     - Review the `mockapi.ts` files in the specs repo [here][spector-tests]
+     - Read descriptions of existing tests and mockapis [here][spector-description]
+
+2. **IMPLEMENTATION REQUIREMENTS**
+   - Only modify code in:
+     - `cspell.yaml` file OR
+     - `packages/http-specs/specs` folder
+   - For each scenario:
+     - Add a `@scenario` and `@scenarioDoc` decorator
+     - Make the `@scenarioDoc` explicit about input values and expected output
+     - Add a corresponding mockapi implementation in `mockapi.ts`
+   - Use existing spec files when possible, create new files/folders only when needed
+   - Structure namespaces and interfaces carefully - this path becomes the dashboard scenario name
+   - Make scenario names clear, descriptive, and concise
+   - Keep route names consistent with scenario names
+   - Choose appropriate operation grouping (single vs. collection)
+   - Group operations into interfaces when it makes sense (e.g., by `path`, `query`, etc.)
+
+3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS)
+   - After implementation, run these commands from `packages/http-specs`:
+     ```
+     pnpm build                  # Verify build and scenarios pass
+     pnpm regen-docs             # Regenerate docs (NEVER manually edit spec-summary.md)
+     pnpm validate-mock-apis     # Verify mockapi implementations
+     pnpm cspell                 # Check spelling
+     pnpm format                 # Clean up formatting
+     pnpm lint                   # Fix linting issues
+     ```
+   - Fix any errors found during these checks
+   - For spelling issues:
+     - If the word is valid: add to `cspell.yaml`
+     - If invalid but needed: use cspell disables
+     - If invalid and not needed: change the word
+
+4. **FINALIZATION**
+   - Run `pnpm change add` from the root directory
+   - Select the touched package as a "new feature"
+   - Only add the `lib:http-specs` label to the PR
+   - NEVER remove or modify existing scenario docs
+
+### IMPORTANT REMINDERS
+- ⚠️ You MUST run `pnpm regen-docs` after any changes
+- ⚠️ You MUST verify all scenarios have mockapi implementations
+- ⚠️ You MUST run ALL validation commands listed above
+- ⚠️ You MUST fix any errors before completing the task
 
 <!-- References -->
 
