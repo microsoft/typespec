@@ -56,5 +56,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             expr.Write(writer);
             Assert.AreEqual("new global::Sample.Models.MyEnum(\"three\")", writer.ToString(false));
         }
+
+        [Test]
+        public void ValidateObjectInitializerMultilineFormat()
+        {
+            using CodeWriter writer = new CodeWriter();
+            var type = typeof(object);
+            var objInit = new ObjectInitializerExpression(new Dictionary<ValueExpression, ValueExpression>
+            {
+                { Identifier("Property1"), Literal("value1") },
+                { Identifier("Property2"), Literal("value2") }
+            }, false); // multiline
+            var expr = new NewInstanceExpression(type, [], objInit);
+            expr.Write(writer);
+            writer.AppendRaw(";"); // Use AppendRaw instead of WriteRawLine to not add extra newline
+            var result = writer.ToString(false);
+            
+            // Expected format should be:
+            // new object
+            // {
+            //     Property1 = "value1",
+            //     Property2 = "value2"
+            // };
+            // Without extra line breaks before the semicolon
+            var expected = @"new object
+{
+    Property1 = ""value1"",
+    Property2 = ""value2""
+};";
+            Assert.AreEqual(expected, result);
+        }
     }
 }
