@@ -1,5 +1,9 @@
 # Testserver Generation
 
+> ⚠️ **WARNING:** This task ONLY involves modifying files in the `packages/http-specs/specs` directory or `cspell.yaml`. DO NOT modify any other packages or files.
+
+> 🚫 **DO NOT** start by searching for related terms across the entire repository. Begin your work ONLY in the `packages/http-specs/specs` directory.
+
 ## REQUIRED STEPS (ALL MUST BE COMPLETED IN ORDER)
 
 1. **PREPARATION & RESEARCH**
@@ -10,11 +14,18 @@
      - Review the `mockapi.ts` files in the [specs repository](https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs)
      - Read descriptions of existing tests and mockapis in the [spec summary](https://github.com/microsoft/typespec/blob/main/packages/http-specs/spec-summary.md)
 
+   > **IMPORTANT:** When researching or implementing a feature, ONLY look at examples within the `packages/http-specs/specs` directory. DO NOT search for or use code from other packages like `http-client-js`, `http`, etc. as references for implementation.
+
 2. **IMPLEMENTATION REQUIREMENTS**
 
-   - Only modify code in:
+   - **IMPORTANT:** ONLY modify code in these specific locations:
      - `cspell.yaml` file OR
      - `packages/http-specs/specs` folder
+   - DO NOT modify any files in other packages (such as `http-client-js`, `http`, etc.)
+   - When searching for examples or patterns:
+     - RESTRICT your search to the `packages/http-specs/specs` directory only
+     - If using `grep_search`, ALWAYS include `packages/http-specs/specs` in the `includePattern`
+     - NEVER use examples from other packages as implementation references
    - For each scenario:
      - Add a `@scenario` and `@scenarioDoc` decorator
      - Make the `@scenarioDoc` explicit about input values and expected output
