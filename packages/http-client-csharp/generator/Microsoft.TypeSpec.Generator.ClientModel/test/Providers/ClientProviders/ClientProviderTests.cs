@@ -845,6 +845,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
         }
 
+        [Test]
+        public void SubClientFieldsAreStoredOnRootClient()
+        {
+            var rootClient = InputFactory.Client(
+                "RootClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: rootClient,
+                parameters:
+                [
+                    InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path, kind: InputParameterKind.Client, isApiVersion: true),
+                    InputFactory.Parameter("someOtherParameter", InputPrimitiveType.Url, isRequired: true, kind: InputParameterKind.Client)
+                ]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [rootClient]);
+
+            var rootClientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(rootClient);
+            Assert.IsNotNull(rootClientProvider);
+            Assert.IsTrue(rootClientProvider!.Fields.Any(f => f.Name.Equals("_apiVersion")));
+            Assert.IsTrue(rootClientProvider.Fields.Any(f => f.Name.Equals("_someOtherParameter")));
+        }
+
         [TestCase]
         public void ClientProviderIsAddedToLibrary()
         {
