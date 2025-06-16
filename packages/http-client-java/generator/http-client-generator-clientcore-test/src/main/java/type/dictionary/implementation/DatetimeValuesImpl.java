@@ -93,18 +93,6 @@ public final class DatetimeValuesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Map<String, OffsetDateTime> get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The put operation.
      * 
      * @param body The body parameter.
@@ -118,18 +106,5 @@ public final class DatetimeValuesImpl {
     public Response<Void> putWithResponse(Map<String, OffsetDateTime> body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Map<String, OffsetDateTime> body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

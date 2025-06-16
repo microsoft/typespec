@@ -92,18 +92,6 @@ public final class FloatsOnliesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse4 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -118,18 +106,5 @@ public final class FloatsOnliesImpl {
         final String contentType = "application/json";
         SendRequest4 sendRequest4 = new SendRequest4(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest4, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(GetResponseProp3 prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

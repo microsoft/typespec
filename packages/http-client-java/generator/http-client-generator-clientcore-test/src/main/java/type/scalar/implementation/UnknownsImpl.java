@@ -84,18 +84,6 @@ public final class UnknownsImpl {
     }
 
     /**
-     * get unknown value.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return unknown value.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * put unknown value.
      * 
      * @param body _.
@@ -109,18 +97,5 @@ public final class UnknownsImpl {
     public Response<Void> putWithResponse(BinaryData body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * put unknown value.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(BinaryData body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

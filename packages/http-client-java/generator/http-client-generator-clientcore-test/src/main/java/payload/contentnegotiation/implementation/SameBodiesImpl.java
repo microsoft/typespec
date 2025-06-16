@@ -89,18 +89,6 @@ public final class SameBodiesImpl {
     }
 
     /**
-     * The getAvatarAsPng operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getAvatarAsPng() {
-        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getAvatarAsJpeg operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -113,17 +101,5 @@ public final class SameBodiesImpl {
     public Response<BinaryData> getAvatarAsJpegWithResponse(RequestContext requestContext) {
         final String accept = "image/jpeg";
         return service.getAvatarAsJpeg(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getAvatarAsJpeg operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getAvatarAsJpeg() {
-        return getAvatarAsJpegWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -12,13 +12,13 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class MethodProviderHelpers
     {
-        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamHash(IEnumerable<ParameterProvider> parameters, bool skipParamValidation)
+        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamHash(MethodSignatureBase signature)
         {
             Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
-            if (!skipParamValidation)
+            if (!ShouldSkipParameterValidation(signature))
             {
                 paramHash = new();
-                foreach (var parameter in parameters)
+                foreach (var parameter in signature.Parameters)
                 {
                     if (parameter.Validation == ParameterValidationType.None)
                         continue;
@@ -65,30 +65,71 @@ namespace Microsoft.TypeSpec.Generator
             return statements;
         }
 
-        public static XmlDocProvider? BuildXmlDocs(IEnumerable<ParameterProvider> parameters, FormattableString? description, FormattableString? returnDescription, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
+        public static XmlDocProvider BuildXmlDocs(MethodSignatureBase signature)
         {
             var parametersList = new List<XmlDocParamStatement>();
-            foreach (var parameter in parameters)
+            foreach (var parameter in signature.Parameters)
             {
                 parametersList.Add(new XmlDocParamStatement(parameter));
             }
 
-            var exceptions = new List<XmlDocExceptionStatement>();
-            if (paramHash is not null)
+            var exceptionHash = new Dictionary<Type, List<ParameterProvider>>();
+            if (!ShouldSkipParameterValidation(signature))
             {
-                foreach (var kvp in paramHash)
+                foreach (var parameter in signature.Parameters)
                 {
-                    exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
+                    if (parameter.Validation == ParameterValidationType.AssertNotNull)
+                    {
+                        AddArgumentNullException(parameter);
+                    }
+                    else if (parameter.Validation == ParameterValidationType.AssertNotNullOrEmpty)
+                    {
+                        AddArgumentNullException(parameter);
+                        AddArgumentException(parameter);
+                    }
                 }
             }
 
+            var exceptions = new List<XmlDocExceptionStatement>();
+            foreach (var kvp in exceptionHash)
+            {
+                exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
+            }
+
+            var returnDescription = (signature as MethodSignature)?.ReturnDescription;
+
             var docs = new XmlDocProvider(
-                description is null ? null : new XmlDocSummaryStatement([description]),
+                signature.Description is null ? null : new XmlDocSummaryStatement([signature.Description]),
                 parametersList,
                 exceptions,
                 returnDescription is null ? null : new XmlDocReturnsStatement(returnDescription));
 
             return docs;
+
+            void AddArgumentNullException(ParameterProvider parameter)
+            {
+                if (!exceptionHash.ContainsKey(typeof(ArgumentNullException)))
+                {
+                    exceptionHash[typeof(ArgumentNullException)] = [];
+                }
+
+                exceptionHash[typeof(ArgumentNullException)].Add(parameter);
+            }
+            void AddArgumentException(ParameterProvider parameter)
+            {
+                if (!exceptionHash.ContainsKey(typeof(ArgumentException)))
+                {
+                    exceptionHash[typeof(ArgumentException)] = [];
+                }
+
+                exceptionHash[typeof(ArgumentException)].Add(parameter);
+            }
+        }
+
+        private static bool ShouldSkipParameterValidation(MethodSignatureBase signature)
+        {
+            // Skip parameter validation for private methods, as they are not exposed to the public API.
+            return !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
         }
     }
 }

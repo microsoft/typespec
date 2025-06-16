@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ParameterProvider? ClientOptionsParameter { get; }
 
-        protected override FormattableString Description { get; }
+        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -74,7 +74,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
-            Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
@@ -256,6 +255,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private Lazy<string?> _endpointParameterName;
+        private InputParameter? _inputEndpointParam;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
@@ -483,11 +483,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return [MethodBodyStatement.Empty];
             }
-
+            AssignmentExpression endpointAssignment;
+            if (_endpointParameter.Type.Equals(typeof(string)))
+            {
+                var serverTemplate = _inputEndpointParam!.ServerUrlTemplate;
+                endpointAssignment = EndpointField.Assign(
+                    New.Instance(typeof(Uri),
+                        new FormattableStringExpression(serverTemplate!, [_endpointParameter])));
+            }
+            else
+            {
+                endpointAssignment = EndpointField.Assign(_endpointParameter);
+            }
             List<MethodBodyStatement> body = [
                 ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
-                EndpointField.Assign(_endpointParameter).Terminate()
+                endpointAssignment.Terminate()
             ];
 
             // add other parameter assignments to their corresponding fields
@@ -644,14 +655,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider BuildClientEndpointParameter()
         {
-            var endpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
-            if (endpointParam == null)
+            _inputEndpointParam = _inputClient.Parameters.FirstOrDefault(p => p.IsEndpoint);
+            if (_inputEndpointParam == null)
+            {
                 return KnownParameters.Endpoint;
+            }
 
-            ValueExpression? initializationValue = endpointParam.DefaultValue != null
-                ? New.Instance(KnownParameters.Endpoint.Type, Literal(endpointParam.DefaultValue.Value))
+            var endpointParamType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputEndpointParam.Type);
+            if (endpointParamType == null)
+            {
+                return KnownParameters.Endpoint;
+            }
+
+            ValueExpression? initializationValue = _inputEndpointParam.DefaultValue != null
+                ? New.Instance(endpointParamType, Literal(_inputEndpointParam.DefaultValue.Value))
                 : null;
 
+            if (endpointParamType.Equals(typeof(string)) && _inputEndpointParam.ServerUrlTemplate != null)
+            {
+                return new(_inputEndpointParam);
+            }
+
+            // Must be a URI endpoint parameter
             return new(
                 KnownParameters.Endpoint.Name,
                 KnownParameters.Endpoint.Description,

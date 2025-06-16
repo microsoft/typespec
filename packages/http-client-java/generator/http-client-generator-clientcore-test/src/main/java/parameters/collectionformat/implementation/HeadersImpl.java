@@ -84,17 +84,4 @@ public final class HeadersImpl {
             .collect(Collectors.joining(","));
         return service.csv(this.client.getEndpoint(), colorsConverted, requestContext);
     }
-
-    /**
-     * The csv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void csv(List<String> colors) {
-        csvWithResponse(colors, RequestContext.none());
-    }
 }

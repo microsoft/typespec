@@ -53,7 +53,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DurationProperty getNonNull() {
-        return this.serviceClient.getNonNull();
+        return getNonNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public DurationProperty getNull() {
-        return this.serviceClient.getNull();
+        return getNullWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -111,7 +111,7 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNonNull(DurationProperty body) {
-        this.serviceClient.patchNonNull(body);
+        patchNonNullWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -141,6 +141,6 @@ public final class DurationOperationClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void patchNull(DurationProperty body) {
-        this.serviceClient.patchNull(body);
+        patchNullWithResponse(body, RequestContext.none());
     }
 }

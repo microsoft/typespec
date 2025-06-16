@@ -44,6 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool explode = false;
             string? arraySerializationDelimiter = null;
             string? headerCollectionPrefix = null;
+            string? serverUrlTemplate = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -64,6 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadString("headerCollectionPrefix", ref headerCollectionPrefix)
+                    || reader.TryReadString("serverUrlTemplate", ref serverUrlTemplate)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
@@ -109,7 +111,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 skipUrlEncoding: skipUrlEncoding,
                 explode: explode,
                 arraySerializationDelimiter: arraySerializationDelimiter,
-                headerCollectionPrefix: headerCollectionPrefix)
+                headerCollectionPrefix: headerCollectionPrefix,
+                serverUrlTemplate: serverUrlTemplate)
             {
                 Decorators = decorators ?? []
             };

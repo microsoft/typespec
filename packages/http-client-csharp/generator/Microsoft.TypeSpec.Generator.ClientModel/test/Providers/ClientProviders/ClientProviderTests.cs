@@ -12,7 +12,6 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -958,6 +957,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void EndpointFieldAssignedFromUriParameter()
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    "endpoint",
+                    InputPrimitiveType.Url,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains("_endpoint = endpoint;", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointFieldAssignedFromStringParameter(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var constructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+
+            StringAssert.Contains($"_endpoint = new global::System.Uri($\"{serverTemplate}\");", constructor?.BodyStatements?.ToDisplayString());
+        }
+
+        [TestCase("{endpoint}", "endpoint")]
+        [TestCase("http://{hostName}", "hostName")]
+        [TestCase("https://{hostName}", "hostName")]
+        public void EndpointAppliedInCreateMethodRequest(string serverTemplate, string parameterName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Foo", InputFactory.Operation("bar", uri: $"{serverTemplate}/foo"))],
+                parameters: [InputFactory.Parameter(
+                    parameterName,
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    kind: InputParameterKind.Client,
+                    serverUrlTemplate: serverTemplate,
+                    isEndpoint: true)]);
+            var clientProvider = new ClientProvider(client);
+            var createMethod = clientProvider.RestClient.Methods.FirstOrDefault();
+            StringAssert.Contains($"uri.Reset(_endpoint);", createMethod?.BodyStatements?.ToDisplayString());
         }
 
         private static InputClient GetEnumQueryParamClient()

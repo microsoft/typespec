@@ -130,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
+                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
             }
             else if (responseBodyType is null)
             {
@@ -564,7 +564,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = GetPagingMethodBody(collection, parameters, false);
+                methodBody = [.. GetPagingMethodBody(collection, parameters, false)];
             }
             else
             {
@@ -599,54 +599,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
-        private MethodBodyStatement[] GetPagingMethodBody(
+        private MethodBodyStatement GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
-            return (_pagingServiceMethod!.PagingMetadata.NextLink, isConvenience) switch
+            if (isConvenience)
             {
-                (not null, true) =>
+                return Return(New.Instance(
+                    collection.Type,
+                    [
+                        This,
+                        .. parameters,
+                        IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                    ]));
+            }
+
+            return Return(New.Instance(
+                collection.Type,
                 [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            Null,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                        ]))
-                ],
-                (not null, false) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            Null,
-                            .. parameters
-                        ]))
-                ],
-                (null, true) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                        ]))
-                ],
-                (null, false) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters
-                        ]))
-                ]
-            };
+                    This,
+                    .. parameters
+                ]));
         }
 
         private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)

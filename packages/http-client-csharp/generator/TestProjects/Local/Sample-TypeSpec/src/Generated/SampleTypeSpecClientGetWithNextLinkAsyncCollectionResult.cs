@@ -15,17 +15,14 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
-        /// <param name="nextPage"> The url of the next page of responses. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
-            _nextPage = nextPage;
             _options = options;
         }
 
@@ -33,7 +30,7 @@ namespace SampleTypeSpec
         /// <returns> The raw pages of the collection. </returns>
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -45,7 +42,7 @@ namespace SampleTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateNextListWithNextLinkRequest(nextPageUri, _options);
             }
         }
 

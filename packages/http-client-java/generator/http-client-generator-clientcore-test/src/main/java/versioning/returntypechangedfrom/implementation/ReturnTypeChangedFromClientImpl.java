@@ -127,18 +127,4 @@ public final class ReturnTypeChangedFromClientImpl {
         return service.test(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
             requestContext);
     }
-
-    /**
-     * The test operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public String test(String body) {
-        return testWithResponse(body, RequestContext.none()).getValue();
-    }
 }

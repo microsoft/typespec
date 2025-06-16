@@ -89,19 +89,6 @@ public final class PathParametersReservedExpansionsImpl {
     }
 
     /**
-     * The template operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void template(String param) {
-        templateWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The annotation operation.
      * 
      * @param param The param parameter.
@@ -114,18 +101,5 @@ public final class PathParametersReservedExpansionsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationWithResponse(String param, RequestContext requestContext) {
         return service.annotation(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The annotation operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void annotation(String param) {
-        annotationWithResponse(param, RequestContext.none());
     }
 }

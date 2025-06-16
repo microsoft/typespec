@@ -108,18 +108,6 @@ public final class RequiredAndOptionalsImpl {
     }
 
     /**
-     * Get models that will return all properties in the model.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public RequiredAndOptionalProperty getAll() {
-        return getAllWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Get models that will return only the required properties.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -132,18 +120,6 @@ public final class RequiredAndOptionalsImpl {
     public Response<RequiredAndOptionalProperty> getRequiredOnlyWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getRequiredOnly(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * Get models that will return only the required properties.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return only the required properties.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public RequiredAndOptionalProperty getRequiredOnly() {
-        return getRequiredOnlyWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -163,19 +139,6 @@ public final class RequiredAndOptionalsImpl {
     }
 
     /**
-     * Put a body with all properties present.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putAll(RequiredAndOptionalProperty body) {
-        putAllWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * Put a body with only required properties.
      * 
      * @param body The body parameter.
@@ -189,18 +152,5 @@ public final class RequiredAndOptionalsImpl {
     public Response<Void> putRequiredOnlyWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putRequiredOnly(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put a body with only required properties.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putRequiredOnly(RequiredAndOptionalProperty body) {
-        putRequiredOnlyWithResponse(body, RequestContext.none());
     }
 }

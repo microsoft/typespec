@@ -1,5 +1,20 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.8.0
+
+### Features
+
+- [#7409](https://github.com/microsoft/typespec/pull/7409) Emit TypeSpec comments as JSDoc in TypeScript components
+
+### Bump dependencies
+
+- [#7605](https://github.com/microsoft/typespec/pull/7605) Updates alloy to 0.17
+
+### Bug Fixes
+
+- [#7369](https://github.com/microsoft/typespec/pull/7369) Render discriminated unions correctly
+
+
 ## 0.7.1
 
 ### Bump dependencies

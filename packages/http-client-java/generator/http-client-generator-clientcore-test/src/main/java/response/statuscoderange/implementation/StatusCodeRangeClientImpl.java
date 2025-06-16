@@ -225,17 +225,6 @@ public final class StatusCodeRangeClientImpl {
     }
 
     /**
-     * The errorResponseStatusCodeInRange operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void errorResponseStatusCodeInRange() {
-        errorResponseStatusCodeInRangeWithResponse(RequestContext.none());
-    }
-
-    /**
      * The errorResponseStatusCode404 operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -248,16 +237,5 @@ public final class StatusCodeRangeClientImpl {
     public Response<Void> errorResponseStatusCode404WithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.errorResponseStatusCode404(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The errorResponseStatusCode404 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void errorResponseStatusCode404() {
-        errorResponseStatusCode404WithResponse(RequestContext.none());
     }
 }

@@ -337,15 +337,4 @@ public final class RoutesClientImpl {
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
         return service.fixed(this.getEndpoint(), requestContext);
     }
-
-    /**
-     * The fixed operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void fixed() {
-        fixedWithResponse(RequestContext.none());
-    }
 }

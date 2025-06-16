@@ -498,7 +498,7 @@
      "type": {
       "$id": "51",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -508,7 +508,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     },
     {
      "$id": "52",
@@ -525,7 +526,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     }
    ],
    "decorators": [],
@@ -712,7 +714,7 @@
        "type": {
         "$id": "65",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -722,7 +724,8 @@
        "isEndpoint": true,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       },
       {
        "$id": "66",
@@ -739,7 +742,8 @@
        "isEndpoint": false,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       }
      ],
      "decorators": [],

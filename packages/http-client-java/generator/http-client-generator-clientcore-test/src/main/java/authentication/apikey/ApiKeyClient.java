@@ -52,7 +52,7 @@ public final class ApiKeyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void valid() {
-        this.serviceClient.valid();
+        validWithResponse(RequestContext.none());
     }
 
     /**
@@ -79,6 +79,6 @@ public final class ApiKeyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void invalid() {
-        this.serviceClient.invalid();
+        invalidWithResponse(RequestContext.none());
     }
 }

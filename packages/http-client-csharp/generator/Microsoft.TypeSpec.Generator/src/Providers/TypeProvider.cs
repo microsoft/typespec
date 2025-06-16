@@ -88,13 +88,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
+        // Intentionally do not cache this value as the name might be changed in a visitor so we want to always
+        // recalculate it.
         public string RelativeFilePath => _relativeFilePath ?? BuildRelativeFilePath();
 
         private string? _relativeFilePath;
 
         public string Name => Type.Name;
 
-        protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
+        public FormattableString Description => _description ??= BuildDescription();
+        private FormattableString? _description;
+
+        protected virtual FormattableString BuildDescription() => FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;
 
