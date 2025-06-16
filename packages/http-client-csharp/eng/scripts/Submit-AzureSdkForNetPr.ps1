@@ -154,7 +154,7 @@ try {
         
         # Run Generate.ps1 from the package root
         Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
-        Invoke "eng/packages/http-client-csharp/eng/scripts/Generate.ps1" $tempDir
+        & (Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1")
         if ($LASTEXITCODE -ne 0) {
             throw "Generate.ps1 failed"
         }
