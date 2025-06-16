@@ -40,12 +40,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
         public static readonly ParameterProvider CancellationToken = new("cancellationToken", $"The cancellation token that can be used to cancel the operation.", new CSharpType(typeof(CancellationToken)), defaultValue: Default);
 
-        // There is intentionally no default value here to avoid ambiguous calls between convenience and protocol methods.
         public static readonly ParameterProvider OptionalRequestContent = new(
             "content",
             $"The content to send as the body of the request.",
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
-            location: ParameterLocation.Body);
+            location: ParameterLocation.Body,
+            defaultValue: Default);
 
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
