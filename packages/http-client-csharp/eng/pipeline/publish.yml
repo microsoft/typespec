@@ -45,7 +45,12 @@ extends:
           AdditionalInitializeSteps:
             - task: UseDotNet@2
               inputs:
+                useGlobalJson: false
                 version: 8.x
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+            - task: UseDotNet@2
+              inputs:
+                useGlobalJson: true
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
 
       - stage: CreateAzureSdkForNetPR
