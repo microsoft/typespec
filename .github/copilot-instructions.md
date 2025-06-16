@@ -1,6 +1,7 @@
 # Copilot Instructions
 
 This document serves as an index to task-specific instructions for GitHub Copilot. Each task has its own detailed instructions file in the `.github/prompts` directory.
+
 ## Install and Build
 
 - Packages are located in the `packages` folder
@@ -15,8 +16,6 @@ This document serves as an index to task-specific instructions for GitHub Copilo
 - Repo use `@chronus/chronus` for changelogs
 - Use `pnpm change add` to add a change description for the touched packages
 - Types of changes are described in `.chronus/config.yaml`
-
-## Testserver Generation
 
 ## Available Task Instructions
 
