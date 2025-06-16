@@ -3,7 +3,7 @@
 ## REQUIRED STEPS (ALL MUST BE COMPLETED IN ORDER)
 
 1. **PREPARATION & RESEARCH**
-   - First, run `pnpm install && pnpm build` to fully set up the repository
+   - First, run `pnpm install && pnpm build` to fully set up the repository (both commands must complete successfully)
    - Study existing test files:
      - Examine the `main.tsp` and `client.tsp` files in the [specs repository](https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs)
      - Review the `mockapi.ts` files in the [specs repository](https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs)
