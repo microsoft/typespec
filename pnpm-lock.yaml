@@ -8,6 +8,7 @@ overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   '@alloy-js/core': ^0.18.0-dev
   '@alloy-js/csharp': ^0.18.0-dev
+  '@alloy-js/typescript': ^0.18.0-dev
 
 importers:
 
@@ -426,8 +427,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)
       '@alloy-js/typescript':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.0-dev
+        version: 0.18.0-dev.4
       '@types/minimist':
         specifier: ^1.2.5
         version: 1.2.5
@@ -677,8 +678,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)
       '@alloy-js/typescript':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.0-dev
+        version: 0.18.0-dev.4
       '@types/node':
         specifier: ~22.13.11
         version: 22.13.17
@@ -710,8 +711,8 @@ importers:
         specifier: ^0.18.0-dev
         version: 0.18.0-dev.3
       '@alloy-js/typescript':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.0-dev
+        version: 0.18.0-dev.4
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2193,8 +2194,8 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0
       '@alloy-js/typescript':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.0-dev
+        version: 0.18.0-dev.4
       '@microsoft/api-extractor-model':
         specifier: ^7.30.6
         version: 7.30.6(@types/node@22.13.17)
@@ -2723,8 +2724,8 @@ packages:
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
     engines: {node: '>=18.0.0'}
 
-  '@alloy-js/typescript@0.17.0':
-    resolution: {integrity: sha512-7gmxjda6romnR+DYb5NYUfRNM2jOJnXweIG9tVzzT5ivEaizFdKQwY3tdbITupzMKoWIkhHpycGYpwXBHGy9Kw==}
+  '@alloy-js/typescript@0.18.0-dev.4':
+    resolution: {integrity: sha512-9aemwLBCT3bCeD1RUpuLPgogVWnQ67eAwGzCGHm/zGIzh/LJ+a1DJa1K4ZBJ4QX385BkcPvpECPG8mxnH6bShw==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -13573,7 +13574,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@alloy-js/typescript@0.17.0':
+  '@alloy-js/typescript@0.18.0-dev.4':
     dependencies:
       '@alloy-js/core': 0.18.0-dev.3
       change-case: 5.4.4
