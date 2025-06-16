@@ -599,20 +599,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
-        private MethodBodyStatement GetPagingMethodBody(
+        private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
             if (isConvenience)
             {
-                return Return(New.Instance(
-                    collection.Type,
+                return
                     [
-                        This,
-                        .. parameters,
-                        IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                    ]));
+                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                        Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            .. GetProtocolMethodArguments(declarations)
+                        ]))
+                    ];
             }
 
             return Return(New.Instance(
