@@ -271,7 +271,7 @@ async function doEmit(
       showPopup: true,
     });
     tel.lastStep = "The calculation installation package was canceled by the user";
-    return ResultCode.Cancelled;
+    return ResultCode.Fail;
   }
 
   const installPackageQuickPickItems = installPackageQuickPickItemsResult.value;
@@ -349,7 +349,7 @@ async function doEmit(
           showPopup: true,
         });
         tel.lastStep = "Package installation was cancelled by user";
-        return ResultCode.Cancelled;
+        return ResultCode.Fail;
       }
 
       const installResult = installResultUi.value;
@@ -574,7 +574,7 @@ async function doEmit(
       showPopup: true,
     });
     tel.lastStep = "Emit code was canceled by the user";
-    return ResultCode.Cancelled;
+    return ResultCode.Fail;
   }
 
   return emitResultUi.value;
