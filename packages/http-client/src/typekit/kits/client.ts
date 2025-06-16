@@ -1,9 +1,14 @@
-import { ignoreDiagnostics, Interface, Namespace } from "@typespec/compiler";
+import { ignoreDiagnostics, Interface, Namespace, Service } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import "@typespec/http/experimental/typekit";
 import { resolveClientInitialization } from "../../client-initialization-resolution.js";
-import { getClientFromContainer, resolveClients } from "../../client-resolution.js";
+import {
+  getClientFromContainer,
+  resolveClients,
+  ResolveClientsOptions,
+} from "../../client-resolution.js";
 import { Client, ClientInitialization } from "../../interfaces.js";
+import { getService } from "../../utils/client-server-helpers.js";
 
 interface ClientKit {
   /**
@@ -15,12 +20,18 @@ interface ClientKit {
   /**
    * Lists all clients in the program.
    */
-  list(): Client[];
+  list(options?: ResolveClientsOptions): Client[];
   /**
    * Gets the parameters needed for initializing a client.
    * @param client The client to get the initialization parameters for.
    */
   getInitialization(client: Client): ClientInitialization | undefined;
+  /**
+   * Gets the service associated with a client.
+   * @param client The client to get the service for.
+   * @returns The service associated with the client, or undefined if not found.
+   */
+  getService(client: Client): Service | undefined;
 }
 
 interface TypekitExtension {
@@ -36,8 +47,11 @@ defineKit<TypekitExtension>({
     get(container: Namespace | Interface): Client | undefined {
       return getClientFromContainer(this.program, container);
     },
-    list() {
-      return ignoreDiagnostics(resolveClients(this.program));
+    getService(client: Client): Service | undefined {
+      return getService(this.program, client);
+    },
+    list(options) {
+      return ignoreDiagnostics(resolveClients(this.program, options));
     },
 
     getInitialization(client: Client): ClientInitialization | undefined {

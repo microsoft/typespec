@@ -29,7 +29,13 @@ export type ClientEndpoint = HttpServer;
 
 export interface ClientInitialization {
   kind: "ClientInitialization";
-  endpoints?: ClientEndpoint[];
+  endpoints: ClientEndpoint[];
+  /**
+   * The authentication to use for the client.
+   * This can be undefined if no authentication is defined for the client or its parents.
+   * The options property means that any of the authentication options can be used to authenticate.
+   * Within options there is an array of auth schemes, ALL of them must be used to authenticate.
+   */
   authentication?: Authentication;
 }
 

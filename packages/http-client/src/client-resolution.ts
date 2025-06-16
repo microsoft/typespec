@@ -85,7 +85,7 @@ function buildClient(
 
   clientState.set(container, client);
   client.name = getClientName(program, client, options);
-  client.subClients = [...getSubClients(program, client)];
+  client.subClients = [...getSubClients(program, client, options)];
   client.operations = [...getClientOperations(program, client)];
 
   return client;
@@ -99,19 +99,27 @@ export function getClientFromContainer(
   return clientState.get(container);
 }
 
-function* getSubClients(program: Program, client: Client): Iterable<Client> {
+function* getSubClients(
+  program: Program,
+  client: Client,
+  options?: ResolveClientsOptions,
+): Iterable<Client> {
   const container = client.type;
   if (container.kind === "Interface") {
     return;
   }
 
-  for (const subNamespace of container.namespaces.values()) {
+  const childContainers: (Namespace | Interface)[] = [
+    ...container.namespaces.values(),
+    ...container.interfaces.values(),
+  ];
+  for (const subNamespace of childContainers) {
     if (isExplicitClient(program, subNamespace)) {
       // If the sub-namespace is explicitly marked as a client, we skip it as a sub-client.
       continue;
     }
     if (hasOperations(subNamespace) || hasChildrenContainer(subNamespace)) {
-      const subClient = buildClient(program, subNamespace);
+      const subClient = buildClient(program, subNamespace, options);
       subClient.parent = client;
       yield subClient;
     }
@@ -135,18 +143,18 @@ function* getClientOperations(program: Program, client: Client): Iterable<Operat
   }
 }
 
-function hasOperations(namespace: Namespace): boolean {
+function hasOperations(namespace: Namespace | Interface): boolean {
   return namespace.operations.size > 0;
 }
 
-function hasChildrenContainer(namespace: Namespace): boolean {
+function hasChildrenContainer(namespace: Namespace | Interface): boolean {
+  if (namespace.kind === "Interface") {
+    return false;
+  }
   return namespace.namespaces.size > 0 || namespace.interfaces.size > 0;
 }
 
-export function resolveClientFromOperation(
-  program: Program,
-  operation: Operation,
-): Client | undefined {
+export function getClientFromOperation(program: Program, operation: Operation): Client | undefined {
   const clientState = program.stateMap(StateKeys.clientOperationMap);
   return clientState.get(operation);
 }

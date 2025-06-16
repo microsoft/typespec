@@ -2,7 +2,7 @@ export { resolveClientInitialization } from "./client-initialization-resolution.
 export * from "./client-resolution.js";
 export {
   getClientFromContainer,
-  resolveClientFromOperation,
+  getClientFromOperation,
   resolveClients,
   type ResolveClientsOptions,
 } from "./client-resolution.js";

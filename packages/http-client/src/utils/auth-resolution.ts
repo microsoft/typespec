@@ -1,6 +1,6 @@
 import { Namespace, Operation, Program } from "@typespec/compiler";
 import { Authentication, getAuthentication } from "@typespec/http";
-import { resolveClientFromOperation } from "../client-resolution.js";
+import { getClientFromOperation } from "../client-resolution.js";
 import { Client } from "../interfaces.js";
 import { StateKeys } from "../lib.js";
 
@@ -57,7 +57,7 @@ export function resolveClientOperationAuthentication(
   }
 
   // If not, check the client associated with the operation
-  const client = resolveClientFromOperation(program, operation);
+  const client = getClientFromOperation(program, operation);
   if (!client) {
     return undefined;
   }
