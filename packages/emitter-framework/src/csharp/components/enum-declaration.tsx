@@ -5,7 +5,7 @@ import { useTsp } from "../../core/index.js";
 import { reportDiagnostic } from "../../lib.js";
 import { declarationRefkeys, efRefkey } from "./utils/refkey.js";
 
-export interface EnumDeclarationProps extends Omit<cs.EnumProps, "name"> {
+export interface EnumDeclarationProps extends Omit<cs.EnumDeclarationProps, "name"> {
   name?: string;
   type: Union | Enum;
 }
@@ -30,7 +30,7 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
   const members = Array.from(type.members.entries());
 
   return (
-    <cs.Enum name={name} refkey={refkeys} accessModifier={props.accessModifier ?? "public"}>
+    <cs.EnumDeclaration name={name} refkey={refkeys} {...props}>
       <ay.For each={members} joiner={",\n"}>
         {([key, value]) => {
           return (
@@ -43,6 +43,6 @@ export function EnumDeclaration(props: EnumDeclarationProps): ay.Children {
           );
         }}
       </ay.For>
-    </cs.Enum>
+    </cs.EnumDeclaration>
   );
 }

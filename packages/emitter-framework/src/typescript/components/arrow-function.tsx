@@ -1,8 +1,8 @@
-import { splitProps } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
 import { TypeExpression } from "./type-expression.jsx";
+import { splitProps } from "@alloy-js/core";
 
 export interface ArrowFunctionProps extends ts.ArrowFunctionProps {
   type?: Operation;

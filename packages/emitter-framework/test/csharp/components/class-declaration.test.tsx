@@ -125,7 +125,7 @@ it("renders a class with access modifiers", async () => {
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
-          <ClassDeclaration type={TestModel} accessModifier="protected" />
+          <ClassDeclaration type={TestModel} protected />
         </SourceFile>
       </Namespace>
     </Output>,

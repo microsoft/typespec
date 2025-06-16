@@ -125,7 +125,7 @@ it("renders an enum with access modifiers", async () => {
     <Output program={runner.program}>
       <Namespace name="TestNamespace">
         <SourceFile path="test.cs">
-          <EnumDeclaration type={TestEnum} accessModifier="internal" />
+          <EnumDeclaration type={TestEnum} internal />
         </SourceFile>
       </Namespace>
     </Output>,
