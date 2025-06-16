@@ -3,7 +3,6 @@ package specialheaders.repeatability.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -64,7 +63,7 @@ public final class RepeatabilityClientImpl {
     public RepeatabilityClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(RepeatabilityClientService.class, this.httpPipeline);
+        this.service = RepeatabilityClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -109,16 +108,5 @@ public final class RepeatabilityClientImpl {
     public Response<Void> immediateSuccessWithResponse(RequestContext requestContext) {
         return service.immediateSuccess(this.getEndpoint(), UUID.randomUUID().toString(),
             DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), requestContext);
-    }
-
-    /**
-     * Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void immediateSuccess() {
-        immediateSuccessWithResponse(RequestContext.none());
     }
 }

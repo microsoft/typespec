@@ -3,7 +3,6 @@ package payload.pageable.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -41,7 +40,7 @@ public final class ServerDrivenPaginationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationsImpl(PageableClientImpl client) {
-        this.service = RestProxy.create(ServerDrivenPaginationsService.class, client.getHttpPipeline());
+        this.service = ServerDrivenPaginationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -49,7 +48,7 @@ public final class ServerDrivenPaginationsImpl {
      * The interface defining all the services for PageableClientServerDrivenPaginations to be used by the proxy service
      * to perform REST calls.
      */
-    @ServiceInterface(name = "PageableClientServer", host = "{endpoint}")
+    @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
         static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -113,36 +112,6 @@ public final class ServerDrivenPaginationsImpl {
     /**
      * The link operation.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> link() {
-        return new PagedIterable<>((pagingOptions) -> {
-            if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
-            }
-            if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
-            }
-            return linkSinglePage();
-        }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink));
-    }
-
-    /**
-     * The link operation.
-     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -154,20 +123,28 @@ public final class ServerDrivenPaginationsImpl {
         RequestContext requestContextForNextPage = requestContext != null ? requestContext : RequestContext.none();
         return new PagedIterable<>((pagingOptions) -> {
             if (pagingOptions.getOffset() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'offset' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "offset")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageSize() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageSize' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageSize")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getPageIndex() != null) {
-                throw LOGGER.logThrowableAsError(
-                    new IllegalArgumentException("'pageIndex' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "pageIndex")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             if (pagingOptions.getContinuationToken() != null) {
-                throw LOGGER.logThrowableAsError(new IllegalArgumentException(
-                    "'continuationToken' in PagingOptions is not supported in API 'link'."));
+                throw LOGGER.throwableAtError()
+                    .addKeyValue("propertyName", "continuationToken")
+                    .addKeyValue("methodName", "link")
+                    .log("Not a supported paging option in this API", IllegalArgumentException::new);
             }
             return linkSinglePage(requestContext);
         }, (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestContextForNextPage));

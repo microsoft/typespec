@@ -56,7 +56,7 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadAsRequestBody(String name) {
-        this.serviceClient.spreadAsRequestBody(name);
+        spreadAsRequestBodyWithResponse(name, RequestContext.none());
     }
 
     /**
@@ -87,7 +87,7 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestOnlyWithBody(BodyParameter body) {
-        this.serviceClient.spreadCompositeRequestOnlyWithBody(body);
+        spreadCompositeRequestOnlyWithBodyWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -120,7 +120,7 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestWithoutBody(String name, String testHeader) {
-        this.serviceClient.spreadCompositeRequestWithoutBody(name, testHeader);
+        spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, RequestContext.none());
     }
 
     /**
@@ -155,7 +155,7 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequest(String name, String testHeader, BodyParameter body) {
-        this.serviceClient.spreadCompositeRequest(name, testHeader, body);
+        spreadCompositeRequestWithResponse(name, testHeader, body, RequestContext.none());
     }
 
     /**
@@ -190,6 +190,6 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void spreadCompositeRequestMix(String name, String testHeader, String prop) {
-        this.serviceClient.spreadCompositeRequestMix(name, testHeader, prop);
+        spreadCompositeRequestMixWithResponse(name, testHeader, prop, RequestContext.none());
     }
 }

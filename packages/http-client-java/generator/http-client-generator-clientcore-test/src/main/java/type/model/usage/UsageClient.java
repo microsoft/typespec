@@ -55,7 +55,7 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void input(InputRecord input) {
-        this.serviceClient.input(input);
+        inputWithResponse(input, RequestContext.none());
     }
 
     /**
@@ -83,7 +83,7 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public OutputRecord output() {
-        return this.serviceClient.output();
+        return outputWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -115,6 +115,6 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public InputOutputRecord inputAndOutput(InputOutputRecord body) {
-        return this.serviceClient.inputAndOutput(body);
+        return inputAndOutputWithResponse(body, RequestContext.none()).getValue();
     }
 }

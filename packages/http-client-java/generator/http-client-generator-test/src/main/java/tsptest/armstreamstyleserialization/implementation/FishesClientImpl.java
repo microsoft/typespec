@@ -41,24 +41,24 @@ public final class FishesClientImpl implements FishesClient {
     /**
      * The service client containing this operation class.
      */
-    private final ArmStreamStyleSerializationClientImpl client;
+    private final ArmResourceProviderManagementClientImpl client;
 
     /**
      * Initializes an instance of FishesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    FishesClientImpl(ArmStreamStyleSerializationClientImpl client) {
+    FishesClientImpl(ArmResourceProviderManagementClientImpl client) {
         this.service = RestProxy.create(FishesService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmStreamStyleSerializationClientFishes to be used by the proxy
+     * The interface defining all the services for ArmResourceProviderManagementClientFishes to be used by the proxy
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmStreamStyleSerial")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientFishes")
     public interface FishesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/model")

@@ -1,5 +1,13 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.15
+
+### Bump dependencies
+
+- [#7477](https://github.com/microsoft/typespec/pull/7477) Update multer dependency
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+
 ## 0.1.0-alpha.14
 
 ### Bug Fixes

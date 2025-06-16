@@ -37,25 +37,25 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     /**
      * The service client containing this operation class.
      */
-    private final ArmStreamStyleSerializationClientImpl client;
+    private final ArmResourceProviderManagementClientImpl client;
 
     /**
      * Initializes an instance of PrioritiesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    PrioritiesClientImpl(ArmStreamStyleSerializationClientImpl client) {
+    PrioritiesClientImpl(ArmResourceProviderManagementClientImpl client) {
         this.service
             = RestProxy.create(PrioritiesService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmStreamStyleSerializationClientPriorities to be used by the proxy
+     * The interface defining all the services for ArmResourceProviderManagementClientPriorities to be used by the proxy
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmStreamStyleSerial")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientPriorities")
     public interface PrioritiesService {
         @Headers({ "Content-Type: application/json" })
         @Post("/priority")

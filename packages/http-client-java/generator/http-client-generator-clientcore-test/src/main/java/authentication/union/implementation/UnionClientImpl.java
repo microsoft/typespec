@@ -3,7 +3,6 @@ package authentication.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -60,7 +59,7 @@ public final class UnionClientImpl {
     public UnionClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(UnionClientService.class, this.httpPipeline);
+        this.service = UnionClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -112,17 +111,6 @@ public final class UnionClientImpl {
     /**
      * Check whether client is authenticated.
      * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validKey() {
-        validKeyWithResponse(RequestContext.none());
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -132,16 +120,5 @@ public final class UnionClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
         return service.validToken(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void validToken() {
-        validTokenWithResponse(RequestContext.none());
     }
 }

@@ -3,7 +3,6 @@ package streaming.jsonl.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class BasicsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     BasicsImpl(JsonlClientImpl client) {
-        this.service = RestProxy.create(BasicsService.class, client.getHttpPipeline());
+        this.service = BasicsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -94,20 +93,6 @@ public final class BasicsImpl {
     }
 
     /**
-     * The send operation.
-     * 
-     * @param body The body parameter.
-     * @param contentLength The Content-Length header for the request.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(BinaryData body, long contentLength) {
-        sendWithResponse(body, contentLength, RequestContext.none());
-    }
-
-    /**
      * The receive operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -120,17 +105,5 @@ public final class BasicsImpl {
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
         final String accept = "application/jsonl";
         return service.receive(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The receive operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData receive() {
-        return receiveWithResponse(RequestContext.none()).getValue();
     }
 }

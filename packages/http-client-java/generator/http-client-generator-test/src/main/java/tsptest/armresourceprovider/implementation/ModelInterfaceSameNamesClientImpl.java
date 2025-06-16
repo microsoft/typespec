@@ -38,25 +38,25 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of ModelInterfaceSameNamesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    ModelInterfaceSameNamesClientImpl(ArmResourceProviderClientImpl client) {
+    ModelInterfaceSameNamesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(ModelInterfaceSameNamesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientModelInterfaceSameNames to be used by the
-     * proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientModelInterfaceSameNames to be used by the proxy service to
+     * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientModelInterfaceSameNames")
     public interface ModelInterfaceSameNamesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/modelInterfaceDifferentNames/{modelInterfaceDifferentNameName}")

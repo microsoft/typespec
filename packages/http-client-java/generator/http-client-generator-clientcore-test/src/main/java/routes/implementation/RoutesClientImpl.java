@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -300,7 +299,7 @@ public final class RoutesClientImpl {
         this.queryParametersQueryContinuationStandards = new QueryParametersQueryContinuationStandardsImpl(this);
         this.queryParametersQueryContinuationExplodes = new QueryParametersQueryContinuationExplodesImpl(this);
         this.inInterfaces = new InInterfacesImpl(this);
-        this.service = RestProxy.create(RoutesClientService.class, this.httpPipeline);
+        this.service = RoutesClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -337,16 +336,5 @@ public final class RoutesClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
         return service.fixed(this.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The fixed operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void fixed() {
-        fixedWithResponse(RequestContext.none());
     }
 }

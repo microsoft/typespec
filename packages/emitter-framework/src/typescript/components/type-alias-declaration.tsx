@@ -31,7 +31,7 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   }
 
   const doc = props.doc ?? $.type.getDoc(props.type);
-  const refkeys = declarationRefkeys(props.refkey, props.name);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
   return (

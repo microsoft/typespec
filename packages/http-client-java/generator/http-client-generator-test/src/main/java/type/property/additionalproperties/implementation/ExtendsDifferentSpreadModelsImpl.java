@@ -57,7 +57,7 @@ public final class ExtendsDifferentSpreadModelsImpl {
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsDifferentSpreadModels")
     public interface ExtendsDifferentSpreadModelsService {
         @Get("/type/property/additionalProperties/extendsDifferentSpreadModel")
         @ExpectedResponses({ 200 })

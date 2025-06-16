@@ -181,9 +181,19 @@ export async function createInitialContext(
 
   const generatedModule = createModule("generated", srcModule);
 
+  // This dummy module hosts the root of the helper tree. It's not a "real" module
+  // because we want the modules to be emitted lazily, but we need some module to
+  // pass in to the root helper index.
+  const dummyModule: Module = {
+    name: "generated",
+    cursor: generatedModule.cursor,
+    imports: [],
+    declarations: [],
+  };
+
   // This has the side effect of setting the `module` property of all helpers.
   // Don't do anything with the emitter code before this is called.
-  await initializeHelperModule(generatedModule);
+  await initializeHelperModule(dummyModule);
 
   // Module for all models, including synthetic and all.
   const modelsModule: Module = createModule("models", generatedModule);

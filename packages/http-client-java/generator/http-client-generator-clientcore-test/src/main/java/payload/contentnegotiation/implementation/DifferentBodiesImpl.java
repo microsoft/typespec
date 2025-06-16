@@ -3,7 +3,6 @@ package payload.contentnegotiation.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -37,7 +36,7 @@ public final class DifferentBodiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     DifferentBodiesImpl(ContentNegotiationClientImpl client) {
-        this.service = RestProxy.create(DifferentBodiesService.class, client.getHttpPipeline());
+        this.service = DifferentBodiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class DifferentBodiesImpl {
      * The interface defining all the services for ContentNegotiationClientDifferentBodies to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "ContentNegotiationCl", host = "{endpoint}")
+    @ServiceInterface(name = "ContentNegotiationClientDifferentBodies", host = "{endpoint}")
     public interface DifferentBodiesService {
         static DifferentBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -92,18 +91,6 @@ public final class DifferentBodiesImpl {
     }
 
     /**
-     * The getAvatarAsPng operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getAvatarAsPng() {
-        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The getAvatarAsJson operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -116,17 +103,5 @@ public final class DifferentBodiesImpl {
     public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.getAvatarAsJson(this.client.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The getAvatarAsJson operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PngImageAsJson getAvatarAsJson() {
-        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

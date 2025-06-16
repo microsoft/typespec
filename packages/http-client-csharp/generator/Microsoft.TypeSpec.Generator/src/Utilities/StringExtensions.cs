@@ -172,5 +172,29 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(sb.ToString());
         }
+
+        public static string ToApiVersionValue(this string version, string? versionPrefix = null, char? separator = null)
+        {
+            StringBuilder sb = versionPrefix == null
+                ? new StringBuilder()
+                : new StringBuilder(versionPrefix);
+            separator ??= '-';
+            int startIndex = 1;
+
+            for (int i = startIndex; i < version.Length; i++)
+            {
+                char c = version[i];
+                if (c == '_')
+                {
+                    sb.Append(separator);
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return CultureInfo.InvariantCulture.TextInfo.ToLower(sb.ToString());
+        }
     }
 }

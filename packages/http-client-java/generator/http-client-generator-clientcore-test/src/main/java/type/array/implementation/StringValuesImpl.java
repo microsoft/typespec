@@ -3,7 +3,6 @@ package type.array.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class StringValuesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringValuesImpl(ArrayClientImpl client) {
-        this.service = RestProxy.create(StringValuesService.class, client.getHttpPipeline());
+        this.service = StringValuesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class StringValuesImpl {
      * The interface defining all the services for ArrayClientStringValues to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ArrayClientStringVal", host = "{endpoint}")
+    @ServiceInterface(name = "ArrayClientStringValues", host = "{endpoint}")
     public interface StringValuesService {
         static StringValuesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -86,18 +85,6 @@ public final class StringValuesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<String> get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The put operation.
      * 
      * @param body The body parameter.
@@ -111,18 +98,5 @@ public final class StringValuesImpl {
     public Response<Void> putWithResponse(List<String> body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * The put operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(List<String> body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

@@ -55,7 +55,7 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData getAvatarAsPng() {
-        return this.serviceClient.getAvatarAsPng();
+        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public PngImageAsJson getAvatarAsJson() {
-        return this.serviceClient.getAvatarAsJson();
+        return getAvatarAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

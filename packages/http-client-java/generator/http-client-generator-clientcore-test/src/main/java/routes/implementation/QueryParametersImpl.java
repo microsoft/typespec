@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -35,7 +34,7 @@ public final class QueryParametersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     QueryParametersImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(QueryParametersService.class, client.getHttpPipeline());
+        this.service = QueryParametersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -43,7 +42,7 @@ public final class QueryParametersImpl {
      * The interface defining all the services for RoutesClientQueryParameters to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientQueryPar", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientQueryParameters", host = "{endpoint}")
     public interface QueryParametersService {
         static QueryParametersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -95,19 +94,6 @@ public final class QueryParametersImpl {
     }
 
     /**
-     * The templateOnly operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void templateOnly(String param) {
-        templateOnlyWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The explicit operation.
      * 
      * @param param The param parameter.
@@ -123,19 +109,6 @@ public final class QueryParametersImpl {
     }
 
     /**
-     * The explicit operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void explicit(String param) {
-        explicitWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The annotationOnly operation.
      * 
      * @param param The param parameter.
@@ -148,18 +121,5 @@ public final class QueryParametersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
         return service.annotationOnly(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The annotationOnly operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void annotationOnly(String param) {
-        annotationOnlyWithResponse(param, RequestContext.none());
     }
 }

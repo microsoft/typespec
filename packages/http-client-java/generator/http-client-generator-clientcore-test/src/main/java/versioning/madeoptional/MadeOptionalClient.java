@@ -58,7 +58,7 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body, String param) {
-        return this.serviceClient.test(body, param);
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 
     /**
@@ -73,6 +73,7 @@ public final class MadeOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TestModel test(TestModel body) {
-        return this.serviceClient.test(body);
+        final String param = null;
+        return testWithResponse(body, param, RequestContext.none()).getValue();
     }
 }

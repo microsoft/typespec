@@ -57,7 +57,7 @@ public final class BooleanOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientBool")
+    @ServiceInterface(name = "ValueTypesClientBooleanOperations")
     public interface BooleanOperationsService {
         @Get("/type/property/value-types/boolean")
         @ExpectedResponses({ 200 })

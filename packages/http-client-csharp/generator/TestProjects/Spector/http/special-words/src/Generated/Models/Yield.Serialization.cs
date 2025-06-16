@@ -32,7 +32,5 @@ namespace SpecialWords._Models
         string IPersistableModel<Yield>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(Yield @yield) => throw null;
-
-        public static explicit operator Yield(ClientResult result) => throw null;
     }
 }

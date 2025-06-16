@@ -57,7 +57,7 @@ public final class IntLiteralsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientIntLit")
+    @ServiceInterface(name = "OptionalClientIntLiterals")
     public interface IntLiteralsService {
         @Get("/type/property/optional/int/literal/all")
         @ExpectedResponses({ 200 })

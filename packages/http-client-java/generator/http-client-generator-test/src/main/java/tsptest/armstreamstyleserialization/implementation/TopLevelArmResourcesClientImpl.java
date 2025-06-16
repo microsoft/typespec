@@ -45,25 +45,25 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     /**
      * The service client containing this operation class.
      */
-    private final ArmStreamStyleSerializationClientImpl client;
+    private final ArmResourceProviderManagementClientImpl client;
 
     /**
      * Initializes an instance of TopLevelArmResourcesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    TopLevelArmResourcesClientImpl(ArmStreamStyleSerializationClientImpl client) {
+    TopLevelArmResourcesClientImpl(ArmResourceProviderManagementClientImpl client) {
         this.service = RestProxy.create(TopLevelArmResourcesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmStreamStyleSerializationClientTopLevelArmResources to be used by
+     * The interface defining all the services for ArmResourceProviderManagementClientTopLevelArmResources to be used by
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmStreamStyleSerial")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientTopLevelArmResources")
     public interface TopLevelArmResourcesService {
         @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmStreamStyleSerialization/topLevelArmResources/{topLevelArmResourceName}")
         @ExpectedResponses({ 200, 202 })

@@ -50,6 +50,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -343,7 +344,8 @@ public class FluentGen extends Javagen {
             // Samples
             List<JavaFile> sampleJavaFiles = new ArrayList<>();
             for (FluentExample example : fluentClient.getExamples()) {
-                sampleJavaFiles.add(javaPackage.addSample(example));
+                Optional<JavaFile> file = javaPackage.addSample(example);
+                file.ifPresent(sampleJavaFiles::add);
             }
 
             // Readme and Changelog

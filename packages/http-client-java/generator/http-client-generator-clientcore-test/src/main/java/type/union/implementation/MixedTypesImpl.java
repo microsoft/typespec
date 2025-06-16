@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class MixedTypesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     MixedTypesImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(MixedTypesService.class, client.getHttpPipeline());
+        this.service = MixedTypesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class MixedTypesImpl {
      * The interface defining all the services for UnionClientMixedTypes to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "UnionClientMixedType", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
     public interface MixedTypesService {
         static MixedTypesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -92,18 +91,6 @@ public final class MixedTypesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse9 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -118,18 +105,5 @@ public final class MixedTypesImpl {
         final String contentType = "application/json";
         SendRequest9 sendRequest9 = new SendRequest9(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest9, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(MixedTypesCases prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

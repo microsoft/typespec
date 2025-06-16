@@ -56,7 +56,7 @@ public final class PropertiesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DatetimeClientProper")
+    @ServiceInterface(name = "DatetimeClientProperties")
     public interface PropertiesService {
         @Post("/encode/datetime/property/default")
         @ExpectedResponses({ 200 })

@@ -140,6 +140,7 @@ import {
   TemplateParameterDeclarationNode,
   TemplateableNode,
   TemplatedType,
+  TemplatedTypeBase,
   Tuple,
   TupleExpressionNode,
   Type,
@@ -3279,7 +3280,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const spanValue = createTemplateSpanValue(span.expression, type);
         spans.push(spanValue);
         const spanValueAsString = stringifyTypeForTemplate(type);
-        if (spanValueAsString) {
+        if (spanValueAsString !== undefined) {
           stringValue += spanValueAsString;
         } else {
           hasNonStringElement = true;
@@ -4458,7 +4459,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return undefined;
     }
-    if (heritageRef.kind !== SyntaxKind.TypeReference) {
+    if (
+      heritageRef.kind !== SyntaxKind.TypeReference &&
+      heritageRef.kind !== SyntaxKind.ArrayExpression
+    ) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "extend-model",
@@ -6395,14 +6399,10 @@ export function finishTypeForProgram<T extends Type>(program: Program, typeDef: 
   return finishTypeForProgramAndChecker(program, program.checker.typePrototype, typeDef);
 }
 
-function linkMapper<T extends Type>(typeDef: T, mapper?: TypeMapper) {
+function linkMapper<T extends Type & TemplatedTypeBase>(typeDef: T, mapper?: TypeMapper) {
   if (mapper) {
-    compilerAssert(
-      !(typeDef as any).templateArguments,
-      "Mapper provided but template arguments already set.",
-    );
-    (typeDef as any).templateMapper = mapper;
-    (typeDef as any).templateArguments = mapper.args;
+    compilerAssert(!typeDef.templateMapper, "Mapper provided but template arguments already set.");
+    typeDef.templateMapper = mapper;
   }
 }
 

@@ -55,7 +55,7 @@ public final class PathParametersReservedExpansionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void template(String param) {
-        this.serviceClient.template(param);
+        templateWithResponse(param, RequestContext.none());
     }
 
     /**
@@ -85,6 +85,6 @@ public final class PathParametersReservedExpansionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void annotation(String param) {
-        this.serviceClient.annotation(param);
+        annotationWithResponse(param, RequestContext.none());
     }
 }

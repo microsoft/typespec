@@ -53,7 +53,7 @@ public final class IntsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public GetResponse3 get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class IntsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void send(GetResponseProp2 prop) {
-        this.serviceClient.send(prop);
+        sendWithResponse(prop, RequestContext.none());
     }
 }

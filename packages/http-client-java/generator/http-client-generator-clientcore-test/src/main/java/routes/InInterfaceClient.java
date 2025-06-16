@@ -52,6 +52,6 @@ public final class InInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void fixed() {
-        this.serviceClient.fixed();
+        fixedWithResponse(RequestContext.none());
     }
 }

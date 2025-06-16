@@ -3,7 +3,6 @@ package payload.multipart.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -39,7 +38,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsContentTypesImpl(MultiPartClientImpl client) {
-        this.service = RestProxy.create(FormDataHttpPartsContentTypesService.class, client.getHttpPipeline());
+        this.service = FormDataHttpPartsContentTypesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -47,7 +46,7 @@ public final class FormDataHttpPartsContentTypesImpl {
      * The interface defining all the services for MultiPartClientFormDataHttpPartsContentTypes to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "MultiPartClientFormD", host = "{endpoint}")
+    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsContentTypes", host = "{endpoint}")
     public interface FormDataHttpPartsContentTypesService {
         static FormDataHttpPartsContentTypesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -117,19 +116,6 @@ public final class FormDataHttpPartsContentTypesImpl {
      * Test content-type: multipart/form-data.
      * 
      * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        imageJpegContentTypeWithResponse(body, RequestContext.none());
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -141,19 +127,6 @@ public final class FormDataHttpPartsContentTypesImpl {
         RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.requiredContentType(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        requiredContentTypeWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -171,18 +144,5 @@ public final class FormDataHttpPartsContentTypesImpl {
         RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.optionalContentType(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for optional content type.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        optionalContentTypeWithResponse(body, RequestContext.none());
     }
 }

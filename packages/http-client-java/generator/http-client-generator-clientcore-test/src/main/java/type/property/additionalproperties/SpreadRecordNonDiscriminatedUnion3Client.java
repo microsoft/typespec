@@ -53,7 +53,7 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public SpreadRecordForNonDiscriminatedUnion3 get() {
-        return this.serviceClient.get();
+        return getWithResponse(RequestContext.none()).getValue();
     }
 
     /**
@@ -83,6 +83,6 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
-        this.serviceClient.put(body);
+        putWithResponse(body, RequestContext.none());
     }
 }

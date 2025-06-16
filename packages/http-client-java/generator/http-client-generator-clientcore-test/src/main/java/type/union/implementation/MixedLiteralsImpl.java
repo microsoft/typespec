@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class MixedLiteralsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     MixedLiteralsImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(MixedLiteralsService.class, client.getHttpPipeline());
+        this.service = MixedLiteralsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class MixedLiteralsImpl {
      * The interface defining all the services for UnionClientMixedLiterals to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "UnionClientMixedLite", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientMixedLiterals", host = "{endpoint}")
     public interface MixedLiteralsService {
         static MixedLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -93,18 +92,6 @@ public final class MixedLiteralsImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse8 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -119,18 +106,5 @@ public final class MixedLiteralsImpl {
         final String contentType = "application/json";
         SendRequest8 sendRequest8 = new SendRequest8(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest8, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(MixedLiteralsCases prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

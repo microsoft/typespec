@@ -3,7 +3,6 @@ package type.union.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -38,7 +37,7 @@ public final class FloatsOnliesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     FloatsOnliesImpl(UnionClientImpl client) {
-        this.service = RestProxy.create(FloatsOnliesService.class, client.getHttpPipeline());
+        this.service = FloatsOnliesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,7 +45,7 @@ public final class FloatsOnliesImpl {
      * The interface defining all the services for UnionClientFloatsOnlies to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "UnionClientFloatsOnl", host = "{endpoint}")
+    @ServiceInterface(name = "UnionClientFloatsOnlies", host = "{endpoint}")
     public interface FloatsOnliesService {
         static FloatsOnliesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -93,18 +92,6 @@ public final class FloatsOnliesImpl {
     }
 
     /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse4 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * The send operation.
      * 
      * @param prop The prop parameter.
@@ -119,18 +106,5 @@ public final class FloatsOnliesImpl {
         final String contentType = "application/json";
         SendRequest4 sendRequest4 = new SendRequest4(prop);
         return service.send(this.client.getEndpoint(), contentType, sendRequest4, requestContext);
-    }
-
-    /**
-     * The send operation.
-     * 
-     * @param prop The prop parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(GetResponseProp3 prop) {
-        sendWithResponse(prop, RequestContext.none());
     }
 }

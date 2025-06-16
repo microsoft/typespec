@@ -36,25 +36,25 @@ public final class FunctionsClientImpl implements FunctionsClient {
     /**
      * The service client containing this operation class.
      */
-    private final ArmStreamStyleSerializationClientImpl client;
+    private final ArmResourceProviderManagementClientImpl client;
 
     /**
      * Initializes an instance of FunctionsClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    FunctionsClientImpl(ArmStreamStyleSerializationClientImpl client) {
+    FunctionsClientImpl(ArmResourceProviderManagementClientImpl client) {
         this.service
             = RestProxy.create(FunctionsService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmStreamStyleSerializationClientFunctions to be used by the proxy
+     * The interface defining all the services for ArmResourceProviderManagementClientFunctions to be used by the proxy
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmStreamStyleSerial")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientFunctions")
     public interface FunctionsService {
         @Put("/function")
         @ExpectedResponses({ 200 })

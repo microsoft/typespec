@@ -2,7 +2,7 @@
   "name": "@typespec/monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.11.0",
   "type": "module",
   "scripts": {
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
@@ -36,7 +36,8 @@
     "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts",
     "validate-scenarios": "pnpm -r --filter=@typespec/http-specs run validate-scenarios",
     "validate-mock-apis": "pnpm -r --filter=@typespec/http-specs run validate-mock-apis",
-    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary"
+    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary",
+    "install-conflict": "git checkout upstream/main -- pnpm-lock.yaml && pnpm install"
   },
   "devDependencies": {
     "@chronus/chronus": "^1.0.1",
@@ -83,5 +84,9 @@
       "resolutions"
     ]
   },
-  "pnpm": {}
+  "pnpm": {
+    "overrides": {
+      "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
+    }
+  }
 }

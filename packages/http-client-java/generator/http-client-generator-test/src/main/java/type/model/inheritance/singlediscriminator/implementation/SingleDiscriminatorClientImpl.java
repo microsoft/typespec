@@ -125,7 +125,7 @@ public final class SingleDiscriminatorClientImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SingleDiscriminatorC")
+    @ServiceInterface(name = "SingleDiscriminatorClient")
     public interface SingleDiscriminatorClientService {
         @Get("/type/model/inheritance/single-discriminator/model")
         @ExpectedResponses({ 200 })
