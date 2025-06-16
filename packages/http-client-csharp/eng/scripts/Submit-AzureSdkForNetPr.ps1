@@ -28,7 +28,7 @@ param(
 )
 
 # Import the Generation module to use the Invoke helper function
-Import-Module (Join-Path $PSScriptRoot "Generation.psm1")
+Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
