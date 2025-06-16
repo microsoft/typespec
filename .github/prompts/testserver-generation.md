@@ -3,6 +3,7 @@
 ## REQUIRED STEPS (ALL MUST BE COMPLETED IN ORDER)
 
 1. **PREPARATION & RESEARCH**
+
    - First, run `pnpm install && pnpm build` to fully set up the repository (both commands must complete successfully)
    - Study existing test files:
      - Examine the `main.tsp` and `client.tsp` files in the [specs repository](https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs)
@@ -10,6 +11,7 @@
      - Read descriptions of existing tests and mockapis in the [spec summary](https://github.com/microsoft/typespec/blob/main/packages/http-specs/spec-summary.md)
 
 2. **IMPLEMENTATION REQUIREMENTS**
+
    - Only modify code in:
      - `cspell.yaml` file OR
      - `packages/http-specs/specs` folder
@@ -25,16 +27,18 @@
    - Group operations into interfaces when it makes sense (e.g., by `path`, `query`, etc.)
 
 3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS IN THIS EXACT ORDER)
+
    - After implementation, run these commands from `packages/http-specs` in this exact sequence:
 
      ```bash
-     pnpm build                  # Verify build and scenarios pass
-     pnpm validate-mock-apis     # Verify mockapi implementations
-     pnpm cspell                 # Check spelling
-     pnpm format                 # Clean up formatting
-     pnpm lint                   # Fix linting issues
-     pnpm regen-docs             # Regenerate docs (NEVER manually edit spec-summary.md)
+     pnpm build              # Verify build and scenarios pass
+     pnpm validate-mock-apis # Verify mockapi implementations
+     pnpm cspell             # Check spelling
+     pnpm format             # Clean up formatting
+     pnpm lint               # Fix linting issues
+     pnpm regen-docs         # Regenerate docs (NEVER manually edit spec-summary.md)
      ```
+
    - If ANY command fails:
      1. Fix the reported errors
      2. Re-run ALL validation commands from the beginning in the exact order shown above
