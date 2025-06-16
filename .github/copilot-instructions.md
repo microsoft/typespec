@@ -26,19 +26,19 @@
    - Choose appropriate operation grouping (single vs. collection)
    - Group operations into interfaces when it makes sense (e.g., by `path`, `query`, etc.)
 
-3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS)
-   - After implementation, run these commands from `packages/http-specs`:
+3. **VALIDATION & QUALITY CHECKS** (MUST PERFORM ALL OF THESE CHECKS IN THIS EXACT ORDER)
+   - After implementation, run these commands from `packages/http-specs` in this exact sequence:
      ```
      pnpm build                  # Verify build and scenarios pass
-     pnpm regen-docs             # Regenerate docs (NEVER manually edit spec-summary.md)
      pnpm validate-mock-apis     # Verify mockapi implementations
      pnpm cspell                 # Check spelling
      pnpm format                 # Clean up formatting
      pnpm lint                   # Fix linting issues
+     pnpm regen-docs             # Regenerate docs (NEVER manually edit spec-summary.md)
      ```
    - If ANY command fails:
      1. Fix the reported errors
-     2. Re-run ALL validation commands from the beginning
+     2. Re-run ALL validation commands from the beginning in the exact order shown above
      3. Repeat until ALL commands pass successfully
    - For spelling issues:
      - If the word is valid: add to `cspell.yaml`
@@ -54,8 +54,9 @@
 ### IMPORTANT REMINDERS
 - ⚠️ You MUST run `pnpm regen-docs` after any changes
 - ⚠️ You MUST verify all scenarios have mockapi implementations
-- ⚠️ You MUST run ALL validation commands listed above
+- ⚠️ You MUST run ALL validation commands listed above IN THE EXACT ORDER specified
 - ⚠️ You MUST fix any errors before completing the task
+- ⚠️ If ANY validation check fails, fix the issues and re-run ALL checks again from the beginning
 
 <!-- References -->
 
