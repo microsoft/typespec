@@ -88,7 +88,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAnd(And body) {
-        this.serviceClient.withAnd(body);
+        withAndWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -118,7 +118,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAs(As body) {
-        this.serviceClient.withAs(body);
+        withAsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -148,7 +148,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAssert(Assert body) {
-        this.serviceClient.withAssert(body);
+        withAssertWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -178,7 +178,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAsync(Async body) {
-        this.serviceClient.withAsync(body);
+        withAsyncWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -208,7 +208,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withAwait(Await body) {
-        this.serviceClient.withAwait(body);
+        withAwaitWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -238,7 +238,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withBreak(Break body) {
-        this.serviceClient.withBreak(body);
+        withBreakWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -268,7 +268,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withClass(ClassModel body) {
-        this.serviceClient.withClass(body);
+        withClassWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -298,7 +298,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withConstructor(Constructor body) {
-        this.serviceClient.withConstructor(body);
+        withConstructorWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -328,7 +328,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withContinue(Continue body) {
-        this.serviceClient.withContinue(body);
+        withContinueWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -358,7 +358,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDef(Def body) {
-        this.serviceClient.withDef(body);
+        withDefWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -388,7 +388,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withDel(Del body) {
-        this.serviceClient.withDel(body);
+        withDelWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -418,7 +418,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElif(Elif body) {
-        this.serviceClient.withElif(body);
+        withElifWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -448,7 +448,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withElse(Else body) {
-        this.serviceClient.withElse(body);
+        withElseWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -478,7 +478,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExcept(Except body) {
-        this.serviceClient.withExcept(body);
+        withExceptWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -508,7 +508,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withExec(Exec body) {
-        this.serviceClient.withExec(body);
+        withExecWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -538,7 +538,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFinally(Finally body) {
-        this.serviceClient.withFinally(body);
+        withFinallyWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -568,7 +568,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFor(For body) {
-        this.serviceClient.withFor(body);
+        withForWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -598,7 +598,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withFrom(From body) {
-        this.serviceClient.withFrom(body);
+        withFromWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -628,7 +628,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withGlobal(Global body) {
-        this.serviceClient.withGlobal(body);
+        withGlobalWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -658,7 +658,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIf(If body) {
-        this.serviceClient.withIf(body);
+        withIfWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -688,7 +688,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withImport(Import body) {
-        this.serviceClient.withImport(body);
+        withImportWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -718,7 +718,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIn(In body) {
-        this.serviceClient.withIn(body);
+        withInWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -748,7 +748,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withIs(Is body) {
-        this.serviceClient.withIs(body);
+        withIsWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -778,7 +778,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withLambda(Lambda body) {
-        this.serviceClient.withLambda(body);
+        withLambdaWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -808,7 +808,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withNot(Not body) {
-        this.serviceClient.withNot(body);
+        withNotWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -838,7 +838,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withOr(Or body) {
-        this.serviceClient.withOr(body);
+        withOrWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -868,7 +868,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPass(Pass body) {
-        this.serviceClient.withPass(body);
+        withPassWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -898,7 +898,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withRaise(Raise body) {
-        this.serviceClient.withRaise(body);
+        withRaiseWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -928,7 +928,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withReturn(Return body) {
-        this.serviceClient.withReturn(body);
+        withReturnWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -958,7 +958,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withTry(Try body) {
-        this.serviceClient.withTry(body);
+        withTryWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -988,7 +988,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWhile(While body) {
-        this.serviceClient.withWhile(body);
+        withWhileWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1018,7 +1018,7 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWith(With body) {
-        this.serviceClient.withWith(body);
+        withWithWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -1048,6 +1048,6 @@ public final class ModelsClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withYield(Yield body) {
-        this.serviceClient.withYield(body);
+        withYieldWithResponse(body, RequestContext.none());
     }
 }

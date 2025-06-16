@@ -56,7 +56,7 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientModelInterf")
+    @ServiceInterface(name = "ArmClientModelInterfaceSameNames")
     public interface ModelInterfaceSameNamesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/modelInterfaceDifferentNames/{modelInterfaceDifferentNameName}")

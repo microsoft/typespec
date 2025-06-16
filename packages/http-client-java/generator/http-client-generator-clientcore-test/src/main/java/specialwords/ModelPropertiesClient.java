@@ -56,6 +56,6 @@ public final class ModelPropertiesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sameAsModel(SameAsModel body) {
-        this.serviceClient.sameAsModel(body);
+        sameAsModelWithResponse(body, RequestContext.none());
     }
 }

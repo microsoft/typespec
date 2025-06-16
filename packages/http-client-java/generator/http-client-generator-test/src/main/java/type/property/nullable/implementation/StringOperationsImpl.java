@@ -57,7 +57,7 @@ public final class StringOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NullableClientString")
+    @ServiceInterface(name = "NullableClientStringOperations")
     public interface StringOperationsService {
         @Get("/type/property/nullable/string/non-null")
         @ExpectedResponses({ 200 })

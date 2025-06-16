@@ -3,7 +3,6 @@ package type.model.inheritance.recursive.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -63,7 +62,7 @@ public final class RecursiveClientImpl {
     public RecursiveClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(RecursiveClientService.class, this.httpPipeline);
+        this.service = RecursiveClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -119,19 +118,6 @@ public final class RecursiveClientImpl {
     }
 
     /**
-     * The put operation.
-     * 
-     * @param input The input parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(Extension input) {
-        putWithResponse(input, RequestContext.none());
-    }
-
-    /**
      * The get operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -144,17 +130,5 @@ public final class RecursiveClientImpl {
     public Response<Extension> getWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
         return service.get(this.getEndpoint(), accept, requestContext);
-    }
-
-    /**
-     * The get operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return extension.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Extension get() {
-        return getWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -3,7 +3,6 @@ package payload.multipart.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsNonStringsImpl(MultiPartClientImpl client) {
-        this.service = RestProxy.create(FormDataHttpPartsNonStringsService.class, client.getHttpPipeline());
+        this.service = FormDataHttpPartsNonStringsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      * The interface defining all the services for MultiPartClientFormDataHttpPartsNonStrings to be used by the proxy
      * service to perform REST calls.
      */
-    @ServiceInterface(name = "MultiPartClientFormD", host = "{endpoint}")
+    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsNonStrings", host = "{endpoint}")
     public interface FormDataHttpPartsNonStringsService {
         static FormDataHttpPartsNonStringsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -85,18 +84,5 @@ public final class FormDataHttpPartsNonStringsImpl {
     public Response<Void> floatMethodWithResponse(FloatRequest body, RequestContext requestContext) {
         final String contentType = "multipart/form-data";
         return service.floatMethod(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Test content-type: multipart/form-data for non string.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void floatMethod(FloatRequest body) {
-        floatMethodWithResponse(body, RequestContext.none());
     }
 }

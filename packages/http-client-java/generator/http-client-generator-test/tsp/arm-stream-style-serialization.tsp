@@ -8,6 +8,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 using TypeSpec.Versioning;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ClientGenerator.Core;
 
@@ -247,6 +248,26 @@ interface Priorities {
   setPriority(@query priority: Priority): {
     @body body: Priority;
   };
+}
+
+@route("/items")
+interface Items {
+  // op of LRO + pageable
+  @get
+  list(): ListResult & ArmLroLocationHeader;
+}
+
+@pagedResult
+model ListResult {
+  @items
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model Result {
+  name: string;
 }
 
 @@flattenProperty(Fish.properties);

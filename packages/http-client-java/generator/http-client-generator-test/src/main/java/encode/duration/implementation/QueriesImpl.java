@@ -58,7 +58,7 @@ public final class QueriesImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DurationClientQuerie")
+    @ServiceInterface(name = "DurationClientQueries")
     public interface QueriesService {
         @Get("/encode/duration/query/default")
         @ExpectedResponses({ 204 })

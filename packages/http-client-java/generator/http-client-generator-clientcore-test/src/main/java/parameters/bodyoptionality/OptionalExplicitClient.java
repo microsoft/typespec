@@ -55,7 +55,7 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void set(BodyModel body) {
-        this.serviceClient.set(body);
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -67,7 +67,8 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void set() {
-        this.serviceClient.set();
+        final BodyModel body = null;
+        setWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -97,7 +98,7 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit(BodyModel body) {
-        this.serviceClient.omit(body);
+        omitWithResponse(body, RequestContext.none());
     }
 
     /**
@@ -109,6 +110,7 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void omit() {
-        this.serviceClient.omit();
+        final BodyModel body = null;
+        omitWithResponse(body, RequestContext.none());
     }
 }

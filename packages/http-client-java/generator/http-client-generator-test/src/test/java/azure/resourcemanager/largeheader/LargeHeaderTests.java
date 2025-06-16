@@ -10,14 +10,12 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 
 public class LargeHeaderTests {
 
     @Test
-    @Disabled("Enable when default max response header size is set to 16kb in azure-core.")
     public void testLargeHeader() {
         LargeHeaderManager manager = buildManager();
         CancelResult result = manager.largeHeaders().two6k("test-rg", "header1");

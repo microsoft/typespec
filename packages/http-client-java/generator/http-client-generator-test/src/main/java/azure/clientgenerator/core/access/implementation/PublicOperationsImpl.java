@@ -56,7 +56,7 @@ public final class PublicOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AccessClientPublicOp")
+    @ServiceInterface(name = "AccessClientPublicOperations")
     public interface PublicOperationsService {
         @Get("/azure/client-generator-core/access/publicOperation/noDecoratorInPublic")
         @ExpectedResponses({ 200 })

@@ -64,7 +64,7 @@ public final class ImmutableResourceModelsClientImpl implements ImmutableResourc
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmClientImmutableRe")
+    @ServiceInterface(name = "ArmClientImmutableResourceModels")
     public interface ImmutableResourceModelsService {
         @Headers({ "Content-Type: application/json" })
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/configurations/{configurationName}")

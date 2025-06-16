@@ -3,7 +3,6 @@ package encode.datetime.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -34,7 +33,7 @@ public final class ResponseHeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ResponseHeadersImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(ResponseHeadersService.class, client.getHttpPipeline());
+        this.service = ResponseHeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,7 +41,7 @@ public final class ResponseHeadersImpl {
      * The interface defining all the services for DatetimeClientResponseHeaders to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "DatetimeClientRespon", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientResponseHeaders", host = "{endpoint}")
     public interface ResponseHeadersService {
         static ResponseHeadersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -100,17 +99,6 @@ public final class ResponseHeadersImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod() {
-        defaultMethodWithResponse(RequestContext.none());
-    }
-
-    /**
      * The rfc3339 operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -122,17 +110,6 @@ public final class ResponseHeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(RequestContext requestContext) {
         return service.rfc3339(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339() {
-        rfc3339WithResponse(RequestContext.none());
     }
 
     /**
@@ -150,17 +127,6 @@ public final class ResponseHeadersImpl {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231() {
-        rfc7231WithResponse(RequestContext.none());
-    }
-
-    /**
      * The unixTimestamp operation.
      * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -172,16 +138,5 @@ public final class ResponseHeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> unixTimestampWithResponse(RequestContext requestContext) {
         return service.unixTimestamp(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp() {
-        unixTimestampWithResponse(RequestContext.none());
     }
 }

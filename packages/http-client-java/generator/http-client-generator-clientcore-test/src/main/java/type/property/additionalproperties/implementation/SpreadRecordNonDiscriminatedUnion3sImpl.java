@@ -3,7 +3,6 @@ package type.property.additionalproperties.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
      * @param client the instance of the service client containing this operation class.
      */
     SpreadRecordNonDiscriminatedUnion3sImpl(AdditionalPropertiesClientImpl client) {
-        this.service = RestProxy.create(SpreadRecordNonDiscriminatedUnion3sService.class, client.getHttpPipeline());
+        this.service = SpreadRecordNonDiscriminatedUnion3sService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
      * The interface defining all the services for AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion3s to be
      * used by the proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "AdditionalProperties", host = "{endpoint}")
+    @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion3s", host = "{endpoint}")
     public interface SpreadRecordNonDiscriminatedUnion3sService {
         static SpreadRecordNonDiscriminatedUnion3sService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -94,18 +93,6 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
     }
 
     /**
-     * Get call.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return call.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public SpreadRecordForNonDiscriminatedUnion3 get() {
-        return getWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * Put operation.
      * 
      * @param body body.
@@ -119,18 +106,5 @@ public final class SpreadRecordNonDiscriminatedUnion3sImpl {
     public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion3 body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.put(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * Put operation.
-     * 
-     * @param body body.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
-        putWithResponse(body, RequestContext.none());
     }
 }

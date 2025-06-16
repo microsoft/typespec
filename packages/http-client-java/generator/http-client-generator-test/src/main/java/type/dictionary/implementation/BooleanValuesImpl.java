@@ -57,7 +57,7 @@ public final class BooleanValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientBool")
+    @ServiceInterface(name = "DictionaryClientBooleanValues")
     public interface BooleanValuesService {
         @Get("/type/dictionary/boolean")
         @ExpectedResponses({ 200 })

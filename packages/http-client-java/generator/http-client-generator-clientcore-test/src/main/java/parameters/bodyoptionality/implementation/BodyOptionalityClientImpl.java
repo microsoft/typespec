@@ -3,7 +3,6 @@ package parameters.bodyoptionality.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -78,14 +77,14 @@ public final class BodyOptionalityClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.optionalExplicits = new OptionalExplicitsImpl(this);
-        this.service = RestProxy.create(BodyOptionalityClientService.class, this.httpPipeline);
+        this.service = BodyOptionalityClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for BodyOptionalityClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "BodyOptionalityClien", host = "{endpoint}")
+    @ServiceInterface(name = "BodyOptionalityClient", host = "{endpoint}")
     public interface BodyOptionalityClientService {
         static BodyOptionalityClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -136,19 +135,6 @@ public final class BodyOptionalityClientImpl {
     }
 
     /**
-     * The requiredExplicit operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredExplicit(BodyModel body) {
-        requiredExplicitWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * The requiredImplicit operation.
      * 
      * @param name The name parameter.
@@ -163,18 +149,5 @@ public final class BodyOptionalityClientImpl {
         final String contentType = "application/json";
         BodyModel bodyModel = new BodyModel(name);
         return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestContext);
-    }
-
-    /**
-     * The requiredImplicit operation.
-     * 
-     * @param name The name parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void requiredImplicit(String name) {
-        requiredImplicitWithResponse(name, RequestContext.none());
     }
 }

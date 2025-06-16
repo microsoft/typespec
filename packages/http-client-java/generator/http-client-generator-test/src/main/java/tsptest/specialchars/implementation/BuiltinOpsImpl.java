@@ -56,7 +56,7 @@ public final class BuiltinOpsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialCharsClientBu")
+    @ServiceInterface(name = "SpecialCharsClientBuiltinOps")
     public interface BuiltinOpsService {
         @Post("/specialchars")
         @ExpectedResponses({ 200 })

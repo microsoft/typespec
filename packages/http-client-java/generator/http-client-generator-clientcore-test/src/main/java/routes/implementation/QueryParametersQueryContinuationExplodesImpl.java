@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.QueryParam;
@@ -39,8 +38,7 @@ public final class QueryParametersQueryContinuationExplodesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     QueryParametersQueryContinuationExplodesImpl(RoutesClientImpl client) {
-        this.service
-            = RestProxy.create(QueryParametersQueryContinuationExplodesService.class, client.getHttpPipeline());
+        this.service = QueryParametersQueryContinuationExplodesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -48,7 +46,7 @@ public final class QueryParametersQueryContinuationExplodesImpl {
      * The interface defining all the services for RoutesClientQueryParametersQueryContinuationExplodes to be used by
      * the proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientQueryPar", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientQueryParametersQueryContinuationExplodes", host = "{endpoint}")
     public interface QueryParametersQueryContinuationExplodesService {
         static QueryParametersQueryContinuationExplodesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -105,19 +103,6 @@ public final class QueryParametersQueryContinuationExplodesImpl {
     }
 
     /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The array operation.
      * 
      * @param param The param parameter.
@@ -135,19 +120,6 @@ public final class QueryParametersQueryContinuationExplodesImpl {
     }
 
     /**
-     * The array operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The record operation.
      * 
      * @param param The param parameter.
@@ -160,18 +132,5 @@ public final class QueryParametersQueryContinuationExplodesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
         return service.record(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
     }
 }

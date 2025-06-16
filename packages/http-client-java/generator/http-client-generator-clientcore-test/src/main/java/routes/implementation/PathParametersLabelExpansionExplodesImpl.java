@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
@@ -39,7 +38,7 @@ public final class PathParametersLabelExpansionExplodesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersLabelExpansionExplodesImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(PathParametersLabelExpansionExplodesService.class, client.getHttpPipeline());
+        this.service = PathParametersLabelExpansionExplodesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -47,7 +46,7 @@ public final class PathParametersLabelExpansionExplodesImpl {
      * The interface defining all the services for RoutesClientPathParametersLabelExpansionExplodes to be used by the
      * proxy service to perform REST calls.
      */
-    @ServiceInterface(name = "RoutesClientPathPara", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientPathParametersLabelExpansionExplodes", host = "{endpoint}")
     public interface PathParametersLabelExpansionExplodesService {
         static PathParametersLabelExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -103,19 +102,6 @@ public final class PathParametersLabelExpansionExplodesImpl {
     }
 
     /**
-     * The primitive operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void primitive(String param) {
-        primitiveWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The array operation.
      * 
      * @param param The param parameter.
@@ -134,19 +120,6 @@ public final class PathParametersLabelExpansionExplodesImpl {
     }
 
     /**
-     * The array operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void array(List<String> param) {
-        arrayWithResponse(param, RequestContext.none());
-    }
-
-    /**
      * The record operation.
      * 
      * @param param The param parameter.
@@ -159,18 +132,5 @@ public final class PathParametersLabelExpansionExplodesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
         return service.record(this.client.getEndpoint(), param, requestContext);
-    }
-
-    /**
-     * The record operation.
-     * 
-     * @param param The param parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void record(Map<String, Integer> param) {
-        recordWithResponse(param, RequestContext.none());
     }
 }

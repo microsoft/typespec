@@ -144,7 +144,7 @@ public final class ReturnTypeChangedFromClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/versioning/return-type-changed-from/api-version:{version}")
-    @ServiceInterface(name = "ReturnTypeChangedFro")
+    @ServiceInterface(name = "ReturnTypeChangedFromClient")
     public interface ReturnTypeChangedFromClientService {
         @Post("/test")
         @ExpectedResponses({ 200 })

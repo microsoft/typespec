@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The PageThing. </summary>
     internal partial class PageThing : IJsonModel<PageThing>
     {
         /// <summary> Initializes a new instance of <see cref="PageThing"/> for deserialization. </summary>

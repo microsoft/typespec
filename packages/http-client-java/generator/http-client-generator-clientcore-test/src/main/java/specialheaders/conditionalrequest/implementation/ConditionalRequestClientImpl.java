@@ -3,7 +3,6 @@ package specialheaders.conditionalrequest.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -63,14 +62,14 @@ public final class ConditionalRequestClientImpl {
     public ConditionalRequestClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(ConditionalRequestClientService.class, this.httpPipeline);
+        this.service = ConditionalRequestClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for ConditionalRequestClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ConditionalRequestCl", host = "{endpoint}")
+    @ServiceInterface(name = "ConditionalRequestClient", host = "{endpoint}")
     public interface ConditionalRequestClientService {
         static ConditionalRequestClientService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -134,31 +133,6 @@ public final class ConditionalRequestClientImpl {
     }
 
     /**
-     * Check when only If-Match in header is defined.
-     * 
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfMatch(String ifMatch) {
-        postIfMatchWithResponse(ifMatch, RequestContext.none());
-    }
-
-    /**
-     * Check when only If-Match in header is defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfMatch() {
-        final String ifMatch = null;
-        postIfMatchWithResponse(ifMatch, RequestContext.none());
-    }
-
-    /**
      * Check when only If-None-Match in header is defined.
      * 
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
@@ -171,31 +145,6 @@ public final class ConditionalRequestClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
         return service.postIfNoneMatch(this.getEndpoint(), ifNoneMatch, requestContext);
-    }
-
-    /**
-     * Check when only If-None-Match in header is defined.
-     * 
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfNoneMatch(String ifNoneMatch) {
-        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
-    }
-
-    /**
-     * Check when only If-None-Match in header is defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfNoneMatch() {
-        final String ifNoneMatch = null;
-        postIfNoneMatchWithResponse(ifNoneMatch, RequestContext.none());
     }
 
     /**
@@ -219,33 +168,6 @@ public final class ConditionalRequestClientImpl {
     }
 
     /**
-     * Check when only If-Modified-Since in header is defined.
-     * 
-     * @param ifModifiedSince A timestamp indicating the last modified time of the resource known to the
-     * client. The operation will be performed only if the resource on the service has
-     * been modified since the specified time.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void headIfModifiedSince(OffsetDateTime ifModifiedSince) {
-        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
-    }
-
-    /**
-     * Check when only If-Modified-Since in header is defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void headIfModifiedSince() {
-        final OffsetDateTime ifModifiedSince = null;
-        headIfModifiedSinceWithResponse(ifModifiedSince, RequestContext.none());
-    }
-
-    /**
      * Check when only If-Unmodified-Since in header is defined.
      * 
      * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
@@ -263,32 +185,5 @@ public final class ConditionalRequestClientImpl {
         DateTimeRfc1123 ifUnmodifiedSinceConverted
             = ifUnmodifiedSince == null ? null : new DateTimeRfc1123(ifUnmodifiedSince);
         return service.postIfUnmodifiedSince(this.getEndpoint(), ifUnmodifiedSinceConverted, requestContext);
-    }
-
-    /**
-     * Check when only If-Unmodified-Since in header is defined.
-     * 
-     * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
-     * client. The operation will be performed only if the resource on the service has
-     * not been modified since the specified time.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfUnmodifiedSince(OffsetDateTime ifUnmodifiedSince) {
-        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
-    }
-
-    /**
-     * Check when only If-Unmodified-Since in header is defined.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void postIfUnmodifiedSince() {
-        final OffsetDateTime ifUnmodifiedSince = null;
-        postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, RequestContext.none());
     }
 }

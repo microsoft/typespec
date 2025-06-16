@@ -3,7 +3,6 @@ package encode.datetime.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
@@ -40,7 +39,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -48,7 +47,7 @@ public final class HeadersImpl {
      * The interface defining all the services for DatetimeClientHeaders to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DatetimeClientHeader", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientHeaders", host = "{endpoint}")
     public interface HeadersService {
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -119,19 +118,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(OffsetDateTime value) {
-        defaultMethodWithResponse(value, RequestContext.none());
-    }
-
-    /**
      * The rfc3339 operation.
      * 
      * @param value The value parameter.
@@ -144,19 +130,6 @@ public final class HeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
         return service.rfc3339(this.client.getEndpoint(), value, requestContext);
-    }
-
-    /**
-     * The rfc3339 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc3339(OffsetDateTime value) {
-        rfc3339WithResponse(value, RequestContext.none());
     }
 
     /**
@@ -176,19 +149,6 @@ public final class HeadersImpl {
     }
 
     /**
-     * The rfc7231 operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void rfc7231(OffsetDateTime value) {
-        rfc7231WithResponse(value, RequestContext.none());
-    }
-
-    /**
      * The unixTimestamp operation.
      * 
      * @param value The value parameter.
@@ -202,19 +162,6 @@ public final class HeadersImpl {
     public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
         long valueConverted = value.toEpochSecond();
         return service.unixTimestamp(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The unixTimestamp operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestamp(OffsetDateTime value) {
-        unixTimestampWithResponse(value, RequestContext.none());
     }
 
     /**
@@ -262,18 +209,5 @@ public final class HeadersImpl {
             })
             .collect(Collectors.joining(","));
         return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, requestContext);
-    }
-
-    /**
-     * The unixTimestampArray operation.
-     * 
-     * @param value The value parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void unixTimestampArray(List<OffsetDateTime> value) {
-        unixTimestampArrayWithResponse(value, RequestContext.none());
     }
 }

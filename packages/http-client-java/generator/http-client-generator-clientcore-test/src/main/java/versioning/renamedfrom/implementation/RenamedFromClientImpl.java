@@ -3,7 +3,6 @@ package versioning.renamedfrom.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -96,7 +95,7 @@ public final class RenamedFromClientImpl {
         this.endpoint = endpoint;
         this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
-        this.service = RestProxy.create(RenamedFromClientService.class, this.httpPipeline);
+        this.service = RenamedFromClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -142,20 +141,5 @@ public final class RenamedFromClientImpl {
         final String accept = "application/json";
         return service.newOp(this.getEndpoint(), this.getServiceVersion().getVersion(), newQuery, contentType, accept,
             body, requestContext);
-    }
-
-    /**
-     * The newOp operation.
-     * 
-     * @param newQuery The newQuery parameter.
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public NewModel newOp(String newQuery, NewModel body) {
-        return newOpWithResponse(newQuery, body, RequestContext.none()).getValue();
     }
 }

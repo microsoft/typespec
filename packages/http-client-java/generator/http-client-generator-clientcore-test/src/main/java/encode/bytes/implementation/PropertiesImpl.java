@@ -7,7 +7,6 @@ import encode.bytes.DefaultBytesProperty;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -40,7 +39,7 @@ public final class PropertiesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(BytesClientImpl client) {
-        this.service = RestProxy.create(PropertiesService.class, client.getHttpPipeline());
+        this.service = PropertiesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -48,7 +47,7 @@ public final class PropertiesImpl {
      * The interface defining all the services for BytesClientProperties to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "BytesClientPropertie", host = "{endpoint}")
+    @ServiceInterface(name = "BytesClientProperties", host = "{endpoint}")
     public interface PropertiesService {
         static PropertiesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -117,20 +116,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The defaultMethod operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DefaultBytesProperty defaultMethod(DefaultBytesProperty body) {
-        return defaultMethodWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The base64 operation.
      * 
      * @param body The body parameter.
@@ -145,20 +130,6 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.base64(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The base64 operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64BytesProperty base64(Base64BytesProperty body) {
-        return base64WithResponse(body, RequestContext.none()).getValue();
     }
 
     /**
@@ -180,20 +151,6 @@ public final class PropertiesImpl {
     }
 
     /**
-     * The base64url operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64urlBytesProperty base64url(Base64urlBytesProperty body) {
-        return base64urlWithResponse(body, RequestContext.none()).getValue();
-    }
-
-    /**
      * The base64urlArray operation.
      * 
      * @param body The body parameter.
@@ -209,19 +166,5 @@ public final class PropertiesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.base64urlArray(this.client.getEndpoint(), contentType, accept, body, requestContext);
-    }
-
-    /**
-     * The base64urlArray operation.
-     * 
-     * @param body The body parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Base64urlArrayBytesProperty base64urlArray(Base64urlArrayBytesProperty body) {
-        return base64urlArrayWithResponse(body, RequestContext.none()).getValue();
     }
 }

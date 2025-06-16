@@ -63,7 +63,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * the proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderM")
+    @ServiceInterface(name = "ArmResourceProviderManagementClientTopLevelArmResources")
     public interface TopLevelArmResourcesService {
         @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmStreamStyleSerialization/topLevelArmResources/{topLevelArmResourceName}")
         @ExpectedResponses({ 200, 202 })

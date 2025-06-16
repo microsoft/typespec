@@ -152,6 +152,7 @@ import {
   DiagnosticError,
   escapeJavaKeywords,
   getNamespace,
+  optionBoolean,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -181,6 +182,7 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
+  "use-default-http-status-code-to-exception-type-mapping"?: boolean;
 
   // configure
   "skip-special-headers"?: string[];
@@ -697,7 +699,7 @@ export class CodeModelBuilder {
       codeModelClient.apiVersions,
     );
 
-    const enableSubclient: boolean = Boolean(this.options["enable-subclient"]);
+    const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
 
     // preprocess operation groups and operations
     // operations without operation group
@@ -834,7 +836,7 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(this.options["advanced-versioning"]);
+    return optionBoolean(this.options["advanced-versioning"]) ?? false;
   }
 
   private getOperationExample(
@@ -2209,10 +2211,27 @@ export class CodeModelBuilder {
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi && !this.isBranded()) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
+        if (trackConvenienceApi) {
+          let outputErrorModel = false;
+          if (!this.isBranded()) {
+            outputErrorModel = true;
+          }
+          if (
+            this.isBranded() &&
+            !(
+              optionBoolean(
+                this.options["use-default-http-status-code-to-exception-type-mapping"],
+              ) ?? true
+            )
+          ) {
+            outputErrorModel = true;
+          }
+
+          if (outputErrorModel) {
+            this.trackSchemaUsage(response.schema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
         }
       }
     } else {

@@ -3,7 +3,6 @@ package routes.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
@@ -34,7 +33,7 @@ public final class InInterfacesImpl {
      * @param client the instance of the service client containing this operation class.
      */
     InInterfacesImpl(RoutesClientImpl client) {
-        this.service = RestProxy.create(InInterfacesService.class, client.getHttpPipeline());
+        this.service = InInterfacesService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,7 +41,7 @@ public final class InInterfacesImpl {
      * The interface defining all the services for RoutesClientInInterfaces to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "RoutesClientInInterf", host = "{endpoint}")
+    @ServiceInterface(name = "RoutesClientInInterfaces", host = "{endpoint}")
     public interface InInterfacesService {
         static InInterfacesService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -76,16 +75,5 @@ public final class InInterfacesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
         return service.fixed(this.client.getEndpoint(), requestContext);
-    }
-
-    /**
-     * The fixed operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void fixed() {
-        fixedWithResponse(RequestContext.none());
     }
 }

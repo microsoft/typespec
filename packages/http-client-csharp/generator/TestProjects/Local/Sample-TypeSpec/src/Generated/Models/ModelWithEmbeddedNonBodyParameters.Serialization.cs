@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
     public partial class ModelWithEmbeddedNonBodyParameters : IJsonModel<ModelWithEmbeddedNonBodyParameters>
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/> for deserialization. </summary>

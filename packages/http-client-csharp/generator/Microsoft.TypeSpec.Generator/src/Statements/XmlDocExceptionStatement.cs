@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 
@@ -15,13 +14,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public Type ExceptionType { get; }
         public IReadOnlyList<ParameterProvider> Parameters { get; }
 
-        private string _reason;
+        private readonly string _reason;
 
-        public XmlDocExceptionStatement(ParameterValidationType validationType, IReadOnlyList<ParameterProvider> parameters)
+        public XmlDocExceptionStatement(Type exceptionType, IReadOnlyList<ParameterProvider> parameters)
         {
-            ExceptionType = GetExceptionType(validationType);
+            ExceptionType = exceptionType;
             Parameters = parameters;
-            _reason = GetText(validationType);
+            _reason = GetText(exceptionType);
         }
 
         public XmlDocExceptionStatement(Type exceptionType, string reason, IReadOnlyList<ParameterProvider> parameters)
@@ -31,18 +30,11 @@ namespace Microsoft.TypeSpec.Generator.Statements
             _reason = reason;
         }
 
-        private static Type GetExceptionType(ParameterValidationType validationType) => validationType switch
+        private static string GetText(Type exceptionType) => exceptionType switch
         {
-            ParameterValidationType.AssertNotNull => typeof(ArgumentNullException),
-            ParameterValidationType.AssertNotNullOrEmpty => typeof(ArgumentException),
-            _ => throw new ArgumentOutOfRangeException(nameof(validationType), validationType, $"Cannot create an XmlDocExceptionStatement with {validationType} validationType")
-        };
-
-        private static string GetText(ParameterValidationType validationType) => validationType switch
-        {
-            ParameterValidationType.AssertNotNull => "is null.",
-            ParameterValidationType.AssertNotNullOrEmpty => "is an empty string, and was expected to be non-empty.",
-            _ => throw new ArgumentOutOfRangeException(nameof(validationType), validationType, $"Cannot create an XmlDocExceptionStatement with {validationType} validationType")
+            { } when exceptionType == typeof(ArgumentNullException) => "is null.",
+            { } when exceptionType == typeof(ArgumentException) => "is an empty string, and was expected to be non-empty.",
+            _ => throw new ArgumentOutOfRangeException(nameof(exceptionType), exceptionType, $"Cannot create an XmlDocExceptionStatement with {exceptionType} exceptionType")
         };
 
         internal override void Write(CodeWriter writer)

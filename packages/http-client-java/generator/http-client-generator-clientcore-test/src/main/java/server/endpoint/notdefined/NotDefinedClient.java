@@ -52,6 +52,6 @@ public final class NotDefinedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void valid() {
-        this.serviceClient.valid();
+        validWithResponse(RequestContext.none());
     }
 }

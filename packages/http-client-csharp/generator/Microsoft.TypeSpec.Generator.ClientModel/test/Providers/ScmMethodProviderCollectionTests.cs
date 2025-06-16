@@ -459,6 +459,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [Test]
+        public void ListMethodIsRenamedToGet()
+        {
+            MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
+
+            var inputOperation = InputFactory.Operation(
+                "ListCats");
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("ListCats", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            foreach (var method in methodCollection)
+            {
+                if (method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async))
+                {
+                    Assert.AreEqual("GetCatsAsync", method.Signature.Name);
+                }
+                else
+                {
+                    Assert.AreEqual("GetCats", method.Signature.Name);
+                }
+            }
+        }
+
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases
         {
             get

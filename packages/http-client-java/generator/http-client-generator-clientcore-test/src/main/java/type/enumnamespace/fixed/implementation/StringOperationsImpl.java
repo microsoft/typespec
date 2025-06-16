@@ -3,7 +3,6 @@ package type.enumnamespace.fixed.implementation;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
@@ -37,7 +36,7 @@ public final class StringOperationsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(FixedClientImpl client) {
-        this.service = RestProxy.create(StringOperationsService.class, client.getHttpPipeline());
+        this.service = StringOperationsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -45,7 +44,7 @@ public final class StringOperationsImpl {
      * The interface defining all the services for FixedClientStringOperations to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "FixedClientStringOpe", host = "{endpoint}")
+    @ServiceInterface(name = "FixedClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
@@ -102,18 +101,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * getKnownValue.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return days of the week.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public DaysOfWeekEnum getKnownValue() {
-        return getKnownValueWithResponse(RequestContext.none()).getValue();
-    }
-
-    /**
      * putKnownValue.
      * 
      * @param body _.
@@ -130,19 +117,6 @@ public final class StringOperationsImpl {
     }
 
     /**
-     * putKnownValue.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putKnownValue(DaysOfWeekEnum body) {
-        putKnownValueWithResponse(body, RequestContext.none());
-    }
-
-    /**
      * putUnknownValue.
      * 
      * @param body _.
@@ -156,18 +130,5 @@ public final class StringOperationsImpl {
     public Response<Void> putUnknownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
         final String contentType = "application/json";
         return service.putUnknownValue(this.client.getEndpoint(), contentType, body, requestContext);
-    }
-
-    /**
-     * putUnknownValue.
-     * 
-     * @param body _.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void putUnknownValue(DaysOfWeekEnum body) {
-        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }
