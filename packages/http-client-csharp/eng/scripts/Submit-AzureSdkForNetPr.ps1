@@ -152,9 +152,9 @@ try {
             throw "npm run build failed"
         }
         
-        # Run Generate.ps1 from the repository root
-        Write-Host "Running eng/scripts/Generate.ps1..."
-        Invoke "eng/scripts/Generate.ps1" $tempDir
+        # Run Generate.ps1 from the package root
+        Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
+        Invoke "eng/packages/http-client-csharp/eng/scripts/Generate.ps1" $tempDir
         if ($LASTEXITCODE -ne 0) {
             throw "Generate.ps1 failed"
         }
