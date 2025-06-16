@@ -297,25 +297,17 @@ function validateTargetingAString(
   const propertyType = getPropertyType(target);
   const valid = isTypeIn(propertyType, (x) => isStringType(context.program, x));
   if (!valid) {
-    if (propertyType.kind === "Union") {
-      reportDiagnostic(context.program, {
-        code: "decorator-wrong-target",
-        format: {
-          decorator: decoratorName,
-          to: `a union type that is not string compatible. The union must explicitly include a string type, and all union values should be strings. For example: union Test { string, "A", "B" }`,
-        },
-        target: context.decoratorTarget,
-      });
-    } else {
-      reportDiagnostic(context.program, {
-        code: "decorator-wrong-target",
-        format: {
-          decorator: decoratorName,
-          to: `type it is not a string`,
-        },
-        target: context.decoratorTarget,
-      });
-    }
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to:
+          propertyType.kind === "Union"
+            ? `a union type that is not string compatible. The union must explicitly include a string type, and all union values should be strings. For example: union Test { string, "A", "B" }`
+            : `type it is not a string`,
+      },
+      target: context.decoratorTarget,
+    });
   }
   return valid;
 }
