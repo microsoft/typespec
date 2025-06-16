@@ -21,19 +21,11 @@ This document describes how `@typespec/http-client` computes client constructor 
 - Derived from the `@useAuth` decorator on the service namespace.
 - The client constructor includes a credential parameter matching the selected auth policy interface.
 
-## 3. API Version Parameter
-
-- If the service is versioned (via the `@versioned` decorator or a method-level `api-version` parameter):
-  - The API version parameter is lifted from each method to the client constructor.
-  - The client-level parameter drives the default for all method calls.
-
-## 4. Initialization Strategy (Default)
+## 3. Initialization Strategy (Default)
 
 - By default, each generated client class manages its own initialization:
   1. Endpoint
   2. Credential
-  3. API version (if applicable)
-- Sub-clients nested under a root client are instantiated internally by the root client.
 
 ---
 
