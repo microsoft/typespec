@@ -34,14 +34,14 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
             else
             {
-                using var scope = writer.Scope();
+                using var scope = writer.ScopeRaw("{", "}", false); // Don't add newline after closing brace
                 WriteItem(writer, iterator.Current);
                 while (iterator.MoveNext())
                 {
                     writer.WriteRawLine(",");
                     WriteItem(writer, iterator.Current);
                 }
-                writer.WriteLine();
+                writer.WriteLine(); // Add newline before closing brace
             }
         }
 
