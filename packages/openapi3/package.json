@@ -2,7 +2,7 @@
   "name": "@typespec/openapi3",
   "version": "1.1.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
+  "description": "TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
