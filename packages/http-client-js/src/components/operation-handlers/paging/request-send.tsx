@@ -2,9 +2,9 @@ import * as ay from "@alloy-js/core";
 import { List, Refkey, StatementList, code, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
-import * as cl from "@typespec/http-client";
 import { getClientcontextDeclarationRef } from "../../client-context/client-context-declaration.jsx";
 import { HttpRequestOptions } from "../../http-request-options.jsx";
 import { HttpRequest } from "../../http-request.jsx";
@@ -25,8 +25,8 @@ function getPagingOperationOptionsParameterRefkey(httpOperation: HttpOperation):
 
 export function getHttpRequestSendParams(httpOperation: HttpOperation) {
   const optionsRefkey = getPagingOperationOptionsParameterRefkey(httpOperation);
-  const clientLibrary = cl.useClientLibrary();
-  const client = clientLibrary.getClientForOperation(httpOperation);
+  const { $ } = useTsp();
+  const client = $.operation.getClient(httpOperation.operation);
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client!);
   const signatureParams: ts.ParameterDescriptor[] = [
     {

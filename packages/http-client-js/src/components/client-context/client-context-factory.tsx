@@ -1,7 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
-import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, type OAuth2Flow } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../lib.js";
@@ -27,13 +26,13 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   const factoryFunctionName = namePolicy.getName(`create_${props.client.name}Context`, "function");
 
   const parameters = buildClientParameters(props.client, ay.refkey());
-  const urlTemplate = $.client.getUrlTemplate(props.client);
+  const urlTemplate = $.client.getInitialization(props.client)!.endpoints[0];
   const endpointRef = ay.refkey();
   const resolvedEndpoint = (
     <ParametrizedEndpoint
       refkey={endpointRef}
       template={urlTemplate.url}
-      params={urlTemplate.parameters}
+      params={[...urlTemplate.parameters.values()]}
     />
   );
 
@@ -52,18 +51,16 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   );
 
   return (
-    <FunctionDeclaration
+    <ts.FunctionDeclaration
       export
       name={factoryFunctionName}
-      type={clientConstructor}
       returnType={contextDeclarationRef}
       refkey={ref}
-      parametersMode="replace"
       parameters={parameters}
     >
       {resolvedEndpoint}
       return <ts.FunctionCallExpression target={httpRuntimeTemplateLib.getClient} args={[args]} />
-    </FunctionDeclaration>
+    </ts.FunctionDeclaration>
   );
 }
 
@@ -112,9 +109,10 @@ function AuthScheme(props: AuthSchemeProps) {
       );
     case "apiKey":
       if (props.scheme.in !== "header") {
+        const service = $.client.getService(props.client);
         reportDiagnostic($.program, {
           code: "key-credential-non-header-not-implemented",
-          target: props.client.service,
+          target: service?.type ?? props.client.type,
         });
       }
 
@@ -165,17 +163,18 @@ function OAuth2Flow(props: OAuth2FlowProps) {
 
 function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   const { $ } = useTsp();
-  const clientCredential = $.client.getAuth(props.client);
+  const clientCredential = $.client.getInitialization(props.client)?.authentication;
 
-  if (clientCredential.schemes.length === 0) {
+  if (clientCredential?.options.flatMap((o) => o.schemes).length === 0) {
     return null;
   }
 
   // Filtering out custom http schemes for "http/custom" spector scenario
   // TODO: Should typekit allow for arbitrary strings on scheme with http auth type?
-  const supportedSchemes = clientCredential.schemes.filter(
-    (s) => s.type !== "http" || ["Basic", "Bearer"].includes(s.scheme),
-  );
+  const supportedSchemes =
+    clientCredential?.options
+      .flatMap((o) => o.schemes)
+      .filter((s) => s.type !== "http" || ["Basic", "Bearer"].includes(s.scheme)) ?? [];
 
   return (
     <ts.ObjectProperty name="authSchemes">

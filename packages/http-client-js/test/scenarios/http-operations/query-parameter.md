@@ -1,6 +1,7 @@
 # Should handle a header parameter within @bodyRoot
 
 ```tsp
+@service
 namespace Test;
 
 model VisibilityModel {

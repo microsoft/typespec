@@ -5,6 +5,7 @@
 Defines a model with Additional Properties modeled as externding a Record
 
 ```tsp
+@service
 namespace Test;
 
 model Widget extends Record<unknown> {

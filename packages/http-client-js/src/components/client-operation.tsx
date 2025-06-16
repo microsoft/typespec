@@ -4,6 +4,7 @@ import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
+import "@typespec/http-client/typekit";
 import { reportDiagnostic } from "../lib.js";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
 import { HttpRequest } from "./http-request.jsx";
@@ -18,6 +19,7 @@ export interface ClientOperationsProps {
 }
 
 export function ClientOperations(props: ClientOperationsProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const clientOperations = props.client.operations;
   const fileName = namePolicy.getName(props.client.name + "Operations", "variable");
@@ -29,12 +31,15 @@ export function ClientOperations(props: ClientOperationsProps) {
   return (
     <ts.SourceFile path={`${fileName}.ts`}>
       <ay.For each={clientOperations}>
-        {(operation) => (
-          <OperationPipeline
-            httpOperation={operation.httpOperation}
-            pipeline={{ handlers: [PaginatedOperationHandler] }}
-          />
-        )}
+        {(operation) => {
+          const httpOperation = $.httpOperation.get(operation);
+          return (
+            <OperationPipeline
+              httpOperation={httpOperation}
+              pipeline={{ handlers: [PaginatedOperationHandler] }}
+            />
+          );
+        }}
       </ay.For>
     </ts.SourceFile>
   );
@@ -53,8 +58,7 @@ function getClientOperationOptionsParamRef(httpOperation: HttpOperation): ay.Ref
 export function ClientOperation(props: ClientOperationProps) {
   const { $ } = useTsp();
   const optionsRefkey = getClientOperationOptionsParamRef(props.httpOperation);
-  const clientLibrary = cl.useClientLibrary();
-  const client = clientLibrary.getClientForOperation(props.httpOperation);
+  const client = $.operation.getClient(props.httpOperation.operation);
 
   if (!client) {
     reportDiagnostic($.program, {
@@ -76,7 +80,7 @@ export function ClientOperation(props: ClientOperationProps) {
   ];
   return (
     <ay.List hardline>
-      <OperationOptionsDeclaration operation={props.httpOperation} />
+      <OperationOptionsDeclaration httpOperation={props.httpOperation} />
       <FunctionDeclaration
         export={!props.internal}
         async

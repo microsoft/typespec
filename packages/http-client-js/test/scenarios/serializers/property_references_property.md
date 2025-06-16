@@ -18,6 +18,7 @@ When a model property references another model's property (e.g., `TodoItemPatch.
 ## Spec
 
 ```tsp
+@service
 namespace Test;
 model TodoItem {
   id: safeint;

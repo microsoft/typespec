@@ -1,6 +1,7 @@
 # Basic file part
 
 ```tsp
+@service
 namespace Test;
 
 model RequestBody {
@@ -50,6 +51,7 @@ export async function doThing(
 # With part content type
 
 ```tsp
+@service
 namespace Test;
 
 model PngFile extends File {
@@ -107,6 +109,7 @@ export async function doThing(
 # Multiple files
 
 ```tsp
+@service
 namespace Test;
 
 model RequestBody {

@@ -4,7 +4,6 @@ import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
-import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../../lib.js";
 import { getClientcontextDeclarationRef } from "../../client-context/client-context-declaration.jsx";
 import { OperationOptionsDeclaration } from "../../operation-options.jsx";
@@ -36,8 +35,7 @@ export const PaginatedOperationHandler: OperationHandler = {
   },
   handle(httpOperation: HttpOperation): Children {
     const { $ } = useTsp();
-    const clientLibrary = cl.useClientLibrary();
-    const client = clientLibrary.getClientForOperation(httpOperation);
+    const client = $.operation.getClient(httpOperation.operation);
 
     if (!client) {
       reportDiagnostic($.program, {
@@ -65,7 +63,7 @@ export const PaginatedOperationHandler: OperationHandler = {
     const excludes = getPageSettingProperties(pagingOperation).map((p) => p.property);
     return (
       <ay.List>
-        <OperationOptionsDeclaration operation={httpOperation} excludes={excludes} />
+        <OperationOptionsDeclaration httpOperation={httpOperation} excludes={excludes} />
         <PageSettingsDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <PageResponseDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <HttpRequestSend httpOperation={httpOperation} responseRefkey={responseRefkey} />

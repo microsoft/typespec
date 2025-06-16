@@ -13,6 +13,8 @@ Since primitive types **do not require transformation**, generating explicit fun
 ## **TypeSpec**
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   my_values: int32[];
 }
@@ -70,8 +72,8 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 
 Handles the API request, expecting a `Widget` response and applying the correct deserialization function.
 
-```ts src/api/clientOperations.ts function foo
-export async function foo(client: ClientContext, options?: FooOptions): Promise<Foo> {
+```ts src/api/testClientOperations.ts function foo
+export async function foo(client: TestClientContext, options?: FooOptions): Promise<Foo> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -132,6 +134,8 @@ This test verifies that **arrays of complex types** (`Bar[]`) are correctly hand
 ## **TypeSpec**
 
 ```tsp
+@service
+namespace Test;
 model Bar {
   bar_value: string;
 }

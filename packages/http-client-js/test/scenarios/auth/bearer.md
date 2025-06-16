@@ -26,7 +26,7 @@ The client signature should include a positional parameter for credential of typ
 export class TestClient {
   #context: TestClientContext;
 
-  constructor(endpoint: string, credential: BasicCredential, options?: TestClientOptions) {
+  constructor(endpoint: string, credential: BearerTokenCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {
@@ -42,7 +42,7 @@ The client context should setup the pipeline to use the credential in the Author
 ```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
-  credential: BasicCredential,
+  credential: BearerTokenCredential,
   options?: TestClientOptions,
 ): TestClientContext {
   const params: Record<string, any> = {

@@ -3,6 +3,7 @@
 ## TypeSpec
 
 ```tsp
+@service
 namespace Test;
 
 model Widget {
@@ -26,6 +27,7 @@ export interface Widget {
 ## TypeSpec
 
 ```tsp
+@service
 namespace Test;
 model Widget {
   prop: Record<int32[]>;

@@ -1,6 +1,7 @@
 # Simple multipart part
 
 ```tsp
+@service
 namespace Test;
 
 model Foo {

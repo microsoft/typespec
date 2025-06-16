@@ -1,15 +1,16 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { Operation } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpOperationBody } from "@typespec/http";
-import { ClientOperation } from "@typespec/http-client";
 import { JsonTransform } from "./json/json-transform.jsx";
 export interface TransformDeclarationProps {
-  operation: ClientOperation;
+  operation: Operation;
   refkey?: ay.Refkey;
 }
 
-export function getTransformDeclarationRef(operation: ClientOperation) {
+export function getTransformDeclarationRef(operation: Operation) {
   return ay.refkey(operation, "transform");
 }
 
@@ -24,7 +25,7 @@ export function TransformDeclaration(props: TransformDeclarationProps) {
 
 export interface SingleBodyTransformDeclarationProps {
   name: string;
-  operation: ClientOperation;
+  operation: Operation;
   payload: HttpOperationBody;
   refkey: ay.Refkey;
 }
@@ -51,12 +52,14 @@ export function SingleBodyTransformDeclaration(props: SingleBodyTransformDeclara
 }
 
 interface TransformToTransportDeclarationProps {
-  operation: ClientOperation;
+  operation: Operation;
   refkey: ay.Refkey;
 }
 
 function TransformToTransportDeclaration(props: TransformToTransportDeclarationProps) {
-  const requestPayload = props.operation.httpOperation.parameters.body;
+  const { $ } = useTsp();
+  const httpOperation = $.httpOperation.get(props.operation);
+  const requestPayload = httpOperation.parameters.body;
   if (!requestPayload || !requestPayload.property) {
     return;
   }

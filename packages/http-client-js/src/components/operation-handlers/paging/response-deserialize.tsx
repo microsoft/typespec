@@ -34,7 +34,7 @@ export function HttpResponseDeserialize(props: HttpResponseProps) {
     {
       name: "options",
       refkey: httpRequestOptionsRefkey,
-      type: getOperationOptionsTypeRefkey(httpOperation),
+      type: getOperationOptionsTypeRefkey(httpOperation.operation),
       optional: true,
     },
   ];

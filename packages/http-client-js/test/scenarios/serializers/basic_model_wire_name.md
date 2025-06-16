@@ -3,6 +3,8 @@
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   element_name: string;
   age: int32;

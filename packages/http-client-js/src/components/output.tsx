@@ -2,6 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Program } from "@typespec/compiler";
 import { Output as EFOutput, TransformNamePolicyContext } from "@typespec/emitter-framework";
+import { Client } from "@typespec/http-client";
 import { ClientLibrary } from "@typespec/http-client/components";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
@@ -22,11 +23,21 @@ export function Output(props: OutputProps) {
       externals={[uriTemplateLib, httpRuntimeTemplateLib]}
       program={props.program}
     >
-      <ClientLibrary program={props.program}>
+      <ClientLibrary
+        program={props.program}
+        clientResolutionOptions={{ clientNamePolicy: clientNamer }}
+      >
         <TransformNamePolicyContext.Provider value={defaultTransformNamePolicy}>
           <EncodingProvider>{props.children}</EncodingProvider>
         </TransformNamePolicyContext.Provider>
       </ClientLibrary>
     </EFOutput>
   );
+}
+
+function clientNamer(client: Client): string {
+  if (!client.name.endsWith("Client")) {
+    return `${client.name}Client`;
+  }
+  return client.name;
 }

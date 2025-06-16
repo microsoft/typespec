@@ -1,6 +1,7 @@
 # Should handle part files with specific content type
 
 ```tsp
+@service
 namespace Test;
 model FileSpecificContentType extends File {
   filename: string;

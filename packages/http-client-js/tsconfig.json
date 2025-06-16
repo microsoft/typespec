@@ -1,15 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "es2022",
-    "skipLibCheck": true,
-    "isolatedModules": true,
     "jsx": "preserve",
-    "jsxImportSource": "@alloy-js/core",
     "emitDeclarationOnly": true,
-    "outDir": "dist"
+    "jsxImportSource": "@alloy-js/core",
+    "outDir": "./dist"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "test/e2e/generated/**/*.ts"]

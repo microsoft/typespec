@@ -20,7 +20,7 @@ export function Client(props: ClientProps) {
   return (
     <ay.For each={topLevel} hardline>
       {(client) => {
-        const fileName = namePolicy.getName($.client.getName(client), "variable");
+        const fileName = namePolicy.getName(client.name, "variable");
         const flatClients = flattenClients(client);
         return (
           <ts.SourceFile path={`${fileName}.ts`}>
@@ -48,7 +48,7 @@ function getClientContextFieldRef(client: cl.Client) {
 export function ClientClass(props: ClientClassProps) {
   const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
-  const clientName = namePolicy.getName($.client.getName(props.client), "class");
+  const clientName = namePolicy.getName(props.client.name, "class");
   const contextMemberRef = getClientContextFieldRef(props.client);
   const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
   const clientClassRef = getClientClassRef(props.client);
@@ -69,21 +69,22 @@ export function ClientClass(props: ClientClassProps) {
         <ClientConstructor client={props.client} />
         <ay.For each={operations} hardline semicolon>
           {(op) => {
-            const parameters = getOperationParameters(op.httpOperation, ay.refkey());
+            const httpOperation = $.httpOperation.get(op);
+            const parameters = getOperationParameters(httpOperation, ay.refkey());
             const args = parameters.flatMap((p) => p.refkey);
-            const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
+            const isPaging = Boolean($.operation.getPagingMetadata(httpOperation.operation));
 
             return (
               <ClassMethod
                 async={!isPaging}
-                type={op.httpOperation.operation}
+                type={httpOperation.operation}
                 parameters={parameters}
                 returnType={null}
                 parametersMode="replace"
               >
                 return{" "}
                 <ts.FunctionCallExpression
-                  target={ay.refkey(op.httpOperation.operation)}
+                  target={ay.refkey(httpOperation.operation)}
                   args={[contextMemberRef, ...args]}
                 />
                 ;
@@ -109,12 +110,12 @@ function SubClientClassField(props: SubClientClassFieldProps) {
   const parent = props.client.parent;
   // If sub client has different parameters than client, don't add it as a subclass field
   // Todo: We need to detect the extra parameters and make this field a factory for the subclient
-  if (parent && !$.client.haveSameConstructor(props.client, parent)) {
-    return null;
-  }
+  // if (parent && !$.client.haveSameConstructor(props.client, parent)) {
+  //   return null;
+  // }
 
   const namePolicy = ts.useTSNamePolicy();
-  const fieldName = namePolicy.getName($.client.getName(props.client), "class");
+  const fieldName = namePolicy.getName(props.client.name, "class");
   const subClientClassRef = getClientClassRef(props.client);
   const subClientFieldRef = getSubClientClassFieldRef(props.client);
   return <ts.ClassField name={fieldName} type={subClientClassRef} refkey={subClientFieldRef} />;
@@ -125,10 +126,11 @@ interface ClientConstructorProps {
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
-  const { $ } = useTsp();
-  const subClients = props.client.subClients.filter((sc) =>
-    $.client.haveSameConstructor(sc, props.client),
-  );
+  const subClients = props.client.subClients;
+
+  // .filter((sc) =>
+  //   $.client.haveSameConstructor(sc, props.client),
+  // );
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
   const constructorParameters = buildClientParameters(props.client, ay.refkey());

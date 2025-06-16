@@ -5,6 +5,8 @@ Defaults to rfc7231 encoding
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   created_on: utcDateTime;
 }
@@ -44,6 +46,8 @@ export function jsonFooToApplicationTransform(item: any): Foo {
 ## TypeSpec
 
 ```tsp
+@service
+namespace Test;
 model Foo {
   @encode("rfc7231")
   created_on: utcDateTime;

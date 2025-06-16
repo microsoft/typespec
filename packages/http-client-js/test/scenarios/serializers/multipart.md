@@ -3,6 +3,7 @@
 ## Typespec
 
 ```tsp
+@service
 namespace Test;
 model FileSpecificContentType extends File {
   filename: string;

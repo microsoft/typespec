@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
+import { TypeExpression } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
@@ -23,66 +23,83 @@ export function buildClientParameters(
   // 1. Endpoint parameters
   // 2. Credential parameters
   // 3. Client initialization parameters
+  //    (endpoint template params, hoisted params from operations, etc.)
   // 4. Client options
 
-  const endpointParameter = initialization.parameters.find((p) => p.name === "endpoint");
+  // TODO: Handle multiple endpoints
+  const endpointParameters: ts.ParameterDescriptor[] = [
+    ...initialization.endpoints[0].parameters.entries(),
+  ].map(([name, p]) => ({
+    name,
+    type: <TypeExpression type={p.type} />,
+    optional: p.defaultValue ? true : p.optional,
+    refkey: ay.refkey(p.type, suffixRefkey, name),
+  }));
 
-  const params = parameters.flatMap(
-    (param) => {
-      const descriptor = buildClientParameterDescriptor(param, suffixRefkey);
-      if (!descriptor) {
-        return [];
-      }
+  const endpointParam = endpointParameters.find((p) => p.name === "endpoint");
+  const templateParams = endpointParameters.filter((p) => p.name !== "endpoint");
+  const credentialParameter = buildClientCredentialParameter(client);
+  const optionsParam: ts.ParameterDescriptor = {
+    name: "options",
+    optional: true,
+    type: getClientContextOptionsRef(client),
+    refkey: ay.refkey(),
+  };
 
-      if (!descriptor.optional) {
-        return [descriptor];
-      }
+  const clientConstructorParams: ts.ParameterDescriptor[] = [];
 
-      return [];
-    },
-    {} as Record<string, ts.ParameterDescriptor>,
-  );
-
-  if (!params.some((p) => p.name === "options")) {
-    params.push({
-      name: "options",
-      refkey: ay.refkey("client-options", suffixRefkey),
-      optional: true,
-      type: getClientContextOptionsRef(client),
-    });
+  if (endpointParam && !endpointParam.optional) {
+    clientConstructorParams.push(endpointParam);
   }
 
-  return params;
+  if (credentialParameter) {
+    clientConstructorParams.push(credentialParameter);
+  }
+
+  if (templateParams.length > 0) {
+    clientConstructorParams.push(...templateParams);
+  }
+
+  clientConstructorParams.push(optionsParam);
+
+  return clientConstructorParams;
 }
 
-function buildClientParameterDescriptor(
-  modelProperty: ModelProperty,
-  suffixRefkey: ay.Refkey,
-): ts.ParameterDescriptor | undefined {
+function buildClientCredentialParameter(client: cl.Client): ts.ParameterDescriptor | undefined {
   const { $ } = useTsp();
-  const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
 
-  if (authSchemes) {
-    if (authSchemes.length === 1 && authSchemes[0].type === "noAuth") {
-      return undefined;
-    }
-
-    const credentialType = Array.from(
-      new Set(authSchemes.filter((s) => s.type !== "noAuth").map((s) => getCredentialType(s))),
-    );
-    return {
-      name: "credential",
-      refkey: ay.refkey(modelProperty, suffixRefkey),
-      optional: modelProperty.optional,
-      type: ay.mapJoin(
-        () => credentialType,
-        (t) => t,
-        { joiner: " | " },
-      ),
-    };
+  const initialization = $.client.getInitialization(client);
+  if (!initialization) {
+    return undefined;
   }
 
-  return buildParameterDescriptor(modelProperty, suffixRefkey);
+  if (!initialization.authentication?.options.length) {
+    return undefined;
+  }
+
+  if (
+    initialization.authentication.options?.some((authScheme) =>
+      authScheme.schemes.some((s) => s.type === "noAuth"),
+    )
+  ) {
+    // If noAuth is used, we need to handle it specially
+    return undefined;
+  }
+
+  // TODO: Need to handle multiple authentication schemes
+  const credentialDescriptor: ts.ParameterDescriptor = {
+    name: "credential",
+    type: ay.mapJoin(
+      () => initialization.authentication!.options,
+      (authScheme) => {
+        return getCredentialType(authScheme.schemes[0]);
+      },
+      { joiner: " | " },
+    ),
+    refkey: ay.refkey(),
+  };
+
+  return credentialDescriptor;
 }
 
 const oauth2FlowRefs: Record<OAuth2FlowType, ay.Refkey> = {

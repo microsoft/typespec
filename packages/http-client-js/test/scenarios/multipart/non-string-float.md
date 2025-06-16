@@ -3,6 +3,7 @@
 ## Spec
 
 ```tsp
+@service
 namespace Test;
 @post
 @route("/non-string-float")
