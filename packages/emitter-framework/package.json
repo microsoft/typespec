@@ -23,6 +23,9 @@
     ".": {
       "import": "./dist/src/core/index.js"
     },
+    "./csharp": {
+      "import": "./dist/src/csharp/index.js"
+    },
     "./typescript": {
       "import": "./dist/src/typescript/index.js"
     },
