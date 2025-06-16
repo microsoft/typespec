@@ -70,8 +70,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression });
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
-        // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
-        //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
         public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
 
         public static ValueExpression RemoveAllNullConditional(ValueExpression expression)
@@ -108,14 +106,19 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
-        public static CatchStatement Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchStatement(declare) { statements };
+        public static CatchExpression Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchExpression(declare, statements);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
 
-        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
             => new InvokeMethodExpression(parameter, methodName, [arg]);
+
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter,
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs)
+            => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs };
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
             => new InvokeMethodExpression(parameter, methodName, args);

@@ -16,7 +16,6 @@ export {
   defaultOptions,
   resolveOptions,
 } from "./options.js";
-export { setSDKContextOptions } from "./sdk-context-options.js";
 // we export `createCSharpEmitterContext` only for autorest.csharp because it uses the emitter to generate the code model file but not calling the dll here
 // we could remove this export when in the future we deprecate autorest.csharp
 export { CSharpEmitterContext, createCSharpEmitterContext } from "./sdk-context.js";

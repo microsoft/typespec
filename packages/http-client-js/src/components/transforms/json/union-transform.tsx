@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import {
   getJsonTransformDiscriminatorRefkey,
   JsonTransformDiscriminatorDeclaration,
@@ -15,8 +15,9 @@ export interface JsonUnionTransformProps {
 }
 
 export function JsonUnionTransform(props: JsonUnionTransformProps) {
-  const discriminator = $.type.getDiscriminator(props.type);
-  if (discriminator) {
+  const { $ } = useTsp();
+  const discriminator = $.union.getDiscriminatedUnion(props.type);
+  if (discriminator?.options.discriminatorPropertyName) {
     // return <JsonTransformDiscriminator {...props} discriminator={discriminator}/>;
     return (
       <>

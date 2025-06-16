@@ -2,9 +2,12 @@ package authentication.union;
 
 import authentication.union.implementation.UnionClientImpl;
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 
 /**
@@ -12,7 +15,7 @@ import io.clientcore.core.http.models.Response;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class UnionClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnionClientImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class UnionClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     UnionClient(UnionClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -28,25 +31,16 @@ public final class UnionClient {
     /**
      * Check whether client is authenticated.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> validKeyWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.validKeyWithResponse(requestOptions);
-    }
-
-    /**
-     * Check whether client is authenticated.
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> validTokenWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.validTokenWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validKeyWithResponse(RequestContext requestContext) {
+        return this.serviceClient.validKeyWithResponse(requestContext);
     }
 
     /**
@@ -55,11 +49,25 @@ public final class UnionClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void validKey() {
-        // Generated convenience method for validKeyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        validKeyWithResponse(requestOptions).getValue();
+        validKeyWithResponse(RequestContext.none());
+    }
+
+    /**
+     * Check whether client is authenticated.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validTokenWithResponse(RequestContext requestContext) {
+        return this.serviceClient.validTokenWithResponse(requestContext);
     }
 
     /**
@@ -68,10 +76,9 @@ public final class UnionClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void validToken() {
-        // Generated convenience method for validTokenWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        validTokenWithResponse(requestOptions).getValue();
+        validTokenWithResponse(RequestContext.none());
     }
 }

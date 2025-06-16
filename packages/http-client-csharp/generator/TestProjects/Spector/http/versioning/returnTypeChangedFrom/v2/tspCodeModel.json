@@ -64,17 +64,83 @@
    "decorators": []
   }
  ],
+ "constants": [
+  {
+   "$id": "8",
+   "kind": "constant",
+   "name": "TestRequestContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "9",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "10",
+   "kind": "constant",
+   "name": "testContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "11",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "12",
+   "kind": "constant",
+   "name": "TestRequestContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "14",
+   "kind": "constant",
+   "name": "TestRequestContentType2",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "15",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
  "models": [],
  "clients": [
   {
-   "$id": "8",
+   "$id": "16",
    "kind": "client",
    "name": "ReturnTypeChangedFromClient",
    "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "methods": [
     {
-     "$id": "9",
+     "$id": "17",
      "kind": "basic",
      "name": "test",
      "accessibility": "public",
@@ -83,27 +149,17 @@
       "v2"
      ],
      "operation": {
-      "$id": "10",
+      "$id": "18",
       "name": "test",
       "resourceName": "ReturnTypeChangedFrom",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "11",
+        "$id": "19",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "type": {
-         "$id": "12",
-         "kind": "constant",
-         "valueType": {
-          "$id": "13",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "8"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -116,21 +172,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "14",
+        "$id": "20",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "15",
-         "kind": "constant",
-         "valueType": {
-          "$id": "16",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "10"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -143,11 +189,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "17",
+        "$id": "21",
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$id": "18",
+         "$id": "22",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -166,12 +212,12 @@
       ],
       "responses": [
        {
-        "$id": "19",
+        "$id": "23",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$id": "20",
+         "$id": "24",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -179,21 +225,11 @@
         },
         "headers": [
          {
-          "$id": "21",
+          "$id": "25",
           "name": "contentType",
           "nameInResponse": "content-type",
           "type": {
-           "$id": "22",
-           "kind": "constant",
-           "valueType": {
-            "$id": "23",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "value": "application/json",
-           "decorators": []
+           "$ref": "12"
           }
          }
         ],
@@ -217,21 +253,11 @@
      },
      "parameters": [
       {
-       "$id": "24",
+       "$id": "26",
        "name": "contentType",
        "nameInRequest": "content-type",
        "type": {
-        "$id": "25",
-        "kind": "constant",
-        "valueType": {
-         "$id": "26",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
+        "$ref": "14"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -269,7 +295,7 @@
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "15"
+        "$ref": "10"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -285,7 +311,7 @@
      "response": {
       "$id": "30",
       "type": {
-       "$ref": "20"
+       "$ref": "24"
       }
      },
      "isOverride": false,
@@ -303,7 +329,7 @@
      "type": {
       "$id": "32",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -313,7 +339,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/return-type-changed-from/api-version:{version}"
     },
     {
      "$id": "33",
@@ -330,7 +357,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/return-type-changed-from/api-version:{version}"
     }
    ],
    "decorators": [],

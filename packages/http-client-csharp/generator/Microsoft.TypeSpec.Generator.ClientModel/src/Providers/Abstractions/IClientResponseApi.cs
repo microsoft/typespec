@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         TypeProvider CreateClientCollectionResultDefinition(
             ClientProvider client,
-            InputOperation operation,
+            InputPagingServiceMethod serviceMethod,
             CSharpType? type,
             bool isAsync);
     }

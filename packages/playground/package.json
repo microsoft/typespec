@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -72,7 +72,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.61.2",
+    "@fluentui/react-components": "~9.63.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/bundler": "workspace:^",
     "@typespec/compiler": "workspace:^",
@@ -89,7 +89,7 @@
     "monaco-editor": "~0.52.2",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
-    "react-error-boundary": "^5.0.0",
+    "react-error-boundary": "^6.0.0",
     "swagger-ui-dist": "^5.20.1",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12"
@@ -110,13 +110,13 @@
     "@types/swagger-ui-dist": "~3.30.5",
     "@typespec/bundler": "workspace:^",
     "@typespec/react-components": "workspace:^",
-    "@vitejs/plugin-react": "~4.3.4",
+    "@vitejs/plugin-react": "~4.4.1",
     "c8": "^10.1.3",
     "cross-env": "~7.0.3",
-    "es-module-shims": "~2.0.10",
+    "es-module-shims": "~2.5.0",
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
-    "vite": "^6.2.4",
+    "vite": "^6.2.7",
     "vite-plugin-checker": "^0.9.1",
     "vite-plugin-dts": "4.5.3"
   }

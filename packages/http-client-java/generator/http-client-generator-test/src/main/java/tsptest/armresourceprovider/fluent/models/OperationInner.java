@@ -15,6 +15,8 @@ import tsptest.armresourceprovider.models.OperationDisplay;
 import tsptest.armresourceprovider.models.Origin;
 
 /**
+ * REST API Operation
+ * 
  * Details of a REST API operation, returned from the Resource Provider Operations API.
  */
 @Immutable

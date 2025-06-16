@@ -61,6 +61,9 @@ grammars/
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
 packages/http-client-java/generator/http-client-generator-clientcore-test/src/main/**/*.json
 
+# Files with invalid sh syntax
+packages/http-client-java/**/*.properties
+
 # auto generated http-client-js files
 packages/http-client-js/test/e2e/generated/
 

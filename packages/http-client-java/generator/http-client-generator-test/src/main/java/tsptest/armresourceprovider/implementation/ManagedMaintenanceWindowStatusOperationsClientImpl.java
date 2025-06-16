@@ -40,25 +40,25 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of ManagedMaintenanceWindowStatusOperationsClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    ManagedMaintenanceWindowStatusOperationsClientImpl(ArmResourceProviderClientImpl client) {
+    ManagedMaintenanceWindowStatusOperationsClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(ManagedMaintenanceWindowStatusOperationsService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientManagedMaintenanceWindowStatusOperations to
-     * be used by the proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientManagedMaintenanceWindowStatusOperations to be used by the
+     * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientManagedMaintenanceWindowStatusOperations")
     public interface ManagedMaintenanceWindowStatusOperationsService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")

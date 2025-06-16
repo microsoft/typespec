@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,8 @@ namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public partial class Pet : IJsonModel<Pet>
     {
+        internal Pet() => throw null;
+
         void IJsonModel<Pet>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,9 +29,5 @@ namespace _Type.Model.Inheritance.NotDiscriminated
         protected virtual Pet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Pet>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Pet pet) => throw null;
-
-        public static explicit operator Pet(ClientResult result) => throw null;
     }
 }

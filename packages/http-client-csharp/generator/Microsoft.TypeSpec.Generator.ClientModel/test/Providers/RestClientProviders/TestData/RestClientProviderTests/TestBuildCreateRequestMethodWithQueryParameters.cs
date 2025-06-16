@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace Sample
 {
-    /// <summary></summary>
     public partial class TestClient
     {
         internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)

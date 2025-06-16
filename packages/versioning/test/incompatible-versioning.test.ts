@@ -562,7 +562,16 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
-
+    it("succeed when versioned removed model has versioned property", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v3)
+        model Bar {
+          @added(Versions.v2)
+          foo: string;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
     it("succeed when spreading a model that might have add properties added in previous versions", async () => {
       const diagnostics = await runner.diagnose(`
         model Base {
@@ -603,6 +612,20 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.Bar' was added in version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
+      });
+    });
+    it("emit diagnostic when model property was removed before added model property", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v2)
+        model Bar {
+          @added(Versions.v3) 
+          foo: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Bar' was added in version 'v1' but contains type 'TestService.Bar.foo' added in version 'v3'.",
       });
     });
 

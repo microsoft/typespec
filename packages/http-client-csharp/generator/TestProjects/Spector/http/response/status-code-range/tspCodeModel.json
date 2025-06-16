@@ -3,9 +3,43 @@
  "name": "Response.StatusCodeRange",
  "apiVersions": [],
  "enums": [],
- "models": [
+ "constants": [
   {
    "$id": "2",
+   "kind": "constant",
+   "name": "errorResponseStatusCodeInRangeContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "3",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "4",
+   "kind": "constant",
+   "name": "errorResponseStatusCode404ContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "5",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "6",
    "kind": "model",
    "name": "ErrorInRange",
    "namespace": "Response.StatusCodeRange",
@@ -14,36 +48,10 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "3",
+     "$id": "7",
      "kind": "property",
      "name": "code",
      "serializedName": "code",
-     "type": {
-      "$id": "4",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.code",
-     "serializationOptions": {
-      "$id": "5",
-      "json": {
-       "$id": "6",
-       "name": "code"
-      }
-     }
-    },
-    {
-     "$id": "7",
-     "kind": "property",
-     "name": "message",
-     "serializedName": "message",
      "type": {
       "$id": "8",
       "kind": "string",
@@ -56,11 +64,37 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.message",
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.code",
      "serializationOptions": {
       "$id": "9",
       "json": {
        "$id": "10",
+       "name": "code"
+      }
+     }
+    },
+    {
+     "$id": "11",
+     "kind": "property",
+     "name": "message",
+     "serializedName": "message",
+     "type": {
+      "$id": "12",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.message",
+     "serializationOptions": {
+      "$id": "13",
+      "json": {
+       "$id": "14",
        "name": "message"
       }
      }
@@ -68,7 +102,7 @@
    ]
   },
   {
-   "$id": "11",
+   "$id": "15",
    "kind": "model",
    "name": "DefaultError",
    "namespace": "Response.StatusCodeRange",
@@ -77,12 +111,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "12",
+     "$id": "16",
      "kind": "property",
      "name": "code",
      "serializedName": "code",
      "type": {
-      "$id": "13",
+      "$id": "17",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -95,9 +129,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError.code",
      "serializationOptions": {
-      "$id": "14",
+      "$id": "18",
       "json": {
-       "$id": "15",
+       "$id": "19",
        "name": "code"
       }
      }
@@ -105,7 +139,7 @@
    ]
   },
   {
-   "$id": "16",
+   "$id": "20",
    "kind": "model",
    "name": "NotFoundError",
    "namespace": "Response.StatusCodeRange",
@@ -114,36 +148,10 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "17",
+     "$id": "21",
      "kind": "property",
      "name": "code",
      "serializedName": "code",
-     "type": {
-      "$id": "18",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.code",
-     "serializationOptions": {
-      "$id": "19",
-      "json": {
-       "$id": "20",
-       "name": "code"
-      }
-     }
-    },
-    {
-     "$id": "21",
-     "kind": "property",
-     "name": "resourceId",
-     "serializedName": "resourceId",
      "type": {
       "$id": "22",
       "kind": "string",
@@ -156,11 +164,37 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.resourceId",
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.code",
      "serializationOptions": {
       "$id": "23",
       "json": {
        "$id": "24",
+       "name": "code"
+      }
+     }
+    },
+    {
+     "$id": "25",
+     "kind": "property",
+     "name": "resourceId",
+     "serializedName": "resourceId",
+     "type": {
+      "$id": "26",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.resourceId",
+     "serializationOptions": {
+      "$id": "27",
+      "json": {
+       "$id": "28",
        "name": "resourceId"
       }
      }
@@ -168,7 +202,7 @@
    ]
   },
   {
-   "$id": "25",
+   "$id": "29",
    "kind": "model",
    "name": "Standard4XXError",
    "namespace": "Response.StatusCodeRange",
@@ -177,12 +211,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "26",
+     "$id": "30",
      "kind": "property",
      "name": "code",
      "serializedName": "code",
      "type": {
-      "$id": "27",
+      "$id": "31",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -195,9 +229,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError.code",
      "serializationOptions": {
-      "$id": "28",
+      "$id": "32",
       "json": {
-       "$id": "29",
+       "$id": "33",
        "name": "code"
       }
      }
@@ -207,40 +241,30 @@
  ],
  "clients": [
   {
-   "$id": "30",
+   "$id": "34",
    "kind": "client",
    "name": "StatusCodeRangeClient",
    "namespace": "Response.StatusCodeRange",
    "doc": "Test for range of status code.",
    "methods": [
     {
-     "$id": "31",
+     "$id": "35",
      "kind": "basic",
      "name": "errorResponseStatusCodeInRange",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "32",
+      "$id": "36",
       "name": "errorResponseStatusCodeInRange",
       "resourceName": "StatusCodeRange",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "33",
+        "$id": "37",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "34",
-         "kind": "constant",
-         "valueType": {
-          "$id": "35",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "2"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -255,7 +279,7 @@
       ],
       "responses": [
        {
-        "$id": "36",
+        "$id": "38",
         "statusCodes": [
          204
         ],
@@ -274,11 +298,11 @@
      },
      "parameters": [
       {
-       "$id": "37",
+       "$id": "39",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "34"
+        "$ref": "2"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -292,7 +316,7 @@
       }
      ],
      "response": {
-      "$id": "38"
+      "$id": "40"
      },
      "isOverride": false,
      "generateConvenient": true,
@@ -300,33 +324,23 @@
      "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange"
     },
     {
-     "$id": "39",
+     "$id": "41",
      "kind": "basic",
      "name": "errorResponseStatusCode404",
      "accessibility": "public",
      "apiVersions": [],
      "operation": {
-      "$id": "40",
+      "$id": "42",
       "name": "errorResponseStatusCode404",
       "resourceName": "StatusCodeRange",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "41",
+        "$id": "43",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "42",
-         "kind": "constant",
-         "valueType": {
-          "$id": "43",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "4"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -364,7 +378,7 @@
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "42"
+        "$ref": "4"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -395,7 +409,7 @@
      "type": {
       "$id": "48",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -415,7 +429,8 @@
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "value": "http://localhost:3000"
-     }
+     },
+     "serverUrlTemplate": "{endpoint}"
     }
    ],
    "decorators": [],

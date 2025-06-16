@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     internal partial class UnknownSnake : IJsonModel<Snake>
     {
+        internal UnknownSnake() => throw null;
+
         void IJsonModel<Snake>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;

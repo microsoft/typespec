@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
 import com.azure.core.credential.AccessToken;
+import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.json.JsonProviders;
@@ -72,6 +73,8 @@ public class FluentMethodMockTestTemplate
             fluentReturnType = FluentUtils.getValueTypeFromResponseType(fluentReturnType);
         }
         final boolean hasReturnValue = fluentReturnType.asNullable() != ClassType.VOID;
+        final boolean isCheckExistence = fluentReturnType.asNullable() == ClassType.BOOLEAN
+            && clientMethod.getProxyMethod().getHttpMethod() == HttpMethod.HEAD;
 
         // method invocation
         String clientMethodInvocationWithResponse;
@@ -148,7 +151,13 @@ public class FluentMethodMockTestTemplate
                     methodBlock.line();
                     // verification
                     if (hasReturnValue) {
-                        assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        if (isCheckExistence) {
+                            // checkExistence operation will have 200/204 as its normal response status code.
+                            // Here we could ignore the randomly generated response and assert accordingly.
+                            methodBlock.line("Assertions.assertTrue(" + verificationObjectName + ");");
+                        } else {
+                            assertionVisitor.getAssertions().forEach(methodBlock::line);
+                        }
                     }
                 });
 

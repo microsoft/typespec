@@ -3,12 +3,6 @@
   "CrossLanguageDefinitionId": {
     "type.model.inheritance.notdiscriminated.Cat": "Type.Model.Inheritance.NotDiscriminated.Cat",
     "type.model.inheritance.notdiscriminated.NotDiscriminatedClient": "Type.Model.Inheritance.NotDiscriminated",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.getValid": "Type.Model.Inheritance.NotDiscriminated.getValid",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.getValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.getValid",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.postValid": "Type.Model.Inheritance.NotDiscriminated.postValid",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.postValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.postValid",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.putValid": "Type.Model.Inheritance.NotDiscriminated.putValid",
-    "type.model.inheritance.notdiscriminated.NotDiscriminatedClient.putValidWithResponse": "Type.Model.Inheritance.NotDiscriminated.putValid",
     "type.model.inheritance.notdiscriminated.NotDiscriminatedClientBuilder": "Type.Model.Inheritance.NotDiscriminated",
     "type.model.inheritance.notdiscriminated.Pet": "Type.Model.Inheritance.NotDiscriminated.Pet",
     "type.model.inheritance.notdiscriminated.Siamese": "Type.Model.Inheritance.NotDiscriminated.Siamese"

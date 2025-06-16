@@ -1,11 +1,13 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.property.additionalproperties.implementation.SpreadRecordNonDiscriminatedUnion3sImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.property.additionalproperties.implementation.SpreadRecordNonDiscrimi
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class SpreadRecordNonDiscriminatedUnion3Client {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final SpreadRecordNonDiscriminatedUnion3sImpl serviceClient;
 
     /**
@@ -21,58 +23,24 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     SpreadRecordNonDiscriminatedUnion3Client(SpreadRecordNonDiscriminatedUnion3sImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Get call.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *      (Optional): {
-     *         String: BinaryData (Required)
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
-    public Response<SpreadRecordForNonDiscriminatedUnion3> getWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getWithResponse(requestOptions);
-    }
-
-    /**
-     * Put operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     *      (Optional): {
-     *         String: BinaryData (Required)
-     *     }
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body body.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<SpreadRecordForNonDiscriminatedUnion3> getWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getWithResponse(requestContext);
     }
 
     /**
@@ -82,11 +50,26 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public SpreadRecordForNonDiscriminatedUnion3 get() {
-        // Generated convenience method for getWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue();
+        return getWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Put operation.
+     * 
+     * @param body body.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion3 body, RequestContext requestContext) {
+        return this.serviceClient.putWithResponse(body, requestContext);
     }
 
     /**
@@ -97,10 +80,9 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void put(SpreadRecordForNonDiscriminatedUnion3 body) {
-        // Generated convenience method for putWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putWithResponse(body, RequestContext.none());
     }
 }

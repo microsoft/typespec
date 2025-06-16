@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents a discrete input for an operation.
  */
@@ -180,58 +175,6 @@ public class Parameter extends Value {
     @Override
     public void setSummary(String summary) {
         this.summary = summary;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject())
-            .writeStringField("clientDefaultValue", clientDefaultValue)
-            .writeStringField("implementation", implementation == null ? null : implementation.toString())
-            .writeJsonField("operation", operation)
-            .writeBooleanField("flattened", flattened)
-            .writeJsonField("originalParameter", originalParameter)
-            .writeJsonField("groupedBy", groupedBy)
-            .writeJsonField("targetProperty", targetProperty)
-            .writeStringField("origin", origin)
-            .writeStringField("summary", summary)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Parameter instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Parameter instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Parameter fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Parameter::new, (parameter, fieldName, reader) -> {
-            if (parameter.tryConsumeParentProperties(parameter, fieldName, reader)) {
-                return;
-            }
-
-            if ("clientDefaultValue".equals(fieldName)) {
-                parameter.clientDefaultValue = reader.getString();
-            } else if ("implementation".equals(fieldName)) {
-                parameter.implementation = ImplementationLocation.fromValue(reader.getString());
-            } else if ("operation".equals(fieldName)) {
-                parameter.operation = Operation.fromJson(reader);
-            } else if ("flattened".equals(fieldName)) {
-                parameter.flattened = reader.getBoolean();
-            } else if ("originalParameter".equals(fieldName)) {
-                parameter.originalParameter = Parameter.fromJson(reader);
-            } else if ("groupedBy".equals(fieldName)) {
-                parameter.groupedBy = Parameter.fromJson(reader);
-            } else if ("targetProperty".equals(fieldName)) {
-                parameter.targetProperty = Property.fromJson(reader);
-            } else if ("origin".equals(fieldName)) {
-                parameter.origin = reader.getString();
-            } else if ("summary".equals(fieldName)) {
-                parameter.summary = reader.getString();
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 
     /**

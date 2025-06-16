@@ -31,14 +31,14 @@ namespace Microsoft.TypeSpec.Generator
 
         private Configuration(
             string outputPath,
-            Dictionary<string, BinaryData> additionalConfigOptions,
+            Dictionary<string, BinaryData> additionalConfigurationOptions,
             string packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo)
         {
             OutputDirectory = outputPath;
-            AdditionalConfigOptions = additionalConfigOptions;
+            AdditionalConfigurationOptions = additionalConfigurationOptions;
             PackageName = packageName;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        internal string PackageName { get; }
+        public string PackageName { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -96,8 +96,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal bool GenerateTestProject { get; private set; }
 
-        // The additional configuration options read from the input configuration file.
-        public Dictionary<string, BinaryData> AdditionalConfigOptions { get; }
+        /// <summary>
+        /// Additional configuration options read from the input configuration file.
+        /// </summary>
+        public virtual IReadOnlyDictionary<string, BinaryData> AdditionalConfigurationOptions { get; }
 
         /// <summary>
         /// Initializes the configuration from the given path to the configuration file.

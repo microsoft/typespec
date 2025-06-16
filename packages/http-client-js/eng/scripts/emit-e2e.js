@@ -161,16 +161,6 @@ async function processFile(file, options) {
       outputDir,
     ]);
 
-    if (spinner) spinner.text = `Transpiling with Babel: ${relativePath}`;
-    await runCommand("npx", [
-      "babel",
-      outputDir,
-      "-d",
-      `dist/${outputDir}`,
-      "--extensions",
-      ".ts,.tsx",
-    ]);
-
     if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;
     await runCommand("npx", ["prettier", outputDir, "--write"]);
 

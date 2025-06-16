@@ -1,9 +1,12 @@
 package payload.contentnegotiation;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
 import payload.contentnegotiation.implementation.SameBodiesImpl;
@@ -13,7 +16,7 @@ import payload.contentnegotiation.implementation.SameBodiesImpl;
  */
 @ServiceClient(builder = ContentNegotiationClientBuilder.class)
 public final class SameBodyClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final SameBodiesImpl serviceClient;
 
     /**
@@ -21,47 +24,24 @@ public final class SameBodyClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     SameBodyClient(SameBodiesImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The getAvatarAsPng operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<BinaryData> getAvatarAsPngWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAvatarAsPngWithResponse(requestOptions);
-    }
-
-    /**
-     * The getAvatarAsJpeg operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BinaryData
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<BinaryData> getAvatarAsJpegWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAvatarAsJpegWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getAvatarAsPngWithResponse(requestContext);
     }
 
     /**
@@ -71,11 +51,25 @@ public final class SameBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData getAvatarAsPng() {
-        // Generated convenience method for getAvatarAsPngWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAvatarAsPngWithResponse(requestOptions).getValue();
+        return getAvatarAsPngWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The getAvatarAsJpeg operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getAvatarAsJpegWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getAvatarAsJpegWithResponse(requestContext);
     }
 
     /**
@@ -85,10 +79,9 @@ public final class SameBodyClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BinaryData getAvatarAsJpeg() {
-        // Generated convenience method for getAvatarAsJpegWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAvatarAsJpegWithResponse(requestOptions).getValue();
+        return getAvatarAsJpegWithResponse(RequestContext.none()).getValue();
     }
 }

@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
@@ -13,6 +13,7 @@ import { getOperationParameters } from "./operation-parameters.jsx";
 export interface ClientProps {}
 
 export function Client(props: ClientProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const { topLevel } = useClientLibrary();
 
@@ -45,6 +46,7 @@ function getClientContextFieldRef(client: cl.Client) {
   return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
+  const { $ } = useTsp();
   const namePolicy = ts.useTSNamePolicy();
   const clientName = namePolicy.getName($.client.getName(props.client), "class");
   const contextMemberRef = getClientContextFieldRef(props.client);
@@ -67,7 +69,7 @@ export function ClientClass(props: ClientClassProps) {
         <ClientConstructor client={props.client} />
         <ay.For each={operations} hardline semicolon>
           {(op) => {
-            const parameters = getOperationParameters(op.httpOperation);
+            const parameters = getOperationParameters(op.httpOperation, ay.refkey());
             const args = parameters.flatMap((p) => p.refkey);
             const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
 
@@ -103,6 +105,7 @@ function getSubClientClassFieldRef(client: cl.Client) {
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
+  const { $ } = useTsp();
   const parent = props.client.parent;
   // If sub client has different parameters than client, don't add it as a subclass field
   // Todo: We need to detect the extra parameters and make this field a factory for the subclient
@@ -122,12 +125,13 @@ interface ClientConstructorProps {
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
+  const { $ } = useTsp();
   const subClients = props.client.subClients.filter((sc) =>
     $.client.haveSameConstructor(sc, props.client),
   );
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
-  const constructorParameters = buildClientParameters(props.client);
+  const constructorParameters = buildClientParameters(props.client, ay.refkey());
   const args = Object.values(constructorParameters).map((p) => p.refkey);
 
   return (
@@ -150,7 +154,7 @@ function ClientConstructor(props: ClientConstructorProps) {
 }
 
 function calculateSubClientArgs(subClient: cl.Client, parentParams: ts.ParameterDescriptor[]) {
-  const subClientParams = buildClientParameters(subClient).map((p) => p.name);
+  const subClientParams = buildClientParameters(subClient, ay.refkey()).map((p) => p.name);
   return parentParams
     .filter(({ name }) => subClientParams.includes(name))
     .flatMap((p) => (p.refkey ? p.refkey : []));

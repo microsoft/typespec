@@ -64,9 +64,43 @@
    "decorators": []
   }
  ],
- "models": [
+ "constants": [
   {
    "$id": "8",
+   "kind": "constant",
+   "name": "testContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "9",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "10",
+   "kind": "constant",
+   "name": "testContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "11",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "12",
    "kind": "model",
    "name": "TestModel",
    "namespace": "Versioning.MadeOptional",
@@ -75,12 +109,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "9",
+     "$id": "13",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "10",
+      "$id": "14",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -93,20 +127,20 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.prop",
      "serializationOptions": {
-      "$id": "11",
+      "$id": "15",
       "json": {
-       "$id": "12",
+       "$id": "16",
        "name": "prop"
       }
      }
     },
     {
-     "$id": "13",
+     "$id": "17",
      "kind": "property",
      "name": "changedProp",
      "serializedName": "changedProp",
      "type": {
-      "$id": "14",
+      "$id": "18",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -119,9 +153,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.changedProp",
      "serializationOptions": {
-      "$id": "15",
+      "$id": "19",
       "json": {
-       "$id": "16",
+       "$id": "20",
        "name": "changedProp"
       }
      }
@@ -131,14 +165,14 @@
  ],
  "clients": [
   {
-   "$id": "17",
+   "$id": "21",
    "kind": "client",
    "name": "MadeOptionalClient",
    "namespace": "Versioning.MadeOptional",
    "doc": "Test for the `@madeOptional` decorator.",
    "methods": [
     {
-     "$id": "18",
+     "$id": "22",
      "kind": "basic",
      "name": "test",
      "accessibility": "public",
@@ -147,17 +181,17 @@
       "v2"
      ],
      "operation": {
-      "$id": "19",
+      "$id": "23",
       "name": "test",
       "resourceName": "MadeOptional",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "20",
+        "$id": "24",
         "name": "param",
         "nameInRequest": "param",
         "type": {
-         "$id": "21",
+         "$id": "25",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -174,22 +208,12 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "22",
+        "$id": "26",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "23",
-         "kind": "constant",
-         "valueType": {
-          "$id": "24",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "8"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -202,21 +226,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "25",
+        "$id": "27",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "26",
-         "kind": "constant",
-         "valueType": {
-          "$id": "27",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "10"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -233,7 +247,7 @@
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$ref": "8"
+         "$ref": "12"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -253,7 +267,7 @@
          200
         ],
         "bodyType": {
-         "$ref": "8"
+         "$ref": "12"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -280,7 +294,7 @@
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$ref": "8"
+        "$ref": "12"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -319,7 +333,7 @@
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "23"
+        "$ref": "8"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -336,7 +350,7 @@
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "26"
+        "$ref": "10"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -352,7 +366,7 @@
      "response": {
       "$id": "35",
       "type": {
-       "$ref": "8"
+       "$ref": "12"
       }
      },
      "isOverride": false,
@@ -370,7 +384,7 @@
      "type": {
       "$id": "37",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -380,7 +394,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/made-optional/api-version:{version}"
     },
     {
      "$id": "38",
@@ -397,7 +412,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/made-optional/api-version:{version}"
     }
    ],
    "decorators": [],

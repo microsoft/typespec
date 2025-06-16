@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { unpackProperty } from "../../utils/unpack-model-property.js";
 import { ScalarDataTransform } from "../data-transform.jsx";
 import { useTransformNamePolicy } from "../transform-name-policy.js";
@@ -14,6 +14,7 @@ export interface JsonModelPropertyTransformProps {
 }
 
 export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps) {
+  const { $ } = useTsp();
   const transformNamer = useTransformNamePolicy();
   const propertyValueType = unpackProperty(props.type);
 

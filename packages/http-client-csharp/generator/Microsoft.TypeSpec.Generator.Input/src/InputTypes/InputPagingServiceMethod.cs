@@ -20,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isOverride,
             bool generateConvenient,
             bool generateProtocol,
-            string crossLanguageDefinitionId) : base(
+            string crossLanguageDefinitionId,
+            InputPagingServiceMetadata paging) : base(
                 name,
                 accessibility,
                 apiVersions,
@@ -34,7 +35,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                 generateConvenient,
                 generateProtocol,
                 crossLanguageDefinitionId)
-        { }
+        {
+            PagingMetadata = paging;
+        }
 
         internal InputPagingServiceMethod() : this(
            string.Empty,
@@ -49,7 +52,10 @@ namespace Microsoft.TypeSpec.Generator.Input
            false,
            false,
            false,
-           string.Empty)
+           string.Empty,
+           new InputPagingServiceMetadata())
         { }
+
+        public InputPagingServiceMetadata PagingMetadata { get; internal set; }
     }
 }

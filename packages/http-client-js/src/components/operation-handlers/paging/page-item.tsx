@@ -1,8 +1,9 @@
 import { PagingOperation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { TypeExpression } from "@typespec/emitter-framework/typescript";
 
 export function getPageItemTypeName(pagingOperation: PagingOperation) {
+  const { $ } = useTsp();
   const type = pagingOperation.output.pageItems.property.type;
   // only accept array type
   if (type.kind === "Model" && $.array.is(type)) {

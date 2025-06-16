@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -83,32 +79,5 @@ public class DictionarySchema extends ComplexSchema {
     @Override
     public int hashCode() {
         return Objects.hash(elementType, nullableItems);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("elementType", elementType)
-            .writeBooleanField("nullableItems", nullableItems)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a DictionarySchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A DictionarySchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static DictionarySchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, DictionarySchema::new, (schema, fieldName, reader) -> {
-            if ("elementType".equals(fieldName)) {
-                schema.elementType = Schema.fromJson(reader);
-            } else if ("nullableItems".equals(fieldName)) {
-                schema.nullableItems = reader.getNullable(JsonReader::getBoolean);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

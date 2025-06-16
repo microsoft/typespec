@@ -1,9 +1,12 @@
 package server.endpoint.notdefined;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import server.endpoint.notdefined.implementation.NotDefinedClientImpl;
 
@@ -12,7 +15,7 @@ import server.endpoint.notdefined.implementation.NotDefinedClientImpl;
  */
 @ServiceClient(builder = NotDefinedClientBuilder.class)
 public final class NotDefinedClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NotDefinedClientImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class NotDefinedClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     NotDefinedClient(NotDefinedClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -28,13 +31,16 @@ public final class NotDefinedClient {
     /**
      * The valid operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> validWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.validWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validWithResponse(RequestContext requestContext) {
+        return this.serviceClient.validWithResponse(requestContext);
     }
 
     /**
@@ -43,10 +49,9 @@ public final class NotDefinedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void valid() {
-        // Generated convenience method for validWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        validWithResponse(requestOptions).getValue();
+        validWithResponse(RequestContext.none());
     }
 }

@@ -1,11 +1,13 @@
 package type.model.usage;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.model.usage.implementation.UsageClientImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.model.usage.implementation.UsageClientImpl;
  */
 @ServiceClient(builder = UsageClientBuilder.class)
 public final class UsageClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final UsageClientImpl serviceClient;
 
     /**
@@ -21,84 +23,25 @@ public final class UsageClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     UsageClient(UsageClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The input operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> inputWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.inputWithResponse(input, requestOptions);
-    }
-
-    /**
-     * The output operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return record used in operation return type.
-     */
-    @Metadata(generated = true)
-    public Response<OutputRecord> outputWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.outputWithResponse(requestOptions);
-    }
-
-    /**
-     * The inputAndOutput operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return record used both as operation parameter and return type.
-     */
-    @Metadata(generated = true)
-    public Response<InputOutputRecord> inputAndOutputWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.inputAndOutputWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
+        return this.serviceClient.inputWithResponse(input, requestContext);
     }
 
     /**
@@ -109,11 +52,25 @@ public final class UsageClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void input(InputRecord input) {
-        // Generated convenience method for inputWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        inputWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        inputWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The output operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return record used in operation return type.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
+        return this.serviceClient.outputWithResponse(requestContext);
     }
 
     /**
@@ -123,11 +80,27 @@ public final class UsageClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used in operation return type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public OutputRecord output() {
-        // Generated convenience method for outputWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return outputWithResponse(requestOptions).getValue();
+        return outputWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The inputAndOutput operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return record used both as operation parameter and return type.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
+        RequestContext requestContext) {
+        return this.serviceClient.inputAndOutputWithResponse(body, requestContext);
     }
 
     /**
@@ -139,10 +112,9 @@ public final class UsageClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used both as operation parameter and return type.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public InputOutputRecord inputAndOutput(InputOutputRecord body) {
-        // Generated convenience method for inputAndOutputWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return inputAndOutputWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        return inputAndOutputWithResponse(body, RequestContext.none()).getValue();
     }
 }

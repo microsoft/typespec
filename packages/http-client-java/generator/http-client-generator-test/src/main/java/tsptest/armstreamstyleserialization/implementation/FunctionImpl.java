@@ -11,10 +11,10 @@ import tsptest.armstreamstyleserialization.models.FunctionProperties;
 public final class FunctionImpl implements Function {
     private FunctionInner innerObject;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     FunctionImpl(FunctionInner innerObject,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
     }
@@ -27,7 +27,7 @@ public final class FunctionImpl implements Function {
         return this.innerObject;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

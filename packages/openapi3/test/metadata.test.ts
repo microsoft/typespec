@@ -91,7 +91,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
+  it("will expose create visibility properties on PATCH model using (legacy implicitOptionality)", async () => {
     const res = await openApiFor(`
       model M {
         @visibility(Lifecycle.Read) r: string;
@@ -99,7 +99,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         @visibility(Lifecycle.Read, Lifecycle.Update, Lifecycle.Create) ruc?: string;
       }
       @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
-      @route("/") @patch op createOrUpdate(...M): M; 
+      @route("/") @patch(#{implicitOptionality: true}) op createOrUpdate(...M): M; 
     `);
 
     const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
@@ -155,7 +155,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  it("ensures properties are required for array updates", async () => {
+  it("ensures properties are required for array updates (legacy implicitOptionality)", async () => {
     const res = await openApiFor(`
       model Person {
         @visibility(Lifecycle.Read) id: string;
@@ -176,7 +176,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         person: Person;
         relationship: string;
       }
-      @route("/") @patch op update(...Person): Person; 
+      @route("/") @patch(#{implicitOptionality: true}) op update(...Person): Person; 
     `);
 
     const response = res.paths["/"].patch.responses["200"].content["application/json"].schema;
@@ -206,7 +206,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  it("can make properties optional", async () => {
+  it("can make properties optional (legacy implicitOptionality)", async () => {
     const res = await openApiFor(`
       model Widget { 
         name: string; 
@@ -217,7 +217,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         weight: float64;
       }
       @post op create(...Widget): void;
-      @patch op update(...Widget): void;
+      @patch(#{implicitOptionality: true}) op update(...Widget): void;
   `);
 
     const requestSchema = res.paths["/"].patch.requestBody.content["application/json"].schema;
@@ -358,7 +358,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @get get(...M): M;
       @post create(...M): M;
       @put createOrUpdate(...M): M;
-      @patch update(...M): M;
+      @patch(#{implicitOptionality: true}) update(...M): M;
       @delete delete(...M): void; 
     }
 
@@ -367,7 +367,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @get get(...D): D;
       @post create(...D): D;
       @put createOrUpdate(...D): D;
-      @patch update(...D): D;
+      @patch(#{implicitOptionality: true}) update(...D): D;
       @delete delete(...D): void; 
     }
   
@@ -376,7 +376,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @get op get(id: string): R;
       @post op create(...R): R;
       @put op createOrUpdate(...R): R;
-      @patch op update(...R): R;
+      @patch(#{implicitOptionality: true}) op update(...R): R;
       @delete op delete(...D): void; 
     }
 
@@ -384,7 +384,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @get op get(id: string): U;
       @post op create(...U): U;
       @put op createOrUpdate(...U): U;
-      @patch op update(...U): U;
+      @patch(#{implicitOptionality: true}) op update(...U): U;
       @delete op delete(...U): void;
     }
     `,
@@ -1080,7 +1080,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
-  it("don't create multiple scalars with different visibility if they are the same", async () => {
+  it("don't create multiple scalars with different visibility if they are the same (legacy implicitOptionality)", async () => {
     const res = await openApiFor(`
       scalar uuid extends string;
 
@@ -1088,7 +1088,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         id: uuid;
       }
       
-      @patch op test(...Bar): Bar;
+      @patch(#{implicitOptionality: true}) op test(...Bar): Bar;
     `);
 
     deepStrictEqual(Object.keys(res.components.schemas), ["Bar", "BarUpdate", "uuid"]);
@@ -1103,7 +1103,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         id: string;
       }
       
-      @patch op test(bar: Bar): void;
+      @patch(#{implicitOptionality: true}) op test(bar: Bar): void;
 
       model Foo {
         bar: Bar;

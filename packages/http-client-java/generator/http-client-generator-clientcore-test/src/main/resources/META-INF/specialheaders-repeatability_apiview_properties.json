@@ -2,8 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "specialheaders.repeatability.RepeatabilityClient": "SpecialHeaders.Repeatability",
-    "specialheaders.repeatability.RepeatabilityClient.immediateSuccess": "SpecialHeaders.Repeatability.immediateSuccess",
-    "specialheaders.repeatability.RepeatabilityClient.immediateSuccessWithResponse": "SpecialHeaders.Repeatability.immediateSuccess",
     "specialheaders.repeatability.RepeatabilityClientBuilder": "SpecialHeaders.Repeatability"
   }
 }

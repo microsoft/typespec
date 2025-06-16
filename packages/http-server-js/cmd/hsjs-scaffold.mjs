@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { main } from "../dist/src/scripts/scaffold/bin.mjs";
 
 main().catch(function onScaffoldError(error) {

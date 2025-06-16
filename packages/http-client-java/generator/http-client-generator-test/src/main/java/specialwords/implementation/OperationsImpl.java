@@ -53,7 +53,7 @@ public final class OperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "SpecialWordsClientOp")
+    @ServiceInterface(name = "SpecialWordsClientOperations")
     public interface OperationsService {
         @Get("/special-words/operations/and")
         @ExpectedResponses({ 204 })

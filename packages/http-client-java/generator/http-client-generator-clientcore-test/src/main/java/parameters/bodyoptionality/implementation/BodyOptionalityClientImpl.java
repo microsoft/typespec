@@ -1,18 +1,20 @@
 package parameters.bodyoptionality.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
+import parameters.bodyoptionality.BodyModel;
 
 /**
  * Initializes a new instance of the BodyOptionalityClient type.
@@ -75,75 +77,77 @@ public final class BodyOptionalityClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.optionalExplicits = new OptionalExplicitsImpl(this);
-        this.service = RestProxy.create(BodyOptionalityClientService.class, this.httpPipeline);
+        this.service = BodyOptionalityClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for BodyOptionalityClient to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "BodyOptionalityClien", host = "{endpoint}")
+    @ServiceInterface(name = "BodyOptionalityClient", host = "{endpoint}")
     public interface BodyOptionalityClientService {
+        static BodyOptionalityClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("parameters.bodyoptionality.implementation.BodyOptionalityClientServiceImpl");
+                return (BodyOptionalityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/parameters/body-optionality/required-explicit",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> requiredExplicitSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> requiredExplicit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel body,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/parameters/body-optionality/required-implicit",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> requiredImplicitSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyModel,
-            RequestOptions requestOptions);
+        Response<Void> requiredImplicit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyModel bodyModel,
+            RequestContext requestContext);
     }
 
     /**
      * The requiredExplicit operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> requiredExplicitWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requiredExplicitWithResponse(BodyModel body, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.requiredExplicitSync(this.getEndpoint(), contentType, body, requestOptions);
+        return service.requiredExplicit(this.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
      * The requiredImplicit operation.
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param bodyModel The bodyModel parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> requiredImplicitWithResponse(BinaryData bodyModel, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.requiredImplicitSync(this.getEndpoint(), contentType, bodyModel, requestOptions);
+        BodyModel bodyModel = new BodyModel(name);
+        return service.requiredImplicit(this.getEndpoint(), contentType, bodyModel, requestContext);
     }
 }

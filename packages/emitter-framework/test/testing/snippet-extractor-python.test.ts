@@ -9,8 +9,8 @@ import {
 describe("Python Snippet Extractor", () => {
   let extractor: SnippetExtractor;
 
-  beforeEach(() => {
-    extractor = createSnipperExtractor(createPythonExtractorConfig());
+  beforeEach(async () => {
+    extractor = createSnipperExtractor(await createPythonExtractorConfig());
   });
 
   it("should extract a class", () => {

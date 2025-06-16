@@ -18,7 +18,7 @@ Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (V
 
 Install [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn --version`)
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -44,6 +44,13 @@ options:
 ```
 
 ## Emitter options
+
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-java`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
 
 ### `license`
 

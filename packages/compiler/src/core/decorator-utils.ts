@@ -122,7 +122,7 @@ export interface DecoratorDefinition<
   readonly args: P;
 
   /**
-   * @optional Type of the spread args at the end of the function if applicable.
+   * Optional Type of the spread args at the end of the function if applicable.
    */
   readonly spreadArgs?: S;
 }
@@ -333,7 +333,6 @@ export function validateDecoratorUniqueOnNode(
  * @param type The type to check
  * @param badDecorator The decorator we don't want present
  * @param givenDecorator The decorator that is the reason why we don't want the bad decorator present
- * @param includeHeritage Whether to check base types for the bad decorator too
  * @returns Whether the decorator application is valid
  */
 export function validateDecoratorNotOnType(

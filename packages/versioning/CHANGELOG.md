@@ -1,5 +1,32 @@
 # Change Log - @typespec/versioning
 
+## 0.71.0
+
+### Bug Fixes
+
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Fix tuples not correctly versioned
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#7022](https://github.com/microsoft/typespec/pull/7022) Fix issue where the incompatible-versioned-reference diagnostic was incorrectly triggered when a model had a `@removed` decorator and one of its properties had an `@added` decorator, even if the versions were compatible.
+  
+  Example:
+  ```tsp
+  @removed(Versions.v3)
+  model Widget {
+    @added(Versions.v2)
+     name: string;
+  }
+  ```
+
+
 ## 0.68.0
 
 ### Bump dependencies

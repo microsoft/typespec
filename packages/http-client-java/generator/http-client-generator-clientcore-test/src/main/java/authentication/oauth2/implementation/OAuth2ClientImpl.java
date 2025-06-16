@@ -1,17 +1,19 @@
 package authentication.oauth2.implementation;
 
 import authentication.oauth2.InvalidAuth;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the OAuth2Client type.
@@ -59,7 +61,7 @@ public final class OAuth2ClientImpl {
     public OAuth2ClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(OAuth2ClientService.class, this.httpPipeline);
+        this.service = OAuth2ClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -67,12 +69,24 @@ public final class OAuth2ClientImpl {
      */
     @ServiceInterface(name = "OAuth2Client", host = "{endpoint}")
     public interface OAuth2ClientService {
+        static OAuth2ClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("authentication.oauth2.implementation.OAuth2ClientServiceImpl");
+                return (OAuth2ClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/authentication/oauth2/valid",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> validSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> valid(@HostParam("endpoint") String endpoint, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -80,30 +94,36 @@ public final class OAuth2ClientImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail(statusCode = { 403 }, exceptionBodyClass = InvalidAuth.class)
         @UnexpectedResponseExceptionDetail
-        Response<Void> invalidSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<Void> invalid(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
     }
 
     /**
      * Check whether client is authenticated.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> validWithResponse(RequestOptions requestOptions) {
-        return service.validSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> validWithResponse(RequestContext requestContext) {
+        return service.valid(this.getEndpoint(), requestContext);
     }
 
     /**
      * Check whether client is authenticated. Will return an invalid bearer error.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> invalidWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> invalidWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.invalidSync(this.getEndpoint(), accept, requestOptions);
+        return service.invalid(this.getEndpoint(), accept, requestContext);
     }
 }

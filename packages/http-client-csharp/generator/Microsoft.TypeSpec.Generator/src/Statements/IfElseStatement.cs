@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
     public sealed class IfElseStatement : MethodBodyStatement
     {
-        public IfStatement If { get; }
-        public MethodBodyStatement? Else { get; }
+        public IfStatement If { get; private set; }
+        public MethodBodyStatement? Else { get; private set; }
 
         public IfElseStatement(IfStatement ifStatement, MethodBodyStatement? elseStatement)
         {
@@ -29,6 +31,37 @@ namespace Microsoft.TypeSpec.Generator.Statements
                 {
                     Else.Write(writer);
                 }
+            }
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider methodProvider)
+        {
+            var updated = visitor.VisitIfElseStatement(this, methodProvider);
+            if (updated is not IfElseStatement updatedIfElseStatement)
+            {
+                return updated?.Accept(visitor, methodProvider);
+            }
+
+            var newIf = updatedIfElseStatement.If.Accept(visitor, methodProvider);
+            if (newIf is not IfStatement newIfStatement)
+            {
+                throw new InvalidOperationException("Expected an IfStatement.");
+            }
+            updatedIfElseStatement.If = newIfStatement;
+            updatedIfElseStatement.Else = updatedIfElseStatement.Else?.Accept(visitor, methodProvider);
+
+            return updatedIfElseStatement;
+        }
+
+        public void Update(IfStatement? ifStatement, MethodBodyStatement? elseStatement)
+        {
+            if (ifStatement != null)
+            {
+                If = ifStatement;
+            }
+            if (elseStatement != null)
+            {
+                Else = elseStatement;
             }
         }
     }

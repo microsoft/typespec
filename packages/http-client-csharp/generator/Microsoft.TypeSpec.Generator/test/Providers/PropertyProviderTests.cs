@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -80,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             InputFactory.Model("TestModel", properties: [collectionProperty]);
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
 
-            Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
+            Assert.AreEqual(collectionProperty.Name.ToIdentifierName(), property.Name);
             Assert.AreEqual(expectedType, property.Type);
 
             // validate the parameter conversion
@@ -94,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void BodyHasSetterValidation(string name, InputModelType inputModel, bool expectedHasSetter, TypeSignatureModifiers? typeSignatureModifiers = null)
         {
             var collectionProperty = inputModel.Properties.Single();
-            var property = new PropertyProvider(collectionProperty, new TestTypeProvider(typeSignatureModifiers));
+            var property = new PropertyProvider(collectionProperty, new TestTypeProvider(declarationModifiers: typeSignatureModifiers));
 
             Assert.AreEqual(expectedHasSetter, property.Body.HasSetter);
         }
@@ -121,7 +122,42 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
-            Assert.AreEqual(inputPropertyName.ToCleanName() + "Property", property.Name);
+            Assert.AreEqual(inputPropertyName.ToIdentifierName() + "Property", property.Name);
+        }
+
+        [Test]
+        public void CanUpdatePropertyProvider()
+        {
+            var propertyProvider = new PropertyProvider(
+                description: null,
+                modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(string)),
+                name: "name",
+                body: new AutoPropertyBody(HasSetter: false),
+                enclosingType: new TestTypeProvider());
+
+            Assert.IsFalse(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("name", propertyProvider.Name);
+            Assert.AreEqual("Gets the name.", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(string)), propertyProvider.Type);
+
+            propertyProvider.Update(
+                modifiers: propertyProvider.Modifiers &~ MethodSignatureModifiers.Virtual,
+                type: new CSharpType(typeof(int)),
+                name: "newName",
+                body: new AutoPropertyBody(HasSetter: true),
+                enclosingType: new TestTypeProvider());
+
+            Assert.IsTrue(propertyProvider.Body.HasSetter);
+            Assert.AreEqual("newName", propertyProvider.Name);
+            // Even though description was not provided, it should still be recalculated
+            Assert.AreEqual("Gets or sets the newName.", propertyProvider.Description!.ToString());
+            Assert.AreEqual(MethodSignatureModifiers.Public, propertyProvider.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(int)), propertyProvider.Type);
+
+            propertyProvider.Update(description: $"new description");
+            Assert.AreEqual("new description", propertyProvider.Description.ToString());
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()

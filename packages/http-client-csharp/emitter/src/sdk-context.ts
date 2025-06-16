@@ -3,10 +3,13 @@
 
 import {
   SdkClientType,
+  SdkConstantType,
   SdkContext,
+  SdkEnumType,
   SdkHttpOperation,
   SdkHttpResponse,
   SdkModelPropertyType,
+  SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { Type } from "@typespec/compiler";
@@ -16,8 +19,9 @@ import { InputParameter } from "./type/input-parameter.js";
 import {
   InputClient,
   InputEnumType,
-  InputModelProperty,
+  InputLiteralType,
   InputModelType,
+  InputProperty,
   InputType,
 } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
@@ -31,7 +35,7 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   __typeCache: SdkTypeCache;
 }
 
-/*
+/**
  * Creates a new CSharp emitter context.
  * @param context - The SDK context.
  * @param logger - The logger to use.
@@ -50,20 +54,22 @@ export function createCSharpEmitterContext<
 
 class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
-  properties: Map<SdkModelPropertyType, InputParameter | InputModelProperty>;
+  properties: Map<SdkModelPropertyType, InputParameter | InputProperty>; // TODO -- in the near future, we should replace `InputParameter` with those `InputQueryParameter`, etc.
   responses: Map<SdkHttpResponse, OperationResponse>;
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;
+  constants: Map<SdkConstantType, InputLiteralType>;
   crossLanguageDefinitionIds: Map<string, Type | undefined>;
 
   constructor() {
     this.clients = new Map<SdkClientType<SdkHttpOperation>, InputClient>();
-    this.properties = new Map<SdkModelPropertyType, InputParameter | InputModelProperty>();
+    this.properties = new Map<SdkModelPropertyType, InputParameter | InputProperty>();
     this.responses = new Map<SdkHttpResponse, OperationResponse>();
     this.types = new Map<SdkType, InputType>();
     this.models = new Map<string, InputModelType>();
     this.enums = new Map<string, InputEnumType>();
+    this.constants = new Map<SdkConstantType, InputLiteralType>();
     this.crossLanguageDefinitionIds = new Map<string, Type | undefined>();
   }
 
@@ -74,7 +80,7 @@ class SdkTypeCache {
 
   updateSdkPropertyReferences(
     sdkProperty: SdkModelPropertyType,
-    inputProperty: InputParameter | InputModelProperty,
+    inputProperty: InputParameter | InputProperty,
   ) {
     this.properties.set(sdkProperty, inputProperty);
     this.crossLanguageDefinitionIds.set(sdkProperty.crossLanguageDefinitionId, sdkProperty.__raw);
@@ -92,11 +98,13 @@ class SdkTypeCache {
     }
   }
 
-  updateTypeCache(typeName: string, type: InputType) {
-    if (type.kind === "model") {
-      this.models.set(typeName, type);
-    } else if (type.kind === "enum") {
-      this.enums.set(typeName, type);
+  updateTypeCache(sdkType: SdkModelType | SdkEnumType | SdkConstantType, type: InputType) {
+    if (type.kind === "model" && sdkType.kind === "model") {
+      this.models.set(sdkType.name, type);
+    } else if (type.kind === "enum" && sdkType.kind === "enum") {
+      this.enums.set(sdkType.name, type);
+    } else if (type.kind === "constant" && sdkType.kind === "constant") {
+      this.constants.set(sdkType, type);
     }
   }
 }

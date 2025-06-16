@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents a response from a service.
  */
@@ -36,32 +31,5 @@ public class SchemaResponse extends Response {
      */
     public void setSchema(Schema schema) {
         this.schema = schema;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("schema", schema)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a SchemaResponse instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A SchemaResponse instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static SchemaResponse fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, SchemaResponse::new, (response, fieldName, reader) -> {
-            if (response.tryConsumeParentProperties(response, fieldName, reader)) {
-                return;
-            }
-
-            if ("schema".equals(fieldName)) {
-                response.schema = Schema.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

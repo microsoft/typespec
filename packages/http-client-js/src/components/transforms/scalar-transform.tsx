@@ -1,6 +1,6 @@
 import { Children, code, Refkey } from "@alloy-js/core";
 import { BytesKnownEncoding, EncodeData, NoTarget, Scalar } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { useDefaultEncoding } from "../../context/encoding/encoding-context.jsx";
 import { reportDiagnostic } from "../../lib.js";
@@ -46,6 +46,7 @@ const scalarTransformerMap = defineScalarTransformerMap({
 
   bytes: {
     toTransport: (itemRef, encoding) => {
+      const { $ } = useTsp();
       const bytesEncoding: BytesKnownEncoding | undefined =
         (encoding?.encoding as BytesKnownEncoding) ??
         (useDefaultEncoding("bytes") as BytesKnownEncoding);
@@ -63,6 +64,7 @@ const scalarTransformerMap = defineScalarTransformerMap({
       }
     },
     toApplication: (itemRef, encoding) => {
+      const { $ } = useTsp();
       const bytesEncoding: BytesKnownEncoding | undefined =
         (encoding?.encoding as BytesKnownEncoding) ??
         (useDefaultEncoding("bytes") as BytesKnownEncoding);
@@ -169,6 +171,7 @@ const scalarTransformerMap = defineScalarTransformerMap({
   },
   utcDateTime: {
     toTransport: (itemRef, encoding) => {
+      const { $ } = useTsp();
       const dateEncoding = encoding?.encoding ?? useDefaultEncoding("datetime");
       let encodingFnRef: Refkey = ef.DateRfc3339SerializerRefkey;
       switch (dateEncoding) {
@@ -190,6 +193,7 @@ const scalarTransformerMap = defineScalarTransformerMap({
       return code`${encodingFnRef}(${itemRef})`;
     },
     toApplication: (itemRef, encoding) => {
+      const { $ } = useTsp();
       const dateEncoding = encoding?.encoding ?? useDefaultEncoding("datetime");
       let decodingFnRef: Refkey = ef.DateDeserializerRefkey;
       switch (dateEncoding) {
@@ -237,36 +241,42 @@ const scalarTransformerMap = defineScalarTransformerMap({
  */
 type ScalarTest = (type: Scalar) => boolean;
 
-const scalarTests: { key: keyof typeof scalarTransformerMap; test: ScalarTest }[] = [
-  { key: "boolean", test: (t) => $.scalar.isBoolean(t) || $.scalar.extendsBoolean(t) },
-  { key: "bytes", test: (t) => $.scalar.isBytes(t) || $.scalar.extendsBytes(t) },
-  { key: "decimal", test: (t) => $.scalar.isDecimal(t) || $.scalar.extendsDecimal(t) },
-  { key: "decimal128", test: (t) => $.scalar.isDecimal128(t) || $.scalar.extendsDecimal128(t) },
-  { key: "duration", test: (t) => $.scalar.isDuration(t) || $.scalar.extendsDuration(t) },
-  { key: "float", test: (t) => $.scalar.isFloat(t) || $.scalar.extendsFloat(t) },
-  { key: "float32", test: (t) => $.scalar.isFloat32(t) || $.scalar.extendsFloat32(t) },
-  { key: "float64", test: (t) => $.scalar.isFloat64(t) || $.scalar.extendsFloat64(t) },
-  { key: "int16", test: (t) => $.scalar.isInt16(t) || $.scalar.extendsInt16(t) },
-  { key: "int32", test: (t) => $.scalar.isInt32(t) || $.scalar.extendsInt32(t) },
-  { key: "int64", test: (t) => $.scalar.isInt64(t) || $.scalar.extendsInt64(t) },
-  { key: "int8", test: (t) => $.scalar.isInt8(t) || $.scalar.extendsInt8(t) },
-  { key: "integer", test: (t) => $.scalar.isInteger(t) || $.scalar.extendsInteger(t) },
-  { key: "numeric", test: (t) => $.scalar.isNumeric(t) || $.scalar.extendsNumeric(t) },
-  {
-    key: "offsetDateTime",
-    test: (t) => $.scalar.isOffsetDateTime(t) || $.scalar.extendsOffsetDateTime(t),
-  },
-  { key: "plainDate", test: (t) => $.scalar.isPlainDate(t) || $.scalar.extendsPlainDate(t) },
-  { key: "plainTime", test: (t) => $.scalar.isPlainTime(t) || $.scalar.extendsPlainTime(t) },
-  { key: "safeint", test: (t) => $.scalar.isSafeint(t) || $.scalar.extendsSafeint(t) },
-  { key: "string", test: (t) => $.scalar.isString(t) || $.scalar.extendsString(t) },
-  { key: "uint16", test: (t) => $.scalar.isUint16(t) || $.scalar.extendsUint16(t) },
-  { key: "uint32", test: (t) => $.scalar.isUint32(t) || $.scalar.extendsUint32(t) },
-  { key: "uint64", test: (t) => $.scalar.isUint64(t) || $.scalar.extendsUint64(t) },
-  { key: "uint8", test: (t) => $.scalar.isUint8(t) || $.scalar.extendsUint8(t) },
-  { key: "url", test: (t) => $.scalar.isUrl(t) || $.scalar.extendsUrl(t) },
-  { key: "utcDateTime", test: (t) => $.scalar.isUtcDateTime(t) || $.scalar.extendsUtcDateTime(t) },
-];
+function getScalarTests(): { key: keyof typeof scalarTransformerMap; test: ScalarTest }[] {
+  const { $ } = useTsp();
+  return [
+    { key: "boolean", test: (t) => $.scalar.isBoolean(t) || $.scalar.extendsBoolean(t) },
+    { key: "bytes", test: (t) => $.scalar.isBytes(t) || $.scalar.extendsBytes(t) },
+    { key: "decimal", test: (t) => $.scalar.isDecimal(t) || $.scalar.extendsDecimal(t) },
+    { key: "decimal128", test: (t) => $.scalar.isDecimal128(t) || $.scalar.extendsDecimal128(t) },
+    { key: "duration", test: (t) => $.scalar.isDuration(t) || $.scalar.extendsDuration(t) },
+    { key: "float", test: (t) => $.scalar.isFloat(t) || $.scalar.extendsFloat(t) },
+    { key: "float32", test: (t) => $.scalar.isFloat32(t) || $.scalar.extendsFloat32(t) },
+    { key: "float64", test: (t) => $.scalar.isFloat64(t) || $.scalar.extendsFloat64(t) },
+    { key: "int16", test: (t) => $.scalar.isInt16(t) || $.scalar.extendsInt16(t) },
+    { key: "int32", test: (t) => $.scalar.isInt32(t) || $.scalar.extendsInt32(t) },
+    { key: "int64", test: (t) => $.scalar.isInt64(t) || $.scalar.extendsInt64(t) },
+    { key: "int8", test: (t) => $.scalar.isInt8(t) || $.scalar.extendsInt8(t) },
+    { key: "integer", test: (t) => $.scalar.isInteger(t) || $.scalar.extendsInteger(t) },
+    { key: "numeric", test: (t) => $.scalar.isNumeric(t) || $.scalar.extendsNumeric(t) },
+    {
+      key: "offsetDateTime",
+      test: (t) => $.scalar.isOffsetDateTime(t) || $.scalar.extendsOffsetDateTime(t),
+    },
+    { key: "plainDate", test: (t) => $.scalar.isPlainDate(t) || $.scalar.extendsPlainDate(t) },
+    { key: "plainTime", test: (t) => $.scalar.isPlainTime(t) || $.scalar.extendsPlainTime(t) },
+    { key: "safeint", test: (t) => $.scalar.isSafeint(t) || $.scalar.extendsSafeint(t) },
+    { key: "string", test: (t) => $.scalar.isString(t) || $.scalar.extendsString(t) },
+    { key: "uint16", test: (t) => $.scalar.isUint16(t) || $.scalar.extendsUint16(t) },
+    { key: "uint32", test: (t) => $.scalar.isUint32(t) || $.scalar.extendsUint32(t) },
+    { key: "uint64", test: (t) => $.scalar.isUint64(t) || $.scalar.extendsUint64(t) },
+    { key: "uint8", test: (t) => $.scalar.isUint8(t) || $.scalar.extendsUint8(t) },
+    { key: "url", test: (t) => $.scalar.isUrl(t) || $.scalar.extendsUrl(t) },
+    {
+      key: "utcDateTime",
+      test: (t) => $.scalar.isUtcDateTime(t) || $.scalar.extendsUtcDateTime(t),
+    },
+  ];
+}
 
 /**
  * Determines the key to use in the scalarTransformerMap for the given scalar type.
@@ -276,7 +286,7 @@ const scalarTests: { key: keyof typeof scalarTransformerMap; test: ScalarTest }[
  * @throws Error if the scalar type is unknown.
  */
 function getScalarTransformKey(type: Scalar): keyof typeof scalarTransformerMap {
-  for (const { key, test } of scalarTests) {
+  for (const { key, test } of getScalarTests()) {
     if (test(type)) {
       return key;
     }

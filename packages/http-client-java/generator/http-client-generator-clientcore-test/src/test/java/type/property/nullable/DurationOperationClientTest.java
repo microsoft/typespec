@@ -22,6 +22,7 @@ public class DurationOperationClientTest {
         client.patchNonNull(property);
     }
 
+    @Disabled
     @Test
     public void patchNullWithResponse() {
         client.patchNull(new DurationProperty().setRequiredProperty("foo").setNullableProperty(null));

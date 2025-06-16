@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.4.0",
+  "version": "0.7.0",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
@@ -19,33 +19,30 @@
     }
   },
   "peerDependencies": {
-    "@alloy-js/core": "^0.10.0",
-    "@alloy-js/typescript": "^0.10.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/babel-preset": "^0.2.0",
-    "@alloy-js/core": "^0.10.0",
-    "@alloy-js/typescript": "^0.10.0",
-    "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.26.10",
-    "@rollup/plugin-babel": "^6.0.4",
+    "@alloy-js/cli": "^0.17.0",
+    "@alloy-js/rollup-plugin": "^0.1.0",
+    "@alloy-js/core": "^0.17.0",
+    "@alloy-js/typescript": "^0.17.0",
     "@types/node": "~22.13.11",
     "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "eslint": "^9.23.0",
     "prettier": "~3.5.3",
     "typescript": "~5.8.2",
-    "vitest": "^3.0.9"
+    "vitest": "^3.1.2"
   },
   "scripts": {
-    "build-src": "babel src -d dist/src --extensions .ts,.tsx",
-    "build": "tsc -p . && pnpm build-src",
+    "build": "alloy build",
     "clean": "rimraf ./dist",
-    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
-    "watch-tsc": "tsc -p . --watch",
-    "watch": "concurrently --kill-others \"pnpm watch-tsc\" \"pnpm watch-src\"",
+    "watch": "alloy build --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",

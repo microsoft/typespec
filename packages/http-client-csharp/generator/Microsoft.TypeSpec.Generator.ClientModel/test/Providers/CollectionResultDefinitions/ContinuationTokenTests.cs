@@ -131,14 +131,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
             ]);
             var parameter = InputFactory.Parameter("myToken", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query);
-            var paging = InputFactory.ContinuationTokenOperationPaging(parameter, "cats", "nextPage", responseLocation);
+            var paging = InputFactory.ContinuationTokenPagingMetadata(parameter, "cats", "nextPage", responseLocation);
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Model(
                     "page",
                     properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextPage", InputPrimitiveType.Url)]));
-            var operation = InputFactory.Operation("getCats", parameters: [parameter], paging: paging, responses: [response]);
-            var inputServiceMethod = InputFactory.BasicServiceMethod("getCats", operation);
+            var operation = InputFactory.Operation("getCats", parameters: [parameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: paging);
             var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);

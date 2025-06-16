@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,8 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public partial class Golden : IJsonModel<Golden>
     {
+        internal Golden() => throw null;
+
         void IJsonModel<Golden>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,9 +29,5 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
         protected override Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<Golden>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Golden golden) => throw null;
-
-        public static explicit operator Golden(ClientResult result) => throw null;
     }
 }

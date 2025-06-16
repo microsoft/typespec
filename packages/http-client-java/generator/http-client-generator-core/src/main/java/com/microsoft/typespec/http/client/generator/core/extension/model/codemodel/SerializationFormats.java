@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents individual serialization formats.
  */
-public class SerializationFormats implements JsonSerializable<SerializationFormats> {
+public class SerializationFormats {
     private SerializationFormat json;
     private XmlSerializationFormat xml;
     private SerializationFormat protobuf;
@@ -102,35 +97,5 @@ public class SerializationFormats implements JsonSerializable<SerializationForma
 
         SerializationFormats rhs = ((SerializationFormats) other);
         return Objects.equals(json, rhs.json) && Objects.equals(protobuf, rhs.protobuf) && Objects.equals(xml, rhs.xml);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("json", json)
-            .writeJsonField("xml", xml)
-            .writeJsonField("protobuf", protobuf)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a SerializationFormats instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A SerializationFormats instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static SerializationFormats fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, SerializationFormats::new, (formats, fieldName, reader) -> {
-            if ("json".equals(fieldName)) {
-                formats.json = SerializationFormat.fromJson(reader);
-            } else if ("xml".equals(fieldName)) {
-                formats.xml = XmlSerializationFormat.fromJson(reader);
-            } else if ("protobuf".equals(fieldName)) {
-                formats.protobuf = SerializationFormat.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

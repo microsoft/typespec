@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Statements
 {
-    public sealed class ForStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForStatement : MethodBodyStatement
     {
-        public ValueExpression? IndexExpression { get; set; }
-        public ValueExpression? Condition { get; set; }
-        public ValueExpression? IncrementExpression { get; set; }
+        public ValueExpression? IndexExpression { get; private set; }
+        public ValueExpression? Condition { get; private set; }
+        public ValueExpression? IncrementExpression { get; private set; }
 
         public ForStatement(ValueExpression? indexExpression, ValueExpression? condition, ValueExpression? incrementExpression)
         {
@@ -20,12 +20,10 @@ namespace Microsoft.TypeSpec.Generator.Statements
             IncrementExpression = incrementExpression;
         }
 
-        private readonly List<MethodBodyStatement> _body = new();
+        private List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);
-        public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
         internal override void Write(CodeWriter writer)
         {
@@ -45,6 +43,50 @@ namespace Microsoft.TypeSpec.Generator.Statements
                         bodyStatement.Write(writer);
                     }
                 }
+            }
+        }
+
+        internal override MethodBodyStatement? Accept(LibraryVisitor visitor, MethodProvider method)
+        {
+            var updated = visitor.VisitForStatement(this, method);
+            if (updated is not ForStatement updatedForStatement)
+            {
+                return updated?.Accept(visitor, method);
+            }
+
+            updatedForStatement.IndexExpression = updatedForStatement.IndexExpression?.Accept(visitor, method);
+            updatedForStatement.Condition = updatedForStatement.Condition?.Accept(visitor, method);
+            updatedForStatement.IncrementExpression = updatedForStatement.IncrementExpression?.Accept(visitor, method);
+            var newBody = new List<MethodBodyStatement>(_body.Count);
+            foreach (var statement in updatedForStatement.Body)
+            {
+                var updatedStatement = statement.Accept(visitor, method);
+                if (updatedStatement != null)
+                {
+                    newBody.Add(updatedStatement);
+                }
+            }
+            updatedForStatement._body = newBody;
+
+            return updatedForStatement;
+        }
+
+        public void Update(
+            ValueExpression? indexExpression = null,
+            ValueExpression? condition = null,
+            ValueExpression? incrementExpression = null)
+        {
+            if (indexExpression != null)
+            {
+                IndexExpression = indexExpression;
+            }
+            if (condition != null)
+            {
+                Condition = condition;
+            }
+            if (incrementExpression != null)
+            {
+                IncrementExpression = incrementExpression;
             }
         }
     }

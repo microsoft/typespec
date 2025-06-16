@@ -3,15 +3,7 @@
   "CrossLanguageDefinitionId": {
     "parameters.bodyoptionality.BodyModel": "Parameters.BodyOptionality.BodyModel",
     "parameters.bodyoptionality.BodyOptionalityClient": "Parameters.BodyOptionality",
-    "parameters.bodyoptionality.BodyOptionalityClient.requiredExplicit": "Parameters.BodyOptionality.requiredExplicit",
-    "parameters.bodyoptionality.BodyOptionalityClient.requiredExplicitWithResponse": "Parameters.BodyOptionality.requiredExplicit",
-    "parameters.bodyoptionality.BodyOptionalityClient.requiredImplicit": "Parameters.BodyOptionality.requiredImplicit",
-    "parameters.bodyoptionality.BodyOptionalityClient.requiredImplicitWithResponse": "Parameters.BodyOptionality.requiredImplicit",
     "parameters.bodyoptionality.BodyOptionalityClientBuilder": "Parameters.BodyOptionality",
-    "parameters.bodyoptionality.OptionalExplicitClient": "Parameters.BodyOptionality.OptionalExplicit",
-    "parameters.bodyoptionality.OptionalExplicitClient.omit": "Parameters.BodyOptionality.OptionalExplicit.omit",
-    "parameters.bodyoptionality.OptionalExplicitClient.omitWithResponse": "Parameters.BodyOptionality.OptionalExplicit.omit",
-    "parameters.bodyoptionality.OptionalExplicitClient.set": "Parameters.BodyOptionality.OptionalExplicit.set",
-    "parameters.bodyoptionality.OptionalExplicitClient.setWithResponse": "Parameters.BodyOptionality.OptionalExplicit.set"
+    "parameters.bodyoptionality.OptionalExplicitClient": "Parameters.BodyOptionality.OptionalExplicit"
   }
 }

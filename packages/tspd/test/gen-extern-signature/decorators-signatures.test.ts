@@ -189,11 +189,6 @@ export type Decorators = {
       [`valueof string[]`, `readonly string[]`],
       [`valueof ("abc" | "def")[]`, `readonly ("abc" | "def")[]`],
       [`valueof Record<int32>`, `Record<string, number>`],
-      [
-        `valueof {...Record<int32>, other: string}`,
-        `{ readonly [key: string]: number; readonly other: string }`,
-      ],
-      [`valueof {name: string, age?: int32}`, `{ readonly name: string; readonly age?: number }`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});`,
@@ -201,6 +196,50 @@ export type Decorators = {
 ${importLine(["Type", ...(expected === "Numeric" ? ["Numeric"] : [])])}
 
 export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof {...Record<int32>, other: string}", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof {...Record<int32>, other: string});`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly [key: string]: number;
+    readonly other: string;
+  },
+) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof {name: string, age?: int32}", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof {name: string, age?: int32});`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  arg1: {
+    readonly name: string;
+    readonly age?: number;
+  },
+) => void;
 
 export type Decorators = {
   simple: SimpleDecorator;

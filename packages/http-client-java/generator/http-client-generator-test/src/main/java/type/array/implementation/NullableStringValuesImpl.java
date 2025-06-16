@@ -57,7 +57,7 @@ public final class NullableStringValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientNullableS")
+    @ServiceInterface(name = "ArrayClientNullableStringValues")
     public interface NullableStringValuesService {
         @Get("/type/array/nullable-string")
         @ExpectedResponses({ 200 })

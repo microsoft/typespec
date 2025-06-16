@@ -1,5 +1,62 @@
 # Change Log - @typespec/http
 
+## 1.1.0
+
+No changes, version bump only.
+
+## 1.0.1
+
+### Bug Fixes
+
+- [#7259](https://github.com/microsoft/typespec/pull/7259) Fix diagnostic for `PatchOptions.implicitOptionality`, which refers a non-existing property and the incorrect value.
+  To keep the old behavior, you will need to use `@patch(#{ implicitOptionality: true })` instead.
+
+
+## 1.0.0
+
+### Breaking Changes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Changed `@patch` so that it does not apply the "implicit optionality" transform by default anymore.
+  
+  ```diff lang=tsp
+  @patch op update(@body pet: Pet): void;
+  ```
+  
+  To use JSON Merge-Patch to update resources, replace the body property with an instance of `MergePatchUpdate` as follows:
+  
+  ```tsp
+  @patch op update(@body pet: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Or, keep the old behavior by explicitly enabling `implicitOptionality` in the `@patch` options:
+  
+  ```tsp
+  @patch(#{ implicitOptionality: true }) op update(@body pet: Pet): void;
+  ```
+
+### Features
+
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Implemented JSON Merge-Patch wrappers. This allows converting a type to a JSON Merge-Patch compatible update record using the `MergePatchUpdate` and `MergePatchCreateOrUpdate` templates.
+
+### Bug Fixes
+
+- [#7168](https://github.com/microsoft/typespec/pull/7168) Replace optional param validation requiring use with path expansion and replace with a warning when the resulting url might have a double `/`
+
+
+## 1.0.0-rc.1
+
+### Features
+
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Updates `$.httpOperation.get` to be a diagnosable - use `$.httpOperation.get.withDiagnostics` to get diagnostics
+- [#6949](https://github.com/microsoft/typespec/pull/6949) Improved types for HTTP multipart payloads for more precise guarantees and additional information about the resolution of individual parts.
+
+### Bug Fixes
+
+- [#6962](https://github.com/microsoft/typespec/pull/6962) Fixes issue where each variant of a `@discriminated` union was treated as a separate response instead of the whole union being treated as a single response.
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Handle tuples without nodes
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes

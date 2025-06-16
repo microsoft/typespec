@@ -1,5 +1,5 @@
 import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
+import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
@@ -17,6 +17,7 @@ export interface CSharpEmitterOptions {
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
   "generator-name"?: string;
+  "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
@@ -46,8 +47,18 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
         "set this option to the version that should be used to generate against.",
     },
-    "generate-protocol-methods": { type: "boolean", nullable: true },
-    "generate-convenience-methods": { type: "boolean", nullable: true },
+    "generate-protocol-methods": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to skip generation of protocol methods. The default value is `true`.",
+    },
+    "generate-convenience-methods": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `false` to skip generation of convenience methods. The default value is `true`.",
+    },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
@@ -83,7 +94,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       type: "string",
       enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
-      description: "Set the log level. The default value is `info`.",
+      description: "Set the log level for which to collect traces. The default value is `info`.",
     },
     "disable-xml-docs": {
       type: "boolean",
@@ -96,6 +107,12 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.",
+    },
+    "emitter-extension-path": {
+      type: "string",
+      nullable: true,
+      description:
+        "Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.",
     },
     "update-code-model": {
       type: "object",
@@ -158,14 +175,4 @@ export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
   return {
     ...resolvedOptions,
   };
-}
-
-/**
- * Resolves the output folder for the CSharp emitter.
- * @param context - The emit context.
- * @returns The resolved output folder path.
- * @internal
- */
-export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
-  return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }

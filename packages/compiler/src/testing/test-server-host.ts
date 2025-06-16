@@ -1,7 +1,8 @@
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic } from "vscode-languageserver/node.js";
+import { Diagnostic, FileChangeType } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
+import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { createStringMap } from "../utils/misc.js";
@@ -76,8 +77,32 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       }
       return pathToFileURL(resolveVirtualPath(path)).href;
     },
-    applyEdit(paramOrEdit) {
-      return Promise.resolve({ applied: false });
+    async applyEdit(paramOrEdit) {
+      if ("changes" in paramOrEdit) {
+        const changes = paramOrEdit.changes || {};
+        for (const uri in changes) {
+          const path = resolvePath(this.compilerHost.fileURLToPath(uri));
+          const document = this.fs.get(path);
+          if (document) {
+            const lines = document.split("\n");
+            changes[uri].map((edit) => {
+              const curLineIdx = edit.range.start.line;
+              lines[curLineIdx] =
+                lines[curLineIdx].slice(0, edit.range.start.character) +
+                edit.newText +
+                lines[curLineIdx].slice(edit.range.end.character);
+
+              this.fs.set(path, lines.join("\n"));
+            });
+          }
+
+          server.watchedFilesChanged({
+            changes: [{ uri, type: FileChangeType.Changed }],
+          });
+        }
+      }
+
+      return Promise.resolve({ applied: true });
     },
   };
 

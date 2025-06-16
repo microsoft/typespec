@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+a {
+  color: var(--colorBrandForeground1);
+  text-decoration: none;
+  transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+}

@@ -294,7 +294,6 @@ describe("openapi: decorators", () => {
         #suppress "deprecated" "Test"
         @service(#{ 
           title: "Service API", 
-          version: "2.0.0" 
         })
         @summary("My summary")
         @info(#{

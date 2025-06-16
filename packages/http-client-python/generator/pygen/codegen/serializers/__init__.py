@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
+import json
 from collections import namedtuple
 import re
 from typing import List, Any, Union
@@ -143,6 +144,13 @@ class JinjaSerializer(ReaderAndWriter):
                         self._serialize_and_write_sample(env, namespace=client_namespace)
                     if self.code_model.options["generate_test"]:
                         self._serialize_and_write_test(env, namespace=client_namespace)
+
+                # add _metadata.json
+                if self.code_model.metadata:
+                    self.write_file(
+                        exec_path / Path("_metadata.json"),
+                        json.dumps(self.code_model.metadata, indent=2),
+                    )
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
@@ -153,7 +161,7 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
@@ -404,25 +412,41 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_config_file(clients),
                 )
 
-                # sometimes we need define additional Mixin class for client in _vendor.py
-                self._serialize_and_write_vendor_file(env, namespace)
+                # sometimes we need define additional Mixin class for client in _utils.py
+                self._serialize_and_write_utils_folder(env, namespace)
 
-    def _serialize_and_write_vendor_file(self, env: Environment, namespace: str) -> None:
+    def _serialize_and_write_utils_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
-        # write _vendor.py
-        for async_mode, async_path in self.serialize_loop:
-            if self.code_model.need_vendored_code(async_mode=async_mode, client_namespace=namespace):
-                self.write_file(
-                    exec_path / Path(f"{async_path}_vendor.py"),
-                    GeneralSerializer(
-                        code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace
-                    ).serialize_vendor_file(),
-                )
+        general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
+        utils_folder_path = exec_path / Path("_utils")
+        if self.code_model.need_utils_folder(async_mode=False, client_namespace=namespace):
+            self.write_file(
+                utils_folder_path / Path("__init__.py"),
+                self.code_model.license_header,
+            )
+        if self.code_model.need_utils_utils(async_mode=False, client_namespace=namespace):
+            self.write_file(
+                utils_folder_path / Path("utils.py"),
+                general_serializer.need_utils_utils_file(),
+            )
+        # write _utils/serialization.py
+        if self.code_model.need_utils_serialization:
+            self.write_file(
+                utils_folder_path / Path("serialization.py"),
+                general_serializer.serialize_serialization_file(),
+            )
+
+        # write _model_base.py
+        if self.code_model.options["models_mode"] == "dpg":
+            self.write_file(
+                utils_folder_path / Path("model_base.py"),
+                general_serializer.serialize_model_base_file(),
+            )
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
-        # write _vendor.py
-        self._serialize_and_write_vendor_file(env, namespace)
+        # write _utils folder
+        self._serialize_and_write_utils_folder(env, namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
@@ -431,20 +455,6 @@ class JinjaSerializer(ReaderAndWriter):
 
         # write the empty py.typed file
         self.write_file(exec_path / Path("py.typed"), "# Marker file for PEP 561.")
-
-        # write _serialization.py
-        if not self.code_model.options["client_side_validation"] and not self.code_model.options["multiapi"]:
-            self.write_file(
-                exec_path / Path("_serialization.py"),
-                general_serializer.serialize_serialization_file(),
-            )
-
-        # write _model_base.py
-        if self.code_model.options["models_mode"] == "dpg":
-            self.write_file(
-                exec_path / Path("_model_base.py"),
-                general_serializer.serialize_model_base_file(),
-            )
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):

@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,8 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class TRex : IJsonModel<TRex>
     {
+        internal TRex() => throw null;
+
         void IJsonModel<TRex>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,9 +29,5 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
         protected override Dinosaur PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<TRex>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(TRex tRex) => throw null;
-
-        public static explicit operator TRex(ClientResult result) => throw null;
     }
 }

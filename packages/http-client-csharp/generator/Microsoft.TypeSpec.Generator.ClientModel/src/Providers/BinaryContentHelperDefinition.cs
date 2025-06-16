@@ -21,7 +21,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string _fromDictionaryName = "FromDictionary";
         private const string _fromObjectName = "FromObject";
 
-        private readonly CSharpType _requestBodyType = typeof(BinaryContent);
+        private readonly CSharpType _requestBodyType =
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 
@@ -69,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartArray(),
-                new ForeachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
+                new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
                     writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
                 },
@@ -100,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartArray(),
-                new ForeachStatement("item", enumerableParameter.As<IEnumerable<BinaryData>>(), out var item)
+                new ForEachStatement("item", enumerableParameter.As<IEnumerable<BinaryData>>(), out var item)
                 {
                     new IfElseStatement(
                         item.Equal(Null),
@@ -174,7 +175,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartObject(),
-                new ForeachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
+                new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
                     writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
@@ -206,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartObject(),
-                new ForeachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
+                new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
                     new IfElseStatement(

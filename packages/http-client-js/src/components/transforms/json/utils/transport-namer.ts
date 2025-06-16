@@ -1,8 +1,8 @@
 import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { type Typekit } from "@typespec/compiler/typekit";
 import { reportDiagnostic } from "../../../../lib.js";
 
-export function getJsonTransportName(type: Type) {
+export function getJsonTransportName($: Typekit, type: Type) {
   if (!("name" in type)) {
     reportDiagnostic($.program, { code: "no-name-type", target: type });
     return "";

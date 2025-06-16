@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace Sample.Models
 {
-    /// <summary> fooModel description. </summary>
     public partial class FooModel : global::Sample.Models.MockInputModel
     {
         internal FooModel() : base(global::Sample.Models.DiscriminatorValue.FooValue)
@@ -18,7 +17,6 @@ namespace Sample.Models
         {
         }
 
-        /// <summary> Description for prop1. </summary>
         public override virtual global::System.Collections.Generic.IList<int> Prop1 { get; }
     }
 }

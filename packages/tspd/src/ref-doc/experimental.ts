@@ -4,17 +4,19 @@ import {
   Diagnostic,
   joinPaths,
   NodeHost,
-  type PackageJson,
 } from "@typespec/compiler";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import prettier from "prettier";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderReadme } from "./emitters/markdown.js";
 import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
+import { writeTypekitDocs } from "./typekit-docs.js";
 import { TypeSpecRefDocBase } from "./types.js";
+import { readPackageJson } from "./utils/misc.js";
 
 export interface GenerateLibraryDocsOptions {
+  typekits?: boolean;
   skipJSApi?: boolean;
 }
 /**
@@ -41,8 +43,13 @@ export async function generateLibraryDocs(
     config ?? {},
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
-  if (pkgJson.main && !options.skipJSApi) {
-    await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+  if (!options.skipJSApi) {
+    if (options.typekits) {
+      await writeTypekitDocs(libraryPath, outputDir);
+    }
+    if (pkgJson.main) {
+      await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
+    }
   }
   return diagnostics.diagnostics;
 }
@@ -67,10 +74,6 @@ export async function resolveLibraryRefDocsBase(
   return undefined;
 }
 
-async function readPackageJson(libraryPath: string): Promise<PackageJson> {
-  const buffer = await readFile(joinPaths(libraryPath, "package.json"));
-  return JSON.parse(buffer.toString());
-}
 async function formatMarkdown(
   filename: string,
   content: string,

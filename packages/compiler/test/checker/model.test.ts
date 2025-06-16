@@ -68,26 +68,6 @@ describe("compiler: models", () => {
     match(diagnostics[0].message, /Model already has a property/);
   });
 
-  it("doesn't invoke decorators on uninstantiated templates", async () => {
-    const blues = new WeakSet();
-    let calls = 0;
-    testHost.addJsFile("dec.js", {
-      $blue(p: any, t: Type) {
-        calls++;
-        blues.add(t);
-      },
-    });
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      import "./dec.js";
-      @blue model A<T> { @blue x: int32}
-      `,
-    );
-    await testHost.compile("./");
-    strictEqual(calls, 0);
-  });
-
   it("emit single error when there is an invalid ref in a templated type", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -192,6 +172,34 @@ describe("compiler: models", () => {
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "StringValue");
         deepStrictEqual(foo.defaultValue?.value, "up-value");
+      });
+    });
+
+    describe("using a template parameter", () => {
+      it(`set it with valid constraint`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A<T extends valueof string> { @test foo?: string = T }
+        alias Test = A<"Abc">;
+        `,
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "StringValue");
+      });
+
+      it(`error if constraint is not compatible with property type`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A<T extends valueof int32> { @test foo?: string = T }
+        `,
+        );
+        const diagnostics = await testHost.diagnose("main.tsp");
+        expectDiagnostics(diagnostics, {
+          code: "unassignable",
+          message: "Type 'int32' is not assignable to type 'string'",
+        });
       });
     });
   });

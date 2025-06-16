@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -92,7 +91,7 @@ public class Main {
 
             // ensure the process exits as expected
             System.exit(0);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Unhandled error.", e);
             System.exit(1);
         }
@@ -172,38 +171,12 @@ public class Main {
         javaPackage.getTextFiles()
             .forEach(textFile -> typeSpecPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
         // resources
-        String artifactId = ClientModelUtil.getArtifactId();
-        if (settings.isBranded()) {
+        if (settings.isAzureV1()) {
+            String artifactId = ClientModelUtil.getArtifactId();
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
                 typeSpecPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
                     "name=${project.artifactId}\nversion=${project.version}\n", null);
             }
-        }
-
-        boolean includeApiViewProperties
-            = emitterOptions.getIncludeApiViewProperties() != null && emitterOptions.getIncludeApiViewProperties();
-        if (includeApiViewProperties && !CoreUtils.isNullOrEmpty(typeSpecPlugin.getCrossLanguageDefinitionMap())) {
-            String flavor = emitterOptions.getFlavor() == null ? "azure" : emitterOptions.getFlavor();
-            StringBuilder sb
-                = new StringBuilder("{\n  \"flavor\": \"" + flavor + "\", \n  \"CrossLanguageDefinitionId\": {\n");
-            AtomicBoolean first = new AtomicBoolean(true);
-            typeSpecPlugin.getCrossLanguageDefinitionMap().forEach((key, value) -> {
-                if (first.get()) {
-                    first.set(false);
-                } else {
-                    sb.append(",\n");
-                }
-                sb.append("    \"").append(key).append("\": ");
-                if (value == null) {
-                    sb.append("null");
-                } else {
-                    sb.append("\"").append(value).append("\"");
-                }
-            });
-            sb.append("\n  }\n}\n");
-
-            typeSpecPlugin.writeFile("src/main/resources/META-INF/" + artifactId + "_apiview_properties.json",
-                sb.toString(), null);
         }
     }
 

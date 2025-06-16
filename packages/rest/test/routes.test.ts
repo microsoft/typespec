@@ -575,13 +575,13 @@ describe("uri template", () => {
   describe("build uriTemplate from parameter", () => {
     it.each([
       ["@path one: string", "/foo/{one}"],
-      ["@path one?: string", "/foo/{/one}"],
+      ["@path one?: string", "/foo{/one}"],
       ["@path(#{allowReserved: true}) one: string", "/foo/{+one}"],
       ["@path(#{explode: true}) one: string", "/foo/{one*}"],
       [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
       [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
       [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
-      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
       // cspell:ignore Atwo

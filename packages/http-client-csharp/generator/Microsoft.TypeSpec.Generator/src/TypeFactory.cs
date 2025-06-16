@@ -12,30 +12,24 @@ namespace Microsoft.TypeSpec.Generator
 {
     public class TypeFactory
     {
-        private ChangeTrackingListDefinition? _changeTrackingListProvider;
-        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingListDefinition ChangeTrackingListProvider { get; } = new();
 
-        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
+        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider { get; } = [];
 
-        private Dictionary<EnumCacheKey, EnumProvider?>? _enumCache;
-        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache => _enumCache ??= [];
+        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
-        private Dictionary<InputType, CSharpType?>? _typeCache;
-        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
+        private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
 
-        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+        private Dictionary<InputProperty, PropertyProvider?> PropertyCache { get; } = [];
 
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        private HashSet<string>? _unionTypes;
-        internal HashSet<string> UnionTypes => _unionTypes ??= [];
+        private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
+
+        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -62,6 +56,11 @@ namespace Microsoft.TypeSpec.Generator
                     var input = CreateCSharpType(literalType.ValueType);
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
+                case InputEnumTypeValue enumValueType:
+                    // for enum value, we redirect to its corresponding enum type as a literal
+                    var enumValue = CreateCSharpType(enumValueType.EnumType);
+                    type = enumValue != null ? CSharpType.FromLiteral(enumValue, enumValueType.Value) : null;
+                    break;
                 case InputUnionType unionType:
                     var unionInputs = new List<CSharpType>();
                     foreach (var variant in unionType.VariantTypes)
@@ -70,7 +69,11 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            UnionTypes.Add(unionInput.Name);
+                            // we only keep the type if it is not framework type and not literal
+                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
+                            {
+                                UnionVariantTypesToKeep.Add(unionInput.Name);
+                            }
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -190,10 +193,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
         /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
-        public ParameterProvider CreateParameter(InputParameter parameter)
+        public ParameterProvider? CreateParameter(InputParameter parameter)
             => CreateParameterCore(parameter);
 
-        protected virtual ParameterProvider CreateParameterCore(InputParameter parameter)
+        protected virtual ParameterProvider? CreateParameterCore(InputParameter parameter)
             => new ParameterProvider(parameter);
 
         /// <summary>
@@ -201,7 +204,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The input property.</param>
         /// <returns>The property provider.</returns>
-        public PropertyProvider? CreateProperty(InputModelProperty property, TypeProvider enclosingType)
+        public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
                 return propertyProvider;
@@ -217,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
+        protected virtual PropertyProvider? CreatePropertyCore(InputProperty property, TypeProvider enclosingType)
         {
             PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
             if (Visitors.Count == 0)

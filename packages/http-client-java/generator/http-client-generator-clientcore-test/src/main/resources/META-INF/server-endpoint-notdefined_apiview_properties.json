@@ -2,8 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "server.endpoint.notdefined.NotDefinedClient": "Server.Endpoint.NotDefined",
-    "server.endpoint.notdefined.NotDefinedClient.valid": "Server.Endpoint.NotDefined.valid",
-    "server.endpoint.notdefined.NotDefinedClient.validWithResponse": "Server.Endpoint.NotDefined.valid",
     "server.endpoint.notdefined.NotDefinedClientBuilder": "Server.Endpoint.NotDefined"
   }
 }

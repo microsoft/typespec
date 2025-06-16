@@ -1,9 +1,12 @@
 package routes;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import routes.implementation.RoutesClientImpl;
 
@@ -12,7 +15,7 @@ import routes.implementation.RoutesClientImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class RoutesClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final RoutesClientImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class RoutesClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     RoutesClient(RoutesClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -28,13 +31,16 @@ public final class RoutesClient {
     /**
      * The fixed operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> fixedWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.fixedWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fixedWithResponse(RequestContext requestContext) {
+        return this.serviceClient.fixedWithResponse(requestContext);
     }
 
     /**
@@ -43,10 +49,9 @@ public final class RoutesClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void fixed() {
-        // Generated convenience method for fixedWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        fixedWithResponse(requestOptions).getValue();
+        fixedWithResponse(RequestContext.none());
     }
 }

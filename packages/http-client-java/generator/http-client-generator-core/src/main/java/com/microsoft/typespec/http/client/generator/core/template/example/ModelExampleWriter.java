@@ -108,8 +108,16 @@ public class ModelExampleWriter {
 
         private final List<String> assertions = new ArrayList<>();
 
-        private void addEqualsAssertion(String expected, String code) {
-            assertions.add(String.format("Assertions.assertEquals(%1$s, %2$s);", expected, code));
+        private void addEqualsAssertion(String expected, String code, boolean booleanAssertion) {
+            if (booleanAssertion) {
+                if (Boolean.parseBoolean(expected)) {
+                    assertions.add(String.format("Assertions.assertTrue(%s);", code));
+                } else {
+                    assertions.add(String.format("Assertions.assertFalse(%s);", code));
+                }
+            } else {
+                assertions.add(String.format("Assertions.assertEquals(%1$s, %2$s);", expected, code));
+            }
         }
 
         public void accept(ExampleNode node, String getterCode) {
@@ -117,7 +125,7 @@ public class ModelExampleWriter {
                 node.getClientType().addImportsTo(imports, false);
 
                 addEqualsAssertion(node.getClientType().defaultValueExpression(((LiteralNode) node).getLiteralsValue()),
-                    getterCode);
+                    getterCode, node.getClientType().asNullable() == ClassType.BOOLEAN);
             } else if (node instanceof ObjectNode) {
                 // additionalProperties
             } else if (node instanceof ListNode) {

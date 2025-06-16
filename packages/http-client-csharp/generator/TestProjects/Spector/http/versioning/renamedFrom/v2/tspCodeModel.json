@@ -101,9 +101,75 @@
    "decorators": []
   }
  ],
- "models": [
+ "constants": [
   {
    "$id": "12",
+   "kind": "constant",
+   "name": "newOpContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "14",
+   "kind": "constant",
+   "name": "newOpContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "15",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "16",
+   "kind": "constant",
+   "name": "newOpInNewInterfaceContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "17",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "18",
+   "kind": "constant",
+   "name": "newOpInNewInterfaceContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "19",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "20",
    "kind": "model",
    "name": "NewModel",
    "namespace": "Versioning.RenamedFrom",
@@ -112,12 +178,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "13",
+     "$id": "21",
      "kind": "property",
      "name": "newProp",
      "serializedName": "newProp",
      "type": {
-      "$id": "14",
+      "$id": "22",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -130,15 +196,15 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewModel.newProp",
      "serializationOptions": {
-      "$id": "15",
+      "$id": "23",
       "json": {
-       "$id": "16",
+       "$id": "24",
        "name": "newProp"
       }
      }
     },
     {
-     "$id": "17",
+     "$id": "25",
      "kind": "property",
      "name": "enumProp",
      "serializedName": "enumProp",
@@ -152,37 +218,37 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewModel.enumProp",
      "serializationOptions": {
-      "$id": "18",
+      "$id": "26",
       "json": {
-       "$id": "19",
+       "$id": "27",
        "name": "enumProp"
       }
      }
     },
     {
-     "$id": "20",
+     "$id": "28",
      "kind": "property",
      "name": "unionProp",
      "serializedName": "unionProp",
      "type": {
-      "$id": "21",
+      "$id": "29",
       "kind": "union",
       "name": "NewUnion",
       "variantTypes": [
        {
-        "$id": "22",
+        "$id": "30",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        {
-        "$id": "23",
+        "$id": "31",
         "kind": "int32",
         "name": "NewScalar",
         "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewScalar",
         "baseType": {
-         "$id": "24",
+         "$id": "32",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -201,9 +267,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewModel.unionProp",
      "serializationOptions": {
-      "$id": "25",
+      "$id": "33",
       "json": {
-       "$id": "26",
+       "$id": "34",
        "name": "unionProp"
       }
      }
@@ -213,14 +279,14 @@
  ],
  "clients": [
   {
-   "$id": "27",
+   "$id": "35",
    "kind": "client",
    "name": "RenamedFromClient",
    "namespace": "Versioning.RenamedFrom",
    "doc": "Test for the `@renamedFrom` decorator.",
    "methods": [
     {
-     "$id": "28",
+     "$id": "36",
      "kind": "basic",
      "name": "newOp",
      "accessibility": "public",
@@ -229,17 +295,17 @@
       "v2"
      ],
      "operation": {
-      "$id": "29",
+      "$id": "37",
       "name": "newOp",
       "resourceName": "RenamedFrom",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "30",
+        "$id": "38",
         "name": "newQuery",
         "nameInRequest": "newQuery",
         "type": {
-         "$id": "31",
+         "$id": "39",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -256,22 +322,12 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "32",
+        "$id": "40",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "33",
-         "kind": "constant",
-         "valueType": {
-          "$id": "34",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "12"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -284,21 +340,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "35",
+        "$id": "41",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "36",
-         "kind": "constant",
-         "valueType": {
-          "$id": "37",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "14"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -311,11 +357,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "38",
+        "$id": "42",
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$ref": "12"
+         "$ref": "20"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -330,12 +376,12 @@
       ],
       "responses": [
        {
-        "$id": "39",
+        "$id": "43",
         "statusCodes": [
          200
         ],
         "bodyType": {
-         "$ref": "12"
+         "$ref": "20"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -358,11 +404,11 @@
      },
      "parameters": [
       {
-       "$id": "40",
+       "$id": "44",
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$ref": "12"
+        "$ref": "20"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -375,11 +421,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "41",
+       "$id": "45",
        "name": "newQuery",
        "nameInRequest": "newQuery",
        "type": {
-        "$id": "42",
+        "$id": "46",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -396,12 +442,12 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "43",
+       "$id": "47",
        "name": "contentType",
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "33"
+        "$ref": "12"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -414,11 +460,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "44",
+       "$id": "48",
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "36"
+        "$ref": "14"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -432,9 +478,9 @@
       }
      ],
      "response": {
-      "$id": "45",
+      "$id": "49",
       "type": {
-       "$ref": "12"
+       "$ref": "20"
       }
      },
      "isOverride": false,
@@ -445,14 +491,14 @@
    ],
    "parameters": [
     {
-     "$id": "46",
+     "$id": "50",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Need to be set as 'http://localhost:3000' in client.",
      "type": {
-      "$id": "47",
+      "$id": "51",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -462,10 +508,11 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     },
     {
-     "$id": "48",
+     "$id": "52",
      "name": "version",
      "nameInRequest": "version",
      "doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -479,7 +526,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
     }
    ],
    "decorators": [],
@@ -490,13 +538,13 @@
    ],
    "children": [
     {
-     "$id": "49",
+     "$id": "53",
      "kind": "client",
      "name": "NewInterface",
      "namespace": "Versioning.RenamedFrom",
      "methods": [
       {
-       "$id": "50",
+       "$id": "54",
        "kind": "basic",
        "name": "newOpInNewInterface",
        "accessibility": "public",
@@ -505,28 +553,18 @@
         "v2"
        ],
        "operation": {
-        "$id": "51",
+        "$id": "55",
         "name": "newOpInNewInterface",
         "resourceName": "NewInterface",
         "accessibility": "public",
         "parameters": [
          {
-          "$id": "52",
+          "$id": "56",
           "name": "contentType",
           "nameInRequest": "Content-Type",
           "doc": "Body parameter's content type. Known values are application/json",
           "type": {
-           "$id": "53",
-           "kind": "constant",
-           "valueType": {
-            "$id": "54",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "value": "application/json",
-           "decorators": []
+           "$ref": "16"
           },
           "location": "Header",
           "isApiVersion": false,
@@ -539,21 +577,11 @@
           "skipUrlEncoding": false
          },
          {
-          "$id": "55",
+          "$id": "57",
           "name": "accept",
           "nameInRequest": "Accept",
           "type": {
-           "$id": "56",
-           "kind": "constant",
-           "valueType": {
-            "$id": "57",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "value": "application/json",
-           "decorators": []
+           "$ref": "18"
           },
           "location": "Header",
           "isApiVersion": false,
@@ -570,7 +598,7 @@
           "name": "body",
           "nameInRequest": "body",
           "type": {
-           "$ref": "12"
+           "$ref": "20"
           },
           "location": "Body",
           "isApiVersion": false,
@@ -590,7 +618,7 @@
            200
           ],
           "bodyType": {
-           "$ref": "12"
+           "$ref": "20"
           },
           "headers": [],
           "isErrorResponse": false,
@@ -617,7 +645,7 @@
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$ref": "12"
+          "$ref": "20"
          },
          "location": "Body",
          "isApiVersion": false,
@@ -635,7 +663,7 @@
          "nameInRequest": "contentType",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$ref": "53"
+          "$ref": "16"
          },
          "location": "Header",
          "isApiVersion": false,
@@ -652,7 +680,7 @@
          "name": "accept",
          "nameInRequest": "accept",
          "type": {
-          "$ref": "56"
+          "$ref": "18"
          },
          "location": "Header",
          "isApiVersion": false,
@@ -668,7 +696,7 @@
        "response": {
         "$id": "63",
         "type": {
-         "$ref": "12"
+         "$ref": "20"
         }
        },
        "isOverride": false,
@@ -686,7 +714,7 @@
        "type": {
         "$id": "65",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -696,7 +724,8 @@
        "isEndpoint": true,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       },
       {
        "$id": "66",
@@ -713,7 +742,8 @@
        "isEndpoint": false,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/versioning/renamed-from/api-version:{version}"
       }
      ],
      "decorators": [],
@@ -723,7 +753,7 @@
       "v2"
      ],
      "parent": {
-      "$ref": "27"
+      "$ref": "35"
      }
     }
    ]

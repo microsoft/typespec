@@ -71,7 +71,7 @@ public class StreamStyleSerializationTests {
     public void testExpandableEnum() {
         HttpClient httpClient = createExpandableEnumHttpClient();
         // normal case
-        ArmStreamStyleSerializationManager manager = ArmStreamStyleSerializationManager
+        ArmResourceProviderManager manager = ArmResourceProviderManager
             .authenticate(new HttpPipelineBuilder().httpClient(httpClient).build(), ArmUtils.getAzureProfile());
         Priority priority = manager.priorities().setPriority(Priority.HIGH);
         Assertions.assertEquals(Priority.HIGH, priority);

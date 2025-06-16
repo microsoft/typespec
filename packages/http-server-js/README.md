@@ -10,7 +10,7 @@ TypeSpec HTTP server code generator for JavaScript
 npm install @typespec/http-server-js
 ```
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -37,6 +37,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-server-js`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `express`
 
 **Type:** `boolean`
@@ -44,6 +51,12 @@ options:
 If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.
 
 If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.
+
+### `datetime`
+
+**Type:** `"temporal-polyfill" | "temporal" | "date-duration"`
+
+The type of datetime models to use for TypeSpecs DateTime and Duration types.
 
 ### `omit-unreachable-types`
 

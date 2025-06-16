@@ -1,7 +1,8 @@
-import { refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, Operation } from "@typespec/compiler";
+import { useTsp } from "../../core/index.js";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
+import { declarationRefkeys } from "../utils/refkey.js";
 import { TypeExpression } from "./type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
@@ -15,14 +16,19 @@ export type FunctionDeclarationProps =
   | FunctionDeclarationPropsWithType
   | ts.FunctionDeclarationProps;
 
+/**
+ * A TypeScript function declaration. Pass the `type` prop to create the
+ * function declaration by converting from a TypeSpec Operation. Any other props
+ * provided will take precedence.
+ */
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
+  const { $ } = useTsp();
+
   if (!isTypedFunctionDeclarationProps(props)) {
-    if (!props.name) {
-    }
     return <ts.FunctionDeclaration {...props} />;
   }
 
-  const refkey = props.refkey ?? getRefkey(props.type);
+  const refkeys = declarationRefkeys(props.refkey, props.type);
 
   let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 
@@ -37,17 +43,19 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     params: props.parameters,
     mode: props.parametersMode,
   });
+  const doc = props.doc ?? $.type.getDoc(props.type);
   return (
     <ts.FunctionDeclaration
-      refkey={refkey}
+      doc={doc}
+      refkey={refkeys}
       name={name}
       async={props.async}
       default={props.default}
       export={props.export}
       kind={props.kind}
       returnType={returnType}
+      parameters={allParameters}
     >
-      <ts.FunctionDeclaration.Parameters parameters={allParameters} />
       {props.children}
     </ts.FunctionDeclaration>
   );

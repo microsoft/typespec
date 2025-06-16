@@ -11,6 +11,8 @@ namespace Parameters.Spread._Model
 {
     public partial class BodyParameter : IJsonModel<BodyParameter>
     {
+        internal BodyParameter() => throw null;
+
         void IJsonModel<BodyParameter>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -30,7 +32,5 @@ namespace Parameters.Spread._Model
         string IPersistableModel<BodyParameter>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
         public static implicit operator BinaryContent(BodyParameter bodyParameter) => throw null;
-
-        public static explicit operator BodyParameter(ClientResult result) => throw null;
     }
 }

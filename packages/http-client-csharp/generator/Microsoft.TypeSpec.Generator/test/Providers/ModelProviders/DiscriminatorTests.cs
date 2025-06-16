@@ -61,11 +61,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 { "otherAnimal", _anotherAnimal }
             });
 
-        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", InputPrimitiveType.String, isExtensible: true, values:
+        private static readonly InputEnumType _petEnum = InputFactory.StringEnum("pet",
         [
-            InputFactory.EnumMember.String("cat", "cat"),
-            InputFactory.EnumMember.String("dog", "dog")
-        ]);
+            ("cat", "cat"),
+            ("dog", "dog")
+        ], isExtensible: true);
         private static readonly InputModelType _catEnumModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true),

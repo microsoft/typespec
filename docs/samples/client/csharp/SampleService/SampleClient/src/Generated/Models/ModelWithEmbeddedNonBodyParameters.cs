@@ -15,21 +15,50 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/>. </summary>
         /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public ModelWithEmbeddedNonBodyParameters(string name)
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredHeader"/> or <paramref name="requiredQuery"/> is null. </exception>
+        public ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string requiredQuery)
         {
             Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(requiredHeader, nameof(requiredHeader));
+            Argument.AssertNotNull(requiredQuery, nameof(requiredQuery));
 
             Name = name;
+            RequiredHeader = requiredHeader;
+            RequiredQuery = requiredQuery;
         }
 
-        internal ModelWithEmbeddedNonBodyParameters(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        /// <summary> Initializes a new instance of <see cref="ModelWithEmbeddedNonBodyParameters"/>. </summary>
+        /// <param name="name"> name of the ModelWithEmbeddedNonBodyParameters. </param>
+        /// <param name="requiredHeader"> required header parameter. </param>
+        /// <param name="optionalHeader"> optional header parameter. </param>
+        /// <param name="requiredQuery"> required query parameter. </param>
+        /// <param name="optionalQuery"> optional query parameter. </param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal ModelWithEmbeddedNonBodyParameters(string name, string requiredHeader, string optionalHeader, string requiredQuery, string optionalQuery, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
+            RequiredHeader = requiredHeader;
+            OptionalHeader = optionalHeader;
+            RequiredQuery = requiredQuery;
+            OptionalQuery = optionalQuery;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> name of the ModelWithEmbeddedNonBodyParameters. </summary>
         public string Name { get; }
+
+        /// <summary> required header parameter. </summary>
+        public string RequiredHeader { get; }
+
+        /// <summary> optional header parameter. </summary>
+        public string OptionalHeader { get; set; }
+
+        /// <summary> required query parameter. </summary>
+        public string RequiredQuery { get; }
+
+        /// <summary> optional query parameter. </summary>
+        public string OptionalQuery { get; set; }
     }
 }

@@ -1,11 +1,13 @@
 package type.enumnamespace.fixed;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.enumnamespace.fixed.implementation.StringOperationsImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.enumnamespace.fixed.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = FixedClientBuilder.class)
 public final class FixedClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringOperationsImpl serviceClient;
 
     /**
@@ -21,68 +23,24 @@ public final class FixedClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     FixedClient(StringOperationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * getKnownValue.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * String(Monday/Tuesday/Wednesday/Thursday/Friday/Saturday/Sunday)
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
      */
-    @Metadata(generated = true)
-    public Response<DaysOfWeekEnum> getKnownValueWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getKnownValueWithResponse(requestOptions);
-    }
-
-    /**
-     * putKnownValue.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String(Monday/Tuesday/Wednesday/Thursday/Friday/Saturday/Sunday)
-     * }
-     * </pre>
-     * 
-     * @param body _.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putKnownValueWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putKnownValueWithResponse(body, requestOptions);
-    }
-
-    /**
-     * putUnknownValue.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String(Monday/Tuesday/Wednesday/Thursday/Friday/Saturday/Sunday)
-     * }
-     * </pre>
-     * 
-     * @param body _.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putUnknownValueWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putUnknownValueWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<DaysOfWeekEnum> getKnownValueWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getKnownValueWithResponse(requestContext);
     }
 
     /**
@@ -92,11 +50,26 @@ public final class FixedClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public DaysOfWeekEnum getKnownValue() {
-        // Generated convenience method for getKnownValueWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getKnownValueWithResponse(requestOptions).getValue();
+        return getKnownValueWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * putKnownValue.
+     * 
+     * @param body _.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putKnownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
+        return this.serviceClient.putKnownValueWithResponse(body, requestContext);
     }
 
     /**
@@ -107,12 +80,26 @@ public final class FixedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putKnownValue(DaysOfWeekEnum body) {
-        // Generated convenience method for putKnownValueWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putKnownValueWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .getValue();
+        putKnownValueWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * putUnknownValue.
+     * 
+     * @param body _.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putUnknownValueWithResponse(DaysOfWeekEnum body, RequestContext requestContext) {
+        return this.serviceClient.putUnknownValueWithResponse(body, requestContext);
     }
 
     /**
@@ -123,11 +110,9 @@ public final class FixedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putUnknownValue(DaysOfWeekEnum body) {
-        // Generated convenience method for putUnknownValueWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putUnknownValueWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .getValue();
+        putUnknownValueWithResponse(body, RequestContext.none());
     }
 }

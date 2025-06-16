@@ -1,11 +1,13 @@
 package payload.mediatype;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import payload.mediatype.implementation.StringBodiesImpl;
 
 /**
@@ -13,7 +15,7 @@ import payload.mediatype.implementation.StringBodiesImpl;
  */
 @ServiceClient(builder = MediaTypeClientBuilder.class)
 public final class MediaTypeClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringBodiesImpl serviceClient;
 
     /**
@@ -21,87 +23,25 @@ public final class MediaTypeClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     MediaTypeClient(StringBodiesImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The sendAsText operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param text The text parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> sendAsTextWithResponse(BinaryData text, RequestOptions requestOptions) {
-        return this.serviceClient.sendAsTextWithResponse(text, requestOptions);
-    }
-
-    /**
-     * The getAsText operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return a sequence of textual characters.
-     */
-    @Metadata(generated = true)
-    public Response<String> getAsTextWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAsTextWithResponse(requestOptions);
-    }
-
-    /**
-     * The sendAsJson operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
-     * 
-     * @param text The text parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> sendAsJsonWithResponse(BinaryData text, RequestOptions requestOptions) {
-        return this.serviceClient.sendAsJsonWithResponse(text, requestOptions);
-    }
-
-    /**
-     * The getAsJson operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return a sequence of textual characters.
-     */
-    @Metadata(generated = true)
-    public Response<String> getAsJsonWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAsJsonWithResponse(requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendAsTextWithResponse(String text, RequestContext requestContext) {
+        return this.serviceClient.sendAsTextWithResponse(text, requestContext);
     }
 
     /**
@@ -112,11 +52,25 @@ public final class MediaTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsText(String text) {
-        // Generated convenience method for sendAsTextWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        sendAsTextWithResponse(BinaryData.fromString(text), requestOptions).getValue();
+        sendAsTextWithResponse(text, RequestContext.none());
+    }
+
+    /**
+     * The getAsText operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a sequence of textual characters.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<String> getAsTextWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getAsTextWithResponse(requestContext);
     }
 
     /**
@@ -126,11 +80,26 @@ public final class MediaTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsText() {
-        // Generated convenience method for getAsTextWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAsTextWithResponse(requestOptions).getValue();
+        return getAsTextWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The sendAsJson operation.
+     * 
+     * @param text The text parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> sendAsJsonWithResponse(String text, RequestContext requestContext) {
+        return this.serviceClient.sendAsJsonWithResponse(text, requestContext);
     }
 
     /**
@@ -141,11 +110,25 @@ public final class MediaTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendAsJson(String text) {
-        // Generated convenience method for sendAsJsonWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        sendAsJsonWithResponse(BinaryData.fromObject(text), requestOptions).getValue();
+        sendAsJsonWithResponse(text, RequestContext.none());
+    }
+
+    /**
+     * The getAsJson operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a sequence of textual characters.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<String> getAsJsonWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getAsJsonWithResponse(requestContext);
     }
 
     /**
@@ -155,10 +138,9 @@ public final class MediaTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public String getAsJson() {
-        // Generated convenience method for getAsJsonWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAsJsonWithResponse(requestOptions).getValue();
+        return getAsJsonWithResponse(RequestContext.none()).getValue();
     }
 }

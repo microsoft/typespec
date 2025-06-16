@@ -4,6 +4,9 @@
 import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
 import { InputType } from "./input-type.js";
+import { OperationFinalStateVia } from "./operation-final-state-via.js";
+import { OperationResponse } from "./operation-response.js";
+import { ResponseLocation } from "./response-location.js";
 
 export type InputServiceMethod =
   | InputBasicServiceMethod
@@ -28,23 +31,51 @@ interface InputServiceMethodBase {
   crossLanguageDefinitionId: string;
 }
 
+export interface InputServiceMethodResponse {
+  type?: InputType;
+  resultSegments?: string[];
+}
+
 export interface InputBasicServiceMethod extends InputServiceMethodBase {
   kind: "basic";
 }
 
 export interface InputPagingServiceMethod extends InputServiceMethodBase {
   kind: "paging";
+  pagingMetadata: InputPagingServiceMetadata;
+}
+
+export interface InputPagingServiceMetadata {
+  nextLink?: InputNextLink;
+  continuationToken?: InputContinuationToken;
+  itemPropertySegments: string[];
+}
+
+export interface InputNextLink {
+  operation?: InputServiceMethod;
+  responseSegments: string[];
+  responseLocation: ResponseLocation;
+}
+
+export interface InputContinuationToken {
+  parameter: InputParameter;
+  responseSegments: string[];
+  responseLocation: ResponseLocation;
 }
 
 export interface InputLongRunningServiceMethod extends InputServiceMethodBase {
   kind: "lro";
+  lroMetadata: InputLongRunningServiceMetadata;
+}
+
+export interface InputLongRunningServiceMetadata {
+  finalStateVia: OperationFinalStateVia;
+  finalResponse: OperationResponse;
+  resultPath?: string;
 }
 
 export interface InputLongRunningPagingServiceMethod extends InputServiceMethodBase {
   kind: "lropaging";
-}
-
-export interface InputServiceMethodResponse {
-  type?: InputType;
-  resultSegments?: string[];
+  lroMetadata: InputLongRunningServiceMetadata;
+  pagingMetadata?: InputPagingServiceMetadata;
 }

@@ -1,9 +1,5 @@
 import { format } from "prettier";
-import Parser from "tree-sitter";
-import CSharpLanguage from "tree-sitter-c-sharp";
-import JavaLanguage from "tree-sitter-java";
-import PythonLanguage from "tree-sitter-python";
-import TypeScriptLanguage from "tree-sitter-typescript";
+import { Language, Node, Parser } from "web-tree-sitter";
 
 // Interface for SnippetExtractor
 export interface SnippetExtractor {
@@ -14,11 +10,23 @@ export interface SnippetExtractor {
   getEnum(fileContent: string, name: string): string | null;
 }
 
-export function createCSharpExtractorConfig(): LanguageConfiguration {
+const wasmMap = {
+  "tree-sitter-c-sharp": "tree-sitter-c-sharp/tree-sitter-c_sharp.wasm",
+  "tree-sitter-java": "tree-sitter-java/tree-sitter-java.wasm",
+  "tree-sitter-python": "tree-sitter-python/tree-sitter-python.wasm",
+  "tree-sitter-typescript": "tree-sitter-typescript/tree-sitter-typescript.wasm",
+};
+
+function loadLanguage(name: keyof typeof wasmMap): Promise<Language> {
+  const path = require.resolve(wasmMap[name]);
+  return Language.load(path);
+}
+
+export async function createCSharpExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["cs", "csharp"],
     format: async (content: string) => content,
-    language: CSharpLanguage,
+    language: await loadLanguage("tree-sitter-c-sharp"),
     nodeKindMapping: {
       classNodeType: "class_declaration",
       functionNodeType: "local_function_statement",
@@ -28,11 +36,11 @@ export function createCSharpExtractorConfig(): LanguageConfiguration {
   };
 }
 
-export function createJavaExtractorConfig(): LanguageConfiguration {
+export async function createJavaExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["java"],
     format: async (content: string) => content,
-    language: JavaLanguage,
+    language: await loadLanguage("tree-sitter-java"),
     nodeKindMapping: {
       classNodeType: "class_declaration",
       functionNodeType: "method_declaration",
@@ -42,11 +50,11 @@ export function createJavaExtractorConfig(): LanguageConfiguration {
   };
 }
 
-export function createPythonExtractorConfig(): LanguageConfiguration {
+export async function createPythonExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["py", "python"],
     format: async (content: string) => content,
-    language: PythonLanguage,
+    language: await loadLanguage("tree-sitter-python"),
     nodeKindMapping: {
       classNodeType: "class_definition",
       functionNodeType: "function_definition",
@@ -54,10 +62,10 @@ export function createPythonExtractorConfig(): LanguageConfiguration {
   };
 }
 
-export function createTypeScriptExtractorConfig(): LanguageConfiguration {
+export async function createTypeScriptExtractorConfig(): Promise<LanguageConfiguration> {
   return {
     codeBlockTypes: ["ts", "typescript"],
-    language: TypeScriptLanguage.typescript,
+    language: await loadLanguage("tree-sitter-typescript"),
     format: async (content: string) => format(content, { parser: "typescript" }),
     nodeKindMapping: {
       classNodeType: "class_declaration",
@@ -68,12 +76,6 @@ export function createTypeScriptExtractorConfig(): LanguageConfiguration {
     },
   };
 }
-
-export type Language = {
-  name: string;
-  language: any;
-  nodeTypeInfo: any[];
-};
 
 export interface LanguageConfiguration {
   language: Language;
@@ -87,6 +89,8 @@ export interface LanguageConfiguration {
     enumNodeType?: string;
   };
 }
+
+await Parser.init();
 
 export function createSnipperExtractor(
   languageConfiguration: LanguageConfiguration,
@@ -151,7 +155,7 @@ class SnippetExtractorImpl implements SnippetExtractor {
   }
 
   // Helper function to extract code from a node
-  private getCodeFromNode(node: Parser.SyntaxNode): string {
+  private getCodeFromNode(node: Node): string {
     // Walk backward to include preceding nodes like 'export', 'public', etc.
     let startIndex = node.startIndex;
     let current = node.previousSibling;
@@ -171,15 +175,12 @@ class SnippetExtractorImpl implements SnippetExtractor {
   }
 
   // Helper function to find a node by type and name in AST
-  private findNodeByTypeAndName(
-    fileContent: string,
-    type: string,
-    name: string,
-  ): Parser.SyntaxNode | null {
+  private findNodeByTypeAndName(fileContent: string, type: string, name: string): Node | null {
     const tree = this.parser.parse(fileContent);
+    if (!tree) return null;
     const rootNode = tree.rootNode; // Start from the root node
 
-    const traverse = (node: Parser.SyntaxNode): Parser.SyntaxNode | null => {
+    const traverse = (node: Node): Node | null => {
       if (node.type === type && node.childForFieldName("name")?.text === name) {
         return node;
       }

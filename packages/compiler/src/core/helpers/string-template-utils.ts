@@ -38,7 +38,7 @@ export function explainStringTemplateNotSerializable(
           diagnostics.add(
             createDiagnostic({
               code: "non-literal-string-template",
-              target: span.node,
+              target: span,
             }),
           );
       }

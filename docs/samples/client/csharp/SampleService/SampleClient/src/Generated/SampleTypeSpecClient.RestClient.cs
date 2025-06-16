@@ -420,7 +420,10 @@ namespace SampleTypeSpec
             }
             request.Uri = uri.ToUri();
             request.Headers.Set("required-header", requiredHeader);
-            request.Headers.Set("optional-header", optionalHeader);
+            if (optionalHeader != null)
+            {
+                request.Headers.Set("optional-header", optionalHeader);
+            }
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
             message.Apply(options);

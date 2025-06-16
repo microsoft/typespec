@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -10,6 +11,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -19,9 +21,8 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class ScmMethodProviderCollection : MethodProviderCollection
+    public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
-        private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
@@ -29,25 +30,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private readonly bool _isPageable;
-        private readonly InputOperationPaging? _paging;
+        private readonly InputPagingServiceMethod? _pagingServiceMethod;
+        private IReadOnlyList<ScmMethodProvider>? _methods;
 
         private ClientProvider Client { get; }
+        protected InputServiceMethod ServiceMethod { get; }
+        protected TypeProvider EnclosingType { get; }
+        public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
+
+        public ScmMethodProvider this[int index]
+        {
+            get { return MethodProviders[index]; }
+        }
+
+        public int Count
+        {
+            get { return MethodProviders.Count; }
+        }
+
+        public IEnumerator<ScmMethodProvider> GetEnumerator()
+        {
+            return MethodProviders.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
-            : base(serviceMethod, enclosingType)
         {
-            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
+            ServiceMethod = serviceMethod;
+            EnclosingType = enclosingType;
+
+            var updatedOperationName = GetCleanOperationName(serviceMethod);
+            ServiceMethod.Update(name: updatedOperationName);
+            ServiceMethod.Operation.Update(name: updatedOperationName);
+
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
-            _isPageable = serviceMethod.Operation.Paging != null;
-            if (_isPageable)
+
+            if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
-                _paging = serviceMethod.Operation.Paging;
+                _pagingServiceMethod = pagingServiceMethod;
             }
         }
 
-        protected override IReadOnlyList<MethodProvider> BuildMethods()
+        private static string GetCleanOperationName(InputServiceMethod serviceMethod)
+        {
+            var operationName = serviceMethod.Operation.Name.ToIdentifierName();
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName.StartsWith("List", StringComparison.Ordinal))
+            {
+                operationName = $"Get{operationName.Substring(4)}";
+            }
+            return operationName;
+        }
+
+        protected virtual IReadOnlyList<ScmMethodProvider> BuildMethods()
         {
             var syncProtocol = BuildProtocolMethod(_createRequestMethod, false);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true);
@@ -77,26 +117,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
-            {
-                methodModifier |= MethodSignatureModifiers.Async;
-            }
-
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifier,
+                protocolMethod.Signature.Modifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
                 [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, ServiceMethod.Operation, responseBodyType, isAsync);
-                methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
+                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
             }
             else if (responseBodyType is null)
             {
@@ -117,9 +151,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
-            // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod);
+
+            if (convenienceMethod.XmlDocs != null)
+            {
+                var exceptions = new List<XmlDocExceptionStatement>(convenienceMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                convenienceMethod.XmlDocs.Update(exceptions: exceptions);
+            }
+
             return convenienceMethod;
         }
 
@@ -127,6 +167,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
             declarations = new Dictionary<string, ValueExpression>();
+            var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+
             foreach (var parameter in convenienceMethodParameters)
             {
                 if (parameter.SpreadSource != null)
@@ -136,17 +178,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromReadOnlyMemory(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.Equals(typeof(string)))
@@ -159,9 +201,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        statements.Add(UsingDeclare("content", BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    // else rely on implicit operator to convert to BinaryContent
                 }
             }
 
@@ -222,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
                             .Add(GetElementConversion(elementType, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -243,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     [
                         valueDeclaration,
                         UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
-                        ForeachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
+                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
                             .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
@@ -463,10 +506,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync && !_isPageable)
+            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+                MethodSignatureModifiers.Public :
+                MethodSignatureModifiers.Internal;
+
+            methodModifiers |= MethodSignatureModifiers.Virtual;
+
+            if (isAsync && _pagingServiceMethod == null)
             {
-                methodModifier |= MethodSignatureModifiers.Async;
+                methodModifiers |= MethodSignatureModifiers.Async;
             }
 
             var requiredParameters = new List<ParameterProvider>();
@@ -504,19 +552,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
 
             var methodSignature = new MethodSignature(
-                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
                 DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifier,
+                methodModifiers,
                 GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
                 parameters);
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
-                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, ServiceMethod.Operation, null, isAsync);
-                methodBody = GetPagingMethodBody(collection, parameters, false);
+                collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
+                methodBody = [.. GetPagingMethodBody(collection, parameters, false)];
             }
             else
             {
@@ -532,71 +580,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod, isProtocolMethod: true);
 
-            // XmlDocs will be null if the method isn't public
             if (protocolMethod.XmlDocs != null)
             {
-                protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                var exceptions = new List<XmlDocExceptionStatement>(protocolMethod.XmlDocs.Exceptions);
+                exceptions.Add(new(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
                 ];
                 XmlDocStatement listXmlDoc = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: [.. listItems]);
-                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
+                var summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? ServiceMethod.Operation.Name}"], listXmlDoc);
+
+                protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
         }
 
-        private MethodBodyStatement[] GetPagingMethodBody(
+        private MethodBodyStatement GetPagingMethodBody(
             TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {
-            return (_paging!.NextLink, isConvenience) switch
+            if (isConvenience)
             {
-                (not null, true) =>
+                return Return(New.Instance(
+                    collection.Type,
+                    [
+                        This,
+                        .. parameters,
+                        IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                    ]));
+            }
+
+            return Return(New.Instance(
+                collection.Type,
                 [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            Null,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                        ]))
-                ],
-                (not null, false) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            Null,
-                            .. parameters
-                        ]))
-                ],
-                (null, true) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters,
-                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
-                        ]))
-                ],
-                (null, false) =>
-                [
-                    Return(New.Instance(
-                        collection.Type,
-                        [
-                            This,
-                            .. parameters
-                        ]))
-                ]
-            };
+                    This,
+                    .. parameters
+                ]));
         }
 
         private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
@@ -608,7 +632,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
             }
 
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 return isAsync
                     ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType
@@ -623,12 +647,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (_isPageable)
+            if (_pagingServiceMethod != null)
             {
                 var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
-                    p.SerializedName == ServiceMethod.Operation.Paging!.ItemPropertySegments[0]);
+                    p.SerializedName == _pagingServiceMethod.PagingMetadata.ItemPropertySegments[0]);
 
-                responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
+                responseBodyType = response?.BodyType is null || type is null ? null : GetResponseBodyType((type.Type as InputArrayType)!.ValueType);
 
                 if (response == null || responseBodyType == null)
                 {
@@ -644,13 +668,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     responseBodyType);
             }
 
-            responseBodyType = response?.BodyType is null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            responseBodyType = response?.BodyType is null ? null : GetResponseBodyType(response.BodyType);
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
+        }
+
+        private static CSharpType? GetResponseBodyType(InputType inputType)
+        {
+            if (inputType is InputModelType inputModelType)
+            {
+                var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModelType);
+                return model?.Type;
+            }
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
         }
 
         private bool ShouldAddOptionalRequestOptionsParameter()

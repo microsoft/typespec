@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.TopLevelArmResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.models.ResultInner;
 import tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner;
-import tsptest.armresourceprovider.implementation.models.TopLevelArmResourceListResult;
+import tsptest.armresourceprovider.implementation.models.ResourceListResult;
 import tsptest.armresourceprovider.models.TopLevelArmResourceUpdate;
 
 /**
@@ -56,25 +56,25 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of TopLevelArmResourceInterfacesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    TopLevelArmResourceInterfacesClientImpl(ArmResourceProviderClientImpl client) {
+    TopLevelArmResourceInterfacesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(TopLevelArmResourceInterfacesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientTopLevelArmResourceInterfaces to be used by
-     * the proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientTopLevelArmResourceInterfaces to be used by the proxy
+     * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientTopLevelArmResourceInterfaces")
     public interface TopLevelArmResourceInterfacesService {
         @Headers({ "Content-Type: application/json" })
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}")
@@ -160,7 +160,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listByResourceGroup(@HostParam("endpoint") String endpoint,
+        Mono<Response<ResourceListResult>> listByResourceGroup(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("Accept") String accept,
             Context context);
@@ -169,7 +169,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listByResourceGroupSync(@HostParam("endpoint") String endpoint,
+        Response<ResourceListResult> listByResourceGroupSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("Accept") String accept,
             Context context);
@@ -178,7 +178,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> list(@HostParam("endpoint") String endpoint,
+        Mono<Response<ResourceListResult>> list(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -186,7 +186,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("/subscriptions/{subscriptionId}/providers/TspTest.ArmResourceProvider/topLevelArmResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listSync(@HostParam("endpoint") String endpoint,
+        Response<ResourceListResult> listSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -214,7 +214,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listByResourceGroupNext(
+        Mono<Response<ResourceListResult>> listByResourceGroupNext(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -222,7 +222,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listByResourceGroupNextSync(
+        Response<ResourceListResult> listByResourceGroupNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -230,7 +230,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<TopLevelArmResourceListResult>> listBySubscriptionNext(
+        Mono<Response<ResourceListResult>> listBySubscriptionNext(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
 
@@ -238,7 +238,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<TopLevelArmResourceListResult> listBySubscriptionNextSync(
+        Response<ResourceListResult> listBySubscriptionNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
     }
@@ -1012,7 +1012,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                 .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
+        Response<ResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
             this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1046,7 +1046,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                 .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
+        Response<ResourceListResult> res = service.listByResourceGroupSync(this.client.getEndpoint(),
             this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName, accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1143,8 +1143,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), accept, Context.NONE);
+        Response<ResourceListResult> res = service.listSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
     }
@@ -1171,8 +1171,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), accept, context);
+        Response<ResourceListResult> res = service.listSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
     }
@@ -1463,7 +1463,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1492,7 +1492,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listByResourceGroupNextSync(nextLink, this.client.getEndpoint(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1547,7 +1547,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listBySubscriptionNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);
@@ -1575,7 +1575,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
                     "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
+        Response<ResourceListResult> res
             = service.listBySubscriptionNextSync(nextLink, this.client.getEndpoint(), accept, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
             res.getValue().nextLink(), null);

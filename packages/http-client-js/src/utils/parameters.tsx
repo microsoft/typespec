@@ -1,19 +1,23 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Value } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
 import { HttpAuth, HttpProperty, OAuth2FlowType } from "@typespec/http";
 import * as cl from "@typespec/http-client";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
 
-export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor[] {
+export function buildClientParameters(
+  client: cl.Client,
+  suffixRefkey: ay.Refkey,
+): ts.ParameterDescriptor[] {
+  const { $ } = useTsp();
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
   const params = parameters.flatMap(
     (param) => {
-      const descriptor = buildClientParameterDescriptor(param);
+      const descriptor = buildClientParameterDescriptor(param, suffixRefkey);
       if (!descriptor) {
         return [];
       }
@@ -30,7 +34,7 @@ export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor
   if (!params.some((p) => p.name === "options")) {
     params.push({
       name: "options",
-      refkey: ay.refkey(),
+      refkey: ay.refkey("client-options", suffixRefkey),
       optional: true,
       type: getClientContextOptionsRef(client),
     });
@@ -41,7 +45,9 @@ export function buildClientParameters(client: cl.Client): ts.ParameterDescriptor
 
 function buildClientParameterDescriptor(
   modelProperty: ModelProperty,
+  suffixRefkey: ay.Refkey,
 ): ts.ParameterDescriptor | undefined {
+  const { $ } = useTsp();
   const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
 
   if (authSchemes) {
@@ -54,7 +60,7 @@ function buildClientParameterDescriptor(
     );
     return {
       name: "credential",
-      refkey: ay.refkey(modelProperty),
+      refkey: ay.refkey(modelProperty, suffixRefkey),
       optional: modelProperty.optional,
       type: ay.mapJoin(
         () => credentialType,
@@ -64,7 +70,7 @@ function buildClientParameterDescriptor(
     };
   }
 
-  return buildParameterDescriptor(modelProperty);
+  return buildParameterDescriptor(modelProperty, suffixRefkey);
 }
 
 const oauth2FlowRefs: Record<OAuth2FlowType, ay.Refkey> = {

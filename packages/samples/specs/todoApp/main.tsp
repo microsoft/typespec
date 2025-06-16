@@ -260,11 +260,7 @@ namespace TodoItems {
   ): WithStandardErrors<TodoItem | InvalidTodoItem>;
 
   @get op get(@path id: TodoItem.id): TodoItem | NotFoundErrorResponse;
-  @patch op update(
-    @header contentType: "application/merge-patch+json",
-    @path id: TodoItem.id,
-    @body patch: TodoItemPatch,
-  ): TodoItem;
+  @patch op update(@path id: TodoItem.id, @body patch: MergePatchUpdate<TodoItem>): TodoItem;
   @delete op delete(
     @path id: TodoItem.id,
   ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;

@@ -56,7 +56,7 @@ public final class PropertiesImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DurationClientProper")
+    @ServiceInterface(name = "DurationClientProperties")
     public interface PropertiesService {
         @Post("/encode/duration/property/default")
         @ExpectedResponses({ 200 })

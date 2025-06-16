@@ -25,20 +25,72 @@ extends:
             - name: typespec-http-client-csharp
               file: typespec-http-client-csharp-*.tgz
               type: npm
-            - name: Microsoft.Generator.CSharp
-              file: Microsoft.Generator.CSharp.*.nupkg
+            - name: Microsoft.TypeSpec.Generator
+              file: Microsoft.TypeSpec.Generator.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.ClientModel
-              file: Microsoft.Generator.CSharp.ClientModel.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.ClientModel
+              file: Microsoft.TypeSpec.Generator.ClientModel.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.Input
-              file: Microsoft.Generator.CSharp.Input.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.Input
+              file: Microsoft.TypeSpec.Generator.Input.*.nupkg
               type: nuget
-            - name: Microsoft.Generator.CSharp.Customization
-              file: Microsoft.Generator.CSharp.Customization.*.nupkg
+            - name: Microsoft.TypeSpec.Generator.Customization
+              file: Microsoft.TypeSpec.Generator.Customization.*.nupkg
               type: nuget
           UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
           HasNugetPackages: true
           CadlRanchName: "@typespec/http-client-csharp"
+          AdditionalInitializeSteps:
+            - task: UseDotNet@2
+              inputs:
+                useGlobalJson: true
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+      - stage: CreateAzureSdkForNetPR
+        displayName: Create PR for azure-sdk-for-net
+        dependsOn:
+          - CSharp_Publish
+          - CSharp_Build
+        condition: and(succeeded(), and(ne(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranchName'], 'main')))
+        variables:
+          PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: CreatePR
+            steps:
+              - checkout: self
+              - pwsh: |
+                  # Determine the TypeSpec PR URL 
+                  $sourceBranch = '$(Build.SourceBranch)'
+                  $repoUrl = '$(Build.Repository.Uri)'
+
+                  if ($sourceBranch -match "^refs/pull/(\d+)/(head|merge)$") {
+                    $typeSpecPRUrl = "$repoUrl/pull/$($Matches[1])"
+                  } elseif ($sourceBranch -match "^refs/heads/(.+)$") {
+                    $typeSpecPRUrl = "$repoUrl/tree/$($Matches[1])"
+                  } else {
+                    $typeSpecPRUrl = "$repoUrl/tree/$sourceBranch"
+                  }
+                  Write-Host "TypeSpec PR URL: $typeSpecPRUrl"
+                  Write-Host "##vso[task.setvariable variable=TypeSpecPRUrl]$typeSpecPRUrl"
+                displayName: Set variables for PR creation
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
+              - task: PowerShell@2
+                displayName: Create PR in azure-sdk-for-net
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecPRUrl '$(TypeSpecPRUrl)'
+                    -AuthToken '$(azuresdk-github-pat)'

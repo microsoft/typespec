@@ -58,8 +58,8 @@ public class EncodeBytesTests {
 
     @Test
     public void testRequestBody() {
-        requestClient.octetStream(BinaryData.fromBytes(PNG));
-        requestClient.customContentType(BinaryData.fromBytes(PNG));
+        requestClient.octetStream(BinaryData.fromBytes(PNG), PNG.length);
+        requestClient.customContentType(BinaryData.fromBytes(PNG), PNG.length);
         requestClient.base64(DATA);
         requestClient.base64url(DATA);
     }
@@ -82,7 +82,7 @@ public class EncodeBytesTests {
 
     @Test
     public void testBodyDefault() {
-        requestClient.defaultMethod(BinaryData.fromBytes(PNG));
+        requestClient.defaultMethod(BinaryData.fromBytes(PNG), PNG.length);
 
         BinaryData png = responseClient.defaultMethod();
         Assertions.assertArrayEquals(PNG, png.toBytes());

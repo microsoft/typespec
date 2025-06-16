@@ -1,11 +1,13 @@
 package type.property.optional;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import type.property.optional.implementation.FloatLiteralsImpl;
 
 /**
@@ -13,7 +15,7 @@ import type.property.optional.implementation.FloatLiteralsImpl;
  */
 @ServiceClient(builder = OptionalClientBuilder.class)
 public final class FloatLiteralClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final FloatLiteralsImpl serviceClient;
 
     /**
@@ -21,95 +23,24 @@ public final class FloatLiteralClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     FloatLiteralClient(FloatLiteralsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Get models that will return all properties in the model.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(1.25) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
-    public Response<FloatLiteralProperty> getAllWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getAllWithResponse(requestOptions);
-    }
-
-    /**
-     * Get models that will return the default object.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(1.25) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return models that will return the default object.
-     */
-    @Metadata(generated = true)
-    public Response<FloatLiteralProperty> getDefaultWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.getDefaultWithResponse(requestOptions);
-    }
-
-    /**
-     * Put a body with all properties present.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(1.25) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putAllWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putAllWithResponse(body, requestOptions);
-    }
-
-    /**
-     * Put a body with default properties.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     property: String(1.25) (Optional)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> putDefaultWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.putDefaultWithResponse(body, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatLiteralProperty> getAllWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getAllWithResponse(requestContext);
     }
 
     /**
@@ -119,11 +50,25 @@ public final class FloatLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return all properties in the model.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatLiteralProperty getAll() {
-        // Generated convenience method for getAllWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getAllWithResponse(requestOptions).getValue();
+        return getAllWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Get models that will return the default object.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return models that will return the default object.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatLiteralProperty> getDefaultWithResponse(RequestContext requestContext) {
+        return this.serviceClient.getDefaultWithResponse(requestContext);
     }
 
     /**
@@ -133,11 +78,26 @@ public final class FloatLiteralClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return models that will return the default object.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatLiteralProperty getDefault() {
-        // Generated convenience method for getDefaultWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return getDefaultWithResponse(requestOptions).getValue();
+        return getDefaultWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * Put a body with all properties present.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putAllWithResponse(FloatLiteralProperty body, RequestContext requestContext) {
+        return this.serviceClient.putAllWithResponse(body, requestContext);
     }
 
     /**
@@ -148,11 +108,26 @@ public final class FloatLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putAll(FloatLiteralProperty body) {
-        // Generated convenience method for putAllWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putAllWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putAllWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * Put a body with default properties.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putDefaultWithResponse(FloatLiteralProperty body, RequestContext requestContext) {
+        return this.serviceClient.putDefaultWithResponse(body, requestContext);
     }
 
     /**
@@ -163,10 +138,9 @@ public final class FloatLiteralClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void putDefault(FloatLiteralProperty body) {
-        // Generated convenience method for putDefaultWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        putDefaultWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        putDefaultWithResponse(body, RequestContext.none());
     }
 }

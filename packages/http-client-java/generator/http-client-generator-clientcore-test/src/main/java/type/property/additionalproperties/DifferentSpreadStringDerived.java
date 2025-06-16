@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -12,12 +12,12 @@ import java.util.Map;
 /**
  * The model extends from a model that spread Record&lt;string&gt; with the different known property type.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DifferentSpreadStringDerived extends DifferentSpreadStringRecord {
     /*
      * The index property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String derivedProp;
 
     /**
@@ -26,7 +26,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
      * @param id the id value to set.
      * @param derivedProp the derivedProp value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DifferentSpreadStringDerived(double id, String derivedProp) {
         super(id);
         this.derivedProp = derivedProp;
@@ -37,7 +37,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
      * 
      * @return the derivedProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getDerivedProp() {
         return this.derivedProp;
     }
@@ -45,7 +45,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -68,7 +68,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the DifferentSpreadStringDerived.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DifferentSpreadStringDerived fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             double id = 0.0;

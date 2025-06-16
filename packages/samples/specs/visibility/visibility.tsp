@@ -72,5 +72,5 @@ namespace Hello {
   op list(): ListResult<Person>;
 
   @TypeSpec.Rest.updatesResource(Person)
-  op updateRest(@body person: Person): ReadablePerson;
+  op updateRest(@body person: MergePatchUpdate<Person>): ReadablePerson;
 }

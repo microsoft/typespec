@@ -3,7 +3,6 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
@@ -11,6 +10,8 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public partial class GoblinShark : IJsonModel<GoblinShark>
     {
+        internal GoblinShark() => throw null;
+
         void IJsonModel<GoblinShark>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -28,9 +29,5 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
         protected override Fish PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
         string IPersistableModel<GoblinShark>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(GoblinShark goblinShark) => throw null;
-
-        public static explicit operator GoblinShark(ClientResult result) => throw null;
     }
 }

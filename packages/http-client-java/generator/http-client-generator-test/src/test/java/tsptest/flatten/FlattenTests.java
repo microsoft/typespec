@@ -44,5 +44,11 @@ public class FlattenTests {
         Assertions.assertEquals(
             "{\"endpoint\":\"host\",\"input\":\"input2\",\"constant\":\"constant\",\"requiredInt\":11}",
             payloadCaptor.get().toString());
+
+        client.sendOptionalBody("my name").block();
+        Assertions.assertEquals("{\"name\":\"my name\"}", payloadCaptor.get().toString());
+
+        client.sendOptionalBody().block();
+        Assertions.assertEquals("{}", payloadCaptor.get().toString());
     }
 }

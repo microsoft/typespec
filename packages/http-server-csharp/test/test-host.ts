@@ -1,5 +1,6 @@
 import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
+import { JsonSchemaTestLibrary } from "@typespec/json-schema/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
@@ -12,6 +13,7 @@ export async function createCSharpServiceEmitterTestHost() {
       RestTestLibrary,
       VersioningTestLibrary,
       CSharpServiceEmitterTestLibrary,
+      JsonSchemaTestLibrary,
     ],
   });
 
@@ -24,7 +26,7 @@ export async function createCSharpServiceEmitterTestRunner(
   const host = await createCSharpServiceEmitterTestHost();
 
   const result = createTestWrapper(host, {
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Versioning"],
+    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Versioning", "TypeSpec.JsonSchema"],
     compilerOptions: {
       emit: ["@typespec/http-server-csharp"],
       options: {
@@ -37,10 +39,10 @@ export async function createCSharpServiceEmitterTestRunner(
   return result;
 }
 
-export function getStandardService(code: string): string {
+export function getStandardService(code: string, ns?: string): string {
   return `
-  @service(#{title: "Microsoft.Contoso"})
-    namespace Microsoft.Contoso {
+  @service(#{title: "${ns ?? "Microsoft.Contoso"}"})
+    namespace ${ns ?? "Microsoft.Contoso"} {
       ${code}
     }`;
 }

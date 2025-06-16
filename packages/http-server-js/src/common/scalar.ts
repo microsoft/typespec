@@ -1,15 +1,19 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { DiagnosticTarget, NoTarget, Program, Scalar } from "@typespec/compiler";
+import { DiagnosticTarget, EncodeData, NoTarget, Program, Scalar } from "@typespec/compiler";
 import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
 
 import { HttpOperationParameter } from "@typespec/http";
-import { module as dateTimeModule } from "../../generated-defs/helpers/datetime.js";
 import { UnreachableError } from "../util/error.js";
+
+import { module as dateTimeModule } from "../../generated-defs/helpers/datetime.js";
+import { module as temporalNativeHelpers } from "../../generated-defs/helpers/temporal/native.js";
+import { module as temporalPolyfillHelpers } from "../../generated-defs/helpers/temporal/polyfill.js";
+import { emitDocumentation } from "./documentation.js";
 
 /**
  * A specification of a TypeSpec scalar type.
@@ -127,7 +131,7 @@ const DURATION_NUMBER_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
 
   return {
     encodeTemplate: "Duration.totalSeconds({})",
-    decodeTemplate: "Duration.fromSeconds({})",
+    decodeTemplate: "Duration.fromTotalSeconds({})",
   };
 };
 
@@ -139,7 +143,7 @@ const DURATION_BIGINT_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
 
   return {
     encodeTemplate: "Duration.totalSecondsBigInt({})",
-    decodeTemplate: "Duration.fromSeconds(globalThis.Number({}))",
+    decodeTemplate: "Duration.fromTotalSeconds(globalThis.Number({}))",
   };
 };
 
@@ -154,11 +158,97 @@ const DURATION_BIGDECIMAL_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
 
   return {
     encodeTemplate: "new Decimal(Duration.totalSeconds({}).toString())",
-    decodeTemplate: "Duration.fromSeconds({}.toNumber())",
+    decodeTemplate: "Duration.fromSeconds(({}).toNumber())",
   };
 };
 
-const TYPESPEC_DURATION: ScalarInfo = {
+const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
+  const mode = ctx.options.datetime ?? "temporal-polyfill";
+
+  if (mode === "temporal-polyfill") {
+    module.imports.push({ from: "temporal-polyfill", binder: ["Temporal"] });
+  }
+
+  const isTemporal = mode === "temporal" || mode === "temporal-polyfill";
+  const temporalRef = mode === "temporal-polyfill" ? "Temporal" : "globalThis.Temporal";
+
+  if (!isTemporal) return DURATION_CUSTOM;
+
+  const isPolyfill = mode === "temporal-polyfill";
+
+  return {
+    type: "Temporal.Duration",
+    isJsonCompatible: false,
+    encodings: {
+      "TypeSpec.string": {
+        default: { via: "iso8601" },
+        iso8601: {
+          encodeTemplate: `({}).toString()`,
+          decodeTemplate: `${temporalRef}.Duration.from({})`,
+        },
+      },
+      ...Object.fromEntries(
+        ["int32", "uint32", "float32", "float64"].map((n) => [
+          `TypeSpec.${n}`,
+          {
+            default: { via: "seconds" },
+            seconds: {
+              encodeTemplate: (_, module) => {
+                module.imports.push({
+                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+                  binder: [`durationTotalSeconds`],
+                });
+
+                return `durationTotalSeconds({})`;
+              },
+              decodeTemplate: `${temporalRef}.Duration.from({ seconds: {} })`,
+            },
+          },
+        ]),
+      ),
+      ...Object.fromEntries(
+        ["int64", "uint64", "integer"].map((n) => [
+          `TypeSpec.${n}`,
+          {
+            default: { via: "seconds" },
+            seconds: {
+              encodeTemplate: (_, module) => {
+                module.imports.push({
+                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+                  binder: [`durationTotalSecondsBigInt`],
+                });
+
+                return `durationTotalSecondsBigInt({})`;
+              },
+              decodeTemplate: `${temporalRef}.Duration.from({ seconds: globalThis.Number({}) })`,
+            },
+          },
+        ]),
+      ),
+      "TypeSpec.float": {
+        default: { via: "seconds" },
+        seconds: {
+          encodeTemplate: (_, module) => {
+            module.imports.push({
+              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+              binder: [`durationTotalSecondsBigInt`],
+            });
+
+            return `new Decimal(durationTotalSecondsBigInt({}).toString())`;
+          },
+          decodeTemplate: `${temporalRef}.Duration.from({ seconds: ({}).toNumber() })`,
+        },
+      },
+    },
+    defaultEncodings: {
+      byMimeType: {
+        "application/json": ["TypeSpec.string", "iso8601"],
+      },
+    },
+  };
+};
+
+const DURATION_CUSTOM: ScalarInfo = {
   type: function importDuration(_, module) {
     module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
 
@@ -230,10 +320,26 @@ const BIGDECIMAL: ScalarInfo = {
   encodings: {
     "TypeSpec.string": {
       default: {
-        encodeTemplate: "{}.toString()",
+        encodeTemplate: "({}).toString()",
         decodeTemplate: "new Decimal({})",
       },
     },
+  },
+  isJsonCompatible: false,
+};
+
+const BIGINT: ScalarInfo = {
+  type: "bigint",
+  encodings: {
+    "TypeSpec.string": {
+      default: {
+        encodeTemplate: "globalThis.String({})",
+        decodeTemplate: "globalThis.BigInt({})",
+      },
+    },
+  },
+  defaultEncodings: {
+    byMimeType: { "application/json": ["TypeSpec.string", "default"] },
   },
   isJsonCompatible: false,
 };
@@ -257,7 +363,7 @@ const BIGDECIMAL: ScalarInfo = {
  * `byMimeType` object maps MIME types to encoding pairs, and the `http` object maps HTTP metadata contexts to
  * encoding pairs.
  */
-const SCALARS = new Map<string, ScalarInfo>([
+const SCALARS = new Map<string, MaybeDependent<ScalarInfo>>([
   [
     "TypeSpec.bytes",
     {
@@ -315,9 +421,11 @@ const SCALARS = new Map<string, ScalarInfo>([
 
   ["TypeSpec.float32", NUMBER],
   ["TypeSpec.float64", NUMBER],
+  ["TypeSpec.uint64", BIGINT],
   ["TypeSpec.uint32", NUMBER],
   ["TypeSpec.uint16", NUMBER],
   ["TypeSpec.uint8", NUMBER],
+  ["TypeSpec.int64", BIGINT],
   ["TypeSpec.int32", NUMBER],
   ["TypeSpec.int16", NUMBER],
   ["TypeSpec.int8", NUMBER],
@@ -328,28 +436,244 @@ const SCALARS = new Map<string, ScalarInfo>([
   ["TypeSpec.decimal", BIGDECIMAL],
   ["TypeSpec.decimal128", BIGDECIMAL],
 
+  ["TypeSpec.integer", BIGINT],
+  ["TypeSpec.plainDate", dateTime("plainDate")],
+  ["TypeSpec.plainTime", dateTime("plainTime")],
+  ["TypeSpec.utcDateTime", dateTime("utcDateTime")],
+  ["TypeSpec.offsetDateTime", dateTime("offsetDateTime")],
   [
-    "TypeSpec.integer",
+    "TypeSpec.unixTimestamp32",
     {
-      type: "bigint",
+      type: "number",
       encodings: {
         "TypeSpec.string": {
           default: {
             encodeTemplate: "globalThis.String({})",
-            decodeTemplate: "globalThis.BigInt({})",
+            decodeTemplate: "globalThis.Number({})",
+          },
+        },
+        "TypeSpec.int32": {
+          default: { via: "unixTimestamp" },
+          unixTimestamp: {
+            encodeTemplate: "{}",
+            decodeTemplate: "{}",
+          },
+        },
+        "TypeSpec.int64": {
+          default: { via: "unixTimestamp" },
+          unixTimestamp: {
+            encodeTemplate: "globalThis.BigInt({})",
+            decodeTemplate: "globalThis.Number({})",
           },
         },
       },
-      isJsonCompatible: false,
+      isJsonCompatible: true,
     },
   ],
-  ["TypeSpec.plainDate", { type: "Date", isJsonCompatible: false }],
-  ["TypeSpec.plainTime", { type: "Date", isJsonCompatible: false }],
-  ["TypeSpec.utcDateTime", { type: "Date", isJsonCompatible: false }],
-  ["TypeSpec.offsetDateTime", { type: "Date", isJsonCompatible: false }],
-  ["TypeSpec.unixTimestamp32", { type: "Date", isJsonCompatible: false }],
-  ["TypeSpec.duration", TYPESPEC_DURATION],
+  ["TypeSpec.duration", DURATION],
 ]);
+
+/**
+ * Datetime types that support dynamic construction.
+ */
+type DateTimeType = "plainDate" | "plainTime" | "utcDateTime" | "offsetDateTime";
+
+/**
+ * Gets the DateTime Scalar specification for a given date time type.
+ */
+function dateTime(t: DateTimeType): Dependent<ScalarInfo> {
+  return (ctx, module): ScalarInfo => {
+    const mode = ctx.options.datetime ?? "temporal-polyfill";
+
+    if (mode === "temporal-polyfill") {
+      module.imports.push({ from: "temporal-polyfill", binder: ["Temporal"] });
+    }
+
+    const isTemporal = mode === "temporal" || mode === "temporal-polyfill";
+    const temporalRef = mode === "temporal-polyfill" ? "Temporal" : "globalThis.Temporal";
+
+    let type: string;
+
+    switch (t) {
+      case "plainDate":
+        type = isTemporal ? "Temporal.PlainDate" : "Date";
+        break;
+      case "plainTime":
+        type = isTemporal ? "Temporal.PlainTime" : "Date";
+        break;
+      case "utcDateTime":
+        type = isTemporal ? "Temporal.Instant" : "Date";
+        break;
+      case "offsetDateTime":
+        type = isTemporal ? "Temporal.ZonedDateTime" : "Date";
+        break;
+      default:
+        void (t satisfies never);
+        throw new UnreachableError(`Unknown datetime type: ${t}`);
+    }
+
+    return {
+      type,
+      isJsonCompatible: false,
+      encodings: isTemporal
+        ? TEMPORAL_ENCODERS(temporalRef, mode === "temporal-polyfill")[t]
+        : LEGACY_DATETIME_ENCODER,
+      defaultEncodings: {
+        byMimeType: {
+          "application/json": ["TypeSpec.string", "rfc3339"],
+        },
+        http: {
+          header: ["TypeSpec.string", "rfc7231"],
+          query: ["TypeSpec.string", "rfc3339"],
+          cookie: ["TypeSpec.string", "rfc7231"],
+          path: ["TypeSpec.string", "rfc3339"],
+        },
+      },
+    };
+  };
+}
+
+const TEMPORAL_ENCODERS = (
+  temporal: string,
+  isPolyfill: boolean,
+): Record<DateTimeType, ScalarInfo["encodings"]> => {
+  return {
+    plainDate: {
+      "TypeSpec.string": {
+        default: { via: "iso8601" },
+        rfc3339: { via: "iso8601" },
+        iso8601: {
+          encodeTemplate: "({}).toString()",
+          decodeTemplate: `${temporal}.PlainDate.from({})`,
+        },
+      },
+    },
+    plainTime: {
+      "TypeSpec.string": {
+        default: { via: "iso8601" },
+        rfc3339: { via: "iso8601" },
+        iso8601: {
+          encodeTemplate: "({}).toString()",
+          decodeTemplate: `${temporal}.PlainTime.from({})`,
+        },
+      },
+    },
+    // Temporal.Instant
+    utcDateTime: {
+      "TypeSpec.string": {
+        default: { via: "iso8601" },
+        rfc3339: { via: "iso8601" },
+        iso8601: {
+          encodeTemplate: "({}).toString()",
+          decodeTemplate: `${temporal}.Instant.from({})`,
+        },
+        "http-date": { via: "rfc7231" },
+        rfc7231: {
+          encodeTemplate: (ctx, module) => {
+            module.imports.push({
+              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+              binder: [`formatHttpDate`],
+            });
+
+            return `formatHttpDate({})`;
+          },
+          decodeTemplate: (ctx, module) => {
+            module.imports.push({
+              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+              binder: [`parseHttpDate`],
+            });
+
+            return `parseHttpDate({})`;
+          },
+        },
+      },
+      "TypeSpec.int32": {
+        default: { via: "unixTimestamp" },
+        unixTimestamp: {
+          encodeTemplate: "globalThis.Math.floor(({}).epochMilliseconds / 1000)",
+          decodeTemplate: `${temporal}.Instant.fromEpochMilliseconds({} * 1000)`,
+        },
+      },
+      "TypeSpec.int64": {
+        default: { via: "unixTimestamp" },
+        unixTimestamp: {
+          encodeTemplate: "({}).epochNanoseconds / 1_000_000_000n",
+          decodeTemplate: `${temporal}.Instant.fromEpochNanoseconds({} * 1_000_000_000n)`,
+        },
+      },
+    },
+    // Temporal.ZonedDateTime
+    offsetDateTime: {
+      "TypeSpec.string": {
+        default: { via: "iso8601" },
+        rfc3339: { via: "iso8601" },
+        iso8601: {
+          encodeTemplate: "({}).toString()",
+          decodeTemplate: `${temporal}.ZonedDateTime.from({})`,
+        },
+        "http-date": { via: "rfc7231" },
+        rfc7231: {
+          encodeTemplate: (ctx, module) => {
+            module.imports.push({
+              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+              binder: [`formatHttpDate`],
+            });
+
+            return `formatHttpDate(({}).toInstant())`;
+          },
+          decodeTemplate: (ctx, module) => {
+            module.imports.push({
+              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
+              binder: [`parseHttpDate`],
+            });
+
+            // HTTP dates are always GMT a.k.a. UTC
+            return `parseHttpDate({}).toZonedDateTimeISO("UTC")`;
+          },
+        },
+      },
+    },
+  };
+};
+
+/**
+ * Encoding and decoding for legacy JS Date.
+ */
+const LEGACY_DATETIME_ENCODER: ScalarInfo["encodings"] = {
+  "TypeSpec.string": {
+    default: {
+      via: "iso8601",
+    },
+    iso8601: {
+      encodeTemplate: "({}).toISOString()",
+      decodeTemplate: "new globalThis.Date({})",
+    },
+    rfc3339: {
+      via: "iso8601",
+    },
+    rfc7231: {
+      encodeTemplate: "({}).toUTCString()",
+      decodeTemplate: "new globalThis.Date({})",
+    },
+    "http-date": {
+      via: "rfc7231",
+    },
+  },
+  "TypeSpec.int32": {
+    default: { via: "unixTimestamp" },
+    unixTimestamp: {
+      encodeTemplate: "globalThis.Math.floor(({}).getTime() / 1000)",
+      decodeTemplate: `new globalThis.Date({} * 1000)`,
+    },
+  },
+  "TypeSpec.int64": {
+    default: { via: "unixTimestamp" },
+    unixTimestamp: {
+      encodeTemplate: "globalThis.BigInt(({}).getTime()) / 1000n",
+      decodeTemplate: `new globalThis.Date(globalThis.Number({}) * 1000)`,
+    },
+  },
+};
 
 /**
  * Emits a declaration for a scalar type.
@@ -361,12 +685,14 @@ const SCALARS = new Map<string, ScalarInfo>([
  * @param scalar - The scalar to emit.
  * @returns a string that declares an alias to the scalar type in TypeScript.
  */
-export function emitScalar(ctx: JsContext, scalar: Scalar, module: Module): string {
-  const jsScalar = getJsScalar(ctx, module, scalar, scalar.node.id);
+export function* emitScalar(ctx: JsContext, scalar: Scalar, module: Module): Iterable<string> {
+  const jsScalar = getJsScalar(ctx, module, scalar, scalar);
 
   const name = parseCase(scalar.name).pascalCase;
 
-  return `type ${name} = ${jsScalar.type};`;
+  yield* emitDocumentation(ctx, scalar);
+
+  yield `export type ${name} = ${jsScalar.type};`;
 }
 
 /**
@@ -389,12 +715,12 @@ const __JS_SCALARS_MAP = new WeakMap<Program, ScalarStore>();
 /**
  * Gets the scalar store for a given program.
  */
-function getScalarStore(program: Program): ScalarStore {
-  let scalars = __JS_SCALARS_MAP.get(program);
+function getScalarStore(ctx: JsContext): ScalarStore {
+  let scalars = __JS_SCALARS_MAP.get(ctx.program);
 
   if (scalars === undefined) {
-    scalars = createScalarStore(program);
-    __JS_SCALARS_MAP.set(program, scalars);
+    scalars = createScalarStore(ctx);
+    __JS_SCALARS_MAP.set(ctx.program, scalars);
   }
 
   return scalars;
@@ -403,17 +729,17 @@ function getScalarStore(program: Program): ScalarStore {
 /**
  * Initializes a scalar store for a given program.
  */
-function createScalarStore(program: Program): ScalarStore {
+function createScalarStore(ctx: JsContext): ScalarStore {
   const m = new Map<Scalar, Contextualized<JsScalar>>();
 
   for (const [scalarName, scalarInfo] of SCALARS) {
-    const [scalar, diagnostics] = program.resolveTypeReference(scalarName);
+    const [scalar, diagnostics] = ctx.program.resolveTypeReference(scalarName);
 
     if (diagnostics.length > 0 || !scalar || scalar.kind !== "Scalar") {
       throw new UnreachableError(`Failed to resolve built-in scalar '${scalarName}'`);
     }
 
-    m.set(scalar, createJsScalar(program, scalar, scalarInfo, m));
+    m.set(scalar, createJsScalar(ctx.program, scalar, scalarInfo, m));
   }
 
   return m;
@@ -424,17 +750,18 @@ function createScalarStore(program: Program): ScalarStore {
  *
  * @param program - The program that contains the scalar.
  * @param scalar - The scalar to bind.
- * @param scalarInfo - The scalar information spec to bind.
+ * @param _scalarInfo - The scalar information spec to bind.
  * @param store - The scalar store to use for the scalar.
  * @returns a function that takes a JsContext and Module and returns a JsScalar.
  */
 function createJsScalar(
   program: Program,
   scalar: Scalar,
-  scalarInfo: ScalarInfo,
+  _scalarInfo: MaybeDependent<ScalarInfo>,
   store: ScalarStore,
 ): Contextualized<JsScalar> {
   return (ctx, module) => {
+    const scalarInfo = typeof _scalarInfo === "function" ? _scalarInfo(ctx, module) : _scalarInfo;
     const _http: { [K in HttpOperationParameter["type"]]?: Encoder } = {};
     let _type: string | undefined = undefined;
 
@@ -446,9 +773,19 @@ function createJsScalar(
 
       scalar,
 
-      getEncoding(encoding: string, target: Scalar): Encoder | undefined {
-        encoding = encoding.toLowerCase();
-        let encodingSpec = scalarInfo.encodings?.[getFullyQualifiedTypeName(target)]?.[encoding];
+      getEncoding(encodeDataOrString: EncodeData | string, target?: Scalar): Encoder | undefined {
+        let encoding: string = "default";
+
+        if (typeof encodeDataOrString === "string") {
+          encoding = encodeDataOrString;
+          target = target!;
+        } else {
+          encoding = encodeDataOrString.encoding ?? "default";
+          target = encodeDataOrString.type;
+        }
+
+        const encodingTable = scalarInfo.encodings?.[getFullyQualifiedTypeName(target)];
+        let encodingSpec = encodingTable?.[encoding] ?? encodingTable?.[encoding.toLowerCase()];
 
         if (encodingSpec === undefined) {
           return undefined;
@@ -555,38 +892,39 @@ function createJsScalar(
     };
 
     return self;
+    /**
+     * Helper to get the HTTP encoders for the scalar.
+     */
+    function getHttpEncoder(
+      ctx: JsContext,
+      module: Module,
+      self: JsScalar,
+      form: HttpOperationParameter["type"],
+    ) {
+      const [target, encoding] = scalarInfo.defaultEncodings?.http?.[form] ?? [
+        "TypeSpec.string",
+        "default",
+      ];
+
+      const [targetScalar, diagnostics] = program.resolveTypeReference(target);
+
+      if (diagnostics.length > 0 || !targetScalar || targetScalar.kind !== "Scalar") {
+        throw new UnreachableError(`Failed to resolve built-in scalar '${target}'`);
+      }
+
+      let encoder = self.getEncoding(encoding, targetScalar);
+
+      if (encoder === undefined && scalarInfo.defaultEncodings?.http?.[form]) {
+        throw new UnreachableError(
+          `Default HTTP ${form} encoding specified but failed to resolve.`,
+        );
+      }
+
+      encoder ??= getDefaultHttpStringEncoder(ctx, module, form);
+
+      return encoder;
+    }
   };
-
-  /**
-   * Helper to get the HTTP encoders for the scalar.
-   */
-  function getHttpEncoder(
-    ctx: JsContext,
-    module: Module,
-    self: JsScalar,
-    form: HttpOperationParameter["type"],
-  ) {
-    const [target, encoding] = scalarInfo.defaultEncodings?.http?.[form] ?? [
-      "TypeSpec.string",
-      "default",
-    ];
-
-    const [targetScalar, diagnostics] = program.resolveTypeReference(target);
-
-    if (diagnostics.length > 0 || !targetScalar || targetScalar.kind !== "Scalar") {
-      throw new UnreachableError(`Failed to resolve built-in scalar '${target}'`);
-    }
-
-    let encoder = self.getEncoding(encoding, targetScalar);
-
-    if (encoder === undefined && scalarInfo.defaultEncodings?.http?.[form]) {
-      throw new UnreachableError(`Default HTTP ${form} encoding specified but failed to resolve.`);
-    }
-
-    encoder ??= getDefaultHttpStringEncoder(ctx, module, form);
-
-    return encoder;
-  }
 }
 
 /**
@@ -706,6 +1044,7 @@ export interface JsScalar {
    * if the encoding is not supported.
    */
   getEncoding(encoding: string, target: Scalar): Encoder | undefined;
+  getEncoding(encoding: EncodeData): Encoder | undefined;
 
   /**
    * Get the default encoder for a given media type.
@@ -800,7 +1139,7 @@ export function getJsScalar(
   scalar: Scalar,
   diagnosticTarget: DiagnosticTarget | typeof NoTarget,
 ): JsScalar {
-  const scalars = getScalarStore(ctx.program);
+  const scalars = getScalarStore(ctx);
 
   let _scalar: Scalar | undefined = scalar;
 

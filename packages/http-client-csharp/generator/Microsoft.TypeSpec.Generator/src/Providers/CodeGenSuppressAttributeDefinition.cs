@@ -17,7 +17,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenSuppressAttribute";
 
-        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
+        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView(string? generatedTypeName = default) => null;
+        private protected sealed override NamedTypeSymbolProvider? GetLastContractView() => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
@@ -60,8 +61,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override ConstructorProvider[] BuildConstructors()
         {
-            var memberParameter = new ParameterProvider("member", FormattableStringHelpers.Empty, typeof(string));
-            var parameterParameters = new ParameterProvider("parameters", FormattableStringHelpers.Empty, typeof(Type[]), isParams: true);
+            var memberParameter = new ParameterProvider("member", $"The member to suppress.", typeof(string));
+            var parameterParameters = new ParameterProvider("parameters", $"The types of the parameters of the member.", typeof(Type[]), isParams: true);
 
             return
             [

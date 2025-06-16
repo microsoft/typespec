@@ -29,6 +29,13 @@ options:
 
 ## Emitter options
 
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-client-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
+
 ### `api-version`
 
 **Type:** `string`
@@ -39,9 +46,13 @@ For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/v
 
 **Type:** `boolean`
 
+Set to `false` to skip generation of protocol methods. The default value is `true`.
+
 ### `generate-convenience-methods`
 
 **Type:** `boolean`
+
+Set to `false` to skip generation of convenience methods. The default value is `true`.
 
 ### `unreferenced-types-handling`
 
@@ -77,7 +88,7 @@ Set to `true` to automatically attempt to attach to a debugger when executing th
 
 **Type:** `"info" | "debug" | "verbose"`
 
-Set the log level. The default value is `info`.
+Set the log level for which to collect traces. The default value is `info`.
 
 ### `disable-xml-docs`
 
@@ -90,6 +101,12 @@ Set to `true` to disable XML documentation generation. The default value is `fal
 **Type:** `string`
 
 The name of the generator. By default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.
+
+### `emitter-extension-path`
+
+**Type:** `string`
+
+Allows emitter authors to specify the path to a custom emitter package, allowing you to extend the emitter behavior. This should be set to `import.meta.url` if you are using a custom emitter.
 
 ### `update-code-model`
 

@@ -4,8 +4,8 @@
   "compilerOptions": {
     "incremental": false,
     "composite": false,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "sourceMap": false,
     "resolveJsonModule": true,
     "noEmitOnError": true,

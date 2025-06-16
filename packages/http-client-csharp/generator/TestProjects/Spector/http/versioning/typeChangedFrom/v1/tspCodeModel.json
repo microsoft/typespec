@@ -45,9 +45,43 @@
    "decorators": []
   }
  ],
- "models": [
+ "constants": [
   {
    "$id": "6",
+   "kind": "constant",
+   "name": "testContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "7",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "8",
+   "kind": "constant",
+   "name": "testContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "9",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "10",
    "kind": "model",
    "name": "TestModel",
    "namespace": "Versioning.TypeChangedFrom",
@@ -56,12 +90,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "7",
+     "$id": "11",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "8",
+      "$id": "12",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -74,20 +108,20 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.TypeChangedFrom.TestModel.prop",
      "serializationOptions": {
-      "$id": "9",
+      "$id": "13",
       "json": {
-       "$id": "10",
+       "$id": "14",
        "name": "prop"
       }
      }
     },
     {
-     "$id": "11",
+     "$id": "15",
      "kind": "property",
      "name": "changedProp",
      "serializedName": "changedProp",
      "type": {
-      "$id": "12",
+      "$id": "16",
       "kind": "int32",
       "name": "int32",
       "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -100,9 +134,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.TypeChangedFrom.TestModel.changedProp",
      "serializationOptions": {
-      "$id": "13",
+      "$id": "17",
       "json": {
-       "$id": "14",
+       "$id": "18",
        "name": "changedProp"
       }
      }
@@ -112,14 +146,14 @@
  ],
  "clients": [
   {
-   "$id": "15",
+   "$id": "19",
    "kind": "client",
    "name": "TypeChangedFromClient",
    "namespace": "Versioning.TypeChangedFrom",
    "doc": "Test for the `@typeChangedFrom` decorator.",
    "methods": [
     {
-     "$id": "16",
+     "$id": "20",
      "kind": "basic",
      "name": "test",
      "accessibility": "public",
@@ -127,17 +161,17 @@
       "v1"
      ],
      "operation": {
-      "$id": "17",
+      "$id": "21",
       "name": "test",
       "resourceName": "TypeChangedFrom",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "18",
+        "$id": "22",
         "name": "param",
         "nameInRequest": "param",
         "type": {
-         "$id": "19",
+         "$id": "23",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -154,22 +188,12 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "20",
+        "$id": "24",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "21",
-         "kind": "constant",
-         "valueType": {
-          "$id": "22",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "6"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -182,21 +206,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "23",
+        "$id": "25",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "24",
-         "kind": "constant",
-         "valueType": {
-          "$id": "25",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "8"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -213,7 +227,7 @@
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$ref": "6"
+         "$ref": "10"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -233,7 +247,7 @@
          200
         ],
         "bodyType": {
-         "$ref": "6"
+         "$ref": "10"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -260,7 +274,7 @@
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$ref": "6"
+        "$ref": "10"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -299,7 +313,7 @@
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "21"
+        "$ref": "6"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -316,7 +330,7 @@
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "24"
+        "$ref": "8"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -332,7 +346,7 @@
      "response": {
       "$id": "33",
       "type": {
-       "$ref": "6"
+       "$ref": "10"
       }
      },
      "isOverride": false,
@@ -350,7 +364,7 @@
      "type": {
       "$id": "35",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -360,7 +374,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     },
     {
      "$id": "36",
@@ -377,7 +392,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/type-changed-from/api-version:{version}"
     }
    ],
    "decorators": [],

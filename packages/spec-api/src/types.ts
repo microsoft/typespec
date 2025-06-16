@@ -83,7 +83,7 @@ export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinit
 export interface MockResponse {
   status: number;
   headers?: {
-    [key: string]: string | null;
+    [key: string]: unknown | null;
   };
 
   body?: MockBody;
@@ -101,8 +101,17 @@ export interface KeyedMockResponse<K extends string = string> extends MockRespon
 
 export interface MockBody {
   contentType: string;
-  rawContent: string | Buffer | undefined;
+  rawContent: string | Buffer | Resolver | undefined;
 }
+
+export interface ResolverConfig {
+  baseUrl: string;
+}
+
+export interface Resolver {
+  serialize(config: ResolverConfig): string;
+}
+
 export interface MockMultipartBody {
   kind: "multipart";
   contentType: `multipart/${string}`;

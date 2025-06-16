@@ -45,6 +45,7 @@
    "decorators": []
   }
  ],
+ "constants": [],
  "models": [],
  "clients": [
   {
@@ -288,7 +289,7 @@
      "type": {
       "$id": "28",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -298,7 +299,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}"
     },
     {
      "$id": "29",
@@ -319,7 +321,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}"
     },
     {
      "$id": "31",
@@ -350,7 +353,8 @@
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
       "value": "v1"
-     }
+     },
+     "serverUrlTemplate": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}"
     }
    ],
    "decorators": [],

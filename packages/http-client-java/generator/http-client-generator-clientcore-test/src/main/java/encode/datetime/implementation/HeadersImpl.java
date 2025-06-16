@@ -1,17 +1,20 @@
 package encode.datetime.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.DateTimeRfc1123;
+import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +39,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(DatetimeClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,109 +47,135 @@ public final class HeadersImpl {
      * The interface defining all the services for DatetimeClientHeaders to be used by the proxy service to perform REST
      * calls.
      */
-    @ServiceInterface(name = "DatetimeClientHeader", host = "{endpoint}")
+    @ServiceInterface(name = "DatetimeClientHeaders", host = "{endpoint}")
     public interface HeadersService {
+        static HeadersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.datetime.implementation.HeadersServiceImpl");
+                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/datetime/header/default",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethodSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("value") DateTimeRfc1123 value, RequestOptions requestOptions);
+        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint,
+            @HeaderParam("value") DateTimeRfc1123 value, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/datetime/header/rfc3339",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> rfc3339Sync(@HostParam("endpoint") String endpoint, @HeaderParam("value") OffsetDateTime value,
-            RequestOptions requestOptions);
+        Response<Void> rfc3339(@HostParam("endpoint") String endpoint, @HeaderParam("value") OffsetDateTime value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/datetime/header/rfc7231",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> rfc7231Sync(@HostParam("endpoint") String endpoint, @HeaderParam("value") DateTimeRfc1123 value,
-            RequestOptions requestOptions);
+        Response<Void> rfc7231(@HostParam("endpoint") String endpoint, @HeaderParam("value") DateTimeRfc1123 value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/datetime/header/unix-timestamp",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> unixTimestampSync(@HostParam("endpoint") String endpoint, @HeaderParam("value") long value,
-            RequestOptions requestOptions);
+        Response<Void> unixTimestamp(@HostParam("endpoint") String endpoint, @HeaderParam("value") long value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/datetime/header/unix-timestamp-array",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> unixTimestampArraySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("value") String value, RequestOptions requestOptions);
+        Response<Void> unixTimestampArray(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
+            RequestContext requestContext);
     }
 
     /**
      * The defaultMethod operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(OffsetDateTime value, RequestContext requestContext) {
         DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
-        return service.defaultMethodSync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.defaultMethod(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The rfc3339 operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestOptions requestOptions) {
-        return service.rfc3339Sync(this.client.getEndpoint(), value, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> rfc3339WithResponse(OffsetDateTime value, RequestContext requestContext) {
+        return service.rfc3339(this.client.getEndpoint(), value, requestContext);
     }
 
     /**
      * The rfc7231 operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> rfc7231WithResponse(OffsetDateTime value, RequestContext requestContext) {
         DateTimeRfc1123 valueConverted = new DateTimeRfc1123(value);
-        return service.rfc7231Sync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.rfc7231(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The unixTimestamp operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> unixTimestampWithResponse(OffsetDateTime value, RequestContext requestContext) {
         long valueConverted = value.toEpochSecond();
-        return service.unixTimestampSync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.unixTimestamp(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The unixTimestampArray operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> unixTimestampArrayWithResponse(List<OffsetDateTime> value, RequestContext requestContext) {
         String valueConverted = value.stream()
             .map(paramItemValue -> paramItemValue.toEpochSecond())
             .collect(Collectors.toList())
@@ -179,6 +208,6 @@ public final class HeadersImpl {
                 }
             })
             .collect(Collectors.joining(","));
-        return service.unixTimestampArraySync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, requestContext);
     }
 }

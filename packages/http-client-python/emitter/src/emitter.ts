@@ -3,7 +3,6 @@ import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
-import process from "process";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
@@ -26,18 +25,13 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
-    reportDiagnostic(sdkContext.program, {
-      code: "no-package-name",
-      target: NoTarget,
-      format: { namespace, packageName },
-    });
     options["package-name"] = packageName;
   }
   if ((options as any).flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value
     (options as any).flavor = undefined;
   }
-  if (sdkContext.sdkPackage.crossLanguagePackageId.toLowerCase().includes("azure")) {
+  if (getRootNamespace(sdkContext).toLowerCase().includes("azure")) {
     (options as any).flavor = "azure";
   }
 
@@ -136,14 +130,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
-  if (yamlMap.clients.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-valid-client",
-      target: NoTarget,
-    });
-    return;
-  }
-
   const parsedYamlMap = walkThroughNodes(yamlMap);
 
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
@@ -235,7 +221,33 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         .map(([key, value]) => `--${key}=${value}`)
         .join(" ");
       const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      execSync(command, { stdio: [process.stdin, process.stdout] });
+      execSync(command);
+
+      const blackExcludeDirs = [
+        "__pycache__/*",
+        "node_modules/*",
+        "venv/*",
+        "env/*",
+        ".direnv",
+        ".eggs",
+        ".git",
+        ".hg",
+        ".tox",
+        ".venv",
+        ".eggs",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".vscode",
+        "_build",
+        "build",
+        "dist",
+        ".nox",
+        ".svn",
+      ];
+      execSync(
+        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
+      );
+      checkForPylintIssues(outputDir);
     }
   }
 }
@@ -278,4 +290,42 @@ async function setupPyodideCall(root: string) {
     }
   }
   return pyodide;
+}
+
+function checkForPylintIssues(outputDir: string) {
+  const processFile = (filePath: string) => {
+    let fileContent = "";
+    fileContent = fs.readFileSync(filePath, "utf-8");
+    const pylintDisables: string[] = [];
+    const lines: string[] = fileContent.split("\n");
+    if (lines.length > 0) {
+      if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
+        pylintDisables.push("line-too-long", "useless-suppression");
+      }
+      if (!lines[0].includes("too-many-lines") && lines.length > 1000) {
+        pylintDisables.push("too-many-lines");
+      }
+      if (pylintDisables.length > 0) {
+        fileContent = lines[0].includes("pylint: disable=")
+          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join("\n")
+          : `# pylint: disable=${pylintDisables.join(",")}\n` + fileContent;
+      }
+    }
+
+    fs.writeFileSync(filePath, fileContent);
+  };
+
+  const walkDir = (dir: string) => {
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+      const filePath = path.join(dir, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        walkDir(filePath);
+      } else if (file.endsWith(".py")) {
+        processFile(filePath);
+      }
+    });
+  };
+
+  walkDir(outputDir);
 }

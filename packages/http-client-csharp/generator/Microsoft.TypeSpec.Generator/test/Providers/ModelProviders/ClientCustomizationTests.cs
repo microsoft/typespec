@@ -238,6 +238,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanRemoveConstructorContainingGeneratedType()
+        {
+            var client = new ClientTypeProvider();
+
+            var outputLibrary = new ClientOutputLibrary(client);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => outputLibrary,
+            compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            client.ConstructorProviders =
+            [
+                new ConstructorProvider(new ConstructorSignature(
+                        client.Type,
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("Sample").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+            ];
+
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
+        }
+
+        [Test]
         public async Task DoesNotRemoveConstructorsThatDoNotMatch()
         {
             var client = new ClientTypeProvider();

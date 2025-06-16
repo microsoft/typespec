@@ -1,5 +1,65 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.15
+
+### Features
+
+- [#7256](https://github.com/microsoft/typespec/pull/7256) Implemented canonical visibility transforms. When HTTP operations imply particular implicit visibility transforms, this change enables `@typespec/http-server-js` to perform those transforms, removing invisible properties in contexts where they cannot be used.
+
+### Bug Fixes
+
+- [#7554](https://github.com/microsoft/typespec/pull/7554) Fixes emitter crash when operation return types included metadata or `@body` properties that only contained underscores
+- [#7494](https://github.com/microsoft/typespec/pull/7494) Corrected a bug that sometimes caused the generated server code to sometimes attempt to extract path parameters from the wrong location.
+  
+  Fixed an issue that caused all generated helper modules to be emitted even if they were not used. Now, the generator will only emit the helper modules that are actually used by the generated code.
+- [#7280](https://github.com/microsoft/typespec/pull/7280) Fixed an error in which the scaffolding script incorrectly considered built-in Node.js modules external dependencies.
+- [#7276](https://github.com/microsoft/typespec/pull/7276) Fixed an issue in which differences between model and JSON serialized property names were not correctly detected and property names for JSON serialization were not correctly quoted as necessary.
+
+
+## 0.58.0-alpha.14
+
+### Bug Fixes
+
+- [#7234](https://github.com/microsoft/typespec/pull/7234) Fixed a few bugs with output directory resolution logic in `hsjs-scaffolding`, improving robustness of the scaffolding script by re-using existing compiler logic to resolve emitter options.
+- [#7225](https://github.com/microsoft/typespec/pull/7225) Added a missing shebang line to `hsjs-scaffold` for better platform compatibility.
+
+
+## 0.58.0-alpha.13
+
+### Features
+
+- [#6971](https://github.com/microsoft/typespec/pull/6971) Added support for and enabled by default using the JS Temporal API for DateTime/Duration types. DateTime representation supports three modes:
+  
+  - "temporal-polyfill" (default): uses the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) and imports it from [temporal-polyfill](https://npmjs.com/package/temporal-polyfill).
+  - "temporal": uses the Temporal API and assumes it is available on the `globalThis` object (you are responsible for ensuring it is available in your environment). When Temporal is well-supported by JavaScript engines and TypeScript `global.d.ts` definitions for it are widely available, this will become the default mode.
+  - "date-duration": uses JavaScript `Date` and a custom `Duration` object. This mode is not recommended but is provided if you really don't want to depend on Temporal.
+  
+  Set the DateTime mode using the `"datetime"` emitter option in `tspconfig.yaml`:
+  
+  ```yaml
+  options:
+    @typespec/http-server-js:
+      datetime: temporal-polyfill
+  ```
+- [#6914](https://github.com/microsoft/typespec/pull/6914) Add support for TypeSpec.decimal, TypeSpec.decimal128, TypeSpec.float, and TypeSpec.numeric, all represented as `Decimal` from the 'decimal.js' package.
+- [#6898](https://github.com/microsoft/typespec/pull/6898) Enabled 'text/plain' serialization for scalars that extend `TypeSpec.string`.
+  
+  Enabled fallback logic for all unrecognized content-types with a body type that is or extends `TypeSpec.bytes`.
+  
+  Enhanced route differentiation logic for shared routes, allowing them to differentiate routes in more cases using headers other than `content-type`.
+- [#6885](https://github.com/microsoft/typespec/pull/6885) Added typereferences for Tuples and EnumMember types.
+- [#6896](https://github.com/microsoft/typespec/pull/6896) Added support for Enums in request/response serialization.
+
+### Bug Fixes
+
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+- [#6924](https://github.com/microsoft/typespec/pull/6924) Correctly ignore uninstantiated operations that are direct children of namespaces. This prevents a fatal error where TemplateParameter types can be encountered in such templates.
+- [#6796](https://github.com/microsoft/typespec/pull/6796) Fixes the mocks in hsjs-scaffold to use bigints for large integer types and `Duration` objects as appropriate.
+- [#6885](https://github.com/microsoft/typespec/pull/6885) Corrected router parameter generation so that it avoids using JavaScript reserved keywords for route controller parameters.
+  
+  Corrected models that extend `Record` so that they refer to TypeScript's `Record` type by name instead of using a literal interface with an indexer.
+
+
 ## 0.58.0-alpha.12
 
 ### Features

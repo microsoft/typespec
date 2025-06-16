@@ -1,24 +1,24 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import java.util.List;
 
 /**
  * The BinaryArrayPartsRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class BinaryArrayPartsRequest {
     /*
      * The id property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String id;
 
     /*
      * The pictures property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<PicturesFileDetails> pictures;
 
     /**
@@ -27,7 +27,7 @@ public final class BinaryArrayPartsRequest {
      * @param id the id value to set.
      * @param pictures the pictures value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BinaryArrayPartsRequest(String id, List<PicturesFileDetails> pictures) {
         this.id = id;
         this.pictures = pictures;
@@ -38,7 +38,7 @@ public final class BinaryArrayPartsRequest {
      * 
      * @return the id value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getId() {
         return this.id;
     }
@@ -48,7 +48,7 @@ public final class BinaryArrayPartsRequest {
      * 
      * @return the pictures value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<PicturesFileDetails> getPictures() {
         return this.pictures;
     }

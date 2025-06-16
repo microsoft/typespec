@@ -1,11 +1,13 @@
 package type.scalar;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
 import java.math.BigDecimal;
 import type.scalar.implementation.DecimalTypesImpl;
 
@@ -14,7 +16,7 @@ import type.scalar.implementation.DecimalTypesImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class DecimalTypeClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final DecimalTypesImpl serviceClient;
 
     /**
@@ -22,61 +24,24 @@ public final class DecimalTypeClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     DecimalTypeClient(DecimalTypesImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * The responseBody operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * BigDecimal
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a decimal number with any length and precision.
      */
-    @Metadata(generated = true)
-    public Response<BigDecimal> responseBodyWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.responseBodyWithResponse(requestOptions);
-    }
-
-    /**
-     * The requestBody operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * BigDecimal
-     * }
-     * </pre>
-     * 
-     * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> requestBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.requestBodyWithResponse(body, requestOptions);
-    }
-
-    /**
-     * The requestParameter operation.
-     * 
-     * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> requestParameterWithResponse(BigDecimal value, RequestOptions requestOptions) {
-        return this.serviceClient.requestParameterWithResponse(value, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
+        return this.serviceClient.responseBodyWithResponse(requestContext);
     }
 
     /**
@@ -86,11 +51,26 @@ public final class DecimalTypeClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a decimal number with any length and precision.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public BigDecimal responseBody() {
-        // Generated convenience method for responseBodyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return responseBodyWithResponse(requestOptions).getValue();
+        return responseBodyWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The requestBody operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requestBodyWithResponse(BigDecimal body, RequestContext requestContext) {
+        return this.serviceClient.requestBodyWithResponse(body, requestContext);
     }
 
     /**
@@ -101,11 +81,26 @@ public final class DecimalTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestBody(BigDecimal body) {
-        // Generated convenience method for requestBodyWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        requestBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        requestBodyWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The requestParameter operation.
+     * 
+     * @param value The value parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {
+        return this.serviceClient.requestParameterWithResponse(value, requestContext);
     }
 
     /**
@@ -116,10 +111,9 @@ public final class DecimalTypeClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void requestParameter(BigDecimal value) {
-        // Generated convenience method for requestParameterWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        requestParameterWithResponse(value, requestOptions).getValue();
+        requestParameterWithResponse(value, RequestContext.none());
     }
 }

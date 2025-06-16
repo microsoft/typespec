@@ -1,15 +1,18 @@
 package parameters.collectionformat.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,7 +37,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(CollectionFormatClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -42,29 +45,43 @@ public final class HeadersImpl {
      * The interface defining all the services for CollectionFormatClientHeaders to be used by the proxy service to
      * perform REST calls.
      */
-    @ServiceInterface(name = "CollectionFormatClie", host = "{endpoint}")
+    @ServiceInterface(name = "CollectionFormatClientHeaders", host = "{endpoint}")
     public interface HeadersService {
+        static HeadersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.collectionformat.implementation.HeadersServiceImpl");
+                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/parameters/collection-format/header/csv",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> csvSync(@HostParam("endpoint") String endpoint, @HeaderParam("colors") String colors,
-            RequestOptions requestOptions);
+        Response<Void> csv(@HostParam("endpoint") String endpoint, @HeaderParam("colors") String colors,
+            RequestContext requestContext);
     }
 
     /**
      * The csv operation.
      * 
      * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> csvWithResponse(List<String> colors, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
         String colorsConverted = colors.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
-        return service.csvSync(this.client.getEndpoint(), colorsConverted, requestOptions);
+        return service.csv(this.client.getEndpoint(), colorsConverted, requestContext);
     }
 }

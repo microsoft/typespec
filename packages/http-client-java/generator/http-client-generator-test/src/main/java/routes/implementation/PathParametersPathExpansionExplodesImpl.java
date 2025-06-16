@@ -58,7 +58,7 @@ public final class PathParametersPathExpansionExplodesImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientPathPara")
+    @ServiceInterface(name = "RoutesClientPathParametersPathExpansionExplodes")
     public interface PathParametersPathExpansionExplodesService {
         @Get("/routes/path/path/explode/primitive{param}")
         @ExpectedResponses({ 204 })

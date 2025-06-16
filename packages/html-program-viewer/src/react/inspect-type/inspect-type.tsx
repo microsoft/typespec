@@ -129,7 +129,7 @@ export const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
       }
 
     case "TemplateParameter":
-      return <span>Template Param: {type.node.id.sv}</span>;
+      return <span>Template Param: {(type as any).node.id.sv}</span>;
     case "String":
       return (
         <SimpleType type={type}>

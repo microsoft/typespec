@@ -1,18 +1,19 @@
 package type.model.inheritance.enumdiscriminator.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
 import type.model.inheritance.enumdiscriminator.Dog;
 import type.model.inheritance.enumdiscriminator.Snake;
 
@@ -62,257 +63,214 @@ public final class EnumDiscriminatorClientImpl {
     public EnumDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(EnumDiscriminatorClientService.class, this.httpPipeline);
+        this.service = EnumDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for EnumDiscriminatorClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "EnumDiscriminatorCli", host = "{endpoint}")
+    @ServiceInterface(name = "EnumDiscriminatorClient", host = "{endpoint}")
     public interface EnumDiscriminatorClientService {
+        static EnumDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName(
+                    "type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminatorClientServiceImpl");
+                return (EnumDiscriminatorClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/extensible-enum",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Dog> getExtensibleModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/model/inheritance/enum-discriminator/extensible-enum",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putExtensibleModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> putExtensibleModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Dog input,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelMissingDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Dog> getExtensibleModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelWrongDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Dog> getExtensibleModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/fixed-enum",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<Snake> getFixedModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/type/model/inheritance/enum-discriminator/fixed-enum",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putFixedModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> putFixedModel(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Snake input,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelMissingDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Snake> getFixedModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelWrongDiscriminatorSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
+        Response<Snake> getFixedModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestContext requestContext);
     }
 
     /**
      * Receive model with extensible enum discriminator type.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(golden) (Required)
-     *     weight: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test extensible enum type for discriminator.
      */
-    public Response<Dog> getExtensibleModelWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dog> getExtensibleModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getExtensibleModelSync(this.getEndpoint(), accept, requestOptions);
+        return service.getExtensibleModel(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Send model with extensible enum discriminator type.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(golden) (Required)
-     *     weight: int (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input Dog to create.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putExtensibleModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putExtensibleModelWithResponse(Dog input, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putExtensibleModelSync(this.getEndpoint(), contentType, input, requestOptions);
+        return service.putExtensibleModel(this.getEndpoint(), contentType, input, requestContext);
     }
 
     /**
      * Get a model omitting the discriminator.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(golden) (Required)
-     *     weight: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
-    public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getExtensibleModelMissingDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+        return service.getExtensibleModelMissingDiscriminator(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Get a model containing discriminator value never defined.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(golden) (Required)
-     *     weight: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */
-    public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getExtensibleModelWrongDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+        return service.getExtensibleModelWrongDiscriminator(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Receive model with fixed enum discriminator type.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(cobra) (Required)
-     *     length: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test fixed enum type for discriminator.
      */
-    public Response<Snake> getFixedModelWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getFixedModelSync(this.getEndpoint(), accept, requestOptions);
+        return service.getFixedModel(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Send model with fixed enum discriminator type.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(cobra) (Required)
-     *     length: int (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input Snake to create.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> putFixedModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.putFixedModelSync(this.getEndpoint(), contentType, input, requestOptions);
+        return service.putFixedModel(this.getEndpoint(), contentType, input, requestContext);
     }
 
     /**
      * Get a model omitting the discriminator.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(cobra) (Required)
-     *     length: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model omitting the discriminator.
      */
-    public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getFixedModelMissingDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+        return service.getFixedModelMissingDiscriminator(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * Get a model containing discriminator value never defined.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     kind: String(cobra) (Required)
-     *     length: int (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a model containing discriminator value never defined.
      */
-    public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.getFixedModelWrongDiscriminatorSync(this.getEndpoint(), accept, requestOptions);
+        return service.getFixedModelWrongDiscriminator(this.getEndpoint(), accept, requestContext);
     }
 }

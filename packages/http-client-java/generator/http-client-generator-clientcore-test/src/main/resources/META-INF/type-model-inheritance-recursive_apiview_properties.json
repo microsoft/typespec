@@ -4,10 +4,6 @@
     "type.model.inheritance.recursive.Element": "Type.Model.Inheritance.Recursive.Element",
     "type.model.inheritance.recursive.Extension": "Type.Model.Inheritance.Recursive.Extension",
     "type.model.inheritance.recursive.RecursiveClient": "Type.Model.Inheritance.Recursive",
-    "type.model.inheritance.recursive.RecursiveClient.get": "Type.Model.Inheritance.Recursive.get",
-    "type.model.inheritance.recursive.RecursiveClient.getWithResponse": "Type.Model.Inheritance.Recursive.get",
-    "type.model.inheritance.recursive.RecursiveClient.put": "Type.Model.Inheritance.Recursive.put",
-    "type.model.inheritance.recursive.RecursiveClient.putWithResponse": "Type.Model.Inheritance.Recursive.put",
     "type.model.inheritance.recursive.RecursiveClientBuilder": "Type.Model.Inheritance.Recursive"
   }
 }

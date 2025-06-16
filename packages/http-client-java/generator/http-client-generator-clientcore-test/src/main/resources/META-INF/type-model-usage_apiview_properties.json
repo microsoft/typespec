@@ -5,12 +5,6 @@
     "type.model.usage.InputRecord": "Type.Model.Usage.InputRecord",
     "type.model.usage.OutputRecord": "Type.Model.Usage.OutputRecord",
     "type.model.usage.UsageClient": "Type.Model.Usage",
-    "type.model.usage.UsageClient.input": "Type.Model.Usage.input",
-    "type.model.usage.UsageClient.inputAndOutput": "Type.Model.Usage.inputAndOutput",
-    "type.model.usage.UsageClient.inputAndOutputWithResponse": "Type.Model.Usage.inputAndOutput",
-    "type.model.usage.UsageClient.inputWithResponse": "Type.Model.Usage.input",
-    "type.model.usage.UsageClient.output": "Type.Model.Usage.output",
-    "type.model.usage.UsageClient.outputWithResponse": "Type.Model.Usage.output",
     "type.model.usage.UsageClientBuilder": "Type.Model.Usage"
   }
 }

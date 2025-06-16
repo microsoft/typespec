@@ -1,15 +1,20 @@
 package specialheaders.conditionalrequest.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.utils.DateTimeRfc1123;
+import java.lang.reflect.InvocationTargetException;
+import java.time.OffsetDateTime;
 
 /**
  * Initializes a new instance of the ConditionalRequestClient type.
@@ -57,121 +62,128 @@ public final class ConditionalRequestClientImpl {
     public ConditionalRequestClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(ConditionalRequestClientService.class, this.httpPipeline);
+        this.service = ConditionalRequestClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
      * The interface defining all the services for ConditionalRequestClient to be used by the proxy service to perform
      * REST calls.
      */
-    @ServiceInterface(name = "ConditionalRequestCl", host = "{endpoint}")
+    @ServiceInterface(name = "ConditionalRequestClient", host = "{endpoint}")
     public interface ConditionalRequestClientService {
+        static ConditionalRequestClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class
+                    .forName("specialheaders.conditionalrequest.implementation.ConditionalRequestClientServiceImpl");
+                return (ConditionalRequestClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/special-headers/conditional-request/if-match",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> postIfMatchSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> postIfMatch(@HostParam("endpoint") String endpoint, @HeaderParam("If-Match") String ifMatch,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/special-headers/conditional-request/if-none-match",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> postIfNoneMatchSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> postIfNoneMatch(@HostParam("endpoint") String endpoint,
+            @HeaderParam("If-None-Match") String ifNoneMatch, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/special-headers/conditional-request/if-modified-since",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> headIfModifiedSinceSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> headIfModifiedSince(@HostParam("endpoint") String endpoint,
+            @HeaderParam("If-Modified-Since") DateTimeRfc1123 ifModifiedSince, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/special-headers/conditional-request/if-unmodified-since",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> postIfUnmodifiedSinceSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> postIfUnmodifiedSince(@HostParam("endpoint") String endpoint,
+            @HeaderParam("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince, RequestContext requestContext);
     }
 
     /**
      * Check when only If-Match in header is defined.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this
-     * string.</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> postIfMatchWithResponse(RequestOptions requestOptions) {
-        return service.postIfMatchSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
+        return service.postIfMatch(this.getEndpoint(), ifMatch, requestContext);
     }
 
     /**
      * Check when only If-None-Match in header is defined.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this
-     * string.</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> postIfNoneMatchWithResponse(RequestOptions requestOptions) {
-        return service.postIfNoneMatchSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
+        return service.postIfNoneMatch(this.getEndpoint(), ifNoneMatch, requestContext);
     }
 
     /**
      * Check when only If-Modified-Since in header is defined.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>A timestamp indicating the last modified time
-     * of the resource known to the
-     * client. The operation will be performed only if the resource on the service has
-     * been modified since the specified time.</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param ifModifiedSince A timestamp indicating the last modified time of the resource known to the
+     * client. The operation will be performed only if the resource on the service has
+     * been modified since the specified time.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> headIfModifiedSinceWithResponse(RequestOptions requestOptions) {
-        return service.headIfModifiedSinceSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
+        RequestContext requestContext) {
+        DateTimeRfc1123 ifModifiedSinceConverted
+            = ifModifiedSince == null ? null : new DateTimeRfc1123(ifModifiedSince);
+        return service.headIfModifiedSince(this.getEndpoint(), ifModifiedSinceConverted, requestContext);
     }
 
     /**
      * Check when only If-Unmodified-Since in header is defined.
-     * <p><strong>Header Parameters</strong></p>
-     * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>A timestamp indicating the last modified
-     * time of the resource known to the
-     * client. The operation will be performed only if the resource on the service has
-     * not been modified since the specified time.</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addHeader}
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
+     * client. The operation will be performed only if the resource on the service has
+     * not been modified since the specified time.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> postIfUnmodifiedSinceWithResponse(RequestOptions requestOptions) {
-        return service.postIfUnmodifiedSinceSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
+        RequestContext requestContext) {
+        DateTimeRfc1123 ifUnmodifiedSinceConverted
+            = ifUnmodifiedSince == null ? null : new DateTimeRfc1123(ifUnmodifiedSince);
+        return service.postIfUnmodifiedSince(this.getEndpoint(), ifUnmodifiedSinceConverted, requestContext);
     }
 }

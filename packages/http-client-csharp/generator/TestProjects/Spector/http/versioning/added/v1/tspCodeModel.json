@@ -82,9 +82,43 @@
    "decorators": []
   }
  ],
- "models": [
+ "constants": [
   {
    "$id": "10",
+   "kind": "constant",
+   "name": "v1ContentType",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "11",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  },
+  {
+   "$id": "12",
+   "kind": "constant",
+   "name": "v1ContentType1",
+   "namespace": "",
+   "usage": "None",
+   "valueType": {
+    "$id": "13",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "value": "application/json",
+   "decorators": []
+  }
+ ],
+ "models": [
+  {
+   "$id": "14",
    "kind": "model",
    "name": "ModelV1",
    "namespace": "Versioning.Added",
@@ -93,12 +127,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "11",
+     "$id": "15",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "12",
+      "$id": "16",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -111,15 +145,15 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.Added.ModelV1.prop",
      "serializationOptions": {
-      "$id": "13",
+      "$id": "17",
       "json": {
-       "$id": "14",
+       "$id": "18",
        "name": "prop"
       }
      }
     },
     {
-     "$id": "15",
+     "$id": "19",
      "kind": "property",
      "name": "enumProp",
      "serializedName": "enumProp",
@@ -133,9 +167,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Versioning.Added.ModelV1.enumProp",
      "serializationOptions": {
-      "$id": "16",
+      "$id": "20",
       "json": {
-       "$id": "17",
+       "$id": "21",
        "name": "enumProp"
       }
      }
@@ -145,14 +179,14 @@
  ],
  "clients": [
   {
-   "$id": "18",
+   "$id": "22",
    "kind": "client",
    "name": "AddedClient",
    "namespace": "Versioning.Added",
    "doc": "Test for the `@added` decorator.",
    "methods": [
     {
-     "$id": "19",
+     "$id": "23",
      "kind": "basic",
      "name": "v1",
      "accessibility": "public",
@@ -160,28 +194,18 @@
       "v1"
      ],
      "operation": {
-      "$id": "20",
+      "$id": "24",
       "name": "v1",
       "resourceName": "Added",
       "accessibility": "public",
       "parameters": [
        {
-        "$id": "21",
+        "$id": "25",
         "name": "contentType",
         "nameInRequest": "Content-Type",
         "doc": "Body parameter's content type. Known values are application/json",
         "type": {
-         "$id": "22",
-         "kind": "constant",
-         "valueType": {
-          "$id": "23",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "10"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -194,21 +218,11 @@
         "skipUrlEncoding": false
        },
        {
-        "$id": "24",
+        "$id": "26",
         "name": "accept",
         "nameInRequest": "Accept",
         "type": {
-         "$id": "25",
-         "kind": "constant",
-         "valueType": {
-          "$id": "26",
-          "kind": "string",
-          "name": "string",
-          "crossLanguageDefinitionId": "TypeSpec.string",
-          "decorators": []
-         },
-         "value": "application/json",
-         "decorators": []
+         "$ref": "12"
         },
         "location": "Header",
         "isApiVersion": false,
@@ -225,7 +239,7 @@
         "name": "body",
         "nameInRequest": "body",
         "type": {
-         "$ref": "10"
+         "$ref": "14"
         },
         "location": "Body",
         "isApiVersion": false,
@@ -245,7 +259,7 @@
          200
         ],
         "bodyType": {
-         "$ref": "10"
+         "$ref": "14"
         },
         "headers": [],
         "isErrorResponse": false,
@@ -272,7 +286,7 @@
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$ref": "10"
+        "$ref": "14"
        },
        "location": "Body",
        "isApiVersion": false,
@@ -290,7 +304,7 @@
        "nameInRequest": "contentType",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$ref": "22"
+        "$ref": "10"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -307,7 +321,7 @@
        "name": "accept",
        "nameInRequest": "accept",
        "type": {
-        "$ref": "25"
+        "$ref": "12"
        },
        "location": "Header",
        "isApiVersion": false,
@@ -323,7 +337,7 @@
      "response": {
       "$id": "32",
       "type": {
-       "$ref": "10"
+       "$ref": "14"
       }
      },
      "isOverride": false,
@@ -341,7 +355,7 @@
      "type": {
       "$id": "34",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -351,7 +365,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     },
     {
      "$id": "35",
@@ -368,7 +383,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/versioning/added/api-version:{version}"
     }
    ],
    "decorators": [],

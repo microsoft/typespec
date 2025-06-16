@@ -20,7 +20,7 @@ import { JsClientEmitterOptions } from "./lib.js";
 export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
   const packageName = context.options["package-name"] ?? "test-package";
   const output = (
-    <Output>
+    <Output program={context.program}>
       <ts.PackageDirectory
         name={packageName}
         version="1.0.0"
@@ -54,5 +54,5 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
     </Output>
   );
 
-  await writeOutput(output, context.emitterOutputDir);
+  await writeOutput(context.program, output, context.emitterOutputDir);
 }

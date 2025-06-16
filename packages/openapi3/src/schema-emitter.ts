@@ -53,7 +53,8 @@ import {
   isSecret,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { capitalize } from "@typespec/compiler/casing";
+import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -531,6 +532,7 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    const tk = $(this.emitter.getProgram());
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
@@ -549,14 +551,14 @@ export class OpenAPI3SchemaEmitterBase<
       const envelopeVariants = new Map<string, Model>();
 
       for (const [name, variant] of union.variants) {
-        const envelopeModel = $.model.create({
+        const envelopeModel = tk.model.create({
           name: union.type.name + capitalize(name),
           properties: {
-            [union.options.discriminatorPropertyName]: $.modelProperty.create({
+            [union.options.discriminatorPropertyName]: tk.modelProperty.create({
               name: union.options.discriminatorPropertyName,
-              type: $.literal.createString(name),
+              type: tk.literal.createString(name),
             }),
-            [union.options.envelopePropertyName]: $.modelProperty.create({
+            [union.options.envelopePropertyName]: tk.modelProperty.create({
               name: union.options.envelopePropertyName,
               type: variant,
             }),
@@ -859,10 +861,3 @@ export const Builders = {
     return builder;
   },
 } as const;
-
-/**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}

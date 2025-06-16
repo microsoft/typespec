@@ -18,7 +18,7 @@ public final class JsonlTests {
         String jsonlStream = List.of("{\"desc\": \"one\"}", "{\"desc\": \"two\"}", "{\"desc\": \"three\"}")
             .stream()
             .collect(Collectors.joining("\n"));
-        client.send(BinaryData.fromString(jsonlStream));
+        client.send(BinaryData.fromString(jsonlStream), jsonlStream.length());
 
         BinaryData data = client.receive();
         Assertions.assertEquals(3, data.toString().split("\n").length);

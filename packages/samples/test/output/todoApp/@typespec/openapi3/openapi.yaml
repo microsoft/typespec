@@ -126,7 +126,7 @@ paths:
         content:
           application/merge-patch+json:
             schema:
-              $ref: '#/components/schemas/TodoItems.TodoItemPatch'
+              $ref: '#/components/schemas/TodoItemMergePatchUpdate'
     delete:
       operationId: TodoItems_delete
       parameters:
@@ -459,6 +459,35 @@ components:
           $ref: '#/components/schemas/TodoLabels'
         _dummy:
           type: string
+    TodoItemMergePatchUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          description: The item's title
+        assignedTo:
+          type: integer
+          format: int64
+          description: User that the todo is assigned to
+          readOnly: true
+          nullable: true
+        description:
+          type: string
+          nullable: true
+          description: A longer description of the todo item in markdown format
+        status:
+          type: string
+          enum:
+            - NotStarted
+            - InProgress
+            - Completed
+          description: The status of the todo item
+        labels:
+          allOf:
+            - $ref: '#/components/schemas/TodoLabelsMergePatchUpdateOrCreate'
+          nullable: true
+      description: ''
     TodoItems.InvalidTodoItem:
       type: object
       allOf:
@@ -544,6 +573,25 @@ components:
         color:
           type: string
           pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
+    TodoLabelRecordMergePatchUpdateOrCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          nullable: true
+          pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
+    TodoLabelRecordMergePatchUpdateReplaceOnly:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
     TodoLabels:
       anyOf:
         - type: string
@@ -554,6 +602,16 @@ components:
         - type: array
           items:
             $ref: '#/components/schemas/TodoLabelRecord'
+    TodoLabelsMergePatchUpdateOrCreate:
+      anyOf:
+        - type: string
+        - type: array
+          items:
+            type: string
+        - $ref: '#/components/schemas/TodoLabelRecordMergePatchUpdateOrCreate'
+        - type: array
+          items:
+            $ref: '#/components/schemas/TodoLabelRecordMergePatchUpdateReplaceOnly'
     User:
       type: object
       required:

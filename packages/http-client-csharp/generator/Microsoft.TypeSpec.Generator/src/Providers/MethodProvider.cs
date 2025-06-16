@@ -15,7 +15,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public MethodSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set;}
         public ValueExpression? BodyExpression { get; private set;}
-        public XmlDocProvider? XmlDocs { get; private set;}
+
+        public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
 
@@ -36,12 +37,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamhash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
-                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, paramHash)
-                : null);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
         }
 
@@ -56,9 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
-                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, null)
-                : null);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
         }
 
@@ -71,6 +67,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (signature != null)
             {
                 Signature = signature;
+                // rebuild the XML docs if the signature changes
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
             }
             if (bodyStatements != null)
             {
@@ -86,6 +84,41 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 XmlDocs = xmlDocProvider;
             }
+        }
+
+        internal virtual MethodProvider? Accept(LibraryVisitor visitor)
+        {
+            var updated = visitor.VisitMethod(this);
+            if (updated == null)
+            {
+                return null;
+            }
+
+            if (!ReferenceEquals(updated, this))
+            {
+                return updated.Accept(visitor);
+            }
+
+            Signature = updated.Signature;
+
+            if (BodyExpression != null)
+            {
+                var expression = BodyExpression.Accept(visitor, this);
+                if (!ReferenceEquals(expression, BodyExpression))
+                {
+                    BodyExpression = expression;
+                }
+            }
+            else
+            {
+                var updatedStatements = BodyStatements!.Accept(visitor, this);
+                if (!ReferenceEquals(updatedStatements, BodyStatements))
+                {
+                    BodyStatements = updatedStatements;
+                }
+            }
+
+            return this;
         }
     }
 }

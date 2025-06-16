@@ -1,6 +1,6 @@
 import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/experimental/typekit/index.js";
 import { createHttpTestRunner } from "./../test-host.js";
@@ -31,9 +31,10 @@ describe("httpOperation:getResponses", () => {
       @get
       @test op getFoo(): Foo | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -54,9 +55,10 @@ describe("httpOperation:getResponses", () => {
       @get
       @test op getFoo(): Foo | void;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -83,9 +85,10 @@ describe("httpOperation:getResponses", () => {
       @get
       @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
+    const tk = $(runner.program);
 
-    const httpOperation = $.httpOperation.get(getFoo);
-    const responses = $.httpOperation.flattenResponses(httpOperation);
+    const httpOperation = tk.httpOperation.get(getFoo);
+    const responses = tk.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");

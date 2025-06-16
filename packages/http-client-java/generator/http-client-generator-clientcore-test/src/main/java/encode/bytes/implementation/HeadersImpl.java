@@ -1,18 +1,21 @@
 package encode.bytes.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.utils.Base64Uri;
-import io.clientcore.core.utils.Base64Util;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,7 @@ public final class HeadersImpl {
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(BytesClientImpl client) {
-        this.service = RestProxy.create(HeadersService.class, client.getHttpPipeline());
+        this.service = HeadersService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -46,87 +49,110 @@ public final class HeadersImpl {
      */
     @ServiceInterface(name = "BytesClientHeaders", host = "{endpoint}")
     public interface HeadersService {
+        static HeadersService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("encode.bytes.implementation.HeadersServiceImpl");
+                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/header/default",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethodSync(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestOptions requestOptions);
+        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/header/base64",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> base64Sync(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestOptions requestOptions);
+        Response<Void> base64(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/header/base64url",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlSync(@HostParam("endpoint") String endpoint, @HeaderParam("value") Base64Uri value,
-            RequestOptions requestOptions);
+        Response<Void> base64url(@HostParam("endpoint") String endpoint, @HeaderParam("value") Base64Uri value,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/header/base64url-array",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlArraySync(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestOptions requestOptions);
+        Response<Void> base64urlArray(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
+            RequestContext requestContext);
     }
 
     /**
      * The defaultMethod operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> defaultMethodWithResponse(byte[] value, RequestOptions requestOptions) {
-        String valueConverted = Base64Util.encodeToString(value);
-        return service.defaultMethodSync(this.client.getEndpoint(), valueConverted, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> defaultMethodWithResponse(byte[] value, RequestContext requestContext) {
+        String valueConverted = new String(Base64.getEncoder().encode(value));
+        return service.defaultMethod(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The base64 operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> base64WithResponse(byte[] value, RequestOptions requestOptions) {
-        String valueConverted = Base64Util.encodeToString(value);
-        return service.base64Sync(this.client.getEndpoint(), valueConverted, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64WithResponse(byte[] value, RequestContext requestContext) {
+        String valueConverted = new String(Base64.getEncoder().encode(value));
+        return service.base64(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The base64url operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> base64urlWithResponse(byte[] value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64urlWithResponse(byte[] value, RequestContext requestContext) {
         Base64Uri valueConverted = Base64Uri.encode(value);
-        return service.base64urlSync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.base64url(this.client.getEndpoint(), valueConverted, requestContext);
     }
 
     /**
      * The base64urlArray operation.
      * 
      * @param value The value parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> base64urlArrayWithResponse(List<byte[]> value, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> base64urlArrayWithResponse(List<byte[]> value, RequestContext requestContext) {
         String valueConverted = value.stream()
             .map(paramItemValue -> Base64Uri.encode(paramItemValue))
             .collect(Collectors.toList())
@@ -159,6 +185,6 @@ public final class HeadersImpl {
                 }
             })
             .collect(Collectors.joining(","));
-        return service.base64urlArraySync(this.client.getEndpoint(), valueConverted, requestOptions);
+        return service.base64urlArray(this.client.getEndpoint(), valueConverted, requestContext);
     }
 }

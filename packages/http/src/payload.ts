@@ -21,6 +21,7 @@ import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import {
   GetHttpPropertyOptions,
   HeaderProperty,
@@ -32,8 +33,10 @@ import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
 import {
   HttpOperationFileBody,
+  HttpOperationModelPart,
   HttpOperationMultipartBody,
-  HttpOperationPart,
+  HttpOperationPartCommon,
+  HttpOperationTuplePart,
   HttpPayloadBody,
 } from "./types.js";
 
@@ -269,9 +272,9 @@ function resolveExplicitBodyProperty(
             code: "http-file-structured",
             messageId: "union",
             target:
-              item.property.node.kind === SyntaxKind.ModelProperty
+              item.property.node?.kind === SyntaxKind.ModelProperty
                 ? item.property.node.value
-                : item.property.node,
+                : item.property,
           });
         }
 
@@ -421,11 +424,17 @@ function resolveMultiPartBodyFromModel(
   visibility: Visibility,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationModelPart[] = [];
   for (const item of type.properties.values()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility, item));
     if (part) {
-      parts.push({ ...part, name: part.name ?? item.name, optional: item.optional });
+      parts.push({
+        partKind: "model",
+        ...part,
+        name: part.name ?? item.name,
+        optional: item.optional,
+        property: item,
+      });
     }
   }
 
@@ -440,6 +449,7 @@ function resolveMultiPartBodyFromModel(
 
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "model",
     ...resolvedContentTypes,
     parts,
     property,
@@ -461,7 +471,7 @@ function resolveMultiPartBodyFromTuple(
   visibility: Visibility,
 ): DiagnosticResult<HttpOperationMultipartBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  const parts: HttpOperationPart[] = [];
+  const parts: HttpOperationTuplePart[] = [];
 
   const contentTypes =
     contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty?.property));
@@ -472,12 +482,12 @@ function resolveMultiPartBodyFromTuple(
       diagnostics.add(
         createDiagnostic({
           code: "formdata-no-part-name",
-          target: type.node.values[index],
+          target: type.node?.values[index] ?? type.values[index],
         }),
       );
     }
     if (part) {
-      parts.push(part);
+      parts.push({ partKind: "tuple", ...part, optional: false });
     }
   }
 
@@ -492,6 +502,7 @@ function resolveMultiPartBodyFromTuple(
 
   return diagnostics.wrap({
     bodyKind: "multipart",
+    multipartKind: "tuple",
     ...resolvedContentTypes,
     parts,
     property,
@@ -504,7 +515,7 @@ function resolvePartOrParts(
   type: Type,
   visibility: Visibility,
   property?: ModelProperty,
-): DiagnosticResult<HttpOperationPart | undefined> {
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
     const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility, property);
     if (part) {
@@ -521,7 +532,7 @@ function resolvePart(
   type: Type,
   visibility: Visibility,
   property?: ModelProperty,
-): DiagnosticResult<HttpOperationPart | undefined> {
+): DiagnosticResult<HttpOperationPartCommon | undefined> {
   const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
   if (part) {
@@ -650,12 +661,32 @@ function resolveContentTypesForBody(
   return diagnostics.wrap(resolve());
 
   function resolve(): ResolvedContentType {
+    let mpContentType: string | undefined;
+    if (isMergePatchBody(program, type)) {
+      mpContentType = "application/merge-patch+json";
+    }
     if (contentTypeProperty) {
+      const explicitContentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      if (mpContentType) {
+        const badContentTypes = explicitContentTypes.filter((c) => !c.startsWith(mpContentType));
+        if (badContentTypes.length > 0) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "merge-patch-content-type",
+              target: contentTypeProperty.property ?? type,
+              format: { contentType: badContentTypes[0] },
+            }),
+          );
+        }
+      }
       return {
-        contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
+        contentTypes: explicitContentTypes,
         contentTypeProperty: contentTypeProperty.property,
       };
     }
+
+    if (mpContentType) return { contentTypes: [mpContentType] };
 
     if (isLiteralType(type)) {
       switch (type.kind) {

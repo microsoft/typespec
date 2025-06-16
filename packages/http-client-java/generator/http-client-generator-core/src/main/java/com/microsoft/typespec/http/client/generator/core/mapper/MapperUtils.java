@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -20,9 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Contains utility methods to help map from modelerfour to Java Autorest.
@@ -128,35 +125,24 @@ public final class MapperUtils {
         }
     }
 
-    static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
-        final Iterator<Schema> expectedResponseSchemas
-            = operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator();
-        final Schema responseSchema = SchemaUtil.getLowestCommonParent(expectedResponseSchemas);
-        if (!isXmlWrappedSchema(responseSchema)) {
-            return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
-        } else {
-            return createTypeForXmlWrappedSchema(responseSchema, settings);
+    public static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
+        final Schema responseSchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
+        if (responseSchema != null && responseSchema.isXmlWrapped()) {
+            // Create and return type for the XML wrapped schema.
+            //
+            // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized
+            // ObjectSchema.
+            final ArraySchema arraySchema = (ArraySchema) responseSchema;
+            final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
+            final String classPackage = settings.isCustomType(className)
+                ? settings.getPackage(className)
+                : settings.getPackage(settings.getImplementationSubpackage() + ".models");
+            return new ClassType.Builder().packageName(classPackage)
+                .name(className)
+                .extensions(responseSchema.getExtensions())
+                .build();
         }
-    }
-
-    private static boolean isXmlWrappedSchema(Schema schema) {
-        return schema != null
-            && schema.getSerialization() != null
-            && schema.getSerialization().getXml() != null
-            && schema.getSerialization().getXml().isWrapped();
-    }
-
-    private static IType createTypeForXmlWrappedSchema(Schema schema, JavaSettings settings) {
-        // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized ObjectSchema.
-        final ArraySchema arraySchema = (ArraySchema) schema;
-        final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
-        final String classPackage = settings.isCustomType(className)
-            ? settings.getPackage(className)
-            : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-        return new ClassType.Builder().packageName(classPackage)
-            .name(className)
-            .extensions(schema.getExtensions())
-            .build();
+        return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
     }
 
     private MapperUtils() {

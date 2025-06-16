@@ -1,7 +1,7 @@
 package type.dictionary;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,18 +12,18 @@ import java.util.Map;
 /**
  * Dictionary inner model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class InnerModel implements JsonSerializable<InnerModel> {
     /*
      * Required string property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String property;
 
     /*
      * The children property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private Map<String, InnerModel> children;
 
     /**
@@ -31,7 +31,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * 
      * @param property the property value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InnerModel(String property) {
         this.property = property;
     }
@@ -41,7 +41,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProperty() {
         return this.property;
     }
@@ -51,7 +51,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * 
      * @return the children value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Map<String, InnerModel> getChildren() {
         return this.children;
     }
@@ -62,7 +62,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * @param children the children value to set.
      * @return the InnerModel object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InnerModel setChildren(Map<String, InnerModel> children) {
         this.children = children;
         return this;
@@ -71,7 +71,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -89,7 +89,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the InnerModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InnerModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String property = null;

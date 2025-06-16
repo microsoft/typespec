@@ -22,13 +22,14 @@ import {
   spawnExecutionAndLogToOutput,
 } from "../utils.js";
 
-const TITLE = "Import TypeSpec From OpenAPI3";
+const TITLE = "Import TypeSpec from OpenAPI 3";
 const TSP_OPENAPI3_COMMAND = "tsp-openapi3";
 const TSP_COMPILER_PACKAGE = "@typespec/compiler";
 const TSP_OPENAPI3_PACKAGE = "@typespec/openapi3";
 const TSP_OPENAPI3_PACKAGE_DETAILS =
   "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec";
 const TSP_OPENAPI3_PACKAGE_LINK = "https://typespec.io/docs/emitters/openapi3/cli/";
+const PLACE_HOLDER = `'${TSP_OPENAPI3_PACKAGE}' is required to import OpenAPI 3. Do you want to install it?`;
 
 export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
   await telemetryClient.doOperationWithTelemetry<ResultCode>(
@@ -145,7 +146,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
                 name: `Confirm and try to install OpenAPI3 package by 'npm install'`,
                 confirm: {
                   title: TITLE,
-                  placeholder: `'${TSP_OPENAPI3_PACKAGE}' is required to import OpenApi3. Do you want to install it?`,
+                  placeholder: PLACE_HOLDER,
                   yesQuickPickItem: {
                     label: `Install ${TSP_OPENAPI3_PACKAGE}`,
                     description: `by 'npm install'`,
@@ -193,7 +194,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
               name: `Confirm and try to install OpenAPI3 package by 'npm install ${TSP_OPENAPI3_PACKAGE}'`,
               confirm: {
                 title: TITLE,
-                placeholder: `'${TSP_OPENAPI3_PACKAGE}' is required to import OpenApi3. Do you want to install it?`,
+                placeholder: PLACE_HOLDER,
                 yesQuickPickItem: {
                   label: `Install ${TSP_OPENAPI3_PACKAGE}`,
                   description: `by 'npm install ${TSP_OPENAPI3_PACKAGE}'`,
@@ -318,7 +319,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
               name: `Install ${TSP_OPENAPI3_PACKAGE} globally`,
               confirm: {
                 title: TITLE,
-                placeholder: `'${TSP_OPENAPI3_PACKAGE}'is required to import OpenAPI. Do you want to install it?`,
+                placeholder: PLACE_HOLDER,
                 yesQuickPickItem: {
                   label: `Install ${TSP_OPENAPI3_PACKAGE} globally`,
                   description: `by 'npm install -g ${TSP_OPENAPI3_PACKAGE}'`,

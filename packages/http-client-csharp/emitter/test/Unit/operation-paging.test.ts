@@ -41,7 +41,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -72,7 +75,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -105,7 +111,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -136,7 +145,10 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -181,7 +193,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -213,7 +228,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -246,7 +264,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -279,7 +300,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
@@ -312,7 +336,10 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.clients[0].methods[0].operation.paging;
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+
+    const paging = method.pagingMetadata;
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");

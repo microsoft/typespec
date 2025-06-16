@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Snippet.Return(valueParam.As<JsonElement>().ValueKindNotEqualsUndefined())
-            }, this);
+            }, this, XmlDocProvider.Empty);
         }
 
         private MethodSignature GetIsDefinedSignature(ParameterProvider valueParam, IReadOnlyList<CSharpType>? genericArguments = null, IReadOnlyList<WhereExpression>? genericParameterConstraints = null)

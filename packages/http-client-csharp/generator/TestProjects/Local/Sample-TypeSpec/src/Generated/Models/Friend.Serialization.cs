@@ -14,13 +14,16 @@ using SampleTypeSpec;
 
 namespace SampleTypeSpec.Models.Custom
 {
-    /// <summary></summary>
+    /// <summary> this is not a friendly model but with a friendly name. </summary>
     public partial class Friend : IJsonModel<Friend>
     {
+        /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>
         internal Friend()
         {
         }
 
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Friend>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
@@ -56,6 +59,8 @@ namespace SampleTypeSpec.Models.Custom
             }
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         Friend IJsonModel<Friend>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
@@ -71,6 +76,8 @@ namespace SampleTypeSpec.Models.Custom
             return DeserializeFriend(document.RootElement, options);
         }
 
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         internal static Friend DeserializeFriend(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -94,6 +101,7 @@ namespace SampleTypeSpec.Models.Custom
             return new Friend(name, additionalBinaryDataProperties);
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -103,12 +111,14 @@ namespace SampleTypeSpec.Models.Custom
             switch (format)
             {
                 case "J":
-                    return ModelReaderWriter.Write(this, options);
+                    return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
                     throw new FormatException($"The model {nameof(Friend)} does not support writing '{options.Format}' format.");
             }
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
@@ -128,6 +138,7 @@ namespace SampleTypeSpec.Models.Custom
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="friend"> The <see cref="Friend"/> to serialize into <see cref="BinaryContent"/>. </param>

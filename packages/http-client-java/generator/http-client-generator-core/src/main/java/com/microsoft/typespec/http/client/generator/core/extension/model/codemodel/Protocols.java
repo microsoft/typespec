@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents custom extensible metadata for individual protocols (ie, HTTP, etc),
  */
-public class Protocols implements JsonSerializable<Protocols> {
+public class Protocols {
     private Protocol http;
     private Protocol amqp;
     private Protocol mqtt;
@@ -124,38 +119,5 @@ public class Protocols implements JsonSerializable<Protocols> {
             && Objects.equals(jsonrpc, rhs.jsonrpc)
             && Objects.equals(amqp, rhs.amqp)
             && Objects.equals(mqtt, rhs.mqtt);
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("http", http)
-            .writeJsonField("amqp", amqp)
-            .writeJsonField("mqtt", mqtt)
-            .writeJsonField("jsonrpc", jsonrpc)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Protocols instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Protocols instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Protocols fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Protocols::new, (protocols, fieldName, reader) -> {
-            if ("http".equals(fieldName)) {
-                protocols.http = Protocol.fromJson(reader);
-            } else if ("amqp".equals(fieldName)) {
-                protocols.amqp = Protocol.fromJson(reader);
-            } else if ("mqtt".equals(fieldName)) {
-                protocols.mqtt = Protocol.fromJson(reader);
-            } else if ("jsonrpc".equals(fieldName)) {
-                protocols.jsonrpc = Protocol.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

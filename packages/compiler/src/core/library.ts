@@ -47,7 +47,7 @@ function createStateKeys<T extends string>(
  * @returns Library with utility functions.
  *
  *
- * @tutorial Create the lib object with `as const` to get the full typing.
+ * @remarks Create the lib object with `as const` to get the full typing.
  *
  * @example
  * const libDef = {

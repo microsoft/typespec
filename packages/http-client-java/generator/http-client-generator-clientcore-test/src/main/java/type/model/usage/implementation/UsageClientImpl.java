@@ -1,19 +1,21 @@
 package type.model.usage.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
-import io.clientcore.core.models.binarydata.BinaryData;
+import java.lang.reflect.InvocationTargetException;
 import type.model.usage.InputOutputRecord;
+import type.model.usage.InputRecord;
 import type.model.usage.OutputRecord;
 
 /**
@@ -62,7 +64,7 @@ public final class UsageClientImpl {
     public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(UsageClientService.class, this.httpPipeline);
+        this.service = UsageClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -70,106 +72,90 @@ public final class UsageClientImpl {
      */
     @ServiceInterface(name = "UsageClient", host = "{endpoint}")
     public interface UsageClientService {
+        static UsageClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("type.model.usage.implementation.UsageClientServiceImpl");
+                return (UsageClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/type/model/usage/input",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> inputSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
-            RequestOptions requestOptions);
+        Response<Void> input(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") InputRecord input, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/model/usage/output",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<OutputRecord> outputSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<OutputRecord> output(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
             path = "/type/model/usage/input-output",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<InputOutputRecord> inputAndOutputSync(@HostParam("endpoint") String endpoint,
+        Response<InputOutputRecord> inputAndOutput(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
+            @BodyParam("application/json") InputOutputRecord body, RequestContext requestContext);
     }
 
     /**
      * The input operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param input The input parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> inputWithResponse(BinaryData input, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.inputSync(this.getEndpoint(), contentType, input, requestOptions);
+        return service.input(this.getEndpoint(), contentType, input, requestContext);
     }
 
     /**
      * The output operation.
-     * <p><strong>Response Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used in operation return type.
      */
-    public Response<OutputRecord> outputWithResponse(RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
         final String accept = "application/json";
-        return service.outputSync(this.getEndpoint(), accept, requestOptions);
+        return service.output(this.getEndpoint(), accept, requestContext);
     }
 
     /**
      * The inputAndOutput operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     requiredProp: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used both as operation parameter and return type.
      */
-    public Response<InputOutputRecord> inputAndOutputWithResponse(BinaryData body, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.inputAndOutputSync(this.getEndpoint(), contentType, accept, body, requestOptions);
+        return service.inputAndOutput(this.getEndpoint(), contentType, accept, body, requestContext);
     }
 }

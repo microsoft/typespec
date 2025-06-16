@@ -1,9 +1,12 @@
 package server.versions.notversioned;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import server.versions.notversioned.implementation.NotVersionedClientImpl;
 
@@ -12,7 +15,7 @@ import server.versions.notversioned.implementation.NotVersionedClientImpl;
  */
 @ServiceClient(builder = NotVersionedClientBuilder.class)
 public final class NotVersionedClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final NotVersionedClientImpl serviceClient;
 
     /**
@@ -20,7 +23,7 @@ public final class NotVersionedClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     NotVersionedClient(NotVersionedClientImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -28,39 +31,16 @@ public final class NotVersionedClient {
     /**
      * The withoutApiVersion operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> withoutApiVersionWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.withoutApiVersionWithResponse(requestOptions);
-    }
-
-    /**
-     * The withQueryApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestOptions requestOptions) {
-        return this.serviceClient.withQueryApiVersionWithResponse(apiVersion, requestOptions);
-    }
-
-    /**
-     * The withPathApiVersion operation.
-     * 
-     * @param apiVersion The apiVersion parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestOptions requestOptions) {
-        return this.serviceClient.withPathApiVersionWithResponse(apiVersion, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
+        return this.serviceClient.withoutApiVersionWithResponse(requestContext);
     }
 
     /**
@@ -69,11 +49,26 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withoutApiVersion() {
-        // Generated convenience method for withoutApiVersionWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withoutApiVersionWithResponse(requestOptions).getValue();
+        withoutApiVersionWithResponse(RequestContext.none());
+    }
+
+    /**
+     * The withQueryApiVersion operation.
+     * 
+     * @param apiVersion The apiVersion parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
+        return this.serviceClient.withQueryApiVersionWithResponse(apiVersion, requestContext);
     }
 
     /**
@@ -84,11 +79,26 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withQueryApiVersion(String apiVersion) {
-        // Generated convenience method for withQueryApiVersionWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withQueryApiVersionWithResponse(apiVersion, requestOptions).getValue();
+        withQueryApiVersionWithResponse(apiVersion, RequestContext.none());
+    }
+
+    /**
+     * The withPathApiVersion operation.
+     * 
+     * @param apiVersion The apiVersion parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
+        return this.serviceClient.withPathApiVersionWithResponse(apiVersion, requestContext);
     }
 
     /**
@@ -99,10 +109,9 @@ public final class NotVersionedClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void withPathApiVersion(String apiVersion) {
-        // Generated convenience method for withPathApiVersionWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        withPathApiVersionWithResponse(apiVersion, requestOptions).getValue();
+        withPathApiVersionWithResponse(apiVersion, RequestContext.none());
     }
 }

@@ -15,7 +15,7 @@ from .request_builder import (
     OverloadedRequestBuilder,
     get_request_builder,
 )
-from .parameter import Parameter, ParameterMethodLocation
+from .parameter import Parameter, ParameterMethodLocation, ParameterLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
 from ...utils import extract_original_name, NAME_LENGTH_LIMIT
@@ -54,7 +54,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         return self.yaml_data["name"]
 
 
-class Client(_ClientConfigBase[ClientGlobalParameterList]):
+class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=too-many-public-methods
     """Model representing our service client"""
 
     def __init__(
@@ -78,6 +78,27 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             self.link_lro_initial_operations()
         self.request_id_header_name = self.yaml_data.get("requestIdHeaderName", None)
         self.has_etag: bool = yaml_data.get("hasEtag", False)
+
+        # update the host parameter value. In later logic, SDK will overwrite it
+        # with value from cloud_setting if users don't provide it.
+        if self.need_cloud_setting:
+            for p in self.parameters.parameters:
+                if p.location == ParameterLocation.ENDPOINT_PATH:
+                    p.client_default_value = None
+                    p.optional = True
+                    break
+
+    @property
+    def need_cloud_setting(self) -> bool:
+        return bool(
+            self.code_model.options.get("azure_arm", False)
+            and self.credential_scopes is not None
+            and self.endpoint_parameter is not None
+        )
+
+    @property
+    def endpoint_parameter(self) -> Optional[Parameter]:
+        return next((p for p in self.parameters.parameters if p.location == ParameterLocation.ENDPOINT_PATH), None)
 
     def _build_request_builders(
         self,
@@ -152,6 +173,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             p
             for p in self.parameters.parameters
             if p.is_api_version
+            and p.client_name == "api_version"
             and p.method_location in [ParameterMethodLocation.KEYWORD_ONLY, ParameterMethodLocation.KWARG]
         ):
             retval = add_to_pylint_disable(retval, "client-accepts-api-version-keyword")
@@ -233,6 +255,10 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             "Self",
             ImportType.STDLIB,
         )
+        if self.need_cloud_setting:
+            file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
+            file_import.add_submodule_import("azure.core.settings", "settings", ImportType.SDKCORE)
+            file_import.add_submodule_import("azure.mgmt.core.tools", "get_arm_endpoints", ImportType.SDKCORE)
         return file_import
 
     @property
@@ -331,6 +357,18 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             import_type=ImportType.SDKCORE,
         )
         return file_import
+
+    @property
+    def credential_scopes(self) -> Optional[List[str]]:
+        """Credential scopes for this client"""
+
+        if self.credential:
+            if hasattr(getattr(self.credential.type, "policy", None), "credential_scopes"):
+                return self.credential.type.policy.credential_scopes  # type: ignore
+            for t in getattr(self.credential.type, "types", []):
+                if hasattr(getattr(t, "policy", None), "credential_scopes"):
+                    return t.policy.credential_scopes
+        return None
 
     @classmethod
     def from_yaml(

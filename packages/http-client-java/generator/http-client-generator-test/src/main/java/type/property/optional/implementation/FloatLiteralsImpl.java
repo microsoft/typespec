@@ -57,7 +57,7 @@ public final class FloatLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientFloatL")
+    @ServiceInterface(name = "OptionalClientFloatLiterals")
     public interface FloatLiteralsService {
         @Get("/type/property/optional/float/literal/all")
         @ExpectedResponses({ 200 })

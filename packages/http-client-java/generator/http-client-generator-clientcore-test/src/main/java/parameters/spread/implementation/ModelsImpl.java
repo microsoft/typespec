@@ -1,18 +1,21 @@
 package parameters.spread.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
+import parameters.spread.model.BodyParameter;
 
 /**
  * An instance of this class provides access to all the operations defined in Models.
@@ -34,7 +37,7 @@ public final class ModelsImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ModelsImpl(SpreadClientImpl client) {
-        this.service = RestProxy.create(ModelsService.class, client.getHttpPipeline());
+        this.service = ModelsService.getNewInstance(client.getHttpPipeline());
         this.client = client;
     }
 
@@ -44,98 +47,96 @@ public final class ModelsImpl {
      */
     @ServiceInterface(name = "SpreadClientModels", host = "{endpoint}")
     public interface ModelsService {
+        static ModelsService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz = Class.forName("parameters.spread.implementation.ModelsServiceImpl");
+                return (ModelsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/parameters/spread/model/request-body",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> spreadAsRequestBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData bodyParameter,
-            RequestOptions requestOptions);
+        Response<Void> spreadAsRequestBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyParameter bodyParameter,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/parameters/spread/model/composite-request-only-with-body",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestOnlyWithBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> spreadCompositeRequestOnlyWithBody(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyParameter body,
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/parameters/spread/model/composite-request-without-body/{name}",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestWithoutBodySync(@HostParam("endpoint") String endpoint,
+        Response<Void> spreadCompositeRequestWithoutBody(@HostParam("endpoint") String endpoint,
             @PathParam("name") String name, @HeaderParam("test-header") String testHeader,
-            RequestOptions requestOptions);
+            RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/parameters/spread/model/composite-request/{name}",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestSync(@HostParam("endpoint") String endpoint,
-            @PathParam("name") String name, @HeaderParam("test-header") String testHeader,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions);
+        Response<Void> spreadCompositeRequest(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
+            @HeaderParam("test-header") String testHeader, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") BodyParameter body, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.PUT,
             path = "/parameters/spread/model/composite-request-mix/{name}",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestMixSync(@HostParam("endpoint") String endpoint,
-            @PathParam("name") String name, @HeaderParam("test-header") String testHeader,
-            @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData spreadCompositeRequestMixRequest, RequestOptions requestOptions);
+        Response<Void> spreadCompositeRequestMix(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
+            @HeaderParam("test-header") String testHeader, @HeaderParam("Content-Type") String contentType,
+            @BodyParam("application/json") SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest,
+            RequestContext requestContext);
     }
 
     /**
      * The spreadAsRequestBody operation.
-     * <p><strong>Request Body Schema</strong></p>
      * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
-     * 
-     * @param bodyParameter The bodyParameter parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param name The name parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> spreadAsRequestBodyWithResponse(BinaryData bodyParameter, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.spreadAsRequestBodySync(this.client.getEndpoint(), contentType, bodyParameter, requestOptions);
+        BodyParameter bodyParameter = new BodyParameter(name);
+        return service.spreadAsRequestBody(this.client.getEndpoint(), contentType, bodyParameter, requestContext);
     }
 
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BodyParameter body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.spreadCompositeRequestOnlyWithBodySync(this.client.getEndpoint(), contentType, body,
-            requestOptions);
+        return service.spreadCompositeRequestOnlyWithBody(this.client.getEndpoint(), contentType, body, requestContext);
     }
 
     /**
@@ -143,65 +144,56 @@ public final class ModelsImpl {
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
-        RequestOptions requestOptions) {
-        return service.spreadCompositeRequestWithoutBodySync(this.client.getEndpoint(), name, testHeader,
-            requestOptions);
+        RequestContext requestContext) {
+        return service.spreadCompositeRequestWithoutBody(this.client.getEndpoint(), name, testHeader, requestContext);
     }
 
     /**
      * The spreadCompositeRequest operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     name: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param body The body parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BinaryData body,
-        RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BodyParameter body,
+        RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.spreadCompositeRequestSync(this.client.getEndpoint(), name, testHeader, contentType, body,
-            requestOptions);
+        return service.spreadCompositeRequest(this.client.getEndpoint(), name, testHeader, contentType, body,
+            requestContext);
     }
 
     /**
      * The spreadCompositeRequestMix operation.
-     * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * {
-     *     prop: String (Required)
-     * }
-     * }
-     * </pre>
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
-     * @param spreadCompositeRequestMixRequest The spreadCompositeRequestMixRequest parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param prop The prop parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader,
-        BinaryData spreadCompositeRequestMixRequest, RequestOptions requestOptions) {
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader, String prop,
+        RequestContext requestContext) {
         final String contentType = "application/json";
-        return service.spreadCompositeRequestMixSync(this.client.getEndpoint(), name, testHeader, contentType,
-            spreadCompositeRequestMixRequest, requestOptions);
+        SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest = new SpreadCompositeRequestMixRequest(prop);
+        return service.spreadCompositeRequestMix(this.client.getEndpoint(), name, testHeader, contentType,
+            spreadCompositeRequestMixRequest, requestContext);
     }
 }

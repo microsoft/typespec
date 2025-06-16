@@ -1,8 +1,9 @@
 ---
-slug: 2024-11-04-typespec-at-lseg
+slug: typespec-at-lseg
+redirect_slug: 2024-11-04-typespec-at-lseg
 title: "Enhancing API design at the London Stock Exchange Group"
 image: ./tsp_lseg_360x360.png
-description: In the fast-paced world of financial services, having consistent and efficient APIs and SDKs is crucial. At Microsoft, we’ve been working closely with LSEG (London Stock Exchange Group) to streamline their development process using TypeSpec. This collaboration has been very beneficial and educational for both sides, and we’re excited to share our insights with you.
+description: In the fast-paced world of financial services, having consistent and efficient APIs and SDKs is crucial. At Microsoft, we've been working closely with LSEG (London Stock Exchange Group) to streamline their development process using TypeSpec. This collaboration has been very beneficial and educational for both sides, and we're excited to share our insights with you.
 publishDate: 2024-11-04
 authors:
   - name: Mario Guerra

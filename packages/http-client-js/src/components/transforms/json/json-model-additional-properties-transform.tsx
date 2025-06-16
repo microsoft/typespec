@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { getJsonRecordTransformRefkey } from "./json-record-transform.jsx";
 
 export interface JsonAdditionalPropertiesTransformProps {
@@ -11,6 +11,7 @@ export interface JsonAdditionalPropertiesTransformProps {
 }
 
 export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertiesTransformProps) {
+  const { $ } = useTsp();
   const additionalProperties = $.model.getAdditionalPropertiesRecord(props.type);
 
   if (!additionalProperties) {

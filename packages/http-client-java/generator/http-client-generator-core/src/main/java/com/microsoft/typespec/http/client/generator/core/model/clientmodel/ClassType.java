@@ -7,6 +7,7 @@ import com.azure.core.client.traits.ConfigurationTrait;
 import com.azure.core.client.traits.EndpointTrait;
 import com.azure.core.client.traits.HttpTrait;
 import com.azure.core.client.traits.KeyCredentialTrait;
+import com.azure.core.client.traits.TokenCredentialTrait;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.credential.KeyCredential;
 import com.azure.core.credential.TokenCredential;
@@ -17,6 +18,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.exception.TooManyRedirectsException;
 import com.azure.core.http.HttpClient;
+import com.azure.core.http.HttpHeader;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpPipeline;
@@ -26,6 +28,7 @@ import com.azure.core.http.HttpResponse;
 import com.azure.core.http.MatchConditions;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.RequestConditions;
+import com.azure.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
@@ -33,6 +36,7 @@ import com.azure.core.http.policy.KeyCredentialPolicy;
 import com.azure.core.http.policy.RedirectPolicy;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.http.policy.RetryPolicy;
+import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
@@ -41,6 +45,7 @@ import com.azure.core.http.rest.StreamResponse;
 import com.azure.core.models.JsonPatchDocument;
 import com.azure.core.models.ResponseError;
 import com.azure.core.util.Base64Url;
+import com.azure.core.util.Base64Util;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.ClientOptions;
 import com.azure.core.util.Configuration;
@@ -52,6 +57,7 @@ import com.azure.core.util.ExpandableStringEnum;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.logging.LogLevel;
 import com.azure.core.util.polling.PollOperationDetails;
+import com.azure.core.util.polling.PollingStrategyOptions;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.JsonSerializer;
 import com.azure.core.util.serializer.SerializerAdapter;
@@ -59,9 +65,14 @@ import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
+import com.azure.xml.XmlReader;
+import com.azure.xml.XmlSerializable;
+import com.azure.xml.XmlToken;
+import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -87,14 +98,24 @@ public class ClassType implements IType {
 
         private final Class<?> azureClass;
         private final String genericClass;
+        private final String azureVNextClass;
 
         public ClassDetails(Class<?> azureClass, String genericClass) {
+            this(azureClass, genericClass, genericClass);
+        }
+
+        public ClassDetails(Class<?> azureClass, String genericClass, String azureVNextClass) {
             this.azureClass = azureClass;
             this.genericClass = genericClass;
+            this.azureVNextClass = azureVNextClass;
         }
 
         public String getAzureClass() {
             return azureClass.getName();
+        }
+
+        public String getAzureVNextClass() {
+            return azureVNextClass;
         }
 
         public String getGenericClass() {
@@ -128,14 +149,13 @@ public class ClassType implements IType {
                 "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"));
             put(Configuration.class,
                 new ClassDetails(Configuration.class, "io.clientcore.core.utils.configuration.Configuration"));
-            put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
+            put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.http.models.HttpHeaders"));
+            put(HttpHeader.class, new ClassDetails(HttpHeader.class, "io.clientcore.core.http.models.HttpHeader"));
             put(HttpHeaderName.class,
                 new ClassDetails(HttpHeaderName.class, "io.clientcore.core.http.models.HttpHeaderName"));
             put(HttpRequest.class, new ClassDetails(HttpRequest.class, "io.clientcore.core.http.models.HttpRequest"));
             put(HttpResponse.class,
                 new ClassDetails(HttpResponse.class, "io.clientcore.core.http.models.HttpResponse"));
-            put(RequestOptions.class,
-                new ClassDetails(RequestOptions.class, "io.clientcore.core.http.models.RequestOptions"));
             put(BinaryData.class,
                 new ClassDetails(BinaryData.class, "io.clientcore.core.models.binarydata.BinaryData"));
             put(RetryOptions.class,
@@ -148,8 +168,8 @@ public class ClassType implements IType {
                 new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.utils.ExpandableEnum"));
             put(ExpandableEnum.class,
                 new ClassDetails(ExpandableEnum.class, "io.clientcore.core.utils.ExpandableEnum"));
-            put(HttpResponseException.class, new ClassDetails(HttpResponseException.class,
-                "io.clientcore.core.http.exceptions.HttpResponseException"));
+            put(HttpResponseException.class,
+                new ClassDetails(HttpResponseException.class, "io.clientcore.core.http.models.HttpResponseException"));
             put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.traits.HttpTrait"));
             put(ConfigurationTrait.class,
                 new ClassDetails(ConfigurationTrait.class, "io.clientcore.core.traits.ConfigurationTrait"));
@@ -159,39 +179,88 @@ public class ClassType implements IType {
             put(ClientLogger.class,
                 new ClassDetails(ClientLogger.class, "io.clientcore.core.instrumentation.logging.ClientLogger"));
             put(LogLevel.class,
-                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
+                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.LogLevel"));
             put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
                 "io.clientcore.core.http.models.ServiceVersion"));
-            put(com.azure.core.util.DateTimeRfc1123.class, new ClassDetails(com.azure.core.util.DateTimeRfc1123.class,
-                "io.clientcore.core.utils.DateTimeRfc1123"));
-            put(com.azure.core.util.Base64Url.class,
-                new ClassDetails(com.azure.core.util.Base64Url.class, "io.clientcore.core.utils.Base64Uri"));
+            put(UserAgentPolicy.class,
+                new ClassDetails(UserAgentPolicy.class, "io.clientcore.core.http.pipeline.UserAgentPolicy"));
+
+            put(KeyCredential.class,
+                new ClassDetails(KeyCredential.class, "io.clientcore.core.credentials.KeyCredential"));
+
+            put(DateTimeRfc1123.class,
+                new ClassDetails(DateTimeRfc1123.class, "io.clientcore.core.utils.DateTimeRfc1123"));
+            put(Base64Url.class, new ClassDetails(Base64Url.class, "io.clientcore.core.utils.Base64Uri"));
+            put(TokenCredential.class,
+                new ClassDetails(TokenCredential.class, "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
+                    "com.azure.v2.core.credentials.TokenCredential"));
+            put(TokenCredentialTrait.class,
+                new ClassDetails(TokenCredentialTrait.class, "io.clientcore.core.traits.OAuthTokenCredentialTrait",
+                    "com.azure.v2.core.traits.TokenCredentialTrait"));
+            put(BearerTokenAuthenticationPolicy.class,
+                new ClassDetails(BearerTokenAuthenticationPolicy.class,
+                    "io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy",
+                    "com.azure.v2.core.http.pipeline.BearerTokenAuthenticationPolicy"));
+            put(CoreUtils.class, new ClassDetails(CoreUtils.class, "io.clientcore.core.utils.CoreUtils"));
+            put(MatchConditions.class,
+                new ClassDetails(MatchConditions.class, "io.clientcore.core.http.models.HttpMatchConditions"));
+            put(RequestConditions.class,
+                new ClassDetails(RequestConditions.class, "io.clientcore.core.http.models.HttpRequestConditions"));
+            put(ResponseError.class, new ClassDetails(ResponseError.class, "io.clientcore.core.Error",
+                "com.azure.v2.core.models.AzureResponseError"));
+            put(SyncPoller.class, new ClassDetails(SyncPoller.class, "io.clientcore.core.Poller",
+                "com.azure.v2.core.http.polling.Poller"));
+            put(PollingStrategyOptions.class, new ClassDetails(PollingStrategyOptions.class,
+                "io.clientcore.core.PollingStrategyOptions", "com.azure.v2.core.http.polling.PollingStrategyOptions"));
         }
     };
 
     private static ClassType.Builder getClassTypeBuilder(Class<?> classKey) {
-        if (!JavaSettings.getInstance().isBranded()) {
+        return getClassTypeBuilder(classKey, false);
+    }
+
+    private static ClassType.Builder getClassTypeBuilder(Class<?> classKey, boolean isSwaggerType) {
+        if (JavaSettings.getInstance().isAzureV2()) {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
-                return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getGenericClass());
+                return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureVNextClass());
             } else {
-                return new Builder(false)
+                return new Builder(isSwaggerType)
                     .packageName(classKey.getPackage()
                         .getName()
                         .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
-                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME))
+                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
+                        .replace(ExternalPackage.AZURE_XML_PACKAGE_NAME, ExternalPackage.CLIENTCORE_XML_PACKAGE_NAME))
+                    .name(classKey.getSimpleName());
+            }
+        } else if (!JavaSettings.getInstance().isAzureV1()) {
+            if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
+                String genericClass = CLASS_TYPE_MAPPING.get(classKey).getGenericClass();
+                if (CoreUtils.isNullOrEmpty(genericClass)) {
+                    return null;
+                }
+                return new ClassType.Builder(isSwaggerType).knownClass(genericClass);
+            } else {
+                return new Builder(isSwaggerType)
+                    .packageName(classKey.getPackage()
+                        .getName()
+                        .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
+                        .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
+                        .replace(ExternalPackage.AZURE_XML_PACKAGE_NAME, ExternalPackage.CLIENTCORE_XML_PACKAGE_NAME))
                     .name(classKey.getSimpleName());
             }
         } else {
             if (CLASS_TYPE_MAPPING.containsKey(classKey)) {
-                return new ClassType.Builder(false).knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureClass());
+                return new ClassType.Builder(isSwaggerType)
+                    .knownClass(CLASS_TYPE_MAPPING.get(classKey).getAzureClass());
             } else {
-                return new Builder(false).packageName(classKey.getPackage().getName()).name(classKey.getSimpleName());
+                return new Builder(isSwaggerType).packageName(classKey.getPackage().getName())
+                    .name(classKey.getSimpleName());
             }
         }
     }
 
-    public static final ClassType REQUEST_CONDITIONS = new Builder().knownClass(RequestConditions.class).build();
-    public static final ClassType MATCH_CONDITIONS = new Builder().knownClass(MatchConditions.class).build();
+    public static final ClassType REQUEST_CONDITIONS = getClassTypeBuilder(RequestConditions.class).build();
+    public static final ClassType MATCH_CONDITIONS = getClassTypeBuilder(MatchConditions.class).build();
     public static final ClassType CORE_UTILS = getClassTypeBuilder(CoreUtils.class).build();
     public static final ClassType RESPONSE = getClassTypeBuilder(Response.class).build();
     public static final ClassType SIMPLE_RESPONSE = getClassTypeBuilder(SimpleResponse.class).build();
@@ -199,6 +268,8 @@ public class ClassType implements IType {
     public static final ClassType EXPANDABLE_ENUM = getClassTypeBuilder(ExpandableEnum.class).build();
     public static final ClassType HTTP_PIPELINE_BUILDER = getClassTypeBuilder(HttpPipelineBuilder.class).build();
     public static final ClassType KEY_CREDENTIAL_POLICY = getClassTypeBuilder(KeyCredentialPolicy.class).build();
+    public static final ClassType BEARER_TOKEN_POLICY
+        = getClassTypeBuilder(BearerTokenAuthenticationPolicy.class).build();
     public static final ClassType KEY_CREDENTIAL_TRAIT = getClassTypeBuilder(KeyCredentialTrait.class).build();
     public static final ClassType ENDPOINT_TRAIT = getClassTypeBuilder(EndpointTrait.class).build();
     public static final ClassType HTTP_TRAIT = getClassTypeBuilder(HttpTrait.class).build();
@@ -210,6 +281,11 @@ public class ClassType implements IType {
     public static final ClassType JSON_WRITER = getClassTypeBuilder(JsonWriter.class).build();
     public static final ClassType JSON_READER = getClassTypeBuilder(JsonReader.class).build();
     public static final ClassType JSON_TOKEN = getClassTypeBuilder(JsonToken.class).build();
+
+    public static final ClassType XML_SERIALIZABLE = getClassTypeBuilder(XmlSerializable.class).build();
+    public static final ClassType XML_WRITER = getClassTypeBuilder(XmlWriter.class).build();
+    public static final ClassType XML_READER = getClassTypeBuilder(XmlReader.class).build();
+    public static final ClassType XML_TOKEN = getClassTypeBuilder(XmlToken.class).build();
 
     public static final ClassType VOID = new ClassType.Builder(false).knownClass(Void.class).build();
 
@@ -298,12 +374,12 @@ public class ClassType implements IType {
         .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
         .jsonToken("JsonToken.STRING")
         .jsonDeserializationMethod("getNullable(nonNullReader -> new "
-            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
+            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
         .xmlElementDeserializationMethod(
-            "getNullableElement(" + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+            "getNullableElement(" + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
-            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
         .build();
 
     public static final ClassType LOCAL_DATE = new Builder(false).knownClass(java.time.LocalDate.class)
@@ -323,15 +399,15 @@ public class ClassType implements IType {
         .jsonToken("JsonToken.STRING")
         .serializationValueGetterModifier(valueGetter -> valueGetter
             + " == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(" + valueGetter + ")")
-        .jsonDeserializationMethod(JavaSettings.getInstance().isBranded()
+        .jsonDeserializationMethod(JavaSettings.getInstance().isAzureV1()
             ? ("getNullable(nonNullReader -> " + CORE_UTILS.getName()
                 + ".parseBestOffsetDateTime(nonNullReader.getString()))")
             : ("getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()))"))
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod(JavaSettings.getInstance().isBranded()
+        .xmlElementDeserializationMethod(JavaSettings.getInstance().isAzureV1()
             ? ("getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
             : ("getNullableElement(dateString -> OffsetDateTime.parse(dateString))"))
-        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isBranded()
+        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isAzureV1()
             ? ("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
                 + ".parseBestOffsetDateTime(dateString))")
             : ("%s.getNullableAttribute(%s, %s, dateString -> OffsetDateTime.parse(dateString))"))
@@ -340,7 +416,7 @@ public class ClassType implements IType {
     public static final ClassType DURATION = new Builder(false).knownClass(Duration.class)
         .defaultValueExpressionConverter(defaultValueExpression -> "Duration.parse(\"" + defaultValueExpression + "\")")
         .jsonToken("JsonToken.STRING")
-        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isBranded()
+        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isAzureV1()
             ? CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")"
             : "Objects.toString(" + valueGetter + ", null)")
         .jsonDeserializationMethod("getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()))")
@@ -382,8 +458,11 @@ public class ClassType implements IType {
 
     public static final ClassType OBJECT = new ClassType.Builder(false).knownClass(Object.class).build();
 
-    public static final ClassType TOKEN_CREDENTIAL
-        = new ClassType.Builder(false).knownClass(TokenCredential.class).build();
+    public static final ClassType TOKEN_CREDENTIAL = getClassTypeBuilder(TokenCredential.class).build();
+    public static final ClassType OAUTH_TOKEN_REQUEST_CONTEXT
+        = new Builder().knownClass(OAuthTokenRequestContext.class).build();
+
+    public static final ClassType TOKEN_CREDENTIAL_TRAIT = getClassTypeBuilder(TokenCredentialTrait.class).build();
 
     public static final ClassType UNIX_TIME_DATE_TIME = new ClassType.Builder(false)
         .defaultValueExpressionConverter(
@@ -434,7 +513,7 @@ public class ClassType implements IType {
 
     public static final ClassType CONTEXT = ClassType.getClassTypeBuilder(Context.class)
         .defaultValueExpressionConverter(
-            epr -> (JavaSettings.getInstance().isBranded() ? "com.azure.core.util." : "io.clientcore.core.util.")
+            epr -> (JavaSettings.getInstance().isAzureV1() ? "com.azure.core.util." : "io.clientcore.core.utils.")
                 + TemplateUtil.getContextNone())
         .build();
 
@@ -462,8 +541,12 @@ public class ClassType implements IType {
         = new ClassType.Builder(false).knownClass(AzureKeyCredential.class).build();
 
     public static final ClassType KEY_CREDENTIAL = getClassTypeBuilder(KeyCredential.class).build();
+    public static final ClassType BASE_64_UTIL = getClassTypeBuilder(Base64Util.class).build();
 
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
+    public static final ClassType USER_AGENT_POLICY = getClassTypeBuilder(UserAgentPolicy.class).build();
+    public static final ClassType USER_AGENT_OPTIONS
+        = new Builder(false).packageName("io.clientcore.core.http.pipeline").name("UserAgentOptions").build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
     public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
 
@@ -491,10 +574,13 @@ public class ClassType implements IType {
         .build();
 
     public static final ClassType REQUEST_OPTIONS = getClassTypeBuilder(RequestOptions.class).build();
+    public static final ClassType REQUEST_CONTEXT
+        = new Builder(false).packageName("io.clientcore.core.http.models").name("RequestContext").build();
     public static final ClassType PROXY_OPTIONS = getClassTypeBuilder(ProxyOptions.class).build();
     public static final ClassType CLIENT_OPTIONS = getClassTypeBuilder(ClientOptions.class).build();
     public static final ClassType HTTP_REQUEST = getClassTypeBuilder(HttpRequest.class).build();
     public static final ClassType HTTP_HEADERS = getClassTypeBuilder(HttpHeaders.class).build();
+    public static final ClassType HTTP_HEADER = getClassTypeBuilder(HttpHeader.class).build();
     public static final ClassType HTTP_HEADER_NAME = getClassTypeBuilder(HttpHeaderName.class).build();
     public static final ClassType HTTP_RESPONSE = getClassTypeBuilder(HttpResponse.class).build();
 
@@ -511,7 +597,7 @@ public class ClassType implements IType {
     public static final ClassType TOO_MANY_REDIRECTS_EXCEPTION
         = getClassTypeBuilder(TooManyRedirectsException.class).build();
     public static final ClassType RESPONSE_ERROR
-        = new Builder().knownClass(ResponseError.class).jsonToken("JsonToken.START_OBJECT").build();
+        = getClassTypeBuilder(ResponseError.class, true).jsonToken("JsonToken.START_OBJECT").build();
     public static final ClassType RESPONSE_INNER_ERROR = new Builder().packageName("com.azure.core.models")
         .name("ResponseInnerError")
         .jsonToken("JsonToken.START_OBJECT")
@@ -519,7 +605,8 @@ public class ClassType implements IType {
     public static final ClassType SYNC_POLLER_FACTORY
         = new Builder().packageName("com.azure.core.management.polling").name("SyncPollerFactory").build();
 
-    public static final ClassType SYNC_POLLER = new Builder().knownClass(SyncPoller.class).build();
+    public static final ClassType SYNC_POLLER = getClassTypeBuilder(SyncPoller.class).build();
+    public static final ClassType POLLING_STRATEGY_OPTIONS = getClassTypeBuilder(PollingStrategyOptions.class).build();
 
     private final String fullName;
     private final String packageName;
@@ -634,6 +721,13 @@ public class ClassType implements IType {
 
         if (this == ClassType.DATE_TIME) {
             imports.add(DateTimeFormatter.class.getName());
+        }
+
+        if (this == ClassType.DATE_TIME_RFC_1123) {
+            // May need OffsetDateTime when consuming DateTimeRfc1123 APIs as DateTimeRfc1123 APIs consume and return
+            // OffsetDateTime.
+            // If OffsetDateTime isn't needed, when running Spotless the unused import will be removed.
+            imports.add(OffsetDateTime.class.getName());
         }
 
         if (this == ClassType.URL) {

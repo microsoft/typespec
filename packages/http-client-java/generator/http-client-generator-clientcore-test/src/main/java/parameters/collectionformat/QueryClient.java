@@ -1,9 +1,12 @@
 package parameters.collectionformat;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceClient;
-import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import java.util.List;
 import parameters.collectionformat.implementation.QueriesImpl;
@@ -13,7 +16,7 @@ import parameters.collectionformat.implementation.QueriesImpl;
  */
 @ServiceClient(builder = CollectionFormatClientBuilder.class)
 public final class QueryClient {
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
     /**
@@ -21,7 +24,7 @@ public final class QueryClient {
      * 
      * @param serviceClient the service client implementation.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     QueryClient(QueriesImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
@@ -30,52 +33,16 @@ public final class QueryClient {
      * The multi operation.
      * 
      * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    @Metadata(generated = true)
-    public Response<Void> multiWithResponse(List<String> colors, RequestOptions requestOptions) {
-        return this.serviceClient.multiWithResponse(colors, requestOptions);
-    }
-
-    /**
-     * The ssv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> ssvWithResponse(List<String> colors, RequestOptions requestOptions) {
-        return this.serviceClient.ssvWithResponse(colors, requestOptions);
-    }
-
-    /**
-     * The pipes operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> pipesWithResponse(List<String> colors, RequestOptions requestOptions) {
-        return this.serviceClient.pipesWithResponse(colors, requestOptions);
-    }
-
-    /**
-     * The csv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> csvWithResponse(List<String> colors, RequestOptions requestOptions) {
-        return this.serviceClient.csvWithResponse(colors, requestOptions);
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> multiWithResponse(List<String> colors, RequestContext requestContext) {
+        return this.serviceClient.multiWithResponse(colors, requestContext);
     }
 
     /**
@@ -86,11 +53,26 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void multi(List<String> colors) {
-        // Generated convenience method for multiWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        multiWithResponse(colors, requestOptions).getValue();
+        multiWithResponse(colors, RequestContext.none());
+    }
+
+    /**
+     * The ssv operation.
+     * 
+     * @param colors Possible values for colors are [blue,red,green].
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> ssvWithResponse(List<String> colors, RequestContext requestContext) {
+        return this.serviceClient.ssvWithResponse(colors, requestContext);
     }
 
     /**
@@ -101,11 +83,26 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void ssv(List<String> colors) {
-        // Generated convenience method for ssvWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        ssvWithResponse(colors, requestOptions).getValue();
+        ssvWithResponse(colors, RequestContext.none());
+    }
+
+    /**
+     * The pipes operation.
+     * 
+     * @param colors Possible values for colors are [blue,red,green].
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> pipesWithResponse(List<String> colors, RequestContext requestContext) {
+        return this.serviceClient.pipesWithResponse(colors, requestContext);
     }
 
     /**
@@ -116,11 +113,26 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void pipes(List<String> colors) {
-        // Generated convenience method for pipesWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        pipesWithResponse(colors, requestOptions).getValue();
+        pipesWithResponse(colors, RequestContext.none());
+    }
+
+    /**
+     * The csv operation.
+     * 
+     * @param colors Possible values for colors are [blue,red,green].
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
+        return this.serviceClient.csvWithResponse(colors, requestContext);
     }
 
     /**
@@ -131,10 +143,9 @@ public final class QueryClient {
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
     public void csv(List<String> colors) {
-        // Generated convenience method for csvWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        csvWithResponse(colors, requestOptions).getValue();
+        csvWithResponse(colors, RequestContext.none());
     }
 }

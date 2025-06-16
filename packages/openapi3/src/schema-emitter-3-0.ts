@@ -22,7 +22,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -214,7 +214,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ...additionalProps,
             });
           } else if (type && type.kind === "Scalar") {
-            const stdType = $.scalar.getStdBase(type);
+            const stdType = $(program).scalar.getStdBase(type);
             const outputType: JsonType | undefined = stdType
               ? this.getSchemaForStdScalars(stdType as any).type
               : undefined;

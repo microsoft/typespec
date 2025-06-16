@@ -1,5 +1,117 @@
 # Change Log - @typespec/compiler
 
+## 1.1.0
+
+### Features
+
+- [#7377](https://github.com/microsoft/typespec/pull/7377) Add a `--stats` flag to `tsp compile` to log some performance and complexity statistics
+- [#7530](https://github.com/microsoft/typespec/pull/7530) Show the full definition of model and interface when it has 'extends' and 'is' relationship in the hover text
+- [#6923](https://github.com/microsoft/typespec/pull/6923) Init templates can define a project kind which decide if dependencies are added to peer or regular dependencies
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) [LSP] Expose new compile project command
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing template parameters as property defaults
+- [#7256](https://github.com/microsoft/typespec/pull/7256) Expose `VisibilityFilter.toCacheKey` to allow caching results based on visibility filters.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7421](https://github.com/microsoft/typespec/pull/7421) Fix hanging when using `::returnType` meta accessor on operation defined with `op is`
+- [#7507](https://github.com/microsoft/typespec/pull/7507) Fix empty string emitting error when used in string interpolation in a template
+- [#7524](https://github.com/microsoft/typespec/pull/7524) Fixes an error where reported diagnostics had invalid relative paths on Windows
+- [#7508](https://github.com/microsoft/typespec/pull/7508) Allow extends of array expression for not just template (`model MyStrings extends string[]`)
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Mutator were not mutating tuple values
+- [#7485](https://github.com/microsoft/typespec/pull/7485) Fix paging operations to correctly detect the `@pageItems` decorator on base models.
+- [#7461](https://github.com/microsoft/typespec/pull/7461) Remove non documented `templateArguments` property on types
+- [#7480](https://github.com/microsoft/typespec/pull/7480) Fix infinite recursion when navigating paging properties by detecting and handling circular model references.
+- [#7137](https://github.com/microsoft/typespec/pull/7137) Allow passing tempalate parameter values in object and array values used inside the template
+- [#7295](https://github.com/microsoft/typespec/pull/7295) Corrected visibility filtering logic to even more aggressively deduplicate the models it visits when the applied visibility transform does not actually remove any properties from a model.
+
+
+## 1.0.0
+
+### Features
+
+- [#7199](https://github.com/microsoft/typespec/pull/7199) Add "capitalize" string helper to compiler
+- [#7180](https://github.com/microsoft/typespec/pull/7180) Add support for formatting `tspconfig.yaml` with `tsp format`
+- [#7180](https://github.com/microsoft/typespec/pull/7180) `tsp format` only formats files it knows about and ignores other. Allowing a more generic glob pattern `tsp format .` or `tsp format "**/*"`
+- [#5674](https://github.com/microsoft/typespec/pull/5674) [LSP] Update imports when renaming typespec files
+- [#7125](https://github.com/microsoft/typespec/pull/7125) Adds typekits for getting intrinsic types via `$.intrinsic.<type>`
+- [#7204](https://github.com/microsoft/typespec/pull/7204) Update typekits `is*` methods to accept `Entity` instead of just `Type` or `Value`
+- [#7108](https://github.com/microsoft/typespec/pull/7108) Adds support for nesting typekits
+- [#7202](https://github.com/microsoft/typespec/pull/7202) Replaces `$.model.getSpreadType` with `$.model.getIndexType` to better reflect what it actually being returned. `getSpreadType` did not actually return a list of spread types, but the model's indexer type instead.
+- [#7090](https://github.com/microsoft/typespec/pull/7090) Adds TypeKit support for type.inNamespace to check namespace membership
+- [#7167](https://github.com/microsoft/typespec/pull/7167) Adds `$.value.resolve` and `$.type.resolve` typekits, and updated `$.resolve` to return values or types, instead of just types
+- [#7106](https://github.com/microsoft/typespec/pull/7106) Adds `$.type.isAssignableTo`, `$.value.isAssignableTo` and `$.entity.isAssignableTo` typekits. Also registers `$.resolve` typekit
+- [#7193](https://github.com/microsoft/typespec/pull/7193) Typekits have been moved out of experimental and can now be accessed via the `@typespec/compiler/typekit` submodule.
+  This also removed the `$.type.getDiscriminator` typekit in favor of the `$.model.getDiscriminatedUnion` and `$.union.getDiscriminatedUnion`
+  typkits.
+  
+  ```diff
+  -import { $ } from "@typespec/compiler/experimental/typekit";
+  +import { $ } from "@typespec/compiler/typekit";
+  ```
+- [#7105](https://github.com/microsoft/typespec/pull/7105) Add typekit support for creating a union from an array of children
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Exposed experimental function `isMutableType` as `unsafe_isMutableType`.
+- [#7200](https://github.com/microsoft/typespec/pull/7200) Added an optional `nameTemplate` argument to `@withVisibilityFilter`, allowing the visibility filters to rename models as they are transformed. This template is applied by default in the `Create`, `Read`, `Update`, `Delete`, and `Query` visibility transform templates. This allows for more flexible renaming than simply using the `@friendlyName` decorator, as it will change the primary name of the transformed type, reducing the incidence of naming conflicts.
+  
+  Cached the result of applying visibility filters to types. If the same visibility filter is applied to the same type with the same configuration, the model instance produced by the visibility filter will be object-identical. This should reduce the incidence of multiple models that are structurally equivalent in visibility filters and conflicts over the name of models.
+
+### Bug Fixes
+
+- [#7183](https://github.com/microsoft/typespec/pull/7183) Fix decorators on model properties getting wrongly called when checking the template declaration in the following cases
+   - inside a union expression
+   - under an non templated operation under a templated interface
+- [#6938](https://github.com/microsoft/typespec/pull/6938) Fixes template argument resolution when a default template parameter value is resolved by a parent container (e.g. interface)
+  For example:
+  ```tsp
+  interface Resource<T> {
+    read<U = T>(): U;
+  }
+  
+  model Foo {
+    type: "foo";
+  }
+  
+  alias FooResource = Resource<Foo>;
+  
+  op readFoo is FooResource.read;
+  ```
+  The `returnType` for `readFoo` would be model `Foo`. Previously the `returnType` resolved to a `TemplateParameter`.
+- [#7153](https://github.com/microsoft/typespec/pull/7153) Fixes handling of nested templates in getPlausibleName
+- [#6883](https://github.com/microsoft/typespec/pull/6883) Realm handle multiple instance of compiler loaded at once
+- [#7222](https://github.com/microsoft/typespec/pull/7222) Remove `version` property on `ServiceOptions` passed to `@service` decorator. That handling of that option was removed in `1.0.0-rc.0` where it was previously deprecated.
+  If wanting to specify version in an OpenAPI document use the `@OpenAPI.info` decorator from the `@typespec/openapi` library
+- [#7155](https://github.com/microsoft/typespec/pull/7155) Mark `TemplateParameter` type as an experimental type
+- [#7106](https://github.com/microsoft/typespec/pull/7106) Removes `program.checker.isTypeAssignableTo`. Use one of the following typekits instead:
+  - `$(program).type.isAssignableTo`
+  - `$(program).value.isAssignableTo`
+  - `$(program).entity.isAssignableTo`
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Weakened rules around `@mediaTypeHint` decorator, allowing media type hints with suffixes like "application/merge-patch+json".
+- [#7200](https://github.com/microsoft/typespec/pull/7200) Fixed an error in Model visibility filtering where the indexer of a model was ignored. This prevented the value of Array/Record instances from being transformed correctly, as they now should be.
+
+
+## 1.0.0-rc.1
+
+### Features
+
+- [#7067](https://github.com/microsoft/typespec/pull/7067) Adding support for nested paging properties.
+- [#6862](https://github.com/microsoft/typespec/pull/6862) `--trace` cli option applies to all commands now
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Adds a TypeKit for Tuple types
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Adds a new createDiagnosable typekit helper for APIs that return diagnostics
+- [#7018](https://github.com/microsoft/typespec/pull/7018) Removes the default typekit in favor of always instantiating typekits with either a `program` or `realm`.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Adds typekit support for creating unions from enums
+
+### Bug Fixes
+
+- [#6897](https://github.com/microsoft/typespec/pull/6897) Improve errors when loading libraries with invalid exports/main fields
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Mark `node` property on all typespec types as optional
+- [#7063](https://github.com/microsoft/typespec/pull/7063) Fixes an issue where isError was checking for error types instead of error models.
+- [#7047](https://github.com/microsoft/typespec/pull/7047) Preserve API documentation when calling `$.enum.createFromUnion`
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes

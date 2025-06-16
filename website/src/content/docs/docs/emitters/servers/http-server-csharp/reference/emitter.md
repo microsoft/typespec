@@ -2,7 +2,7 @@
 title: "Emitter usage"
 ---
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -28,6 +28,13 @@ options:
 ```
 
 ## Emitter options
+
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/http-server-csharp`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
 
 ### `skip-format`
 
@@ -82,3 +89,9 @@ The service http port when hosting the project locally.
 **Type:** `number`
 
 The service https port when hosting the project locally.
+
+### `collection-type`
+
+**Type:** `"array" | "enumerable"`
+
+Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.

@@ -1,5 +1,5 @@
 import { StringValue, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { type Typekit } from "@typespec/compiler/typekit";
 
 /**
  * Create a StringValue from a string value. Used for `.defaultValue` in ModelProperty
@@ -7,7 +7,7 @@ import { $ } from "@typespec/compiler/experimental/typekit";
  * @param value Value that will be used to create a StringValue
  * @returns
  */
-export function getStringValue(value: string): StringValue {
+export function getStringValue($: Typekit, value: string): StringValue {
   return {
     value: value,
     type: $.literal.create(value),
@@ -21,7 +21,7 @@ export function getStringValue(value: string): StringValue {
  * Get all of the unique types in a list of types. Filters out the duplicates and returns the resultant list of unique types.
  * @param types
  */
-export function getUniqueTypes(types: Type[]): Type[] {
+export function getUniqueTypes($: Typekit, types: Type[]): Type[] {
   if (types.length === 1) {
     return types;
   }

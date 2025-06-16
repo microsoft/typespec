@@ -1,17 +1,19 @@
 package server.versions.notversioned.implementation;
 
+import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
-import io.clientcore.core.http.RestProxy;
+import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
 import io.clientcore.core.http.annotations.PathParam;
 import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
-import io.clientcore.core.http.models.RequestOptions;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Initializes a new instance of the NotVersionedClient type.
@@ -59,7 +61,7 @@ public final class NotVersionedClientImpl {
     public NotVersionedClientImpl(HttpPipeline httpPipeline, String endpoint) {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
-        this.service = RestProxy.create(NotVersionedClientService.class, this.httpPipeline);
+        this.service = NotVersionedClientService.getNewInstance(this.httpPipeline);
     }
 
     /**
@@ -68,62 +70,84 @@ public final class NotVersionedClientImpl {
      */
     @ServiceInterface(name = "NotVersionedClient", host = "{endpoint}")
     public interface NotVersionedClientService {
+        static NotVersionedClientService getNewInstance(HttpPipeline pipeline) {
+            try {
+                Class<?> clazz
+                    = Class.forName("server.versions.notversioned.implementation.NotVersionedClientServiceImpl");
+                return (NotVersionedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
+                    .invoke(null, pipeline);
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/server/versions/not-versioned/without-api-version",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withoutApiVersionSync(@HostParam("endpoint") String endpoint, RequestOptions requestOptions);
+        Response<Void> withoutApiVersion(@HostParam("endpoint") String endpoint, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/server/versions/not-versioned/with-query-api-version",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withQueryApiVersionSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, RequestOptions requestOptions);
+        Response<Void> withQueryApiVersion(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/server/versions/not-versioned/with-path-api-version/{apiVersion}",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> withPathApiVersionSync(@HostParam("endpoint") String endpoint,
-            @PathParam("apiVersion") String apiVersion, RequestOptions requestOptions);
+        Response<Void> withPathApiVersion(@HostParam("endpoint") String endpoint,
+            @PathParam("apiVersion") String apiVersion, RequestContext requestContext);
     }
 
     /**
      * The withoutApiVersion operation.
      * 
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withoutApiVersionWithResponse(RequestOptions requestOptions) {
-        return service.withoutApiVersionSync(this.getEndpoint(), requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withoutApiVersionWithResponse(RequestContext requestContext) {
+        return service.withoutApiVersion(this.getEndpoint(), requestContext);
     }
 
     /**
      * The withQueryApiVersion operation.
      * 
      * @param apiVersion The apiVersion parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestOptions requestOptions) {
-        return service.withQueryApiVersionSync(this.getEndpoint(), apiVersion, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withQueryApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
+        return service.withQueryApiVersion(this.getEndpoint(), apiVersion, requestContext);
     }
 
     /**
      * The withPathApiVersion operation.
      * 
      * @param apiVersion The apiVersion parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestOptions requestOptions) {
-        return service.withPathApiVersionSync(this.getEndpoint(), apiVersion, requestOptions);
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withPathApiVersionWithResponse(String apiVersion, RequestContext requestContext) {
+        return service.withPathApiVersion(this.getEndpoint(), apiVersion, requestContext);
     }
 }

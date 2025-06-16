@@ -98,6 +98,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.has_subnamespace = False
         self._operations_folder_name: Dict[str, str] = {}
         self._relative_import_path: Dict[str, str] = {}
+        self.metadata: Dict[str, Any] = yaml_data.get("metadata", {})
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
@@ -242,16 +243,26 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         return client_namespace == self.namespace
 
-    def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
-        """Whether we need to vendor code in the _vendor.py in specific namespace"""
+    def need_utils_folder(self, async_mode: bool, client_namespace: str) -> bool:
         return (
-            self.need_vendored_form_data(async_mode, client_namespace)
-            or self.need_vendored_etag(client_namespace)
-            or self.need_vendored_abstract(client_namespace)
-            or self.need_vendored_mixin(client_namespace)
+            self.need_utils_utils(async_mode, client_namespace)
+            or self.need_utils_serialization
+            or self.options["models_mode"] == "dpg"
         )
 
-    def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
+    @property
+    def need_utils_serialization(self) -> bool:
+        return not self.options["client_side_validation"]
+
+    def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
+        return (
+            self.need_utils_form_data(async_mode, client_namespace)
+            or self.need_utils_etag(client_namespace)
+            or self.need_utils_abstract(client_namespace)
+            or self.need_utils_mixin
+        )
+
+    def need_utils_form_data(self, async_mode: bool, client_namespace: str) -> bool:
         return (
             (not async_mode)
             and self.is_top_namespace(client_namespace)
@@ -259,14 +270,15 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             and self.options["models_mode"] == "dpg"
         )
 
-    def need_vendored_etag(self, client_namespace: str) -> bool:
+    def need_utils_etag(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_etag
 
-    def need_vendored_abstract(self, client_namespace: str) -> bool:
+    def need_utils_abstract(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
 
-    def need_vendored_mixin(self, client_namespace: str) -> bool:
-        return self.has_mixin(client_namespace)
+    @property
+    def need_utils_mixin(self) -> bool:
+        return any(c_n for c_n in self.client_namespace_types if self.has_mixin(c_n))
 
     def has_mixin(self, client_namespace: str) -> bool:
         return any(c for c in self.get_clients(client_namespace) if c.has_mixin)

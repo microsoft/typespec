@@ -109,6 +109,7 @@
    "decorators": []
   }
  ],
+ "constants": [],
  "models": [],
  "clients": [
   {
@@ -126,7 +127,7 @@
      "type": {
       "$id": "16",
       "kind": "url",
-      "name": "url",
+      "name": "endpoint",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "location": "Uri",
@@ -136,7 +137,8 @@
      "isEndpoint": true,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     },
     {
      "$id": "17",
@@ -153,7 +155,8 @@
      "isEndpoint": false,
      "skipUrlEncoding": false,
      "explode": false,
-     "kind": "Client"
+     "kind": "Client",
+     "serverUrlTemplate": "{endpoint}/client/structure/{client}"
     }
    ],
    "decorators": [],
@@ -296,7 +299,7 @@
        "type": {
         "$id": "32",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -306,7 +309,8 @@
        "isEndpoint": true,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "33",
@@ -323,7 +327,8 @@
        "isEndpoint": false,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],
@@ -469,7 +474,7 @@
        "type": {
         "$id": "48",
         "kind": "url",
-        "name": "url",
+        "name": "endpoint",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
        "location": "Uri",
@@ -479,7 +484,8 @@
        "isEndpoint": true,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       },
       {
        "$id": "49",
@@ -496,7 +502,8 @@
        "isEndpoint": false,
        "skipUrlEncoding": false,
        "explode": false,
-       "kind": "Client"
+       "kind": "Client",
+       "serverUrlTemplate": "{endpoint}/client/structure/{client}"
       }
      ],
      "decorators": [],

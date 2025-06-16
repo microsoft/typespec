@@ -531,7 +531,7 @@ describe("uri template", () => {
       ["/", "path"],
     ] as const)("%s map to style: %s", async (operator, style) => {
       const param = await getParameter(
-        `@route("/bar/{${operator}foo}") op foo(foo: string): void;`,
+        `@route("/bar{${operator}foo}") op foo(foo: string): void;`,
         "foo",
       );
       expectPathParameter(param, { style, allowReserved: false, explode: false });
@@ -570,7 +570,7 @@ describe("uri template", () => {
       [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],
       [`@path(#{style: "label"}) one: string`, "/foo/{.one}"],
       [`@path(#{style: "fragment"}) one: string`, "/foo/{#one}"],
-      [`@path(#{style: "path"}) one: string`, "/foo/{/one}"],
+      [`@path(#{style: "path"}) one: string`, "/foo{/one}"],
       ["@path(#{allowReserved: true, explode: true}) one: string", "/foo/{+one*}"],
       ["@query one: string", "/foo{?one}"],
       ["@query(#{explode: true}) one: string", "/foo{?one*}"],
@@ -585,6 +585,35 @@ describe("uri template", () => {
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);
+    });
+  });
+
+  describe("warn when path interpolation would result in duplicate //", () => {
+    it.each([
+      [
+        "/foo/{/myPath}",
+        "optional",
+        "Route will result in duplicate slashes when optional parameter 'myPath' is not set.",
+      ],
+      [
+        "/foo/{/myPath}",
+        "required",
+        "Route will result in duplicate slashes as parameter 'myPath' use path expansion and is prefixed with a /",
+      ],
+      [
+        "/foo/{/myPath}/bar",
+        "optional",
+        "Route will result in duplicate slashes when optional parameter 'myPath' is not set.",
+      ],
+    ] as const)("%s with %s param", async (route, value, message) => {
+      const diagnostics = await diagnoseOperations(`
+        @route("${route}") op test(@path myPath${value === "optional" ? "?" : ""}: string): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/double-slash",
+        message,
+      });
     });
   });
 

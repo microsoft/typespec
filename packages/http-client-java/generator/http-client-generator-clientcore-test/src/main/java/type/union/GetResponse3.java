@@ -1,7 +1,7 @@
 package type.union;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The GetResponse3 model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class GetResponse3 implements JsonSerializable<GetResponse3> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final GetResponseProp2 prop;
 
     /**
@@ -24,7 +24,7 @@ public final class GetResponse3 implements JsonSerializable<GetResponse3> {
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private GetResponse3(GetResponseProp2 prop) {
         this.prop = prop;
     }
@@ -34,7 +34,7 @@ public final class GetResponse3 implements JsonSerializable<GetResponse3> {
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public GetResponseProp2 getProp() {
         return this.prop;
     }
@@ -42,7 +42,7 @@ public final class GetResponse3 implements JsonSerializable<GetResponse3> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class GetResponse3 implements JsonSerializable<GetResponse3> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the GetResponse3.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static GetResponse3 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             GetResponseProp2 prop = null;

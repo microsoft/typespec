@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { useTsp } from "@typespec/emitter-framework";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
@@ -30,10 +30,12 @@ import { OperationHandler } from "../types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
+    const { $ } = useTsp();
     const pagingMetadata = $.operation.getPagingMetadata(httpOperation.operation);
     return pagingMetadata !== undefined;
   },
   handle(httpOperation: HttpOperation): Children {
+    const { $ } = useTsp();
     const clientLibrary = cl.useClientLibrary();
     const client = clientLibrary.getClientForOperation(httpOperation);
 
@@ -49,9 +51,14 @@ export const PaginatedOperationHandler: OperationHandler = {
     const operationRefkey = ay.refkey(httpOperation.operation);
     const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
+    const optionsRefkey = ay.refkey();
     const signatureParams: ts.ParameterDescriptor[] = [
-      { name: "client", type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-      ...getOperationParameters(httpOperation),
+      {
+        name: "client",
+        type: clientContextInterfaceRef,
+        refkey: ay.refkey(client, "paging-operation-client-param"),
+      },
+      ...getOperationParameters(httpOperation, optionsRefkey),
     ];
     const pagingDetail = extractPagingDetail(httpOperation, pagingOperation);
     // Exclude from operation options and include them into PageSettings

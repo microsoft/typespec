@@ -6,6 +6,7 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - agentic
   - aiohttp
   - alzimmer
   - amqp
@@ -22,6 +23,8 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azurev
+  - azurevnext
   - bifilter
   - blib
   - blockful
@@ -58,6 +61,8 @@ words:
   - Dosgi
   - dotenv
   - Dskip
+  - duplicative
+  - Dyns
   - eastus
   - ecmarkup
   - elif
@@ -146,6 +151,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - nint
   - NODEFS
   - noformat
   - noopener
@@ -156,6 +162,7 @@ words:
   - npath
   - npmjs
   - nspkg
+  - nuint
   - nupkg
   - oapi
   - ODATA
@@ -170,6 +177,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pnpx
   - posargs
   - primitivea
   - prismjs
@@ -179,6 +187,7 @@ words:
   - psscriptanalyzer
   - ptvsd
   - pwsh
+  - pycache
   - pyexpat
   - pygen
   - pyimport
@@ -196,6 +205,7 @@ words:
   - recorda
   - regen
   - rehype
+  - reinjected
   - repr
   - respecify
   - rjust
@@ -221,6 +231,7 @@ words:
   - swaggerui
   - syncpack
   - TCGC
+  - terlson
   - timegm
   - tomli
   - triaging
@@ -253,6 +264,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - VNEXT
   - vsix
   - VSSDK
   - Vsts
@@ -265,6 +277,7 @@ words:
   - xiangyan
   - xiaofei
   - xlarge
+  - Xlint
   - xmsclientrequestid
   - xors
   - xplat

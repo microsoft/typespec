@@ -25,10 +25,16 @@ public class FluentProject extends Project {
 
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), FluentProject.class);
 
-    protected final ServiceDescription serviceDescription = new ServiceDescription();
+    private final ServiceDescription serviceDescription = new ServiceDescription();
+
+    private String apiVersionInTypeSpec = null;
 
     private Changelog changelog;
     private final List<CodeSample> codeSamples = new ArrayList<>();
+
+    public void setApiVersionInTypeSpec(String apiVersionInTypeSpec) {
+        this.apiVersionInTypeSpec = apiVersionInTypeSpec;
+    }
 
     private static class ServiceDescription {
         private String simpleDescription;
@@ -53,11 +59,12 @@ public class FluentProject extends Project {
         }
     }
 
-    public FluentProject(FluentClient fluentClient) {
-        this(fluentClient.getManager().getServiceName(), fluentClient.getInnerClient().getClientDescription());
+    public FluentProject(FluentClient fluentClient, String apiVersionInTypeSpec) {
+        this(fluentClient.getManager().getServiceName(), apiVersionInTypeSpec,
+            fluentClient.getInnerClient().getClientDescription());
     }
 
-    protected FluentProject(String serviceName, String clientDescription) {
+    protected FluentProject(String serviceName, String apiVersionInTypeSpec, String clientDescription) {
         this.groupId = "com.azure.resourcemanager";
 
         this.serviceName = serviceName;
@@ -74,14 +81,18 @@ public class FluentProject extends Project {
         }
 
         final String simpleDescriptionTemplate = "This package contains Microsoft Azure SDK for %1$s Management SDK.";
-        final String tagDescriptionTemplate = "Package tag %1$s.";
 
         this.serviceDescription.simpleDescription = String.format(simpleDescriptionTemplate, serviceName);
         this.serviceDescription.clientDescription = clientDescription;
         String autorestTag = JavaSettings.getInstance().getAutorestSettings().getTag();
         // SDK from TypeSpec does not contain autorest tag.
-        this.serviceDescription.tagDescription
-            = autorestTag == null ? "" : String.format(tagDescriptionTemplate, autorestTag);
+        if (autorestTag != null) {
+            this.serviceDescription.tagDescription = "Package tag " + autorestTag + ".";
+        } else if (apiVersionInTypeSpec != null) {
+            this.serviceDescription.tagDescription = "Package api-version " + apiVersionInTypeSpec + ".";
+        } else {
+            this.serviceDescription.tagDescription = "";
+        }
 
         this.changelog = new Changelog(this);
     }

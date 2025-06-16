@@ -109,13 +109,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public async Task CanCustomizeFixedEnumString()
         {
-            var props = new[] {
-                InputFactory.EnumMember.String("one", "val1"),
-                InputFactory.EnumMember.String("two", "val2"),
-                InputFactory.EnumMember.String("three", "val3")
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: false);
+            var inputEnum = InputFactory.StringEnum(
+                "mockInputEnum",
+                [
+                    ("one", "val1"),
+                    ("two", "val2"),
+                    ("three", "val3")
+                ],
+                isExtensible: false);
 
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
@@ -172,13 +173,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public async Task CanCustomizeEnumToFrameworkType()
         {
-            var props = new[] {
-                InputFactory.EnumMember.String("one", "val1"),
-                InputFactory.EnumMember.String("two", "val2"),
-                InputFactory.EnumMember.String("three", "val3")
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
+            var inputEnum = InputFactory.StringEnum(
+                "mockInputEnum",
+                [
+                    ("one", "val1"),
+                    ("two", "val2"),
+                    ("three", "val3")
+                ],
+                isExtensible: true);
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
 
@@ -197,13 +199,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public async Task CanCustomizeEnumToFieldFrameworkType()
         {
-            var props = new[] {
-                InputFactory.EnumMember.String("one", "val1"),
-                InputFactory.EnumMember.String("two", "val2"),
-                InputFactory.EnumMember.String("three", "val3")
-            };
-
-            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
+            var inputEnum = InputFactory.StringEnum(
+                "mockInputEnum",
+                [
+                    ("one", "val1"),
+                    ("two", "val2"),
+                    ("three", "val3")
+                ],
+                isExtensible: true);
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
 

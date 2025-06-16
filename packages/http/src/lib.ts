@@ -28,10 +28,12 @@ export const $lib = createTypeSpecLibrary({
       },
     },
 
-    "optional-needs-path-expansion": {
-      severity: "error",
+    "double-slash": {
+      severity: "warning",
       messages: {
-        default: paramMessage`Optional path parameter '${"paramName"}' must be declared with a leading '/' in the corresponding route path variable. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
+        default: paramMessage`Route will result in duplicate slashes as parameter '${"paramName"}' use path expansion and is prefixed with a /`,
+        optionalUnset: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is not set.`,
+        optionalSet: paramMessage`Route will result in duplicate slashes when optional parameter '${"paramName"}' is set.`,
       },
     },
     "missing-server-param": {
@@ -193,6 +195,31 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
       },
     },
+    "patch-implicit-optional": {
+      severity: "warning",
+      messages: {
+        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptionality: true}) to restore the old behavior.`,
+      },
+    },
+    "merge-patch-contains-null": {
+      severity: "error",
+      messages: {
+        default:
+          "Cannot convert model to a merge-patch compatible shape because it contains the 'null' intrinsic type.",
+      },
+    },
+    "merge-patch-content-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`The content-type of a request using a merge-patch template should be 'application/merge-patch+json' detected a header with content-type '${"contentType"}'.`,
+      },
+    },
+    "merge-patch-contains-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The MergePatch transform does not operate on http envelope metadata.  Remove any http metadata decorators ('@query', '@header', '@path', '@cookie', '@statusCode') from the model passed to the MergePatch template. Found '${"metadataType"}' decorating property '${"propertyName"}'`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
@@ -211,7 +238,6 @@ export const $lib = createTypeSpecLibrary({
     includeInapplicableMetadataInPayload: {
       description: "State for the @includeInapplicableMetadataInPayload decorator",
     },
-
     // route.ts
     externalInterfaces: {},
     routeProducer: {},
@@ -222,6 +248,11 @@ export const $lib = createTypeSpecLibrary({
     // private
     file: { description: "State for the @Private.file decorator" },
     httpPart: { description: "State for the @Private.httpPart decorator" },
+    mergePatchModel: { description: "State marking mergePatch models " },
+    mergePatchProperty: { description: "State marking merge path model property source" },
+    mergePatchPropertyOptions: {
+      description: "Override options for a property in a merge patch transform",
+    },
   },
 });
 

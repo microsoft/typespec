@@ -2,12 +2,6 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "type.model.empty.EmptyClient": "Type.Model.Empty",
-    "type.model.empty.EmptyClient.getEmpty": "Type.Model.Empty.getEmpty",
-    "type.model.empty.EmptyClient.getEmptyWithResponse": "Type.Model.Empty.getEmpty",
-    "type.model.empty.EmptyClient.postRoundTripEmpty": "Type.Model.Empty.postRoundTripEmpty",
-    "type.model.empty.EmptyClient.postRoundTripEmptyWithResponse": "Type.Model.Empty.postRoundTripEmpty",
-    "type.model.empty.EmptyClient.putEmpty": "Type.Model.Empty.putEmpty",
-    "type.model.empty.EmptyClient.putEmptyWithResponse": "Type.Model.Empty.putEmpty",
     "type.model.empty.EmptyClientBuilder": "Type.Model.Empty",
     "type.model.empty.EmptyInput": "Type.Model.Empty.EmptyInput",
     "type.model.empty.EmptyInputOutput": "Type.Model.Empty.EmptyInputOutput",

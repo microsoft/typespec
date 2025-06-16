@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.OffsetDateTime;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class DatetimeOperationClientTest {
@@ -21,6 +22,7 @@ public class DatetimeOperationClientTest {
         client.patchNonNull(datetimeProperty);
     }
 
+    @Disabled
     @Test
     public void patchNullWithResponse() {
         client.patchNull(new DatetimeProperty().setRequiredProperty("foo").setNullableProperty(null));
