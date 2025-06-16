@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.util.List;
 import parameters.collectionformat.implementation.HeadersImpl;
 
@@ -19,14 +20,18 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of HeaderClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    HeaderClient(HeadersImpl serviceClient) {
+    HeaderClient(HeadersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> csvWithResponse(List<String> colors, RequestContext requestContext) {
-        return this.serviceClient.csvWithResponse(colors, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.csv", requestContext,
+            updatedContext -> this.serviceClient.csvWithResponse(colors, updatedContext));
     }
 
     /**

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.math.BigDecimal;
 import java.util.List;
 import type.scalar.implementation.DecimalVerifiesImpl;
@@ -20,14 +21,18 @@ public final class DecimalVerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DecimalVerifiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of DecimalVerifyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    DecimalVerifyClient(DecimalVerifiesImpl serviceClient) {
+    DecimalVerifyClient(DecimalVerifiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class DecimalVerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<List<BigDecimal>> prepareVerifyWithResponse(RequestContext requestContext) {
-        return this.serviceClient.prepareVerifyWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("DecimalVerify.prepareVerify", requestContext,
+            updatedContext -> this.serviceClient.prepareVerifyWithResponse(updatedContext));
     }
 
     /**
@@ -71,7 +77,8 @@ public final class DecimalVerifyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BigDecimal body, RequestContext requestContext) {
-        return this.serviceClient.verifyWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("DecimalVerify.verify", requestContext,
+            updatedContext -> this.serviceClient.verifyWithResponse(body, updatedContext));
     }
 
     /**

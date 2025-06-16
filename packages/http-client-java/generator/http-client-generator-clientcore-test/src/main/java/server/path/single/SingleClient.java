@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import server.path.single.implementation.SingleClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class SingleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SingleClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SingleClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SingleClient(SingleClientImpl serviceClient) {
+    SingleClient(SingleClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class SingleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> myOpWithResponse(RequestContext requestContext) {
-        return this.serviceClient.myOpWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".myOp", requestContext,
+            updatedContext -> this.serviceClient.myOpWithResponse(updatedContext));
     }
 
     /**

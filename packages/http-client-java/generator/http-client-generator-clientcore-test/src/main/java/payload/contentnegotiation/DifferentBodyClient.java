@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import payload.contentnegotiation.differentbody.PngImageAsJson;
 import payload.contentnegotiation.implementation.DifferentBodiesImpl;
@@ -20,14 +21,18 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DifferentBodiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of DifferentBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    DifferentBodyClient(DifferentBodiesImpl serviceClient) {
+    DifferentBodyClient(DifferentBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAvatarAsPngWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("DifferentBody.getAvatarAsPng", requestContext,
+            updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class DifferentBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<PngImageAsJson> getAvatarAsJsonWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAvatarAsJsonWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("DifferentBody.getAvatarAsJson", requestContext,
+            updatedContext -> this.serviceClient.getAvatarAsJsonWithResponse(updatedContext));
     }
 
     /**

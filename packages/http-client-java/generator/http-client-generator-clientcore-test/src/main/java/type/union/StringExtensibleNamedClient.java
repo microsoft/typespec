@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.union.implementation.StringExtensibleNamedsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class StringExtensibleNamedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringExtensibleNamedsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of StringExtensibleNamedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    StringExtensibleNamedClient(StringExtensibleNamedsImpl serviceClient) {
+    StringExtensibleNamedClient(StringExtensibleNamedsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class StringExtensibleNamedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse2> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("StringExtensibleNamed.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class StringExtensibleNamedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(StringExtensibleNamedUnion prop, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("StringExtensibleNamed.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 
     /**

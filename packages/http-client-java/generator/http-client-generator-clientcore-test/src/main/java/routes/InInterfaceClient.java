@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import routes.implementation.InInterfacesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class InInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final InInterfacesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of InInterfaceClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    InInterfaceClient(InInterfacesImpl serviceClient) {
+    InInterfaceClient(InInterfacesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class InInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> fixedWithResponse(RequestContext requestContext) {
-        return this.serviceClient.fixedWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("InInterface.fixed", requestContext,
+            updatedContext -> this.serviceClient.fixedWithResponse(updatedContext));
     }
 
     /**

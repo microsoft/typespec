@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.added.implementation.AddedClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class AddedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final AddedClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of AddedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    AddedClient(AddedClientImpl serviceClient) {
+    AddedClient(AddedClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class AddedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV1> v1WithResponse(String headerV2, ModelV1 body, RequestContext requestContext) {
-        return this.serviceClient.v1WithResponse(headerV2, body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".v1", requestContext,
+            updatedContext -> this.serviceClient.v1WithResponse(headerV2, body, updatedContext));
     }
 
     /**
@@ -74,7 +80,8 @@ public final class AddedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelV2> v2WithResponse(ModelV2 body, RequestContext requestContext) {
-        return this.serviceClient.v2WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".v2", requestContext,
+            updatedContext -> this.serviceClient.v2WithResponse(body, updatedContext));
     }
 
     /**

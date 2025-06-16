@@ -14,13 +14,17 @@ import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
+import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.SdkInstrumentationOptions;
 import io.clientcore.core.traits.ConfigurationTrait;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.traits.HttpTrait;
 import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import type.property.optional.implementation.OptionalClientImpl;
 
@@ -52,6 +56,9 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_VERSION = "version";
+
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("type-property-optional.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
@@ -230,7 +237,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringOperationClient buildStringOperationClient() {
-        return new StringOperationClient(buildInnerClient().getStringOperations());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new StringOperationClient(buildInnerClient().getStringOperations(), instrumentation);
     }
 
     /**
@@ -240,7 +255,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BytesClient buildBytesClient() {
-        return new BytesClient(buildInnerClient().getBytes());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new BytesClient(buildInnerClient().getBytes(), instrumentation);
     }
 
     /**
@@ -250,7 +273,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeOperationClient buildDatetimeOperationClient() {
-        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new DatetimeOperationClient(buildInnerClient().getDatetimeOperations(), instrumentation);
     }
 
     /**
@@ -260,7 +291,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public DurationOperationClient buildDurationOperationClient() {
-        return new DurationOperationClient(buildInnerClient().getDurationOperations());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new DurationOperationClient(buildInnerClient().getDurationOperations(), instrumentation);
     }
 
     /**
@@ -270,7 +309,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PlainDateClient buildPlainDateClient() {
-        return new PlainDateClient(buildInnerClient().getPlainDates());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new PlainDateClient(buildInnerClient().getPlainDates(), instrumentation);
     }
 
     /**
@@ -280,7 +327,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public PlainTimeClient buildPlainTimeClient() {
-        return new PlainTimeClient(buildInnerClient().getPlainTimes());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new PlainTimeClient(buildInnerClient().getPlainTimes(), instrumentation);
     }
 
     /**
@@ -290,7 +345,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsByteClient buildCollectionsByteClient() {
-        return new CollectionsByteClient(buildInnerClient().getCollectionsBytes());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new CollectionsByteClient(buildInnerClient().getCollectionsBytes(), instrumentation);
     }
 
     /**
@@ -300,7 +363,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public CollectionsModelClient buildCollectionsModelClient() {
-        return new CollectionsModelClient(buildInnerClient().getCollectionsModels());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new CollectionsModelClient(buildInnerClient().getCollectionsModels(), instrumentation);
     }
 
     /**
@@ -310,7 +381,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public StringLiteralClient buildStringLiteralClient() {
-        return new StringLiteralClient(buildInnerClient().getStringLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new StringLiteralClient(buildInnerClient().getStringLiterals(), instrumentation);
     }
 
     /**
@@ -320,7 +399,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public IntLiteralClient buildIntLiteralClient() {
-        return new IntLiteralClient(buildInnerClient().getIntLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new IntLiteralClient(buildInnerClient().getIntLiterals(), instrumentation);
     }
 
     /**
@@ -330,7 +417,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public FloatLiteralClient buildFloatLiteralClient() {
-        return new FloatLiteralClient(buildInnerClient().getFloatLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new FloatLiteralClient(buildInnerClient().getFloatLiterals(), instrumentation);
     }
 
     /**
@@ -340,7 +435,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public BooleanLiteralClient buildBooleanLiteralClient() {
-        return new BooleanLiteralClient(buildInnerClient().getBooleanLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new BooleanLiteralClient(buildInnerClient().getBooleanLiterals(), instrumentation);
     }
 
     /**
@@ -350,7 +453,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionStringLiteralClient buildUnionStringLiteralClient() {
-        return new UnionStringLiteralClient(buildInnerClient().getUnionStringLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new UnionStringLiteralClient(buildInnerClient().getUnionStringLiterals(), instrumentation);
     }
 
     /**
@@ -360,7 +471,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionIntLiteralClient buildUnionIntLiteralClient() {
-        return new UnionIntLiteralClient(buildInnerClient().getUnionIntLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new UnionIntLiteralClient(buildInnerClient().getUnionIntLiterals(), instrumentation);
     }
 
     /**
@@ -370,7 +489,15 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public UnionFloatLiteralClient buildUnionFloatLiteralClient() {
-        return new UnionFloatLiteralClient(buildInnerClient().getUnionFloatLiterals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new UnionFloatLiteralClient(buildInnerClient().getUnionFloatLiterals(), instrumentation);
     }
 
     /**
@@ -380,6 +507,14 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public RequiredAndOptionalClient buildRequiredAndOptionalClient() {
-        return new RequiredAndOptionalClient(buildInnerClient().getRequiredAndOptionals());
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
+        SdkInstrumentationOptions sdkInstrumentationOptions
+            = new SdkInstrumentationOptions(PROPERTIES.getOrDefault(SDK_NAME, "UnknownName"))
+                .setSdkVersion(PROPERTIES.get(SDK_VERSION));
+        Instrumentation instrumentation
+            = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
+        return new RequiredAndOptionalClient(buildInnerClient().getRequiredAndOptionals(), instrumentation);
     }
 }

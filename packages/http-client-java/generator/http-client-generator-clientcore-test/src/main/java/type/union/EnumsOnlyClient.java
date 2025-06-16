@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.union.implementation.EnumsOnliesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnumsOnliesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of EnumsOnlyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    EnumsOnlyClient(EnumsOnliesImpl serviceClient) {
+    EnumsOnlyClient(EnumsOnliesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<GetResponse6> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("EnumsOnly.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class EnumsOnlyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(EnumsOnlyCases prop, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("EnumsOnly.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(prop, updatedContext));
     }
 
     /**

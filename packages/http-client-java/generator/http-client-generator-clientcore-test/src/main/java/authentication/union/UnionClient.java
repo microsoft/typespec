@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous UnionClient type.
@@ -18,14 +19,18 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnionClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of UnionClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    UnionClient(UnionClientImpl serviceClient) {
+    UnionClient(UnionClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validKeyWithResponse(RequestContext requestContext) {
-        return this.serviceClient.validKeyWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".validKey", requestContext,
+            updatedContext -> this.serviceClient.validKeyWithResponse(updatedContext));
     }
 
     /**
@@ -67,7 +73,8 @@ public final class UnionClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> validTokenWithResponse(RequestContext requestContext) {
-        return this.serviceClient.validTokenWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".validToken", requestContext,
+            updatedContext -> this.serviceClient.validTokenWithResponse(updatedContext));
     }
 
     /**

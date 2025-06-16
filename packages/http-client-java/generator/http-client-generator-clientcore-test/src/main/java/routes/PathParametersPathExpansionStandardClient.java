@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.util.List;
 import java.util.Map;
 import routes.implementation.PathParametersPathExpansionStandardsImpl;
@@ -20,14 +21,19 @@ public final class PathParametersPathExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathParametersPathExpansionStandardsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PathParametersPathExpansionStandardClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PathParametersPathExpansionStandardClient(PathParametersPathExpansionStandardsImpl serviceClient) {
+    PathParametersPathExpansionStandardClient(PathParametersPathExpansionStandardsImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +49,8 @@ public final class PathParametersPathExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> primitiveWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.primitiveWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("PathParametersPathExpansionStandard.primitive",
+            requestContext, updatedContext -> this.serviceClient.primitiveWithResponse(param, updatedContext));
     }
 
     /**
@@ -73,7 +80,8 @@ public final class PathParametersPathExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> arrayWithResponse(List<String> param, RequestContext requestContext) {
-        return this.serviceClient.arrayWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("PathParametersPathExpansionStandard.array", requestContext,
+            updatedContext -> this.serviceClient.arrayWithResponse(param, updatedContext));
     }
 
     /**
@@ -103,7 +111,8 @@ public final class PathParametersPathExpansionStandardClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestContext requestContext) {
-        return this.serviceClient.recordWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("PathParametersPathExpansionStandard.record", requestContext,
+            updatedContext -> this.serviceClient.recordWithResponse(param, updatedContext));
     }
 
     /**

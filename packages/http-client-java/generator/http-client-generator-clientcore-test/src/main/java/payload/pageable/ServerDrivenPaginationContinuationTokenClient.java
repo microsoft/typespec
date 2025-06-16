@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.paging.PagedIterable;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.pageable.implementation.ServerDrivenPaginationContinuationTokensImpl;
 
 /**
@@ -18,14 +19,19 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ServerDrivenPaginationContinuationTokensImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ServerDrivenPaginationContinuationTokenClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ServerDrivenPaginationContinuationTokenClient(ServerDrivenPaginationContinuationTokensImpl serviceClient) {
+    ServerDrivenPaginationContinuationTokenClient(ServerDrivenPaginationContinuationTokensImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -73,7 +79,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseBody(foo, bar, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "ServerDrivenPaginationContinuationToken.requestQueryResponseBody", requestContext,
+            updatedContext -> this.serviceClient.requestQueryResponseBody(foo, bar, updatedContext));
     }
 
     /**
@@ -121,7 +129,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestHeaderResponseBody(foo, bar, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "ServerDrivenPaginationContinuationToken.requestHeaderResponseBody", requestContext,
+            updatedContext -> this.serviceClient.requestHeaderResponseBody(foo, bar, updatedContext));
     }
 
     /**
@@ -169,7 +179,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestQueryResponseHeader(foo, bar, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "ServerDrivenPaginationContinuationToken.requestQueryResponseHeader", requestContext,
+            updatedContext -> this.serviceClient.requestQueryResponseHeader(foo, bar, updatedContext));
     }
 
     /**
@@ -217,6 +229,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar, RequestContext requestContext) {
-        return this.serviceClient.requestHeaderResponseHeader(foo, bar, requestContext);
+        return this.instrumentation.instrumentWithResponse(
+            "ServerDrivenPaginationContinuationToken.requestHeaderResponseHeader", requestContext,
+            updatedContext -> this.serviceClient.requestHeaderResponseHeader(foo, bar, updatedContext));
     }
 }

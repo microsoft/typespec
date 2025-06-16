@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import serialization.encodedname.json.implementation.PropertiesImpl;
 import serialization.encodedname.json.property.JsonEncodedNameModel;
 
@@ -19,14 +20,18 @@ public final class JsonClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of JsonClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    JsonClient(PropertiesImpl serviceClient) {
+    JsonClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class JsonClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(JsonEncodedNameModel body, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(body, updatedContext));
     }
 
     /**
@@ -71,7 +77,8 @@ public final class JsonClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<JsonEncodedNameModel> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**

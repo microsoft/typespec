@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.util.List;
 import parameters.spread.implementation.AliasImpl;
 
@@ -19,14 +20,18 @@ public final class AliasClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final AliasImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of AliasClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    AliasClient(AliasImpl serviceClient) {
+    AliasClient(AliasImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class AliasClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        return this.serviceClient.spreadAsRequestBodyWithResponse(name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Alias.spreadAsRequestBody", requestContext,
+            updatedContext -> this.serviceClient.spreadAsRequestBodyWithResponse(name, updatedContext));
     }
 
     /**
@@ -75,7 +81,9 @@ public final class AliasClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerModelWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        return this.serviceClient.spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Alias.spreadParameterWithInnerModel", requestContext,
+            updatedContext -> this.serviceClient.spreadParameterWithInnerModelWithResponse(id, xMsTestHeader, name,
+                updatedContext));
     }
 
     /**
@@ -110,7 +118,9 @@ public final class AliasClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestParameterWithResponse(String id, String xMsTestHeader, String name,
         RequestContext requestContext) {
-        return this.serviceClient.spreadAsRequestParameterWithResponse(id, xMsTestHeader, name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Alias.spreadAsRequestParameter", requestContext,
+            updatedContext -> this.serviceClient.spreadAsRequestParameterWithResponse(id, xMsTestHeader, name,
+                updatedContext));
     }
 
     /**
@@ -149,8 +159,9 @@ public final class AliasClient {
     public Response<Void> spreadWithMultipleParametersWithResponse(String id, String xMsTestHeader,
         String requiredString, List<Integer> requiredIntList, Integer optionalInt, List<String> optionalStringList,
         RequestContext requestContext) {
-        return this.serviceClient.spreadWithMultipleParametersWithResponse(id, xMsTestHeader, requiredString,
-            requiredIntList, optionalInt, optionalStringList, requestContext);
+        return this.instrumentation.instrumentWithResponse("Alias.spreadWithMultipleParameters", requestContext,
+            updatedContext -> this.serviceClient.spreadWithMultipleParametersWithResponse(id, xMsTestHeader,
+                requiredString, requiredIntList, optionalInt, optionalStringList, updatedContext));
     }
 
     /**
@@ -212,8 +223,9 @@ public final class AliasClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadParameterWithInnerAliasWithResponse(String id, String xMsTestHeader, String name,
         int age, RequestContext requestContext) {
-        return this.serviceClient.spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age,
-            requestContext);
+        return this.instrumentation.instrumentWithResponse("Alias.spreadParameterWithInnerAlias", requestContext,
+            updatedContext -> this.serviceClient.spreadParameterWithInnerAliasWithResponse(id, xMsTestHeader, name, age,
+                updatedContext));
     }
 
     /**

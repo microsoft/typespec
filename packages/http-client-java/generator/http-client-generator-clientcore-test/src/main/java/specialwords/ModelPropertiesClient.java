@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import specialwords.implementation.ModelPropertiesImpl;
 import specialwords.modelproperties.SameAsModel;
 
@@ -19,14 +20,18 @@ public final class ModelPropertiesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelPropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelPropertiesClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelPropertiesClient(ModelPropertiesImpl serviceClient) {
+    ModelPropertiesClient(ModelPropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class ModelPropertiesClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sameAsModelWithResponse(SameAsModel body, RequestContext requestContext) {
-        return this.serviceClient.sameAsModelWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("ModelProperties.sameAsModel", requestContext,
+            updatedContext -> this.serviceClient.sameAsModelWithResponse(body, updatedContext));
     }
 
     /**
