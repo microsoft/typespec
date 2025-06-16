@@ -220,6 +220,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
             Assert.AreEqual(shouldBeOptional, optionsParameter.DefaultValue != null);
+
+            if (!shouldBeOptional)
+            {
+                Assert.IsTrue(protocolMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+            }
         }
 
         [Test]

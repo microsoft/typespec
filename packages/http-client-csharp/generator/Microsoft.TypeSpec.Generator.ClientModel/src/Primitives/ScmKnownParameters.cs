@@ -37,12 +37,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
             ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType.WithNullable(true),
             defaultValue: Null);
         public static readonly ParameterProvider RequestOptions = new(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
-        public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
         public static readonly ParameterProvider CancellationToken = new("cancellationToken", $"The cancellation token that can be used to cancel the operation.", new CSharpType(typeof(CancellationToken)), defaultValue: Default);
 
+        private static readonly FormattableString RequestContentDescription = $"The content to send as the body of the request.";
+        private const string RequestContentParameterName = "content";
+
+        public static readonly ParameterProvider RequestContent = new(
+            RequestContentParameterName,
+            RequestContentDescription,
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body)
+        {
+            Validation = ParameterValidationType.AssertNotNull
+        };
+
+        public static readonly ParameterProvider NullableRequiredRequestContent = new(
+            RequestContentParameterName,
+            RequestContentDescription,
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(false),
+            location: ParameterLocation.Body);
+
         public static readonly ParameterProvider OptionalRequestContent = new(
-            "content",
-            $"The content to send as the body of the request.",
+            RequestContentParameterName,
+            RequestContentDescription,
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
             location: ParameterLocation.Body,
             defaultValue: Default);

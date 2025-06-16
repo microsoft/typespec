@@ -548,7 +548,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // don't mutate the static request content parameter
                     if (parameter.Equals(ScmKnownParameters.OptionalRequestContent))
                     {
-                        newlyRequiredParameters.Add(ScmKnownParameters.RequestContent);
+                        newlyRequiredParameters.Add(ScmKnownParameters.NullableRequiredRequestContent);
                         continue;
                     }
                     parameter.DefaultValue = null;
