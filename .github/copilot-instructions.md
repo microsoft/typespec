@@ -36,7 +36,10 @@
      pnpm format                 # Clean up formatting
      pnpm lint                   # Fix linting issues
      ```
-   - Fix any errors found during these checks
+   - If ANY command fails:
+     1. Fix the reported errors
+     2. Re-run ALL validation commands from the beginning
+     3. Repeat until ALL commands pass successfully
    - For spelling issues:
      - If the word is valid: add to `cspell.yaml`
      - If invalid but needed: use cspell disables
