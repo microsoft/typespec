@@ -61,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
             RequestContentDescription,
             ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
             location: ParameterLocation.Body,
-            defaultValue: Default);
+            defaultValue: Null);
 
         // Known header parameters
         public static readonly ParameterProvider RepeatabilityRequestId = new("repeatabilityRequestId", FormattableStringHelpers.Empty, typeof(Guid))
