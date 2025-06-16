@@ -613,7 +613,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection.Type,
                         [
                             This,
-                            .. GetProtocolMethodArguments(declarations)]))
+                            .. GetProtocolMethodArguments(declarations)
+                        ]))
                     ];
             }
 
